@@ -31,6 +31,10 @@
     <link rel="stylesheet" href="css/enhanced.css">
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/layout-fixes.css">
+    <link rel="stylesheet" href="css/content-hierarchy.css">
+    <link rel="stylesheet" href="css/visual-improvements.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/accessibility.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
@@ -39,8 +43,11 @@
     <link rel="preload" href="js/main.js" as="script">
 </head>
 <body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
     <!-- Loading Screen -->
-    <div id="loading-screen" class="loading-screen">
+    <div id="loading-screen" class="loading-screen" aria-hidden="true" role="progressbar" aria-label="Loading portfolio content">
         <div class="loading-content">
             <div class="terminal-window">
                 <div class="terminal-header">
@@ -125,15 +132,15 @@
     </nav>
 
     <!-- Hero Section -->
-    <section id="home" class="hero">
+    <section id="home" class="hero" role="main">
         <div class="hero-bg-animation"></div>
         <div class="hero-container">
-            <div class="hero-content">
+            <div class="hero-content" data-animate>
                 <div class="profile-section">
                     <div class="profile-img">
-                        <img src="images/profile.jpg" alt="M Zulfan - Full Stack Developer" loading="eager">
-                        <div class="status-indicator">
-                            <span class="status-dot"></span>
+                        <img src="images/profile.jpg" alt="M Zulfan - Professional Full Stack Developer from Jakarta, Indonesia, specializing in modern web technologies including React, Node.js, and cloud solutions" loading="eager">
+                        <div class="status-indicator" role="status" aria-label="Currently available for new projects">
+                            <span class="status-dot" aria-hidden="true"></span>
                             <span class="status-text">Available for work</span>
                         </div>
                     </div>
@@ -251,9 +258,9 @@
     </section>
 
     <!-- Skills Section -->
-    <section id="skills" class="skills-section">
+    <section id="skills" class="skills-section" data-animate>
         <div class="container">
-            <div class="section-header">
+            <div class="section-header" data-animate>
                 <h2 class="section-title">Technical Expertise</h2>
                 <p class="section-subtitle">Technologies I work with to bring ideas to life</p>
             </div>
@@ -1082,14 +1089,14 @@
                     <div class="footer-brand">
                         <h3>&lt;M Zulfan/&gt;</h3>
                         <p>Full Stack Developer passionate about creating innovative digital solutions.</p>
-                        <div class="footer-social" style="display: flex !important; flex-direction: row !important; gap: 1rem !important; margin-top: 1rem !important;">
-                            <a href="https://github.com/Zulfan15" target="_blank" aria-label="GitHub">
+                        <div class="footer-social">
+                            <a href="https://github.com/Zulfan15" target="_blank" aria-label="GitHub Profile - View my code repositories">
                                 <i class="fab fa-github"></i>
                             </a>
-                            <a href="https://linkedin.com/in/zulfan15" target="_blank" aria-label="LinkedIn">
+                            <a href="https://linkedin.com/in/zulfan15" target="_blank" aria-label="LinkedIn Profile - Connect with me professionally">
                                 <i class="fab fa-linkedin"></i>
                             </a>
-                            <a href="https://twitter.com/zulfan15" target="_blank" aria-label="Twitter">
+                            <a href="https://twitter.com/zulfan15" target="_blank" aria-label="Twitter Profile - Follow my updates">
                                 <i class="fab fa-twitter"></i>
                             </a>
                         </div>
@@ -1168,8 +1175,10 @@
     <div id="notification-container" class="notification-container"></div>
 
     <!-- Scripts -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
-    <script src="js/main.js"></script>
-    <script src="js/enhanced.js"></script>
+    <script src="js/performance.js"></script>
+    <script src="js/navigation.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js" defer></script>
+    <script src="js/main.js" defer></script>
+    <script src="js/enhanced.js" defer></script>
 </body>
 </html>

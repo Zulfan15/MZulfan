@@ -1,0 +1,298 @@
+/* Accessibility Improvements CSS */
+
+/* Enhanced Focus Management */
+*:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+    transition: outline var(--transition-fast) ease;
+}
+
+/* Skip to main content link */
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 6px;
+    background: var(--primary-color);
+    color: var(--bg-dark);
+    padding: 8px;
+    text-decoration: none;
+    border-radius: 4px;
+    z-index: 10001;
+    font-weight: 600;
+    transition: top var(--transition-fast) ease;
+}
+
+.skip-link:focus {
+    top: 6px;
+    outline: 2px solid var(--bg-dark);
+}
+
+/* High Contrast Focus States */
+.nav-link:focus,
+.btn:focus,
+.social-link:focus {
+    outline: 3px solid var(--primary-color);
+    outline-offset: 2px;
+    background: rgba(0, 212, 170, 0.1);
+    box-shadow: 0 0 0 1px rgba(0, 212, 170, 0.3);
+}
+
+/* Enhanced Button Focus */
+.btn:focus {
+    transform: translateY(-2px);
+    box-shadow: 
+        0 0 0 3px rgba(0, 212, 170, 0.3),
+        0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Form Focus States */
+input:focus,
+textarea:focus,
+select:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(0, 212, 170, 0.1);
+}
+
+/* Improved Text Contrast */
+:root {
+    /* Enhanced contrast ratios for WCAG AAA compliance */
+    --text-primary: #ffffff;
+    --text-secondary: #e0e0e0; /* Improved from #b3b3b3 */
+    --text-muted: #a0a0a0; /* Improved from #666666 */
+    --link-color: #00f5d4; /* Higher contrast primary */
+    --link-hover: #00d4aa;
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+    :root {
+        --text-primary: #ffffff;
+        --text-secondary: #ffffff;
+        --text-muted: #f0f0f0;
+        --bg-dark: #000000;
+        --bg-darker: #111111;
+        --border-color: #555555;
+        --primary-color: #00ffcc;
+    }
+
+    .btn {
+        border: 2px solid currentColor;
+    }
+    
+    .portfolio-overlay {
+        background: rgba(0, 0, 0, 0.95);
+    }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+
+    .hero-bg-animation {
+        animation: none;
+    }
+
+    .particles-js {
+        display: none;
+    }
+
+    .loading-screen {
+        display: none !important;
+    }
+
+    .scroll-progress-bar {
+        animation: none;
+    }
+}
+
+/* Screen Reader Only Content */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.sr-only-focusable:focus {
+    position: static;
+    width: auto;
+    height: auto;
+    padding: inherit;
+    margin: inherit;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+}
+
+/* Improved Link States */
+a {
+    color: var(--link-color);
+    text-decoration: none;
+    transition: all var(--transition-fast) ease;
+}
+
+a:hover {
+    color: var(--link-hover);
+    text-decoration: underline;
+}
+
+a:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+/* Enhanced Form Labels */
+label {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+/* Error and Success States */
+.form-error {
+    color: var(--error-color);
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.form-success {
+    color: var(--code-color);
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Keyboard Navigation Enhancement */
+.nav-menu a[tabindex="0"]:focus,
+.portfolio-item[tabindex="0"]:focus {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+/* Color Blind Friendly Indicators */
+.status-indicator::after {
+    content: "●";
+    color: var(--code-color);
+    margin-left: 0.5rem;
+    font-size: 1.2rem;
+}
+
+/* Enhanced Typography for Readability */
+body {
+    line-height: 1.6;
+    font-size: 18px; /* Increased base font size */
+}
+
+h1, h2, h3, h4, h5, h6 {
+    line-height: 1.3;
+    margin-bottom: 1rem;
+}
+
+p {
+    margin-bottom: 1.5rem;
+    max-width: 70ch; /* Optimal reading width */
+}
+
+/* Large Text Support */
+@media (min-width: 1200px) {
+    body {
+        font-size: 20px;
+    }
+}
+
+/* Touch Target Optimization */
+@media (max-width: 768px) {
+    .nav-link,
+    .btn,
+    .social-link,
+    .filter-btn,
+    .portfolio-btn {
+        min-height: 44px;
+        min-width: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+/* Loading States Accessibility */
+.loading-spinner {
+    border: 3px solid var(--border-color);
+    border-top: 3px solid var(--primary-color);
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: spin 1s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .loading-spinner {
+        animation: none;
+        border-top-color: var(--primary-color);
+    }
+}
+
+/* Custom Focus for Interactive Elements */
+.portfolio-item:focus-within {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 4px;
+    transform: translateY(-2px);
+}
+
+/* Enhanced Modal Accessibility */
+.modal[aria-hidden="true"] {
+    display: none;
+}
+
+.modal[aria-hidden="false"] {
+    display: flex;
+}
+
+/* Status Messages */
+.status-message {
+    padding: 1rem;
+    border-radius: var(--radius-normal);
+    margin: 1rem 0;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.status-message.success {
+    background: rgba(80, 250, 123, 0.1);
+    border: 1px solid var(--code-color);
+    color: var(--code-color);
+}
+
+.status-message.error {
+    background: rgba(255, 85, 85, 0.1);
+    border: 1px solid var(--error-color);
+    color: var(--error-color);
+}
+
+.status-message.warning {
+    background: rgba(255, 183, 0, 0.1);
+    border: 1px solid var(--warning-color);
+    color: var(--warning-color);
+}

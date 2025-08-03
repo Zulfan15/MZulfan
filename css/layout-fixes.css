@@ -130,7 +130,164 @@
     padding-left: 14px;
 }
 
-/* Footer Social Media Horizontal Layout */
+/* Footer Social Links - Remove Inline Styles */
+.footer-social {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 1rem !important;
+    margin-top: 1rem !important;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.footer-social a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 50%;
+    color: var(--text-secondary);
+    transition: all var(--transition-normal) ease;
+    text-decoration: none;
+}
+
+.footer-social a:hover {
+    background: var(--primary-color);
+    color: var(--bg-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 212, 170, 0.3);
+}
+
+.footer-social a:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+/* Navigation Improvements */
+.nav-menu {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Improved Smooth Scrolling */
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 70px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+}
+
+/* Breadcrumb Navigation */
+.breadcrumb {
+    position: fixed;
+    top: 70px;
+    right: 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-normal);
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+    opacity: 0;
+    visibility: hidden;
+    transition: all var(--transition-normal) ease;
+}
+
+.breadcrumb.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.breadcrumb-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.breadcrumb-separator {
+    margin: 0 0.5rem;
+    color: var(--text-muted);
+}
+
+/* Enhanced Section Indicators */
+.section-indicator {
+    position: fixed;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.section-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--border-color);
+    border: 2px solid var(--bg-card);
+    cursor: pointer;
+    transition: all var(--transition-normal) ease;
+    position: relative;
+}
+
+.section-dot.active {
+    background: var(--primary-color);
+    transform: scale(1.2);
+}
+
+.section-dot:hover {
+    background: var(--primary-color);
+}
+
+.section-dot::after {
+    content: attr(data-section);
+    position: absolute;
+    right: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--bg-card);
+    color: var(--text-primary);
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-small);
+    font-size: 0.7rem;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all var(--transition-fast) ease;
+    margin-right: 0.5rem;
+    border: 1px solid var(--border-color);
+}
+
+.section-dot:hover::after {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Mobile Section Indicators */
+@media (max-width: 768px) {
+    .section-indicator {
+        display: none;
+    }
+    
+    .breadcrumb {
+        position: relative;
+        top: 0;
+        right: 0;
+        margin: 1rem 0;
+        width: 100%;
+        text-align: center;
+    }
+}
 .footer-social {
     display: flex !important;
     flex-direction: row !important;
