@@ -4,7 +4,7 @@ Website portfolio pribadi yang modern dan responsif dengan integrasi social medi
 
 ## 🚀 Demo
 
-🌐 **Live Demo:** [https://yourusername.github.io/my-portfolio](https://yourusername.github.io/my-portfolio)
+🌐 **Live Demo:** [https://zulfan15.github.io/MZulfan](https://zulfan15.github.io/MZulfan)
 
 ## ✨ Fitur
 
@@ -44,8 +44,8 @@ my-portfolio/
 
 ### 1. Clone Repository
 ```bash
-git clone https://github.com/yourusername/my-portfolio.git
-cd my-portfolio
+git clone https://github.com/Zulfan15/MZulfan.git
+cd MZulfan
 ```
 
 ### 2. Kustomisasi
@@ -73,7 +73,7 @@ git push origin main
    - Save
 
 3. **Website akan tersedia di:**
-   `https://yourusername.github.io/my-portfolio`
+   `https://zulfan15.github.io/MZulfan`
 
 ## 🎨 Kustomisasi
 
@@ -102,12 +102,12 @@ Duplikasi dan edit bagian `.portfolio-item` di `index.html`.
 
 Update link berikut di `index.html`:
 
-- **GitHub:** `https://github.com/yourusername`
-- **LinkedIn:** `https://linkedin.com/in/yourusername`
-- **Instagram:** `https://instagram.com/yourusername`
-- **Twitter:** `https://twitter.com/yourusername`
+- **GitHub:** `https://github.com/Zulfan15`
+- **LinkedIn:** `https://linkedin.com/in/zulfan15`
+- **Instagram:** `https://instagram.com/zulfan15`
+- **Twitter:** `https://twitter.com/zulfan15`
 - **WhatsApp:** `https://wa.me/6281234567890`
-- **Email:** `your.email@gmail.com`
+- **Email:** `zulfan@gmail.com`
 
 ## 🔧 Pengembangan Lanjutan
 
@@ -156,9 +156,9 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 ## 📞 Contact
 
-**Nama Anda** - [@yourusername](https://twitter.com/yourusername) - your.email@gmail.com
+**M Zulfan** - [@zulfan15](https://twitter.com/zulfan15) - zulfan@gmail.com
 
-Project Link: [https://github.com/yourusername/my-portfolio](https://github.com/yourusername/my-portfolio)
+Project Link: [https://github.com/Zulfan15/MZulfan](https://github.com/Zulfan15/MZulfan)
 
 ---
 
