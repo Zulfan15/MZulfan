@@ -1,70 +1,447 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portfolio | M Zulfan</title>
-    <meta name="description" content="Portfolio pribadi M Zulfan dan link social media">
+    <title>M Zulfan | Full Stack Developer & Software Engineer</title>
+    <meta name="description" content="Professional portfolio of M Zulfan - Full Stack Developer specializing in modern web technologies, scalable applications, and innovative digital solutions">
+    <meta name="keywords" content="Full Stack Developer, Software Engineer, JavaScript, React, Node.js, Web Development, Portfolio">
+    <meta name="author" content="M Zulfan">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://zulfan.dev/">
+    <meta property="og:title" content="M Zulfan | Full Stack Developer">
+    <meta property="og:description" content="Professional portfolio showcasing modern web development expertise">
+    <meta property="og:image" content="images/og-image.jpg">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://zulfan.dev/">
+    <meta property="twitter:title" content="M Zulfan | Full Stack Developer">
+    <meta property="twitter:description" content="Professional portfolio showcasing modern web development expertise">
+    <meta property="twitter:image" content="images/og-image.jpg">
+
+    <!-- Favicon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="images/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="images/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="images/favicon.ico">
+    
     <link rel="stylesheet" href="css/styles.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/enhanced.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/layout-fixes.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="css/styles.css" as="style">
+    <link rel="preload" href="js/main.js" as="script">
 </head>
 <body>
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-content">
+            <div class="terminal-window">
+                <div class="terminal-header">
+                    <div class="terminal-buttons">
+                        <span class="btn-close"></span>
+                        <span class="btn-minimize"></span>
+                        <span class="btn-maximize"></span>
+                    </div>
+                    <div class="terminal-title">zulfan@portfolio:~$</div>
+                </div>
+                <div class="terminal-body">
+                    <div class="loading-text">
+                        <span class="prompt">$ </span>
+                        <span class="command" id="loading-command"></span>
+                        <span class="cursor-loading">|</span>
+                    </div>
+                    <div class="loading-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill"></div>
+                        </div>
+                        <div class="progress-text">Loading portfolio...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Particles Background -->
+    <div id="particles-js"></div>
+
+    <!-- Scroll Progress Bar -->
+    <div class="scroll-progress">
+        <div class="scroll-progress-bar"></div>
+    </div>
     <!-- Navigation -->
-    <nav class="navbar">
+    <nav class="navbar" id="navbar">
         <div class="nav-container">
             <div class="nav-logo">
-                <a href="#home">Portfolio</a>
+                <a href="#home">
+                    <span class="logo-bracket">&lt;</span>
+                    <span class="logo-text">Zulfan</span>
+                    <span class="logo-bracket">/&gt;</span>
+                </a>
             </div>
             <div class="nav-menu" id="nav-menu">
-                <a href="#home" class="nav-link">Home</a>
-                <a href="#about" class="nav-link">About</a>
-                <a href="#portfolio" class="nav-link">Portfolio</a>
-                <a href="#contact" class="nav-link">Contact</a>
+                <a href="#home" class="nav-link active" data-section="home">
+                    <i class="fas fa-home"></i>
+                    <span>Home</span>
+                </a>
+                <a href="#about" class="nav-link" data-section="about">
+                    <i class="fas fa-user"></i>
+                    <span>About</span>
+                </a>
+                <a href="#skills" class="nav-link" data-section="skills">
+                    <i class="fas fa-code"></i>
+                    <span>Skills</span>
+                </a>
+                <a href="#portfolio" class="nav-link" data-section="portfolio">
+                    <i class="fas fa-briefcase"></i>
+                    <span>Projects</span>
+                </a>
+                <a href="#experience" class="nav-link" data-section="experience">
+                    <i class="fas fa-trophy"></i>
+                    <span>Experience</span>
+                </a>
+                <a href="#contact" class="nav-link" data-section="contact">
+                    <i class="fas fa-envelope"></i>
+                    <span>Contact</span>
+                </a>
             </div>
-            <div class="nav-toggle" id="nav-toggle">
-                <span class="bar"></span>
-                <span class="bar"></span>
-                <span class="bar"></span>
+            <div class="nav-controls">
+                <button class="theme-toggle" id="theme-toggle" title="Toggle Theme">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <div class="nav-toggle" id="nav-toggle">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                </div>
             </div>
         </div>
     </nav>
 
     <!-- Hero Section -->
     <section id="home" class="hero">
+        <div class="hero-bg-animation"></div>
         <div class="hero-container">
             <div class="hero-content">
-                <div class="profile-img">
-                    <img src="images/profile.jpg" alt="Profile Picture">
+                <div class="profile-section">
+                    <div class="profile-img">
+                        <img src="images/profile.jpg" alt="M Zulfan - Full Stack Developer" loading="eager">
+                        <div class="status-indicator">
+                            <span class="status-dot"></span>
+                            <span class="status-text">Available for work</span>
+                        </div>
+                    </div>
                 </div>
-                <h1 class="hero-title">Halo, Saya <span class="highlight">M Zulfan</span></h1>
-                <p class="hero-subtitle">Web Developer & Designer</p>
-                <p class="hero-description">Saya seorang developer yang passionate dalam menciptakan pengalaman web yang menakjubkan</p>
                 
-                <!-- Social Media Links -->
+                <div class="intro-section">
+                    <div class="greeting">
+                        <span class="wave">👋</span>
+                        <span class="greeting-text">Hello, I'm</span>
+                    </div>
+                    <h1 class="hero-title">
+                        <span class="name-highlight">M Zulfan</span>
+                    </h1>
+                    <div class="terminal-container">
+                        <div class="terminal-window-hero">
+                            <div class="terminal-header-hero">
+                                <div class="terminal-buttons-hero">
+                                    <span class="btn-red"></span>
+                                    <span class="btn-yellow"></span>
+                                    <span class="btn-green"></span>
+                                </div>
+                                <div class="terminal-title-hero">zulfan@developer</div>
+                            </div>
+                            <div class="terminal-body-hero">
+                                <div class="terminal-line">
+                                    <span class="prompt-symbol">$</span>
+                                    <span class="command-text">whoami</span>
+                                </div>
+                                <div class="terminal-output">
+                                    <p class="hero-subtitle" id="hero-subtitle"></p>
+                                </div>
+                                <div class="terminal-line">
+                                    <span class="prompt-symbol">$</span>
+                                    <span class="command-text">cat description.txt</span>
+                                </div>
+                                <div class="terminal-output">
+                                    <p class="hero-description">Passionate about creating scalable, efficient solutions using cutting-edge technologies. Specialized in full-stack development with modern frameworks and cloud infrastructure.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Enhanced Stats -->
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <div class="stat-number" data-target="50">0</div>
+                        <div class="stat-label">Projects Completed</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" data-target="3">0</div>
+                        <div class="stat-label">Years Experience</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" data-target="25">0</div>
+                        <div class="stat-label">Happy Clients</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" data-target="15">0</div>
+                        <div class="stat-label">Technologies</div>
+                    </div>
+                </div>
+
+                <!-- Social Links -->
                 <div class="social-links">
-                    <a href="https://github.com/Zulfan15" target="_blank" class="social-link">
+                    <a href="https://github.com/Zulfan15" target="_blank" class="social-link" data-tooltip="GitHub">
                         <i class="fab fa-github"></i>
+                        <span class="social-label">GitHub</span>
                     </a>
-                    <a href="https://linkedin.com/in/zulfan15" target="_blank" class="social-link">
+                    <a href="https://linkedin.com/in/zulfan15" target="_blank" class="social-link" data-tooltip="LinkedIn">
                         <i class="fab fa-linkedin"></i>
+                        <span class="social-label">LinkedIn</span>
                     </a>
-                    <a href="https://instagram.com/zulfan15" target="_blank" class="social-link">
+                    <a href="https://instagram.com/zulfan15" target="_blank" class="social-link" data-tooltip="Instagram">
                         <i class="fab fa-instagram"></i>
+                        <span class="social-label">Instagram</span>
                     </a>
-                    <a href="https://twitter.com/zulfan15" target="_blank" class="social-link">
+                    <a href="https://twitter.com/zulfan15" target="_blank" class="social-link" data-tooltip="Twitter">
                         <i class="fab fa-twitter"></i>
+                        <span class="social-label">Twitter</span>
                     </a>
-                    <a href="mailto:zulfan@gmail.com" class="social-link">
+                    <a href="mailto:zulfan@gmail.com" class="social-link" data-tooltip="Email">
                         <i class="fas fa-envelope"></i>
+                        <span class="social-label">Email</span>
                     </a>
                 </div>
 
+                <!-- Enhanced Action Buttons -->
                 <div class="hero-buttons">
-                    <a href="#portfolio" class="btn btn-primary">Lihat Portfolio</a>
-                    <a href="assets/CV.pdf" target="_blank" class="btn btn-secondary">
-                        <i class="fas fa-download"></i> Download CV
+                    <a href="#portfolio" class="btn btn-primary btn-glow">
+                        <i class="fas fa-code"></i>
+                        <span>View My Work</span>
+                        <div class="btn-shine"></div>
                     </a>
+                    <a href="assets/CV.pdf" target="_blank" class="btn btn-secondary btn-download">
+                        <i class="fas fa-download"></i>
+                        <span>Download Resume</span>
+                        <div class="download-progress"></div>
+                    </a>
+                    <button class="btn btn-outline btn-contact" onclick="scrollToContact()">
+                        <i class="fas fa-paper-plane"></i>
+                        <span>Let's Talk</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Scroll Indicator -->
+        <div class="scroll-indicator">
+            <div class="scroll-arrow">
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <span class="scroll-text">Scroll to explore</span>
+        </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section id="skills" class="skills-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Technical Expertise</h2>
+                <p class="section-subtitle">Technologies I work with to bring ideas to life</p>
+            </div>
+
+            <div class="skills-container">
+                <!-- Frontend Skills -->
+                <div class="skill-category">
+                    <div class="category-header">
+                        <i class="fas fa-palette"></i>
+                        <h3>Frontend Development</h3>
+                    </div>
+                    <div class="skills-grid">
+                        <div class="skill-item" data-skill="react">
+                            <div class="skill-icon">
+                                <i class="fab fa-react"></i>
+                            </div>
+                            <div class="skill-info">
+                                <h4>React.js</h4>
+                                <div class="skill-bar">
+                                    <div class="skill-progress" data-width="90%"></div>
+                                </div>
+                                <span class="skill-percentage">90%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="skill-item" data-skill="nextjs">
+                            <div class="skill-icon">
+                                <svg viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M11.5725 0c-.1763 0-.3098.0013-.3584.0067-.0516.0053-.2159.021-.3636.0328-3.4088.3073-6.6017 2.1463-8.624 4.9728C1.1004 6.584.3802 8.3666.1082 10.255c-.0962.659-.108.8537-.108 1.7474s.012 1.0884.108 1.7476c.652 4.506 3.8591 8.2919 8.2087 9.6945.7789.2511 1.6.4223 2.5337.5255.3636.04 1.9354.04 2.299 0 1.6117-.1783 2.9772-.577 4.3237-1.2643.2065-.1056.2464-.1337.2183-.1573-.0188-.0139-.8987-1.1938-1.9543-2.62l-1.919-2.592-2.4047-3.5583c-1.3231-1.9564-2.4117-3.556-2.4211-3.556-.0094-.0026-.0187 1.5787-.0235 3.509-.0067 3.3802-.0093 3.5162-.0516 3.596-.061.115-.108.1618-.2064.2134-.075.0374-.1408.0445-.5429.0445h-.4570.3.080-.186 0l.198-.1 .101-.104c.2604-2.5447.7634-5.0178 1.5003-7.3528.0796-.249.3139-.8663.4572-1.2036.1373-.325.3185-.7547.3991-.9542l.1456-.36.3928-.9746.4193-1.0387c.6423-1.5946 1.3377-3.1283 2.0693-4.5557.5003-1.3396.9613-2.6165 1.3704-3.1938.4092-.5772.9216-1.1367 1.3704-1.496.6426-.5232 1.3628-.8664 2.1352-1.028.4299-.0895.8708-.1336 1.3208-.1336.4499 0 .8908.0441 1.3207.1336.4297.0895.8538.2245 1.2729.4042 1.1741.5022 2.1678 1.3825 2.8628 2.5372.2603.4335.4795.9205.656 1.4608.1765.5403.3069 1.0924.391 1.6495.1681 1.1144.2007 2.3084.1007 3.4574-.1 1.1489-.3683 2.3002-.8004 3.3857-.4322 1.0855-1.0616 2.0838-1.8778 2.977-.8161.8932-1.8177 1.6779-2.9858 2.3393-.5841.3307-1.1991.5963-1.8378.7928-.6387.1965-1.2991.325-1.9694.3825-.6703.0576-1.3495.0434-2.0247-.042-.6752-.0854-1.3446-.2554-1.9971-.5076-.6525-.252-1.2859-.581-1.8903-.9815z"/>
+                                </svg>
+                            </div>
+                            <div class="skill-info">
+                                <h4>Next.js</h4>
+                                <div class="skill-bar">
+                                    <div class="skill-progress" data-width="85%"></div>
+                                </div>
+                                <span class="skill-percentage">85%</span>
+                            </div>
+                        </div>
+
+                        <div class="skill-item" data-skill="typescript">
+                            <div class="skill-icon">
+                                <i class="fab fa-typescript"></i>
+                            </div>
+                            <div class="skill-info">
+                                <h4>TypeScript</h4>
+                                <div class="skill-bar">
+                                    <div class="skill-progress" data-width="88%"></div>
+                                </div>
+                                <span class="skill-percentage">88%</span>
+                            </div>
+                        </div>
+
+                        <div class="skill-item" data-skill="vue">
+                            <div class="skill-icon">
+                                <i class="fab fa-vuejs"></i>
+                            </div>
+                            <div class="skill-info">
+                                <h4>Vue.js</h4>
+                                <div class="skill-bar">
+                                    <div class="skill-progress" data-width="75%"></div>
+                                </div>
+                                <span class="skill-percentage">75%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Backend Skills -->
+                <div class="skill-category">
+                    <div class="category-header">
+                        <i class="fas fa-server"></i>
+                        <h3>Backend Development</h3>
+                    </div>
+                    <div class="skills-grid">
+                        <div class="skill-item" data-skill="nodejs">
+                            <div class="skill-icon">
+                                <i class="fab fa-node-js"></i>
+                            </div>
+                            <div class="skill-info">
+                                <h4>Node.js</h4>
+                                <div class="skill-bar">
+                                    <div class="skill-progress" data-width="92%"></div>
+                                </div>
+                                <span class="skill-percentage">92%</span>
+                            </div>
+                        </div>
+
+                        <div class="skill-item" data-skill="python">
+                            <div class="skill-icon">
+                                <i class="fab fa-python"></i>
+                            </div>
+                            <div class="skill-info">
+                                <h4>Python</h4>
+                                <div class="skill-bar">
+                                    <div class="skill-progress" data-width="85%"></div>
+                                </div>
+                                <span class="skill-percentage">85%</span>
+                            </div>
+                        </div>
+
+                        <div class="skill-item" data-skill="mongodb">
+                            <div class="skill-icon">
+                                <i class="fas fa-database"></i>
+                            </div>
+                            <div class="skill-info">
+                                <h4>MongoDB</h4>
+                                <div class="skill-bar">
+                                    <div class="skill-progress" data-width="80%"></div>
+                                </div>
+                                <span class="skill-percentage">80%</span>
+                            </div>
+                        </div>
+
+                        <div class="skill-item" data-skill="postgresql">
+                            <div class="skill-icon">
+                                <i class="fas fa-database"></i>
+                            </div>
+                            <div class="skill-info">
+                                <h4>PostgreSQL</h4>
+                                <div class="skill-bar">
+                                    <div class="skill-progress" data-width="78%"></div>
+                                </div>
+                                <span class="skill-percentage">78%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DevOps & Tools -->
+                <div class="skill-category">
+                    <div class="category-header">
+                        <i class="fas fa-cloud"></i>
+                        <h3>DevOps & Tools</h3>
+                    </div>
+                    <div class="skills-grid">
+                        <div class="skill-item" data-skill="docker">
+                            <div class="skill-icon">
+                                <i class="fab fa-docker"></i>
+                            </div>
+                            <div class="skill-info">
+                                <h4>Docker</h4>
+                                <div class="skill-bar">
+                                    <div class="skill-progress" data-width="82%"></div>
+                                </div>
+                                <span class="skill-percentage">82%</span>
+                            </div>
+                        </div>
+
+                        <div class="skill-item" data-skill="aws">
+                            <div class="skill-icon">
+                                <i class="fab fa-aws"></i>
+                            </div>
+                            <div class="skill-info">
+                                <h4>AWS</h4>
+                                <div class="skill-bar">
+                                    <div class="skill-progress" data-width="75%"></div>
+                                </div>
+                                <span class="skill-percentage">75%</span>
+                            </div>
+                        </div>
+
+                        <div class="skill-item" data-skill="git">
+                            <div class="skill-icon">
+                                <i class="fab fa-git-alt"></i>
+                            </div>
+                            <div class="skill-info">
+                                <h4>Git</h4>
+                                <div class="skill-bar">
+                                    <div class="skill-progress" data-width="95%"></div>
+                                </div>
+                                <span class="skill-percentage">95%</span>
+                            </div>
+                        </div>
+
+                        <div class="skill-item" data-skill="kubernetes">
+                            <div class="skill-icon">
+                                <i class="fas fa-dharmachakra"></i>
+                            </div>
+                            <div class="skill-info">
+                                <h4>Kubernetes</h4>
+                                <div class="skill-bar">
+                                    <div class="skill-progress" data-width="70%"></div>
+                                </div>
+                                <span class="skill-percentage">70%</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -73,20 +450,214 @@
     <!-- About Section -->
     <section id="about" class="about">
         <div class="container">
-            <h2 class="section-title">Tentang Saya</h2>
-            <div class="about-content">
-                <div class="about-text">
-                    <p>Saya adalah seorang web developer yang passionate dalam menciptakan pengalaman digital yang menakjubkan. Dengan pengalaman dalam berbagai teknologi modern, saya selalu berusaha memberikan solusi terbaik untuk setiap project.</p>
-                    
-                    <div class="skills">
-                        <h3>Skills</h3>
-                        <div class="skill-tags">
-                            <span class="skill-tag">HTML/CSS</span>
-                            <span class="skill-tag">JavaScript</span>
-                            <span class="skill-tag">React</span>
-                            <span class="skill-tag">Node.js</span>
-                            <span class="skill-tag">Python</span>
-                            <span class="skill-tag">UI/UX Design</span>
+            <div class="section-header">
+                <h2 class="section-title">About Me</h2>
+                <p class="section-subtitle">Passionate developer with a love for clean code and innovative solutions</p>
+            </div>
+            
+            <div class="about-grid">
+                <div class="about-content">
+                    <div class="about-text">
+                        <h3>Hello! I'm M Zulfan</h3>
+                        <p>I'm a passionate full-stack developer based in Jakarta, Indonesia. My journey in web development started 3 years ago, and I've been fascinated by the endless possibilities of creating digital experiences that matter.</p>
+                        
+                        <p>I specialize in building scalable web applications using modern technologies. My approach combines technical expertise with creative problem-solving to deliver solutions that not only work flawlessly but also provide exceptional user experiences.</p>
+                        
+                        <p>When I'm not coding, you can find me exploring new technologies, contributing to open-source projects, or sharing my knowledge with the developer community.</p>
+                        
+                        <div class="about-highlights">
+                            <div class="highlight-item">
+                                <i class="fas fa-code"></i>
+                                <div>
+                                    <h4>Clean Code Advocate</h4>
+                                    <p>Writing maintainable, readable code that stands the test of time</p>
+                                </div>
+                            </div>
+                            <div class="highlight-item">
+                                <i class="fas fa-rocket"></i>
+                                <div>
+                                    <h4>Performance Focused</h4>
+                                    <p>Optimizing applications for speed and efficiency</p>
+                                </div>
+                            </div>
+                            <div class="highlight-item">
+                                <i class="fas fa-users"></i>
+                                <div>
+                                    <h4>Team Player</h4>
+                                    <p>Collaborating effectively in agile development environments</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="about-visual">
+                    <div class="code-window">
+                        <div class="code-header">
+                            <div class="code-buttons">
+                                <span class="code-btn red"></span>
+                                <span class="code-btn yellow"></span>
+                                <span class="code-btn green"></span>
+                            </div>
+                            <div class="code-title">developer.js</div>
+                        </div>
+                        <div class="code-content">
+                            <div class="code-line">
+                                <span class="line-number">1</span>
+                                <span class="code-text">
+                                    <span class="keyword">const</span> 
+                                    <span class="variable">developer</span> = {
+                                </span>
+                            </div>
+                            <div class="code-line">
+                                <span class="line-number">2</span>
+                                <span class="code-text">
+                                    &nbsp;&nbsp;<span class="property">name</span>: 
+                                    <span class="string">'M Zulfan'</span>,
+                                </span>
+                            </div>
+                            <div class="code-line">
+                                <span class="line-number">3</span>
+                                <span class="code-text">
+                                    &nbsp;&nbsp;<span class="property">role</span>: 
+                                    <span class="string">'Full Stack Developer'</span>,
+                                </span>
+                            </div>
+                            <div class="code-line">
+                                <span class="line-number">4</span>
+                                <span class="code-text">
+                                    &nbsp;&nbsp;<span class="property">location</span>: 
+                                    <span class="string">'Jakarta, Indonesia'</span>,
+                                </span>
+                            </div>
+                            <div class="code-line">
+                                <span class="line-number">5</span>
+                                <span class="code-text">
+                                    &nbsp;&nbsp;<span class="property">experience</span>: 
+                                    <span class="number">3</span>,
+                                </span>
+                            </div>
+                            <div class="code-line">
+                                <span class="line-number">6</span>
+                                <span class="code-text">
+                                    &nbsp;&nbsp;<span class="property">skills</span>: [
+                                </span>
+                            </div>
+                            <div class="code-line">
+                                <span class="line-number">7</span>
+                                <span class="code-text">
+                                    &nbsp;&nbsp;&nbsp;&nbsp;<span class="string">'JavaScript'</span>,
+                                    <span class="string">'React'</span>,
+                                    <span class="string">'Node.js'</span>
+                                </span>
+                            </div>
+                            <div class="code-line">
+                                <span class="line-number">8</span>
+                                <span class="code-text">
+                                    &nbsp;&nbsp;],
+                                </span>
+                            </div>
+                            <div class="code-line">
+                                <span class="line-number">9</span>
+                                <span class="code-text">
+                                    &nbsp;&nbsp;<span class="property">passion</span>: 
+                                    <span class="string">'Creating amazing experiences'</span>
+                                </span>
+                            </div>
+                            <div class="code-line">
+                                <span class="line-number">10</span>
+                                <span class="code-text">};</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Experience Section -->
+    <section id="experience" class="experience">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Experience & Education</h2>
+                <p class="section-subtitle">My journey in software development</p>
+            </div>
+            
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-marker">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            <h3>Senior Full Stack Developer</h3>
+                            <span class="timeline-date">2023 - Present</span>
+                        </div>
+                        <h4>Tech Solutions Inc.</h4>
+                        <p>Leading development of scalable web applications using React, Node.js, and cloud technologies. Mentoring junior developers and implementing best practices for code quality and performance optimization.</p>
+                        <div class="timeline-skills">
+                            <span class="skill-badge">React</span>
+                            <span class="skill-badge">Node.js</span>
+                            <span class="skill-badge">AWS</span>
+                            <span class="skill-badge">Docker</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-marker">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            <h3>Full Stack Developer</h3>
+                            <span class="timeline-date">2022 - 2023</span>
+                        </div>
+                        <h4>Digital Agency Pro</h4>
+                        <p>Developed and maintained client websites and web applications. Collaborated with design teams to implement responsive, user-friendly interfaces and robust backend systems.</p>
+                        <div class="timeline-skills">
+                            <span class="skill-badge">JavaScript</span>
+                            <span class="skill-badge">Vue.js</span>
+                            <span class="skill-badge">PHP</span>
+                            <span class="skill-badge">MySQL</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-marker">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            <h3>Computer Science Degree</h3>
+                            <span class="timeline-date">2019 - 2022</span>
+                        </div>
+                        <h4>University of Technology</h4>
+                        <p>Bachelor's degree in Computer Science with focus on software engineering, algorithms, and database systems. Graduated with honors.</p>
+                        <div class="timeline-skills">
+                            <span class="skill-badge">Algorithms</span>
+                            <span class="skill-badge">Data Structures</span>
+                            <span class="skill-badge">Software Engineering</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-marker">
+                        <i class="fas fa-laptop-code"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            <h3>Frontend Developer Intern</h3>
+                            <span class="timeline-date">2021 - 2022</span>
+                        </div>
+                        <h4>StartupXYZ</h4>
+                        <p>First professional experience developing user interfaces for web applications. Learned modern development practices and agile methodologies.</p>
+                        <div class="timeline-skills">
+                            <span class="skill-badge">HTML/CSS</span>
+                            <span class="skill-badge">JavaScript</span>
+                            <span class="skill-badge">Git</span>
                         </div>
                     </div>
                 </div>
@@ -97,55 +668,242 @@
     <!-- Portfolio Section -->
     <section id="portfolio" class="portfolio">
         <div class="container">
-            <h2 class="section-title">Portfolio Saya</h2>
+            <div class="section-header">
+                <h2 class="section-title">Featured Projects</h2>
+                <p class="section-subtitle">A showcase of my recent work and achievements</p>
+            </div>
+            
+            <!-- Portfolio Filter -->
+            <div class="portfolio-filters">
+                <button class="filter-btn active" data-filter="all">All Projects</button>
+                <button class="filter-btn" data-filter="web">Web Apps</button>
+                <button class="filter-btn" data-filter="mobile">Mobile</button>
+                <button class="filter-btn" data-filter="api">APIs</button>
+                <button class="filter-btn" data-filter="opensource">Open Source</button>
+            </div>
+            
             <div class="portfolio-grid">
-                <div class="portfolio-item">
-                    <div class="portfolio-img">
-                        <img src="https://via.placeholder.com/400x300" alt="Project 1">
+                <!-- Project 1 -->
+                <div class="portfolio-item" data-category="web" data-project="ecommerce">
+                    <div class="portfolio-image">
+                        <img src="https://via.placeholder.com/500x300/1a1a1a/00d4aa?text=E-Commerce+Platform" alt="E-Commerce Platform" loading="lazy">
                         <div class="portfolio-overlay">
                             <div class="portfolio-info">
-                                <h3>Project 1</h3>
-                                <p>Website E-commerce Modern</p>
+                                <h3>E-Commerce Platform</h3>
+                                <p>Modern e-commerce solution with React, Node.js, and Stripe integration</p>
+                                <div class="portfolio-tech">
+                                    <span class="tech-tag">React</span>
+                                    <span class="tech-tag">Node.js</span>
+                                    <span class="tech-tag">MongoDB</span>
+                                    <span class="tech-tag">Stripe</span>
+                                </div>
                                 <div class="portfolio-links">
-                                    <a href="#" target="_blank"><i class="fas fa-external-link-alt"></i></a>
-                                    <a href="#" target="_blank"><i class="fab fa-github"></i></a>
+                                    <button class="portfolio-btn" onclick="openProjectModal('ecommerce')">
+                                        <i class="fas fa-eye"></i> View Details
+                                    </button>
+                                    <a href="https://github.com/zulfan15" target="_blank" class="portfolio-btn">
+                                        <i class="fab fa-github"></i> GitHub
+                                    </a>
+                                    <a href="#" target="_blank" class="portfolio-btn">
+                                        <i class="fas fa-external-link-alt"></i> Live Demo
+                                    </a>
                                 </div>
                             </div>
                         </div>
+                    </div>
+                    <div class="portfolio-content">
+                        <div class="project-category">Web Application</div>
+                        <h3>E-Commerce Platform</h3>
+                        <p>Complete e-commerce solution with admin dashboard, payment processing, and inventory management.</p>
                     </div>
                 </div>
                 
-                <div class="portfolio-item">
-                    <div class="portfolio-img">
-                        <img src="https://via.placeholder.com/400x300" alt="Project 2">
+                <!-- Project 2 -->
+                <div class="portfolio-item" data-category="web" data-project="taskmanager">
+                    <div class="portfolio-image">
+                        <img src="https://via.placeholder.com/500x300/1a1a1a/0070f3?text=Task+Management" alt="Task Management App" loading="lazy">
                         <div class="portfolio-overlay">
                             <div class="portfolio-info">
-                                <h3>Project 2</h3>
-                                <p>Mobile App Design</p>
+                                <h3>Task Management App</h3>
+                                <p>Real-time collaboration tool with drag-and-drop functionality</p>
+                                <div class="portfolio-tech">
+                                    <span class="tech-tag">Next.js</span>
+                                    <span class="tech-tag">Socket.io</span>
+                                    <span class="tech-tag">PostgreSQL</span>
+                                    <span class="tech-tag">Redis</span>
+                                </div>
                                 <div class="portfolio-links">
-                                    <a href="#" target="_blank"><i class="fas fa-external-link-alt"></i></a>
-                                    <a href="#" target="_blank"><i class="fab fa-github"></i></a>
+                                    <button class="portfolio-btn" onclick="openProjectModal('taskmanager')">
+                                        <i class="fas fa-eye"></i> View Details
+                                    </button>
+                                    <a href="https://github.com/zulfan15" target="_blank" class="portfolio-btn">
+                                        <i class="fab fa-github"></i> GitHub
+                                    </a>
+                                    <a href="#" target="_blank" class="portfolio-btn">
+                                        <i class="fas fa-external-link-alt"></i> Live Demo
+                                    </a>
                                 </div>
                             </div>
                         </div>
+                    </div>
+                    <div class="portfolio-content">
+                        <div class="project-category">Web Application</div>
+                        <h3>Task Management App</h3>
+                        <p>Collaborative project management tool with real-time updates and team features.</p>
                     </div>
                 </div>
                 
-                <div class="portfolio-item">
-                    <div class="portfolio-img">
-                        <img src="https://via.placeholder.com/400x300" alt="Project 3">
+                <!-- Project 3 -->
+                <div class="portfolio-item" data-category="api" data-project="restapi">
+                    <div class="portfolio-image">
+                        <img src="https://via.placeholder.com/500x300/1a1a1a/ff006e?text=Analytics+API" alt="Analytics Dashboard" loading="lazy">
                         <div class="portfolio-overlay">
                             <div class="portfolio-info">
-                                <h3>Project 3</h3>
-                                <p>Dashboard Analytics</p>
+                                <h3>Analytics REST API</h3>
+                                <p>High-performance API for data analytics and visualization</p>
+                                <div class="portfolio-tech">
+                                    <span class="tech-tag">Python</span>
+                                    <span class="tech-tag">FastAPI</span>
+                                    <span class="tech-tag">PostgreSQL</span>
+                                    <span class="tech-tag">Docker</span>
+                                </div>
                                 <div class="portfolio-links">
-                                    <a href="#" target="_blank"><i class="fas fa-external-link-alt"></i></a>
-                                    <a href="#" target="_blank"><i class="fab fa-github"></i></a>
+                                    <button class="portfolio-btn" onclick="openProjectModal('analytics')">
+                                        <i class="fas fa-eye"></i> View Details
+                                    </button>
+                                    <a href="https://github.com/zulfan15" target="_blank" class="portfolio-btn">
+                                        <i class="fab fa-github"></i> GitHub
+                                    </a>
+                                    <a href="#" target="_blank" class="portfolio-btn">
+                                        <i class="fas fa-external-link-alt"></i> API Docs
+                                    </a>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    <div class="portfolio-content">
+                        <div class="project-category">Backend API</div>
+                        <h3>Analytics REST API</h3>
+                        <p>Scalable REST API for processing and serving analytics data with comprehensive documentation.</p>
+                    </div>
                 </div>
+                
+                <!-- Project 4 -->
+                <div class="portfolio-item" data-category="mobile" data-project="mobileapp">
+                    <div class="portfolio-image">
+                        <img src="https://via.placeholder.com/500x300/1a1a1a/50fa7b?text=Mobile+App" alt="React Native App" loading="lazy">
+                        <div class="portfolio-overlay">
+                            <div class="portfolio-info">
+                                <h3>React Native App</h3>
+                                <p>Cross-platform mobile application for iOS and Android</p>
+                                <div class="portfolio-tech">
+                                    <span class="tech-tag">React Native</span>
+                                    <span class="tech-tag">Expo</span>
+                                    <span class="tech-tag">Firebase</span>
+                                    <span class="tech-tag">Redux</span>
+                                </div>
+                                <div class="portfolio-links">
+                                    <button class="portfolio-btn" onclick="openProjectModal('mobileapp')">
+                                        <i class="fas fa-eye"></i> View Details
+                                    </button>
+                                    <a href="https://github.com/zulfan15" target="_blank" class="portfolio-btn">
+                                        <i class="fab fa-github"></i> GitHub
+                                    </a>
+                                    <a href="#" target="_blank" class="portfolio-btn">
+                                        <i class="fab fa-app-store"></i> App Store
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="portfolio-content">
+                        <div class="project-category">Mobile App</div>
+                        <h3>React Native App</h3>
+                        <p>Cross-platform mobile application with offline capabilities and push notifications.</p>
+                    </div>
+                </div>
+                
+                <!-- Project 5 -->
+                <div class="portfolio-item" data-category="opensource" data-project="opensource">
+                    <div class="portfolio-image">
+                        <img src="https://via.placeholder.com/500x300/1a1a1a/ffb700?text=Open+Source" alt="Open Source Library" loading="lazy">
+                        <div class="portfolio-overlay">
+                            <div class="portfolio-info">
+                                <h3>React Component Library</h3>
+                                <p>Open-source UI component library for React applications</p>
+                                <div class="portfolio-tech">
+                                    <span class="tech-tag">React</span>
+                                    <span class="tech-tag">TypeScript</span>
+                                    <span class="tech-tag">Storybook</span>
+                                    <span class="tech-tag">Jest</span>
+                                </div>
+                                <div class="portfolio-links">
+                                    <button class="portfolio-btn" onclick="openProjectModal('library')">
+                                        <i class="fas fa-eye"></i> View Details
+                                    </button>
+                                    <a href="https://github.com/zulfan15" target="_blank" class="portfolio-btn">
+                                        <i class="fab fa-github"></i> GitHub
+                                    </a>
+                                    <a href="#" target="_blank" class="portfolio-btn">
+                                        <i class="fas fa-book"></i> Documentation
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="portfolio-content">
+                        <div class="project-category">Open Source</div>
+                        <h3>React Component Library</h3>
+                        <p>Reusable component library with comprehensive documentation and testing suite.</p>
+                    </div>
+                </div>
+                
+                <!-- Project 6 -->
+                <div class="portfolio-item" data-category="web" data-project="portfolio">
+                    <div class="portfolio-image">
+                        <img src="https://via.placeholder.com/500x300/1a1a1a/bd93f9?text=SaaS+Platform" alt="SaaS Platform" loading="lazy">
+                        <div class="portfolio-overlay">
+                            <div class="portfolio-info">
+                                <h3>SaaS Platform</h3>
+                                <p>Multi-tenant SaaS application with subscription management</p>
+                                <div class="portfolio-tech">
+                                    <span class="tech-tag">Next.js</span>
+                                    <span class="tech-tag">Prisma</span>
+                                    <span class="tech-tag">Stripe</span>
+                                    <span class="tech-tag">Vercel</span>
+                                </div>
+                                <div class="portfolio-links">
+                                    <button class="portfolio-btn" onclick="openProjectModal('saas')">
+                                        <i class="fas fa-eye"></i> View Details
+                                    </button>
+                                    <a href="https://github.com/zulfan15" target="_blank" class="portfolio-btn">
+                                        <i class="fab fa-github"></i> GitHub
+                                    </a>
+                                    <a href="#" target="_blank" class="portfolio-btn">
+                                        <i class="fas fa-external-link-alt"></i> Live Demo
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="portfolio-content">
+                        <div class="project-category">SaaS Platform</div>
+                        <h3>Multi-tenant SaaS</h3>
+                        <p>Complete SaaS solution with user management, billing, and analytics dashboard.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Load More Button -->
+            <div class="portfolio-actions">
+                <button class="btn btn-outline btn-load-more">
+                    <i class="fas fa-plus"></i>
+                    <span>Load More Projects</span>
+                </button>
+                <a href="https://github.com/zulfan15" target="_blank" class="btn btn-secondary">
+                    <i class="fab fa-github"></i>
+                    <span>View All on GitHub</span>
+                </a>
             </div>
         </div>
     </section>
@@ -153,53 +911,164 @@
     <!-- Contact Section -->
     <section id="contact" class="contact">
         <div class="container">
-            <h2 class="section-title">Mari Terhubung</h2>
-            <div class="contact-content">
-                <p>Tertarik untuk berkolaborasi? Mari kita diskusi project Anda!</p>
-                
-                <div class="contact-info">
-                    <div class="contact-item">
-                        <i class="fas fa-envelope"></i>
-                        <div>
-                            <h4>Email</h4>
-                            <p>zulfan@gmail.com</p>
-                        </div>
+            <div class="section-header">
+                <h2 class="section-title">Let's Work Together</h2>
+                <p class="section-subtitle">Ready to bring your ideas to life? Let's discuss your next project</p>
+            </div>
+            
+            <div class="contact-grid">
+                <!-- Contact Form -->
+                <div class="contact-form-section">
+                    <div class="form-header">
+                        <h3>Send me a message</h3>
+                        <p>I'll get back to you within 24 hours</p>
                     </div>
                     
-                    <div class="contact-item">
-                        <i class="fas fa-phone"></i>
-                        <div>
-                            <h4>Phone</h4>
-                            <p>+62 812-3456-7890</p>
+                    <form class="contact-form" id="contact-form">
+                        <div class="form-group">
+                            <label for="name">Full Name</label>
+                            <input type="text" id="name" name="name" required>
+                            <span class="form-icon"><i class="fas fa-user"></i></span>
                         </div>
-                    </div>
-                    
-                    <div class="contact-item">
-                        <i class="fas fa-map-marker-alt"></i>
-                        <div>
-                            <h4>Location</h4>
-                            <p>Jakarta, Indonesia</p>
+                        
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" name="email" required>
+                            <span class="form-icon"><i class="fas fa-envelope"></i></span>
                         </div>
-                    </div>
+                        
+                        <div class="form-group">
+                            <label for="subject">Subject</label>
+                            <select id="subject" name="subject" required>
+                                <option value="">Select a subject</option>
+                                <option value="project">New Project</option>
+                                <option value="collaboration">Collaboration</option>
+                                <option value="job">Job Opportunity</option>
+                                <option value="consultation">Consultation</option>
+                                <option value="other">Other</option>
+                            </select>
+                            <span class="form-icon"><i class="fas fa-tag"></i></span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="budget">Project Budget (Optional)</label>
+                            <select id="budget" name="budget">
+                                <option value="">Select budget range</option>
+                                <option value="<5k">Under $5,000</option>
+                                <option value="5k-10k">$5,000 - $10,000</option>
+                                <option value="10k-25k">$10,000 - $25,000</option>
+                                <option value="25k+">$25,000+</option>
+                            </select>
+                            <span class="form-icon"><i class="fas fa-dollar-sign"></i></span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="message">Message</label>
+                            <textarea id="message" name="message" rows="5" placeholder="Tell me about your project..." required></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-submit">
+                            <i class="fas fa-paper-plane"></i>
+                            <span>Send Message</span>
+                            <div class="btn-loader">
+                                <div class="spinner"></div>
+                            </div>
+                        </button>
+                    </form>
                 </div>
-
-                <!-- Social Media Links (Duplicate for footer) -->
-                <div class="social-links-footer">
-                    <a href="https://github.com/Zulfan15" target="_blank" class="social-link">
-                        <i class="fab fa-github"></i>
-                    </a>
-                    <a href="https://linkedin.com/in/zulfan15" target="_blank" class="social-link">
-                        <i class="fab fa-linkedin"></i>
-                    </a>
-                    <a href="https://instagram.com/zulfan15" target="_blank" class="social-link">
-                        <i class="fab fa-instagram"></i>
-                    </a>
-                    <a href="https://twitter.com/zulfan15" target="_blank" class="social-link">
-                        <i class="fab fa-twitter"></i>
-                    </a>
-                    <a href="https://wa.me/6281234567890" target="_blank" class="social-link">
-                        <i class="fab fa-whatsapp"></i>
-                    </a>
+                
+                <!-- Contact Info -->
+                <div class="contact-info-section">
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div class="contact-details">
+                                <h4>Email</h4>
+                                <p>zulfan@gmail.com</p>
+                                <a href="mailto:zulfan@gmail.com" class="contact-link">Send Email</a>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-phone"></i>
+                            </div>
+                            <div class="contact-details">
+                                <h4>Phone</h4>
+                                <p>+62 812-3456-7890</p>
+                                <a href="tel:+6281234567890" class="contact-link">Call Now</a>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div class="contact-details">
+                                <h4>Location</h4>
+                                <p>Jakarta, Indonesia</p>
+                                <p class="timezone">UTC+7 (WIB)</p>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="contact-details">
+                                <h4>Response Time</h4>
+                                <p>Usually within 24 hours</p>
+                                <div class="availability-status">
+                                    <span class="status-indicator online"></span>
+                                    <span>Available for new projects</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick Contact Methods -->
+                    <div class="quick-contact">
+                        <h4>Quick Contact</h4>
+                        <div class="quick-contact-buttons">
+                            <a href="https://wa.me/6281234567890" target="_blank" class="quick-btn whatsapp">
+                                <i class="fab fa-whatsapp"></i>
+                                <span>WhatsApp</span>
+                            </a>
+                            <a href="https://t.me/zulfan15" target="_blank" class="quick-btn telegram">
+                                <i class="fab fa-telegram"></i>
+                                <span>Telegram</span>
+                            </a>
+                            <a href="https://linkedin.com/in/zulfan15" target="_blank" class="quick-btn linkedin">
+                                <i class="fab fa-linkedin"></i>
+                                <span>LinkedIn</span>
+                            </a>
+                            <a href="skype:zulfan15?chat" class="quick-btn skype">
+                                <i class="fab fa-skype"></i>
+                                <span>Skype</span>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Working Hours -->
+                    <div class="working-hours">
+                        <h4>Working Hours</h4>
+                        <div class="hours-list">
+                            <div class="hours-item">
+                                <span class="day">Monday - Friday</span>
+                                <span class="time">9:00 AM - 6:00 PM</span>
+                            </div>
+                            <div class="hours-item">
+                                <span class="day">Saturday</span>
+                                <span class="time">10:00 AM - 4:00 PM</span>
+                            </div>
+                            <div class="hours-item">
+                                <span class="day">Sunday</span>
+                                <span class="time">Emergency only</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -208,11 +1077,99 @@
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
-            <p>&copy; 2025 M Zulfan. All rights reserved.</p>
-            <p>Made with ❤️ using HTML, CSS & JavaScript</p>
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-brand">
+                        <h3>&lt;M Zulfan/&gt;</h3>
+                        <p>Full Stack Developer passionate about creating innovative digital solutions.</p>
+                        <div class="footer-social" style="display: flex !important; flex-direction: row !important; gap: 1rem !important; margin-top: 1rem !important;">
+                            <a href="https://github.com/Zulfan15" target="_blank" aria-label="GitHub">
+                                <i class="fab fa-github"></i>
+                            </a>
+                            <a href="https://linkedin.com/in/zulfan15" target="_blank" aria-label="LinkedIn">
+                                <i class="fab fa-linkedin"></i>
+                            </a>
+                            <a href="https://twitter.com/zulfan15" target="_blank" aria-label="Twitter">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="#home">Home</a></li>
+                        <li><a href="#about">About</a></li>
+                        <li><a href="#skills">Skills</a></li>
+                        <li><a href="#portfolio">Projects</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Services</h4>
+                    <ul class="footer-links">
+                        <li><a href="#portfolio">Web Development</a></li>
+                        <li><a href="#portfolio">Mobile Apps</a></li>
+                        <li><a href="#portfolio">API Development</a></li>
+                        <li><a href="#portfolio">Consulting</a></li>
+                        <li><a href="#portfolio">Code Review</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Contact Info</h4>
+                    <div class="footer-contact">
+                        <p><i class="fas fa-envelope"></i> zulfan@gmail.com</p>
+                        <p><i class="fas fa-phone"></i> +62 812-3456-7890</p>
+                        <p><i class="fas fa-map-marker-alt"></i> Jakarta, Indonesia</p>
+                        <p><i class="fas fa-clock"></i> Available for projects</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <div class="footer-copyright">
+                    <p>&copy; 2025 M Zulfan. All rights reserved.</p>
+                    <div class="footer-terminal">
+                        <span class="terminal-prompt">$</span>
+                        <span class="terminal-command">echo "Thanks for visiting!"</span>
+                    </div>
+                </div>
+                <div class="footer-links-bottom">
+                    <a href="#privacy">Privacy Policy</a>
+                    <a href="#terms">Terms of Service</a>
+                    <a href="#sitemap">Sitemap</a>
+                </div>
+            </div>
         </div>
+        
+        <!-- Back to Top Button -->
+        <button class="back-to-top" id="back-to-top" aria-label="Back to top">
+            <i class="fas fa-chevron-up"></i>
+        </button>
     </footer>
 
+    <!-- Project Modal -->
+    <div class="modal" id="project-modal">
+        <div class="modal-overlay" onclick="closeProjectModal()"></div>
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeProjectModal()">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="modal-body" id="modal-body">
+                <!-- Content will be dynamically loaded -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notification-container" class="notification-container"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
     <script src="js/main.js"></script>
+    <script src="js/enhanced.js"></script>
 </body>
 </html>

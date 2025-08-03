@@ -1,6 +1,12 @@
-// Portfolio Website JavaScript
+// Portfolio Website JavaScript - Professional Developer Theme
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize typing animation for hero section
+    initTypingAnimation();
+    
+    // Initialize matrix rain effect
+    initMatrixRain();
+    
     // Mobile Navigation Toggle
     const navToggle = document.getElementById('nav-toggle');
     const navMenu = document.getElementById('nav-menu');
@@ -48,15 +54,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Navbar background change on scroll
+    // Navbar scroll effect - hanya mengubah class untuk CSS handling
     const navbar = document.querySelector('.navbar');
     window.addEventListener('scroll', function() {
         if (window.scrollY > 100) {
-            navbar.style.background = 'rgba(255, 255, 255, 0.98)';
-            navbar.style.boxShadow = '0 2px 20px rgba(0, 0, 0, 0.1)';
+            navbar.classList.add('scrolled');
         } else {
-            navbar.style.background = 'rgba(255, 255, 255, 0.95)';
-            navbar.style.boxShadow = 'none';
+            navbar.classList.remove('scrolled');
         }
     });
 
@@ -192,22 +196,127 @@ document.addEventListener('DOMContentLoaded', function() {
 function copyEmail() {
     const email = 'your.email@gmail.com'; // Ganti dengan email Anda
     navigator.clipboard.writeText(email).then(function() {
-        // Show success message
+        // Show success message with terminal style
         const message = document.createElement('div');
-        message.textContent = 'Email copied to clipboard!';
+        message.textContent = '$ echo "Email copied to clipboard!"';
         message.style.position = 'fixed';
         message.style.bottom = '20px';
         message.style.right = '20px';
-        message.style.background = '#4CAF50';
-        message.style.color = 'white';
-        message.style.padding = '10px 20px';
-        message.style.borderRadius = '5px';
+        message.style.background = '#0a0a0a';
+        message.style.color = '#00d4aa';
+        message.style.padding = '15px 25px';
+        message.style.borderRadius = '8px';
+        message.style.border = '1px solid #00d4aa';
+        message.style.fontFamily = '"Fira Code", monospace';
+        message.style.fontSize = '14px';
         message.style.zIndex = '9999';
+        message.style.boxShadow = '0 0 20px rgba(0, 212, 170, 0.3)';
         document.body.appendChild(message);
         
         setTimeout(() => {
             message.remove();
         }, 3000);
+    });
+}
+
+// Typing animation for hero section
+function initTypingAnimation() {
+    const texts = [
+        'Full Stack Developer',
+        'Software Engineer', 
+        'Problem Solver',
+        'Code Enthusiast'
+    ];
+    let textIndex = 0;
+    let charIndex = 0;
+    let currentText = '';
+    let isDeleting = false;
+    
+    const subtitleElement = document.querySelector('.hero-subtitle');
+    if (!subtitleElement) return;
+    
+    function typeEffect() {
+        const fullText = texts[textIndex];
+        
+        if (isDeleting) {
+            currentText = fullText.substring(0, charIndex - 1);
+            charIndex--;
+        } else {
+            currentText = fullText.substring(0, charIndex + 1);
+            charIndex++;
+        }
+        
+        subtitleElement.innerHTML = '// ' + currentText + '<span class="cursor">|</span>';
+        
+        let typeSpeed = isDeleting ? 50 : 100;
+        
+        if (!isDeleting && charIndex === fullText.length) {
+            typeSpeed = 2000;
+            isDeleting = true;
+        } else if (isDeleting && charIndex === 0) {
+            isDeleting = false;
+            textIndex = (textIndex + 1) % texts.length;
+            typeSpeed = 500;
+        }
+        
+        setTimeout(typeEffect, typeSpeed);
+    }
+    
+    typeEffect();
+}
+
+// Matrix rain effect for background
+function initMatrixRain() {
+    const canvas = document.createElement('canvas');
+    canvas.style.position = 'fixed';
+    canvas.style.top = '0';
+    canvas.style.left = '0';
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    canvas.style.pointerEvents = 'none';
+    canvas.style.zIndex = '-1';
+    canvas.style.opacity = '0.1';
+    document.body.appendChild(canvas);
+    
+    const ctx = canvas.getContext('2d');
+    
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    
+    const matrix = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789@#$%^&*()*&^%+-/~{[|`]}";
+    const matrixArray = matrix.split("");
+    
+    const fontSize = 10;
+    const columns = canvas.width / fontSize;
+    
+    const drops = [];
+    for (let x = 0; x < columns; x++) {
+        drops[x] = 1;
+    }
+    
+    function draw() {
+        ctx.fillStyle = 'rgba(10, 10, 10, 0.04)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        ctx.fillStyle = '#00d4aa';
+        ctx.font = fontSize + 'px "Fira Code", monospace';
+        
+        for (let i = 0; i < drops.length; i++) {
+            const text = matrixArray[Math.floor(Math.random() * matrixArray.length)];
+            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+            
+            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                drops[i] = 0;
+            }
+            drops[i]++;
+        }
+    }
+    
+    setInterval(draw, 35);
+    
+    window.addEventListener('resize', function() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
     });
 }
 
