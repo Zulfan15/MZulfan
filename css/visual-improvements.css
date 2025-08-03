@@ -472,3 +472,90 @@ body {
         color: black !important;
     }
 }
+
+/* Light Theme Specific Styles */
+[data-theme="light"] {
+    /* Override text colors for better contrast */
+    color: var(--text-primary);
+}
+
+[data-theme="light"] .hero-title,
+[data-theme="light"] .hero-subtitle,
+[data-theme="light"] .hero-description,
+[data-theme="light"] .greeting-text,
+[data-theme="light"] .name-highlight {
+    color: var(--text-primary) !important;
+}
+
+[data-theme="light"] .section-title,
+[data-theme="light"] .section-subtitle {
+    color: var(--text-primary) !important;
+}
+
+[data-theme="light"] .nav-link,
+[data-theme="light"] .nav-link span {
+    color: var(--text-secondary) !important;
+}
+
+[data-theme="light"] .nav-link.active,
+[data-theme="light"] .nav-link:hover {
+    color: var(--primary-color) !important;
+}
+
+[data-theme="light"] .terminal-body-hero,
+[data-theme="light"] .terminal-output,
+[data-theme="light"] .command-text,
+[data-theme="light"] .prompt-symbol {
+    color: var(--text-primary) !important;
+}
+
+[data-theme="light"] .stat-number,
+[data-theme="light"] .stat-label {
+    color: var(--text-primary) !important;
+}
+
+[data-theme="light"] .social-label {
+    color: var(--text-secondary) !important;
+}
+
+[data-theme="light"] .skill-info h4,
+[data-theme="light"] .skill-percentage {
+    color: var(--text-primary) !important;
+}
+
+[data-theme="light"] .about-text h3,
+[data-theme="light"] .about-text p {
+    color: var(--text-primary) !important;
+}
+
+[data-theme="light"] .terminal-window,
+[data-theme="light"] .terminal-window-hero {
+    background: var(--bg-code) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+[data-theme="light"] .terminal-title,
+[data-theme="light"] .terminal-title-hero {
+    color: var(--text-secondary) !important;
+}
+
+[data-theme="light"] .btn-primary {
+    background: var(--primary-color) !important;
+    color: white !important;
+}
+
+[data-theme="light"] .btn-secondary {
+    background: transparent !important;
+    color: var(--text-primary) !important;
+    border-color: var(--text-primary) !important;
+}
+
+[data-theme="light"] .btn-outline {
+    background: transparent !important;
+    color: var(--text-primary) !important;
+    border-color: var(--text-primary) !important;
+}
+
+[data-theme="light"] .scroll-text {
+    color: var(--text-secondary) !important;
+}

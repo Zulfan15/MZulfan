@@ -70,11 +70,26 @@
     --bg-darker: #f8f9fa;
     --bg-code: #f1f3f4;
     --bg-card: #ffffff;
-    --text-primary: #2d3748;
-    --text-secondary: #4a5568;
-    --text-muted: #718096;
+    --bg-glass: rgba(255, 255, 255, 0.9);
+    --text-primary: #1a202c;
+    --text-secondary: #2d3748;
+    --text-muted: #4a5568;
     --border-color: #e2e8f0;
     --shadow-dark: 0 8px 32px rgba(0, 0, 0, 0.1);
+    --shadow-glow: 0 0 20px rgba(0, 212, 170, 0.2);
+    --shadow-code: 0 0 20px rgba(80, 250, 123, 0.1);
+    --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.05);
+    
+    /* Override gradients for light theme */
+    --gradient-dark: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+    --gradient-glass: linear-gradient(135deg, rgba(0, 0, 0, 0.05) 0%, rgba(0, 0, 0, 0.02) 100%);
+    
+    /* Terminal colors for light theme */
+    --terminal-bg: #f7fafc;
+    --terminal-green: #38a169;
+    --terminal-blue: #3182ce;
+    --terminal-yellow: #d69e2e;
+    --terminal-red: #e53e3e;
 }
 
 /* Loading Screen */

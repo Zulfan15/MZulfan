@@ -1,0 +1,337 @@
+/* Light Theme Specific Styles */
+/* Comprehensive light theme styling for better readability */
+
+/* Smooth transitions for theme switching */
+* {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease !important;
+}
+
+[data-theme="light"] {
+    /* Base colors override */
+    --text-primary: #1a202c;
+    --text-secondary: #2d3748;
+    --text-muted: #4a5568;
+    --bg-dark: #ffffff;
+    --bg-darker: #f7fafc;
+    --bg-code: #edf2f7;
+    --bg-card: #ffffff;
+    --border-color: #cbd5e0;
+}
+
+/* Navigation */
+[data-theme="light"] .navbar {
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border-color);
+}
+
+[data-theme="light"] .nav-link {
+    color: var(--text-secondary) !important;
+}
+
+[data-theme="light"] .nav-link:hover,
+[data-theme="light"] .nav-link.active {
+    color: var(--primary-color) !important;
+}
+
+[data-theme="light"] .logo-text {
+    color: var(--text-primary) !important;
+}
+
+[data-theme="light"] .logo-bracket {
+    color: var(--primary-color) !important;
+}
+
+/* Hero Section */
+[data-theme="light"] .hero {
+    background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%) !important;
+}
+
+[data-theme="light"] .hero-title,
+[data-theme="light"] .hero-subtitle,
+[data-theme="light"] .hero-description,
+[data-theme="light"] .greeting-text {
+    color: var(--text-primary) !important;
+}
+
+[data-theme="light"] .name-highlight {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Terminal */
+[data-theme="light"] .terminal-window,
+[data-theme="light"] .terminal-window-hero {
+    background: var(--bg-code) !important;
+    border: 2px solid var(--border-color) !important;
+}
+
+[data-theme="light"] .terminal-title,
+[data-theme="light"] .terminal-title-hero {
+    color: var(--text-secondary) !important;
+    background: var(--bg-darker) !important;
+}
+
+[data-theme="light"] .terminal-body,
+[data-theme="light"] .terminal-body-hero {
+    background: var(--bg-code) !important;
+}
+
+[data-theme="light"] .command-text,
+[data-theme="light"] .prompt-symbol,
+[data-theme="light"] .terminal-output {
+    color: var(--text-primary) !important;
+}
+
+[data-theme="light"] .loading-text {
+    color: var(--text-primary) !important;
+}
+
+/* Stats */
+[data-theme="light"] .stat-number {
+    color: var(--primary-color) !important;
+}
+
+[data-theme="light"] .stat-label {
+    color: var(--text-secondary) !important;
+}
+
+/* Social Links */
+[data-theme="light"] .social-link {
+    color: var(--text-secondary) !important;
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+[data-theme="light"] .social-link:hover {
+    color: var(--primary-color) !important;
+    transform: translateY(-2px);
+}
+
+[data-theme="light"] .social-label {
+    color: var(--text-secondary) !important;
+}
+
+/* Buttons */
+[data-theme="light"] .btn-primary {
+    background: var(--primary-color) !important;
+    color: white !important;
+    border-color: var(--primary-color) !important;
+}
+
+[data-theme="light"] .btn-secondary {
+    background: transparent !important;
+    color: var(--text-primary) !important;
+    border: 2px solid var(--text-primary) !important;
+}
+
+[data-theme="light"] .btn-outline {
+    background: transparent !important;
+    color: var(--text-primary) !important;
+    border: 2px solid var(--text-primary) !important;
+}
+
+[data-theme="light"] .btn-secondary:hover,
+[data-theme="light"] .btn-outline:hover {
+    background: var(--text-primary) !important;
+    color: white !important;
+}
+
+/* Sections */
+[data-theme="light"] .section-title {
+    color: var(--text-primary) !important;
+}
+
+[data-theme="light"] .section-subtitle {
+    color: var(--text-secondary) !important;
+}
+
+/* Skills Section */
+[data-theme="light"] .skills-section {
+    background: var(--bg-darker) !important;
+}
+
+[data-theme="light"] .skill-category {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+[data-theme="light"] .category-header h3 {
+    color: var(--text-primary) !important;
+}
+
+[data-theme="light"] .skill-item {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+[data-theme="light"] .skill-info h4 {
+    color: var(--text-primary) !important;
+}
+
+[data-theme="light"] .skill-percentage {
+    color: var(--text-secondary) !important;
+}
+
+[data-theme="light"] .skill-icon {
+    color: var(--primary-color) !important;
+}
+
+/* About Section */
+[data-theme="light"] .about {
+    background: var(--bg-dark) !important;
+}
+
+[data-theme="light"] .about-text h3 {
+    color: var(--text-primary) !important;
+}
+
+[data-theme="light"] .about-text p {
+    color: var(--text-secondary) !important;
+}
+
+/* Experience Section */
+[data-theme="light"] .experience {
+    background: var(--bg-darker) !important;
+}
+
+[data-theme="light"] .timeline-item {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+/* Portfolio Section */
+[data-theme="light"] .portfolio {
+    background: var(--bg-dark) !important;
+}
+
+[data-theme="light"] .portfolio-item {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+/* Contact Section */
+[data-theme="light"] .contact {
+    background: var(--bg-darker) !important;
+}
+
+/* Scroll Indicator */
+[data-theme="light"] .scroll-text {
+    color: var(--text-secondary) !important;
+}
+
+[data-theme="light"] .scroll-arrow {
+    color: var(--primary-color) !important;
+}
+
+/* Theme Toggle */
+[data-theme="light"] .theme-toggle {
+    background: var(--bg-card) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+[data-theme="light"] .theme-toggle:hover {
+    background: var(--bg-darker) !important;
+    color: var(--primary-color) !important;
+}
+
+/* Status Indicator */
+[data-theme="light"] .status-indicator {
+    background: var(--bg-card) !important;
+    color: var(--text-secondary) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+/* Loading Screen */
+[data-theme="light"] .loading-screen {
+    background: var(--bg-dark) !important;
+}
+
+[data-theme="light"] .loading-text,
+[data-theme="light"] .progress-text {
+    color: var(--text-primary) !important;
+}
+
+/* Profile Image adjustments for light theme */
+[data-theme="light"] .profile-img img {
+    filter: brightness(0.95) contrast(1.05);
+}
+
+/* Particles background adjustment */
+[data-theme="light"] #particles-js {
+    opacity: 0.3;
+}
+
+/* Card shadows for light theme */
+[data-theme="light"] .skill-item,
+[data-theme="light"] .portfolio-item,
+[data-theme="light"] .timeline-item,
+[data-theme="light"] .social-link {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+[data-theme="light"] .skill-item:hover,
+[data-theme="light"] .portfolio-item:hover,
+[data-theme="light"] .social-link:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Additional text elements that might need explicit color */
+[data-theme="light"] h1,
+[data-theme="light"] h2,
+[data-theme="light"] h3,
+[data-theme="light"] h4,
+[data-theme="light"] h5,
+[data-theme="light"] h6 {
+    color: var(--text-primary) !important;
+}
+
+[data-theme="light"] p,
+[data-theme="light"] span,
+[data-theme="light"] div {
+    color: inherit;
+}
+
+/* Ensure proper contrast for all interactive elements */
+[data-theme="light"] a {
+    color: var(--primary-color);
+}
+
+[data-theme="light"] a:hover {
+    color: var(--secondary-color);
+}
+
+/* Progress bars and skill bars */
+[data-theme="light"] .skill-progress {
+    background: var(--primary-color) !important;
+}
+
+[data-theme="light"] .skill-bar {
+    background: var(--border-color) !important;
+}
+
+/* Terminal cursor and animations */
+[data-theme="light"] .cursor-loading,
+[data-theme="light"] .cursor {
+    color: var(--primary-color) !important;
+}
+
+/* Ensure proper visibility for all form elements */
+[data-theme="light"] input,
+[data-theme="light"] textarea,
+[data-theme="light"] select {
+    background: var(--bg-card) !important;
+    color: var(--text-primary) !important;
+    border: 2px solid var(--border-color) !important;
+}
+
+[data-theme="light"] input:focus,
+[data-theme="light"] textarea:focus,
+[data-theme="light"] select:focus {
+    border-color: var(--primary-color) !important;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 212, 170, 0.1) !important;
+}

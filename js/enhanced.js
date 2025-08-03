@@ -393,9 +393,16 @@ function initializeThemeToggle() {
             const currentTheme = document.documentElement.getAttribute('data-theme');
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
             
+            // Add transition class for smooth theme change
+            document.documentElement.style.transition = 'all 0.3s ease';
             document.documentElement.setAttribute('data-theme', newTheme);
             localStorage.setItem('theme', newTheme);
             updateThemeIcon(newTheme);
+            
+            // Remove transition after change
+            setTimeout(() => {
+                document.documentElement.style.transition = '';
+            }, 300);
         });
     }
     
@@ -403,6 +410,17 @@ function initializeThemeToggle() {
         const icon = themeToggle.querySelector('i');
         if (icon) {
             icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        }
+        
+        // Update theme toggle title
+        themeToggle.title = theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode';
+        
+        // Update particles.js if it exists
+        if (window.pJSDom && window.pJSDom.length > 0) {
+            const particlesColor = theme === 'dark' ? '#00d4aa' : '#2d3748';
+            window.pJSDom[0].pJS.particles.color.value = particlesColor;
+            window.pJSDom[0].pJS.particles.line_linked.color = particlesColor;
+            window.pJSDom[0].pJS.fn.particlesRefresh();
         }
     }
 }
