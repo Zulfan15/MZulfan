@@ -373,12 +373,5 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Global functions for onclick handlers
     window.scrollToContact = () => scrollToSection('contact');
-    window.openProjectModal = (projectId) => {
-        // Implement project modal functionality
-        console.log('Opening project modal for:', projectId);
-    };
-    window.closeProjectModal = () => {
-        // Implement close modal functionality
-        console.log('Closing project modal');
-    };
+    // Project modal removed; noop handlers no longer required
 });

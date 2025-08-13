@@ -268,10 +268,7 @@
         margin-bottom: 1rem;
     }
 
-    .portfolio-overlay .portfolio-links {
-        flex-direction: column;
-        gap: 0.8rem;
-    }
+    .portfolio-overlay .portfolio-links { display: none; }
 
     .portfolio-btn {
         width: 100%;

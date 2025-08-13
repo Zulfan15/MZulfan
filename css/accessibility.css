@@ -259,14 +259,6 @@ p {
     transform: translateY(-2px);
 }
 
-/* Enhanced Modal Accessibility */
-.modal[aria-hidden="true"] {
-    display: none;
-}
-
-.modal[aria-hidden="false"] {
-    display: flex;
-}
 
 /* Status Messages */
 .status-message {

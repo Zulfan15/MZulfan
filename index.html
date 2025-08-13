@@ -13,14 +13,14 @@
     <meta property="og:url" content="https://zulfan.dev/">
     <meta property="og:title" content="Muhammad Zulfan Anggadhiputra | Informatics Student">
     <meta property="og:description" content="Portfolio of Informatics Engineering student specializing in software development and database programming">
-    <meta property="og:image" content="images/og-image.jpg">
+    <meta property="og:image" content="images/profile.jpg">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://zulfan.dev/">
     <meta property="twitter:title" content="Muhammad Zulfan Anggadhiputra | Informatics Student">
     <meta property="twitter:description" content="Portfolio of Informatics Engineering student specializing in software development and database programming">
-    <meta property="twitter:image" content="images/og-image.jpg">
+    <meta property="twitter:image" content="images/profile.jpg">
 
     <!-- Favicon -->
     <link rel="apple-touch-icon" sizes="180x180" href="images/favicon.ico">
@@ -42,10 +42,37 @@
     <!-- Preload critical resources -->
     <link rel="preload" href="css/styles.css" as="style">
     <link rel="preload" href="js/main.js" as="script">
+    
+        <!-- Structured Data: Person (JSON-LD) -->
+        <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "Person",
+            "name": "Muhammad Zulfan Anggadhiputra",
+            "jobTitle": "Informatics Student",
+            "url": "https://zulfan.dev/",
+            "email": "mailto:zulfanangga2908@gmail.com",
+            "telephone": "+62-851-5692-7928",
+            "address": {
+                "@type": "PostalAddress",
+                "addressLocality": "Bandung",
+                "addressRegion": "Jawa Barat",
+                "addressCountry": "ID"
+            },
+            "image": "images/profile.jpg",
+            "sameAs": [
+                "https://github.com/Zulfan15",
+                "https://linkedin.com/in/zulfan15",
+                "https://instagram.com/zulfan15",
+                "https://twitter.com/zulfan15",
+                "https://t.me/zulfan15"
+            ]
+        }
+        </script>
 </head>
 <body>
     <!-- Skip to main content for accessibility -->
-    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <a href="#home" class="skip-link">Skip to main content</a>
     
     <!-- Loading Screen -->
     <div id="loading-screen" class="loading-screen" aria-hidden="true" role="progressbar" aria-label="Loading portfolio content">
@@ -123,11 +150,11 @@
                 <button class="theme-toggle" id="theme-toggle" title="Toggle Theme">
                     <i class="fas fa-moon"></i>
                 </button>
-                <div class="nav-toggle" id="nav-toggle">
+                <button class="nav-toggle" id="nav-toggle" aria-controls="nav-menu" aria-expanded="false" aria-label="Toggle navigation" type="button">
                     <span class="bar"></span>
                     <span class="bar"></span>
                     <span class="bar"></span>
-                </div>
+                </button>
             </div>
         </div>
     </nav>
@@ -152,9 +179,7 @@
                         <span class="wave">👋</span>
                         <span class="greeting-text">Hello, I'm</span>
                     </div>
-                    <h1 class="hero-title">
-                        <span class="name-highlight">Muhammad Zulfan Anggadhiputra</span>
-                    </h1>
+                    <h1 class="hero-title">Muhammad Zulfan Anggadhiputra</h1>
                     <div class="terminal-container">
                         <div class="terminal-window-hero">
                             <div class="terminal-header-hero">
@@ -207,19 +232,19 @@
 
                 <!-- Social Links -->
                 <div class="social-links">
-                    <a href="https://github.com/Zulfan15" target="_blank" class="social-link" data-tooltip="GitHub">
+                    <a href="https://github.com/Zulfan15" target="_blank" rel="noopener noreferrer" class="social-link" data-tooltip="GitHub">
                         <i class="fab fa-github"></i>
                         <span class="social-label">GitHub</span>
                     </a>
-                    <a href="https://linkedin.com/in/zulfan15" target="_blank" class="social-link" data-tooltip="LinkedIn">
+                    <a href="https://linkedin.com/in/zulfan15" target="_blank" rel="noopener noreferrer" class="social-link" data-tooltip="LinkedIn">
                         <i class="fab fa-linkedin"></i>
                         <span class="social-label">LinkedIn</span>
                     </a>
-                    <a href="https://instagram.com/zulfan15" target="_blank" class="social-link" data-tooltip="Instagram">
+                    <a href="https://instagram.com/zulfan15" target="_blank" rel="noopener noreferrer" class="social-link" data-tooltip="Instagram">
                         <i class="fab fa-instagram"></i>
                         <span class="social-label">Instagram</span>
                     </a>
-                    <a href="https://twitter.com/zulfan15" target="_blank" class="social-link" data-tooltip="Twitter">
+                    <a href="https://twitter.com/zulfan15" target="_blank" rel="noopener noreferrer" class="social-link" data-tooltip="Twitter">
                         <i class="fab fa-twitter"></i>
                         <span class="social-label">Twitter</span>
                     </a>
@@ -236,7 +261,7 @@
                         <span>View My Work</span>
                         <div class="btn-shine"></div>
                     </a>
-                    <a href="assets/CV.pdf" target="_blank" class="btn btn-secondary btn-download">
+                    <a href="assets/CV.pdf" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-download">
                         <i class="fas fa-download"></i>
                         <span>Download Resume</span>
                         <div class="download-progress"></div>
@@ -842,7 +867,7 @@
                     <i class="fas fa-plus"></i>
                     <span>View More Projects</span>
                 </button>
-                <a href="https://github.com/Zulfan15" target="_blank" class="btn btn-secondary">
+                <a href="https://github.com/Zulfan15" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
                     <i class="fab fa-github"></i>
                     <span>View All on GitHub</span>
                 </a>
@@ -974,15 +999,15 @@
                     <div class="quick-contact">
                         <h4>Quick Contact</h4>
                         <div class="quick-contact-buttons">
-                            <a href="https://wa.me/6285156927928" target="_blank" class="quick-btn whatsapp">
+                            <a href="https://wa.me/6285156927928" target="_blank" rel="noopener noreferrer" class="quick-btn whatsapp">
                                 <i class="fab fa-whatsapp"></i>
                                 <span>WhatsApp</span>
                             </a>
-                            <a href="https://t.me/zulfan15" target="_blank" class="quick-btn telegram">
+                            <a href="https://t.me/zulfan15" target="_blank" rel="noopener noreferrer" class="quick-btn telegram">
                                 <i class="fab fa-telegram"></i>
                                 <span>Telegram</span>
                             </a>
-                            <a href="https://linkedin.com/in/zulfan15" target="_blank" class="quick-btn linkedin">
+                            <a href="https://linkedin.com/in/zulfan15" target="_blank" rel="noopener noreferrer" class="quick-btn linkedin">
                                 <i class="fab fa-linkedin"></i>
                                 <span>LinkedIn</span>
                             </a>
@@ -1025,13 +1050,13 @@
                         <h3>&lt;M Zulfan/&gt;</h3>
                         <p>Informatics Engineering Student passionate about software development and database programming.</p>
                         <div class="footer-social">
-                            <a href="https://github.com/Zulfan15" target="_blank" aria-label="GitHub Profile - View my code repositories">
+                            <a href="https://github.com/Zulfan15" target="_blank" rel="noopener noreferrer" aria-label="GitHub Profile - View my code repositories">
                                 <i class="fab fa-github"></i>
                             </a>
-                            <a href="https://linkedin.com/in/muhammad-zulfan-anggadhiputra" target="_blank" aria-label="LinkedIn Profile - Connect with me professionally">
+                            <a href="https://linkedin.com/in/muhammad-zulfan-anggadhiputra" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn Profile - Connect with me professionally">
                                 <i class="fab fa-linkedin"></i>
                             </a>
-                            <a href="mailto:zulfanangga2908@gmail.com" target="_blank" aria-label="Email - Contact me directly">
+                            <a href="mailto:zulfanangga2908@gmail.com" target="_blank" rel="noopener noreferrer" aria-label="Email - Contact me directly">
                                 <i class="fas fa-envelope"></i>
                             </a>
                         </div>
@@ -1082,7 +1107,7 @@
                 <div class="footer-links-bottom">
                     <a href="#privacy">Privacy Policy</a>
                     <a href="#terms">Terms of Service</a>
-                    <a href="#sitemap">Sitemap</a>
+                    <a href="sitemap.xml">Sitemap</a>
                 </div>
             </div>
         </div>
@@ -1092,19 +1117,6 @@
             <i class="fas fa-chevron-up"></i>
         </button>
     </footer>
-
-    <!-- Project Modal -->
-    <div class="modal" id="project-modal">
-        <div class="modal-overlay" onclick="closeProjectModal()"></div>
-        <div class="modal-content">
-            <button class="modal-close" onclick="closeProjectModal()">
-                <i class="fas fa-times"></i>
-            </button>
-            <div class="modal-body" id="modal-body">
-                <!-- Content will be dynamically loaded -->
-            </div>
-        </div>
-    </div>
 
     <!-- Notification Container -->
     <div id="notification-container" class="notification-container"></div>

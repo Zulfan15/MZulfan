@@ -1,0 +1,6 @@
+# robots.txt
+# Update Sitemap URL after deployment
+User-agent: *
+Allow: /
+
+Sitemap: https://zulfan.dev/sitemap.xml

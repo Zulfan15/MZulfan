@@ -934,13 +934,15 @@ section {
     border-color: var(--primary-color);
 }
 
-.portfolio-img {
+.portfolio-img,
+.portfolio-image {
     position: relative;
     overflow: hidden;
     background: var(--bg-code);
 }
 
-.portfolio-img img {
+.portfolio-img img,
+.portfolio-image img {
     width: 100%;
     height: 250px;
     object-fit: cover;
@@ -954,7 +956,7 @@ section {
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(135deg, rgba(0, 212, 170, 0.95), rgba(0, 112, 243, 0.95));
+    background: linear-gradient(135deg, rgba(0, 212, 170, 0.96), rgba(0, 112, 243, 0.96));
     display: flex;
     align-items: center;
     justify-content: center;
@@ -968,6 +970,23 @@ section {
 
 .portfolio-item:hover .portfolio-img img {
     transform: scale(1.1);
+}
+
+/* Dim underlying content when overlay is visible to avoid double text and improve readability */
+.portfolio-item:hover .portfolio-content {
+    filter: blur(2px) brightness(0.7);
+    transition: filter 0.2s ease;
+}
+
+/* Reset button styles for nav-toggle (was div before) */
+button.nav-toggle {
+    background: transparent;
+    border: none;
+    padding: 0.25rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
 }
 
 .portfolio-info {
@@ -995,30 +1014,15 @@ section {
 }
 
 .portfolio-links {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
+    display: none; /* hidden as links were removed */
 }
 
 .portfolio-links a {
-    width: 40px;
-    height: 40px;
-    background: rgba(255, 255, 255, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--text-primary);
-    text-decoration: none;
-    transition: all 0.3s ease;
-    backdrop-filter: blur(10px);
+    display: none;
 }
 
 .portfolio-links a:hover {
-    background: var(--text-primary);
-    color: var(--primary-color);
-    transform: translateY(-2px);
+    display: none;
 }
 
 /* Contact Section - Terminal Style */
