@@ -1,0 +1,85 @@
+/* Section Separation CSS - Ensures no overlapping */
+
+/* Base section styling */
+section {
+    position: relative;
+    display: block;
+    width: 100%;
+    overflow: hidden;
+    isolation: isolate; /* Creates new stacking context */
+}
+
+/* Specific section z-index hierarchy */
+.hero {
+    z-index: 100;
+    position: relative;
+}
+
+.stats-section {
+    z-index: 90;
+    position: relative;
+    transform: translateZ(0); /* Force hardware acceleration */
+}
+
+.skills-section {
+    z-index: 80;
+    position: relative;
+    transform: translateZ(0);
+    background: var(--bg-primary) !important;
+}
+
+.about {
+    z-index: 70;
+    position: relative;
+    transform: translateZ(0);
+}
+
+.portfolio {
+    z-index: 60;
+    position: relative;
+    transform: translateZ(0);
+}
+
+.experience {
+    z-index: 50;
+    position: relative;
+    transform: translateZ(0);
+}
+
+.contact {
+    z-index: 40;
+    position: relative;
+    transform: translateZ(0);
+}
+
+/* Ensure no floating elements cause issues */
+.container {
+    position: relative;
+    z-index: 1;
+}
+
+/* Clear any transforms that might cause issues */
+.section-header {
+    position: relative;
+    z-index: 2;
+}
+
+/* Mobile additional fixes */
+@media (max-width: 768px) {
+    section {
+        isolation: isolate;
+        contain: layout;
+    }
+    
+    .skills-section {
+        background: var(--bg-primary) !important;
+        min-height: 400px;
+    }
+}
+
+/* Force repaint on scroll for some browsers */
+@supports (contain: layout) {
+    section {
+        contain: layout;
+    }
+}

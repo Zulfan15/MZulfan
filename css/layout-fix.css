@@ -1,0 +1,160 @@
+/* Layout Fix CSS - Prevents overlapping sections */
+
+/* Hero section layout fixes */
+.hero {
+    position: relative;
+    z-index: 3;
+    padding-bottom: 2rem;
+}
+
+.hero .container {
+    position: relative;
+    z-index: 4;
+}
+
+/* Stats section positioning */
+.stats-section {
+    clear: both;
+    overflow: hidden;
+    position: relative;
+    z-index: 2;
+    background: var(--bg-darker);
+}
+
+/* Skills section positioning - prevent overlap */
+.skills-section {
+    position: relative;
+    z-index: 1;
+    background: var(--bg-primary);
+    clear: both;
+    overflow: hidden;
+    padding: 5rem 0;
+    margin: 0;
+}
+
+/* About section positioning */
+.about {
+    position: relative;
+    z-index: 1;
+    clear: both;
+}
+
+/* Portfolio section positioning */
+.portfolio {
+    position: relative;
+    z-index: 1;
+    clear: both;
+}
+
+/* Experience section positioning */
+.experience {
+    position: relative;
+    z-index: 1;
+    clear: both;
+}
+
+/* Contact section positioning */
+.contact {
+    position: relative;
+    z-index: 1;
+    clear: both;
+}
+
+/* Ensure proper spacing between hero and stats */
+.hero + .stats-section {
+    margin-top: 0;
+    position: relative;
+    z-index: 2;
+}
+
+/* Ensure proper spacing between sections */
+section + section {
+    margin-top: 0;
+}
+
+/* Fix hero buttons positioning */
+.hero-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin: 2rem 0 3rem;
+    flex-wrap: wrap;
+}
+
+.hero-buttons .btn {
+    min-width: 160px;
+    white-space: nowrap;
+}
+
+/* Scroll indicator positioning */
+.scroll-indicator {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    pointer-events: none;
+}
+
+/* Prevent any floating elements from causing overlap */
+* {
+    box-sizing: border-box;
+}
+
+/* Ensure sections are properly contained */
+section {
+    position: relative;
+    overflow: hidden;
+}
+
+/* Mobile specific fixes */
+@media (max-width: 768px) {
+    .hero {
+        padding-bottom: 1rem;
+        min-height: 90vh;
+        z-index: 3;
+    }
+    
+    .hero-buttons {
+        margin: 1.5rem 0 2rem;
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .hero-buttons .btn {
+        width: 200px;
+        margin-bottom: 0.5rem;
+    }
+    
+    .scroll-indicator {
+        bottom: 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .stats-section {
+        padding: 2rem 0;
+        z-index: 2;
+    }
+    
+    .skills-section {
+        padding: 3rem 0;
+        z-index: 1;
+    }
+}
+
+/* Tablet fixes */
+@media (max-width: 1024px) and (min-width: 769px) {
+    .hero {
+        padding-bottom: 1.5rem;
+        z-index: 3;
+    }
+    
+    .hero-buttons {
+        margin: 2rem 0 2.5rem;
+    }
+    
+    .skills-section {
+        padding: 4rem 0;
+        z-index: 1;
+    }
+}

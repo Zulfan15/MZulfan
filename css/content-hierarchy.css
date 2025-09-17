@@ -40,7 +40,13 @@ section:last-of-type {
 
 /* Skills Section Improvements */
 .skills-section {
-    background: var(--bg-darker);
+    background: var(--bg-primary);
+    position: relative;
+    z-index: 1;
+    padding: 5rem 0;
+    margin: 0;
+    clear: both;
+    overflow: hidden;
 }
 
 .skills-container {

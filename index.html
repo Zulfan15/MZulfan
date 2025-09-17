@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Muhammad Zulfan Anggadhiputra - Portfolio</title>
-    <meta name="description" content="Professional portfolio of Muhammad Zulfan Anggadhiputra - Informatics undergraduate specializing in software development, database programming, and multimedia applications">
-    <meta name="keywords" content="Informatics Student, Software Development, Database Programming, Java, Python, Web Development, Multimedia Applications, Portfolio, Bandung">
+    <meta name="description" content="Professional portfolio of Muhammad Zulfan Anggadhiputra - Final-year Informatics student at Institut Teknologi Nasional Bandung, Laboratory Assistant, and HCIA-Security certified professional specializing in software development, database programming, and network security">
+    <meta name="keywords" content="Informatics Student, Laboratory Assistant, Software Development, Database Programming, Network Security, Java, Python, MySQL, IoT, Deep Learning, HCIA Security, Institut Teknologi Nasional Bandung, Portfolio, Bandung">
     <meta name="author" content="Muhammad Zulfan Anggadhiputra">
     
     <!-- Open Graph / Facebook -->
@@ -33,6 +33,9 @@
     <link rel="stylesheet" href="css/layout-fixes.css">
     <link rel="stylesheet" href="css/content-hierarchy.css">
     <link rel="stylesheet" href="css/visual-improvements.css">
+    <link rel="stylesheet" href="css/improvements.css">
+    <link rel="stylesheet" href="css/layout-fix.css">
+    <link rel="stylesheet" href="css/section-separation.css">
     <link rel="stylesheet" href="css/responsive.css">
     <link rel="stylesheet" href="css/accessibility.css">
     <link rel="stylesheet" href="css/light-theme.css">
@@ -49,7 +52,8 @@
             "@context": "https://schema.org",
             "@type": "Person",
             "name": "Muhammad Zulfan Anggadhiputra",
-            "jobTitle": "Informatics Student",
+            "jobTitle": "Informatics Student & Laboratory Assistant",
+            "description": "Final-year Informatics student at Institut Teknologi Nasional Bandung specializing in software development, database programming, and network security",
             "url": "https://zulfan.dev/",
             "email": "mailto:zulfanangga2908@gmail.com",
             "telephone": "+62-851-5692-7928",
@@ -57,12 +61,24 @@
                 "@type": "PostalAddress",
                 "addressLocality": "Bandung",
                 "addressRegion": "Jawa Barat",
+                "postalCode": "40283",
                 "addressCountry": "ID"
             },
             "image": "images/profile.jpg",
+            "alumniOf": {
+                "@type": "Organization",
+                "name": "Institut Teknologi Nasional Bandung",
+                "url": "https://itenas.ac.id/"
+            },
+            "hasCredential": {
+                "@type": "EducationalOccupationalCredential",
+                "name": "Huawei Certified ICT Associate - Security (HCIA-Security V4.0)",
+                "credentialCategory": "Professional Certification"
+            },
+            "knowsAbout": ["Software Development", "Database Programming", "Network Security", "IoT Systems", "Java Programming", "Python Programming", "MySQL", "Deep Learning"],
             "sameAs": [
                 "https://github.com/Zulfan15",
-                "https://linkedin.com/in/zulfan15",
+                "https://www.linkedin.com/in/mzulfana/",
                 "https://instagram.com/zulfan15",
                 "https://twitter.com/zulfan15",
                 "https://t.me/zulfan15"
@@ -166,10 +182,10 @@
             <div class="hero-content" data-animate>
                 <div class="profile-section">
                     <div class="profile-img">
-                        <img src="images/profile.jpg" alt="Muhammad Zulfan Anggadhiputra - Professional Full Stack Developer from Bandung, Indonesia, specializing in modern web technologies including React, Node.js, and cloud solutions" loading="eager">
+                        <img src="images/profile.jpg" alt="Muhammad Zulfan Anggadhiputra - Informatics student from Bandung specializing in software development and database programming" loading="eager">
                         <div class="status-indicator" role="status" aria-label="Currently available for new projects">
                             <span class="status-dot" aria-hidden="true"></span>
-                            <span class="status-text">Available for work</span>
+                            <span class="status-text">Available for projects</span>
                         </div>
                     </div>
                 </div>
@@ -177,109 +193,75 @@
                 <div class="intro-section">
                     <div class="greeting">
                         <span class="wave">👋</span>
-                        <span class="greeting-text">Hello, I'm</span>
+                        <span class="greeting-text">Hi, I'm</span>
                     </div>
                     <h1 class="hero-title">Muhammad Zulfan Anggadhiputra</h1>
-                    <div class="terminal-container">
-                        <div class="terminal-window-hero">
-                            <div class="terminal-header-hero">
-                                <div class="terminal-buttons-hero">
-                                    <span class="btn-red"></span>
-                                    <span class="btn-yellow"></span>
-                                    <span class="btn-green"></span>
-                                </div>
-                                <div class="terminal-title-hero">zulfan@developer</div>
-                            </div>
-                            <div class="terminal-body-hero">
-                                <div class="terminal-line">
-                                    <span class="prompt-symbol">$</span>
-                                    <span class="command-text">whoami</span>
-                                </div>
-                                <div class="terminal-output">
-                                    <p class="hero-subtitle" id="hero-subtitle"></p>
-                                </div>
-                                <div class="terminal-line">
-                                    <span class="prompt-symbol">$</span>
-                                    <span class="command-text">cat description.txt</span>
-                                </div>
-                                <div class="terminal-output">
-                                    <p class="hero-description">Passionate about creating scalable, efficient solutions using cutting-edge technologies. Specialized in full-stack development with modern frameworks and cloud infrastructure.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Enhanced Stats -->
-                <div class="hero-stats">
-                    <div class="stat-item">
-                        <div class="stat-number" data-target="15">0</div>
-                        <div class="stat-label">Projects Completed</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number" data-target="4">0</div>
-                        <div class="stat-label">Years Learning</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number" data-target="10">0</div>
-                        <div class="stat-label">Technologies</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number" data-target="5">0</div>
-                        <div class="stat-label">Academic Projects</div>
+                    <div class="hero-subtitle-wrapper">
+                        <p class="hero-subtitle" id="hero-subtitle">Informatics Student & Laboratory Assistant</p>
+                        <p class="hero-description">Informatics undergraduate skilled in software development, database programming, and multimedia applications. Experienced in lab assistance and software R&D projects, with a passion for applying emerging technologies to real-world solutions.</p>
                     </div>
                 </div>
 
                 <!-- Social Links -->
                 <div class="social-links">
-                    <a href="https://github.com/Zulfan15" target="_blank" rel="noopener noreferrer" class="social-link" data-tooltip="GitHub">
+                    <a href="https://github.com/Zulfan15" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="GitHub Profile">
                         <i class="fab fa-github"></i>
-                        <span class="social-label">GitHub</span>
                     </a>
-                    <a href="https://linkedin.com/in/zulfan15" target="_blank" rel="noopener noreferrer" class="social-link" data-tooltip="LinkedIn">
+                    <a href="https://www.linkedin.com/in/mzulfana/" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="LinkedIn Profile">
                         <i class="fab fa-linkedin"></i>
-                        <span class="social-label">LinkedIn</span>
                     </a>
-                    <a href="https://instagram.com/zulfan15" target="_blank" rel="noopener noreferrer" class="social-link" data-tooltip="Instagram">
-                        <i class="fab fa-instagram"></i>
-                        <span class="social-label">Instagram</span>
-                    </a>
-                    <a href="https://twitter.com/zulfan15" target="_blank" rel="noopener noreferrer" class="social-link" data-tooltip="Twitter">
-                        <i class="fab fa-twitter"></i>
-                        <span class="social-label">Twitter</span>
-                    </a>
-                    <a href="mailto:zulfanangga2908@gmail.com" class="social-link" data-tooltip="Email">
+                    <a href="mailto:zulfanangga2908@gmail.com" class="social-link" aria-label="Send Email">
                         <i class="fas fa-envelope"></i>
-                        <span class="social-label">Email</span>
+                    </a>
+                    <a href="https://wa.me/6285156927928" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="WhatsApp Contact">
+                        <i class="fab fa-whatsapp"></i>
                     </a>
                 </div>
 
-                <!-- Enhanced Action Buttons -->
+                <!-- Action Buttons -->
                 <div class="hero-buttons">
-                    <a href="#portfolio" class="btn btn-primary btn-glow">
-                        <i class="fas fa-code"></i>
-                        <span>View My Work</span>
-                        <div class="btn-shine"></div>
+                    <a href="#portfolio" class="btn btn-primary">
+                        <i class="fas fa-briefcase"></i>
+                        <span>View My Projects</span>
                     </a>
-                    <a href="assets/CV.pdf" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-download">
+                    <a href="assets/CV.pdf" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
                         <i class="fas fa-download"></i>
-                        <span>Download Resume</span>
-                        <div class="download-progress"></div>
+                        <span>Download CV</span>
                     </a>
-                    <button class="btn btn-outline btn-contact" onclick="scrollToContact()">
-                        <i class="fas fa-paper-plane"></i>
-                        <span>Let's Talk</span>
-                    </button>
                 </div>
             </div>
         </div>
         
         <!-- Scroll Indicator -->
-        <div class="scroll-indicator">
+        <!-- <div class="scroll-indicator">
             <div class="scroll-arrow">
                 <i class="fas fa-chevron-down"></i>
             </div>
-            <span class="scroll-text">Scroll to explore</span>
+            <span class="scroll-text">Explore my work</span>
+        </div> -->
+    </section>
+
+    <!-- Stats Section -->
+    <section id="stats" class="stats-section">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number" data-target="20">0</div>
+                    <div class="stat-label">Projects Completed</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" data-target="3">0</div>
+                    <div class="stat-label">Years of Study</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" data-target="12">0</div>
+                    <div class="stat-label">Technologies Mastered</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" data-target="4">0</div>
+                    <div class="stat-label">Lab Assistant Positions</div>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -287,15 +269,15 @@
     <section id="skills" class="skills-section" data-animate>
         <div class="container">
             <div class="section-header" data-animate>
-                <h2 class="section-title">Technical Expertise</h2>
-                <p class="section-subtitle">Technologies I work with to bring ideas to life</p>
+                <h2 class="section-title">Skills & Technologies</h2>
+                <p class="section-subtitle">Tools and technologies I use to build amazing projects</p>
             </div>
 
             <div class="skills-container">
                 <!-- Frontend Skills -->
                 <div class="skill-category">
                     <div class="category-header">
-                        <i class="fas fa-palette"></i>
+                        <i class="fas fa-code"></i>
                         <h3>Frontend Development</h3>
                     </div>
                     <div class="skills-grid">
@@ -304,11 +286,8 @@
                                 <i class="fab fa-html5"></i>
                             </div>
                             <div class="skill-info">
-                                <h4>HTML/CSS</h4>
-                                <div class="skill-bar">
-                                    <div class="skill-progress" data-width="85%"></div>
-                                </div>
-                                <span class="skill-percentage">85%</span>
+                                <h4>HTML & CSS</h4>
+                                <span class="skill-level">Proficient</span>
                             </div>
                         </div>
                         
@@ -318,58 +297,27 @@
                             </div>
                             <div class="skill-info">
                                 <h4>JavaScript</h4>
-                                <div class="skill-bar">
-                                    <div class="skill-progress" data-width="75%"></div>
-                                </div>
-                                <span class="skill-percentage">75%</span>
+                                <span class="skill-level">Intermediate</span>
                             </div>
                         </div>
 
-                        <div class="skill-item" data-skill="react">
+                        <div class="skill-item" data-skill="delphi">
                             <div class="skill-icon">
-                                <i class="fab fa-react"></i>
+                                <i class="fas fa-code"></i>
                             </div>
                             <div class="skill-info">
-                                <h4>React.js</h4>
-                                <div class="skill-bar">
-                                    <div class="skill-progress" data-width="70%"></div>
-                                </div>
-                                <span class="skill-percentage">70%</span>
+                                <h4>Delphi 7</h4>
+                                <span class="skill-level">Proficient</span>
                             </div>
                         </div>
 
-                        <div class="skill-item" data-skill="bootstrap">
+                        <div class="skill-item" data-skill="flutter">
                             <div class="skill-icon">
-                                <i class="fab fa-bootstrap"></i>
+                                <i class="fab fa-flutter"></i>
                             </div>
                             <div class="skill-info">
-                                <h4>Bootstrap</h4>
-                                <div class="skill-bar">
-                                    <div class="skill-progress" data-width="80%"></div>
-                                </div>
-                                <span class="skill-percentage">80%</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Backend Skills -->
-                <div class="skill-category">
-                    <div class="category-header">
-                        <i class="fas fa-code"></i>
-                        <h3>Programming & Backend</h3>
-                    </div>
-                    <div class="skills-grid">
-                        <div class="skill-item" data-skill="java">
-                            <div class="skill-icon">
-                                <i class="fab fa-java"></i>
-                            </div>
-                            <div class="skill-info">
-                                <h4>Java</h4>
-                                <div class="skill-bar">
-                                    <div class="skill-progress" data-width="85%"></div>
-                                </div>
-                                <span class="skill-percentage">85%</span>
+                                <h4>Flutter</h4>
+                                <span class="skill-level">Intermediate</span>
                             </div>
                         </div>
 
@@ -379,36 +327,17 @@
                             </div>
                             <div class="skill-info">
                                 <h4>Node.js</h4>
-                                <div class="skill-bar">
-                                    <div class="skill-progress" data-width="70%"></div>
-                                </div>
-                                <span class="skill-percentage">70%</span>
+                                <span class="skill-level">Intermediate</span>
                             </div>
                         </div>
 
-                        <div class="skill-item" data-skill="python">
-                            <div class="skill-icon">
-                                <i class="fab fa-python"></i>
-                            </div>
-                            <div class="skill-info">
-                                <h4>Python</h4>
-                                <div class="skill-bar">
-                                    <div class="skill-progress" data-width="80%"></div>
-                                </div>
-                                <span class="skill-percentage">80%</span>
-                            </div>
-                        </div>
-
-                        <div class="skill-item" data-skill="cpp">
+                        <div class="skill-item" data-skill="c">
                             <div class="skill-icon">
                                 <i class="fas fa-code"></i>
                             </div>
                             <div class="skill-info">
-                                <h4>C++</h4>
-                                <div class="skill-bar">
-                                    <div class="skill-progress" data-width="70%"></div>
-                                </div>
-                                <span class="skill-percentage">70%</span>
+                                <h4>C Programming</h4>
+                                <span class="skill-level">Intermediate</span>
                             </div>
                         </div>
                     </div>
@@ -418,7 +347,7 @@
                 <div class="skill-category">
                     <div class="category-header">
                         <i class="fas fa-database"></i>
-                        <h3>Database & Tools</h3>
+                        <h3>Database & Networking</h3>
                     </div>
                     <div class="skills-grid">
                         <div class="skill-item" data-skill="mysql">
@@ -427,23 +356,85 @@
                             </div>
                             <div class="skill-info">
                                 <h4>MySQL</h4>
-                                <div class="skill-bar">
-                                    <div class="skill-progress" data-width="80%"></div>
-                                </div>
-                                <span class="skill-percentage">80%</span>
+                                <span class="skill-level">Proficient</span>
                             </div>
                         </div>
 
-                        <div class="skill-item" data-skill="postgresql">
+                        <div class="skill-item" data-skill="huawei">
                             <div class="skill-icon">
-                                <i class="fas fa-database"></i>
+                                <i class="fas fa-shield-alt"></i>
                             </div>
                             <div class="skill-info">
-                                <h4>PostgreSQL</h4>
-                                <div class="skill-bar">
-                                    <div class="skill-progress" data-width="75%"></div>
-                                </div>
-                                <span class="skill-percentage">75%</span>
+                                <h4>Huawei Firewall</h4>
+                                <span class="skill-level">Certified</span>
+                            </div>
+                        </div>
+
+                        <div class="skill-item" data-skill="mikrotik">
+                            <div class="skill-icon">
+                                <i class="fas fa-network-wired"></i>
+                            </div>
+                            <div class="skill-info">
+                                <h4>MikroTik</h4>
+                                <span class="skill-level">Intermediate</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data Analysis & Testing -->
+                <div class="skill-category">
+                    <div class="category-header">
+                        <i class="fas fa-chart-line"></i>
+                        <h3>Data Analysis & Testing</h3>
+                    </div>
+                    <div class="skills-grid">
+                        <div class="skill-item" data-skill="powerbi">
+                            <div class="skill-icon">
+                                <i class="fas fa-chart-bar"></i>
+                            </div>
+                            <div class="skill-info">
+                                <h4>Power BI</h4>
+                                <span class="skill-level">Intermediate</span>
+                            </div>
+                        </div>
+
+                        <div class="skill-item" data-skill="katalon">
+                            <div class="skill-icon">
+                                <i class="fas fa-vial"></i>
+                            </div>
+                            <div class="skill-info">
+                                <h4>Katalon Studio</h4>
+                                <span class="skill-level">Intermediate</span>
+                            </div>
+                        </div>
+
+                        <div class="skill-item" data-skill="selenium">
+                            <div class="skill-icon">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="skill-info">
+                                <h4>Selenium</h4>
+                                <span class="skill-level">Intermediate</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Development Tools -->
+                <div class="skill-category">
+                    <div class="category-header">
+                        <i class="fas fa-tools"></i>
+                        <h3>Development Tools</h3>
+                    </div>
+                    <div class="skills-grid">
+                        <div class="skill-item" data-skill="vscode">
+                            <div class="skill-icon">
+                                <i class="fas fa-code"></i>
+                            </div>
+                            <div class="skill-info">
+                                <h4>VS Code</h4>
+                                <span class="skill-level">Proficient</span>
                             </div>
                         </div>
 
@@ -453,23 +444,47 @@
                             </div>
                             <div class="skill-info">
                                 <h4>Git & GitHub</h4>
-                                <div class="skill-bar">
-                                    <div class="skill-progress" data-width="80%"></div>
-                                </div>
-                                <span class="skill-percentage">80%</span>
+                                <span class="skill-level">Proficient</span>
                             </div>
                         </div>
 
-                        <div class="skill-item" data-skill="adobe">
+                        <div class="skill-item" data-skill="intellij">
                             <div class="skill-icon">
-                                <i class="fas fa-palette"></i>
+                                <i class="fas fa-laptop-code"></i>
                             </div>
                             <div class="skill-info">
-                                <h4>Adobe Creative</h4>
-                                <div class="skill-bar">
-                                    <div class="skill-progress" data-width="75%"></div>
-                                </div>
-                                <span class="skill-percentage">75%</span>
+                                <h4>IntelliJ IDEA</h4>
+                                <span class="skill-level">Proficient</span>
+                            </div>
+                        </div>
+
+                        <div class="skill-item" data-skill="android">
+                            <div class="skill-icon">
+                                <i class="fab fa-android"></i>
+                            </div>
+                            <div class="skill-info">
+                                <h4>Android Studio</h4>
+                                <span class="skill-level">Intermediate</span>
+                            </div>
+                        </div>
+
+                        <div class="skill-item" data-skill="arduino">
+                            <div class="skill-icon">
+                                <i class="fas fa-microchip"></i>
+                            </div>
+                            <div class="skill-info">
+                                <h4>Arduino IDE</h4>
+                                <span class="skill-level">Intermediate</span>
+                            </div>
+                        </div>
+
+                        <div class="skill-item" data-skill="vscode">
+                            <div class="skill-icon">
+                                <i class="fas fa-code"></i>
+                            </div>
+                            <div class="skill-info">
+                                <h4>VS Code</h4>
+                                <span class="skill-level">Proficient</span>
                             </div>
                         </div>
                     </div>
@@ -483,39 +498,39 @@
         <div class="container">
             <div class="section-header">
                 <h2 class="section-title">About Me</h2>
-                <p class="section-subtitle">Informatics student passionate about software development and database programming</p>
+                <p class="section-subtitle">Building digital solutions with passion and curiosity</p>
             </div>
             
             <div class="about-grid">
                 <div class="about-content">
                     <div class="about-text">
-                        <h3>Hello! I'm Muhammad Zulfan Anggadhiputra</h3>
-                        <p>I'm a dedicated Informatics undergraduate based in Bandung, Jawa Barat, with a strong passion for continuous learning and exploring emerging technologies. My journey in software development spans multiple areas including web development, database programming, and multimedia applications.</p>
+                        <h3>Hi there! I'm Zulfan 👋</h3>
+                        <p>I'm a final-year Informatics student at Institut Teknologi Nasional Bandung with a GPA of 3.46, currently serving as a Laboratory Assistant for multiple programming courses. My journey began with curiosity about technology and has evolved into a comprehensive understanding of software development, database programming, and system administration.</p>
                         
-                        <p>I specialize in software development with a focus on database programming and multimedia applications. My academic journey has equipped me with strong fundamentals in computer science, and I'm continuously expanding my skills in modern technologies. I enjoy working on projects that combine technical problem-solving with creative solutions.</p>
+                        <p>My experience spans multiple domains - from serving as a Database Programming Lab Assistant where I guide students through database design and implementation, to working as a Software Development Intern at PT Dwi Purwa Teknologi. I've also taken on roles as an Object-Oriented Programming and Computer Network Lab Assistant, helping fellow students master complex programming concepts and networking fundamentals.</p>
                         
-                        <p>Currently pursuing my degree in Informatics Engineering, I'm actively seeking opportunities to apply my knowledge in real-world scenarios. I'm particularly interested in database design, software development, and exploring how technology can solve complex problems. My goal is to contribute to meaningful projects while continuing to grow as a developer.</p>
+                        <p>What drives me is the challenge of turning complex problems into elegant solutions. Whether I'm developing IoT-based prototypes like my Remote Control Tank project, implementing deep learning models for image classification, or designing secure network infrastructures, I approach each challenge with both technical rigor and creative thinking. I hold a Huawei Certified ICT Associate certification in Security, reflecting my commitment to cybersecurity best practices.</p>
                         
                         <div class="about-highlights">
                             <div class="highlight-item">
                                 <i class="fas fa-graduation-cap"></i>
                                 <div>
-                                    <h4>Education Focus</h4>
-                                    <p>Informatics undergraduate with strong foundation in computer science</p>
+                                    <h4>Academic Excellence</h4>
+                                    <p>Final-year Informatics student with GPA 3.46 and multiple lab assistant positions</p>
                                 </div>
                             </div>
                             <div class="highlight-item">
-                                <i class="fas fa-database"></i>
+                                <i class="fas fa-certificate"></i>
                                 <div>
-                                    <h4>Database Programming</h4>
-                                    <p>Experienced in database design and programming</p>
+                                    <h4>Industry Certified</h4>
+                                    <p>Huawei Certified ICT Associate - Security (HCIA-Security V4.0)</p>
                                 </div>
                             </div>
                             <div class="highlight-item">
-                                <i class="fas fa-photo-video"></i>
+                                <i class="fas fa-briefcase"></i>
                                 <div>
-                                    <h4>Multimedia Applications</h4>
-                                    <p>Skilled in developing multimedia-rich applications</p>
+                                    <h4>Practical Experience</h4>
+                                    <p>Lab instructor, software development intern, and hands-on project experience</p>
                                 </div>
                             </div>
                         </div>
@@ -544,59 +559,73 @@
                                 <span class="line-number">2</span>
                                 <span class="code-text">
                                     &nbsp;&nbsp;<span class="property">name</span>: 
-                                    <span class="string">'Muhammad Zulfan'</span>,
+                                    <span class="string">'Muhammad Zulfan Anggadhiputra'</span>,
                                 </span>
                             </div>
                             <div class="code-line">
                                 <span class="line-number">3</span>
                                 <span class="code-text">
                                     &nbsp;&nbsp;<span class="property">role</span>: 
-                                    <span class="string">'Informatics Student'</span>,
+                                    <span class="string">'Informatics Student & Lab Assistant'</span>,
                                 </span>
                             </div>
                             <div class="code-line">
                                 <span class="line-number">4</span>
+                                <span class="code-text">
+                                    &nbsp;&nbsp;<span class="property">university</span>: 
+                                    <span class="string">'Institut Teknologi Nasional Bandung'</span>,
+                                </span>
+                            </div>
+                            <div class="code-line">
+                                <span class="line-number">5</span>
                                 <span class="code-text">
                                     &nbsp;&nbsp;<span class="property">location</span>: 
                                     <span class="string">'Bandung, Jawa Barat'</span>,
                                 </span>
                             </div>
                             <div class="code-line">
-                                <span class="line-number">5</span>
-                                <span class="code-text">
-                                    &nbsp;&nbsp;<span class="property">yearOfStudy</span>: 
-                                    <span class="number">4</span>,
-                                </span>
-                            </div>
-                            <div class="code-line">
                                 <span class="line-number">6</span>
                                 <span class="code-text">
-                                    &nbsp;&nbsp;<span class="property">skills</span>: [
+                                    &nbsp;&nbsp;<span class="property">gpa</span>: 
+                                    <span class="number">3.46</span>,
                                 </span>
                             </div>
                             <div class="code-line">
                                 <span class="line-number">7</span>
                                 <span class="code-text">
-                                    &nbsp;&nbsp;&nbsp;&nbsp;<span class="string">'Java'</span>,
-                                    <span class="string">'Python'</span>,
-                                    <span class="string">'MySQL'</span>
+                                    &nbsp;&nbsp;<span class="property">year</span>: 
+                                    <span class="string">'Final Year'</span>,
                                 </span>
                             </div>
                             <div class="code-line">
                                 <span class="line-number">8</span>
                                 <span class="code-text">
-                                    &nbsp;&nbsp;],
+                                    &nbsp;&nbsp;<span class="property">skills</span>: [
                                 </span>
                             </div>
                             <div class="code-line">
                                 <span class="line-number">9</span>
                                 <span class="code-text">
-                                    &nbsp;&nbsp;<span class="property">passion</span>: 
-                                    <span class="string">'Learning & Building Solutions'</span>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;<span class="string">'Java'</span>,
+                                    <span class="string">'Python'</span>,
+                                    <span class="string">'Database Programming'</span>
                                 </span>
                             </div>
                             <div class="code-line">
                                 <span class="line-number">10</span>
+                                <span class="code-text">
+                                    &nbsp;&nbsp;],
+                                </span>
+                            </div>
+                            <div class="code-line">
+                                <span class="line-number">11</span>
+                                <span class="code-text">
+                                    &nbsp;&nbsp;<span class="property">certification</span>: 
+                                    <span class="string">'HCIA-Security V4.0'</span>
+                                </span>
+                            </div>
+                            <div class="code-line">
+                                <span class="line-number">12</span>
                                 <span class="code-text">};</span>
                             </div>
                         </div>
@@ -622,35 +651,35 @@
                     <div class="timeline-content">
                         <div class="timeline-header">
                             <h3>Informatics Student</h3>
-                            <span class="timeline-date">2020 - Present</span>
+                            <span class="timeline-date">2022 - Present</span>
                         </div>
-                        <h4>University</h4>
-                        <p>Currently pursuing a degree in Informatics with a strong focus on software development, database programming, and multimedia applications. Actively learning modern technologies and participating in various programming projects.</p>
+                        <h4>Institut Teknologi Nasional Bandung</h4>
+                        <p>Undergraduate student in Informatics with current GPA of 3.46. Specializing in software development, database programming, and multimedia applications. Currently in final year with focus on advanced programming concepts and real-world application development.</p>
                         <div class="timeline-skills">
                             <span class="skill-badge">Software Development</span>
                             <span class="skill-badge">Database Programming</span>
-                            <span class="skill-badge">Multimedia Applications</span>
-                            <span class="skill-badge">Web Development</span>
+                            <span class="skill-badge">Object-Oriented Programming</span>
+                            <span class="skill-badge">Network Security</span>
                         </div>
                     </div>
                 </div>
                 
                 <div class="timeline-item">
                     <div class="timeline-marker">
-                        <i class="fas fa-code"></i>
+                        <i class="fas fa-briefcase"></i>
                     </div>
                     <div class="timeline-content">
                         <div class="timeline-header">
-                            <h3>Frontend Development Projects</h3>
-                            <span class="timeline-date">2022 - Present</span>
+                            <h3>Software Development Intern</h3>
+                            <span class="timeline-date">July 2025 - Sep 2025</span>
                         </div>
-                        <h4>Personal & Academic Projects</h4>
-                        <p>Developed various web applications and projects focusing on modern frontend technologies. Created responsive user interfaces and interactive web experiences using contemporary frameworks and libraries.</p>
+                        <h4>PT Dwi Purwa Teknologi</h4>
+                        <p>Assisted in research and development (R&D) of digital solutions for client projects. Contributed to adding new features in in-progress software applications and collaborated with senior developers to test, debug, and improve application performance. Gained hands-on experience in the complete software development lifecycle.</p>
                         <div class="timeline-skills">
-                            <span class="skill-badge">React.js</span>
-                            <span class="skill-badge">JavaScript</span>
-                            <span class="skill-badge">TypeScript</span>
-                            <span class="skill-badge">CSS3</span>
+                            <span class="skill-badge">Software R&D</span>
+                            <span class="skill-badge">Feature Development</span>
+                            <span class="skill-badge">Testing & Debugging</span>
+                            <span class="skill-badge">Team Collaboration</span>
                         </div>
                     </div>
                 </div>
@@ -661,36 +690,56 @@
                     </div>
                     <div class="timeline-content">
                         <div class="timeline-header">
-                            <h3>Database Programming</h3>
-                            <span class="timeline-date">2021 - Present</span>
+                            <h3>Database Programming Laboratory Assistant</h3>
+                            <span class="timeline-date">Sep 2024 - Jan 2025</span>
                         </div>
-                        <h4>Academic & Personal Projects</h4>
-                        <p>Gained experience in database design, development, and optimization. Worked with various database systems and implemented efficient data management solutions for academic and personal projects.</p>
+                        <h4>Institut Teknologi Nasional Bandung</h4>
+                        <p>Served as instructor for introductory database concepts and application development. Guided students in designing, implementing and integrating databases into real-world applications using Delphi7. Provided one-on-one mentoring to help students troubleshoot coding and database issues.</p>
                         <div class="timeline-skills">
-                            <span class="skill-badge">MySQL</span>
-                            <span class="skill-badge">PostgreSQL</span>
-                            <span class="skill-badge">MongoDB</span>
                             <span class="skill-badge">Database Design</span>
+                            <span class="skill-badge">Delphi 7</span>
+                            <span class="skill-badge">SQL</span>
+                            <span class="skill-badge">Teaching & Mentoring</span>
                         </div>
                     </div>
                 </div>
                 
                 <div class="timeline-item">
                     <div class="timeline-marker">
-                        <i class="fas fa-photo-video"></i>
+                        <i class="fas fa-code"></i>
                     </div>
                     <div class="timeline-content">
                         <div class="timeline-header">
-                            <h3>Multimedia Application Development</h3>
-                            <span class="timeline-date">2021 - Present</span>
+                            <h3>Object-Oriented Programming Laboratory Assistant</h3>
+                            <span class="timeline-date">Mar 2025 - June 2025</span>
                         </div>
-                        <h4>Academic Projects & Learning</h4>
-                        <p>Explored multimedia application development including graphics, audio, and video processing. Developed applications that combine traditional programming with multimedia elements.</p>
+                        <h4>Institut Teknologi Nasional Bandung</h4>
+                        <p>Served as instructor for object-oriented programming fundamentals using Java. Assisted students in applying OOP principles (encapsulation, inheritance, polymorphism) in software development projects. Mentored student teams to develop small-to-medium scale applications with best coding practices.</p>
                         <div class="timeline-skills">
-                            <span class="skill-badge">Multimedia Programming</span>
-                            <span class="skill-badge">Graphics Processing</span>
-                            <span class="skill-badge">UI/UX Design</span>
-                            <span class="skill-badge">Creative Coding</span>
+                            <span class="skill-badge">Java Programming</span>
+                            <span class="skill-badge">OOP Principles</span>
+                            <span class="skill-badge">Software Architecture</span>
+                            <span class="skill-badge">Code Review</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-marker">
+                        <i class="fas fa-network-wired"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            <h3>Computer Network Laboratory Assistant</h3>
+                            <span class="timeline-date">Mar 2025 - June 2025</span>
+                        </div>
+                        <h4>Institut Teknologi Nasional Bandung</h4>
+                        <p>Served as instructor for computer networking fundamentals and configuration. Guided students in setting up LAN, configuring routers/switches, and implementing TCP/IP protocols. Supported students in network troubleshooting, security basics, and client-server project assignments.</p>
+                        <div class="timeline-skills">
+                            <span class="skill-badge">Network Configuration</span>
+                            <span class="skill-badge">TCP/IP Protocols</span>
+                            <span class="skill-badge">Router/Switch Setup</span>
+                            <span class="skill-badge">Network Security</span>
                         </div>
                     </div>
                 </div>
@@ -713,17 +762,66 @@
                 <button class="filter-btn" data-filter="database">Database</button>
                 <button class="filter-btn" data-filter="multimedia">Multimedia</button>
                 <button class="filter-btn" data-filter="academic">Academic</button>
+                <button class="filter-btn" data-filter="iot">IoT & Embedded</button>
             </div>
             
             <div class="portfolio-grid">
-                <!-- Project 1 -->
+                <!-- Project 1 - Remote Control Tank -->
+                <div class="portfolio-item" data-category="multimedia academic" data-project="tank">
+                    <div class="portfolio-image">
+                        <img src="images/Vmachine.png" alt="Remote Control Tank IoT Project" loading="lazy" style="object-fit: cover; width: 100%; height: 250px;">
+                        <div class="portfolio-overlay">
+                            <div class="portfolio-info">
+                                <h3>Remote Control Tank</h3>
+                                <p>IoT-based prototype integrating ESP32, sensors, and motor drivers with Flutter mobile control and web dashboard</p>
+                                <div class="portfolio-tech">
+                                    <span class="tech-tag">ESP32</span>
+                                    <span class="tech-tag">Flutter</span>
+                                    <span class="tech-tag">IoT</span>
+                                    <span class="tech-tag">Sensors</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="portfolio-content">
+                        <div class="project-category">IoT & Embedded Systems</div>
+                        <h3>Remote Control Tank</h3>
+                        <p>Advanced IoT prototype featuring ESP32 microcontroller, sensor integration, motor control, and cross-platform mobile application for remote operation.</p>
+                    </div>
+                </div>
+                
+                <!-- Project 2 - Deep Learning Classification -->
+                <div class="portfolio-item" data-category="academic" data-project="deeplearning">
+                    <div class="portfolio-image">
+                        <img src="images/Vmachine.png" alt="Deep Learning Image Classification" loading="lazy" style="object-fit: cover; width: 100%; height: 250px;">
+                        <div class="portfolio-overlay">
+                            <div class="portfolio-info">
+                                <h3>Deep Learning Image Classification with InceptionV3</h3>
+                                <p>Advanced machine learning project utilizing transfer learning and fine-tuning techniques for image classification tasks</p>
+                                <div class="portfolio-tech">
+                                    <span class="tech-tag">Python</span>
+                                    <span class="tech-tag">TensorFlow</span>
+                                    <span class="tech-tag">InceptionV3</span>
+                                    <span class="tech-tag">Deep Learning</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="portfolio-content">
+                        <div class="project-category">Machine Learning</div>
+                        <h3>InceptionV3 Image Classification</h3>
+                        <p>Comprehensive deep learning project implementing transfer learning and fine-tuning techniques for accurate image classification using state-of-the-art models.</p>
+                    </div>
+                </div>
+
+                <!-- Project 3 - Database Management System -->
                 <div class="portfolio-item" data-category="database" data-project="dbmanagement">
                     <div class="portfolio-image">
                         <img src="images/Vmachine.png" alt="Database Management System" loading="lazy" style="object-fit: cover; width: 100%; height: 250px;">
                         <div class="portfolio-overlay">
                             <div class="portfolio-info">
                                 <h3>University Database Management System</h3>
-                                <p>Complete database system for managing student information, courses, and grades</p>
+                                <p>Complete database system for managing student information, courses, and grades with intuitive Java Swing interface</p>
                                 <div class="portfolio-tech">
                                     <span class="tech-tag">Java</span>
                                     <span class="tech-tag">MySQL</span>
@@ -736,23 +834,23 @@
                     <div class="portfolio-content">
                         <div class="project-category">Database Programming</div>
                         <h3>University Database System</h3>
-                        <p>Comprehensive database management system with CRUD operations, reporting, and user authentication.</p>
+                        <p>Comprehensive database management system with full CRUD operations, advanced reporting, and secure user authentication for academic data management.</p>
                     </div>
                 </div>
                 
-                <!-- Project 2 -->
+                <!-- Project 4 - Portfolio Website -->
                 <div class="portfolio-item" data-category="web" data-project="portfolio">
                     <div class="portfolio-image">
-                        <img src="images/Vmachine.png" alt="Database Management System" loading="lazy" style="object-fit: cover; width: 100%; height: 250px;">
+                        <img src="images/Vmachine.png" alt="Personal Portfolio Website" loading="lazy" style="object-fit: cover; width: 100%; height: 250px;">
                         <div class="portfolio-overlay">
                             <div class="portfolio-info">
                                 <h3>Personal Portfolio Website</h3>
-                                <p>Responsive personal portfolio with modern design and interactive features</p>
+                                <p>Modern, responsive portfolio with dark/light theme, particle effects, and smooth animations</p>
                                 <div class="portfolio-tech">
                                     <span class="tech-tag">HTML5</span>
                                     <span class="tech-tag">CSS3</span>
                                     <span class="tech-tag">JavaScript</span>
-                                    <span class="tech-tag">Bootstrap</span>
+                                    <span class="tech-tag">Particles.js</span>
                                 </div>
                             </div>
                         </div>
@@ -760,18 +858,42 @@
                     <div class="portfolio-content">
                         <div class="project-category">Web Development</div>
                         <h3>Personal Portfolio Website</h3>
-                        <p>Modern, responsive portfolio website showcasing projects and skills with smooth animations.</p>
+                        <p>Fully responsive portfolio showcasing projects with terminal-style animations, interactive particle background, and modern UI/UX design.</p>
                     </div>
                 </div>
                 
-                <!-- Project 3 -->
+                <!-- Project 5 - Network Security Implementation -->
+                <div class="portfolio-item" data-category="academic" data-project="networksecurity">
+                    <div class="portfolio-image">
+                        <img src="images/Vmachine.png" alt="Network Security Project" loading="lazy" style="object-fit: cover; width: 100%; height: 250px;">
+                        <div class="portfolio-overlay">
+                            <div class="portfolio-info">
+                                <h3>Network Security Infrastructure</h3>
+                                <p>Implementation of secure network architecture using Huawei firewalls and MikroTik routers</p>
+                                <div class="portfolio-tech">
+                                    <span class="tech-tag">Huawei Firewall</span>
+                                    <span class="tech-tag">MikroTik</span>
+                                    <span class="tech-tag">Network Security</span>
+                                    <span class="tech-tag">TCP/IP</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="portfolio-content">
+                        <div class="project-category">Network Security</div>
+                        <h3>Network Security Infrastructure</h3>
+                        <p>Comprehensive network security implementation featuring firewall configuration, router management, and security protocol implementation.</p>
+                    </div>
+                </div>
+                
+                <!-- Project 6 - Media Player Application -->
                 <div class="portfolio-item" data-category="multimedia" data-project="mediaplayer">
                     <div class="portfolio-image">
-                        <img src="images/Vmachine.png" alt="Multimedia Player Application" loading="lazy" style="object-fit: cover; width: 100%; height: 250px;">
+                        <img src="images/Vmachine.png" alt="Java Media Player Application" loading="lazy" style="object-fit: cover; width: 100%; height: 250px;">
                         <div class="portfolio-overlay">
                             <div class="portfolio-info">
                                 <h3>Java Media Player Application</h3>
-                                <p>Desktop multimedia player with audio/video support and playlist management</p>
+                                <p>Feature-rich desktop multimedia player with playlist management and audio/video support</p>
                                 <div class="portfolio-tech">
                                     <span class="tech-tag">Java</span>
                                     <span class="tech-tag">JavaFX</span>
@@ -784,79 +906,7 @@
                     <div class="portfolio-content">
                         <div class="project-category">Multimedia Application</div>
                         <h3>Java Media Player</h3>
-                        <p>Feature-rich multimedia player application with modern UI and playlist functionality.</p>
-                    </div>
-                </div>
-                
-                <!-- Project 4 -->
-                <div class="portfolio-item" data-category="academic" data-project="algorithm">
-                    <div class="portfolio-image">
-                        <img src="images/Vmachine.png" alt="Algorithm Visualization" loading="lazy" style="object-fit: cover; width: 100%; height: 250px;">
-                        <div class="portfolio-overlay">
-                            <div class="portfolio-info">
-                                <h3>Algorithm Visualization Tool</h3>
-                                <p>Interactive tool for visualizing sorting and searching algorithms</p>
-                                <div class="portfolio-tech">
-                                    <span class="tech-tag">Python</span>
-                                    <span class="tech-tag">Tkinter</span>
-                                    <span class="tech-tag">Matplotlib</span>
-                                    <span class="tech-tag">Algorithms</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="portfolio-content">
-                        <div class="project-category">Academic Project</div>
-                        <h3>Algorithm Visualizer</h3>
-                        <p>Educational tool for understanding data structures and algorithms through visual representation.</p>
-                    </div>
-                </div>
-                
-                <!-- Project 5 -->
-                <div class="portfolio-item" data-category="web" data-project="library">
-                    <div class="portfolio-image">
-                        <img src="images/Vmachine.png" alt="Library Management System" loading="lazy" style="object-fit: cover; width: 100%; height: 250px;">
-                        <div class="portfolio-overlay">
-                            <div class="portfolio-info">
-                                <h3>Library Management System</h3>
-                                <p>Web-based library management with book catalog and borrowing system</p>
-                                <div class="portfolio-tech">
-                                    <span class="tech-tag">PHP</span>
-                                    <span class="tech-tag">MySQL</span>
-                                    <span class="tech-tag">Bootstrap</span>
-                                    <span class="tech-tag">jQuery</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="portfolio-content">
-                        <div class="project-category">Web Application</div>
-                        <h3>Library Management System</h3>
-                        <p>Complete library management solution with catalog search, member management, and reporting.</p>
-                    </div>
-                </div>
-                
-                <!-- Project 6 -->
-                <div class="portfolio-item" data-category="database" data-project="inventory">
-                    <div class="portfolio-image">
-                        <img src="images/Vmachine.png" alt="Inventory Management" loading="lazy" style="object-fit: cover; width: 100%; height: 250px;">
-                        <div class="portfolio-overlay">
-                            <div class="portfolio-info">
-                                <h3>Inventory Management System</h3>
-                                <p>Desktop application for managing product inventory with reporting features</p>
-                                <div class="portfolio-tech">
-                                    <span class="tech-tag">C++</span>
-                                    <span class="tech-tag">Qt</span>
-                                    <span class="tech-tag">SQLite</span>
-                                    <span class="tech-tag">Charts</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="portfolio-content">
-                        <div class="project-category">Database Application</div>
-                        <h3>Inventory Management</h3>
-                        <p>Cross-platform inventory management system with real-time reporting and analytics.</p>
+                        <p>Cross-platform multimedia player with modern UI, playlist functionality, and support for various audio/video formats.</p>
                     </div>
                 </div>
             </div>
@@ -893,45 +943,20 @@
                     
                     <form class="contact-form" id="contact-form">
                         <div class="form-group">
-                            <label for="name">Full Name</label>
-                            <input type="text" id="name" name="name" required>
+                            <label for="name">Your Name</label>
+                            <input type="text" id="name" name="name" placeholder="John Doe" required>
                             <span class="form-icon"><i class="fas fa-user"></i></span>
                         </div>
                         
                         <div class="form-group">
                             <label for="email">Email Address</label>
-                            <input type="email" id="email" name="email" required>
+                            <input type="email" id="email" name="email" placeholder="john@example.com" required>
                             <span class="form-icon"><i class="fas fa-envelope"></i></span>
                         </div>
                         
                         <div class="form-group">
-                            <label for="subject">Subject</label>
-                            <select id="subject" name="subject" required>
-                                <option value="">Select a subject</option>
-                                <option value="project">New Project</option>
-                                <option value="collaboration">Collaboration</option>
-                                <option value="job">Job Opportunity</option>
-                                <option value="consultation">Consultation</option>
-                                <option value="other">Other</option>
-                            </select>
-                            <span class="form-icon"><i class="fas fa-tag"></i></span>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="budget">Project Budget (Optional)</label>
-                            <select id="budget" name="budget">
-                                <option value="">Select budget range</option>
-                                <option value="<5k">Under $5,000</option>
-                                <option value="5k-10k">$5,000 - $10,000</option>
-                                <option value="10k-25k">$10,000 - $25,000</option>
-                                <option value="25k+">$25,000+</option>
-                            </select>
-                            <span class="form-icon"><i class="fas fa-dollar-sign"></i></span>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="message">Message</label>
-                            <textarea id="message" name="message" rows="5" placeholder="Tell me about your project..." required></textarea>
+                            <label for="message">Your Message</label>
+                            <textarea id="message" name="message" rows="5" placeholder="Tell me about your project idea or just say hello!" required></textarea>
                         </div>
                         
                         <button type="submit" class="btn btn-primary btn-submit">
@@ -975,7 +1000,7 @@
                             </div>
                             <div class="contact-details">
                                 <h4>Location</h4>
-                                <p>Bandung, Jawa Barat</p>
+                                <p>Bandung, Jawa Barat 40283</p>
                                 <p class="timezone">UTC+7 (WIB)</p>
                             </div>
                         </div>
@@ -1048,12 +1073,12 @@
                 <div class="footer-section">
                     <div class="footer-brand">
                         <h3>&lt;M Zulfan/&gt;</h3>
-                        <p>Informatics Engineering Student passionate about software development and database programming.</p>
+                        <p>Final-year Informatics student at Institut Teknologi Nasional Bandung with expertise in software development, database programming, and network security. Laboratory Assistant with industry certification in cybersecurity.</p>
                         <div class="footer-social">
                             <a href="https://github.com/Zulfan15" target="_blank" rel="noopener noreferrer" aria-label="GitHub Profile - View my code repositories">
                                 <i class="fab fa-github"></i>
                             </a>
-                            <a href="https://linkedin.com/in/muhammad-zulfan-anggadhiputra" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn Profile - Connect with me professionally">
+                            <a href="https://linkedin.com/in/mzulfana" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn Profile - Connect with me professionally">
                                 <i class="fab fa-linkedin"></i>
                             </a>
                             <a href="mailto:zulfanangga2908@gmail.com" target="_blank" rel="noopener noreferrer" aria-label="Email - Contact me directly">
@@ -1075,13 +1100,13 @@
                 </div>
                 
                 <div class="footer-section">
-                    <h4>Services</h4>
+                    <h4>Services & Expertise</h4>
                     <ul class="footer-links">
-                        <li><a href="#portfolio">Software Development</a></li>
                         <li><a href="#portfolio">Database Programming</a></li>
-                        <li><a href="#portfolio">Web Development</a></li>
-                        <li><a href="#portfolio">Multimedia Applications</a></li>
-                        <li><a href="#portfolio">Academic Projects</a></li>
+                        <li><a href="#portfolio">Software Development</a></li>
+                        <li><a href="#portfolio">Network Security</a></li>
+                        <li><a href="#portfolio">IoT & Embedded Systems</a></li>
+                        <li><a href="#portfolio">Laboratory Instruction</a></li>
                     </ul>
                 </div>
                 
@@ -1090,8 +1115,9 @@
                     <div class="footer-contact">
                         <p><i class="fas fa-envelope"></i> zulfanangga2908@gmail.com</p>
                         <p><i class="fas fa-phone"></i> +62 851-5692-7928</p>
-                        <p><i class="fas fa-map-marker-alt"></i> Bandung, Jawa Barat</p>
-                        <p><i class="fas fa-clock"></i> Available for learning projects</p>
+                        <p><i class="fas fa-map-marker-alt"></i> Bandung, Jawa Barat 40283</p>
+                        <p><i class="fas fa-graduation-cap"></i> Final Year Informatics Student</p>
+                        <p><i class="fas fa-certificate"></i> HCIA-Security Certified</p>
                     </div>
                 </div>
             </div>
