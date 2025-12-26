@@ -464,12 +464,12 @@ body {
 
 /* Hero Section - Terminal Inspired */
 .hero {
-    min-height: 100vh;
-    background: var(--gradient-dark);
-    display: flex;
-    align-items: center;
+    padding: 120px 0 80px;
+    background: 
+        linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+        url('../images/p1uydu.png') center/cover no-repeat;
     position: relative;
-    overflow: hidden;
+    text-align: center;
 }
 
 .hero::before {
@@ -513,12 +513,9 @@ body {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 20px;
-    position: relative;
-    z-index: 2;
 }
 
 .hero-content {
-    text-align: center;
     color: var(--text-primary);
 }
 
@@ -543,7 +540,6 @@ body {
     bottom: -3px;
     border-radius: 50%;
     background: var(--gradient-primary);
-    z-index: -1;
     animation: rotate 3s linear infinite;
 }
 
@@ -665,7 +661,6 @@ body {
     height: 100%;
     background: var(--gradient-primary);
     transition: left 0.3s ease;
-    z-index: -1;
 }
 
 .social-link:hover::before {
@@ -681,7 +676,6 @@ body {
 
 .social-link i {
     font-size: 1.2rem;
-    z-index: 1;
 }
 
 /* Buttons - Code Style */

@@ -149,32 +149,10 @@
         }
     }
 
-    // Optimized animations with Intersection Observer
+    // Optimized animations with Intersection Observer - DISABLED
     function initScrollAnimations() {
-        const animateElements = document.querySelectorAll('[data-animate]');
-        
-        if ('IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-            const animationObserver = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('animate-in');
-                        animationObserver.unobserve(entry.target);
-                    }
-                });
-            }, {
-                threshold: 0.1,
-                rootMargin: '0px 0px -10% 0px'
-            });
-
-            animateElements.forEach(el => {
-                animationObserver.observe(el);
-            });
-        } else {
-            // Fallback: show all elements immediately
-            animateElements.forEach(el => {
-                el.classList.add('animate-in');
-            });
-        }
+        // Animation disabled to prevent scroll interference
+        return;
     }
 
     // Debounced resize handler

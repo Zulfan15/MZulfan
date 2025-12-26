@@ -33,7 +33,6 @@
     bottom: 2rem;
     left: 50%;
     transform: translateX(-50%);
-    z-index: 10;
 }
 
 /* Stats Section */
@@ -44,7 +43,6 @@
     border-bottom: 1px solid var(--border-color);
     margin-top: 0;
     position: relative;
-    z-index: 1;
 }
 
 .stats-grid {

@@ -84,54 +84,9 @@ body {
     font-weight: 400;
 }
 
-/* Reduced and Optimized Animations */
+/* Reduced and Optimized Animations - DISABLED */
 @media (prefers-reduced-motion: no-preference) {
-    /* Subtle fade-in animation */
-    .fade-in {
-        animation: fadeIn 0.6s ease-out;
-    }
-    
-    .slide-up {
-        animation: slideUp 0.8s ease-out;
-    }
-    
-    .scale-in {
-        animation: scaleIn 0.5s ease-out;
-    }
-    
-    /* Hero animations - subtle */
-    .hero-title {
-        animation: slideUp 1s ease-out 0.2s both;
-    }
-    
-    .hero-subtitle {
-        animation: slideUp 1s ease-out 0.4s both;
-    }
-    
-    .hero-buttons {
-        animation: slideUp 1s ease-out 0.6s both;
-    }
-    
-    /* Profile image subtle animation */
-    .profile-img {
-        animation: scaleIn 1s ease-out 0.8s both;
-    }
-    
-    /* Hover animations - minimal */
-    .btn:hover {
-        transform: translateY(-2px);
-        transition: all 0.2s ease;
-    }
-    
-    .portfolio-item:hover {
-        transform: translateY(-4px);
-        transition: all 0.3s ease;
-    }
-    
-    .skill-item:hover {
-        transform: translateY(-1px);
-        transition: all 0.2s ease;
-    }
+    /* All animations disabled for smooth scrolling */
 }
 
 /* Remove excessive animations */

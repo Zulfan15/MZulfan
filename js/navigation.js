@@ -203,28 +203,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Scroll animations
+    // Scroll animations - DISABLED for smooth scrolling
     function initScrollAnimations() {
-        const animateElements = document.querySelectorAll('[data-animate]');
-        
-        if ('IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('animate-in');
-                        observer.unobserve(entry.target);
-                    }
-                });
-            }, {
-                threshold: 0.1,
-                rootMargin: '0px 0px -10% 0px'
-            });
-
-            animateElements.forEach(el => observer.observe(el));
-        } else {
-            // Fallback for browsers without IntersectionObserver
-            animateElements.forEach(el => el.classList.add('animate-in'));
-        }
+        // Animation disabled to prevent scroll interference
+        return;
     }
     
     // Utility functions

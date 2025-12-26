@@ -2,29 +2,25 @@
 
 /* Hero section layout fixes */
 .hero {
-    position: relative;
-    z-index: 3;
+    position: static;
     padding-bottom: 2rem;
 }
 
 .hero .container {
-    position: relative;
-    z-index: 4;
+    position: static;
 }
 
 /* Stats section positioning */
 .stats-section {
     clear: both;
     overflow: hidden;
-    position: relative;
-    z-index: 2;
+    position: static;
     background: var(--bg-darker);
 }
 
 /* Skills section positioning - prevent overlap */
 .skills-section {
-    position: relative;
-    z-index: 1;
+    position: static;
     background: var(--bg-primary);
     clear: both;
     overflow: hidden;
@@ -34,37 +30,32 @@
 
 /* About section positioning */
 .about {
-    position: relative;
-    z-index: 1;
+    position: static;
     clear: both;
 }
 
 /* Portfolio section positioning */
 .portfolio {
-    position: relative;
-    z-index: 1;
+    position: static;
     clear: both;
 }
 
 /* Experience section positioning */
 .experience {
-    position: relative;
-    z-index: 1;
+    position: static;
     clear: both;
 }
 
 /* Contact section positioning */
 .contact {
-    position: relative;
-    z-index: 1;
+    position: static;
     clear: both;
 }
 
 /* Ensure proper spacing between hero and stats */
 .hero + .stats-section {
     margin-top: 0;
-    position: relative;
-    z-index: 2;
+    position: static;
 }
 
 /* Ensure proper spacing between sections */
@@ -92,7 +83,6 @@ section + section {
     bottom: 2rem;
     left: 50%;
     transform: translateX(-50%);
-    z-index: 10;
     pointer-events: none;
 }
 
@@ -111,8 +101,6 @@ section {
 @media (max-width: 768px) {
     .hero {
         padding-bottom: 1rem;
-        min-height: 90vh;
-        z-index: 3;
     }
     
     .hero-buttons {
@@ -133,12 +121,10 @@ section {
     
     .stats-section {
         padding: 2rem 0;
-        z-index: 2;
     }
     
     .skills-section {
         padding: 3rem 0;
-        z-index: 1;
     }
 }
 
@@ -146,7 +132,6 @@ section {
 @media (max-width: 1024px) and (min-width: 769px) {
     .hero {
         padding-bottom: 1.5rem;
-        z-index: 3;
     }
     
     .hero-buttons {
@@ -155,6 +140,5 @@ section {
     
     .skills-section {
         padding: 4rem 0;
-        z-index: 1;
     }
 }
