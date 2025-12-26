@@ -27,20 +27,10 @@
     <link rel="icon" type="image/png" sizes="32x32" href="images/favicon.ico">
     <link rel="icon" type="image/png" sizes="16x16" href="images/favicon.ico">
     
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="stylesheet" href="css/enhanced.css">
-    <link rel="stylesheet" href="css/components.css">
-    <link rel="stylesheet" href="css/layout-fixes.css">
-    <link rel="stylesheet" href="css/content-hierarchy.css">
-    <link rel="stylesheet" href="css/visual-improvements.css">
-    <link rel="stylesheet" href="css/improvements.css">
-    <link rel="stylesheet" href="css/layout-fix.css">
-    <link rel="stylesheet" href="css/section-separation.css">
-    <link rel="stylesheet" href="css/responsive.css">
-    <link rel="stylesheet" href="css/accessibility.css">
-    <link rel="stylesheet" href="css/light-theme.css">
+    <!-- DOTA2 Theme CSS -->
+    <link rel="stylesheet" href="css/dota2-theme.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&family=Fira+Code:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Preload critical resources -->
     <link rel="preload" href="css/styles.css" as="style">
@@ -137,33 +127,80 @@
             <div class="nav-menu" id="nav-menu">
                 <a href="#home" class="nav-link active" data-section="home">
                     <i class="fas fa-home"></i>
-                    <span>Home</span>
+                    <span data-translate="nav_home">Home</span>
                 </a>
                 <a href="#about" class="nav-link" data-section="about">
                     <i class="fas fa-user"></i>
-                    <span>About</span>
+                    <span data-translate="nav_about">About</span>
                 </a>
                 <a href="#skills" class="nav-link" data-section="skills">
                     <i class="fas fa-code"></i>
-                    <span>Skills</span>
+                    <span data-translate="nav_skills">Skills</span>
                 </a>
                 <a href="#portfolio" class="nav-link" data-section="portfolio">
                     <i class="fas fa-briefcase"></i>
-                    <span>Projects</span>
+                    <span data-translate="nav_portfolio">Projects</span>
                 </a>
                 <a href="#experience" class="nav-link" data-section="experience">
                     <i class="fas fa-trophy"></i>
-                    <span>Experience</span>
+                    <span data-translate="nav_experience">Experience</span>
                 </a>
                 <a href="#contact" class="nav-link" data-section="contact">
                     <i class="fas fa-envelope"></i>
-                    <span>Contact</span>
+                    <span data-translate="nav_contact">Contact</span>
                 </a>
             </div>
             <div class="nav-controls">
-                <button class="theme-toggle" id="theme-toggle" title="Toggle Theme">
-                    <i class="fas fa-moon"></i>
-                </button>
+                <!-- Language Switcher -->
+                <div class="language-switcher" id="language-switcher">
+                    <button class="lang-toggle" id="lang-toggle" title="Change Language">
+                        <span class="current-lang-flag">🇬🇧</span>
+                        <span class="current-lang-code">EN</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="lang-dropdown" id="lang-dropdown">
+                        <button class="lang-option active" data-lang="en" data-flag="🇬🇧">
+                            <span class="lang-flag">🇬🇧</span>
+                            <span class="lang-name">English</span>
+                        </button>
+                        <button class="lang-option" data-lang="id" data-flag="🇮🇩">
+                            <span class="lang-flag">🇮🇩</span>
+                            <span class="lang-name">Indonesia</span>
+                        </button>
+                        <button class="lang-option" data-lang="ja" data-flag="🇯🇵">
+                            <span class="lang-flag">🇯🇵</span>
+                            <span class="lang-name">日本語</span>
+                        </button>
+                        <button class="lang-option" data-lang="zh" data-flag="🇨🇳">
+                            <span class="lang-flag">🇨🇳</span>
+                            <span class="lang-name">中文</span>
+                        </button>
+                        <button class="lang-option" data-lang="ko" data-flag="🇰🇷">
+                            <span class="lang-flag">🇰🇷</span>
+                            <span class="lang-name">한국어</span>
+                        </button>
+                        <button class="lang-option" data-lang="de" data-flag="🇩🇪">
+                            <span class="lang-flag">🇩🇪</span>
+                            <span class="lang-name">Deutsch</span>
+                        </button>
+                        <button class="lang-option" data-lang="ru" data-flag="🇷🇺">
+                            <span class="lang-flag">🇷🇺</span>
+                            <span class="lang-name">Русский</span>
+                        </button>
+                        <button class="lang-option" data-lang="pt" data-flag="🇧🇷">
+                            <span class="lang-flag">🇧🇷</span>
+                            <span class="lang-name">Português</span>
+                        </button>
+                        <button class="lang-option" data-lang="fr" data-flag="🇫🇷">
+                            <span class="lang-flag">🇫🇷</span>
+                            <span class="lang-name">Français</span>
+                        </button>
+                        <button class="lang-option" data-lang="ar" data-flag="🇸🇦">
+                            <span class="lang-flag">🇸🇦</span>
+                            <span class="lang-name">العربية</span>
+                        </button>
+                    </div>
+                </div>
                 <button class="nav-toggle" id="nav-toggle" aria-controls="nav-menu" aria-expanded="false" aria-label="Toggle navigation" type="button">
                     <span class="bar"></span>
                     <span class="bar"></span>
@@ -180,17 +217,17 @@
                 <img src="images/profile.jpg" alt="Muhammad Zulfan Anggadhiputra - Informatics student from Bandung specializing in software development and database programming" loading="eager">
                 <div class="status-indicator" role="status" aria-label="Currently available for new projects">
                     <span class="status-dot" aria-hidden="true"></span>
-                    <span class="status-text">Available for projects</span>
+                    <span class="status-text" data-translate="status_available">Available for projects</span>
                 </div>
             </div>
             
             <div class="greeting">
                 <span class="wave">👋</span>
-                <span class="greeting-text">Hi, I'm</span>
+                <span class="greeting-text" data-translate="greeting">Hi, I'm</span>
             </div>
             <h1 class="hero-title">Muhammad Zulfan Anggadhiputra</h1>
-            <p class="hero-subtitle" id="hero-subtitle">Informatics Student & Laboratory Assistant</p>
-            <p class="hero-description">Informatics undergraduate skilled in software development, database programming, and multimedia applications. Experienced in lab assistance and software R&D projects, with a passion for applying emerging technologies to real-world solutions.</p>
+            <p class="hero-subtitle" id="hero-subtitle" data-translate="hero_subtitle">Informatics Student & Laboratory Assistant</p>
+            <p class="hero-description" data-translate="hero_description">Informatics undergraduate skilled in software development, database programming, and multimedia applications. Experienced in lab assistance and software R&D projects, with a passion for applying emerging technologies to real-world solutions.</p>
 
             <!-- Social Links -->
             <div class="social-links">
@@ -212,904 +249,1576 @@
             <div class="hero-buttons">
                 <a href="#portfolio" class="btn btn-primary">
                     <i class="fas fa-briefcase"></i>
-                    <span>View My Projects</span>
+                    <span data-translate="btn_view_projects">View My Projects</span>
                 </a>
                 <a href="assets/CV.pdf" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
                     <i class="fas fa-download"></i>
-                    <span>Download CV</span>
+                    <span data-translate="btn_download_cv">Download CV</span>
                 </a>
             </div>
         </div>
     </section>
 
 
-    <!-- Skills Section -->
-    <section id="skills" class="skills-section">
+    <!-- Skills Section - MISSION BOARD -->
+    <section id="skills" class="skills-section mission-board">
         <div class="container">
             <div class="section-header">
-                <h2 class="section-title">Skills & Technologies</h2>
-                <p class="section-subtitle">Tools and technologies I use to build amazing projects</p>
+                <div class="mission-board-title">
+                    <i class="fas fa-scroll"></i>
+                    <h2 class="section-title" data-translate="skills_title">Quest Board</h2>
+                    <i class="fas fa-scroll"></i>
+                </div>
+                <p class="section-subtitle" data-translate="skills_subtitle">Mastered skills and completed training missions</p>
             </div>
 
-            <div class="skills-container">
-                <!-- Frontend Skills -->
-                <div class="skill-category">
-                    <div class="category-header">
-                        <i class="fas fa-code"></i>
-                        <h3>Frontend Development</h3>
-                    </div>
-                    <div class="skills-grid">
-                        <div class="skill-item" data-skill="html">
-                            <div class="skill-icon">
+            <!-- Mission Board Frame -->
+            <div class="board-frame">
+                <div class="board-corner top-left"></div>
+                <div class="board-corner top-right"></div>
+                <div class="board-corner bottom-left"></div>
+                <div class="board-corner bottom-right"></div>
+                
+                <div class="missions-container">
+                    <!-- MAIN QUEST - Frontend -->
+                    <div class="mission-card legendary" data-rarity="legendary">
+                        <div class="mission-pin"></div>
+                        <div class="mission-header">
+                            <div class="mission-rarity">
+                                <i class="fas fa-crown"></i>
+                                <span>LEGENDARY QUEST</span>
+                            </div>
+                            <div class="mission-status completed">
+                                <i class="fas fa-check-circle"></i>
+                                MASTERED
+                            </div>
+                        </div>
+                        <div class="mission-icon">
+                            <i class="fas fa-code"></i>
+                        </div>
+                        <h3 class="mission-title">Frontend Development</h3>
+                        <p class="mission-desc">Master the arts of web interface creation</p>
+                        <div class="mission-rewards">
+                            <div class="reward-item">
                                 <i class="fab fa-html5"></i>
+                                <span>HTML & CSS</span>
+                                <div class="reward-stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
                             </div>
-                            <div class="skill-info">
-                                <h4>HTML & CSS</h4>
-                                <span class="skill-level">Proficient</span>
-                            </div>
-                        </div>
-                        
-                        <div class="skill-item" data-skill="javascript">
-                            <div class="skill-icon">
+                            <div class="reward-item">
                                 <i class="fab fa-js-square"></i>
+                                <span>JavaScript</span>
+                                <div class="reward-stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="far fa-star"></i>
+                                </div>
                             </div>
-                            <div class="skill-info">
-                                <h4>JavaScript</h4>
-                                <span class="skill-level">Intermediate</span>
-                            </div>
-                        </div>
-
-                        <div class="skill-item" data-skill="delphi">
-                            <div class="skill-icon">
+                            <div class="reward-item">
                                 <i class="fas fa-code"></i>
+                                <span>Delphi 7</span>
+                                <div class="reward-stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
                             </div>
-                            <div class="skill-info">
-                                <h4>Delphi 7</h4>
-                                <span class="skill-level">Proficient</span>
-                            </div>
-                        </div>
-
-                        <div class="skill-item" data-skill="flutter">
-                            <div class="skill-icon">
-                                <i class="fab fa-flutter"></i>
-                            </div>
-                            <div class="skill-info">
-                                <h4>Flutter</h4>
-                                <span class="skill-level">Intermediate</span>
-                            </div>
-                        </div>
-
-                        <div class="skill-item" data-skill="nodejs">
-                            <div class="skill-icon">
+                            <div class="reward-item">
                                 <i class="fab fa-node-js"></i>
-                            </div>
-                            <div class="skill-info">
-                                <h4>Node.js</h4>
-                                <span class="skill-level">Intermediate</span>
+                                <span>Node.js</span>
+                                <div class="reward-stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="far fa-star"></i>
+                                </div>
                             </div>
                         </div>
+                        <div class="mission-xp">
+                            <div class="xp-bar">
+                                <div class="xp-fill" style="width: 85%"></div>
+                            </div>
+                            <span class="xp-text">+850 XP</span>
+                        </div>
+                    </div>
 
-                        <div class="skill-item" data-skill="c">
-                            <div class="skill-icon">
+                    <!-- EPIC QUEST - Database & Networking -->
+                    <div class="mission-card epic" data-rarity="epic">
+                        <div class="mission-pin"></div>
+                        <div class="mission-header">
+                            <div class="mission-rarity">
+                                <i class="fas fa-gem"></i>
+                                <span>EPIC QUEST</span>
+                            </div>
+                            <div class="mission-status completed">
+                                <i class="fas fa-check-circle"></i>
+                                MASTERED
+                            </div>
+                        </div>
+                        <div class="mission-icon">
+                            <i class="fas fa-database"></i>
+                        </div>
+                        <h3 class="mission-title">Database & Networking</h3>
+                        <p class="mission-desc">Conquer data realms and network territories</p>
+                        <div class="mission-rewards">
+                            <div class="reward-item">
+                                <i class="fas fa-database"></i>
+                                <span>MySQL</span>
+                                <div class="reward-stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                            </div>
+                            <div class="reward-item certified">
+                                <i class="fas fa-shield-alt"></i>
+                                <span>Huawei Firewall</span>
+                                <div class="reward-badge">
+                                    <i class="fas fa-certificate"></i>
+                                    CERTIFIED
+                                </div>
+                            </div>
+                            <div class="reward-item">
+                                <i class="fas fa-network-wired"></i>
+                                <span>MikroTik</span>
+                                <div class="reward-stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="far fa-star"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mission-xp">
+                            <div class="xp-bar">
+                                <div class="xp-fill" style="width: 90%"></div>
+                            </div>
+                            <span class="xp-text">+900 XP</span>
+                        </div>
+                    </div>
+
+                    <!-- RARE QUEST - Data Analysis -->
+                    <div class="mission-card rare" data-rarity="rare">
+                        <div class="mission-pin"></div>
+                        <div class="mission-header">
+                            <div class="mission-rarity">
+                                <i class="fas fa-bolt"></i>
+                                <span>RARE QUEST</span>
+                            </div>
+                            <div class="mission-status completed">
+                                <i class="fas fa-check-circle"></i>
+                                MASTERED
+                            </div>
+                        </div>
+                        <div class="mission-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3 class="mission-title">Data Analysis & Testing</h3>
+                        <p class="mission-desc">Unlock secrets hidden within the data streams</p>
+                        <div class="mission-rewards">
+                            <div class="reward-item">
+                                <i class="fas fa-chart-bar"></i>
+                                <span>Power BI</span>
+                                <div class="reward-stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="far fa-star"></i>
+                                </div>
+                            </div>
+                            <div class="reward-item">
+                                <i class="fas fa-vial"></i>
+                                <span>Katalon Studio</span>
+                                <div class="reward-stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="far fa-star"></i>
+                                </div>
+                            </div>
+                            <div class="reward-item">
+                                <i class="fas fa-robot"></i>
+                                <span>Selenium</span>
+                                <div class="reward-stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="far fa-star"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mission-xp">
+                            <div class="xp-bar">
+                                <div class="xp-fill" style="width: 70%"></div>
+                            </div>
+                            <span class="xp-text">+700 XP</span>
+                        </div>
+                    </div>
+
+                    <!-- UNCOMMON QUEST - Dev Tools -->
+                    <div class="mission-card uncommon" data-rarity="uncommon">
+                        <div class="mission-pin"></div>
+                        <div class="mission-header">
+                            <div class="mission-rarity">
+                                <i class="fas fa-tools"></i>
+                                <span>UNCOMMON QUEST</span>
+                            </div>
+                            <div class="mission-status completed">
+                                <i class="fas fa-check-circle"></i>
+                                MASTERED
+                            </div>
+                        </div>
+                        <div class="mission-icon">
+                            <i class="fas fa-wrench"></i>
+                        </div>
+                        <h3 class="mission-title">Development Arsenal</h3>
+                        <p class="mission-desc">Equip powerful tools of the trade</p>
+                        <div class="mission-rewards">
+                            <div class="reward-item">
                                 <i class="fas fa-code"></i>
+                                <span>VS Code</span>
+                                <div class="reward-stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
                             </div>
-                            <div class="skill-info">
-                                <h4>C Programming</h4>
-                                <span class="skill-level">Intermediate</span>
+                            <div class="reward-item">
+                                <i class="fab fa-git-alt"></i>
+                                <span>Git & GitHub</span>
+                                <div class="reward-stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
                             </div>
+                            <div class="reward-item">
+                                <i class="fas fa-laptop-code"></i>
+                                <span>IntelliJ IDEA</span>
+                                <div class="reward-stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                            </div>
+                            <div class="reward-item">
+                                <i class="fab fa-android"></i>
+                                <span>Android Studio</span>
+                                <div class="reward-stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="far fa-star"></i>
+                                </div>
+                            </div>
+                            <div class="reward-item">
+                                <i class="fas fa-microchip"></i>
+                                <span>Arduino IDE</span>
+                                <div class="reward-stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="far fa-star"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mission-xp">
+                            <div class="xp-bar">
+                                <div class="xp-fill" style="width: 80%"></div>
+                            </div>
+                            <span class="xp-text">+800 XP</span>
+                        </div>
+                    </div>
+
+                    <!-- SIDE QUEST - Mobile & IoT -->
+                    <div class="mission-card common" data-rarity="common">
+                        <div class="mission-pin"></div>
+                        <div class="mission-header">
+                            <div class="mission-rarity">
+                                <i class="fas fa-mobile-alt"></i>
+                                <span>SIDE QUEST</span>
+                            </div>
+                            <div class="mission-status in-progress">
+                                <i class="fas fa-hourglass-half"></i>
+                                IN PROGRESS
+                            </div>
+                        </div>
+                        <div class="mission-icon">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <h3 class="mission-title">Mobile & IoT</h3>
+                        <p class="mission-desc">Venture into mobile realms and IoT kingdoms</p>
+                        <div class="mission-rewards">
+                            <div class="reward-item">
+                                <i class="fab fa-android"></i>
+                                <span>Flutter</span>
+                                <div class="reward-stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="far fa-star"></i>
+                                </div>
+                            </div>
+                            <div class="reward-item">
+                                <i class="fas fa-microchip"></i>
+                                <span>ESP32</span>
+                                <div class="reward-stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="far fa-star"></i>
+                                </div>
+                            </div>
+                            <div class="reward-item">
+                                <i class="fas fa-code"></i>
+                                <span>C Programming</span>
+                                <div class="reward-stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="far fa-star"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mission-xp">
+                            <div class="xp-bar">
+                                <div class="xp-fill" style="width: 60%"></div>
+                            </div>
+                            <span class="xp-text">+600 XP</span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Total XP Counter -->
+                <div class="total-xp-container">
+                    <div class="xp-emblem">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <div class="total-xp-info">
+                        <span class="total-xp-label">TOTAL EXPERIENCE</span>
+                        <span class="total-xp-value" id="total-xp">3,850 XP</span>
+                    </div>
+                    <div class="level-badge">
+                        <span class="level-text">LEVEL</span>
+                        <span class="level-number">25</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section - HERO CHARACTER SHEET -->
+    <section id="about" class="about hero-sheet">
+        <div class="container">
+            <div class="section-header">
+                <div class="hero-title-badge">
+                    <i class="fas fa-shield-alt"></i>
+                    <h2 class="section-title" data-translate="about_title">Hero Profile</h2>
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <p class="section-subtitle" data-translate="about_subtitle">Champion of the Digital Realm</p>
+            </div>
+            
+            <div class="character-sheet">
+                <!-- Left Panel - Hero Portrait & Stats -->
+                <div class="hero-portrait-panel">
+                    <div class="portrait-frame">
+                        <div class="portrait-border"></div>
+                        <img src="images/profile.jpg" alt="Hero Portrait" class="hero-portrait-img">
+                        <div class="hero-class-badge">
+                            <i class="fas fa-laptop-code"></i>
+                            <span>DEVELOPER</span>
+                        </div>
+                    </div>
+                    
+                    <div class="hero-name-plate">
+                        <h3 class="hero-name">Muhammad Zulfan</h3>
+                        <span class="hero-title-text">The Code Architect</span>
+                    </div>
+                    
+                    <!-- Hero Attributes -->
+                    <div class="hero-attributes">
+                        <div class="attribute-item strength">
+                            <div class="attr-icon">
+                                <i class="fas fa-fist-raised"></i>
+                            </div>
+                            <div class="attr-info">
+                                <span class="attr-name">STRENGTH</span>
+                                <div class="attr-bar">
+                                    <div class="attr-fill" style="width: 85%"></div>
+                                </div>
+                                <span class="attr-value">85</span>
+                            </div>
+                        </div>
+                        <div class="attribute-item agility">
+                            <div class="attr-icon">
+                                <i class="fas fa-running"></i>
+                            </div>
+                            <div class="attr-info">
+                                <span class="attr-name">AGILITY</span>
+                                <div class="attr-bar">
+                                    <div class="attr-fill" style="width: 78%"></div>
+                                </div>
+                                <span class="attr-value">78</span>
+                            </div>
+                        </div>
+                        <div class="attribute-item intelligence">
+                            <div class="attr-icon">
+                                <i class="fas fa-brain"></i>
+                            </div>
+                            <div class="attr-info">
+                                <span class="attr-name">INTELLIGENCE</span>
+                                <div class="attr-bar">
+                                    <div class="attr-fill" style="width: 92%"></div>
+                                </div>
+                                <span class="attr-value">92</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hero Stats Grid -->
+                    <div class="hero-stats-grid">
+                        <div class="stat-box">
+                            <span class="stat-value">3.46</span>
+                            <span class="stat-label">GPA</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-value">5+</span>
+                            <span class="stat-label">PROJECTS</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-value">3</span>
+                            <span class="stat-label">ROLES</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-value">1</span>
+                            <span class="stat-label">CERT</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Database & Tools -->
-                <div class="skill-category">
-                    <div class="category-header">
-                        <i class="fas fa-database"></i>
-                        <h3>Database & Networking</h3>
+                <!-- Right Panel - Hero Lore & Abilities -->
+                <div class="hero-lore-panel">
+                    <div class="lore-scroll">
+                        <div class="scroll-header">
+                            <i class="fas fa-scroll"></i>
+                            <span>HERO LORE</span>
+                            <i class="fas fa-scroll"></i>
+                        </div>
+                        <div class="scroll-content">
+                            <p class="lore-text">Born in the digital age, <strong>Muhammad Zulfan Anggadhiputra</strong> emerged from the halls of <em>Institut Teknologi Nasional Bandung</em> as a promising warrior of code. His journey began with curiosity and evolved into mastery over multiple domains of technology.</p>
+                            
+                            <p class="lore-text">As a <strong>Laboratory Assistant</strong>, he guides young apprentices through the treacherous paths of Database Programming, Object-Oriented concepts, and Network Security. His battlefield experience at <strong>PT Dwi Purwa Teknologi</strong> forged his skills in real-world software development.</p>
+                            
+                            <p class="lore-text">Armed with the sacred <strong>HCIA-Security certification</strong> from Huawei, he stands as a guardian against digital threats. From IoT prototypes to deep learning models, no challenge is too great for this Code Architect.</p>
+                        </div>
                     </div>
-                    <div class="skills-grid">
-                        <div class="skill-item" data-skill="mysql">
-                            <div class="skill-icon">
+
+                    <!-- Hero Abilities -->
+                    <div class="hero-abilities">
+                        <div class="abilities-header">
+                            <i class="fas fa-magic"></i>
+                            <span>SPECIAL ABILITIES</span>
+                        </div>
+                        <div class="abilities-grid">
+                            <div class="ability-card" data-ability="passive">
+                                <div class="ability-icon passive">
+                                    <i class="fas fa-graduation-cap"></i>
+                                </div>
+                                <div class="ability-info">
+                                    <h4>Academic Excellence</h4>
+                                    <span class="ability-type">PASSIVE</span>
+                                    <p>Final-year student with GPA 3.46 and multiple laboratory positions</p>
+                                </div>
+                                <div class="ability-hotkey">Q</div>
+                            </div>
+                            
+                            <div class="ability-card" data-ability="active">
+                                <div class="ability-icon active">
+                                    <i class="fas fa-certificate"></i>
+                                </div>
+                                <div class="ability-info">
+                                    <h4>Security Shield</h4>
+                                    <span class="ability-type">ACTIVE</span>
+                                    <p>HCIA-Security V4.0 certified, protecting digital realms</p>
+                                </div>
+                                <div class="ability-hotkey">W</div>
+                            </div>
+                            
+                            <div class="ability-card" data-ability="active">
+                                <div class="ability-icon active">
+                                    <i class="fas fa-chalkboard-teacher"></i>
+                                </div>
+                                <div class="ability-info">
+                                    <h4>Knowledge Transfer</h4>
+                                    <span class="ability-type">ACTIVE</span>
+                                    <p>Lab instructor empowering the next generation of developers</p>
+                                </div>
+                                <div class="ability-hotkey">E</div>
+                            </div>
+                            
+                            <div class="ability-card ultimate" data-ability="ultimate">
+                                <div class="ability-icon ultimate">
+                                    <i class="fas fa-rocket"></i>
+                                </div>
+                                <div class="ability-info">
+                                    <h4>Innovation Surge</h4>
+                                    <span class="ability-type">ULTIMATE</span>
+                                    <p>Transform complex problems into elegant digital solutions</p>
+                                </div>
+                                <div class="ability-hotkey">R</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Equipment/Certifications -->
+                    <div class="hero-equipment">
+                        <div class="equipment-header">
+                            <i class="fas fa-toolbox"></i>
+                            <span>EQUIPPED ITEMS</span>
+                        </div>
+                        <div class="equipment-slots">
+                            <div class="equipment-slot legendary" title="Huawei Certification">
+                                <i class="fas fa-shield-alt"></i>
+                                <span class="item-tooltip">HCIA-Security V4.0</span>
+                            </div>
+                            <div class="equipment-slot epic" title="University">
+                                <i class="fas fa-university"></i>
+                                <span class="item-tooltip">ITENAS Bandung</span>
+                            </div>
+                            <div class="equipment-slot rare" title="Lab Assistant">
+                                <i class="fas fa-flask"></i>
+                                <span class="item-tooltip">Lab Assistant x3</span>
+                            </div>
+                            <div class="equipment-slot uncommon" title="Internship">
+                                <i class="fas fa-building"></i>
+                                <span class="item-tooltip">Software Intern</span>
+                            </div>
+                            <div class="equipment-slot common" title="Projects">
+                                <i class="fas fa-project-diagram"></i>
+                                <span class="item-tooltip">5+ Projects</span>
+                            </div>
+                            <div class="equipment-slot empty">
+                                <i class="fas fa-plus"></i>
+                                <span class="item-tooltip">More to come...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Experience Section - BATTLE CAMPAIGN LOG -->
+    <section id="experience" class="experience battle-log">
+        <div class="container">
+            <div class="section-header">
+                <div class="campaign-title">
+                    <i class="fas fa-book-dead"></i>
+                    <h2 class="section-title" data-translate="experience_title">Battle Campaign</h2>
+                    <i class="fas fa-book-dead"></i>
+                </div>
+                <p class="section-subtitle" data-translate="experience_subtitle">Chronicles of victories and conquered territories</p>
+            </div>
+            
+            <div class="campaign-map">
+                <!-- Map Background Decoration -->
+                <div class="map-decorations">
+                    <div class="map-compass">
+                        <i class="fas fa-compass"></i>
+                    </div>
+                </div>
+
+                <!-- Campaign Path -->
+                <div class="campaign-path">
+                    
+                    <!-- Chapter 1 - Education -->
+                    <div class="campaign-chapter" data-chapter="1">
+                        <div class="chapter-marker main-quest">
+                            <div class="marker-ring"></div>
+                            <div class="marker-icon">
+                                <i class="fas fa-graduation-cap"></i>
+                            </div>
+                            <div class="marker-pulse"></div>
+                        </div>
+                        <div class="chapter-content">
+                            <div class="chapter-banner main-quest">
+                                <div class="banner-flag">
+                                    <i class="fas fa-flag"></i>
+                                </div>
+                                <div class="banner-info">
+                                    <span class="chapter-type">MAIN QUEST</span>
+                                    <span class="chapter-date">2022 - Present</span>
+                                </div>
+                                <div class="chapter-status active">
+                                    <i class="fas fa-spinner fa-pulse"></i>
+                                    ONGOING
+                                </div>
+                            </div>
+                            <div class="chapter-card">
+                                <div class="card-glow"></div>
+                                <h3 class="chapter-title">The Academic Crusade</h3>
+                                <h4 class="chapter-location">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    Institut Teknologi Nasional Bandung
+                                </h4>
+                                <p class="chapter-story">Embarked on a journey through the halls of knowledge, mastering the arcane arts of Informatics. Currently wielding a power level (GPA) of 3.46, specializing in software development, database programming, and multimedia applications.</p>
+                                <div class="chapter-rewards">
+                                    <div class="reward-tag">
+                                        <i class="fas fa-star"></i>
+                                        Software Development
+                                    </div>
+                                    <div class="reward-tag">
+                                        <i class="fas fa-star"></i>
+                                        Database Programming
+                                    </div>
+                                    <div class="reward-tag">
+                                        <i class="fas fa-star"></i>
+                                        OOP Mastery
+                                    </div>
+                                    <div class="reward-tag">
+                                        <i class="fas fa-star"></i>
+                                        Network Security
+                                    </div>
+                                </div>
+                                <div class="chapter-progress">
+                                    <div class="progress-label">Campaign Progress</div>
+                                    <div class="progress-bar-campaign">
+                                        <div class="progress-fill-campaign" style="width: 90%"></div>
+                                    </div>
+                                    <span class="progress-percent">90%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="path-connector"></div>
+                    </div>
+
+                    <!-- Chapter 2 - Internship -->
+                    <div class="campaign-chapter" data-chapter="2">
+                        <div class="chapter-marker epic-battle">
+                            <div class="marker-ring"></div>
+                            <div class="marker-icon">
+                                <i class="fas fa-briefcase"></i>
+                            </div>
+                        </div>
+                        <div class="chapter-content right">
+                            <div class="chapter-banner epic-battle">
+                                <div class="banner-flag">
+                                    <i class="fas fa-swords"></i>
+                                </div>
+                                <div class="banner-info">
+                                    <span class="chapter-type">EPIC BATTLE</span>
+                                    <span class="chapter-date">July 2025 - Sep 2025</span>
+                                </div>
+                                <div class="chapter-status completed">
+                                    <i class="fas fa-check-circle"></i>
+                                    VICTORY
+                                </div>
+                            </div>
+                            <div class="chapter-card">
+                                <div class="card-glow"></div>
+                                <h3 class="chapter-title">The Corporate Siege</h3>
+                                <h4 class="chapter-location">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    PT Dwi Purwa Teknologi
+                                </h4>
+                                <p class="chapter-story">Joined forces with elite developers in the corporate battlefield. Contributed to R&D operations, forged new features in active software projects, and mastered the complete software development lifecycle through intense collaboration.</p>
+                                <div class="chapter-rewards">
+                                    <div class="reward-tag">
+                                        <i class="fas fa-gem"></i>
+                                        Software R&D
+                                    </div>
+                                    <div class="reward-tag">
+                                        <i class="fas fa-gem"></i>
+                                        Feature Development
+                                    </div>
+                                    <div class="reward-tag">
+                                        <i class="fas fa-gem"></i>
+                                        Testing & Debugging
+                                    </div>
+                                    <div class="reward-tag">
+                                        <i class="fas fa-gem"></i>
+                                        Team Synergy
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="path-connector"></div>
+                    </div>
+
+                    <!-- Chapter 3 - Database Lab -->
+                    <div class="campaign-chapter" data-chapter="3">
+                        <div class="chapter-marker dungeon">
+                            <div class="marker-ring"></div>
+                            <div class="marker-icon">
                                 <i class="fas fa-database"></i>
                             </div>
-                            <div class="skill-info">
-                                <h4>MySQL</h4>
-                                <span class="skill-level">Proficient</span>
+                        </div>
+                        <div class="chapter-content">
+                            <div class="chapter-banner dungeon">
+                                <div class="banner-flag">
+                                    <i class="fas fa-dungeon"></i>
+                                </div>
+                                <div class="banner-info">
+                                    <span class="chapter-type">DUNGEON RAID</span>
+                                    <span class="chapter-date">Sep 2024 - Jan 2025</span>
+                                </div>
+                                <div class="chapter-status completed">
+                                    <i class="fas fa-check-circle"></i>
+                                    CLEARED
+                                </div>
+                            </div>
+                            <div class="chapter-card">
+                                <div class="card-glow"></div>
+                                <h3 class="chapter-title">The Data Sanctum</h3>
+                                <h4 class="chapter-location">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    Database Programming Laboratory
+                                </h4>
+                                <p class="chapter-story">Ascended to the role of Guardian, guiding young apprentices through the mysteries of database design and Delphi7 sorcery. Mentored countless students in their quest to master data manipulation.</p>
+                                <div class="chapter-rewards">
+                                    <div class="reward-tag">
+                                        <i class="fas fa-crown"></i>
+                                        Database Design
+                                    </div>
+                                    <div class="reward-tag">
+                                        <i class="fas fa-crown"></i>
+                                        Delphi 7
+                                    </div>
+                                    <div class="reward-tag">
+                                        <i class="fas fa-crown"></i>
+                                        SQL Mastery
+                                    </div>
+                                    <div class="reward-tag">
+                                        <i class="fas fa-crown"></i>
+                                        Mentoring
+                                    </div>
+                                </div>
                             </div>
                         </div>
+                        <div class="path-connector"></div>
+                    </div>
 
-                        <div class="skill-item" data-skill="huawei">
-                            <div class="skill-icon">
-                                <i class="fas fa-shield-alt"></i>
-                            </div>
-                            <div class="skill-info">
-                                <h4>Huawei Firewall</h4>
-                                <span class="skill-level">Certified</span>
+                    <!-- Chapter 4 - OOP Lab -->
+                    <div class="campaign-chapter" data-chapter="4">
+                        <div class="chapter-marker boss-fight">
+                            <div class="marker-ring"></div>
+                            <div class="marker-icon">
+                                <i class="fas fa-code"></i>
                             </div>
                         </div>
+                        <div class="chapter-content right">
+                            <div class="chapter-banner boss-fight">
+                                <div class="banner-flag">
+                                    <i class="fas fa-dragon"></i>
+                                </div>
+                                <div class="banner-info">
+                                    <span class="chapter-type">BOSS FIGHT</span>
+                                    <span class="chapter-date">Mar 2025 - June 2025</span>
+                                </div>
+                                <div class="chapter-status completed">
+                                    <i class="fas fa-skull"></i>
+                                    CONQUERED
+                                </div>
+                            </div>
+                            <div class="chapter-card">
+                                <div class="card-glow"></div>
+                                <h3 class="chapter-title">The OOP Citadel</h3>
+                                <h4 class="chapter-location">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    Object-Oriented Programming Laboratory
+                                </h4>
+                                <p class="chapter-story">Commanded the forces of Java programming, teaching warriors the sacred principles of encapsulation, inheritance, and polymorphism. Led student teams to forge powerful applications.</p>
+                                <div class="chapter-rewards">
+                                    <div class="reward-tag">
+                                        <i class="fas fa-fire"></i>
+                                        Java Programming
+                                    </div>
+                                    <div class="reward-tag">
+                                        <i class="fas fa-fire"></i>
+                                        OOP Principles
+                                    </div>
+                                    <div class="reward-tag">
+                                        <i class="fas fa-fire"></i>
+                                        Architecture
+                                    </div>
+                                    <div class="reward-tag">
+                                        <i class="fas fa-fire"></i>
+                                        Code Review
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="path-connector"></div>
+                    </div>
 
-                        <div class="skill-item" data-skill="mikrotik">
-                            <div class="skill-icon">
+                    <!-- Chapter 5 - Network Lab -->
+                    <div class="campaign-chapter" data-chapter="5">
+                        <div class="chapter-marker territory">
+                            <div class="marker-ring"></div>
+                            <div class="marker-icon">
                                 <i class="fas fa-network-wired"></i>
                             </div>
-                            <div class="skill-info">
-                                <h4>MikroTik</h4>
-                                <span class="skill-level">Intermediate</span>
+                        </div>
+                        <div class="chapter-content">
+                            <div class="chapter-banner territory">
+                                <div class="banner-flag">
+                                    <i class="fas fa-fort-awesome"></i>
+                                </div>
+                                <div class="banner-info">
+                                    <span class="chapter-type">TERRITORY WAR</span>
+                                    <span class="chapter-date">Mar 2025 - June 2025</span>
+                                </div>
+                                <div class="chapter-status completed">
+                                    <i class="fas fa-flag-checkered"></i>
+                                    SECURED
+                                </div>
                             </div>
+                            <div class="chapter-card">
+                                <div class="card-glow"></div>
+                                <h3 class="chapter-title">The Network Frontier</h3>
+                                <h4 class="chapter-location">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    Computer Network Laboratory
+                                </h4>
+                                <p class="chapter-story">Defended the network territories, training recruits in LAN configuration, router/switch deployment, and TCP/IP warfare. Established secure communication channels across the digital realm.</p>
+                                <div class="chapter-rewards">
+                                    <div class="reward-tag">
+                                        <i class="fas fa-shield-alt"></i>
+                                        Network Config
+                                    </div>
+                                    <div class="reward-tag">
+                                        <i class="fas fa-shield-alt"></i>
+                                        TCP/IP Protocols
+                                    </div>
+                                    <div class="reward-tag">
+                                        <i class="fas fa-shield-alt"></i>
+                                        Router/Switch
+                                    </div>
+                                    <div class="reward-tag">
+                                        <i class="fas fa-shield-alt"></i>
+                                        Security
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Campaign Summary -->
+                <div class="campaign-summary">
+                    <div class="summary-stat">
+                        <div class="stat-icon">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-number">5</span>
+                            <span class="stat-label">Battles Won</span>
+                        </div>
+                    </div>
+                    <div class="summary-stat">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-number">100+</span>
+                            <span class="stat-label">Students Mentored</span>
+                        </div>
+                    </div>
+                    <div class="summary-stat">
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-number">3+</span>
+                            <span class="stat-label">Years Experience</span>
+                        </div>
+                    </div>
+                    <div class="summary-stat">
+                        <div class="stat-icon">
+                            <i class="fas fa-medal"></i>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-number">1</span>
+                            <span class="stat-label">Certification</span>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </section>
 
-                <!-- Data Analysis & Testing -->
-                <div class="skill-category">
-                    <div class="category-header">
-                        <i class="fas fa-chart-line"></i>
-                        <h3>Data Analysis & Testing</h3>
+    <!-- Portfolio Section - ARTIFACT ARMORY -->
+    <section id="portfolio" class="portfolio artifact-armory">
+        <div class="container">
+            <div class="section-header">
+                <div class="armory-title">
+                    <i class="fas fa-gem"></i>
+                    <h2 class="section-title" data-translate="portfolio_title">Artifact Armory</h2>
+                    <i class="fas fa-gem"></i>
+                </div>
+                <p class="section-subtitle" data-translate="portfolio_subtitle">Legendary creations forged in the fires of code</p>
+            </div>
+            
+            <!-- Armory Categories -->
+            <div class="armory-tabs">
+                <button class="armory-tab active" data-filter="all">
+                    <i class="fas fa-infinity"></i>
+                    <span>All Artifacts</span>
+                </button>
+                <button class="armory-tab" data-filter="web">
+                    <i class="fas fa-globe"></i>
+                    <span>Web Relics</span>
+                </button>
+                <button class="armory-tab" data-filter="database">
+                    <i class="fas fa-database"></i>
+                    <span>Data Crystals</span>
+                </button>
+                <button class="armory-tab" data-filter="multimedia">
+                    <i class="fas fa-photo-video"></i>
+                    <span>Media Orbs</span>
+                </button>
+                <button class="armory-tab" data-filter="academic">
+                    <i class="fas fa-scroll"></i>
+                    <span>Scrolls</span>
+                </button>
+                <button class="armory-tab" data-filter="iot">
+                    <i class="fas fa-microchip"></i>
+                    <span>Tech Cores</span>
+                </button>
+            </div>
+            
+            <!-- Artifact Grid -->
+            <div class="artifact-grid">
+                
+                <!-- Artifact 1 - Remote Control Tank -->
+                <div class="artifact-card legendary" data-category="multimedia academic" data-rarity="legendary">
+                    <div class="artifact-glow"></div>
+                    <div class="rarity-banner">
+                        <span>LEGENDARY</span>
                     </div>
-                    <div class="skills-grid">
-                        <div class="skill-item" data-skill="powerbi">
-                            <div class="skill-icon">
-                                <i class="fas fa-chart-bar"></i>
-                            </div>
-                            <div class="skill-info">
-                                <h4>Power BI</h4>
-                                <span class="skill-level">Intermediate</span>
-                            </div>
-                        </div>
-
-                        <div class="skill-item" data-skill="katalon">
-                            <div class="skill-icon">
-                                <i class="fas fa-vial"></i>
-                            </div>
-                            <div class="skill-info">
-                                <h4>Katalon Studio</h4>
-                                <span class="skill-level">Intermediate</span>
-                            </div>
-                        </div>
-
-                        <div class="skill-item" data-skill="selenium">
-                            <div class="skill-icon">
+                    <div class="artifact-image">
+                        <img src="images/Vmachine.png" alt="Remote Control Tank" loading="lazy">
+                        <div class="artifact-shine"></div>
+                    </div>
+                    <div class="artifact-content">
+                        <div class="artifact-header">
+                            <div class="artifact-icon">
                                 <i class="fas fa-robot"></i>
                             </div>
-                            <div class="skill-info">
-                                <h4>Selenium</h4>
-                                <span class="skill-level">Intermediate</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Development Tools -->
-                <div class="skill-category">
-                    <div class="category-header">
-                        <i class="fas fa-tools"></i>
-                        <h3>Development Tools</h3>
-                    </div>
-                    <div class="skills-grid">
-                        <div class="skill-item" data-skill="vscode">
-                            <div class="skill-icon">
-                                <i class="fas fa-code"></i>
-                            </div>
-                            <div class="skill-info">
-                                <h4>VS Code</h4>
-                                <span class="skill-level">Proficient</span>
-                            </div>
-                        </div>
-
-                        <div class="skill-item" data-skill="git">
-                            <div class="skill-icon">
-                                <i class="fab fa-git-alt"></i>
-                            </div>
-                            <div class="skill-info">
-                                <h4>Git & GitHub</h4>
-                                <span class="skill-level">Proficient</span>
-                            </div>
-                        </div>
-
-                        <div class="skill-item" data-skill="intellij">
-                            <div class="skill-icon">
-                                <i class="fas fa-laptop-code"></i>
-                            </div>
-                            <div class="skill-info">
-                                <h4>IntelliJ IDEA</h4>
-                                <span class="skill-level">Proficient</span>
-                            </div>
-                        </div>
-
-                        <div class="skill-item" data-skill="android">
-                            <div class="skill-icon">
-                                <i class="fab fa-android"></i>
-                            </div>
-                            <div class="skill-info">
-                                <h4>Android Studio</h4>
-                                <span class="skill-level">Intermediate</span>
-                            </div>
-                        </div>
-
-                        <div class="skill-item" data-skill="arduino">
-                            <div class="skill-icon">
-                                <i class="fas fa-microchip"></i>
-                            </div>
-                            <div class="skill-info">
-                                <h4>Arduino IDE</h4>
-                                <span class="skill-level">Intermediate</span>
-                            </div>
-                        </div>
-
-                        <div class="skill-item" data-skill="vscode">
-                            <div class="skill-icon">
-                                <i class="fas fa-code"></i>
-                            </div>
-                            <div class="skill-info">
-                                <h4>VS Code</h4>
-                                <span class="skill-level">Proficient</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- About Section -->
-    <section id="about" class="about">
-        <div class="container">
-            <div class="section-header">
-                <h2 class="section-title">About Me</h2>
-                <p class="section-subtitle">Building digital solutions with passion and curiosity</p>
-            </div>
-            
-            <div class="about-grid">
-                <div class="about-content">
-                    <div class="about-text">
-                        <h3>Hi there! I'm Zulfan 👋</h3>
-                        <p>I'm a final-year Informatics student at Institut Teknologi Nasional Bandung with a GPA of 3.46, currently serving as a Laboratory Assistant for multiple programming courses. My journey began with curiosity about technology and has evolved into a comprehensive understanding of software development, database programming, and system administration.</p>
-                        
-                        <p>My experience spans multiple domains - from serving as a Database Programming Lab Assistant where I guide students through database design and implementation, to working as a Software Development Intern at PT Dwi Purwa Teknologi. I've also taken on roles as an Object-Oriented Programming and Computer Network Lab Assistant, helping fellow students master complex programming concepts and networking fundamentals.</p>
-                        
-                        <p>What drives me is the challenge of turning complex problems into elegant solutions. Whether I'm developing IoT-based prototypes like my Remote Control Tank project, implementing deep learning models for image classification, or designing secure network infrastructures, I approach each challenge with both technical rigor and creative thinking. I hold a Huawei Certified ICT Associate certification in Security, reflecting my commitment to cybersecurity best practices.</p>
-                        
-                        <div class="about-highlights">
-                            <div class="highlight-item">
-                                <i class="fas fa-graduation-cap"></i>
-                                <div>
-                                    <h4>Academic Excellence</h4>
-                                    <p>Final-year Informatics student with GPA 3.46 and multiple lab assistant positions</p>
+                            <div class="artifact-stats">
+                                <div class="stat power">
+                                    <i class="fas fa-bolt"></i>
+                                    <span>95</span>
                                 </div>
-                            </div>
-                            <div class="highlight-item">
-                                <i class="fas fa-certificate"></i>
-                                <div>
-                                    <h4>Industry Certified</h4>
-                                    <p>Huawei Certified ICT Associate - Security (HCIA-Security V4.0)</p>
-                                </div>
-                            </div>
-                            <div class="highlight-item">
-                                <i class="fas fa-briefcase"></i>
-                                <div>
-                                    <h4>Practical Experience</h4>
-                                    <p>Lab instructor, software development intern, and hands-on project experience</p>
+                                <div class="stat complexity">
+                                    <i class="fas fa-cogs"></i>
+                                    <span>88</span>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-                
-                <div class="about-visual">
-                    <div class="code-window">
-                        <div class="code-header">
-                            <div class="code-buttons">
-                                <span class="code-btn red"></span>
-                                <span class="code-btn yellow"></span>
-                                <span class="code-btn green"></span>
-                            </div>
-                            <div class="code-title">developer.js</div>
+                        <h3 class="artifact-name">Remote Control Tank</h3>
+                        <p class="artifact-type">IoT & Embedded Systems</p>
+                        <p class="artifact-desc">Ancient war machine powered by ESP32 core, controlled through mystical Flutter interface across realms.</p>
+                        <div class="artifact-components">
+                            <span class="component">ESP32</span>
+                            <span class="component">Flutter</span>
+                            <span class="component">IoT</span>
+                            <span class="component">Sensors</span>
                         </div>
-                        <div class="code-content">
-                            <div class="code-line">
-                                <span class="line-number">1</span>
-                                <span class="code-text">
-                                    <span class="keyword">const</span> 
-                                    <span class="variable">developer</span> = {
-                                </span>
-                            </div>
-                            <div class="code-line">
-                                <span class="line-number">2</span>
-                                <span class="code-text">
-                                    &nbsp;&nbsp;<span class="property">name</span>: 
-                                    <span class="string">'Muhammad Zulfan Anggadhiputra'</span>,
-                                </span>
-                            </div>
-                            <div class="code-line">
-                                <span class="line-number">3</span>
-                                <span class="code-text">
-                                    &nbsp;&nbsp;<span class="property">role</span>: 
-                                    <span class="string">'Informatics Student & Lab Assistant'</span>,
-                                </span>
-                            </div>
-                            <div class="code-line">
-                                <span class="line-number">4</span>
-                                <span class="code-text">
-                                    &nbsp;&nbsp;<span class="property">university</span>: 
-                                    <span class="string">'Institut Teknologi Nasional Bandung'</span>,
-                                </span>
-                            </div>
-                            <div class="code-line">
-                                <span class="line-number">5</span>
-                                <span class="code-text">
-                                    &nbsp;&nbsp;<span class="property">location</span>: 
-                                    <span class="string">'Bandung, Jawa Barat'</span>,
-                                </span>
-                            </div>
-                            <div class="code-line">
-                                <span class="line-number">6</span>
-                                <span class="code-text">
-                                    &nbsp;&nbsp;<span class="property">gpa</span>: 
-                                    <span class="number">3.46</span>,
-                                </span>
-                            </div>
-                            <div class="code-line">
-                                <span class="line-number">7</span>
-                                <span class="code-text">
-                                    &nbsp;&nbsp;<span class="property">year</span>: 
-                                    <span class="string">'Final Year'</span>,
-                                </span>
-                            </div>
-                            <div class="code-line">
-                                <span class="line-number">8</span>
-                                <span class="code-text">
-                                    &nbsp;&nbsp;<span class="property">skills</span>: [
-                                </span>
-                            </div>
-                            <div class="code-line">
-                                <span class="line-number">9</span>
-                                <span class="code-text">
-                                    &nbsp;&nbsp;&nbsp;&nbsp;<span class="string">'Java'</span>,
-                                    <span class="string">'Python'</span>,
-                                    <span class="string">'Database Programming'</span>
-                                </span>
-                            </div>
-                            <div class="code-line">
-                                <span class="line-number">10</span>
-                                <span class="code-text">
-                                    &nbsp;&nbsp;],
-                                </span>
-                            </div>
-                            <div class="code-line">
-                                <span class="line-number">11</span>
-                                <span class="code-text">
-                                    &nbsp;&nbsp;<span class="property">certification</span>: 
-                                    <span class="string">'HCIA-Security V4.0'</span>
-                                </span>
-                            </div>
-                            <div class="code-line">
-                                <span class="line-number">12</span>
-                                <span class="code-text">};</span>
-                            </div>
+                        <div class="artifact-actions">
+                            <button class="artifact-btn inspect">
+                                <i class="fas fa-eye"></i>
+                                Inspect
+                            </button>
+                            <button class="artifact-btn equip">
+                                <i class="fas fa-hand-pointer"></i>
+                                View
+                            </button>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </section>
 
-    <!-- Experience Section -->
-    <section id="experience" class="experience">
-        <div class="container">
-            <div class="section-header">
-                <h2 class="section-title">Experience & Education</h2>
-                <p class="section-subtitle">My journey in software development</p>
-            </div>
-            
-            <div class="timeline">
-                <div class="timeline-item">
-                    <div class="timeline-marker">
-                        <i class="fas fa-graduation-cap"></i>
+                <!-- Artifact 2 - Deep Learning -->
+                <div class="artifact-card epic" data-category="academic" data-rarity="epic">
+                    <div class="artifact-glow"></div>
+                    <div class="rarity-banner">
+                        <span>EPIC</span>
                     </div>
-                    <div class="timeline-content">
-                        <div class="timeline-header">
-                            <h3>Informatics Student</h3>
-                            <span class="timeline-date">2022 - Present</span>
-                        </div>
-                        <h4>Institut Teknologi Nasional Bandung</h4>
-                        <p>Undergraduate student in Informatics with current GPA of 3.46. Specializing in software development, database programming, and multimedia applications. Currently in final year with focus on advanced programming concepts and real-world application development.</p>
-                        <div class="timeline-skills">
-                            <span class="skill-badge">Software Development</span>
-                            <span class="skill-badge">Database Programming</span>
-                            <span class="skill-badge">Object-Oriented Programming</span>
-                            <span class="skill-badge">Network Security</span>
-                        </div>
+                    <div class="artifact-image">
+                        <img src="images/Vmachine.png" alt="Deep Learning Classification" loading="lazy">
+                        <div class="artifact-shine"></div>
                     </div>
-                </div>
-                
-                <div class="timeline-item">
-                    <div class="timeline-marker">
-                        <i class="fas fa-briefcase"></i>
-                    </div>
-                    <div class="timeline-content">
-                        <div class="timeline-header">
-                            <h3>Software Development Intern</h3>
-                            <span class="timeline-date">July 2025 - Sep 2025</span>
+                    <div class="artifact-content">
+                        <div class="artifact-header">
+                            <div class="artifact-icon">
+                                <i class="fas fa-brain"></i>
+                            </div>
+                            <div class="artifact-stats">
+                                <div class="stat power">
+                                    <i class="fas fa-bolt"></i>
+                                    <span>92</span>
+                                </div>
+                                <div class="stat complexity">
+                                    <i class="fas fa-cogs"></i>
+                                    <span>90</span>
+                                </div>
+                            </div>
                         </div>
-                        <h4>PT Dwi Purwa Teknologi</h4>
-                        <p>Assisted in research and development (R&D) of digital solutions for client projects. Contributed to adding new features in in-progress software applications and collaborated with senior developers to test, debug, and improve application performance. Gained hands-on experience in the complete software development lifecycle.</p>
-                        <div class="timeline-skills">
-                            <span class="skill-badge">Software R&D</span>
-                            <span class="skill-badge">Feature Development</span>
-                            <span class="skill-badge">Testing & Debugging</span>
-                            <span class="skill-badge">Team Collaboration</span>
+                        <h3 class="artifact-name">Neural Vision Orb</h3>
+                        <p class="artifact-type">Machine Learning</p>
+                        <p class="artifact-desc">Enchanted orb that sees and classifies images using InceptionV3 deep learning sorcery.</p>
+                        <div class="artifact-components">
+                            <span class="component">Python</span>
+                            <span class="component">TensorFlow</span>
+                            <span class="component">InceptionV3</span>
+                            <span class="component">Deep Learning</span>
                         </div>
-                    </div>
-                </div>
-                
-                <div class="timeline-item">
-                    <div class="timeline-marker">
-                        <i class="fas fa-database"></i>
-                    </div>
-                    <div class="timeline-content">
-                        <div class="timeline-header">
-                            <h3>Database Programming Laboratory Assistant</h3>
-                            <span class="timeline-date">Sep 2024 - Jan 2025</span>
-                        </div>
-                        <h4>Institut Teknologi Nasional Bandung</h4>
-                        <p>Served as instructor for introductory database concepts and application development. Guided students in designing, implementing and integrating databases into real-world applications using Delphi7. Provided one-on-one mentoring to help students troubleshoot coding and database issues.</p>
-                        <div class="timeline-skills">
-                            <span class="skill-badge">Database Design</span>
-                            <span class="skill-badge">Delphi 7</span>
-                            <span class="skill-badge">SQL</span>
-                            <span class="skill-badge">Teaching & Mentoring</span>
+                        <div class="artifact-actions">
+                            <button class="artifact-btn inspect">
+                                <i class="fas fa-eye"></i>
+                                Inspect
+                            </button>
+                            <button class="artifact-btn equip">
+                                <i class="fas fa-hand-pointer"></i>
+                                View
+                            </button>
                         </div>
                     </div>
                 </div>
-                
-                <div class="timeline-item">
-                    <div class="timeline-marker">
-                        <i class="fas fa-code"></i>
-                    </div>
-                    <div class="timeline-content">
-                        <div class="timeline-header">
-                            <h3>Object-Oriented Programming Laboratory Assistant</h3>
-                            <span class="timeline-date">Mar 2025 - June 2025</span>
-                        </div>
-                        <h4>Institut Teknologi Nasional Bandung</h4>
-                        <p>Served as instructor for object-oriented programming fundamentals using Java. Assisted students in applying OOP principles (encapsulation, inheritance, polymorphism) in software development projects. Mentored student teams to develop small-to-medium scale applications with best coding practices.</p>
-                        <div class="timeline-skills">
-                            <span class="skill-badge">Java Programming</span>
-                            <span class="skill-badge">OOP Principles</span>
-                            <span class="skill-badge">Software Architecture</span>
-                            <span class="skill-badge">Code Review</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="timeline-item">
-                    <div class="timeline-marker">
-                        <i class="fas fa-network-wired"></i>
-                    </div>
-                    <div class="timeline-content">
-                        <div class="timeline-header">
-                            <h3>Computer Network Laboratory Assistant</h3>
-                            <span class="timeline-date">Mar 2025 - June 2025</span>
-                        </div>
-                        <h4>Institut Teknologi Nasional Bandung</h4>
-                        <p>Served as instructor for computer networking fundamentals and configuration. Guided students in setting up LAN, configuring routers/switches, and implementing TCP/IP protocols. Supported students in network troubleshooting, security basics, and client-server project assignments.</p>
-                        <div class="timeline-skills">
-                            <span class="skill-badge">Network Configuration</span>
-                            <span class="skill-badge">TCP/IP Protocols</span>
-                            <span class="skill-badge">Router/Switch Setup</span>
-                            <span class="skill-badge">Network Security</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
 
-    <!-- Portfolio Section -->
-    <section id="portfolio" class="portfolio">
-        <div class="container">
-            <div class="section-header">
-                <h2 class="section-title">Featured Projects</h2>
-                <p class="section-subtitle">Academic and personal projects showcasing my learning journey in software development</p>
+                <!-- Artifact 3 - Database System -->
+                <div class="artifact-card rare" data-category="database" data-rarity="rare">
+                    <div class="artifact-glow"></div>
+                    <div class="rarity-banner">
+                        <span>RARE</span>
+                    </div>
+                    <div class="artifact-image">
+                        <img src="images/Vmachine.png" alt="Database Management System" loading="lazy">
+                        <div class="artifact-shine"></div>
+                    </div>
+                    <div class="artifact-content">
+                        <div class="artifact-header">
+                            <div class="artifact-icon">
+                                <i class="fas fa-database"></i>
+                            </div>
+                            <div class="artifact-stats">
+                                <div class="stat power">
+                                    <i class="fas fa-bolt"></i>
+                                    <span>85</span>
+                                </div>
+                                <div class="stat complexity">
+                                    <i class="fas fa-cogs"></i>
+                                    <span>82</span>
+                                </div>
+                            </div>
+                        </div>
+                        <h3 class="artifact-name">Data Vault Crystal</h3>
+                        <p class="artifact-type">Database Programming</p>
+                        <p class="artifact-desc">Crystallized data storage system with Java Swing interface for managing university records.</p>
+                        <div class="artifact-components">
+                            <span class="component">Java</span>
+                            <span class="component">MySQL</span>
+                            <span class="component">JDBC</span>
+                            <span class="component">Swing</span>
+                        </div>
+                        <div class="artifact-actions">
+                            <button class="artifact-btn inspect">
+                                <i class="fas fa-eye"></i>
+                                Inspect
+                            </button>
+                            <button class="artifact-btn equip">
+                                <i class="fas fa-hand-pointer"></i>
+                                View
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Artifact 4 - Portfolio Website -->
+                <div class="artifact-card epic" data-category="web" data-rarity="epic">
+                    <div class="artifact-glow"></div>
+                    <div class="rarity-banner">
+                        <span>EPIC</span>
+                    </div>
+                    <div class="artifact-image">
+                        <img src="images/Vmachine.png" alt="Portfolio Website" loading="lazy">
+                        <div class="artifact-shine"></div>
+                    </div>
+                    <div class="artifact-content">
+                        <div class="artifact-header">
+                            <div class="artifact-icon">
+                                <i class="fas fa-globe"></i>
+                            </div>
+                            <div class="artifact-stats">
+                                <div class="stat power">
+                                    <i class="fas fa-bolt"></i>
+                                    <span>90</span>
+                                </div>
+                                <div class="stat complexity">
+                                    <i class="fas fa-cogs"></i>
+                                    <span>78</span>
+                                </div>
+                            </div>
+                        </div>
+                        <h3 class="artifact-name">Digital Grimoire</h3>
+                        <p class="artifact-type">Web Development</p>
+                        <p class="artifact-desc">This very tome you're reading - a DOTA2-themed portal showcasing heroic achievements.</p>
+                        <div class="artifact-components">
+                            <span class="component">HTML5</span>
+                            <span class="component">CSS3</span>
+                            <span class="component">JavaScript</span>
+                            <span class="component">DOTA2 Theme</span>
+                        </div>
+                        <div class="artifact-actions">
+                            <button class="artifact-btn inspect">
+                                <i class="fas fa-eye"></i>
+                                Inspect
+                            </button>
+                            <button class="artifact-btn equip">
+                                <i class="fas fa-hand-pointer"></i>
+                                View
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Artifact 5 - Network Security -->
+                <div class="artifact-card rare" data-category="academic" data-rarity="rare">
+                    <div class="artifact-glow"></div>
+                    <div class="rarity-banner">
+                        <span>RARE</span>
+                    </div>
+                    <div class="artifact-image">
+                        <img src="images/Vmachine.png" alt="Network Security" loading="lazy">
+                        <div class="artifact-shine"></div>
+                    </div>
+                    <div class="artifact-content">
+                        <div class="artifact-header">
+                            <div class="artifact-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <div class="artifact-stats">
+                                <div class="stat power">
+                                    <i class="fas fa-bolt"></i>
+                                    <span>88</span>
+                                </div>
+                                <div class="stat complexity">
+                                    <i class="fas fa-cogs"></i>
+                                    <span>85</span>
+                                </div>
+                            </div>
+                        </div>
+                        <h3 class="artifact-name">Firewall Aegis</h3>
+                        <p class="artifact-type">Network Security</p>
+                        <p class="artifact-desc">Impenetrable shield forged with Huawei firewall magic and MikroTik router enchantments.</p>
+                        <div class="artifact-components">
+                            <span class="component">Huawei Firewall</span>
+                            <span class="component">MikroTik</span>
+                            <span class="component">Security</span>
+                            <span class="component">TCP/IP</span>
+                        </div>
+                        <div class="artifact-actions">
+                            <button class="artifact-btn inspect">
+                                <i class="fas fa-eye"></i>
+                                Inspect
+                            </button>
+                            <button class="artifact-btn equip">
+                                <i class="fas fa-hand-pointer"></i>
+                                View
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Artifact 6 - Media Player -->
+                <div class="artifact-card uncommon" data-category="multimedia" data-rarity="uncommon">
+                    <div class="artifact-glow"></div>
+                    <div class="rarity-banner">
+                        <span>UNCOMMON</span>
+                    </div>
+                    <div class="artifact-image">
+                        <img src="images/Vmachine.png" alt="Media Player" loading="lazy">
+                        <div class="artifact-shine"></div>
+                    </div>
+                    <div class="artifact-content">
+                        <div class="artifact-header">
+                            <div class="artifact-icon">
+                                <i class="fas fa-music"></i>
+                            </div>
+                            <div class="artifact-stats">
+                                <div class="stat power">
+                                    <i class="fas fa-bolt"></i>
+                                    <span>75</span>
+                                </div>
+                                <div class="stat complexity">
+                                    <i class="fas fa-cogs"></i>
+                                    <span>70</span>
+                                </div>
+                            </div>
+                        </div>
+                        <h3 class="artifact-name">Harmony Resonator</h3>
+                        <p class="artifact-type">Multimedia Application</p>
+                        <p class="artifact-desc">Mystical device that channels audio and video through JavaFX enchantments.</p>
+                        <div class="artifact-components">
+                            <span class="component">Java</span>
+                            <span class="component">JavaFX</span>
+                            <span class="component">Media API</span>
+                            <span class="component">SQLite</span>
+                        </div>
+                        <div class="artifact-actions">
+                            <button class="artifact-btn inspect">
+                                <i class="fas fa-eye"></i>
+                                Inspect
+                            </button>
+                            <button class="artifact-btn equip">
+                                <i class="fas fa-hand-pointer"></i>
+                                View
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
             </div>
             
-            <!-- Portfolio Filter -->
-            <div class="portfolio-filters">
-                <button class="filter-btn active" data-filter="all">All Projects</button>
-                <button class="filter-btn" data-filter="web">Web Development</button>
-                <button class="filter-btn" data-filter="database">Database</button>
-                <button class="filter-btn" data-filter="multimedia">Multimedia</button>
-                <button class="filter-btn" data-filter="academic">Academic</button>
-                <button class="filter-btn" data-filter="iot">IoT & Embedded</button>
-            </div>
-            
-            <div class="portfolio-grid">
-                <!-- Project 1 - Remote Control Tank -->
-                <div class="portfolio-item" data-category="multimedia academic" data-project="tank">
-                    <div class="portfolio-image">
-                        <img src="images/Vmachine.png" alt="Remote Control Tank IoT Project" loading="lazy" style="object-fit: cover; width: 100%; height: 250px;">
-                        <div class="portfolio-overlay">
-                            <div class="portfolio-info">
-                                <h3>Remote Control Tank</h3>
-                                <p>IoT-based prototype integrating ESP32, sensors, and motor drivers with Flutter mobile control and web dashboard</p>
-                                <div class="portfolio-tech">
-                                    <span class="tech-tag">ESP32</span>
-                                    <span class="tech-tag">Flutter</span>
-                                    <span class="tech-tag">IoT</span>
-                                    <span class="tech-tag">Sensors</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="portfolio-content">
-                        <div class="project-category">IoT & Embedded Systems</div>
-                        <h3>Remote Control Tank</h3>
-                        <p>Advanced IoT prototype featuring ESP32 microcontroller, sensor integration, motor control, and cross-platform mobile application for remote operation.</p>
-                    </div>
-                </div>
-                
-                <!-- Project 2 - Deep Learning Classification -->
-                <div class="portfolio-item" data-category="academic" data-project="deeplearning">
-                    <div class="portfolio-image">
-                        <img src="images/Vmachine.png" alt="Deep Learning Image Classification" loading="lazy" style="object-fit: cover; width: 100%; height: 250px;">
-                        <div class="portfolio-overlay">
-                            <div class="portfolio-info">
-                                <h3>Deep Learning Image Classification with InceptionV3</h3>
-                                <p>Advanced machine learning project utilizing transfer learning and fine-tuning techniques for image classification tasks</p>
-                                <div class="portfolio-tech">
-                                    <span class="tech-tag">Python</span>
-                                    <span class="tech-tag">TensorFlow</span>
-                                    <span class="tech-tag">InceptionV3</span>
-                                    <span class="tech-tag">Deep Learning</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="portfolio-content">
-                        <div class="project-category">Machine Learning</div>
-                        <h3>InceptionV3 Image Classification</h3>
-                        <p>Comprehensive deep learning project implementing transfer learning and fine-tuning techniques for accurate image classification using state-of-the-art models.</p>
-                    </div>
-                </div>
-
-                <!-- Project 3 - Database Management System -->
-                <div class="portfolio-item" data-category="database" data-project="dbmanagement">
-                    <div class="portfolio-image">
-                        <img src="images/Vmachine.png" alt="Database Management System" loading="lazy" style="object-fit: cover; width: 100%; height: 250px;">
-                        <div class="portfolio-overlay">
-                            <div class="portfolio-info">
-                                <h3>University Database Management System</h3>
-                                <p>Complete database system for managing student information, courses, and grades with intuitive Java Swing interface</p>
-                                <div class="portfolio-tech">
-                                    <span class="tech-tag">Java</span>
-                                    <span class="tech-tag">MySQL</span>
-                                    <span class="tech-tag">JDBC</span>
-                                    <span class="tech-tag">Swing</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="portfolio-content">
-                        <div class="project-category">Database Programming</div>
-                        <h3>University Database System</h3>
-                        <p>Comprehensive database management system with full CRUD operations, advanced reporting, and secure user authentication for academic data management.</p>
-                    </div>
-                </div>
-                
-                <!-- Project 4 - Portfolio Website -->
-                <div class="portfolio-item" data-category="web" data-project="portfolio">
-                    <div class="portfolio-image">
-                        <img src="images/Vmachine.png" alt="Personal Portfolio Website" loading="lazy" style="object-fit: cover; width: 100%; height: 250px;">
-                        <div class="portfolio-overlay">
-                            <div class="portfolio-info">
-                                <h3>Personal Portfolio Website</h3>
-                                <p>Modern, responsive portfolio with dark/light theme, particle effects, and smooth animations</p>
-                                <div class="portfolio-tech">
-                                    <span class="tech-tag">HTML5</span>
-                                    <span class="tech-tag">CSS3</span>
-                                    <span class="tech-tag">JavaScript</span>
-                                    <span class="tech-tag">Particles.js</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="portfolio-content">
-                        <div class="project-category">Web Development</div>
-                        <h3>Personal Portfolio Website</h3>
-                        <p>Fully responsive portfolio showcasing projects with terminal-style animations, interactive particle background, and modern UI/UX design.</p>
-                    </div>
-                </div>
-                
-                <!-- Project 5 - Network Security Implementation -->
-                <div class="portfolio-item" data-category="academic" data-project="networksecurity">
-                    <div class="portfolio-image">
-                        <img src="images/Vmachine.png" alt="Network Security Project" loading="lazy" style="object-fit: cover; width: 100%; height: 250px;">
-                        <div class="portfolio-overlay">
-                            <div class="portfolio-info">
-                                <h3>Network Security Infrastructure</h3>
-                                <p>Implementation of secure network architecture using Huawei firewalls and MikroTik routers</p>
-                                <div class="portfolio-tech">
-                                    <span class="tech-tag">Huawei Firewall</span>
-                                    <span class="tech-tag">MikroTik</span>
-                                    <span class="tech-tag">Network Security</span>
-                                    <span class="tech-tag">TCP/IP</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="portfolio-content">
-                        <div class="project-category">Network Security</div>
-                        <h3>Network Security Infrastructure</h3>
-                        <p>Comprehensive network security implementation featuring firewall configuration, router management, and security protocol implementation.</p>
-                    </div>
-                </div>
-                
-                <!-- Project 6 - Media Player Application -->
-                <div class="portfolio-item" data-category="multimedia" data-project="mediaplayer">
-                    <div class="portfolio-image">
-                        <img src="images/Vmachine.png" alt="Java Media Player Application" loading="lazy" style="object-fit: cover; width: 100%; height: 250px;">
-                        <div class="portfolio-overlay">
-                            <div class="portfolio-info">
-                                <h3>Java Media Player Application</h3>
-                                <p>Feature-rich desktop multimedia player with playlist management and audio/video support</p>
-                                <div class="portfolio-tech">
-                                    <span class="tech-tag">Java</span>
-                                    <span class="tech-tag">JavaFX</span>
-                                    <span class="tech-tag">Media API</span>
-                                    <span class="tech-tag">SQLite</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="portfolio-content">
-                        <div class="project-category">Multimedia Application</div>
-                        <h3>Java Media Player</h3>
-                        <p>Cross-platform multimedia player with modern UI, playlist functionality, and support for various audio/video formats.</p>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Load More Button -->
-            <div class="portfolio-actions">
-                <button class="btn btn-outline btn-load-more">
-                    <i class="fas fa-plus"></i>
-                    <span>View More Projects</span>
+            <!-- Armory Actions -->
+            <div class="armory-actions">
+                <button class="armory-btn forge">
+                    <i class="fas fa-hammer"></i>
+                    <span>Discover More Artifacts</span>
                 </button>
-                <a href="https://github.com/Zulfan15" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
+                <a href="https://github.com/Zulfan15" target="_blank" rel="noopener noreferrer" class="armory-btn github">
                     <i class="fab fa-github"></i>
-                    <span>View All on GitHub</span>
+                    <span>Visit The Forge</span>
                 </a>
             </div>
         </div>
     </section>
 
-    <!-- Contact Section -->
-    <section id="contact" class="contact">
+    <!-- Contact Section - TAVERN MESSAGE BOARD -->
+    <section id="contact" class="contact tavern-section">
         <div class="container">
             <div class="section-header">
-                <h2 class="section-title">Let's Work Together</h2>
-                <p class="section-subtitle">Ready to bring your ideas to life? Let's discuss your next project</p>
+                <div class="tavern-title">
+                    <i class="fas fa-scroll"></i>
+                    <h2 class="section-title" data-translate="contact_title">The Tavern</h2>
+                    <i class="fas fa-scroll"></i>
+                </div>
+                <p class="section-subtitle" data-translate="contact_subtitle">Send a raven or visit the message board to begin your quest</p>
             </div>
             
-            <div class="contact-grid">
-                <!-- Contact Form -->
-                <div class="contact-form-section">
-                    <div class="form-header">
-                        <h3>Send me a message</h3>
-                        <p>I'll get back to you within 24 hours</p>
+            <div class="tavern-grid">
+                <!-- Message Scroll (Form) -->
+                <div class="message-scroll">
+                    <div class="scroll-header">
+                        <div class="scroll-ornament left"></div>
+                        <div class="scroll-title">
+                            <i class="fas fa-feather-alt"></i>
+                            <h3>Write Your Message</h3>
+                        </div>
+                        <div class="scroll-ornament right"></div>
                     </div>
                     
-                    <form class="contact-form" id="contact-form">
-                        <div class="form-group">
-                            <label for="name">Your Name</label>
-                            <input type="text" id="name" name="name" placeholder="John Doe" required>
-                            <span class="form-icon"><i class="fas fa-user"></i></span>
+                    <div class="scroll-content">
+                        <div class="quill-decoration">
+                            <i class="fas fa-quill"></i>
                         </div>
                         
-                        <div class="form-group">
-                            <label for="email">Email Address</label>
-                            <input type="email" id="email" name="email" placeholder="john@example.com" required>
-                            <span class="form-icon"><i class="fas fa-envelope"></i></span>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="message">Your Message</label>
-                            <textarea id="message" name="message" rows="5" placeholder="Tell me about your project idea or just say hello!" required></textarea>
-                        </div>
-                        
-                        <button type="submit" class="btn btn-primary btn-submit">
-                            <i class="fas fa-paper-plane"></i>
-                            <span>Send Message</span>
-                            <div class="btn-loader">
-                                <div class="spinner"></div>
+                        <form class="tavern-form" id="contact-form">
+                            <div class="form-field">
+                                <label for="name">
+                                    <i class="fas fa-helmet-battle"></i>
+                                    Hero Name
+                                </label>
+                                <input type="text" id="name" name="name" placeholder="Enter your name, brave hero..." required>
+                                <div class="field-glow"></div>
                             </div>
-                        </button>
-                    </form>
+                            
+                            <div class="form-field">
+                                <label for="email">
+                                    <i class="fas fa-dove"></i>
+                                    Raven Address
+                                </label>
+                                <input type="email" id="email" name="email" placeholder="Where shall we send the reply..." required>
+                                <div class="field-glow"></div>
+                            </div>
+                            
+                            <div class="form-field">
+                                <label for="quest-type">
+                                    <i class="fas fa-map"></i>
+                                    Quest Type
+                                </label>
+                                <select id="quest-type" name="quest-type">
+                                    <option value="">Select your quest...</option>
+                                    <option value="collaboration">🤝 Alliance Request</option>
+                                    <option value="project">⚔️ New Quest/Project</option>
+                                    <option value="hiring">👑 Recruitment</option>
+                                    <option value="question">❓ Seek Wisdom</option>
+                                    <option value="other">📜 Other Matters</option>
+                                </select>
+                                <div class="field-glow"></div>
+                            </div>
+                            
+                            <div class="form-field">
+                                <label for="message">
+                                    <i class="fas fa-scroll"></i>
+                                    Your Message
+                                </label>
+                                <textarea id="message" name="message" rows="5" placeholder="Inscribe your message upon this scroll..." required></textarea>
+                                <div class="field-glow"></div>
+                            </div>
+                            
+                            <button type="submit" class="send-raven-btn">
+                                <div class="btn-content">
+                                    <i class="fas fa-paper-plane"></i>
+                                    <span>Send Raven</span>
+                                </div>
+                                <div class="btn-glow"></div>
+                                <div class="raven-animation">
+                                    <i class="fas fa-crow"></i>
+                                </div>
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <div class="scroll-footer">
+                        <div class="wax-seal">
+                            <span>MZ</span>
+                        </div>
+                    </div>
                 </div>
                 
-                <!-- Contact Info -->
-                <div class="contact-info-section">
-                    <div class="contact-info">
-                        <div class="contact-item">
-                            <div class="contact-icon">
+                <!-- Tavern Info Board -->
+                <div class="info-board">
+                    <!-- Quest Giver NPC -->
+                    <div class="quest-giver">
+                        <div class="npc-portrait">
+                            <div class="portrait-frame">
+                                <i class="fas fa-user-tie"></i>
+                            </div>
+                            <div class="npc-status online">
+                                <span class="status-dot"></span>
+                                <span>Available for Quests</span>
+                            </div>
+                        </div>
+                        <div class="npc-dialogue">
+                            <p>"Greetings, traveler! I am <strong>Zulfan</strong>, keeper of this tavern. How may I assist you on your journey?"</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Contact Cards -->
+                    <div class="contact-cards">
+                        <div class="contact-card">
+                            <div class="card-icon">
                                 <i class="fas fa-envelope"></i>
                             </div>
-                            <div class="contact-details">
-                                <h4>Email</h4>
+                            <div class="card-info">
+                                <h4>Raven Mail</h4>
                                 <p>zulfanangga2908@gmail.com</p>
-                                <a href="mailto:zulfanangga2908@gmail.com" class="contact-link">Send Email</a>
                             </div>
+                            <a href="mailto:zulfanangga2908@gmail.com" class="card-action">
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
                         </div>
                         
-                        <div class="contact-item">
-                            <div class="contact-icon">
-                                <i class="fas fa-phone"></i>
+                        <div class="contact-card">
+                            <div class="card-icon">
+                                <i class="fas fa-phone-alt"></i>
                             </div>
-                            <div class="contact-details">
-                                <h4>Phone</h4>
+                            <div class="card-info">
+                                <h4>Crystal Ball</h4>
                                 <p>+62 851-5692-7928</p>
-                                <a href="tel:+6285156927928" class="contact-link">Call Now</a>
                             </div>
+                            <a href="tel:+6285156927928" class="card-action">
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
                         </div>
                         
-                        <div class="contact-item">
-                            <div class="contact-icon">
+                        <div class="contact-card">
+                            <div class="card-icon">
                                 <i class="fas fa-map-marker-alt"></i>
                             </div>
-                            <div class="contact-details">
-                                <h4>Location</h4>
-                                <p>Bandung, Jawa Barat 40283</p>
-                                <p class="timezone">UTC+7 (WIB)</p>
+                            <div class="card-info">
+                                <h4>Tavern Location</h4>
+                                <p>Bandung, West Java</p>
                             </div>
-                        </div>
-                        
-                        <div class="contact-item">
-                            <div class="contact-icon">
-                                <i class="fas fa-clock"></i>
-                            </div>
-                            <div class="contact-details">
-                                <h4>Response Time</h4>
-                                <p>Usually within 24 hours</p>
-                                <div class="availability-status">
-                                    <span class="status-indicator online"></span>
-                                    <span>Available for new projects</span>
-                                </div>
-                            </div>
+                            <span class="card-badge">UTC+7</span>
                         </div>
                     </div>
                     
-                    <!-- Quick Contact Methods -->
-                    <div class="quick-contact">
-                        <h4>Quick Contact</h4>
-                        <div class="quick-contact-buttons">
-                            <a href="https://wa.me/6285156927928" target="_blank" rel="noopener noreferrer" class="quick-btn whatsapp">
+                    <!-- Messenger Ravens (Social Links) -->
+                    <div class="messenger-ravens">
+                        <h4>
+                            <i class="fas fa-crow"></i>
+                            Send a Raven
+                        </h4>
+                        <div class="raven-links">
+                            <a href="https://wa.me/6285156927928" target="_blank" rel="noopener noreferrer" class="raven-btn whatsapp">
                                 <i class="fab fa-whatsapp"></i>
                                 <span>WhatsApp</span>
+                                <div class="raven-glow"></div>
                             </a>
-                            <a href="https://t.me/zulfan15" target="_blank" rel="noopener noreferrer" class="quick-btn telegram">
+                            <a href="https://t.me/zulfan15" target="_blank" rel="noopener noreferrer" class="raven-btn telegram">
                                 <i class="fab fa-telegram"></i>
                                 <span>Telegram</span>
+                                <div class="raven-glow"></div>
                             </a>
-                            <a href="https://linkedin.com/in/zulfan15" target="_blank" rel="noopener noreferrer" class="quick-btn linkedin">
+                            <a href="https://linkedin.com/in/mzulfana" target="_blank" rel="noopener noreferrer" class="raven-btn linkedin">
                                 <i class="fab fa-linkedin"></i>
                                 <span>LinkedIn</span>
+                                <div class="raven-glow"></div>
                             </a>
-                            <a href="skype:zulfan15?chat" class="quick-btn skype">
-                                <i class="fab fa-skype"></i>
-                                <span>Skype</span>
+                            <a href="https://github.com/Zulfan15" target="_blank" rel="noopener noreferrer" class="raven-btn github">
+                                <i class="fab fa-github"></i>
+                                <span>GitHub</span>
+                                <div class="raven-glow"></div>
                             </a>
                         </div>
                     </div>
                     
-                    <!-- Working Hours -->
-                    <div class="working-hours">
-                        <h4>Working Hours</h4>
-                        <div class="hours-list">
-                            <div class="hours-item">
-                                <span class="day">Monday - Friday</span>
-                                <span class="time">9:00 AM - 6:00 PM</span>
+                    <!-- Tavern Hours -->
+                    <div class="tavern-hours">
+                        <div class="hours-header">
+                            <i class="fas fa-clock"></i>
+                            <h4>Tavern Hours</h4>
+                        </div>
+                        <div class="hours-grid">
+                            <div class="hour-row">
+                                <span class="day">Mon - Fri</span>
+                                <span class="divider"></span>
+                                <span class="time">9:00 - 18:00</span>
                             </div>
-                            <div class="hours-item">
+                            <div class="hour-row">
                                 <span class="day">Saturday</span>
-                                <span class="time">10:00 AM - 4:00 PM</span>
+                                <span class="divider"></span>
+                                <span class="time">10:00 - 16:00</span>
                             </div>
-                            <div class="hours-item">
+                            <div class="hour-row weekend">
                                 <span class="day">Sunday</span>
-                                <span class="time">Emergency only</span>
+                                <span class="divider"></span>
+                                <span class="time">Closed</span>
                             </div>
                         </div>
+                        <p class="response-note">
+                            <i class="fas fa-hourglass-half"></i>
+                            Ravens typically return within 24 hours
+                        </p>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="footer">
+    <!-- Footer - ANCIENT THRONE -->
+    <footer class="footer ancient-throne">
+        <div class="throne-glow"></div>
         <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <div class="footer-brand">
-                        <h3>&lt;M Zulfan/&gt;</h3>
-                        <p>Final-year Informatics student at Institut Teknologi Nasional Bandung with expertise in software development, database programming, and network security. Laboratory Assistant with industry certification in cybersecurity.</p>
-                        <div class="footer-social">
-                            <a href="https://github.com/Zulfan15" target="_blank" rel="noopener noreferrer" aria-label="GitHub Profile - View my code repositories">
-                                <i class="fab fa-github"></i>
-                            </a>
-                            <a href="https://linkedin.com/in/mzulfana" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn Profile - Connect with me professionally">
-                                <i class="fab fa-linkedin"></i>
-                            </a>
-                            <a href="mailto:zulfanangga2908@gmail.com" target="_blank" rel="noopener noreferrer" aria-label="Email - Contact me directly">
-                                <i class="fas fa-envelope"></i>
-                            </a>
+            <div class="throne-content">
+                <!-- Hero Sigil -->
+                <div class="hero-sigil">
+                    <div class="sigil-frame">
+                        <div class="sigil-icon">
+                            <span>MZ</span>
                         </div>
+                    </div>
+                    <h3 class="sigil-name">M. Zulfan</h3>
+                    <p class="sigil-title">Code Warrior & Digital Craftsman</p>
+                    <p class="sigil-desc">Informatics student at ITENAS Bandung, forging digital artifacts and defending the realm with HCIA-Security certification.</p>
+                    
+                    <!-- Social Runes -->
+                    <div class="social-runes">
+                        <a href="https://github.com/Zulfan15" target="_blank" rel="noopener noreferrer" class="rune" aria-label="GitHub">
+                            <i class="fab fa-github"></i>
+                        </a>
+                        <a href="https://linkedin.com/in/mzulfana" target="_blank" rel="noopener noreferrer" class="rune" aria-label="LinkedIn">
+                            <i class="fab fa-linkedin"></i>
+                        </a>
+                        <a href="mailto:zulfanangga2908@gmail.com" class="rune" aria-label="Email">
+                            <i class="fas fa-envelope"></i>
+                        </a>
+                        <a href="https://wa.me/6285156927928" target="_blank" rel="noopener noreferrer" class="rune" aria-label="WhatsApp">
+                            <i class="fab fa-whatsapp"></i>
+                        </a>
                     </div>
                 </div>
                 
-                <div class="footer-section">
-                    <h4>Quick Links</h4>
-                    <ul class="footer-links">
-                        <li><a href="#home">Home</a></li>
-                        <li><a href="#about">About</a></li>
-                        <li><a href="#skills">Skills</a></li>
-                        <li><a href="#portfolio">Projects</a></li>
-                        <li><a href="#contact">Contact</a></li>
-                    </ul>
-                </div>
-                
-                <div class="footer-section">
-                    <h4>Services & Expertise</h4>
-                    <ul class="footer-links">
-                        <li><a href="#portfolio">Database Programming</a></li>
-                        <li><a href="#portfolio">Software Development</a></li>
-                        <li><a href="#portfolio">Network Security</a></li>
-                        <li><a href="#portfolio">IoT & Embedded Systems</a></li>
-                        <li><a href="#portfolio">Laboratory Instruction</a></li>
-                    </ul>
-                </div>
-                
-                <div class="footer-section">
-                    <h4>Contact Info</h4>
-                    <div class="footer-contact">
-                        <p><i class="fas fa-envelope"></i> zulfanangga2908@gmail.com</p>
-                        <p><i class="fas fa-phone"></i> +62 851-5692-7928</p>
-                        <p><i class="fas fa-map-marker-alt"></i> Bandung, Jawa Barat 40283</p>
-                        <p><i class="fas fa-graduation-cap"></i> Final Year Informatics Student</p>
-                        <p><i class="fas fa-certificate"></i> HCIA-Security Certified</p>
+                <!-- Navigation Pillars -->
+                <div class="nav-pillars">
+                    <div class="pillar">
+                        <h4>
+                            <i class="fas fa-compass"></i>
+                            Navigate
+                        </h4>
+                        <ul>
+                            <li><a href="#home"><i class="fas fa-chevron-right"></i> Base Camp</a></li>
+                            <li><a href="#about"><i class="fas fa-chevron-right"></i> Hero Profile</a></li>
+                            <li><a href="#skills"><i class="fas fa-chevron-right"></i> Mission Board</a></li>
+                            <li><a href="#experience"><i class="fas fa-chevron-right"></i> Battle Log</a></li>
+                            <li><a href="#portfolio"><i class="fas fa-chevron-right"></i> Artifact Armory</a></li>
+                            <li><a href="#contact"><i class="fas fa-chevron-right"></i> The Tavern</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="pillar">
+                        <h4>
+                            <i class="fas fa-scroll"></i>
+                            Expertise
+                        </h4>
+                        <ul>
+                            <li><a href="#skills"><i class="fas fa-chevron-right"></i> Database Sorcery</a></li>
+                            <li><a href="#skills"><i class="fas fa-chevron-right"></i> Software Forging</a></li>
+                            <li><a href="#skills"><i class="fas fa-chevron-right"></i> Network Defense</a></li>
+                            <li><a href="#skills"><i class="fas fa-chevron-right"></i> IoT Engineering</a></li>
+                            <li><a href="#skills"><i class="fas fa-chevron-right"></i> Lab Mastery</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="pillar">
+                        <h4>
+                            <i class="fas fa-gem"></i>
+                            Resources
+                        </h4>
+                        <ul>
+                            <li><a href="https://github.com/Zulfan15" target="_blank"><i class="fas fa-chevron-right"></i> Code Repository</a></li>
+                            <li><a href="#portfolio"><i class="fas fa-chevron-right"></i> Project Gallery</a></li>
+                            <li><a href="sitemap.xml"><i class="fas fa-chevron-right"></i> Site Map</a></li>
+                        </ul>
                     </div>
                 </div>
             </div>
             
-            <div class="footer-bottom">
-                <div class="footer-copyright">
-                    <p>&copy; 2025 Muhammad Zulfan Anggadhiputra. All rights reserved.</p>
-                    <div class="footer-terminal">
-                        <span class="terminal-prompt">$</span>
-                        <span class="terminal-command">echo "Thanks for visiting!"</span>
+            <!-- Throne Base -->
+            <div class="throne-base">
+                <div class="base-left">
+                    <p class="copyright">
+                        <i class="fas fa-shield-alt"></i>
+                        © 2025 Muhammad Zulfan Anggadhiputra
+                    </p>
+                </div>
+                <div class="base-center">
+                    <div class="ancient-rune">
+                        <span class="rune-text">⚔️ FORGED WITH PASSION ⚔️</span>
                     </div>
                 </div>
-                <div class="footer-links-bottom">
-                    <a href="#privacy">Privacy Policy</a>
-                    <a href="#terms">Terms of Service</a>
-                    <a href="sitemap.xml">Sitemap</a>
+                <div class="base-right">
+                    <p class="made-with">
+                        Crafted with <i class="fas fa-heart"></i> & <i class="fas fa-coffee"></i>
+                    </p>
                 </div>
             </div>
         </div>
         
-        <!-- Back to Top Button -->
-        <button class="back-to-top" id="back-to-top" aria-label="Back to top">
-            <i class="fas fa-chevron-up"></i>
+        <!-- Back to Top - Teleport Scroll -->
+        <button class="teleport-scroll" id="back-to-top" aria-label="Teleport to top">
+            <div class="scroll-wrapper">
+                <i class="fas fa-chevron-up"></i>
+                <span>TP</span>
+            </div>
         </button>
     </footer>
 
     <!-- Notification Container -->
     <div id="notification-container" class="notification-container"></div>
 
-    <!-- Scripts -->
-    <script src="js/performance.js"></script>
-    <script src="js/navigation.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js" defer></script>
-    <script src="js/main.js" defer></script>
-    <script src="js/enhanced.js" defer></script>
+    <!-- Language Translations -->
+    <script src="js/translations.js" defer></script>
+    
+    <!-- DOTA2 Theme Scripts -->
+    <script src="js/dota2-theme.js" defer></script>
 </body>
 </html>
