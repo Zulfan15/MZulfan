@@ -7,6 +7,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize matrix rain effect
     initMatrixRain();
     
+    // Initialize Artifact Modal
+    initArtifactModal();
+    
     // Mobile Navigation Toggle
     const navToggle = document.getElementById('nav-toggle');
     const navMenu = document.getElementById('nav-menu');
@@ -326,4 +329,76 @@ function openWhatsApp() {
     const message = 'Halo! Saya tertarik dengan portfolio Anda.';
     const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(url, '_blank');
+}
+
+// Initialize Artifact Modal
+function initArtifactModal() {
+    const modal = document.getElementById('artifact-modal');
+    if (!modal) return;
+    
+    const closeBtn = document.getElementById('modal-close');
+    const inspectBtns = document.querySelectorAll('.artifact-btn.inspect');
+    
+    // UI Elements inside modal
+    const mTitle = document.getElementById('modal-title');
+    const mCategory = document.getElementById('modal-category');
+    const mDesc = document.getElementById('modal-desc');
+    const mTechList = document.getElementById('modal-tech-list');
+    const mImage = document.getElementById('modal-image');
+    
+    function openModal(card) {
+        // Get data from card
+        const title = card.querySelector('.artifact-name').innerText;
+        const category = card.querySelector('.artifact-type').innerText;
+        const desc = card.querySelector('.artifact-desc').innerText;
+        const imgSrc = card.querySelector('img').src;
+        
+        // Get tech components
+        const components = Array.from(card.querySelectorAll('.component')).map(span => span.innerText);
+        
+        // Update modal UI
+        mTitle.innerText = title;
+        mCategory.innerText = category;
+        mDesc.innerText = desc;
+        mImage.src = imgSrc;
+        
+        // Render tech components
+        mTechList.innerHTML = '';
+        components.forEach(tech => {
+            const span = document.createElement('span');
+            span.className = 'component';
+            span.innerText = tech;
+            mTechList.appendChild(span);
+        });
+        
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    }
+    
+    function closeModal() {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+    
+    // Event listeners for open
+    inspectBtns.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const card = this.closest('.artifact-card');
+            if (card) openModal(card);
+        });
+    });
+    
+    // Event listeners for close
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) closeModal();
+    });
+    
+    // Close on escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
 }

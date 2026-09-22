@@ -5426,3 +5426,208 @@ html[dir="rtl"] .social-links {
         right: 20px;
     }
 }
+
+/* ========================================
+   MODAL - Artifact Inspect
+   ======================================== */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(5px);
+    z-index: 9999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.modal-overlay.active {
+    display: flex;
+    opacity: 1;
+}
+
+.modal-container {
+    background: var(--bg-card);
+    border: 2px solid var(--dota-gold);
+    border-radius: var(--radius-large);
+    width: 100%;
+    max-width: 800px;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 0 30px rgba(196, 168, 75, 0.2), inset 0 0 20px rgba(0, 0, 0, 0.8);
+    transform: translateY(20px) scale(0.95);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.modal-overlay.active .modal-container {
+    transform: translateY(0) scale(1);
+}
+
+.modal-header {
+    padding: 20px 30px;
+    border-bottom: 1px solid rgba(196, 168, 75, 0.3);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.5);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.modal-title {
+    font-family: var(--font-title);
+    color: var(--dota-gold);
+    font-size: 1.8rem;
+    margin: 0;
+}
+
+.modal-close {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.modal-close:hover {
+    color: var(--dota-red);
+    transform: rotate(90deg);
+}
+
+.modal-body {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 30px;
+    padding: 30px;
+}
+
+.modal-image-container {
+    border-radius: var(--radius-medium);
+    overflow: hidden;
+    border: 1px solid rgba(196, 168, 75, 0.3);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+}
+
+.modal-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.modal-stats {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px dashed rgba(196, 168, 75, 0.2);
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 5px;
+}
+
+.stat-value {
+    color: var(--dota-gold);
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.modal-description h4, .modal-tech h4 {
+    color: var(--dota-gold);
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+}
+
+.modal-description p {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.modal-tech .tech-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.modal-tech .component {
+    background: rgba(196, 168, 75, 0.1);
+    border: 1px solid rgba(196, 168, 75, 0.3);
+    color: var(--dota-gold);
+    padding: 5px 12px;
+    border-radius: var(--radius-small);
+    font-size: 0.85rem;
+}
+
+.modal-footer {
+    padding: 20px 30px;
+    border-top: 1px solid rgba(196, 168, 75, 0.3);
+    display: flex;
+    gap: 15px;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.modal-btn {
+    flex: 1;
+    text-align: center;
+    padding: 12px 20px;
+    border-radius: var(--radius-small);
+    font-weight: bold;
+    text-decoration: none;
+    transition: var(--transition-normal);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.repo-btn {
+    background: transparent;
+    border: 1px solid var(--text-muted);
+    color: var(--text-primary);
+}
+
+.repo-btn:hover {
+    border-color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.live-btn {
+    background: var(--dota-red);
+    border: 1px solid var(--dota-red);
+    color: white;
+}
+
+.live-btn:hover {
+    background: #ff5555;
+    box-shadow: 0 0 15px rgba(255, 68, 68, 0.4);
+}
+
+@media (max-width: 768px) {
+    .modal-body {
+        grid-template-columns: 1fr;
+    }
+    
+    .modal-footer {
+        flex-direction: column;
+    }
+}
