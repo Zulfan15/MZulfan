@@ -106,8 +106,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // SCROLL REVEAL ANIMATIONS
     // ========================================
     const revealElements = document.querySelectorAll(
-        '.skill-category, .skill-item, .timeline-item, .portfolio-item, ' +
-        '.contact-item, .about-content, .about-visual, .highlight-item'
+        '.mission-card, .portfolio-card, .timeline-path, .campaign-chapter, ' +
+        '.hero-portrait-panel, .hero-lore-panel, .contact-item, .contact-card'
     );
 
     const revealOnScroll = () => {
@@ -775,6 +775,28 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+    // ========================================
+    // PARTICLES JS INITIALIZATION
+    // ========================================
+    if (typeof particlesJS !== 'undefined' && document.getElementById('particles-js')) {
+        particlesJS('particles-js', {
+            "particles": {
+                "number": { "value": 40, "density": { "enable": true, "value_area": 800 } },
+                "color": { "value": "#c4a84b" },
+                "shape": { "type": "circle" },
+                "opacity": { "value": 0.5, "random": true },
+                "size": { "value": 3, "random": true },
+                "line_linked": { "enable": false },
+                "move": { "enable": true, "speed": 1, "direction": "top", "random": true, "straight": false, "out_mode": "out", "bounce": false }
+            },
+            "interactivity": {
+                "detect_on": "canvas",
+                "events": { "onhover": { "enable": true, "mode": "bubble" }, "onclick": { "enable": true, "mode": "repulse" }, "resize": true },
+                "modes": { "bubble": { "distance": 250, "size": 0, "duration": 2, "opacity": 0, "speed": 3 }, "repulse": { "distance": 400, "duration": 0.4 } }
+            },
+            "retina_detect": true
+        });
+    }
 
     console.log('🎮 DOTA2 Theme loaded successfully!');
     console.log('⚔️ All sections animated: Character Sheet, Battle Campaign, Artifact Armory, Tavern');
