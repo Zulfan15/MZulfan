@@ -1,86 +1,385 @@
 ---
 import TownLayout from '../layouts/TownLayout.astro';
-import WhereTo from '../components/WhereTo.astro';
-import { profile, researchMissions } from '../lib/profile';
+import '../styles/dev.css';
+import '../styles/lab.css';
+import LabPostersModal from '../components/LabPostersModal.astro';
+import LabWhiteboardModal from '../components/LabWhiteboardModal.astro';
+import LabBenchModal from '../components/LabBenchModal.astro';
 ---
 
-<TownLayout place="lab" title="Research Lab · AI & Computer Vision">
-  <div class="space-y-6">
-    <div class="border-b-2 border-ink/20 pb-4">
-      <div class="eyebrow text-ball">🔬 RESEARCH LAB · APPLIED AI & VISION</div>
-      <h1 class="font-pixel text-lg text-ink mt-1">
-        Laboratory & Edge AI
-      </h1>
-      <p class="font-mono text-xs text-ink-soft mt-1">
-        Signal processing, adversarial spam detection, edge computer vision and deep learning optimization.
+<TownLayout place="lab" title="Research Lab · Applied AI & Computer Vision — Muhammad Zulfan">
+  <div class="mcp mcp--lab">
+    <!-- Header with 16x16 Pixel Avatar & Retro ID -->
+    <header class="mcp-id">
+      <svg
+        class="mcp-id__avatar portrait"
+        viewBox="0 0 16 16"
+        shape-rendering="crispEdges"
+        role="img"
+        aria-label="Zulfan's pixel character"
+        style="--skin: #efc19c"
+      >
+        <rect width="16" height="16" fill="#0f1a33"></rect>
+        <g class="sprite">
+          <rect x="5" y="3" width="1" height="1" fill="#141218"></rect>
+          <rect x="6" y="3" width="1" height="1" fill="#141218"></rect>
+          <rect x="7" y="3" width="1" height="1" fill="#141218"></rect>
+          <rect x="8" y="3" width="1" height="1" fill="#141218"></rect>
+          <rect x="9" y="3" width="1" height="1" fill="#141218"></rect>
+          <rect x="10" y="3" width="1" height="1" fill="#141218"></rect>
+          <rect x="4" y="4" width="1" height="1" fill="#141218"></rect>
+          <rect x="5" y="4" width="1" height="1" fill="#6b6878"></rect>
+          <rect x="6" y="4" width="1" height="1" fill="#6b6878"></rect>
+          <rect x="7" y="4" width="1" height="1" fill="#1f1a24"></rect>
+          <rect x="8" y="4" width="1" height="1" fill="#1f1a24"></rect>
+          <rect x="9" y="4" width="1" height="1" fill="#6b6878"></rect>
+          <rect x="10" y="4" width="1" height="1" fill="#6b6878"></rect>
+          <rect x="11" y="4" width="1" height="1" fill="#141218"></rect>
+          <rect x="3" y="5" width="1" height="1" fill="#141218"></rect>
+          <rect x="4" y="5" width="1" height="1" fill="#6b6878"></rect>
+          <rect x="5" y="5" width="1" height="1" fill="#1f1a24"></rect>
+          <rect x="6" y="5" width="1" height="1" fill="#1f1a24"></rect>
+          <rect x="7" y="5" width="1" height="1" fill="#1f1a24"></rect>
+          <rect x="8" y="5" width="1" height="1" fill="#1f1a24"></rect>
+          <rect x="9" y="5" width="1" height="1" fill="#1f1a24"></rect>
+          <rect x="10" y="5" width="1" height="1" fill="#1f1a24"></rect>
+          <rect x="11" y="5" width="1" height="1" fill="#6b6878"></rect>
+          <rect x="12" y="5" width="1" height="1" fill="#141218"></rect>
+          <rect x="2" y="6" width="1" height="1" fill="#141218"></rect>
+          <rect x="3" y="6" width="1" height="1" fill="#141218"></rect>
+          <rect x="4" y="6" width="1" height="1" fill="#141218"></rect>
+          <rect x="5" y="6" width="1" height="1" fill="#1f1a24"></rect>
+          <rect x="6" y="6" width="1" height="1" fill="#1f1a24"></rect>
+          <rect x="7" y="6" width="1" height="1" fill="#1f1a24"></rect>
+          <rect x="8" y="6" width="1" height="1" fill="#1f1a24"></rect>
+          <rect x="9" y="6" width="1" height="1" fill="#1f1a24"></rect>
+          <rect x="10" y="6" width="1" height="1" fill="#1f1a24"></rect>
+          <rect x="11" y="6" width="1" height="1" fill="#141218"></rect>
+          <rect x="12" y="6" width="1" height="1" fill="#141218"></rect>
+          <rect x="13" y="6" width="1" height="1" fill="#141218"></rect>
+          <rect x="2" y="7" width="1" height="1" fill="#141218"></rect>
+          <rect x="3" y="7" width="1" height="1" fill="#6b6878"></rect>
+          <rect x="4" y="7" width="1" height="1" fill="#141218"></rect>
+          <rect x="5" y="7" width="1" height="1" fill="#1f1a24"></rect>
+          <rect x="6" y="7" width="1" height="1" fill="#efc19c"></rect>
+          <rect x="7" y="7" width="1" height="1" fill="#efc19c"></rect>
+          <rect x="8" y="7" width="1" height="1" fill="#efc19c"></rect>
+          <rect x="9" y="7" width="1" height="1" fill="#efc19c"></rect>
+          <rect x="10" y="7" width="1" height="1" fill="#efc19c"></rect>
+          <rect x="11" y="7" width="1" height="1" fill="#141218"></rect>
+          <rect x="12" y="7" width="1" height="1" fill="#6b6878"></rect>
+          <rect x="13" y="7" width="1" height="1" fill="#141218"></rect>
+          <rect x="2" y="8" width="1" height="1" fill="#141218"></rect>
+          <rect x="3" y="8" width="1" height="1" fill="#6b6878"></rect>
+          <rect x="4" y="8" width="1" height="1" fill="#141218"></rect>
+          <rect x="5" y="8" width="1" height="1" fill="#efc19c"></rect>
+          <rect x="6" y="8" width="1" height="1" fill="#1f1a24" class="eye"></rect>
+          <rect x="7" y="8" width="1" height="1" fill="#efc19c"></rect>
+          <rect x="8" y="8" width="1" height="1" fill="#efc19c"></rect>
+          <rect x="9" y="8" width="1" height="1" fill="#1f1a24" class="eye"></rect>
+          <rect x="10" y="8" width="1" height="1" fill="#efc19c"></rect>
+          <rect x="11" y="8" width="1" height="1" fill="#141218"></rect>
+          <rect x="12" y="8" width="1" height="1" fill="#6b6878"></rect>
+          <rect x="13" y="8" width="1" height="1" fill="#141218"></rect>
+          <rect x="2" y="9" width="1" height="1" fill="#141218"></rect>
+          <rect x="3" y="9" width="1" height="1" fill="#141218"></rect>
+          <rect x="4" y="9" width="1" height="1" fill="#efc19c"></rect>
+          <rect x="5" y="9" width="1" height="1" fill="#f59e9e"></rect>
+          <rect x="6" y="9" width="1" height="1" fill="#efc19c"></rect>
+          <rect x="7" y="9" width="1" height="1" fill="#efc19c"></rect>
+          <rect x="8" y="9" width="1" height="1" fill="#efc19c"></rect>
+          <rect x="9" y="9" width="1" height="1" fill="#efc19c"></rect>
+          <rect x="10" y="9" width="1" height="1" fill="#efc19c"></rect>
+          <rect x="11" y="9" width="1" height="1" fill="#f59e9e"></rect>
+          <rect x="12" y="9" width="1" height="1" fill="#141218"></rect>
+          <rect x="13" y="9" width="1" height="1" fill="#141218"></rect>
+          <rect x="4" y="10" width="1" height="1" fill="#2b2233"></rect>
+          <rect x="5" y="10" width="1" height="1" fill="#efc19c"></rect>
+          <rect x="6" y="10" width="1" height="1" fill="#efc19c"></rect>
+          <rect x="7" y="10" width="1" height="1" fill="#b3544f"></rect>
+          <rect x="8" y="10" width="1" height="1" fill="#b3544f"></rect>
+          <rect x="9" y="10" width="1" height="1" fill="#efc19c"></rect>
+          <rect x="10" y="10" width="1" height="1" fill="#efc19c"></rect>
+          <rect x="11" y="10" width="1" height="1" fill="#2b2233"></rect>
+          <rect x="5" y="11" width="1" height="1" fill="#2b2233"></rect>
+          <rect x="6" y="11" width="1" height="1" fill="#2b2233"></rect>
+          <rect x="7" y="11" width="1" height="1" fill="#efc19c"></rect>
+          <rect x="8" y="11" width="1" height="1" fill="#efc19c"></rect>
+          <rect x="9" y="11" width="1" height="1" fill="#2b2233"></rect>
+          <rect x="10" y="11" width="1" height="1" fill="#2b2233"></rect>
+          <rect x="4" y="12" width="1" height="1" fill="#2b2233"></rect>
+          <rect x="5" y="12" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="6" y="12" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="7" y="12" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="8" y="12" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="9" y="12" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="10" y="12" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="11" y="12" width="1" height="1" fill="#2b2233"></rect>
+          <rect x="3" y="13" width="1" height="1" fill="#2b2233"></rect>
+          <rect x="4" y="13" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="5" y="13" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="6" y="13" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="7" y="13" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="8" y="13" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="9" y="13" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="10" y="13" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="11" y="13" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="12" y="13" width="1" height="1" fill="#2b2233"></rect>
+          <rect x="2" y="14" width="1" height="1" fill="#2b2233"></rect>
+          <rect x="3" y="14" width="1" height="1" fill="#efc19c"></rect>
+          <rect x="4" y="14" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="5" y="14" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="6" y="14" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="7" y="14" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="8" y="14" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="9" y="14" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="10" y="14" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="11" y="14" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="12" y="14" width="1" height="1" fill="#efc19c"></rect>
+          <rect x="13" y="14" width="1" height="1" fill="#2b2233"></rect>
+          <rect x="2" y="15" width="1" height="1" fill="#2b2233"></rect>
+          <rect x="3" y="15" width="1" height="1" fill="#efc19c"></rect>
+          <rect x="4" y="15" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="5" y="15" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="6" y="15" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="7" y="15" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="8" y="15" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="9" y="15" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="10" y="15" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="11" y="15" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="12" y="15" width="1" height="1" fill="#efc19c"></rect>
+          <rect x="13" y="15" width="1" height="1" fill="#2b2233"></rect>
+        </g>
+      </svg>
+      <div class="mcp-id__text">
+        <p class="mcp-kicker">🔬 Research Lab</p>
+        <h1 id="panel-title" class="mcp-id__name" tabindex="-1">Muhammad Zulfan</h1>
+        <p class="mcp-id__role">Software &amp; AI Engineer</p>
+      </div>
+    </header>
+
+    <p class="mcp-hint">
+      Where Zulfan's research lives. The poster wall has a poster per project, the whiteboard has what he wants to study next, and the bench lays out his methods. His papers are on the shelf. For the rest of his story (roles, school, honors), head to the <a href="/dev">Dev Center</a>.
+    </p>
+
+    <!-- // RESEARCH INTERESTS -->
+    <section class="mcp-card" aria-labelledby="next-title">
+      <h2 id="next-title" class="mcp-h">Research interests</h2>
+      <p class="mcp-dim">
+        Edge AI inference, adversarial NLP spam defense, and applied computer vision.
       </p>
-    </div>
-
-    <!-- Research Philosophy -->
-    <div class="window p-4 bg-paper leading-relaxed text-xs space-y-2">
-      <div class="font-pixel text-[11px] text-ink">RESEARCH PHILOSOPHY</div>
-      <p class="text-ink-soft font-sans">
-        "{profile.research.statement}"
-      </p>
-    </div>
-
-    <!-- Active Research Missions -->
-    <div class="space-y-3">
-      <div class="section-title">
-        <span>RESEARCH MISSIONS</span>
+      <div class="mcp-fastlane">
+        <button type="button" class="mcp-btn mcp-btn--primary" data-open="posters">📜 Posters</button>
+        <button type="button" class="mcp-btn" data-open="whiteboard">✏️ Whiteboard</button>
+        <button type="button" class="mcp-btn" data-open="bench">🧪 Methods</button>
       </div>
+    </section>
 
-      <div class="space-y-3">
-        {researchMissions.map((m) => (
-          <div class="card p-4 space-y-2.5">
-            <div class="flex items-center justify-between">
-              <span class="chip text-[9px] bg-ball text-paper border-ink">RESEARCH</span>
-              <span class="font-mono text-[10px] text-ink-soft">{m.start} – {m.end || 'Present'}</span>
-            </div>
+    <!-- // RESEARCH MISSIONS -->
+    <section aria-labelledby="work-title">
+      <h2 id="work-title" class="mcp-h">Research</h2>
+      <ul class="clean lab-list">
+        <!-- 1. AeroScan -->
+        <li class="mcp-card lab-item">
+          <h3 class="lab-item__title">AeroScan: Tactical Edge AI & Aerial Surveillance</h3>
+          <p class="mcp-dim">Autonomous Edge Intelligence Lab · 2025 – Present</p>
+          <p>
+            Can learned evaluators and FP16-quantized YOLOv11x models perform ultra-low-latency military aircraft detection and tracking across multi-camera 4K feeds directly on NVIDIA Jetson hardware?
+          </p>
+          <p>
+            <button type="button" class="mcp-btn" data-open="posters" data-poster="p-aeroscan">
+              Read the poster 📜
+            </button>
+          </p>
+        </li>
 
-            <h3 class="font-pixel text-[11px] text-ink leading-snug">
-              {m.title}
-            </h3>
+        <!-- 2. Indonesian Spam & Slang NLP -->
+        <li class="mcp-card lab-item">
+          <h3 class="lab-item__title">SMS & WhatsApp Spam Detection with Indonesian Slang Normalization</h3>
+          <p class="mcp-dim">ITENAS Undergraduate Thesis · Bandung, ID · Feb 2025 – Jan 2026</p>
+          <p>
+            How do colloquial Indonesian slang, abbreviations, and deliberate character substitutions degrade traditional NLP spam classifiers, and can lexical expansion restore >99.5% defense accuracy?
+          </p>
+          <p>
+            <button type="button" class="mcp-btn" data-open="posters" data-poster="p-spam-classifier">
+              Read the poster 📜
+            </button>
+          </p>
+        </li>
 
-            <div class="font-mono text-xs text-amber font-semibold">
-              {m.org}
-            </div>
+        <!-- 3. Automated OMR Answer Sheet Grader -->
+        <li class="mcp-card lab-item">
+          <h3 class="lab-item__title">Automated OMR Answer Sheet Grader</h3>
+          <p class="mcp-dim">Applied Computer Vision Lab · Sep 2025 – Nov 2025</p>
+          <p>
+            Can classical computer vision with adaptive perspective correction and morphological bubble contour masking achieve 99.8%+ grading reliability across noisy physical mobile scans?
+          </p>
+          <p>
+            <button type="button" class="mcp-btn" data-open="posters" data-poster="p-omr-grader">
+              Read the poster 📜
+            </button>
+          </p>
+        </li>
 
-            {m.objective && (
-              <div class="p-2.5 rounded bg-cream border border-ink/20 text-xs text-ink font-sans">
-                <span class="font-bold">Objective:</span> {m.objective}
-              </div>
-            )}
+        <!-- 4. Trash Classification with InceptionV3 -->
+        <li class="mcp-card lab-item">
+          <h3 class="lab-item__title">Trash Classification with InceptionV3</h3>
+          <p class="mcp-dim">Deep Learning & Computer Vision · Mar 2024 – Jul 2024</p>
+          <p>
+            How does deep transfer learning with InceptionV3 bottleneck feature extraction perform across multi-class unconstrained waste imagery compared to lightweight CNNs?
+          </p>
+          <p>
+            <button type="button" class="mcp-btn" data-open="posters" data-poster="p-trash-classification">
+              Read the poster 📜
+            </button>
+          </p>
+        </li>
+      </ul>
+    </section>
 
-            <ul class="list-disc list-inside text-xs text-ink-soft space-y-1 font-sans">
-              {m.results.map((r) => <li>{r}</li>)}
-            </ul>
-
-            <div class="flex flex-wrap gap-1 pt-1">
-              {m.payload.map((t) => <span class="chip text-[10px]">{t}</span>)}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-
-    <!-- Methodology & What's Next -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-      <div class="card p-3 space-y-2">
-        <div class="font-pixel text-[10px] text-ball">METHODOLOGIES</div>
-        <ul class="list-disc list-inside text-xs text-ink-soft space-y-1 font-sans">
-          {profile.research.methods.map((m) => <li>{m}</li>)}
-        </ul>
-      </div>
-
-      <div class="card p-3 space-y-2">
-        <div class="font-pixel text-[10px] text-gold">WHAT'S NEXT</div>
-        <ul class="list-disc list-inside text-xs text-ink-soft space-y-1 font-sans">
-          {profile.research.next.map((n) => <li>{n}</li>)}
-        </ul>
-      </div>
-    </div>
-
-    <WhereTo currentPath="/lab" />
+    <!-- // METHODS -->
+    <section aria-labelledby="methods-title">
+      <h2 id="methods-title" class="mcp-h">Methods</h2>
+      <ul class="stack-chips">
+        <li class="stack-chip" style="--brand: #76B900">
+          <span class="stack-chip__name">TensorRT FP16 Quantization</span>
+        </li>
+        <li class="stack-chip" style="--brand: #00FFFF">
+          <span class="stack-chip__name">YOLOv11x Object Detection</span>
+        </li>
+        <li class="stack-chip" style="--brand: #3776AB">
+          <span class="stack-chip__name">Slang Lexical Expansion</span>
+        </li>
+        <li class="stack-chip" style="--brand: #F7931E">
+          <span class="stack-chip__name">Multinomial Naive Bayes</span>
+        </li>
+        <li class="stack-chip" style="--brand: #5C3EE8">
+          <span class="stack-chip__name">Homography Perspective Transform</span>
+        </li>
+        <li class="stack-chip" style="--brand: #5C3EE8">
+          <span class="stack-chip__name">Morphological Bubble Contour Masking</span>
+        </li>
+        <li class="stack-chip" style="--brand: #FF6F00">
+          <span class="stack-chip__name">InceptionV3 Bottleneck Fine-Tuning</span>
+        </li>
+        <li class="stack-chip" style="--brand: #EE4C2C">
+          <span class="stack-chip__name">PyTorch</span>
+        </li>
+        <li class="stack-chip" style="--brand: #009688">
+          <span class="stack-chip__name">FastAPI Asynchronous Streaming</span>
+        </li>
+        <li class="stack-chip" style="--brand: #FF4B4B">
+          <span class="stack-chip__name">Streamlit Diagnostic Tooling</span>
+        </li>
+        <li class="stack-chip" style="--brand: #2496ED">
+          <span class="stack-chip__name">Docker Multi-Arch</span>
+        </li>
+      </ul>
+    </section>
   </div>
+
+  <!-- Modals -->
+  <LabPostersModal />
+  <LabWhiteboardModal />
+  <LabBenchModal />
 </TownLayout>
+
+<script>
+  let pendingOpen: string | null = null;
+
+  function selectPoster(posterId: string) {
+    const tabs = Array.from(document.querySelectorAll<HTMLElement>('[data-poster-for]'));
+    const panels = Array.from(document.querySelectorAll<HTMLElement>('[data-poster-panel]'));
+    for (const t of tabs) {
+      t.setAttribute('aria-pressed', String(t.dataset.posterFor === posterId));
+    }
+    for (const p of panels) {
+      p.hidden = p.dataset.posterPanel !== posterId;
+    }
+  }
+
+  function openLabDialog(name: string) {
+    const dialog = document.querySelector<HTMLDialogElement>(`[data-lab-dialog="${name}"]`);
+    if (!dialog) {
+      pendingOpen = name;
+      return;
+    }
+    if (dialog.open) return;
+    dialog.showModal();
+    if (name === 'posters') {
+      const activeTab = dialog.querySelector<HTMLElement>('[aria-pressed="true"]');
+      activeTab?.scrollIntoView({ block: 'nearest', inline: 'center' });
+    }
+  }
+
+  // Listen for town events from 2D Interior Engine
+  document.addEventListener('town:lab-posters', () => openLabDialog('posters'));
+  document.addEventListener('town:lab-whiteboard', () => openLabDialog('whiteboard'));
+  document.addEventListener('town:lab-bench', () => openLabDialog('bench'));
+
+  function setupLab() {
+    // Bind Close Buttons & Backdrop Clicks for all Dialogs
+    for (const dialog of document.querySelectorAll<HTMLDialogElement>('[data-lab-dialog]')) {
+      const closeBtn = dialog.querySelector<HTMLButtonElement>('[data-mc-close]');
+      closeBtn?.addEventListener('click', () => dialog.close());
+
+      dialog.addEventListener('close', () => {
+        document.dispatchEvent(new CustomEvent('town:focus'));
+      });
+
+      dialog.addEventListener('click', (e) => {
+        if (e.target === dialog) dialog.close();
+      });
+    }
+
+    // Bind Open Fastlane & Read Poster Buttons
+    for (const btn of document.querySelectorAll<HTMLElement>('[data-open]')) {
+      btn.addEventListener('click', () => {
+        if (btn.dataset.poster) selectPoster(btn.dataset.poster);
+        const target = btn.dataset.open;
+        if (target) openLabDialog(target);
+      });
+    }
+
+    // Poster Tab Switcher
+    for (const tab of document.querySelectorAll<HTMLElement>('[data-poster-for]')) {
+      tab.addEventListener('click', () => {
+        if (tab.dataset.posterFor) selectPoster(tab.dataset.posterFor);
+      });
+    }
+
+    // Bench Links to Posters
+    for (const link of document.querySelectorAll<HTMLElement>('[data-poster-link]')) {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const benchDialog = document.querySelector<HTMLDialogElement>('[data-lab-dialog="bench"]');
+        benchDialog?.close();
+        const posterId = link.dataset.posterLink;
+        if (posterId) {
+          selectPoster(posterId);
+          openLabDialog('posters');
+        }
+      });
+    }
+
+    // URL Hash deep-linking (e.g. #p-aeroscan)
+    const hash = decodeURIComponent(window.location.hash.slice(1));
+    if (hash && document.querySelector(`[data-poster-panel="${CSS.escape(hash)}"]`)) {
+      selectPoster(hash);
+      pendingOpen = 'posters';
+    }
+
+    if (pendingOpen) {
+      const name = pendingOpen;
+      pendingOpen = null;
+      openLabDialog(name);
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupLab);
+  } else {
+    setupLab();
+  }
+  document.addEventListener('astro:page-load', setupLab);
+</script>

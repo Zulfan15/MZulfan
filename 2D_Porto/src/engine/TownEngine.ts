@@ -32,6 +32,15 @@ import {
   createDevBackgroundCanvas,
   renderDevAnimations,
 } from './devScene';
+import {
+  LAB_COLS,
+  LAB_ROWS,
+  LAB_SPAWN,
+  LAB_COLLISION,
+  LAB_PROPS,
+  createLabBackgroundCanvas,
+  renderLabAnimations,
+} from './labScene';
 
 export interface EngineCallbacks {
   onDialogue: (name: string, lines: string[], onAction?: () => void) => void;
@@ -93,9 +102,10 @@ export class TownEngine {
   private ctx: CanvasRenderingContext2D;
   private map: TownMap;
   private callbacks: EngineCallbacks;
-  private currentScene: 'town' | 'home' | 'dev' = 'town';
+  private currentScene: 'town' | 'home' | 'dev' | 'lab' = 'town';
   private homeFloor: '1F' | '2F' = '1F';
   private devBackgroundCanvas: HTMLCanvasElement | null = null;
+  private labBackgroundCanvas: HTMLCanvasElement | null = null;
 
   // Player state
   private playerPos: Vec = { x: 18, y: 12 };
@@ -162,6 +172,13 @@ export class TownEngine {
       this.playerDir = DEV_SPAWN.dir;
       this.cameraX = (DEV_COLS * TILE_SIZE) / 2;
       this.cameraY = (DEV_ROWS * TILE_SIZE) / 2;
+    } else if (initialSpawn === 'lab') {
+      this.currentScene = 'lab';
+      this.playerPos = { x: LAB_SPAWN.x, y: LAB_SPAWN.y };
+      this.playerTarget = { x: LAB_SPAWN.x, y: LAB_SPAWN.y };
+      this.playerDir = LAB_SPAWN.dir;
+      this.cameraX = (LAB_COLS * TILE_SIZE) / 2;
+      this.cameraY = (LAB_ROWS * TILE_SIZE) / 2;
     } else {
       this.currentScene = 'town';
       const spawn = this.map.spawns[initialSpawn] || this.map.spawns.town;
@@ -231,6 +248,14 @@ export class TownEngine {
       this.zoom = Math.max(Math.min(zoomW, zoomH), 1.8 * dpr);
       this.cameraX = (DEV_COLS * TILE_SIZE) / 2;
       this.cameraY = (DEV_ROWS * TILE_SIZE) / 2;
+    } else if (this.currentScene === 'lab') {
+      const targetW = LAB_COLS * TILE_SIZE * 1.05;
+      const targetH = LAB_ROWS * TILE_SIZE * 1.05;
+      const zoomW = this.canvas.width / targetW;
+      const zoomH = this.canvas.height / targetH;
+      this.zoom = Math.max(Math.min(zoomW, zoomH), 1.8 * dpr);
+      this.cameraX = (LAB_COLS * TILE_SIZE) / 2;
+      this.cameraY = (LAB_ROWS * TILE_SIZE) / 2;
     } else {
       const targetW = this.map.w * TILE_SIZE * 1.08;
       const targetH = this.map.h * TILE_SIZE * 1.08;
@@ -337,12 +362,16 @@ export class TownEngine {
         ? (is2F ? HOME2F_COLS : HOME_COLS)
         : this.currentScene === 'dev'
         ? DEV_COLS
+        : this.currentScene === 'lab'
+        ? LAB_COLS
         : this.map.w;
     const rows =
       this.currentScene === 'home'
         ? (is2F ? HOME2F_ROWS : HOME_ROWS)
         : this.currentScene === 'dev'
         ? DEV_ROWS
+        : this.currentScene === 'lab'
+        ? LAB_ROWS
         : this.map.h;
     if (targetX < 0 || targetX >= cols || targetY < 0 || targetY >= rows) return;
     const start = this.isMoving ? this.playerTarget : this.playerPos;
@@ -353,6 +382,8 @@ export class TownEngine {
           : HOME_COLLISION
         : this.currentScene === 'dev'
         ? DEV_COLLISION
+        : this.currentScene === 'lab'
+        ? LAB_COLLISION
         : this.map.collision;
 
     let destX = targetX;
@@ -384,6 +415,47 @@ export class TownEngine {
   }
 
   public walkToObject(id: string) {
+    if (this.currentScene === 'lab') {
+      this.pendingTarget = id;
+      switch (id) {
+        case 'lab-posters':
+          this.walkTo(3, 2);
+          break;
+        case 'lab-whiteboard':
+          this.walkTo(8, 2);
+          break;
+        case 'lab-bench':
+          this.walkTo(6, 9);
+          break;
+        case 'hood':
+          this.walkTo(10, 4);
+          break;
+        case 'fridge':
+          this.walkTo(10, 9);
+          break;
+        case 'book-aeroscan':
+          this.walkTo(1, 12);
+          break;
+        case 'book-spam':
+          this.walkTo(2, 12);
+          break;
+        case 'book-omr':
+          this.walkTo(3, 12);
+          break;
+        case 'plant':
+          this.walkTo(10, 12);
+          break;
+        case 'exit':
+          this.walkTo(6, 14);
+          break;
+        default:
+          const prop = LAB_PROPS.find((p) => p.id === id);
+          if (prop) this.walkTo(prop.x, prop.y + prop.h);
+          break;
+      }
+      return;
+    }
+
     if (this.currentScene === 'dev') {
       this.pendingTarget = id;
       switch (id) {
@@ -741,6 +813,15 @@ export class TownEngine {
   }
 
   private onStepComplete() {
+    if (this.currentScene === 'lab') {
+      if (this.playerPos.x === 6 && this.playerPos.y === 14) {
+        sfx.door();
+        this.callbacks.onNavigate('/');
+        return;
+      }
+      return;
+    }
+
     if (this.currentScene === 'dev') {
       if (this.playerPos.x === 7 && this.playerPos.y === 18) {
         sfx.door();
@@ -857,6 +938,38 @@ export class TownEngine {
 
   public interactFacing(targetId?: string) {
     const activeTarget = targetId || this.pendingTarget;
+    if (this.currentScene === 'lab') {
+      const fx = this.playerPos.x + DIRS[this.playerDir].x;
+      const fy = this.playerPos.y + DIRS[this.playerDir].y;
+      const prop =
+        (activeTarget ? LAB_PROPS.find((p) => p.id === activeTarget) : undefined) ||
+        LAB_PROPS.find(
+          (p) =>
+            (fx >= p.x && fx < p.x + p.w && fy >= p.y && fy < p.y + p.h) ||
+            (this.playerPos.x >= p.x - 1 &&
+              this.playerPos.x <= p.x + p.w &&
+              this.playerPos.y >= p.y - 1 &&
+              this.playerPos.y <= p.y + p.h)
+        );
+
+      if (prop) {
+        sfx.select();
+        if (prop.target.type === 'event' && prop.target.name) {
+          document.dispatchEvent(new CustomEvent(`town:${prop.target.name}`));
+        } else if (prop.target.type === 'note' && prop.target.text) {
+          if (this.callbacks.onBubble) {
+            this.callbacks.onBubble(prop.label, prop.target.text);
+          } else {
+            this.callbacks.onDialogue(prop.label, [prop.target.text]);
+          }
+        } else if (prop.target.type === 'place' && prop.target.id) {
+          this.callbacks.onNavigate(`/${prop.target.id}`);
+        }
+        this.wake();
+      }
+      return;
+    }
+
     if (this.currentScene === 'dev') {
       const fx = this.playerPos.x + DIRS[this.playerDir].x;
       const fy = this.playerPos.y + DIRS[this.playerDir].y;
@@ -1125,6 +1238,40 @@ export class TownEngine {
       return;
     }
 
+    if (this.currentScene === 'lab') {
+      const labLabels: Record<string, { x: number; y: number; w: number; h: number; lift?: number }> = {
+        'lab-posters': { x: 1, y: 1, w: 4, h: 1, lift: 0.8 },
+        'lab-whiteboard': { x: 6, y: 1, w: 5, h: 1, lift: 0.8 },
+        'lab-bench': { x: 4, y: 7, w: 5, h: 2, lift: 0.1 },
+      };
+
+      const buttons = container.querySelectorAll<HTMLButtonElement>('.town-label');
+      buttons.forEach((btn) => {
+        const id = btn.getAttribute('data-id');
+        if (!id || !labLabels[id]) {
+          btn.style.visibility = 'hidden';
+          btn.style.display = 'none';
+          return;
+        }
+
+        btn.style.display = '';
+        const obj = labLabels[id];
+        const worldX = (obj.x + obj.w / 2) * TILE_SIZE;
+        const worldY = (obj.y - (obj.lift ?? 0)) * TILE_SIZE;
+
+        const canvasX = this.canvas.width / 2 + (worldX - this.cameraX) * this.zoom;
+        const canvasY = this.canvas.height / 2 + (worldY - this.cameraY) * this.zoom;
+
+        const dpr = window.devicePixelRatio || 1;
+        const cssX = canvasX / dpr;
+        const cssY = canvasY / dpr;
+
+        btn.style.transform = `translate(${Math.round(cssX)}px, ${Math.round(cssY)}px) translate(-50%, -100%)`;
+        btn.style.visibility = 'visible';
+      });
+      return;
+    }
+
     if (this.currentScene === 'dev') {
       const devLabels: Record<string, { x: number; y: number; w: number; h: number; lift?: number }> = {
         timeline: { x: 4, y: 1, w: 7, h: 1, lift: 0.8 },
@@ -1303,6 +1450,49 @@ export class TownEngine {
       }
 
       // 4. Player character
+      const drawX =
+        (this.playerPos.x + (this.playerTarget.x - this.playerPos.x) * this.moveProgress) * TILE_SIZE;
+      const drawY =
+        (this.playerPos.y + (this.playerTarget.y - this.playerPos.y) * this.moveProgress) * TILE_SIZE;
+      const stepFrame = this.isMoving ? Math.floor(this.moveProgress * 4) : 0;
+
+      drawCharacter(ctx, this.playerPalette, this.playerDir, stepFrame, drawX, drawY, 1);
+
+      ctx.restore();
+
+      this.updateDomLabels();
+      return;
+    }
+
+    if (this.currentScene === 'lab') {
+      this.cameraX = (LAB_COLS * TILE_SIZE) / 2;
+      this.cameraY = (LAB_ROWS * TILE_SIZE) / 2;
+
+      ctx.save();
+      ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+      ctx.fillStyle = '#06110f';
+      ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+      ctx.translate(this.canvas.width / 2, this.canvas.height / 2);
+      ctx.scale(this.zoom, this.zoom);
+      ctx.translate(-this.cameraX, -this.cameraY);
+
+      if (!this.labBackgroundCanvas) {
+        this.labBackgroundCanvas = createLabBackgroundCanvas();
+      }
+      ctx.drawImage(this.labBackgroundCanvas, 0, 0);
+
+      renderLabAnimations(ctx, performance.now());
+
+      if (this.marker) {
+        ctx.fillStyle = 'rgba(56, 201, 138, 0.75)';
+        const mx = this.marker.x * TILE_SIZE;
+        const my = this.marker.y * TILE_SIZE;
+        ctx.fillRect(mx + 4, my + 12, 8, 2);
+        ctx.fillRect(mx + 6, my + 11, 4, 4);
+      }
+
       const drawX =
         (this.playerPos.x + (this.playerTarget.x - this.playerPos.x) * this.moveProgress) * TILE_SIZE;
       const drawY =

@@ -1525,3 +1525,88 @@ ul.clean, ol.clean {
   border-color: #3ee6ff;
 }
 
+/* ───────────────────────── Lab Room 2D Interior HUD ───────────────────────── */
+.town[data-scene="lab"] .town-guide {
+  --guide-bg: #091714;
+  --guide-ink: #e1efe9;
+  --guide-edge: #1c3d35;
+  --guide-accent: #38c98a;
+  --guide-title: #38c98a;
+}
+
+.town[data-scene="lab"] .town-guide__toggle {
+  color: #091714;
+  background: #38c98a;
+  box-shadow: 0 0 14px rgba(56, 201, 138, 0.8), 0 -2px #1c3d35, 0 2px #1c3d35, -2px 0 #1c3d35, 2px 0 #1c3d35;
+  position: absolute;
+  top: 14px;
+  right: 14px;
+}
+
+.town[data-scene="lab"] .town-guide__toggle:hover,
+.town[data-scene="lab"] .town-guide__toggle:focus-visible,
+.town[data-scene="lab"] .town-guide__toggle[aria-expanded="true"] {
+  color: #38c98a;
+  background: #091714;
+  box-shadow: 0 0 16px rgba(56, 201, 138, 0.9), 0 -2px #38c98a, 0 2px #38c98a, -2px 0 #38c98a, 2px 0 #38c98a;
+}
+
+.town[data-scene="lab"] .town-guide__card {
+  position: absolute;
+  left: 20px;
+  top: 42%;
+  transform: translateY(-50%);
+  width: min(280px, calc(100% - 40px));
+  max-height: min(340px, 60vh);
+  background: #091714;
+  color: #e1efe9;
+  border: 3px solid #1c3d35;
+  border-radius: 12px;
+  box-shadow: 0 0 24px rgba(56, 201, 138, 0.25), 0 12px 32px rgba(9, 23, 20, 0.9);
+}
+
+.town[data-scene="lab"] .town-guide__card:before {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border: 2px solid #38c98a;
+  border-radius: 8px;
+  pointer-events: none;
+  opacity: 0.9;
+}
+
+.town[data-scene="lab"] .town-guide__card strong {
+  color: #38c98a;
+  font-family: var(--font-pixel, monospace);
+  letter-spacing: 0.08em;
+  font-size: 0.75rem;
+}
+
+.town[data-scene="lab"] .town-guide__card p {
+  color: #e1efe9;
+  font-size: 0.7rem;
+  line-height: 1.5;
+}
+
+.town[data-scene="lab"] .town-guide__close {
+  color: #38c98a;
+}
+
+.town[data-scene="lab"] .town-labels .town-label {
+  font-family: var(--font-pixel, monospace);
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #10201b;
+  background: #ffffff;
+  border: 2px solid #10201b;
+  box-shadow: 0 2px 0 #10201b;
+  padding: 3px 6px;
+}
+
+.town[data-scene="lab"] .town-labels .town-label:hover {
+  background: #38c98a;
+  color: #091714;
+  border-color: #38c98a;
+}
+
+

@@ -55,8 +55,8 @@ const dataPlaceRooms = {
   data-places={JSON.stringify(dataPlaces)}
   data-links={JSON.stringify(dataLinks)}
   data-place-rooms={JSON.stringify(dataPlaceRooms)}
-  data-scene={currentPlace === 'about' ? 'home' : currentPlace === 'dev' ? 'dev' : 'town'}
-  data-retro={currentPlace === 'about' || currentPlace === 'dev' ? '' : undefined}
+  data-scene={currentPlace === 'about' ? 'home' : currentPlace === 'dev' ? 'dev' : currentPlace === 'lab' ? 'lab' : 'town'}
+  data-retro={currentPlace === 'about' || currentPlace === 'dev' || currentPlace === 'lab' ? '' : undefined}
 >
   <h2 id="town-title" class="visually-hidden">Town map</h2>
   <p id="town-help" class="visually-hidden">
@@ -95,6 +95,12 @@ const dataPlaceRooms = {
         <button type="button" class="town-label" data-id="telemetry" aria-label="Read the telemetry">Telemetry</button>
         <button type="button" class="town-label" data-id="lebronette" aria-label="Talk to LeBronette">LeBronette</button>
       </>
+    ) : currentPlace === 'lab' ? (
+      <>
+        <button type="button" class="town-label" data-id="lab-posters" aria-label="Read the poster wall">Poster wall</button>
+        <button type="button" class="town-label" data-id="lab-whiteboard" aria-label="Read the whiteboard">Whiteboard</button>
+        <button type="button" class="town-label" data-id="lab-bench" aria-label="Look over the lab bench">Lab bench</button>
+      </>
     ) : (
       <>
         <button type="button" class="town-label town-label--building" data-id="home" aria-label="Walk to Home">Home</button>
@@ -121,7 +127,7 @@ const dataPlaceRooms = {
     <button
       class="town-guide__toggle"
       type="button"
-      aria-expanded={currentPlace === 'dev' ? 'true' : 'false'}
+      aria-expanded={currentPlace === 'dev' || currentPlace === 'lab' ? 'true' : 'false'}
       aria-controls="town-guide-card"
       data-town-guide-toggle=""
     >
@@ -133,18 +139,20 @@ const dataPlaceRooms = {
       id="town-guide-card"
       role="region"
       aria-labelledby="town-guide-title"
-      hidden={currentPlace === 'dev' ? undefined : ''}
+      hidden={currentPlace === 'dev' || currentPlace === 'lab' ? undefined : ''}
       data-town-guide-card=""
     >
       <div class="town-guide__body">
         <strong id="town-guide-title" data-town-guide-title="">
-          {currentPlace === 'about' ? 'CRATE & CLOSET' : currentPlace === 'dev' ? 'DEV CENTER' : 'Town Square'}
+          {currentPlace === 'about' ? 'CRATE & CLOSET' : currentPlace === 'dev' ? 'DEV CENTER' : currentPlace === 'lab' ? 'RESEARCH LAB' : 'Town Square'}
         </strong>
         <p data-town-guide-text="">
           {currentPlace === 'about'
             ? "Pick a song on the jukebox, dig the crates for a Crate Match, call in a request at the DJ booth and browse the closet. The stairs at the back go up to Zulfan's place. Step on the mat to leave."
             : currentPlace === 'dev'
             ? "Mission control. LeBronette at the front desk can tell you all about Zulfan. The viewscreen runs his projects, roles, school and honors; check the stack radar and the telemetry wall too. Step on the mat to leave."
+            : currentPlace === 'lab'
+            ? "Where Zulfan's research lives. The poster wall has a poster per project, the whiteboard has what he wants to study next, and the bench lays out his methods. His papers are on the shelf. Step on the mat to leave."
             : "An interactive pixel-art town. Walk into buildings to explore projects, lab research, and dev logs. Inspect social runes or talk to the Digital Twin."}
         </p>
       </div>
