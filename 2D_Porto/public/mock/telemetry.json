@@ -1,0 +1,52 @@
+{
+  "github": {
+    "username": "Zulfan15",
+    "streak": 14,
+    "contributionsYear": 348,
+    "activeRepos": [
+      {
+        "name": "MZulfan",
+        "description": "Interactive Portfolio & Digital Headquarters",
+        "url": "https://github.com/Zulfan15/MZulfan",
+        "language": "TypeScript",
+        "stars": 4
+      },
+      {
+        "name": "AeroScan-EdgeAI",
+        "description": "Real-time tactical military aircraft detection & tracking with TensorRT",
+        "url": "https://github.com/Zulfan15",
+        "language": "Python",
+        "stars": 12
+      },
+      {
+        "name": "FoodLink-Core",
+        "description": "Distributed geolocation food rescue platform with Kafka & PostGIS",
+        "url": "https://github.com/Zulfan15",
+        "language": "PHP",
+        "stars": 8
+      },
+      {
+        "name": "YouTube-Spam-Detector",
+        "description": "Machine learning detection for obfuscated gambling spam comments (99.56% F1)",
+        "url": "https://github.com/Zulfan15",
+        "language": "Jupyter Notebook",
+        "stars": 6
+      }
+    ]
+  },
+  "leetcode": {
+    "username": "zulfan",
+    "totalSolved": 128,
+    "easy": 64,
+    "medium": 52,
+    "hard": 12,
+    "acceptanceRate": "78.4%"
+  },
+  "spotify": {
+    "connected": true,
+    "track": "Glimpse of Us",
+    "artist": "Joji",
+    "album": "SMITHEREENS",
+    "url": "https://open.spotify.com"
+  }
+}

@@ -1,0 +1,83 @@
+---
+import { profile } from '../lib/profile';
+---
+
+<header class="h-[var(--hud-h)] border-b-[3px] border-ink bg-paper px-3 sm:px-6 flex items-center justify-between z-30 select-none shadow-[var(--shadow-pixel-sm)]">
+  <div class="flex items-center gap-3">
+    <a href="#content" class="skip-link">Skip to content</a>
+    <a href="/" class="flex items-center gap-2 group text-decoration-none">
+      <span class="inline-flex items-center justify-center w-8 h-8 rounded-md bg-ball border-2 border-ink text-paper font-pixel text-xs group-hover:scale-105 transition-transform">
+        {profile.person.initials}
+      </span>
+      <div>
+        <div class="font-pixel text-[11px] text-ink group-hover:text-ball transition-colors">
+          {profile.person.short_name}'s Town
+        </div>
+        <div class="font-mono text-[9px] text-ink-soft hidden sm:block">
+          Informatics Graduate · S.Kom.
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <nav class="flex items-center gap-2">
+    <button id="hud-sound-toggle" type="button" class="btn btn-sm" title="Toggle 8-bit Sound Effects" aria-label="Toggle Sound">
+      <span id="sound-icon">🔊</span>
+    </button>
+
+    <button id="hud-dex-btn" type="button" class="btn btn-sm" title="Open Critterdex" aria-haspopup="dialog">
+      <span class="text-ball">●</span>
+      <span class="hidden sm:inline">DEX</span>
+      <span id="dex-counter" class="font-mono font-bold">0/12</span>
+    </button>
+
+    <button id="hud-map-btn" type="button" class="btn btn-sm btn-gold" title="Quick Travel Map" aria-haspopup="dialog">
+      <span>🗺️</span>
+      <span class="hidden sm:inline">MAP</span>
+    </button>
+  </nav>
+</header>
+
+<script>
+  import { sfx } from '../game/sfx';
+  import { gameStore } from '../game/store';
+
+  function initHud() {
+    const soundBtn = document.getElementById('hud-sound-toggle');
+    const soundIcon = document.getElementById('sound-icon');
+    const dexBtn = document.getElementById('hud-dex-btn');
+    const mapBtn = document.getElementById('hud-map-btn');
+    const dexCounter = document.getElementById('dex-counter');
+
+    if (soundBtn && soundIcon) {
+      soundIcon.textContent = sfx.isEnabled() ? '🔊' : '🔇';
+      soundBtn.onclick = () => {
+        const on = sfx.toggle();
+        soundIcon.textContent = on ? '🔊' : '🔇';
+        if (on) sfx.select();
+      };
+    }
+
+    if (dexCounter) {
+      gameStore.subscribe((s) => {
+        dexCounter.textContent = `${s.caught.length}/12`;
+      });
+    }
+
+    if (dexBtn) {
+      dexBtn.onclick = () => {
+        sfx.select();
+        document.dispatchEvent(new CustomEvent('town:open-modal', { detail: { target: 'dex' } }));
+      };
+    }
+
+    if (mapBtn) {
+      mapBtn.onclick = () => {
+        sfx.select();
+        document.dispatchEvent(new CustomEvent('town:open-modal', { detail: { target: 'map' } }));
+      };
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', initHud);
+</script>

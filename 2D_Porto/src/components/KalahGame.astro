@@ -1,0 +1,226 @@
+---
+// Kalah Arcade Game Component
+---
+
+<div class="rounded-xl border-[3px] border-ink bg-[#8a5a34] p-4 text-paper shadow-lg space-y-4 max-w-xl mx-auto select-none" id="kalah-game">
+  <!-- Game Header -->
+  <div class="flex items-center justify-between border-b-2 border-ink/40 pb-2">
+    <div>
+      <h3 class="font-pixel text-xs text-gold">KALAH ARCADE · 2-PLAYER STRATEGY</h3>
+      <p class="font-mono text-[10px] text-paper/80">Play against Zulfan's Alpha-Beta Bot (Web Worker)</p>
+    </div>
+    <div class="flex items-center gap-2">
+      <select id="kalah-difficulty" class="bg-paper text-ink font-pixel text-[9px] px-2 py-1 rounded border-2 border-ink">
+        <option value="4">NORMAL</option>
+        <option value="7" selected>HARD</option>
+      </select>
+      <button id="kalah-reset" type="button" class="btn btn-sm btn-gold">
+        RESTART
+      </button>
+    </div>
+  </div>
+
+  <!-- Status Bar -->
+  <div id="kalah-status" class="window p-2.5 text-center font-retro text-2xl text-ink bg-cream min-h-[3rem] flex items-center justify-center">
+    Your turn! Pick a pit on your side to sow seeds.
+  </div>
+
+  <!-- The Kalah Board -->
+  <div class="grid grid-cols-[auto_1fr_auto] gap-2 p-3 bg-[#6e452c] rounded-lg border-2 border-ink">
+    <!-- Bot Store (Left) -->
+    <div class="flex flex-col items-center justify-center w-16 bg-[#523320] rounded-xl border-2 border-ink p-2">
+      <span class="font-pixel text-[8px] text-paper/70 mb-1">BOT</span>
+      <span id="store-bot" class="font-pixel text-2xl text-gold font-bold">0</span>
+    </div>
+
+    <!-- Center Pits (2 Rows of 6) -->
+    <div class="grid grid-rows-2 gap-2">
+      <!-- Bot Pits (12 down to 7) -->
+      <div class="grid grid-cols-6 gap-2">
+        {[12, 11, 10, 9, 8, 7].map((pit) => (
+          <div
+            id={`pit-${pit}`}
+            class="pit flex flex-col items-center justify-center aspect-square rounded-full bg-[#523320] border-2 border-ink/80 text-paper font-pixel text-xs"
+          >
+            4
+          </div>
+        ))}
+      </div>
+
+      <!-- Player Pits (0 up to 5) -->
+      <div class="grid grid-cols-6 gap-2">
+        {[0, 1, 2, 3, 4, 5].map((pit) => (
+          <button
+            type="button"
+            id={`pit-${pit}`}
+            data-pit={pit}
+            class="pit player-pit flex flex-col items-center justify-center aspect-square rounded-full bg-[#f6ecd2] border-2 border-ink text-ink font-pixel text-xs hover:bg-gold hover:scale-105 active:scale-95 transition-all cursor-pointer shadow-sm"
+          >
+            4
+          </button>
+        ))}
+      </div>
+    </div>
+
+    <!-- Player Store (Right) -->
+    <div class="flex flex-col items-center justify-center w-16 bg-[#523320] rounded-xl border-2 border-ink p-2">
+      <span class="font-pixel text-[8px] text-paper/70 mb-1">YOU</span>
+      <span id="store-player" class="font-pixel text-2xl text-gold font-bold">0</span>
+    </div>
+  </div>
+
+  <div class="flex justify-between items-center text-[9px] font-mono text-paper/70">
+    <span>Rule: Land in your store for an extra turn!</span>
+    <span>Runs off-main-thread via Web Worker</span>
+  </div>
+</div>
+
+<script>
+  import { createInitialBoard, executeMove, isValidMove, type Board } from '../arcade/kalah';
+  import { sfx } from '../game/sfx';
+
+  let board: Board = createInitialBoard();
+  let isPlayerTurn = true;
+  let isProcessing = false;
+  let worker: Worker | null = null;
+
+  function initKalah() {
+    const statusEl = document.getElementById('kalah-status')!;
+    const resetBtn = document.getElementById('kalah-reset')!;
+    const diffSelect = document.getElementById('kalah-difficulty') as HTMLSelectElement;
+
+    // Initialize Web Worker
+    if (typeof Worker !== 'undefined') {
+      try {
+        worker = new Worker(new URL('../arcade/kalah.worker.ts', import.meta.url), {
+          type: 'module',
+        });
+
+        worker.onmessage = (e) => {
+          const { bestMove } = e.data;
+          if (bestMove >= 7 && bestMove <= 12) {
+            handleBotMove(bestMove);
+          }
+        };
+      } catch {
+        console.warn('Web Worker not supported in this context');
+      }
+    }
+
+    function renderBoard() {
+      // Pits
+      for (let i = 0; i < 14; i++) {
+        if (i === 6) {
+          const el = document.getElementById('store-player');
+          if (el) el.textContent = String(board[6]);
+        } else if (i === 13) {
+          const el = document.getElementById('store-bot');
+          if (el) el.textContent = String(board[13]);
+        } else {
+          const el = document.getElementById(`pit-${i}`);
+          if (el) el.textContent = String(board[i]);
+        }
+      }
+    }
+
+    function handlePlayerMove(pit: number) {
+      if (!isPlayerTurn || isProcessing) return;
+      if (!isValidMove(board, pit, true)) {
+        sfx.bump();
+        return;
+      }
+
+      sfx.select();
+      const res = executeMove(board, pit, true);
+      board = res.board;
+      renderBoard();
+
+      if (res.gameOver) {
+        endGame();
+        return;
+      }
+
+      if (res.extraTurn) {
+        statusEl.textContent = '✨ Extra turn! Last seed landed in your store.';
+        sfx.catchSuccess();
+      } else {
+        isPlayerTurn = false;
+        statusEl.textContent = '🤖 Bot is calculating best move...';
+        triggerBotMove();
+      }
+    }
+
+    function triggerBotMove() {
+      isProcessing = true;
+      const depth = parseInt(diffSelect?.value || '7', 10);
+
+      setTimeout(() => {
+        if (worker) {
+          worker.postMessage({ board, depth });
+        } else {
+          // Fallback if worker fails
+          const moves = [7, 8, 9, 10, 11, 12].filter((p) => board[p] > 0);
+          if (moves.length > 0) handleBotMove(moves[0]);
+        }
+      }, 500);
+    }
+
+    function handleBotMove(pit: number) {
+      const res = executeMove(board, pit, false);
+      board = res.board;
+      renderBoard();
+      sfx.blip();
+
+      if (res.gameOver) {
+        endGame();
+        return;
+      }
+
+      if (res.extraTurn) {
+        statusEl.textContent = '🤖 Bot earned an extra turn!';
+        triggerBotMove();
+      } else {
+        isPlayerTurn = true;
+        isProcessing = false;
+        statusEl.textContent = 'Your turn! Pick a pit on your side.';
+      }
+    }
+
+    function endGame() {
+      isProcessing = true;
+      const pScore = board[6];
+      const bScore = board[13];
+
+      if (pScore > bScore) {
+        sfx.catchSuccess();
+        statusEl.textContent = `🏆 YOU WIN! (${pScore} vs ${bScore}). Outstanding strategy!`;
+      } else if (pScore < bScore) {
+        sfx.bump();
+        statusEl.textContent = `Defeat! Bot wins (${bScore} vs ${pScore}). Try again on Normal?`;
+      } else {
+        statusEl.textContent = `A Tie! (${pScore} - ${bScore}). Perfectly balanced game.`;
+      }
+    }
+
+    // Attach click listeners to player pits
+    document.querySelectorAll('.player-pit').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const pit = parseInt(btn.getAttribute('data-pit') || '0', 10);
+        handlePlayerMove(pit);
+      });
+    });
+
+    resetBtn?.addEventListener('click', () => {
+      sfx.select();
+      board = createInitialBoard();
+      isPlayerTurn = true;
+      isProcessing = false;
+      statusEl.textContent = 'Game reset. Your turn!';
+      renderBoard();
+    });
+
+    renderBoard();
+  }
+
+  document.addEventListener('DOMContentLoaded', initKalah);
+</script>

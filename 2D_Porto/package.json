@@ -1,0 +1,31 @@
+{
+  "name": "zulfan-town",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Zulfan's Town — an interactive Pokémon-inspired pixel-art portfolio built with Astro, a tiny custom canvas engine and Cloudflare Workers.",
+  "scripts": {
+    "prompt": "tsx scripts/build-prompt.ts",
+    "dev": "npm run prompt && astro dev",
+    "build": "npm run prompt && astro build",
+    "check": "astro check && tsc -p worker/tsconfig.json --noEmit",
+    "preview": "npm run build && wrangler dev",
+    "deploy": "npm run build && wrangler deploy",
+    "build:wasm": "wasm-pack build rust/kalah-ai --target web --release --out-dir ../../public/wasm/kalah"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "astro": "^7.4.2",
+    "tailwindcss": "^4.3.3",
+    "yaml": "^2.8.1",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.12",
+    "@cloudflare/workers-types": "^5.20261019.1",
+    "@types/node": "^26.6.5",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.2",
+    "wrangler": "^4.40.0"
+  }
+}

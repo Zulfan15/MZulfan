@@ -1,0 +1,23 @@
+name = "zulfan-town"
+main = "worker/index.ts"
+compatibility_date = "2026-10-26"
+compatibility_flags = ["nodejs_compat"]
+
+# Serve the static Astro build
+[assets]
+directory = "./dist"
+binding = "ASSETS"
+
+# Cloudflare Workers AI for Digital Twin
+[ai]
+binding = "AI"
+
+# Daily telemetry cache cron (Midnight UTC)
+[triggers]
+crons = ["0 0 * * *"]
+
+# Cloudflare KV for caching live telemetry
+# Run `wrangler kv:namespace create STATS_KV` and paste id here if deploying to production
+# [[kv_namespaces]]
+# binding = "STATS_KV"
+# id = "your-kv-namespace-id"

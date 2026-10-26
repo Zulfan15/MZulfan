@@ -1,0 +1,96 @@
+---
+import TownLayout from '../layouts/TownLayout.astro';
+import WhereTo from '../components/WhereTo.astro';
+import { profile, featured, topSkills } from '../lib/profile';
+---
+
+<TownLayout place="town" title={`${profile.person.name} — Town Square`}>
+  <div class="space-y-6">
+    <!-- Notice Board Header -->
+    <div class="border-b-2 border-ink/20 pb-4">
+      <div class="eyebrow text-ball">TOWN HALL · NOTICE BOARD</div>
+      <h1 class="font-pixel text-lg text-ink mt-1">
+        {profile.person.name}
+      </h1>
+      <p class="font-mono text-xs text-ink-soft mt-1">
+        {profile.person.title} · {profile.person.location}
+      </p>
+    </div>
+
+    <!-- Intro Statement -->
+    <div class="window p-4 bg-paper leading-relaxed text-sm">
+      <p class="font-retro text-2xl text-ink leading-tight mb-2">
+        "{profile.person.tagline}"
+      </p>
+      <p class="text-xs text-ink-soft font-sans">
+        {profile.person.summary}
+      </p>
+    </div>
+
+    <!-- Active Now Callout -->
+    <div class="rounded-lg border-2 border-ink bg-cream p-3.5 space-y-1.5">
+      <div class="flex items-center gap-2">
+        <span class="inline-block w-2.5 h-2.5 rounded-full bg-phosphor animate-pulse border border-ink"></span>
+        <span class="font-pixel text-[10px] text-ink uppercase">CURRENT FOCUS: {profile.person.now.role}</span>
+      </div>
+      <p class="text-xs text-ink-soft leading-relaxed font-sans">
+        {profile.person.now.blurb}
+      </p>
+      <div class="text-[11px] font-mono text-ball pt-1 font-semibold">
+        {profile.person.open_to}
+      </div>
+    </div>
+
+    <!-- Featured Builds / Launches -->
+    <div class="space-y-3">
+      <div class="section-title">
+        <span>FEATURED BUILDS</span>
+      </div>
+
+      <div class="space-y-3">
+        {featured.map((proj) => (
+          <div class="card p-3.5 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="chip text-[9px] bg-ball text-paper border-ink">LAUNCH</span>
+              <span class="font-mono text-[10px] text-ink-soft">{proj.start} – Present</span>
+            </div>
+            <h3 class="font-pixel text-[11px] text-ink">
+              {proj.title}
+            </h3>
+            <p class="font-sans text-xs text-ink-soft leading-relaxed">
+              {proj.summary}
+            </p>
+            <div class="flex flex-wrap gap-1 pt-1">
+              {proj.payload.map((tag) => (
+                <span class="chip text-[10px]">
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <a href="/dev" class="btn btn-sm w-full py-2.5 mt-2">
+        VIEW ALL 13 MISSIONS AT THE DEV CENTER ➜
+      </a>
+    </div>
+
+    <!-- Core Toolbelt -->
+    <div class="space-y-2">
+      <div class="section-title">
+        <span>CORE TOOLBELT</span>
+      </div>
+      <div class="flex flex-wrap gap-1.5">
+        {topSkills.map((s) => (
+          <span class="chip px-2.5 py-1 text-xs">
+            <span class="text-ball font-bold">●</span> {s.name}
+          </span>
+        ))}
+      </div>
+    </div>
+
+    <!-- Navigation Quick Links -->
+    <WhereTo currentPath="/" />
+  </div>
+</TownLayout>

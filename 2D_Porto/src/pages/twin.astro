@@ -1,0 +1,24 @@
+---
+import TownLayout from '../layouts/TownLayout.astro';
+import WhereTo from '../components/WhereTo.astro';
+import ChatBox from '../components/ChatBox.astro';
+import { profile } from '../lib/profile';
+---
+
+<TownLayout place="twin" title={`${profile.person.short_name}'s Digital Twin`}>
+  <div class="space-y-6">
+    <div class="border-b-2 border-ink/20 pb-4">
+      <div class="eyebrow text-signal">💬 DIGITAL TWIN · AI CONVERSATION</div>
+      <h1 class="font-pixel text-lg text-ink mt-1">
+        {profile.person.short_name}'s Twin
+      </h1>
+      <p class="font-mono text-xs text-ink-soft mt-1">
+        Ask questions about Zulfan's education, military aircraft AI, food rescue platform, or CV.
+      </p>
+    </div>
+
+    <ChatBox persona="twin" />
+
+    <WhereTo currentPath="/twin" />
+  </div>
+</TownLayout>

@@ -1,0 +1,83 @@
+---
+import TownLayout from '../layouts/TownLayout.astro';
+import WhereTo from '../components/WhereTo.astro';
+import Timeline from '../components/Timeline.astro';
+import StackRadar from '../components/StackRadar.astro';
+import TelemetryWall from '../components/TelemetryWall.astro';
+---
+
+<TownLayout place="dev" title="Dev Center · Mission Control">
+  <div class="space-y-6">
+    <!-- Dev Center Mission Control Header -->
+    <div class="border-b border-mc-line pb-4">
+      <div class="eyebrow text-signal">📡 DEV CENTER · MISSION CONTROL</div>
+      <h1 class="font-pixel text-lg text-mc-text mt-1">
+        Command & Telemetry
+      </h1>
+      <p class="font-mono text-xs text-mc-dim mt-1">
+        Explore Zulfan's missions, interactive tech radar and live engineering telemetry.
+      </p>
+    </div>
+
+    <!-- Dev Center Navigation Tabs -->
+    <div class="flex items-center gap-2 border-b border-mc-line pb-2" id="dev-tabs">
+      <button class="btn btn-sm btn-gold dev-tab-btn active" data-tab="timeline">
+        🚀 TIMELINE
+      </button>
+      <button class="btn btn-sm dev-tab-btn bg-mc-panel text-mc-text border-mc-line" data-tab="radar">
+        🎯 STACK RADAR
+      </button>
+      <button class="btn btn-sm dev-tab-btn bg-mc-panel text-mc-text border-mc-line" data-tab="telemetry">
+        📊 TELEMETRY
+      </button>
+    </div>
+
+    <!-- Tab 1: Timeline -->
+    <div id="tab-timeline" class="dev-tab-content space-y-4">
+      <Timeline />
+    </div>
+
+    <!-- Tab 2: Radar -->
+    <div id="tab-radar" class="dev-tab-content hidden space-y-4">
+      <StackRadar />
+    </div>
+
+    <!-- Tab 3: Telemetry -->
+    <div id="tab-telemetry" class="dev-tab-content hidden space-y-4">
+      <TelemetryWall />
+    </div>
+
+    <div class="pt-6 border-t border-mc-line">
+      <WhereTo currentPath="/dev" />
+    </div>
+  </div>
+</TownLayout>
+
+<script>
+  function initDevTabs() {
+    const tabs = document.querySelectorAll('.dev-tab-btn');
+    const contents = document.querySelectorAll('.dev-tab-content');
+
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        tabs.forEach((t) => {
+          t.classList.remove('btn-gold');
+          t.classList.add('bg-mc-panel', 'text-mc-text');
+        });
+        tab.classList.add('btn-gold');
+        tab.classList.remove('bg-mc-panel', 'text-mc-text');
+
+        const target = tab.getAttribute('data-tab');
+        contents.forEach((c) => {
+          if (c.id === `tab-${target}`) {
+            c.classList.remove('hidden');
+          } else {
+            c.classList.add('hidden');
+          }
+        });
+      });
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', initDevTabs);
+</script>

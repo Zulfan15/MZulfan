@@ -1,0 +1,86 @@
+---
+import TownLayout from '../layouts/TownLayout.astro';
+import WhereTo from '../components/WhereTo.astro';
+import { profile, researchMissions } from '../lib/profile';
+---
+
+<TownLayout place="lab" title="Research Lab · AI & Computer Vision">
+  <div class="space-y-6">
+    <div class="border-b-2 border-ink/20 pb-4">
+      <div class="eyebrow text-ball">🔬 RESEARCH LAB · APPLIED AI & VISION</div>
+      <h1 class="font-pixel text-lg text-ink mt-1">
+        Laboratory & Edge AI
+      </h1>
+      <p class="font-mono text-xs text-ink-soft mt-1">
+        Signal processing, adversarial spam detection, edge computer vision and deep learning optimization.
+      </p>
+    </div>
+
+    <!-- Research Philosophy -->
+    <div class="window p-4 bg-paper leading-relaxed text-xs space-y-2">
+      <div class="font-pixel text-[11px] text-ink">RESEARCH PHILOSOPHY</div>
+      <p class="text-ink-soft font-sans">
+        "{profile.research.statement}"
+      </p>
+    </div>
+
+    <!-- Active Research Missions -->
+    <div class="space-y-3">
+      <div class="section-title">
+        <span>RESEARCH MISSIONS</span>
+      </div>
+
+      <div class="space-y-3">
+        {researchMissions.map((m) => (
+          <div class="card p-4 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <span class="chip text-[9px] bg-ball text-paper border-ink">RESEARCH</span>
+              <span class="font-mono text-[10px] text-ink-soft">{m.start} – {m.end || 'Present'}</span>
+            </div>
+
+            <h3 class="font-pixel text-[11px] text-ink leading-snug">
+              {m.title}
+            </h3>
+
+            <div class="font-mono text-xs text-amber font-semibold">
+              {m.org}
+            </div>
+
+            {m.objective && (
+              <div class="p-2.5 rounded bg-cream border border-ink/20 text-xs text-ink font-sans">
+                <span class="font-bold">Objective:</span> {m.objective}
+              </div>
+            )}
+
+            <ul class="list-disc list-inside text-xs text-ink-soft space-y-1 font-sans">
+              {m.results.map((r) => <li>{r}</li>)}
+            </ul>
+
+            <div class="flex flex-wrap gap-1 pt-1">
+              {m.payload.map((t) => <span class="chip text-[10px]">{t}</span>)}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <!-- Methodology & What's Next -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div class="card p-3 space-y-2">
+        <div class="font-pixel text-[10px] text-ball">METHODOLOGIES</div>
+        <ul class="list-disc list-inside text-xs text-ink-soft space-y-1 font-sans">
+          {profile.research.methods.map((m) => <li>{m}</li>)}
+        </ul>
+      </div>
+
+      <div class="card p-3 space-y-2">
+        <div class="font-pixel text-[10px] text-gold">WHAT'S NEXT</div>
+        <ul class="list-disc list-inside text-xs text-ink-soft space-y-1 font-sans">
+          {profile.research.next.map((n) => <li>{n}</li>)}
+        </ul>
+      </div>
+    </div>
+
+    <WhereTo currentPath="/lab" />
+  </div>
+</TownLayout>

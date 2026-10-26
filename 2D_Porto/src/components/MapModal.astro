@@ -1,0 +1,68 @@
+---
+import { places } from '../lib/profile';
+---
+
+<dialog id="map-modal" class="sheet">
+  <div class="sheet-head">
+    <div class="flex items-center gap-2">
+      <span class="text-xl">🗺️</span>
+      <h2 class="font-pixel text-xs text-ink uppercase tracking-wide">Town Map & Quick Jump</h2>
+    </div>
+    <button id="map-modal-close" type="button" class="btn btn-sm btn-ghost p-1 text-ink/70 hover:text-ink" aria-label="Close Map">
+      ✕
+    </button>
+  </div>
+
+  <div class="sheet-body space-y-3">
+    <p class="font-mono text-xs text-ink-soft">
+      Jump directly to any building in town without walking around:
+    </p>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+      {places.map((place) => (
+        <a href={place.route} class="card card-hover flex items-start gap-3 p-3 no-underline text-ink group">
+          <span class="text-2xl p-2 rounded bg-cream border border-ink/20 group-hover:scale-110 transition-transform">
+            {place.icon}
+          </span>
+          <div class="flex-1">
+            <div class="font-pixel text-[11px] text-ball group-hover:text-berry">
+              {place.name}
+            </div>
+            <div class="font-sans text-xs text-ink-soft mt-1 line-clamp-2">
+              {place.blurb}
+            </div>
+          </div>
+        </a>
+      ))}
+    </div>
+
+    <div class="mt-4 pt-3 border-t border-ink/15 flex justify-between items-center text-[10px] font-mono text-ink-soft">
+      <span>Press <kbd class="kbd">ESC</kbd> to close</span>
+      <span>Zulfan's Town v1.0</span>
+    </div>
+  </div>
+</dialog>
+
+<script>
+  function initMapModal() {
+    const modal = document.getElementById('map-modal') as HTMLDialogElement;
+    const closeBtn = document.getElementById('map-modal-close');
+
+    if (!modal) return;
+
+    document.addEventListener('town:open-modal', (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail?.target === 'map') {
+        modal.showModal();
+      }
+    });
+
+    closeBtn?.addEventListener('click', () => modal.close());
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) modal.close();
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', initMapModal);
+</script>

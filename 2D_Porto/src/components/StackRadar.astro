@@ -1,0 +1,152 @@
+---
+import { skills } from '../lib/profile';
+
+// Ring radii: Core = 45, Go-to = 85, Regular = 125, Flown once = 165
+const ringRadius = {
+  core: 45,
+  goto: 85,
+  regular: 125,
+  once: 165,
+  bench: 195,
+};
+
+// Calculate SVG (x, y) coordinates for each skill
+const radarItems = skills.map((s, idx) => {
+  const baseAngle = s.quadrant * (Math.PI / 2) + Math.PI / 4;
+  // Offset angle slightly per item in the same quadrant/ring
+  const jitter = ((idx % 7) - 3) * 0.12;
+  const angle = baseAngle + jitter;
+  const radius = ringRadius[s.ring];
+
+  const cx = 220 + Math.cos(angle) * radius;
+  const cy = 220 + Math.sin(angle) * radius;
+
+  return {
+    ...s,
+    cx,
+    cy,
+  };
+});
+---
+
+<div class="space-y-4">
+  <div class="flex items-center justify-between">
+    <div class="eyebrow text-mc-dim">TECH RADAR · 4 QUADRANTS</div>
+    <div class="font-mono text-[10px] text-phosphor animate-pulse">● RADAR LIVE</div>
+  </div>
+
+  <!-- SVG Radar Chart -->
+  <div class="relative w-full aspect-square max-w-md mx-auto rounded-xl border border-mc-line bg-mc-panel/80 p-2 overflow-hidden shadow-inner">
+    <!-- Rotating sweep line animation -->
+    <div class="absolute inset-0 pointer-events-none flex items-center justify-center opacity-30">
+      <div class="w-full h-full rounded-full border border-signal/20 animate-[var(--animate-sweep)] origin-center">
+        <div class="w-1/2 h-1/2 bg-gradient-to-tr from-signal/30 to-transparent"></div>
+      </div>
+    </div>
+
+    <svg viewBox="0 0 440 440" class="w-full h-full select-none">
+      <!-- Grid Crosshairs -->
+      <line x1="220" y1="20" x2="220" y2="420" stroke="#1f3557" stroke-width="1.5" stroke-dasharray="3,3" />
+      <line x1="20" y1="220" x2="420" y2="220" stroke="#1f3557" stroke-width="1.5" stroke-dasharray="3,3" />
+
+      <!-- Concentric Rings -->
+      <circle cx="220" cy="220" r="195" fill="none" stroke="#1f3557" stroke-width="1" />
+      <circle cx="220" cy="220" r="165" fill="none" stroke="#1f3557" stroke-width="1" />
+      <circle cx="220" cy="220" r="125" fill="none" stroke="#1f3557" stroke-width="1" />
+      <circle cx="220" cy="220" r="85" fill="none" stroke="#1f3557" stroke-width="1.5" stroke-dasharray="4,4" />
+      <circle cx="220" cy="220" r="45" fill="none" stroke="#3cf28d" stroke-width="2" opacity="0.6" />
+
+      <!-- Ring labels -->
+      <text x="225" y="180" fill="#3cf28d" font-size="9" font-family="monospace">CORE</text>
+      <text x="225" y="140" fill="#6f86a8" font-size="8" font-family="monospace">GO-TO</text>
+      <text x="225" y="100" fill="#6f86a8" font-size="8" font-family="monospace">REGULAR</text>
+      <text x="225" y="60" fill="#6f86a8" font-size="8" font-family="monospace">ONCE</text>
+
+      <!-- Quadrant labels -->
+      <text x="350" y="30" fill="#d7e6ff" font-size="9" font-family="monospace" text-anchor="end">AI / ML</text>
+      <text x="350" y="425" fill="#d7e6ff" font-size="9" font-family="monospace" text-anchor="end">DATA & BACKEND</text>
+      <text x="25" y="30" fill="#d7e6ff" font-size="9" font-family="monospace">LANGUAGES</text>
+      <text x="25" y="425" fill="#d7e6ff" font-size="9" font-family="monospace">CLOUD & IoT</text>
+
+      <!-- Skill Blips -->
+      {radarItems.map((item) => (
+        <g class="radar-blip cursor-pointer group" data-skill={JSON.stringify(item)}>
+          <circle
+            cx={item.cx}
+            cy={item.cy}
+            r={item.ring === 'core' ? 6 : item.ring === 'goto' ? 5 : 4}
+            class={`transition-transform duration-200 group-hover:scale-150 ${
+              item.ring === 'core'
+                ? 'fill-phosphor'
+                : item.ring === 'goto'
+                ? 'fill-amber'
+                : 'fill-signal'
+            }`}
+          />
+          <text
+            x={item.cx}
+            y={item.cy - 7}
+            fill="#d7e6ff"
+            font-size="8"
+            font-family="monospace"
+            text-anchor="middle"
+            class="opacity-0 group-hover:opacity-100 transition-opacity font-bold pointer-events-none"
+          >
+            {item.name}
+          </text>
+        </g>
+      ))}
+    </svg>
+  </div>
+
+  <!-- Selected Skill Details Card -->
+  <div id="radar-details" class="rounded-lg border border-mc-line bg-mc-panel p-3 min-h-[5rem] flex items-center justify-center text-center">
+    <p class="font-mono text-xs text-mc-dim">
+      Click on any blip in the radar to inspect which projects and roles flew with that technology.
+    </p>
+  </div>
+</div>
+
+<script>
+  function initRadar() {
+    const blips = document.querySelectorAll('.radar-blip');
+    const detailsEl = document.getElementById('radar-details')!;
+
+    blips.forEach((blip) => {
+      blip.addEventListener('click', () => {
+        const raw = blip.getAttribute('data-skill');
+        if (!raw) return;
+        const skill = JSON.parse(raw);
+
+        detailsEl.innerHTML = `
+          <div class="w-full text-left space-y-2">
+            <div class="flex items-center justify-between border-b border-mc-line pb-1.5">
+              <span class="font-pixel text-xs text-signal font-bold">${skill.name}</span>
+              <span class="chip-dark text-[10px] text-phosphor uppercase">${skill.ring} · ${skill.count} MISSION${skill.count !== 1 ? 'S' : ''}</span>
+            </div>
+            <div class="font-mono text-[11px] text-mc-dim">
+              Quadrant: <span class="text-mc-text">${skill.category}</span>
+            </div>
+            ${
+              skill.missions && skill.missions.length > 0
+                ? `<div class="space-y-1">
+                    <div class="font-mono text-[10px] text-amber">FLOWN IN:</div>
+                    <ul class="list-disc list-inside text-xs text-mc-text space-y-0.5 font-sans">
+                      ${skill.missions
+                        .map(
+                          (m: any) =>
+                            `<li><span class="font-semibold">${m.title}</span> <span class="text-mc-dim text-[11px]">(${m.year})</span></li>`
+                        )
+                        .join('')}
+                    </ul>
+                  </div>`
+                : `<div class="font-mono text-xs text-mc-dim italic">Known tool on the bench. Ready for active mission deployment.</div>`
+            }
+          </div>
+        `;
+      });
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', initRadar);
+</script>

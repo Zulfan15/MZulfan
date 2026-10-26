@@ -1,0 +1,157 @@
+---
+import { profile, featured, topSkills, places } from '../lib/profile';
+import type { TownData } from '../engine/types';
+
+interface Props {
+  currentPlace?: string;
+}
+
+const { currentPlace = 'town' } = Astro.props;
+
+const townData: TownData = {
+  name: profile.person.name,
+  shortName: profile.person.short_name,
+  tagline: profile.person.tagline,
+  now: profile.person.now.role,
+  openTo: profile.person.open_to,
+  email: profile.person.email,
+  featured: featured.map((f) => f.title),
+  toolbelt: topSkills.map((s) => s.name),
+  places: places,
+};
+---
+
+<div class="town-wrap w-full h-full relative select-none">
+  <canvas id="town-canvas" class="w-full h-full block cursor-pointer"></canvas>
+
+  <!-- Controls overlay hint -->
+  <div class="absolute top-3 left-3 pointer-events-none hidden md:flex items-center gap-1.5 bg-ink/75 text-paper px-2 py-1 rounded text-[10px] font-pixel border border-ink/40">
+    <span>WASD / Click to walk</span>
+    <span class="text-gold font-bold">·</span>
+    <span>Enter to talk</span>
+  </div>
+
+  <!-- Mobile D-pad / Touch controls -->
+  <div class="absolute bottom-4 left-4 z-10 flex flex-col items-center gap-1 md:hidden opacity-85">
+    <button id="dpad-up" class="btn btn-sm w-9 h-9 p-0 text-xs">▲</button>
+    <div class="flex gap-1">
+      <button id="dpad-left" class="btn btn-sm w-9 h-9 p-0 text-xs">◀</button>
+      <button id="dpad-down" class="btn btn-sm w-9 h-9 p-0 text-xs">▼</button>
+      <button id="dpad-right" class="btn btn-sm w-9 h-9 p-0 text-xs">▶</button>
+    </div>
+  </div>
+
+  <div class="absolute bottom-4 right-4 z-10 md:hidden opacity-85">
+    <button id="btn-interact" class="btn btn-sm btn-gold w-12 h-12 rounded-full p-0 text-xs font-bold font-pixel">
+      A
+    </button>
+  </div>
+
+  <!-- Dialogue Box -->
+  <div id="dialogue-box" class="dialogue hidden">
+    <div class="flex items-start justify-between gap-2 mb-1 border-b border-ink/20 pb-1">
+      <span id="dialogue-speaker" class="font-pixel text-[11px] text-ball uppercase"></span>
+      <button id="dialogue-close" class="btn btn-sm btn-ghost p-0 text-xs text-ink/60 hover:text-ink">✕</button>
+    </div>
+    <div id="dialogue-text" class="text-lg md:text-xl leading-snug min-h-[3rem] text-ink font-retro"></div>
+    <div class="mt-2 flex items-center justify-between">
+      <button id="dialogue-action-btn" class="btn btn-sm btn-primary hidden"></button>
+      <div id="dialogue-next" class="dialogue-more cursor-pointer">▼</div>
+    </div>
+  </div>
+</div>
+
+<script define:vars={{ townData, currentPlace }}>
+  window.__TOWN_DATA__ = townData;
+  window.__CURRENT_PLACE__ = currentPlace;
+</script>
+
+<script>
+  import { TownEngine } from '../engine/TownEngine';
+  import { sfx } from '../game/sfx';
+
+  let engine: TownEngine | null = null;
+
+  function initTown() {
+    const canvas = document.getElementById('town-canvas') as HTMLCanvasElement;
+    if (!canvas) return;
+
+    const dialogueBox = document.getElementById('dialogue-box')!;
+    const dialogueSpeaker = document.getElementById('dialogue-speaker')!;
+    const dialogueText = document.getElementById('dialogue-text')!;
+    const dialogueClose = document.getElementById('dialogue-close')!;
+    const dialogueActionBtn = document.getElementById('dialogue-action-btn') as HTMLButtonElement;
+    const dialogueNext = document.getElementById('dialogue-next')!;
+
+    let currentLines: string[] = [];
+    let currentLineIdx = 0;
+    let onCurrentAction: (() => void) | undefined;
+
+    const showDialogue = (name: string, lines: string[], onAction?: () => void) => {
+      dialogueSpeaker.textContent = name;
+      currentLines = lines;
+      currentLineIdx = 0;
+      onCurrentAction = onAction;
+      dialogueBox.classList.remove('hidden');
+      renderLine();
+    };
+
+    const renderLine = () => {
+      dialogueText.textContent = currentLines[currentLineIdx] || '';
+      sfx.blip();
+
+      const isLast = currentLineIdx >= currentLines.length - 1;
+      if (isLast && onCurrentAction) {
+        dialogueActionBtn.textContent = 'ENTER ➜';
+        dialogueActionBtn.classList.remove('hidden');
+        dialogueActionBtn.onclick = () => {
+          dialogueBox.classList.add('hidden');
+          onCurrentAction?.();
+        };
+      } else {
+        dialogueActionBtn.classList.add('hidden');
+      }
+    };
+
+    const advanceLine = () => {
+      if (currentLineIdx < currentLines.length - 1) {
+        currentLineIdx++;
+        renderLine();
+      } else {
+        dialogueBox.classList.add('hidden');
+      }
+    };
+
+    dialogueNext.onclick = advanceLine;
+    dialogueClose.onclick = () => dialogueBox.classList.add('hidden');
+
+    // Initialize TownEngine
+    const townData = (window as unknown as { __TOWN_DATA__: any }).__TOWN_DATA__;
+    const spawnPlace = (window as unknown as { __CURRENT_PLACE__: string }).__CURRENT_PLACE__ || 'town';
+
+    engine = new TownEngine(canvas, townData, spawnPlace, {
+      onDialogue: showDialogue,
+      onNavigate: (route) => {
+        window.location.href = route;
+      },
+      onEncounter: () => {
+        document.dispatchEvent(new CustomEvent('town:wild-encounter'));
+      },
+      onRefill: () => {
+        document.dispatchEvent(new CustomEvent('town:refill-balls'));
+      },
+      onOpenModal: (target) => {
+        document.dispatchEvent(new CustomEvent('town:open-modal', { detail: { target } }));
+      },
+    });
+
+    // Touch D-Pad bindings
+    document.getElementById('dpad-up')?.addEventListener('pointerdown', () => engine?.queueMove('up'));
+    document.getElementById('dpad-down')?.addEventListener('pointerdown', () => engine?.queueMove('down'));
+    document.getElementById('dpad-left')?.addEventListener('pointerdown', () => engine?.queueMove('left'));
+    document.getElementById('dpad-right')?.addEventListener('pointerdown', () => engine?.queueMove('right'));
+    document.getElementById('btn-interact')?.addEventListener('pointerdown', () => engine?.interactFacing());
+  }
+
+  document.addEventListener('DOMContentLoaded', initTown);
+</script>

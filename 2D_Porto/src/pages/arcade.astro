@@ -1,0 +1,33 @@
+---
+import TownLayout from '../layouts/TownLayout.astro';
+import WhereTo from '../components/WhereTo.astro';
+import KalahGame from '../components/KalahGame.astro';
+---
+
+<TownLayout place="arcade" title="The Arcade · Kalah AI Mini-Game">
+  <div class="space-y-6">
+    <div class="border-b-2 border-ink/20 pb-4">
+      <div class="eyebrow text-ball">🕹️ THE ARCADE · PLAYABLE AI MINI-GAME</div>
+      <h1 class="font-pixel text-lg text-ink mt-1">
+        Kalah Board Game
+      </h1>
+      <p class="font-mono text-xs text-ink-soft mt-1">
+        Challenge Zulfan's game AI running Alpha-Beta pruning search inside a Web Worker.
+      </p>
+    </div>
+
+    <!-- Playable Game -->
+    <KalahGame />
+
+    <!-- How it works box -->
+    <div class="window p-4 bg-paper space-y-2 text-xs">
+      <div class="font-pixel text-[11px] text-ink">HOW THE BOT WORKS</div>
+      <p class="text-ink-soft font-sans leading-relaxed">
+        The opponent evaluates future board permutations using an <strong>Alpha-Beta minimax search algorithm</strong>.
+        Calculations execute in a background <code>Web Worker</code> thread, ensuring that 60 FPS canvas rendering and UI animations never experience micro-stuttering.
+      </p>
+    </div>
+
+    <WhereTo currentPath="/arcade" />
+  </div>
+</TownLayout>

@@ -1,0 +1,23 @@
+---
+import TownLayout from '../layouts/TownLayout.astro';
+import WhereTo from '../components/WhereTo.astro';
+import ChatBox from '../components/ChatBox.astro';
+---
+
+<TownLayout place="reception" title="Front Desk · Mira Receptionist">
+  <div class="space-y-6">
+    <div class="border-b-2 border-ink/20 pb-4">
+      <div class="eyebrow text-ball">🎧 FRONT DESK · DEV CENTER RECEPTION</div>
+      <h1 class="font-pixel text-lg text-ink mt-1">
+        Mira at Reception
+      </h1>
+      <p class="font-mono text-xs text-ink-soft mt-1">
+        Ask Mira about Zulfan's work experience, lab assistant roles, or directions around town.
+      </p>
+    </div>
+
+    <ChatBox persona="reception" />
+
+    <WhereTo currentPath="/reception" />
+  </div>
+</TownLayout>

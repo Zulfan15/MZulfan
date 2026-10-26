@@ -1,0 +1,105 @@
+---
+import { timeline, KIND_META, type TimelineKind } from '../lib/profile';
+
+const kinds: TimelineKind[] = ['launch', 'crew_assignment', 'training', 'commendation'];
+---
+
+<div class="space-y-4">
+  <!-- Filter tabs -->
+  <div class="flex flex-wrap gap-1.5 pb-2 border-b border-mc-line" id="timeline-filters">
+    <button class="btn btn-sm btn-gold timeline-filter active" data-filter="all">
+      ALL ({timeline.length})
+    </button>
+    {kinds.map((k) => (
+      <button class="btn btn-sm timeline-filter bg-mc-panel text-mc-text border-mc-line" data-filter={k}>
+        <span>{KIND_META[k].icon}</span>
+        <span>{KIND_META[k].plural}</span>
+      </button>
+    ))}
+  </div>
+
+  <!-- Timeline list -->
+  <div class="relative pl-6 space-y-4 border-l-2 border-mc-line" id="timeline-list">
+    {timeline.map((item) => {
+      const meta = KIND_META[item.kind];
+      return (
+        <div class="timeline-item relative group" data-kind={item.kind}>
+          <!-- Node dot -->
+          <div class={`absolute -left-[31px] top-1.5 w-4 h-4 rounded-full border-2 border-ink flex items-center justify-center text-[10px] ${item.active ? 'bg-phosphor animate-pulse' : 'bg-gold'}`}>
+          </div>
+
+          <div class="rounded-lg border border-mc-line bg-mc-panel p-3.5 space-y-2 hover:border-signal transition-colors">
+            <div class="flex flex-wrap items-center justify-between gap-1">
+              <span class="chip-dark text-[10px]">
+                {meta.icon} {meta.label}
+              </span>
+              <span class="font-mono text-[10px] text-mc-dim">{item.range}</span>
+            </div>
+
+            <h3 class="font-pixel text-[11px] text-mc-text leading-snug">
+              {item.title}
+            </h3>
+
+            <div class="font-mono text-xs text-amber font-medium">
+              {item.org}
+            </div>
+
+            {item.summary && (
+              <p class="font-sans text-xs text-mc-text/80 leading-relaxed">
+                {item.summary}
+              </p>
+            )}
+
+            {item.results && item.results.length > 0 && (
+              <ul class="list-disc list-inside text-xs text-mc-dim space-y-1 font-sans pl-1">
+                {item.results.map((r) => (
+                  <li class="leading-relaxed">{r}</li>
+                ))}
+              </ul>
+            )}
+
+            {item.tags && item.tags.length > 0 && (
+              <div class="flex flex-wrap gap-1 pt-1">
+                {item.tags.map((t) => (
+                  <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-mc-bg text-signal border border-mc-line">
+                    {t}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    })}
+  </div>
+</div>
+
+<script>
+  function initTimelineFilters() {
+    const buttons = document.querySelectorAll('.timeline-filter');
+    const items = document.querySelectorAll('.timeline-item');
+
+    buttons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        buttons.forEach((b) => {
+          b.classList.remove('btn-gold');
+          b.classList.add('bg-mc-panel', 'text-mc-text');
+        });
+        btn.classList.add('btn-gold');
+        btn.classList.remove('bg-mc-panel', 'text-mc-text');
+
+        const filter = btn.getAttribute('data-filter');
+        items.forEach((item) => {
+          const kind = item.getAttribute('data-kind');
+          if (filter === 'all' || filter === kind) {
+            (item as HTMLElement).style.display = 'block';
+          } else {
+            (item as HTMLElement).style.display = 'none';
+          }
+        });
+      });
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', initTimelineFilters);
+</script>

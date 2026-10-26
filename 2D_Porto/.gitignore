@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.astro/
+.wrangler/
+.dev.vars
+.env
+worker/generated/
+rust/kalah-ai/target/
+rust/kalah-ai/pkg/
+public/wasm/
+*.log
+.DS_Store

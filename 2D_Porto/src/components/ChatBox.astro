@@ -1,0 +1,156 @@
+---
+import { profile } from '../lib/profile';
+
+interface Props {
+  persona: 'twin' | 'reception';
+}
+
+const { persona } = Astro.props;
+const config = persona === 'twin' ? profile.assistant.twin : profile.assistant.reception;
+const suggested = profile.assistant.suggested_prompts;
+---
+
+<div class="space-y-4 max-w-xl mx-auto" id="chat-widget" data-persona={persona}>
+  <!-- Persona Header Banner -->
+  <div class="window p-3 flex items-center justify-between bg-cream border-2">
+    <div class="flex items-center gap-3">
+      <span class="text-3xl p-1.5 rounded-lg bg-paper border border-ink/30">
+        {persona === 'twin' ? '💬' : '🎧'}
+      </span>
+      <div>
+        <h3 class="font-pixel text-xs text-ink">{config.name}</h3>
+        <p class="font-sans text-xs text-ink-soft">{config.style}</p>
+      </div>
+    </div>
+    <span class="chip font-mono text-[9px] text-phosphor bg-ink border-0">ONLINE</span>
+  </div>
+
+  <!-- Messages Scroll Area -->
+  <div id="chat-messages" class="window p-4 h-72 overflow-y-auto space-y-3 font-sans text-sm bg-paper border-2">
+    <!-- Initial Greeting -->
+    <div class="flex items-start gap-2">
+      <span class="w-6 h-6 rounded-full bg-gold border border-ink flex items-center justify-center font-pixel text-[9px]">
+        {persona === 'twin' ? 'MZ' : 'M'}
+      </span>
+      <div class="p-2.5 rounded-lg bg-cream border border-ink/20 text-ink max-w-[85%] leading-relaxed text-xs">
+        {config.greeting}
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Prompts -->
+  <div class="flex flex-wrap gap-1.5" id="chat-suggested">
+    {suggested.map((prompt) => (
+      <button type="button" class="chip hover:bg-gold cursor-pointer transition-colors text-[10px] prompt-btn">
+        {prompt}
+      </button>
+    ))}
+  </div>
+
+  <!-- Input Form -->
+  <form id="chat-form" class="flex gap-2">
+    <input
+      id="chat-input"
+      type="text"
+      placeholder="Ask about Zulfan's projects, CV, thesis or skills..."
+      class="flex-1 px-3 py-2 rounded-md border-2 border-ink bg-paper font-sans text-xs text-ink focus:outline-none focus:border-ball"
+      required
+    />
+    <button id="chat-send-btn" type="submit" class="btn btn-primary px-4">
+      SEND
+    </button>
+  </form>
+</div>
+
+<script>
+  import { sfx } from '../game/sfx';
+
+  function initChat() {
+    const widget = document.getElementById('chat-widget');
+    if (!widget) return;
+    const persona = widget.getAttribute('data-persona') || 'twin';
+    const form = document.getElementById('chat-form') as HTMLFormElement;
+    const input = document.getElementById('chat-input') as HTMLInputElement;
+    const messages = document.getElementById('chat-messages')!;
+    const sendBtn = document.getElementById('chat-send-btn') as HTMLButtonElement;
+
+    const appendMessage = (sender: 'user' | 'assistant', text: string) => {
+      const isUser = sender === 'user';
+      const msg = document.createElement('div');
+      msg.className = `flex items-start gap-2 ${isUser ? 'flex-row-reverse' : ''}`;
+
+      msg.innerHTML = `
+        <span class="w-6 h-6 rounded-full ${isUser ? 'bg-ball text-paper' : 'bg-gold text-ink'} border border-ink flex items-center justify-center font-pixel text-[9px] shrink-0">
+          ${isUser ? 'YOU' : persona === 'twin' ? 'MZ' : 'M'}
+        </span>
+        <div class="p-2.5 rounded-lg ${isUser ? 'bg-ball text-paper' : 'bg-cream text-ink border border-ink/20'} max-w-[85%] leading-relaxed text-xs">
+          ${text}
+        </div>
+      `;
+
+      messages.appendChild(msg);
+      messages.scrollTop = messages.scrollHeight;
+    };
+
+    const handleSend = async (text: string) => {
+      if (!text.trim()) return;
+      sfx.select();
+      appendMessage('user', text);
+      input.value = '';
+      sendBtn.disabled = true;
+
+      // Loading bubble
+      const loading = document.createElement('div');
+      loading.className = 'flex items-start gap-2';
+      loading.id = 'chat-loading';
+      loading.innerHTML = `
+        <span class="w-6 h-6 rounded-full bg-gold border border-ink flex items-center justify-center font-pixel text-[9px] shrink-0">
+          ${persona === 'twin' ? 'MZ' : 'M'}
+        </span>
+        <div class="p-2.5 rounded-lg bg-cream border border-ink/20 text-ink max-w-[85%] text-xs font-mono animate-pulse">
+          Thinking...
+        </div>
+      `;
+      messages.appendChild(loading);
+      messages.scrollTop = messages.scrollHeight;
+
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text, persona }),
+        });
+
+        const data = await res.json();
+        document.getElementById('chat-loading')?.remove();
+
+        if (res.ok && data.reply) {
+          sfx.blip();
+          appendMessage('assistant', data.reply);
+        } else {
+          appendMessage('assistant', data.error || "I'm having trouble connecting right now. Feel free to email Zulfan directly at zulfanangga2908@gmail.com!");
+        }
+      } catch {
+        document.getElementById('chat-loading')?.remove();
+        // Client-side fallback if backend Worker is offline
+        appendMessage('assistant', "I'm offline in local preview mode. For job opportunities or collaborations, you can reach Zulfan directly at zulfanangga2908@gmail.com!");
+      } finally {
+        sendBtn.disabled = false;
+        input.focus();
+      }
+    };
+
+    form?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      handleSend(input.value);
+    });
+
+    document.querySelectorAll('.prompt-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        handleSend(btn.textContent?.trim() || '');
+      });
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', initChat);
+</script>

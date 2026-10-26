@@ -1,0 +1,162 @@
+---
+// Live telemetry metrics and problem solving dashboard
+---
+
+<div class="space-y-5" id="telemetry-root">
+  <div class="flex items-center justify-between border-b border-mc-line pb-2">
+    <div>
+      <div class="eyebrow text-mc-dim">TELEMETRY WALL</div>
+      <div class="font-mono text-xs text-mc-text">Live Developer Metrics & Problem Solving</div>
+    </div>
+    <div class="flex items-center gap-1.5 font-mono text-[10px] text-phosphor">
+      <span class="inline-block w-2 h-2 rounded-full bg-phosphor animate-ping"></span>
+      <span>STREAM CONNECTED</span>
+    </div>
+  </div>
+
+  <!-- Metric Badges Row -->
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+    <div class="rounded-lg border border-mc-line bg-mc-panel p-3 text-center">
+      <div class="eyebrow text-mc-dim text-[8px]">GITHUB STREAK</div>
+      <div id="metric-github-streak" class="font-pixel text-xl text-amber mt-1">14</div>
+      <div class="font-mono text-[9px] text-mc-dim">days continuous</div>
+    </div>
+
+    <div class="rounded-lg border border-mc-line bg-mc-panel p-3 text-center">
+      <div class="eyebrow text-mc-dim text-[8px]">COMMITS / YEAR</div>
+      <div id="metric-github-contrib" class="font-pixel text-xl text-signal mt-1">348</div>
+      <div class="font-mono text-[9px] text-mc-dim">in the last year</div>
+    </div>
+
+    <div class="rounded-lg border border-mc-line bg-mc-panel p-3 text-center">
+      <div class="eyebrow text-mc-dim text-[8px]">LEETCODE SOLVED</div>
+      <div id="metric-leetcode-solved" class="font-pixel text-xl text-phosphor mt-1">128</div>
+      <div class="font-mono text-[9px] text-mc-dim">78.4% acceptance</div>
+    </div>
+
+    <div class="rounded-lg border border-mc-line bg-mc-panel p-3 text-center">
+      <div class="eyebrow text-mc-dim text-[8px]">ACTIVE RADAR</div>
+      <div class="font-pixel text-xl text-ball mt-1">13</div>
+      <div class="font-mono text-[9px] text-mc-dim">missions logged</div>
+    </div>
+  </div>
+
+  <!-- LeetCode Dials Breakdown -->
+  <div class="rounded-lg border border-mc-line bg-mc-panel p-4 space-y-3">
+    <div class="flex items-center justify-between text-xs font-mono">
+      <span class="text-mc-dim uppercase">Algorithm Problem Solving Dials</span>
+      <span class="text-amber">LeetCode Metrics</span>
+    </div>
+
+    <div class="grid grid-cols-3 gap-3">
+      <!-- Easy -->
+      <div class="space-y-1">
+        <div class="flex justify-between text-[11px] font-mono">
+          <span class="text-phosphor">Easy</span>
+          <span id="lc-easy-count" class="text-mc-text font-bold">64</span>
+        </div>
+        <div class="w-full h-2 rounded bg-mc-bg overflow-hidden border border-mc-line">
+          <div id="lc-easy-bar" class="h-full bg-phosphor transition-all duration-500" style="width: 50%"></div>
+        </div>
+      </div>
+
+      <!-- Medium -->
+      <div class="space-y-1">
+        <div class="flex justify-between text-[11px] font-mono">
+          <span class="text-amber">Medium</span>
+          <span id="lc-med-count" class="text-mc-text font-bold">52</span>
+        </div>
+        <div class="w-full h-2 rounded bg-mc-bg overflow-hidden border border-mc-line">
+          <div id="lc-med-bar" class="h-full bg-amber transition-all duration-500" style="width: 40%"></div>
+        </div>
+      </div>
+
+      <!-- Hard -->
+      <div class="space-y-1">
+        <div class="flex justify-between text-[11px] font-mono">
+          <span class="text-ball">Hard</span>
+          <span id="lc-hard-count" class="text-mc-text font-bold">12</span>
+        </div>
+        <div class="w-full h-2 rounded bg-mc-bg overflow-hidden border border-mc-line">
+          <div id="lc-hard-bar" class="h-full bg-ball transition-all duration-500" style="width: 10%"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Active Repositories List -->
+  <div class="rounded-lg border border-mc-line bg-mc-panel p-4 space-y-3">
+    <div class="flex items-center justify-between text-xs font-mono border-b border-mc-line pb-2">
+      <span class="text-mc-dim uppercase">Active Code Repositories</span>
+      <a href="https://github.com/Zulfan15" target="_blank" rel="noopener noreferrer" class="text-signal hover:underline">
+        github.com/Zulfan15 ↗
+      </a>
+    </div>
+
+    <div id="telemetry-repos" class="space-y-2.5">
+      <!-- Rendered dynamically from telemetry data -->
+      <div class="p-2.5 rounded bg-mc-bg border border-mc-line">
+        <div class="flex items-center justify-between">
+          <a href="https://github.com/Zulfan15/MZulfan" target="_blank" class="font-pixel text-[10px] text-signal hover:underline">
+            MZulfan
+          </a>
+          <span class="text-[9px] font-mono text-mc-dim">⭐ 4 · TypeScript</span>
+        </div>
+        <div class="font-sans text-xs text-mc-dim mt-1">Interactive Portfolio & Digital Headquarters</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  async function fetchTelemetry() {
+    try {
+      // Connect to telemetry endpoint with fallback to static mock
+      const res = await fetch('/api/telemetry').catch(() => fetch('/mock/telemetry.json'));
+      const data = await res.json();
+
+      if (data.github) {
+        const s = document.getElementById('metric-github-streak');
+        const c = document.getElementById('metric-github-contrib');
+        if (s) s.textContent = String(data.github.streak);
+        if (c) c.textContent = String(data.github.contributionsYear);
+
+        if (data.github.activeRepos && data.github.activeRepos.length > 0) {
+          const container = document.getElementById('telemetry-repos');
+          if (container) {
+            container.innerHTML = data.github.activeRepos
+              .map(
+                (r: any) => `
+                <div class="p-2.5 rounded bg-mc-bg border border-mc-line hover:border-signal transition-colors">
+                  <div class="flex items-center justify-between">
+                    <a href="${r.url}" target="_blank" rel="noopener noreferrer" class="font-pixel text-[10px] text-signal hover:underline">
+                      ${r.name}
+                    </a>
+                    <span class="text-[9px] font-mono text-mc-dim">⭐ ${r.stars} · ${r.language}</span>
+                  </div>
+                  <div class="font-sans text-xs text-mc-dim mt-1">${r.description}</div>
+                </div>
+              `
+              )
+              .join('');
+          }
+        }
+      }
+
+      if (data.leetcode) {
+        const solved = document.getElementById('metric-leetcode-solved');
+        const eCount = document.getElementById('lc-easy-count');
+        const mCount = document.getElementById('lc-med-count');
+        const hCount = document.getElementById('lc-hard-count');
+        if (solved) solved.textContent = String(data.leetcode.totalSolved);
+        if (eCount) eCount.textContent = String(data.leetcode.easy);
+        if (mCount) mCount.textContent = String(data.leetcode.medium);
+        if (hCount) hCount.textContent = String(data.leetcode.hard);
+      }
+    } catch {
+      // Mock data is already pre-rendered statically above
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', fetchTelemetry);
+</script>

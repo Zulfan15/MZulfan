@@ -1,0 +1,29 @@
+---
+import { places } from '../lib/profile';
+
+interface Props {
+  currentPath: string;
+}
+
+const { currentPath } = Astro.props;
+---
+
+<nav aria-label="Where to?" class="mt-8 pt-6 border-t-2 border-ink/15">
+  <div class="eyebrow mb-2">WHERE TO?</div>
+  <div class="grid grid-cols-2 gap-2">
+    {places.map((p) => {
+      const active = currentPath === p.route;
+      return (
+        <a
+          href={p.route}
+          class={`flex items-center gap-2 px-2.5 py-2 rounded border-2 border-ink font-pixel text-[9px] transition-all no-underline ${
+            active ? 'bg-ball text-paper border-ink shadow-sm' : 'bg-paper text-ink hover:bg-cream hover:-translate-y-px'
+          }`}
+        >
+          <span>{p.icon}</span>
+          <span class="truncate">{p.name}</span>
+        </a>
+      );
+    })}
+  </div>
+</nav>

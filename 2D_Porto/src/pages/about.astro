@@ -1,0 +1,108 @@
+---
+import TownLayout from '../layouts/TownLayout.astro';
+import WhereTo from '../components/WhereTo.astro';
+import { profile } from '../lib/profile';
+---
+
+<TownLayout place="about" title={`About ${profile.person.short_name} — Home`}>
+  <div class="space-y-6">
+    <!-- Header -->
+    <div class="border-b-2 border-ink/20 pb-4">
+      <div class="eyebrow text-ball">🏠 HOME · WHO I AM</div>
+      <h1 class="font-pixel text-lg text-ink mt-1">
+        {profile.person.name}
+      </h1>
+      <p class="font-mono text-xs text-ink-soft mt-1">
+        {profile.person.title} · Bandung, Indonesia
+      </p>
+    </div>
+
+    <!-- CV Action Card -->
+    <div class="card p-4 bg-cream flex flex-col sm:flex-row items-center justify-between gap-3 border-2">
+      <div>
+        <div class="font-pixel text-xs text-ink">CURRICULUM VITAE (CV)</div>
+        <div class="font-mono text-[10px] text-ink-soft mt-0.5">Latest verified edition · PDF</div>
+      </div>
+      <a
+        href="/cv/CV_Zulfan.pdf"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="btn btn-primary text-xs py-2 px-4 flex items-center gap-2"
+      >
+        <span>📥</span>
+        <span>DOWNLOAD CV</span>
+      </a>
+    </div>
+
+    <!-- Bio & Summary -->
+    <div class="space-y-3 font-sans text-xs text-ink leading-relaxed">
+      <div class="section-title">
+        <span>PROFILE SUMMARY</span>
+      </div>
+      <p class="bg-paper p-3.5 rounded-lg border-2 border-ink shadow-sm">
+        {profile.person.summary}
+      </p>
+    </div>
+
+    <!-- Education -->
+    <div class="space-y-3">
+      <div class="section-title">
+        <span>EDUCATION</span>
+      </div>
+      {profile.education.map((edu) => (
+        <div class="card p-3.5 space-y-1.5">
+          <div class="flex items-center justify-between">
+            <span class="font-pixel text-[11px] text-ball">{edu.degree}</span>
+            <span class="font-mono text-[10px] text-ink-soft">{edu.start} – {edu.end || 'Present'}</span>
+          </div>
+          <div class="font-mono text-xs text-ink font-bold">{edu.school}</div>
+          <div class="text-[11px] text-ink-soft">{edu.location} {edu.gpa ? `· GPA: ${edu.gpa}` : ''}</div>
+          {edu.highlights && (
+            <ul class="list-disc list-inside text-xs text-ink-soft pt-1 space-y-0.5 font-sans">
+              {edu.highlights.map((h) => <li>{h}</li>)}
+            </ul>
+          )}
+        </div>
+      ))}
+    </div>
+
+    <!-- Honors & Certifications -->
+    <div class="space-y-3">
+      <div class="section-title">
+        <span>HONORS & CERTIFICATIONS</span>
+      </div>
+      {profile.honors.map((h) => (
+        <div class="card p-3 space-y-1">
+          <div class="flex items-center justify-between">
+            <span class="font-pixel text-[10px] text-ink">🏆 {h.title}</span>
+            <span class="font-mono text-[10px] text-ink-soft">{h.date}</span>
+          </div>
+          <div class="font-mono text-[11px] text-amber font-semibold">{h.issuer}</div>
+          {h.note && <div class="font-sans text-xs text-ink-soft">{h.note}</div>}
+        </div>
+      ))}
+    </div>
+
+    <!-- Socials & Connect -->
+    <div class="space-y-3">
+      <div class="section-title">
+        <span>COMMUNICATION RUNES</span>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        {profile.socials.map((s) => (
+          <a
+            href={s.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="card card-hover flex items-center gap-2.5 p-2.5 no-underline text-ink font-pixel text-[10px]"
+          >
+            <span>🔗</span>
+            <span class="truncate">{s.label}</span>
+          </a>
+        ))}
+      </div>
+    </div>
+
+    <WhereTo currentPath="/about" />
+  </div>
+</TownLayout>

@@ -1,0 +1,149 @@
+---
+import { profile } from '../lib/profile';
+const critters = profile.critters;
+---
+
+<dialog id="encounter-modal" class="sheet bg-ink text-paper border-4 border-paper shadow-2xl">
+  <div class="p-4 sm:p-6 space-y-4">
+    <!-- Battle Stage -->
+    <div class="relative bg-gradient-to-b from-[#25507a] to-[#4aa3df] rounded-lg border-2 border-paper p-4 overflow-hidden h-48 flex items-center justify-between">
+      <!-- Foe Info -->
+      <div class="absolute top-2 left-2 bg-ink/80 text-paper border border-paper/40 rounded px-3 py-1 font-pixel text-[9px]">
+        <div id="encounter-critter-name" class="text-gold font-bold">WILD CRITTER</div>
+        <div id="encounter-critter-type" class="text-[8px] text-paper/70">Lv. 5 · Grass</div>
+      </div>
+
+      <!-- Foe Sprite -->
+      <div class="w-full flex justify-end pr-6">
+        <canvas id="encounter-canvas" width="96" height="96" class="animate-[var(--animate-bob)]"></canvas>
+      </div>
+
+      <!-- Battle Platform -->
+      <div class="absolute -bottom-4 right-2 w-40 h-10 bg-grass/50 rounded-full blur-[1px]"></div>
+    </div>
+
+    <!-- Battle Dialog Text -->
+    <div class="window-dark p-3 font-retro text-2xl min-h-[4rem] flex items-center text-paper">
+      <span id="encounter-text">A wild critter jumped out from the tall grass!</span>
+    </div>
+
+    <!-- Actions -->
+    <div class="grid grid-cols-2 gap-3 font-pixel">
+      <button id="btn-throw-ball" type="button" class="btn btn-primary py-3 text-xs flex items-center justify-center gap-2">
+        <span>🔴</span>
+        <span>THROW POKé BALL (<span id="encounter-balls-left">5</span>)</span>
+      </button>
+      <button id="btn-run-away" type="button" class="btn py-3 text-xs flex items-center justify-center gap-2">
+        <span>🏃</span>
+        <span>RUN AWAY</span>
+      </button>
+    </div>
+  </div>
+</dialog>
+
+<script define:vars={{ critters }}>
+  window.__BATTLE_CRITTERS__ = critters;
+</script>
+
+<script>
+  import { gameStore } from '../game/store';
+  import { renderCritterOnCanvas } from '../game/critterArt';
+  import { sfx } from '../game/sfx';
+
+  function initEncounter() {
+    const modal = document.getElementById('encounter-modal') as HTMLDialogElement;
+    const canvas = document.getElementById('encounter-canvas') as HTMLCanvasElement;
+    const nameEl = document.getElementById('encounter-critter-name')!;
+    const typeEl = document.getElementById('encounter-critter-type')!;
+    const textEl = document.getElementById('encounter-text')!;
+    const ballsLeftEl = document.getElementById('encounter-balls-left')!;
+    const throwBtn = document.getElementById('btn-throw-ball') as HTMLButtonElement;
+    const runBtn = document.getElementById('btn-run-away') as HTMLButtonElement;
+
+    const critters = (window as unknown as { __BATTLE_CRITTERS__: any[] }).__BATTLE_CRITTERS__;
+    let currentCritter: any = null;
+    let isActing = false;
+
+    const startEncounter = () => {
+      // Pick random critter (weighted towards uncaught ones)
+      const state = gameStore.getState();
+      const uncaught = critters.filter((c) => !state.caught.includes(c.id));
+      const pool = uncaught.length > 0 && Math.random() < 0.7 ? uncaught : critters;
+      currentCritter = pool[Math.floor(Math.random() * pool.length)];
+
+      nameEl.textContent = currentCritter.name.toUpperCase();
+      typeEl.textContent = `${currentCritter.type} · ${currentCritter.rarity.toUpperCase()}`;
+      ballsLeftEl.textContent = String(state.balls);
+      textEl.textContent = `A wild ${currentCritter.name} appeared!`;
+
+      renderCritterOnCanvas(canvas, currentCritter, 96);
+      isActing = false;
+      throwBtn.disabled = state.balls <= 0;
+
+      modal.showModal();
+    };
+
+    throwBtn.addEventListener('click', () => {
+      if (isActing || !currentCritter) return;
+      const state = gameStore.getState();
+      if (state.balls <= 0) {
+        textEl.textContent = "You don't have any Poké Balls left! Talk to Ranger Asep.";
+        return;
+      }
+
+      isActing = true;
+      sfx.select();
+      textEl.textContent = `You threw a Poké Ball at ${currentCritter.name}...`;
+
+      // Catch calculation based on rarity
+      const catchRate =
+        currentCritter.rarity === 'common'
+          ? 0.75
+          : currentCritter.rarity === 'uncommon'
+          ? 0.55
+          : currentCritter.rarity === 'rare'
+          ? 0.35
+          : 0.2;
+
+      setTimeout(() => {
+        const success = Math.random() < catchRate;
+        gameStore.catchCritter(currentCritter.id);
+        ballsLeftEl.textContent = String(gameStore.getState().balls);
+
+        if (success) {
+          sfx.catchSuccess();
+          textEl.textContent = `Gotcha! ${currentCritter.name} was caught! Added to your Critterdex!`;
+          setTimeout(() => {
+            modal.close();
+            isActing = false;
+          }, 1800);
+        } else {
+          sfx.bump();
+          textEl.textContent = `Oh no! The wild ${currentCritter.name} broke free!`;
+          setTimeout(() => {
+            textEl.textContent = `What will you do next?`;
+            isActing = false;
+          }, 1200);
+        }
+      }, 900);
+    });
+
+    runBtn.addEventListener('click', () => {
+      if (isActing) return;
+      sfx.select();
+      textEl.textContent = 'Got away safely!';
+      setTimeout(() => {
+        modal.close();
+      }, 500);
+    });
+
+    document.addEventListener('town:wild-encounter', startEncounter);
+
+    document.addEventListener('town:refill-balls', () => {
+      gameStore.refillBalls(5);
+      sfx.catchSuccess();
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', initEncounter);
+</script>

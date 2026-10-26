@@ -1,0 +1,64 @@
+---
+import '../styles/global.css';
+import Hud from '../components/Hud.astro';
+import TownCanvas from '../components/TownCanvas.astro';
+import MapModal from '../components/MapModal.astro';
+import CritterdexModal from '../components/CritterdexModal.astro';
+import EncounterModal from '../components/EncounterModal.astro';
+import { profile } from '../lib/profile';
+
+interface Props {
+  title?: string;
+  description?: string;
+  place?: string;
+}
+
+const {
+  title = `${profile.person.name} — ${profile.person.title}`,
+  description = profile.person.tagline,
+  place = 'town',
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en" data-place={place}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#8bd16a" />
+
+    <!-- Google Fonts for retro/pixel aesthetic and clean typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Press+Start+2P&family=VT323&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body class="bg-ink font-sans text-ink">
+    <div class="shell">
+      <Hud />
+
+      <main class="stage">
+        <!-- Interactive 2D Pixel Town -->
+        <TownCanvas currentPlace={place} />
+
+        <!-- Static Reading Panel -->
+        <aside class="panel">
+          <div id="content" class="panel-body">
+            <slot />
+          </div>
+        </aside>
+      </main>
+    </div>
+
+    <!-- Modals -->
+    <MapModal />
+    <CritterdexModal />
+    <EncounterModal />
+  </body>
+</html>

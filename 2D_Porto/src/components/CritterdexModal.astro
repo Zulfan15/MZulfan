@@ -1,0 +1,221 @@
+---
+import { profile } from '../lib/profile';
+const critters = profile.critters;
+---
+
+<dialog id="dex-modal" class="sheet">
+  <div class="sheet-head bg-ball text-paper border-ink">
+    <div class="flex items-center gap-2">
+      <span class="text-xl">●</span>
+      <h2 class="font-pixel text-xs text-paper uppercase tracking-wide">CRITTERDEX & TRAINER CARD</h2>
+    </div>
+    <button id="dex-modal-close" type="button" class="btn btn-sm btn-ghost p-1 text-paper/80 hover:text-paper" aria-label="Close Dex">
+      ✕
+    </button>
+  </div>
+
+  <div class="sheet-body space-y-4">
+    <!-- Dex Stats Banner -->
+    <div class="flex items-center justify-between p-3 rounded-md border-2 border-ink bg-cream font-pixel text-[10px]">
+      <div>
+        CAUGHT: <span id="dex-caught-count" class="text-ball font-bold">0</span> / 12
+      </div>
+      <div>
+        BALLS: <span id="dex-balls-count" class="text-gold font-bold">5</span>
+      </div>
+    </div>
+
+    <!-- 12 Critters Grid -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+      {critters.map((c, i) => (
+        <div id={`dex-item-${c.id}`} class="card p-2 text-center opacity-40 transition-all border-2">
+          <canvas id={`dex-canvas-${c.id}`} class="w-14 h-14 mx-auto mb-1"></canvas>
+          <div class="font-pixel text-[9px] text-ink truncate">
+            No.{String(i + 1).padStart(2, '0')} {c.name}
+          </div>
+          <div class="font-mono text-[9px] text-ink-soft">
+            {c.type} · {c.rarity}
+          </div>
+          <div class="font-sans text-[10px] text-ink-soft mt-1 leading-tight hidden dex-blurb">
+            {c.blurb}
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <!-- Trainer Card Generator -->
+    <div class="border-t-[3px] border-ink pt-4 mt-6">
+      <div class="flex items-center justify-between mb-2">
+        <h3 class="font-pixel text-[11px] text-ink uppercase">TRAINER CARD</h3>
+        <span class="text-[9px] font-mono text-ink-soft">Saved locally in browser</span>
+      </div>
+
+      <div class="flex flex-col sm:flex-row gap-4 items-start">
+        <div class="flex-1 w-full space-y-2">
+          <label for="trainer-name-input" class="block font-pixel text-[9px] text-ink">
+            NAME ON YOUR CARD:
+          </label>
+          <input
+            id="trainer-name-input"
+            type="text"
+            maxlength="12"
+            placeholder="TRAINER"
+            class="w-full px-3 py-2 border-2 border-ink rounded bg-paper font-pixel text-xs text-ink uppercase focus:outline-none focus:border-ball"
+          />
+          <button id="btn-save-card" type="button" class="btn btn-primary w-full mt-2">
+            📥 Save Card as PNG
+          </button>
+        </div>
+
+        <div class="w-full sm:w-auto flex justify-center">
+          <canvas id="trainer-card-canvas" width="280" height="160" class="border-[3px] border-ink rounded-lg shadow-md bg-paper"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<script define:vars={{ critters }}>
+  window.__CRITTERS__ = critters;
+</script>
+
+<script>
+  import { gameStore } from '../game/store';
+  import { renderCritterOnCanvas } from '../game/critterArt';
+  import { sfx } from '../game/sfx';
+
+  function initCritterdex() {
+    const modal = document.getElementById('dex-modal') as HTMLDialogElement;
+    const closeBtn = document.getElementById('dex-modal-close');
+    const caughtSpan = document.getElementById('dex-caught-count');
+    const ballsSpan = document.getElementById('dex-balls-count');
+    const nameInput = document.getElementById('trainer-name-input') as HTMLInputElement;
+    const saveBtn = document.getElementById('btn-save-card');
+    const cardCanvas = document.getElementById('trainer-card-canvas') as HTMLCanvasElement;
+
+    const critters = (window as unknown as { __CRITTERS__: any[] }).__CRITTERS__;
+
+    // Render each critter sprite onto its small canvas
+    critters.forEach((c) => {
+      const cvs = document.getElementById(`dex-canvas-${c.id}`) as HTMLCanvasElement;
+      if (cvs) renderCritterOnCanvas(cvs, c, 56);
+    });
+
+    const updateUI = () => {
+      const state = gameStore.getState();
+      if (caughtSpan) caughtSpan.textContent = String(state.caught.length);
+      if (ballsSpan) ballsSpan.textContent = String(state.balls);
+      if (nameInput && !nameInput.value) nameInput.value = state.trainerName;
+
+      // Update critter slots
+      critters.forEach((c) => {
+        const el = document.getElementById(`dex-item-${c.id}`);
+        if (!el) return;
+        const isCaught = state.caught.includes(c.id);
+        if (isCaught) {
+          el.classList.remove('opacity-40');
+          el.classList.add('bg-cream', 'border-gold', 'shadow-sm');
+          el.querySelector('.dex-blurb')?.classList.remove('hidden');
+        } else {
+          el.classList.add('opacity-40');
+          el.classList.remove('bg-cream', 'border-gold', 'shadow-sm');
+          el.querySelector('.dex-blurb')?.classList.add('hidden');
+        }
+      });
+
+      drawTrainerCard(cardCanvas, state.trainerName, state.caught.length);
+    };
+
+    gameStore.subscribe(updateUI);
+
+    nameInput?.addEventListener('input', (e) => {
+      const val = (e.target as HTMLInputElement).value;
+      gameStore.setTrainerName(val);
+      drawTrainerCard(cardCanvas, val || 'TRAINER', gameStore.getState().caught.length);
+    });
+
+    saveBtn?.addEventListener('click', () => {
+      sfx.select();
+      const link = document.createElement('a');
+      link.download = `trainer-card-${gameStore.getState().trainerName.toLowerCase()}.png`;
+      link.href = cardCanvas.toDataURL('image/png');
+      link.click();
+    });
+
+    document.addEventListener('town:open-modal', (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail?.target === 'dex') {
+        modal.showModal();
+        updateUI();
+      }
+    });
+
+    closeBtn?.addEventListener('click', () => modal.close());
+    modal?.addEventListener('click', (e) => {
+      if (e.target === modal) modal.close();
+    });
+  }
+
+  function drawTrainerCard(canvas: HTMLCanvasElement, name: string, caughtCount: number) {
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    ctx.imageSmoothingEnabled = false;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Card background
+    ctx.fillStyle = '#f6ecd2';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Header strip
+    ctx.fillStyle = '#e8473f';
+    ctx.fillRect(0, 0, canvas.width, 32);
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 11px monospace';
+    ctx.fillText('TRAINER CARD', 14, 20);
+    ctx.font = '9px monospace';
+    ctx.fillText('ZULFAN REGION', canvas.width - 94, 20);
+
+    // Border
+    ctx.strokeStyle = '#1c1726';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(0, 0, canvas.width, canvas.height);
+
+    // Photo Box
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(16, 44, 60, 68);
+    ctx.strokeRect(16, 44, 60, 68);
+
+    // Simple pixel avatar inside photo box
+    ctx.fillStyle = '#1c1726';
+    ctx.fillRect(36, 54, 20, 20); // hair
+    ctx.fillStyle = '#e0b48a';
+    ctx.fillRect(38, 62, 16, 14); // face
+    ctx.fillStyle = '#e8473f';
+    ctx.fillRect(32, 78, 28, 24); // shirt
+
+    // Info details
+    ctx.fillStyle = '#1c1726';
+    ctx.font = 'bold 10px monospace';
+    ctx.fillText(`NAME: ${name.toUpperCase()}`, 88, 58);
+    ctx.fillText(`IDNo. 290826`, 88, 76);
+    ctx.fillText(`CRITTERS: ${caughtCount} / 12`, 88, 94);
+
+    // Badges strip
+    ctx.fillStyle = '#e5d7bd';
+    ctx.fillRect(16, 122, canvas.width - 32, 26);
+    ctx.strokeRect(16, 122, canvas.width - 32, 26);
+
+    // Draw small badges based on caught critters
+    const badges = ['⚡', '🌿', '💧', '🔥', '🔮', '⭐'];
+    badges.forEach((b, i) => {
+      const earned = caughtCount >= (i + 1) * 2;
+      ctx.fillStyle = earned ? '#1c1726' : '#cbbb9e';
+      ctx.font = '14px sans-serif';
+      ctx.fillText(earned ? b : '○', 28 + i * 40, 140);
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', initCritterdex);
+</script>
