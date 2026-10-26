@@ -1,205 +1,445 @@
 ---
 import TownLayout from '../layouts/TownLayout.astro';
-import PixelAvatar from '../components/PixelAvatar.astro';
-import SkillChip from '../components/SkillChip.astro';
-import WhereTo from '../components/WhereTo.astro';
 import { profile } from '../lib/profile';
 ---
 
 <TownLayout place="town" title={`${profile.person.name} — Town Square`}>
-  <!-- Breadcrumb / Location Indicator -->
-  <div class="flex items-center gap-1.5 font-pixel text-xs text-ink-soft mb-2.5">
-    <span>🏠</span>
-    <span class="font-bold text-ink">Town Square</span>
-  </div>
-
-  <!-- Wooden Notice Board Frame -->
-  <div class="board-frame relative p-3 sm:p-5 pt-8 rounded-lg border-[3px] border-[#1c1726] shadow-[0_5px_0_0_#1c1726]">
-    <!-- Top Inset Badge: TOWN HALL · NOTICE BOARD -->
-    <div class="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-[#5c381c] text-[#f7e6c4] border-2 border-[#1c1726] font-pixel text-[10px] sm:text-xs font-bold px-4 py-0.5 rounded shadow-sm tracking-wider uppercase z-10 whitespace-nowrap">
-      TOWN HALL · NOTICE BOARD
-    </div>
-
-    <!-- TOP PROFILE CARD -->
-    <div class="relative bg-white border-2 border-[#1c1726] rounded-lg p-4 sm:p-5 shadow-[0_2px_0_0_#1c1726]">
-      <!-- Red Pushpin at Top Center -->
-      <div class="absolute -top-2 left-1/2 -translate-x-1/2 w-3.5 h-3.5 rounded-full bg-[#f25744] border-2 border-[#1c1726] shadow-sm flex items-center justify-center">
-        <div class="w-1 h-1 rounded-full bg-white/70"></div>
-      </div>
-
-      <!-- Avatar + Name + Subtitle -->
-      <div class="flex items-center gap-4">
-        <PixelAvatar size={74} />
-        <div class="min-w-0">
-          <h1 class="font-pixel text-xl sm:text-2xl font-bold text-[#1c1726] tracking-wide leading-tight">
-            Muhammad Zulfan
-          </h1>
-          <p class="font-sans font-semibold text-xs sm:text-sm text-[#1b7f94] mt-0.5">
-            Software & AI Engineer
-          </p>
+  <section class="board" aria-labelledby="panel-title">
+    <p class="board__plank" aria-hidden="true">Town Hall · Notice board</p>
+    <div class="cork">
+      <!-- NOTE 1: MAYOR / PROFILE -->
+      <article class="note note--mayor">
+        <svg class="mayor__avatar portrait portrait--idle" viewBox="0 0 16 16" shape-rendering="crispEdges" role="img" aria-label="Zulfan's pixel character" style="--skin: #efc19c">
+          <rect width="16" height="16" fill="#7cc8f2"></rect>
+          <g class="sprite">
+            <rect x="5" y="3" width="1" height="1" fill="#141218"></rect>
+            <rect x="6" y="3" width="1" height="1" fill="#141218"></rect>
+            <rect x="7" y="3" width="1" height="1" fill="#141218"></rect>
+            <rect x="8" y="3" width="1" height="1" fill="#141218"></rect>
+            <rect x="9" y="3" width="1" height="1" fill="#141218"></rect>
+            <rect x="10" y="3" width="1" height="1" fill="#141218"></rect>
+            <rect x="4" y="4" width="1" height="1" fill="#141218"></rect>
+            <rect x="5" y="4" width="1" height="1" fill="#6b6878"></rect>
+            <rect x="6" y="4" width="1" height="1" fill="#6b6878"></rect>
+            <rect x="7" y="4" width="1" height="1" fill="#1f1a24"></rect>
+            <rect x="8" y="4" width="1" height="1" fill="#1f1a24"></rect>
+            <rect x="9" y="4" width="1" height="1" fill="#6b6878"></rect>
+            <rect x="10" y="4" width="1" height="1" fill="#6b6878"></rect>
+            <rect x="11" y="4" width="1" height="1" fill="#141218"></rect>
+            <rect x="3" y="5" width="1" height="1" fill="#141218"></rect>
+            <rect x="4" y="5" width="1" height="1" fill="#6b6878"></rect>
+            <rect x="5" y="5" width="1" height="1" fill="#1f1a24"></rect>
+            <rect x="6" y="5" width="1" height="1" fill="#1f1a24"></rect>
+            <rect x="7" y="5" width="1" height="1" fill="#1f1a24"></rect>
+            <rect x="8" y="5" width="1" height="1" fill="#1f1a24"></rect>
+            <rect x="9" y="5" width="1" height="1" fill="#1f1a24"></rect>
+            <rect x="10" y="5" width="1" height="1" fill="#1f1a24"></rect>
+            <rect x="11" y="5" width="1" height="1" fill="#6b6878"></rect>
+            <rect x="12" y="5" width="1" height="1" fill="#141218"></rect>
+            <rect x="2" y="6" width="1" height="1" fill="#141218"></rect>
+            <rect x="3" y="6" width="1" height="1" fill="#141218"></rect>
+            <rect x="4" y="6" width="1" height="1" fill="#141218"></rect>
+            <rect x="5" y="6" width="1" height="1" fill="#1f1a24"></rect>
+            <rect x="6" y="6" width="1" height="1" fill="#1f1a24"></rect>
+            <rect x="7" y="6" width="1" height="1" fill="#1f1a24"></rect>
+            <rect x="8" y="6" width="1" height="1" fill="#1f1a24"></rect>
+            <rect x="9" y="6" width="1" height="1" fill="#1f1a24"></rect>
+            <rect x="10" y="6" width="1" height="1" fill="#1f1a24"></rect>
+            <rect x="11" y="6" width="1" height="1" fill="#141218"></rect>
+            <rect x="12" y="6" width="1" height="1" fill="#141218"></rect>
+            <rect x="13" y="6" width="1" height="1" fill="#141218"></rect>
+            <rect x="2" y="7" width="1" height="1" fill="#141218"></rect>
+            <rect x="3" y="7" width="1" height="1" fill="#6b6878"></rect>
+            <rect x="4" y="7" width="1" height="1" fill="#141218"></rect>
+            <rect x="5" y="7" width="1" height="1" fill="#1f1a24"></rect>
+            <rect x="6" y="7" width="1" height="1" fill="#efc19c"></rect>
+            <rect x="7" y="7" width="1" height="1" fill="#efc19c"></rect>
+            <rect x="8" y="7" width="1" height="1" fill="#efc19c"></rect>
+            <rect x="9" y="7" width="1" height="1" fill="#efc19c"></rect>
+            <rect x="10" y="7" width="1" height="1" fill="#efc19c"></rect>
+            <rect x="11" y="7" width="1" height="1" fill="#141218"></rect>
+            <rect x="12" y="7" width="1" height="1" fill="#6b6878"></rect>
+            <rect x="13" y="7" width="1" height="1" fill="#141218"></rect>
+            <rect x="2" y="8" width="1" height="1" fill="#141218"></rect>
+            <rect x="3" y="8" width="1" height="1" fill="#6b6878"></rect>
+            <rect x="4" y="8" width="1" height="1" fill="#141218"></rect>
+            <rect x="5" y="8" width="1" height="1" fill="#efc19c"></rect>
+            <rect x="6" y="8" width="1" height="1" fill="#1f1a24" class="eye"></rect>
+            <rect x="7" y="8" width="1" height="1" fill="#efc19c"></rect>
+            <rect x="8" y="8" width="1" height="1" fill="#efc19c"></rect>
+            <rect x="9" y="8" width="1" height="1" fill="#1f1a24" class="eye"></rect>
+            <rect x="10" y="8" width="1" height="1" fill="#efc19c"></rect>
+            <rect x="11" y="8" width="1" height="1" fill="#141218"></rect>
+            <rect x="12" y="8" width="1" height="1" fill="#6b6878"></rect>
+            <rect x="13" y="8" width="1" height="1" fill="#141218"></rect>
+            <rect x="2" y="9" width="1" height="1" fill="#141218"></rect>
+            <rect x="3" y="9" width="1" height="1" fill="#141218"></rect>
+            <rect x="4" y="9" width="1" height="1" fill="#efc19c"></rect>
+            <rect x="5" y="9" width="1" height="1" fill="#f59e9e"></rect>
+            <rect x="6" y="9" width="1" height="1" fill="#efc19c"></rect>
+            <rect x="7" y="9" width="1" height="1" fill="#efc19c"></rect>
+            <rect x="8" y="9" width="1" height="1" fill="#efc19c"></rect>
+            <rect x="9" y="9" width="1" height="1" fill="#efc19c"></rect>
+            <rect x="10" y="9" width="1" height="1" fill="#efc19c"></rect>
+            <rect x="11" y="9" width="1" height="1" fill="#f59e9e"></rect>
+            <rect x="12" y="9" width="1" height="1" fill="#141218"></rect>
+            <rect x="13" y="9" width="1" height="1" fill="#141218"></rect>
+            <rect x="4" y="10" width="1" height="1" fill="#2b2233"></rect>
+            <rect x="5" y="10" width="1" height="1" fill="#efc19c"></rect>
+            <rect x="6" y="10" width="1" height="1" fill="#efc19c"></rect>
+            <rect x="7" y="10" width="1" height="1" fill="#b3544f"></rect>
+            <rect x="8" y="10" width="1" height="1" fill="#b3544f"></rect>
+            <rect x="9" y="10" width="1" height="1" fill="#efc19c"></rect>
+            <rect x="10" y="10" width="1" height="1" fill="#efc19c"></rect>
+            <rect x="11" y="10" width="1" height="1" fill="#2b2233"></rect>
+            <rect x="5" y="11" width="1" height="1" fill="#2b2233"></rect>
+            <rect x="6" y="11" width="1" height="1" fill="#2b2233"></rect>
+            <rect x="7" y="11" width="1" height="1" fill="#efc19c"></rect>
+            <rect x="8" y="11" width="1" height="1" fill="#efc19c"></rect>
+            <rect x="9" y="11" width="1" height="1" fill="#2b2233"></rect>
+            <rect x="10" y="11" width="1" height="1" fill="#2b2233"></rect>
+            <rect x="4" y="12" width="1" height="1" fill="#2b2233"></rect>
+            <rect x="5" y="12" width="1" height="1" fill="#2bb3a3"></rect>
+            <rect x="6" y="12" width="1" height="1" fill="#2bb3a3"></rect>
+            <rect x="7" y="12" width="1" height="1" fill="#2bb3a3"></rect>
+            <rect x="8" y="12" width="1" height="1" fill="#2bb3a3"></rect>
+            <rect x="9" y="12" width="1" height="1" fill="#2bb3a3"></rect>
+            <rect x="10" y="12" width="1" height="1" fill="#2bb3a3"></rect>
+            <rect x="11" y="12" width="1" height="1" fill="#2b2233"></rect>
+            <rect x="3" y="13" width="1" height="1" fill="#2b2233"></rect>
+            <rect x="4" y="13" width="1" height="1" fill="#2bb3a3"></rect>
+            <rect x="5" y="13" width="1" height="1" fill="#2bb3a3"></rect>
+            <rect x="6" y="13" width="1" height="1" fill="#2bb3a3"></rect>
+            <rect x="7" y="13" width="1" height="1" fill="#2bb3a3"></rect>
+            <rect x="8" y="13" width="1" height="1" fill="#2bb3a3"></rect>
+            <rect x="9" y="13" width="1" height="1" fill="#2bb3a3"></rect>
+            <rect x="10" y="13" width="1" height="1" fill="#2bb3a3"></rect>
+            <rect x="11" y="13" width="1" height="1" fill="#2bb3a3"></rect>
+            <rect x="12" y="13" width="1" height="1" fill="#2b2233"></rect>
+            <rect x="2" y="14" width="1" height="1" fill="#2b2233"></rect>
+            <rect x="3" y="14" width="1" height="1" fill="#efc19c"></rect>
+            <rect x="4" y="14" width="1" height="1" fill="#2bb3a3"></rect>
+            <rect x="5" y="14" width="1" height="1" fill="#2bb3a3"></rect>
+            <rect x="6" y="14" width="1" height="1" fill="#2bb3a3"></rect>
+            <rect x="7" y="14" width="1" height="1" fill="#2bb3a3"></rect>
+            <rect x="8" y="14" width="1" height="1" fill="#2bb3a3"></rect>
+            <rect x="9" y="14" width="1" height="1" fill="#2bb3a3"></rect>
+            <rect x="10" y="14" width="1" height="1" fill="#2bb3a3"></rect>
+            <rect x="11" y="14" width="1" height="1" fill="#2bb3a3"></rect>
+            <rect x="12" y="14" width="1" height="1" fill="#efc19c"></rect>
+            <rect x="13" y="14" width="1" height="1" fill="#2b2233"></rect>
+            <rect x="2" y="15" width="1" height="1" fill="#2b2233"></rect>
+            <rect x="3" y="15" width="1" height="1" fill="#efc19c"></rect>
+            <rect x="4" y="15" width="1" height="1" fill="#2bb3a3"></rect>
+            <rect x="5" y="15" width="1" height="1" fill="#2bb3a3"></rect>
+            <rect x="6" y="15" width="1" height="1" fill="#2bb3a3"></rect>
+            <rect x="7" y="15" width="1" height="1" fill="#2bb3a3"></rect>
+            <rect x="8" y="15" width="1" height="1" fill="#2bb3a3"></rect>
+            <rect x="9" y="15" width="1" height="1" fill="#2bb3a3"></rect>
+            <rect x="10" y="15" width="1" height="1" fill="#2bb3a3"></rect>
+            <rect x="11" y="15" width="1" height="1" fill="#2bb3a3"></rect>
+            <rect x="12" y="15" width="1" height="1" fill="#efc19c"></rect>
+            <rect x="13" y="15" width="1" height="1" fill="#2b2233"></rect>
+          </g>
+        </svg>
+        <div class="mayor__text">
+          <h1 id="panel-title" class="mayor__name" tabindex="-1">{profile.person.name}</h1>
+          <p class="mayor__role">{profile.person.title}</p>
         </div>
-      </div>
-
-      <!-- Bio Paragraphs -->
-      <div class="mt-4 space-y-2 text-xs sm:text-[13px] text-[#2c2638] leading-relaxed font-sans">
-        <p class="font-medium text-[#1c1726]">
-          I build intelligent, AI-driven applications that solve real-world problems.
+        <p class="mayor__tagline">{profile.person.tagline}</p>
+        <p class="mayor__origin">
+          {profile.person.summary}
         </p>
-        <p class="text-ink-soft text-xs">
-          This town is an interactive world showcasing my engineering journey — from robotics and edge AI (YOLOv11 & TensorRT on Jetson) to cloud-native platforms. Walk around with WASD or arrow keys, explore each building, or talk to my Digital Twin!
+        <p class="mayor__credits">
+          B.S. INFORMATICS · GPA 3.49 / 4.00 · ITENAS BANDUNG · CLASS OF 2026
         </p>
-      </div>
+      </article>
 
-      <!-- Dotted Divider -->
-      <div class="border-b border-dashed border-[#1c1726]/25 my-3.5"></div>
+      <!-- NOTE 2: NOW -->
+      <article class="note note--now">
+        <p class="note__label">Now</p>
+        <p class="now__role"><strong>{profile.person.now.role}</strong> @ {profile.person.now.org}</p>
+        <p class="note__small">
+          {profile.person.now.blurb}
+        </p>
+        <p class="note__small note__open">{profile.person.open_to}</p>
+      </article>
 
-      <!-- Academic Metadata Line -->
-      <div class="font-pixel text-[10px] sm:text-[11px] text-ink-soft uppercase tracking-wider">
-        B.S. INFORMATICS · GPA 3.49 · UPN "VETERAN" JATIM · CLASS OF 2026
-      </div>
+      <!-- NOTE 3: FEATURED BUILDS -->
+      <article class="note note--builds">
+        <p class="note__label">Featured builds</p>
+        <ul class="clean builds">
+          <li>
+            <a href="/dev">AeroScan Aerial AI</a>
+            <span class="note__small">Tactical edge-AI platform that detects, classifies and tracks 15 military aircraft with YOLOv11 &amp; TensorRT (~1.8 ms/frame).</span>
+          </li>
+          <li>
+            <a href="/dev">FoodLink Platform</a>
+            <span class="note__small">Cloud-native food rescue &amp; redistribution logistics platform on Laravel 12, PostGIS, Redis, Kafka, and Kubernetes.</span>
+          </li>
+          <li>
+            <a href="/dev">Neural Spam Sentinel</a>
+            <span class="note__small">Undergraduate thesis: high-precision automated spam classification on YouTube comments (99.56% F1 score).</span>
+          </li>
+        </ul>
+        <a class="note__more" href="/dev">All projects at the Dev Center →</a>
+      </article>
+
+      <!-- NOTE 4: TOOLBELT -->
+      <article class="note note--stack">
+        <p class="note__label">Toolbelt</p>
+        <ul class="stack-chips">
+          <!-- Python -->
+          <li class="stack-chip" style="--brand: #3776AB">
+            <svg class="stack-chip__logo" viewBox="-1 -1 14 14" shape-rendering="crispEdges" aria-hidden="true">
+              <rect x="-1" y="-1" width="14" height="14" fill="#f4efe2"></rect>
+              <rect x="3" y="0" width="5" height="1" fill="#3776AB"></rect>
+              <rect x="3" y="1" width="1" height="1" fill="#3776AB"></rect>
+              <rect x="5" y="1" width="4" height="1" fill="#3776AB"></rect>
+              <rect x="3" y="2" width="6" height="1" fill="#3776AB"></rect>
+              <rect x="1" y="3" width="10" height="1" fill="#3776AB"></rect>
+              <rect x="0" y="4" width="12" height="1" fill="#3776AB"></rect>
+              <rect x="0" y="5" width="12" height="1" fill="#3776AB"></rect>
+              <rect x="0" y="6" width="12" height="1" fill="#3776AB"></rect>
+              <rect x="0" y="7" width="12" height="1" fill="#3776AB"></rect>
+              <rect x="1" y="8" width="10" height="1" fill="#3776AB"></rect>
+              <rect x="3" y="9" width="6" height="1" fill="#3776AB"></rect>
+              <rect x="3" y="10" width="4" height="1" fill="#3776AB"></rect>
+              <rect x="8" y="10" width="1" height="1" fill="#3776AB"></rect>
+              <rect x="4" y="11" width="5" height="1" fill="#3776AB"></rect>
+            </svg>
+            <span class="stack-chip__name">Python</span>
+          </li>
+
+          <!-- TypeScript -->
+          <li class="stack-chip" style="--brand: #3178C6">
+            <svg class="stack-chip__logo" viewBox="-1 -1 14 14" shape-rendering="crispEdges" aria-hidden="true">
+              <rect x="-1" y="-1" width="14" height="14" fill="#f4efe2"></rect>
+              <rect x="0" y="0" width="12" height="1" fill="#3178C6"></rect>
+              <rect x="0" y="1" width="12" height="1" fill="#3178C6"></rect>
+              <rect x="0" y="2" width="12" height="1" fill="#3178C6"></rect>
+              <rect x="0" y="3" width="12" height="1" fill="#3178C6"></rect>
+              <rect x="0" y="4" width="12" height="1" fill="#3178C6"></rect>
+              <rect x="0" y="5" width="2" height="1" fill="#3178C6"></rect>
+              <rect x="6" y="5" width="2" height="1" fill="#3178C6"></rect>
+              <rect x="11" y="5" width="1" height="1" fill="#3178C6"></rect>
+              <rect x="0" y="6" width="3" height="1" fill="#3178C6"></rect>
+              <rect x="5" y="6" width="2" height="1" fill="#3178C6"></rect>
+              <rect x="8" y="6" width="4" height="1" fill="#3178C6"></rect>
+              <rect x="0" y="7" width="3" height="1" fill="#3178C6"></rect>
+              <rect x="5" y="7" width="2" height="1" fill="#3178C6"></rect>
+              <rect x="9" y="7" width="3" height="1" fill="#3178C6"></rect>
+              <rect x="0" y="8" width="3" height="1" fill="#3178C6"></rect>
+              <rect x="5" y="8" width="4" height="1" fill="#3178C6"></rect>
+              <rect x="11" y="8" width="1" height="1" fill="#3178C6"></rect>
+              <rect x="0" y="9" width="3" height="1" fill="#3178C6"></rect>
+              <rect x="5" y="9" width="4" height="1" fill="#3178C6"></rect>
+              <rect x="11" y="9" width="1" height="1" fill="#3178C6"></rect>
+              <rect x="0" y="10" width="4" height="1" fill="#3178C6"></rect>
+              <rect x="5" y="10" width="2" height="1" fill="#3178C6"></rect>
+              <rect x="10" y="10" width="2" height="1" fill="#3178C6"></rect>
+              <rect x="0" y="11" width="12" height="1" fill="#3178C6"></rect>
+            </svg>
+            <span class="stack-chip__name">TypeScript</span>
+          </li>
+
+          <!-- Go -->
+          <li class="stack-chip" style="--brand: #00ADD8">
+            <svg class="stack-chip__logo" viewBox="-1 -1 14 14" shape-rendering="crispEdges" aria-hidden="true">
+              <rect x="-1" y="-1" width="14" height="14" fill="#f4efe2"></rect>
+              <rect x="5" y="3" width="1" height="1" fill="#00ADD8"></rect>
+              <rect x="4" y="4" width="8" height="1" fill="#00ADD8"></rect>
+              <rect x="0" y="5" width="9" height="1" fill="#00ADD8"></rect>
+              <rect x="10" y="5" width="2" height="1" fill="#00ADD8"></rect>
+              <rect x="3" y="6" width="6" height="1" fill="#00ADD8"></rect>
+              <rect x="10" y="6" width="2" height="1" fill="#00ADD8"></rect>
+              <rect x="3" y="7" width="9" height="1" fill="#00ADD8"></rect>
+              <rect x="5" y="8" width="1" height="1" fill="#00ADD8"></rect>
+              <rect x="9" y="8" width="1" height="1" fill="#00ADD8"></rect>
+            </svg>
+            <span class="stack-chip__name">Go</span>
+          </li>
+
+          <!-- PHP / Laravel -->
+          <li class="stack-chip" style="--brand: #FF2D20">
+            <svg class="stack-chip__logo" viewBox="-1 -1 14 14" shape-rendering="crispEdges" aria-hidden="true">
+              <rect x="-1" y="-1" width="14" height="14" fill="#f4efe2"></rect>
+              <rect x="1" y="2" width="2" height="8" fill="#FF2D20"></rect>
+              <rect x="1" y="8" width="8" height="2" fill="#FF2D20"></rect>
+              <rect x="5" y="3" width="5" height="5" fill="#FF2D20"></rect>
+              <rect x="7" y="4" width="2" height="3" fill="#f4efe2"></rect>
+            </svg>
+            <span class="stack-chip__name">PHP / Laravel</span>
+          </li>
+
+          <!-- PyTorch -->
+          <li class="stack-chip" style="--brand: #EE4C2C">
+            <svg class="stack-chip__logo" viewBox="-1 -1 14 14" shape-rendering="crispEdges" aria-hidden="true">
+              <rect x="-1" y="-1" width="14" height="14" fill="#f4efe2"></rect>
+              <circle cx="6" cy="6" r="4" fill="#EE4C2C"></circle>
+              <circle cx="8" cy="3" r="1.5" fill="#EE4C2C"></circle>
+            </svg>
+            <span class="stack-chip__name">PyTorch</span>
+          </li>
+
+          <!-- TensorRT -->
+          <li class="stack-chip" style="--brand: #76B900">
+            <svg class="stack-chip__logo" viewBox="-1 -1 14 14" shape-rendering="crispEdges" aria-hidden="true">
+              <rect x="-1" y="-1" width="14" height="14" fill="#1b1b2a"></rect>
+              <rect x="1" y="1" width="10" height="10" fill="#76B900"></rect>
+              <rect x="3" y="3" width="6" height="6" fill="#1b1b2a"></rect>
+            </svg>
+            <span class="stack-chip__name">TensorRT</span>
+          </li>
+
+          <!-- OpenCV -->
+          <li class="stack-chip" style="--brand: #5C3EE8">
+            <svg class="stack-chip__logo" viewBox="-1 -1 14 14" shape-rendering="crispEdges" aria-hidden="true">
+              <rect x="-1" y="-1" width="14" height="14" fill="#f4efe2"></rect>
+              <circle cx="6" cy="3" r="2.5" fill="#FF0000"></circle>
+              <circle cx="3" cy="8" r="2.5" fill="#00FF00"></circle>
+              <circle cx="9" cy="8" r="2.5" fill="#0000FF"></circle>
+            </svg>
+            <span class="stack-chip__name">OpenCV</span>
+          </li>
+
+          <!-- PostgreSQL -->
+          <li class="stack-chip" style="--brand: #4169E1">
+            <svg class="stack-chip__logo" viewBox="-1 -1 14 14" shape-rendering="crispEdges" aria-hidden="true">
+              <rect x="-1" y="-1" width="14" height="14" fill="#f4efe2"></rect>
+              <rect x="1" y="0" width="10" height="1" fill="#4169E1"></rect>
+              <rect x="0" y="1" width="1" height="1" fill="#4169E1"></rect>
+              <rect x="4" y="1" width="1" height="1" fill="#4169E1"></rect>
+              <rect x="8" y="1" width="2" height="1" fill="#4169E1"></rect>
+              <rect x="11" y="1" width="1" height="1" fill="#4169E1"></rect>
+              <rect x="0" y="2" width="1" height="1" fill="#4169E1"></rect>
+              <rect x="3" y="2" width="1" height="1" fill="#4169E1"></rect>
+              <rect x="9" y="2" width="1" height="1" fill="#4169E1"></rect>
+              <rect x="11" y="2" width="1" height="1" fill="#4169E1"></rect>
+              <rect x="0" y="3" width="1" height="1" fill="#4169E1"></rect>
+              <rect x="3" y="3" width="3" height="1" fill="#4169E1"></rect>
+              <rect x="8" y="3" width="2" height="1" fill="#4169E1"></rect>
+              <rect x="11" y="3" width="1" height="1" fill="#4169E1"></rect>
+              <rect x="0" y="4" width="1" height="1" fill="#4169E1"></rect>
+              <rect x="3" y="4" width="1" height="1" fill="#4169E1"></rect>
+              <rect x="5" y="4" width="1" height="1" fill="#4169E1"></rect>
+              <rect x="8" y="4" width="2" height="1" fill="#4169E1"></rect>
+              <rect x="11" y="4" width="1" height="1" fill="#4169E1"></rect>
+              <rect x="0" y="5" width="1" height="1" fill="#4169E1"></rect>
+              <rect x="3" y="5" width="1" height="1" fill="#4169E1"></rect>
+              <rect x="5" y="5" width="1" height="1" fill="#4169E1"></rect>
+              <rect x="8" y="5" width="3" height="1" fill="#4169E1"></rect>
+              <rect x="1" y="6" width="1" height="1" fill="#4169E1"></rect>
+              <rect x="3" y="6" width="1" height="1" fill="#4169E1"></rect>
+              <rect x="5" y="6" width="1" height="1" fill="#4169E1"></rect>
+              <rect x="9" y="6" width="2" height="1" fill="#4169E1"></rect>
+              <rect x="1" y="7" width="1" height="1" fill="#4169E1"></rect>
+              <rect x="3" y="7" width="3" height="1" fill="#4169E1"></rect>
+              <rect x="9" y="7" width="3" height="1" fill="#4169E1"></rect>
+              <rect x="2" y="8" width="5" height="1" fill="#4169E1"></rect>
+              <rect x="9" y="8" width="2" height="1" fill="#4169E1"></rect>
+              <rect x="5" y="9" width="2" height="1" fill="#4169E1"></rect>
+              <rect x="8" y="9" width="2" height="1" fill="#4169E1"></rect>
+              <rect x="6" y="10" width="1" height="1" fill="#4169E1"></rect>
+              <rect x="8" y="10" width="1" height="1" fill="#4169E1"></rect>
+              <rect x="6" y="11" width="3" height="1" fill="#4169E1"></rect>
+            </svg>
+            <span class="stack-chip__name">PostgreSQL</span>
+          </li>
+
+          <!-- Docker -->
+          <li class="stack-chip" style="--brand: #2496ED">
+            <svg class="stack-chip__logo" viewBox="-1 -1 14 14" shape-rendering="crispEdges" aria-hidden="true">
+              <rect x="-1" y="-1" width="14" height="14" fill="#f4efe2"></rect>
+              <rect x="5" y="2" width="2" height="1" fill="#2496ED"></rect>
+              <rect x="2" y="3" width="5" height="1" fill="#2496ED"></rect>
+              <rect x="1" y="4" width="7" height="1" fill="#2496ED"></rect>
+              <rect x="9" y="4" width="2" height="1" fill="#2496ED"></rect>
+              <rect x="1" y="5" width="7" height="1" fill="#2496ED"></rect>
+              <rect x="9" y="5" width="3" height="1" fill="#2496ED"></rect>
+              <rect x="0" y="6" width="10" height="1" fill="#2496ED"></rect>
+              <rect x="0" y="7" width="10" height="1" fill="#2496ED"></rect>
+              <rect x="0" y="8" width="9" height="1" fill="#2496ED"></rect>
+              <rect x="1" y="9" width="7" height="1" fill="#2496ED"></rect>
+            </svg>
+            <span class="stack-chip__name">Docker</span>
+          </li>
+        </ul>
+      </article>
+
+      <!-- NOTE 5: ON REPEAT -->
+      <article class="note note--music" data-on-repeat="" data-rendered="1">
+        <p class="note__label">On repeat</p>
+        <dl class="repeat" data-repeat-list="">
+          <div>
+            <dt>Top song</dt>
+            <dd data-top-song="">
+              <a href="https://open.spotify.com/track/4IAWZw00ZI9DLKDjesx86u" target="_blank" rel="noopener noreferrer">
+                <strong>Solar Eclipse (feat. Don Toliver)</strong> by Drake, Don Toliver
+              </a>
+            </dd>
+          </div>
+          <div>
+            <dt>Top artist</dt>
+            <dd data-top-artist="">
+              <a href="https://open.spotify.com/artist/3TVXtAsR1Inumwj472S9r4" target="_blank" rel="noopener noreferrer">
+                <strong>Drake, Don Toliver</strong>
+              </a>
+            </dd>
+          </div>
+        </dl>
+        <a class="note__more" href="/about">More in Home's record shop →</a>
+      </article>
     </div>
+  </section>
 
-    <!-- TWO-COLUMN GRID BELOW PROFILE CARD -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-      <!-- LEFT COLUMN -->
-      <div class="space-y-4">
-        <!-- NOW CARD -->
-        <div class="relative bg-white border-2 border-[#1c1726] rounded-lg p-3.5 shadow-[0_2px_0_0_#1c1726] space-y-2">
-          <!-- Pushpin -->
-          <div class="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-[#f25744] border-2 border-[#1c1726] shadow-sm flex items-center justify-center">
-            <div class="w-0.5 h-0.5 rounded-full bg-white/70"></div>
-          </div>
+  <!-- SIGNPOST: WHERE TO? -->
+  <nav class="signpost" aria-labelledby="where-title">
+    <h2 id="where-title" class="signpost__title">Where to?</h2>
+    <ul class="clean signpost__list">
+      <li>
+        <a href="/about" class="plank plank--left">
+          <span class="plank__emoji" aria-hidden="true">🏠</span>
+          <span class="plank__text">
+            <span class="plank__name">Home</span>
+            <span class="plank__blurb">Who I am, plus records and the vintage closet</span>
+          </span>
+        </a>
+      </li>
+      <li>
+        <a href="/dev" class="plank">
+          <span class="plank__emoji" aria-hidden="true">💻</span>
+          <span class="plank__text">
+            <span class="plank__name">Dev Center</span>
+            <span class="plank__blurb">Projects, experience, and credentials</span>
+          </span>
+        </a>
+      </li>
+      <li>
+        <a href="/lab" class="plank plank--left">
+          <span class="plank__emoji" aria-hidden="true">🔬</span>
+          <span class="plank__text">
+            <span class="plank__name">Research Lab</span>
+            <span class="plank__blurb">Research, methods, and what I want to study next</span>
+          </span>
+        </a>
+      </li>
+      <li>
+        <a href="/arcade" class="plank">
+          <span class="plank__emoji" aria-hidden="true">🕹️</span>
+          <span class="plank__text">
+            <span class="plank__name">Arcade</span>
+            <span class="plank__blurb">Play my Mancala bot</span>
+          </span>
+        </a>
+      </li>
+    </ul>
+    <span class="signpost__ground" aria-hidden="true"></span>
+  </nav>
 
-          <div class="font-pixel text-[10px] font-bold text-[#df4a32] uppercase tracking-wider">
-            NOW
-          </div>
-
-          <div class="text-xs sm:text-[13px] font-bold text-[#1c1726]">
-            AI Engineer @ AeroScan
-          </div>
-
-          <p class="text-[11px] sm:text-xs text-[#3a3150] leading-relaxed font-sans">
-            Architected an end-to-end aerial computer vision pipeline with YOLOv11 & TensorRT on Jetson Orin Nano, while engineering FoodLink cloud-native logistics on Laravel & Kubernetes.
-          </p>
-
-          <div class="text-[11px] font-medium text-[#1b7f94] pt-0.5 flex items-start gap-1 font-sans">
-            <span>📢</span>
-            <span>New opportunities in AI, data science, and software engineering.</span>
-          </div>
-        </div>
-
-        <!-- TOOLBELT CARD -->
-        <div class="relative bg-white border-2 border-[#1c1726] rounded-lg p-3.5 shadow-[0_2px_0_0_#1c1726] space-y-2.5">
-          <!-- Pushpin -->
-          <div class="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-[#f25744] border-2 border-[#1c1726] shadow-sm flex items-center justify-center">
-            <div class="w-0.5 h-0.5 rounded-full bg-white/70"></div>
-          </div>
-
-          <div class="font-pixel text-[10px] font-bold text-[#df4a32] uppercase tracking-wider">
-            TOOLBELT
-          </div>
-
-          <div class="flex flex-wrap gap-1.5 pt-0.5">
-            <SkillChip name="Python" />
-            <SkillChip name="TypeScript" />
-            <SkillChip name="Go" />
-            <SkillChip name="PHP / Laravel" />
-            <SkillChip name="PyTorch" />
-            <SkillChip name="TensorRT" />
-            <SkillChip name="OpenCV" />
-            <SkillChip name="Docker" />
-          </div>
-        </div>
-      </div>
-
-      <!-- RIGHT COLUMN -->
-      <div class="space-y-4">
-        <!-- FEATURED BUILDS CARD -->
-        <div class="relative bg-white border-2 border-[#1c1726] rounded-lg p-3.5 shadow-[0_2px_0_0_#1c1726] space-y-3">
-          <!-- Pushpin -->
-          <div class="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-[#f25744] border-2 border-[#1c1726] shadow-sm flex items-center justify-center">
-            <div class="w-0.5 h-0.5 rounded-full bg-white/70"></div>
-          </div>
-
-          <div class="font-pixel text-[10px] font-bold text-[#df4a32] uppercase tracking-wider">
-            FEATURED BUILDS
-          </div>
-
-          <!-- Project 1 -->
-          <div>
-            <a href="/dev" class="font-pixel text-xs font-bold text-[#df4a32] underline decoration-1 underline-offset-2 hover:text-[#b8331f] block">
-              AeroScan Aerial AI
-            </a>
-            <p class="text-[11px] text-[#3a3150] leading-snug font-sans mt-0.5">
-              Tactical edge-AI platform that detects, classifies, and tracks 15 military aircraft with TensorRT (~1.8 ms/frame).
-            </p>
-          </div>
-
-          <!-- Project 2 -->
-          <div>
-            <a href="/dev" class="font-pixel text-xs font-bold text-[#df4a32] underline decoration-1 underline-offset-2 hover:text-[#b8331f] block">
-              FoodLink Platform
-            </a>
-            <p class="text-[11px] text-[#3a3150] leading-snug font-sans mt-0.5">
-              Cloud-native food rescue & redistribution platform with geospatial routing, Redis, Kafka, and PostGIS.
-            </p>
-          </div>
-
-          <!-- Project 3 -->
-          <div>
-            <a href="/dev" class="font-pixel text-xs font-bold text-[#df4a32] underline decoration-1 underline-offset-2 hover:text-[#b8331f] block">
-              Neural Spam Sentinel
-            </a>
-            <p class="text-[11px] text-[#3a3150] leading-snug font-sans mt-0.5">
-              Undergraduate thesis: high-precision automated spam classification on YouTube comments (99.56% F1 score).
-            </p>
-          </div>
-
-          <!-- Dev Center Link -->
-          <div class="pt-1">
-            <a href="/dev" class="font-pixel text-[11px] font-semibold text-[#df4a32] underline decoration-1 underline-offset-2 hover:text-[#b8331f] block">
-              All projects at the Dev Center →
-            </a>
-          </div>
-        </div>
-
-        <!-- ON REPEAT CARD -->
-        <div class="relative bg-white border-2 border-[#1c1726] rounded-lg p-3.5 shadow-[0_2px_0_0_#1c1726] space-y-1">
-          <!-- Pushpin -->
-          <div class="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-[#f25744] border-2 border-[#1c1726] shadow-sm flex items-center justify-center">
-            <div class="w-0.5 h-0.5 rounded-full bg-white/70"></div>
-          </div>
-
-          <div class="font-pixel text-[10px] font-bold text-[#df4a32] uppercase tracking-wider">
-            ON REPEAT
-          </div>
-
-          <div class="text-[9px] font-pixel text-ink-soft uppercase tracking-wider">
-            TOP SONG
-          </div>
-
-          <div>
-            <a href="https://open.spotify.com" target="_blank" rel="noopener noreferrer" class="font-sans text-xs font-bold text-[#1c1726] underline decoration-1 hover:text-[#df4a32] block">
-              Solar Eclipse (feat. Don Toliver)
-            </a>
-            <div class="text-[11px] text-[#3a3150] font-sans">
-              by Don Toliver
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Quick Navigation Links (Where to?) -->
-  <WhereTo currentPath="/" />
-
-  <!-- Monospace / Pixel Footer matching si-dan.com -->
-  <footer class="flex flex-col sm:flex-row items-center justify-between text-[11px] font-pixel text-ink-soft mt-3 px-1 gap-2">
-    <span>Built by Muhammad Zulfan with Astro, Rust/WASM, and Cloudflare.</span>
-    <div class="flex items-center gap-3">
-      <a href="/about" class="text-[#df4a32] underline hover:text-[#b8331f]">How this site works</a>
-      <a href="/reception" class="text-[#df4a32] underline hover:text-[#b8331f]">Privacy</a>
-    </div>
-  </footer>
+  <!-- HINT -->
+  <p class="hint">
+    <span class="only-wide">Walk with WASD or the arrow keys, or click anywhere.</span>
+    <span class="only-narrow">Tap the town to walk, or pick a sign.</span>
+  </p>
 </TownLayout>
