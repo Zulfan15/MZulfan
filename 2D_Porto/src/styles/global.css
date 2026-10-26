@@ -57,7 +57,9 @@
 @layer base {
   :root {
     color-scheme: light;
-    --hud-h: 3.5rem;
+    --header-h: 56px;
+    --panel-w: 50vw;
+    --hud-h: 56px;
     --grass-pattern: linear-gradient(45deg, #0000000a 25%, transparent 25% 75%, #0000000a 75%) 0 0 / 16px 16px;
     --font-terminal: "VT323", "Courier New", monospace;
     --font-pixel: "Pixelify Sans", "Press Start 2P", monospace;
@@ -164,7 +166,7 @@
   .stage { @apply relative grid min-h-0; grid-template-columns: 1fr; grid-template-rows: minmax(42dvh, 48dvh) auto; }
   @media (min-width: 900px) {
     .shell { @apply h-dvh overflow-hidden; }
-    .stage { grid-template-columns: minmax(0, 1.05fr) minmax(460px, 0.95fr); grid-template-rows: minmax(0, 1fr); }
+    .stage { grid-template-columns: minmax(0, 1fr) var(--panel-w, 50vw); grid-template-rows: minmax(0, 1fr); }
   }
   .town-wrap { @apply relative min-h-0 overflow-hidden bg-[#162e1d]; }
 
