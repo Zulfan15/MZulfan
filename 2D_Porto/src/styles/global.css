@@ -1441,3 +1441,87 @@ ul.clean, ol.clean {
   border-color: #ffd6ea;
 }
 
+/* ───────────────────────── Dev Center Guide Theme & Positioning ───────────────────────── */
+.town[data-scene="dev"] .town-guide {
+  --guide-bg: #070a14;
+  --guide-ink: #f4f7ff;
+  --guide-edge: #26325c;
+  --guide-accent: #3ee6ff;
+  --guide-title: #ffc857;
+}
+
+.town[data-scene="dev"] .town-guide__toggle {
+  color: #070a14;
+  background: #3ee6ff;
+  box-shadow: 0 0 14px rgba(62, 230, 255, 0.8), 0 -2px #26325c, 0 2px #26325c, -2px 0 #26325c, 2px 0 #26325c;
+  position: absolute;
+  top: 14px;
+  right: 14px;
+}
+
+.town[data-scene="dev"] .town-guide__toggle:hover,
+.town[data-scene="dev"] .town-guide__toggle:focus-visible,
+.town[data-scene="dev"] .town-guide__toggle[aria-expanded="true"] {
+  color: #3ee6ff;
+  background: #070a14;
+  box-shadow: 0 0 16px rgba(62, 230, 255, 0.9), 0 -2px #3ee6ff, 0 2px #3ee6ff, -2px 0 #3ee6ff, 2px 0 #3ee6ff;
+}
+
+.town[data-scene="dev"] .town-guide__card {
+  position: absolute;
+  left: 20px;
+  top: 42%;
+  transform: translateY(-50%);
+  width: min(280px, calc(100% - 40px));
+  max-height: min(340px, 60vh);
+  background: #070a14;
+  color: #f4f7ff;
+  border: 3px solid #26325c;
+  border-radius: 12px;
+  box-shadow: 0 0 24px rgba(62, 230, 255, 0.25), 0 12px 32px rgba(7, 10, 20, 0.9);
+}
+
+.town[data-scene="dev"] .town-guide__card:before {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border: 2px solid #3ee6ff;
+  border-radius: 8px;
+  pointer-events: none;
+  opacity: 0.9;
+}
+
+.town[data-scene="dev"] .town-guide__card strong {
+  color: #ffc857;
+  font-family: var(--font-pixel, monospace);
+  letter-spacing: 0.08em;
+  font-size: 0.75rem;
+}
+
+.town[data-scene="dev"] .town-guide__card p {
+  color: #f4f7ff;
+  font-size: 0.7rem;
+  line-height: 1.5;
+}
+
+.town[data-scene="dev"] .town-guide__close {
+  color: #3ee6ff;
+}
+
+.town[data-scene="dev"] .town-labels .town-label {
+  font-family: var(--font-pixel, monospace);
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #070a14;
+  background: #f4f7ff;
+  border: 2px solid #070a14;
+  box-shadow: 0 2px 0 #070a14;
+  padding: 3px 6px;
+}
+
+.town[data-scene="dev"] .town-labels .town-label:hover {
+  background: #3ee6ff;
+  color: #070a14;
+  border-color: #3ee6ff;
+}
+

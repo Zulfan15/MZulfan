@@ -23,6 +23,15 @@ import {
   renderHome2FWalls,
   renderHome2FProps,
 } from './homeScene';
+import {
+  DEV_COLS,
+  DEV_ROWS,
+  DEV_SPAWN,
+  DEV_COLLISION,
+  DEV_PROPS,
+  createDevBackgroundCanvas,
+  renderDevAnimations,
+} from './devScene';
 
 export interface EngineCallbacks {
   onDialogue: (name: string, lines: string[], onAction?: () => void) => void;
@@ -84,8 +93,9 @@ export class TownEngine {
   private ctx: CanvasRenderingContext2D;
   private map: TownMap;
   private callbacks: EngineCallbacks;
-  private currentScene: 'town' | 'home' = 'town';
+  private currentScene: 'town' | 'home' | 'dev' = 'town';
   private homeFloor: '1F' | '2F' = '1F';
+  private devBackgroundCanvas: HTMLCanvasElement | null = null;
 
   // Player state
   private playerPos: Vec = { x: 18, y: 12 };
@@ -145,6 +155,13 @@ export class TownEngine {
       this.playerDir = spawn.dir;
       this.cameraX = ((is2F ? HOME2F_COLS : HOME_COLS) * TILE_SIZE) / 2;
       this.cameraY = ((is2F ? HOME2F_ROWS : HOME_ROWS) * TILE_SIZE) / 2;
+    } else if (initialSpawn === 'dev') {
+      this.currentScene = 'dev';
+      this.playerPos = { x: DEV_SPAWN.x, y: DEV_SPAWN.y };
+      this.playerTarget = { x: DEV_SPAWN.x, y: DEV_SPAWN.y };
+      this.playerDir = DEV_SPAWN.dir;
+      this.cameraX = (DEV_COLS * TILE_SIZE) / 2;
+      this.cameraY = (DEV_ROWS * TILE_SIZE) / 2;
     } else {
       this.currentScene = 'town';
       const spawn = this.map.spawns[initialSpawn] || this.map.spawns.town;
@@ -206,6 +223,14 @@ export class TownEngine {
       this.zoom = Math.max(Math.min(zoomW, zoomH), 1.8 * dpr);
       this.cameraX = (HOME_COLS * TILE_SIZE) / 2;
       this.cameraY = (HOME_ROWS * TILE_SIZE) / 2;
+    } else if (this.currentScene === 'dev') {
+      const targetW = DEV_COLS * TILE_SIZE * 1.05;
+      const targetH = DEV_ROWS * TILE_SIZE * 1.05;
+      const zoomW = this.canvas.width / targetW;
+      const zoomH = this.canvas.height / targetH;
+      this.zoom = Math.max(Math.min(zoomW, zoomH), 1.8 * dpr);
+      this.cameraX = (DEV_COLS * TILE_SIZE) / 2;
+      this.cameraY = (DEV_ROWS * TILE_SIZE) / 2;
     } else {
       const targetW = this.map.w * TILE_SIZE * 1.08;
       const targetH = this.map.h * TILE_SIZE * 1.08;
@@ -244,8 +269,13 @@ export class TownEngine {
     this.update(dt);
     this.render();
 
-    // Keep loop active while moving or path is present
-    if (!this.isMoving && this.path.length === 0 && !this.marker) {
+    // In dev scene, continue loop for radar sweep, clock and blinking lights
+    if (
+      this.currentScene !== 'dev' &&
+      !this.isMoving &&
+      this.path.length === 0 &&
+      !this.marker
+    ) {
       this.sleep();
       return;
     }
@@ -302,8 +332,18 @@ export class TownEngine {
 
   public walkTo(targetX: number, targetY: number) {
     const is2F = this.currentScene === 'home' && this.homeFloor === '2F';
-    const cols = this.currentScene === 'home' ? (is2F ? HOME2F_COLS : HOME_COLS) : this.map.w;
-    const rows = this.currentScene === 'home' ? (is2F ? HOME2F_ROWS : HOME_ROWS) : this.map.h;
+    const cols =
+      this.currentScene === 'home'
+        ? (is2F ? HOME2F_COLS : HOME_COLS)
+        : this.currentScene === 'dev'
+        ? DEV_COLS
+        : this.map.w;
+    const rows =
+      this.currentScene === 'home'
+        ? (is2F ? HOME2F_ROWS : HOME_ROWS)
+        : this.currentScene === 'dev'
+        ? DEV_ROWS
+        : this.map.h;
     if (targetX < 0 || targetX >= cols || targetY < 0 || targetY >= rows) return;
     const start = this.isMoving ? this.playerTarget : this.playerPos;
     const collisionMap =
@@ -311,6 +351,8 @@ export class TownEngine {
         ? is2F
           ? HOME2F_COLLISION
           : HOME_COLLISION
+        : this.currentScene === 'dev'
+        ? DEV_COLLISION
         : this.map.collision;
 
     let destX = targetX;
@@ -342,6 +384,53 @@ export class TownEngine {
   }
 
   public walkToObject(id: string) {
+    if (this.currentScene === 'dev') {
+      this.pendingTarget = id;
+      switch (id) {
+        case 'timeline':
+          this.walkTo(7, 3);
+          break;
+        case 'radar':
+          this.walkTo(2, 5);
+          break;
+        case 'telemetry':
+          this.walkTo(12, 6);
+          break;
+        case 'lebronette':
+          this.walkTo(7, 15);
+          break;
+        case 'console-wasm':
+          this.walkTo(3, 9);
+          break;
+        case 'console-edge':
+          this.walkTo(7, 9);
+          break;
+        case 'console-static':
+          this.walkTo(11, 9);
+          break;
+        case 'whiteboard':
+          this.walkTo(2, 11);
+          break;
+        case 'rack':
+          this.walkTo(12, 11);
+          break;
+        case 'coffee':
+          this.walkTo(12, 14);
+          break;
+        case 'plant':
+          this.walkTo(2, 16);
+          break;
+        case 'exit':
+          this.walkTo(7, 18);
+          break;
+        default:
+          const prop = DEV_PROPS.find((p) => p.id === id);
+          if (prop) this.walkTo(prop.x, prop.y + prop.h);
+          break;
+      }
+      return;
+    }
+
     if (this.currentScene === 'home') {
       this.pendingTarget = id;
       switch (id) {
@@ -652,6 +741,15 @@ export class TownEngine {
   }
 
   private onStepComplete() {
+    if (this.currentScene === 'dev') {
+      if (this.playerPos.x === 7 && this.playerPos.y === 18) {
+        sfx.door();
+        this.callbacks.onNavigate('/');
+        return;
+      }
+      return;
+    }
+
     if (this.currentScene === 'home') {
       if (this.homeFloor === '1F') {
         if (this.playerPos.x === 7 && this.playerPos.y === 14) {
@@ -759,6 +857,38 @@ export class TownEngine {
 
   public interactFacing(targetId?: string) {
     const activeTarget = targetId || this.pendingTarget;
+    if (this.currentScene === 'dev') {
+      const fx = this.playerPos.x + DIRS[this.playerDir].x;
+      const fy = this.playerPos.y + DIRS[this.playerDir].y;
+      const prop =
+        (activeTarget ? DEV_PROPS.find((p) => p.id === activeTarget) : undefined) ||
+        DEV_PROPS.find(
+          (p) =>
+            (fx >= p.x && fx < p.x + p.w && fy >= p.y && fy < p.y + p.h) ||
+            (this.playerPos.x >= p.x - 1 &&
+              this.playerPos.x <= p.x + p.w &&
+              this.playerPos.y >= p.y - 1 &&
+              this.playerPos.y <= p.y + p.h)
+        );
+
+      if (prop) {
+        sfx.select();
+        if (prop.target.type === 'event' && prop.target.name) {
+          document.dispatchEvent(new CustomEvent(`town:${prop.target.name}`));
+        } else if (prop.target.type === 'note' && prop.target.text) {
+          if (this.callbacks.onBubble) {
+            this.callbacks.onBubble(prop.label, prop.target.text);
+          } else {
+            this.callbacks.onDialogue(prop.label, [prop.target.text]);
+          }
+        } else if (prop.target.type === 'place' && prop.target.id) {
+          this.callbacks.onNavigate(`/${prop.target.id}`);
+        }
+        this.wake();
+      }
+      return;
+    }
+
     if (this.currentScene === 'home') {
       if (this.homeFloor === '1F') {
         if (
@@ -995,6 +1125,40 @@ export class TownEngine {
       return;
     }
 
+    if (this.currentScene === 'dev') {
+      const devLabels: Record<string, { x: number; y: number; w: number; h: number; lift?: number }> = {
+        timeline: { x: 4, y: 1, w: 7, h: 1, lift: 0.8 },
+        radar: { x: 1, y: 3, w: 2, h: 2, lift: 0.1 },
+        telemetry: { x: 12, y: 3, w: 2, h: 3, lift: -0.3 },
+        lebronette: { x: 6, y: 13, w: 3, h: 2, lift: -0.1 },
+      };
+
+      const buttons = container.querySelectorAll<HTMLButtonElement>('.town-label');
+      buttons.forEach((btn) => {
+        const id = btn.getAttribute('data-id');
+        if (!id || !devLabels[id]) {
+          btn.style.visibility = 'hidden';
+          btn.style.display = 'none';
+          return;
+        }
+
+        btn.style.display = '';
+        const obj = devLabels[id];
+        const worldX = (obj.x + obj.w / 2) * TILE_SIZE;
+        const worldY = (obj.y - (obj.lift ?? 0)) * TILE_SIZE;
+
+        const canvasX = this.canvas.width / 2 + (worldX - this.cameraX) * this.zoom;
+        const canvasY = this.canvas.height / 2 + (worldY - this.cameraY) * this.zoom;
+
+        const cssX = canvasX / dpr;
+        const cssY = canvasY / dpr;
+
+        btn.style.transform = `translate(${Math.round(cssX)}px, ${Math.round(cssY)}px) translate(-50%, -100%)`;
+        btn.style.visibility = 'visible';
+      });
+      return;
+    }
+
     const labelDefs: Record<string, { x: number; y: number; w: number; h: number; kind: string; lift?: number }> = {
       home: { x: 4, y: 3, w: 8, h: 6, kind: 'building', lift: 0 },
       statue: { x: 14, y: 6, w: 2, h: 2, kind: 'statue', lift: 0 },
@@ -1091,6 +1255,54 @@ export class TownEngine {
       }
 
       // 5. Player character inside the room
+      const drawX =
+        (this.playerPos.x + (this.playerTarget.x - this.playerPos.x) * this.moveProgress) * TILE_SIZE;
+      const drawY =
+        (this.playerPos.y + (this.playerTarget.y - this.playerPos.y) * this.moveProgress) * TILE_SIZE;
+      const stepFrame = this.isMoving ? Math.floor(this.moveProgress * 4) : 0;
+
+      drawCharacter(ctx, this.playerPalette, this.playerDir, stepFrame, drawX, drawY, 1);
+
+      ctx.restore();
+
+      this.updateDomLabels();
+      return;
+    }
+
+    if (this.currentScene === 'dev') {
+      this.cameraX = (DEV_COLS * TILE_SIZE) / 2;
+      this.cameraY = (DEV_ROWS * TILE_SIZE) / 2;
+
+      ctx.save();
+      ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+      // Dark slate background
+      ctx.fillStyle = '#070a14';
+      ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+      ctx.translate(this.canvas.width / 2, this.canvas.height / 2);
+      ctx.scale(this.zoom, this.zoom);
+      ctx.translate(-this.cameraX, -this.cameraY);
+
+      // 1. Static pre-rendered background canvas
+      if (!this.devBackgroundCanvas) {
+        this.devBackgroundCanvas = createDevBackgroundCanvas();
+      }
+      ctx.drawImage(this.devBackgroundCanvas, 0, 0);
+
+      // 2. Dynamic live instrumentation (viewscreen ticker, sweeping radar, telemetry, rack lights, clock, lebronette)
+      renderDevAnimations(ctx, performance.now());
+
+      // 3. Click marker
+      if (this.marker) {
+        ctx.fillStyle = 'rgba(62, 230, 255, 0.75)';
+        const mx = this.marker.x * TILE_SIZE;
+        const my = this.marker.y * TILE_SIZE;
+        ctx.fillRect(mx + 4, my + 12, 8, 2);
+        ctx.fillRect(mx + 6, my + 11, 4, 4);
+      }
+
+      // 4. Player character
       const drawX =
         (this.playerPos.x + (this.playerTarget.x - this.playerPos.x) * this.moveProgress) * TILE_SIZE;
       const drawY =

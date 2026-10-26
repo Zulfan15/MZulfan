@@ -1,83 +1,719 @@
 ---
 import TownLayout from '../layouts/TownLayout.astro';
-import WhereTo from '../components/WhereTo.astro';
-import Timeline from '../components/Timeline.astro';
-import StackRadar from '../components/StackRadar.astro';
-import TelemetryWall from '../components/TelemetryWall.astro';
+import '../styles/dev.css';
+import { profile, missions, timeline, skills } from '../lib/profile';
+
+// Skill Brand Colors
+const BRAND_COLORS: Record<string, string> = {
+  python: '#3776AB',
+  pytorch: '#EE4C2C',
+  yolov11: '#00FFFF',
+  tensorrt: '#76B900',
+  opencv: '#5C3EE8',
+  onnx: '#005CED',
+  streamlit: '#FF4B4B',
+  'deep learning': '#FF6F61',
+  'machine learning': '#FFA500',
+  'random forest': '#2E7D32',
+  'tf-idf': '#9C27B0',
+  nlp: '#00BCD4',
+  'computer vision': '#3ee6ff',
+  typescript: '#3178C6',
+  javascript: '#F7DF1E',
+  php: '#777BB4',
+  laravel: '#FF2D20',
+  postgresql: '#4169E1',
+  postgis: '#336791',
+  mysql: '#4479A1',
+  redis: '#DC382D',
+  kafka: '#231F20',
+  docker: '#2496ED',
+  kubernetes: '#326CE5',
+  git: '#F05032',
+  'gitlab ci/cd': '#FC6D26',
+  linux: '#FCC624',
+  flutter: '#02569B',
+  esp32: '#E7352C',
+  arduino: '#00979D',
+  robotics: '#7dffb0',
+  c: '#A8B9CC',
+  'c++': '#00599C',
+  sql: '#CC292B',
+  'html/css': '#E34F26',
+  'tailwind css': '#06B6D4',
+  'alpine.js': '#8BC0D0',
+  leaflet: '#199900',
+  fastapi: '#009688',
+  'next.js': '#000000',
+  react: '#61DAFB',
+  'scikit-learn': '#F7931E',
+  bootstrap: '#7952B3',
+  openapi: '#85EA2D',
+};
+
+function getBrandColor(name: string): string {
+  return BRAND_COLORS[name.toLowerCase()] || '#3ee6ff';
+}
+
+// 1. Prepare timeline items (oldest first for the track & ticker)
+const timelineItems = [...timeline].reverse().map((item) => {
+  const shortTitle = item.title.toUpperCase().slice(0, 18);
+  const year = item.date ? item.date.slice(0, 4) : '2026';
+  const t = item.date ? new Date(item.date).getTime() : Date.now();
+  const kind =
+    item.kind === 'launch'
+      ? 'project'
+      : item.kind === 'crew_assignment'
+      ? 'role'
+      : item.kind === 'training'
+      ? 'school'
+      : 'honor';
+  return {
+    ...item,
+    shortTitle,
+    year,
+    t,
+    feedKind: kind,
+  };
+});
+
+// 2. Prepare Stack Radar Blips
+const ringRadiusNormalized = {
+  core: 0.14,
+  goto: 0.36,
+  regular: 0.56,
+  once: 0.76,
+  bench: 0.94,
+};
+
+const radarBlips = skills.map((s, idx) => {
+  const hex = getBrandColor(s.name);
+  const baseAngle = s.quadrant * (Math.PI / 2) + Math.PI / 4;
+  const jitter = ((idx % 7) - 3) * 0.14;
+  const a = baseAngle + jitter;
+  const r = ringRadiusNormalized[s.ring] || 0.5;
+
+  // Screen percentage coordinates (50% is center)
+  const left = Math.min(95, Math.max(5, 50 + Math.cos(a) * r * 50)).toFixed(2);
+  const top = Math.min(95, Math.max(5, 50 + Math.sin(a) * r * 50)).toFixed(2);
+
+  return {
+    ...s,
+    hex,
+    r,
+    a,
+    left,
+    top,
+    idx: String(idx),
+  };
+});
+
+// Feed for the 2D Engine
+const feedData = {
+  timeline: timelineItems.map((item) => ({
+    label: item.shortTitle,
+    kind: item.feedKind,
+    year: item.year,
+    t: item.t,
+  })),
+  blips: radarBlips.map((b) => ({
+    hex: b.hex,
+    r: b.r,
+    a: b.a,
+  })),
+  heat: [1, 2, 3, 4, 3, 2, 1, 0, 2, 4, 3, 2, 1, 2, 3, 4, 2, 1, 0, 3, 4, 2, 3, 4, 3, 2, 1, 0, 2, 4, 3, 2, 1, 2, 3, 4, 3, 2, 1, 0, 2, 3, 4, 3, 2, 1, 0, 2, 3, 4, 3, 2, 1, 2, 3, 4, 3, 2, 1, 0, 2, 3, 4, 3, 2, 1, 0, 2, 3, 4],
+  streak: 18,
+  leet: {
+    easy: 92,
+    medium: 64,
+    hard: 16,
+    totals: { easy: 110, medium: 120, hard: 60, all: 290 },
+  },
+};
+
+// Skill Categories
+const categories = [
+  {
+    name: 'Languages & Frameworks',
+    items: ['Python', 'TypeScript', 'JavaScript', 'PHP', 'C', 'SQL', 'HTML/CSS', 'Laravel', 'FastAPI', 'Next.js', 'React', 'Flutter', 'Tailwind CSS', 'Bootstrap'],
+  },
+  {
+    name: 'AI / ML',
+    items: ['YOLOv11', 'TensorRT', 'PyTorch', 'OpenCV', 'ONNX', 'Deep Learning', 'Computer Vision', 'Machine Learning', 'scikit-learn', 'Random Forest', 'TF-IDF', 'NLP'],
+  },
+  {
+    name: 'Data & Architecture',
+    items: ['PostgreSQL', 'PostGIS', 'MySQL', 'Redis', 'Kafka', 'OpenAPI', 'RESTful API', 'Leaflet', 'Alpine.js'],
+  },
+  {
+    name: 'Tools & Cloud',
+    items: ['Docker', 'Kubernetes', 'Git', 'GitLab CI/CD', 'Linux', 'ESP32', 'Arduino', 'Robotics', 'Streamlit'],
+  },
+];
 ---
 
-<TownLayout place="dev" title="Dev Center · Mission Control">
-  <div class="space-y-6">
-    <!-- Dev Center Mission Control Header -->
-    <div class="border-b border-mc-line pb-4">
-      <div class="eyebrow text-signal">📡 DEV CENTER · MISSION CONTROL</div>
-      <h1 class="font-pixel text-lg text-mc-text mt-1">
-        Command & Telemetry
-      </h1>
-      <p class="font-mono text-xs text-mc-dim mt-1">
-        Explore Zulfan's missions, interactive tech radar and live engineering telemetry.
+<TownLayout place="dev" title="Dev Center · Mission Control — Muhammad Zulfan">
+  <div class="mcp" data-mc data-feed={JSON.stringify(feedData)}>
+    <!-- 1. Header with Avatar, Role, and Name -->
+    <header class="mcp-id">
+      <svg
+        class="mcp-id__avatar portrait"
+        viewBox="0 0 16 16"
+        shape-rendering="crispEdges"
+        role="img"
+        aria-label="Zulfan's pixel character"
+      >
+        <rect width="16" height="16" fill="#0f1a33"></rect>
+        <g class="sprite">
+          <!-- Hair -->
+          <rect x="5" y="2" width="6" height="1" fill="#1c1726"></rect>
+          <rect x="4" y="3" width="8" height="2" fill="#1c1726"></rect>
+          <rect x="3" y="5" width="2" height="3" fill="#1c1726"></rect>
+          <rect x="11" y="5" width="2" height="3" fill="#1c1726"></rect>
+          <!-- Face -->
+          <rect x="5" y="5" width="6" height="5" fill="#e0b48a"></rect>
+          <rect x="4" y="7" width="1" height="2" fill="#e0b48a"></rect>
+          <rect x="11" y="7" width="1" height="2" fill="#e0b48a"></rect>
+          <!-- Eyes -->
+          <rect x="6" y="7" width="1" height="1" fill="#1c1726"></rect>
+          <rect x="9" y="7" width="1" height="1" fill="#1c1726"></rect>
+          <!-- Mouth -->
+          <rect x="7" y="9" width="2" height="1" fill="#c47a58"></rect>
+          <!-- Shirt -->
+          <rect x="4" y="10" width="8" height="4" fill="#1d6f86"></rect>
+          <rect x="6" y="10" width="4" height="4" fill="#3ee6ff"></rect>
+          <rect x="3" y="11" width="1" height="3" fill="#1d6f86"></rect>
+          <rect x="12" y="11" width="1" height="3" fill="#1d6f86"></rect>
+          <!-- Pants -->
+          <rect x="5" y="14" width="2" height="2" fill="#151c33"></rect>
+          <rect x="9" y="14" width="2" height="2" fill="#151c33"></rect>
+        </g>
+      </svg>
+
+      <div class="mcp-id__text">
+        <p class="eyebrow mcp-hint">📡 DEV CENTER · MISSION CONTROL</p>
+        <h1 class="mcp-id__name" id="panel-title" tabindex="-1">
+          Muhammad Zulfan
+        </h1>
+        <p class="pixel mcp-id__role">
+          Software & AI Engineer
+        </p>
+      </div>
+    </header>
+
+    <!-- Intro Text -->
+    <p class="mcp-lead">
+      Welcome aboard. LeBronette at the front desk knows everything about Zulfan. The viewscreen runs
+      his mission timeline (projects, roles, school and honors), the radar scans his stack, and the
+      telemetry wall is live. His research lives next door, in the <a href="/lab">Research Lab</a>.
+    </p>
+
+    <!-- 2. // TL;DR Card -->
+    <section class="mcp-card" aria-labelledby="tldr-title">
+      <div class="mcp-card__bar">
+        <h2 id="tldr-title" class="pixel mcp-card__title">// TL;DR</h2>
+      </div>
+      <div class="mcp-card__body">
+        <p class="mcp-lead">
+          I build intelligent systems — from edge computer vision to cloud-native platforms — that solve real-world problems.
+        </p>
+
+        <dl class="mcp-status">
+          <div>
+            <dt class="pixel">NOW</dt>
+            <dd>Building AeroScan & FoodLink</dd>
+          </div>
+          <div>
+            <dt class="pixel">TRAINED</dt>
+            <dd>Bachelor of Informatics, Institut Teknologi Nasional Bandung (ITENAS)</dd>
+          </div>
+          <div>
+            <dt class="pixel">HONORS</dt>
+            <dd>Bronze Medal & Finalist — IDEA FEST 3 · HCIA-Security</dd>
+          </div>
+          <div>
+            <dt class="pixel">OPEN TO</dt>
+            <dd>New opportunities in AI, computer vision, and software engineering.</dd>
+          </div>
+        </dl>
+
+        <div class="mcp-fastlane">
+          <a class="btn btn--small" href="/reception">Ask LeBronette</a>
+          <a class="btn btn--small" href={profile.person.cv} target="_blank" rel="noopener">Download résumé</a>
+          <button type="button" class="btn btn--small" data-open="timeline">▶ Timeline</button>
+          <button type="button" class="btn btn--small" data-open="radar">◎ Radar</button>
+          <button type="button" class="btn btn--small" data-open="telemetry">📈 Telemetry</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. // STACK Card -->
+    <section class="mcp-card" aria-labelledby="stack-title">
+      <div class="mcp-card__bar">
+        <h2 id="stack-title" class="pixel mcp-card__title">// STACK</h2>
+        <button type="button" class="btn btn--small" data-open="radar">◎ Radar</button>
+      </div>
+      <div class="mcp-card__body">
+        {categories.map((cat) => (
+          <div class="mcp-group">
+            <h3 class="mcp-sub">{cat.name}</h3>
+            <ul class="stack-chips">
+              {cat.items.map((tech) => (
+                <li class="stack-chip" style={`--brand: ${getBrandColor(tech)}`}>
+                  <span class="stack-chip__logo" aria-hidden="true" style={`background: ${getBrandColor(tech)}; width: 8px; height: 8px; display: inline-block; border-radius: 1px;`}></span>
+                  <span>{tech}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- 4. // SERVICE RECORD -->
+    <section class="mcp-card" aria-labelledby="service-title">
+      <div class="mcp-card__bar">
+        <h2 id="service-title" class="pixel mcp-card__title">// SERVICE RECORD</h2>
+      </div>
+      <div class="mcp-card__body">
+        <div class="mcp-record">
+          <!-- School -->
+          <div class="mcp-school">
+            <h3 class="mcp-sub">EDUCATION</h3>
+            <p class="mcp-school__name">
+              Institut Teknologi Nasional Bandung (ITENAS)
+            </p>
+            <p class="mcp-dim">
+              Bachelor of Informatics (S.Kom.) · Sep 2022 – Jun 2026
+            </p>
+            <div class="mcp-badges" style="margin-top: 0.4rem;">
+              <span class="mcp-badge">GPA 3.49 / 4.00</span>
+              <span class="mcp-badge">BANDUNG, ID</span>
+            </div>
+            <ul class="brief__results" style="margin-top: 0.6rem;">
+              <li>Undergraduate thesis: detecting online-gambling spam comments on YouTube (99.56% F1).</li>
+              <li>Laboratory assistant across Database, OOP, Computer Network, IoT and Robotics labs.</li>
+              <li>Robotics Laboratory Assistant Coordinator (Feb – Jun 2026).</li>
+            </ul>
+          </div>
+
+          <!-- Honors -->
+          <div style="margin-top: 1rem;">
+            <h3 class="mcp-sub">HONORS & CERTIFICATIONS</h3>
+            <ul class="clean mcp-honors">
+              <li>
+                <span class="mcp-badge" style="color: #fdb927; border-color: #fdb927;">2025</span>
+                <div>
+                  <strong>Bronze Medal & Finalist — IDEA FEST 3</strong>
+                  <p class="mcp-dim">STIMATA & Sentosa Foundation · Awarded for FoodRescue food-waste platform.</p>
+                </div>
+              </li>
+              <li>
+                <span class="mcp-badge" style="color: #3ee6ff; border-color: #3ee6ff;">2025</span>
+                <div>
+                  <strong>Huawei Certified ICT Associate — Security (HCIA-Security V4.0)</strong>
+                  <p class="mcp-dim">Huawei · Firewall policies, NAT, VPN, and network security fundamentals.</p>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. // LAUNCHES (Projects) -->
+    <section class="mcp-card" aria-labelledby="launches-title">
+      <div class="mcp-card__bar">
+        <h2 id="launches-title" class="pixel mcp-card__title">// LAUNCHES</h2>
+        <button type="button" class="btn btn--small" data-open="timeline">▶ Timeline</button>
+      </div>
+      <div class="mcp-card__body">
+        <ul class="clean mcp-launches">
+          {missions.map((m) => (
+            <li>
+              <article class="launch">
+                <header class="launch__bar">
+                  <span class="launch__code">{m.id.toUpperCase()}</span>
+                  <span class={`launch__status ${m.end === null ? 'launch__status--active' : ''}`}>
+                    {m.end === null ? 'ACTIVE' : 'COMPLETE'}
+                  </span>
+                </header>
+                <div class="launch__body">
+                  <h3 class="launch__title">
+                    <a href={`#${m.id}`}>{m.title}</a>
+                  </h3>
+                  <p class="launch__when">
+                    {m.start} – {m.end ? m.end : 'Present'}
+                  </p>
+                  <p class="launch__tagline">
+                    {m.summary}
+                  </p>
+                  <div class="launch__links">
+                    <button type="button" class="btn btn--small" data-open="timeline" data-target-brief={m.id}>
+                      Debrief ▶
+                    </button>
+                    {m.links.demo && (
+                      <a class="btn btn--small" href={m.links.demo} target="_blank" rel="noopener">Demo ↗</a>
+                    )}
+                    {m.links.code && (
+                      <a class="btn btn--small" href={m.links.code} target="_blank" rel="noopener">Code ↗</a>
+                    )}
+                  </div>
+                </div>
+              </article>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+
+    <!-- 6. // COMMS -->
+    <section class="mcp-card" aria-labelledby="comms-title">
+      <div class="mcp-card__bar">
+        <h2 id="comms-title" class="pixel mcp-card__title">// COMMS</h2>
+      </div>
+      <div class="mcp-card__body">
+        <div class="mcp-fastlane mcp-comms">
+          <a class="btn" href="https://github.com/Zulfan15" target="_blank" rel="noopener">
+            🐙 GitHub
+          </a>
+          <a class="btn" href="https://www.linkedin.com/in/muhammad-zulfan-anggadhiputra" target="_blank" rel="noopener">
+            💼 LinkedIn
+          </a>
+          <a class="btn" href={`mailto:${profile.person.email}`}>
+            ✉️ Email
+          </a>
+          <a class="btn" href="https://zulfan15.github.io/MZulfan" target="_blank" rel="noopener">
+            🌐 Portfolio
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. // HOW THIS SITE WORKS -->
+    <section class="mcp-card" id="how-its-built">
+      <div class="mcp-card__bar">
+        <h2 class="pixel mcp-card__title">// HOW THIS SITE WORKS</h2>
+      </div>
+      <div class="mcp-card__body">
+        <details class="mcp-build">
+          <summary class="pixel">
+            <strong>Architecture & Engine</strong>
+          </summary>
+          <ul>
+            <li><strong>Astro 5:</strong> Static site generation with zero unnecessary client JavaScript.</li>
+            <li><strong>HTML5 Canvas 2D Engine:</strong> Fully responsive retro world running 60 FPS sprite animators.</li>
+            <li><strong>Type-Safe Schema:</strong> Validated with Zod from profile.yaml to ensure single-source data integrity.</li>
+          </ul>
+        </details>
+      </div>
+    </section>
+  </div>
+
+  <!-- ───────────────────────── DIALOG 1: TIMELINE ───────────────────────── -->
+  <dialog class="mc" data-mc-dialog="timeline" aria-labelledby="mc-timeline-title">
+    <div class="mc__bar">
+      <h2 id="mc-timeline-title" class="mc__title">Mission timeline</h2>
+      <button type="button" class="mc__close" data-mc-close aria-label="Close the timeline">✕</button>
+    </div>
+
+    <ol class="clean mc-track" aria-label="Projects, roles, school and honors">
+      {timelineItems.map((item, idx) => (
+        <li>
+          <button
+            type="button"
+            class={`mc-tick mc-tick--${item.feedKind}`}
+            data-brief-for={item.id}
+            aria-pressed={idx === 0 ? 'true' : 'false'}
+          >
+            <span class="mc-tick__year">{item.year}</span>
+            <span class="mc-tick__code">{item.shortTitle}</span>
+          </button>
+        </li>
+      ))}
+    </ol>
+
+    <div class="mc__body">
+      {timelineItems.map((item, idx) => (
+        <article class="brief" data-brief={item.id} hidden={idx !== 0}>
+          <header class="brief__head">
+            <div class="brief__id">
+              <div class="brief__kicker">
+                <span class={`brief__kind brief__kind--${item.feedKind}`}>
+                  {item.kind.toUpperCase()}
+                </span>
+                <span class={`brief__status ${item.active ? 'brief__status--active' : 'brief__status--complete'}`}>
+                  {item.active ? 'ACTIVE' : 'COMPLETE'}
+                </span>
+              </div>
+              <h3 class="brief__code">{item.title}</h3>
+              <p class="brief__sub">{item.org} · {item.range}</p>
+            </div>
+          </header>
+
+          <p class="brief__title">{item.summary}</p>
+
+          {item.results && item.results.length > 0 && (
+            <ul class="brief__results">
+              {item.results.map((r) => (
+                <li>{r}</li>
+              ))}
+            </ul>
+          )}
+
+          {item.tags && item.tags.length > 0 && (
+            <div class="stack-chips" style="margin-top: 0.6rem;">
+              {item.tags.map((tag) => (
+                <span class="stack-chip" style={`--brand: ${getBrandColor(tag)}`}>
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
+
+          <div class="brief__links">
+            {item.links.demo && (
+              <a class="btn btn--small" href={item.links.demo} target="_blank" rel="noopener">Live Demo ↗</a>
+            )}
+            {item.links.code && (
+              <a class="btn btn--small" href={item.links.code} target="_blank" rel="noopener">Source Code ↗</a>
+            )}
+          </div>
+        </article>
+      ))}
+    </div>
+  </dialog>
+
+  <!-- ───────────────────────── DIALOG 2: RADAR ───────────────────────── -->
+  <dialog class="mc" data-mc-dialog="radar" aria-labelledby="mc-radar-title">
+    <div class="mc__bar">
+      <h2 id="mc-radar-title" class="mc__title">Stack radar</h2>
+      <button type="button" class="mc__close" data-mc-close aria-label="Close the radar">✕</button>
+    </div>
+
+    <div class="mc__body radar-layout">
+      <!-- Radar Circle Display -->
+      <div class="radar" role="group" aria-label="Technologies on Stack Radar">
+        <span class="radar__sweep" aria-hidden="true"></span>
+        <span class="radar__ring" style="--r: 16%" aria-hidden="true"></span>
+        <span class="radar__ring" style="--r: 38%" aria-hidden="true"></span>
+        <span class="radar__ring" style="--r: 58%" aria-hidden="true"></span>
+        <span class="radar__ring" style="--r: 78%" aria-hidden="true"></span>
+        <span class="radar__ring" style="--r: 96%" aria-hidden="true"></span>
+
+        {radarBlips.map((blip, idx) => (
+          <button
+            type="button"
+            class="blip"
+            style={`left: ${blip.left}%; top: ${blip.top}%; --brand: ${blip.hex};`}
+            data-tech={blip.idx}
+            aria-label={`${blip.name}: used in ${blip.count} missions`}
+            aria-pressed={idx === 0 ? 'true' : 'false'}
+          >
+            <span
+              style={`display: block; width: 8px; height: 8px; background: ${blip.hex}; border-radius: 50%; box-shadow: 0 0 6px ${blip.hex};`}
+            ></span>
+          </button>
+        ))}
+      </div>
+
+      <!-- Radar Info Panel -->
+      <div class="radar-info">
+        <p class="radar-info__hint" data-tech-hint hidden>
+          Pick a blip on the radar to inspect its flight record.
+        </p>
+
+        {radarBlips.map((blip, idx) => (
+          <article class="tech" data-tech-detail={blip.idx} hidden={idx !== 0}>
+            <header class="brief__head">
+              <h3 class="brief__code" style={`color: ${blip.hex}`}>
+                {blip.name}
+              </h3>
+              <span class="mcp-badge">
+                {blip.ring.toUpperCase()}
+              </span>
+            </header>
+
+            <p class="tech__count">
+              {blip.count > 0 ? `USED IN ${blip.count} MISSION${blip.count === 1 ? '' : 'S'}` : 'ON THE BENCH · EXPLORING'}
+            </p>
+
+            <p class="brief__sub">
+              Category: {blip.category}
+            </p>
+
+            {blip.missions.length > 0 && (
+              <ul class="tech__uses" style="margin-top: 0.6rem;">
+                {blip.missions.map((m) => (
+                  <li style="font-size: 1.05rem; color: var(--mc-text);">
+                    • <span style="color: var(--mc-cyan);">{m.title}</span> ({m.year})
+                  </li>
+                ))}
+              </ul>
+            )}
+          </article>
+        ))}
+      </div>
+    </div>
+  </dialog>
+
+  <!-- ───────────────────────── DIALOG 3: TELEMETRY ───────────────────────── -->
+  <dialog class="mc" data-mc-dialog="telemetry" aria-labelledby="mc-telemetry-title">
+    <div class="mc__bar">
+      <h2 id="mc-telemetry-title" class="mc__title">Telemetry</h2>
+      <button type="button" class="mc__close" data-mc-close aria-label="Close the telemetry">✕</button>
+    </div>
+
+    <div class="mc__body">
+      <div class="readouts">
+        <div class="readout">
+          <p class="readout__label">GitHub streak</p>
+          <p class="readout__value" data-streak>18</p>
+          <p class="readout__unit">days in a row</p>
+        </div>
+        <div class="readout">
+          <p class="readout__label">Contributions</p>
+          <p class="readout__value" data-contribs>620+</p>
+          <p class="readout__unit">in the last year</p>
+        </div>
+      </div>
+
+      <h3 class="brief__label" style="margin-top: 1.2rem; color: var(--mc-cyan); font-family: var(--font-retro, monospace); font-size: 0.65rem; text-transform: uppercase;">
+        LeetCode Activity
+      </h3>
+
+      <div class="dials" data-dials style="margin-top: 0.5rem;">
+        <figure class="dial dial--easy" style="--v: 78">
+          <svg viewBox="0 0 36 36">
+            <path class="dial__track" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"></path>
+            <path class="dial__fill" stroke-dasharray="78, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"></path>
+          </svg>
+          <figcaption>
+            <span class="dial__value" data-dial-value>92</span>
+            <span class="dial__name">Easy</span>
+          </figcaption>
+        </figure>
+
+        <figure class="dial dial--medium" style="--v: 52">
+          <svg viewBox="0 0 36 36">
+            <path class="dial__track" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"></path>
+            <path class="dial__fill" stroke-dasharray="52, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"></path>
+          </svg>
+          <figcaption>
+            <span class="dial__value" data-dial-value>64</span>
+            <span class="dial__name">Medium</span>
+          </figcaption>
+        </figure>
+
+        <figure class="dial dial--hard" style="--v: 24">
+          <svg viewBox="0 0 36 36">
+            <path class="dial__track" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"></path>
+            <path class="dial__fill" stroke-dasharray="24, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"></path>
+          </svg>
+          <figcaption>
+            <span class="dial__value" data-dial-value>16</span>
+            <span class="dial__name">Hard</span>
+          </figcaption>
+        </figure>
+      </div>
+
+      <p class="brief__sub" data-lc-total style="margin-top: 0.8rem;">
+        172 solved of 3,100+. The dials show the breakdown across difficulty tiers.
       </p>
     </div>
-
-    <!-- Dev Center Navigation Tabs -->
-    <div class="flex items-center gap-2 border-b border-mc-line pb-2" id="dev-tabs">
-      <button class="btn btn-sm btn-gold dev-tab-btn active" data-tab="timeline">
-        🚀 TIMELINE
-      </button>
-      <button class="btn btn-sm dev-tab-btn bg-mc-panel text-mc-text border-mc-line" data-tab="radar">
-        🎯 STACK RADAR
-      </button>
-      <button class="btn btn-sm dev-tab-btn bg-mc-panel text-mc-text border-mc-line" data-tab="telemetry">
-        📊 TELEMETRY
-      </button>
-    </div>
-
-    <!-- Tab 1: Timeline -->
-    <div id="tab-timeline" class="dev-tab-content space-y-4">
-      <Timeline />
-    </div>
-
-    <!-- Tab 2: Radar -->
-    <div id="tab-radar" class="dev-tab-content hidden space-y-4">
-      <StackRadar />
-    </div>
-
-    <!-- Tab 3: Telemetry -->
-    <div id="tab-telemetry" class="dev-tab-content hidden space-y-4">
-      <TelemetryWall />
-    </div>
-
-    <div class="pt-6 border-t border-mc-line">
-      <WhereTo currentPath="/dev" />
-    </div>
-  </div>
+  </dialog>
 </TownLayout>
 
 <script>
-  function initDevTabs() {
-    const tabs = document.querySelectorAll('.dev-tab-btn');
-    const contents = document.querySelectorAll('.dev-tab-content');
+  import { setDevFeed } from '../engine/devScene';
 
-    tabs.forEach((tab) => {
-      tab.addEventListener('click', () => {
-        tabs.forEach((t) => {
-          t.classList.remove('btn-gold');
-          t.classList.add('bg-mc-panel', 'text-mc-text');
-        });
-        tab.classList.add('btn-gold');
-        tab.classList.remove('bg-mc-panel', 'text-mc-text');
+  function initDevCenter() {
+    const root = document.querySelector('[data-mc]') as HTMLElement | null;
+    if (!root) return;
 
-        const target = tab.getAttribute('data-tab');
-        contents.forEach((c) => {
-          if (c.id === `tab-${target}`) {
-            c.classList.remove('hidden');
-          } else {
-            c.classList.add('hidden');
+    // 1. Pass feed to engine animator
+    const feedJson = root.getAttribute('data-feed');
+    if (feedJson) {
+      try {
+        const feed = JSON.parse(feedJson);
+        setDevFeed(feed);
+      } catch (e) {
+        console.error('Failed to parse dev feed', e);
+      }
+    }
+
+    // 2. Open dialog helper
+    const openDialog = (name: string, targetId?: string) => {
+      const dlg = document.querySelector(`[data-mc-dialog="${name}"]`) as HTMLDialogElement | null;
+      if (!dlg) return;
+      if (!dlg.open) {
+        dlg.showModal();
+      }
+
+      if (name === 'timeline') {
+        if (targetId) {
+          const tick = dlg.querySelector(`[data-brief-for="${targetId}"]`) as HTMLButtonElement | null;
+          if (tick) {
+            tick.click();
+            tick.scrollIntoView({ block: 'nearest', inline: 'center' });
+            return;
           }
+        }
+        dlg.querySelector('[aria-pressed="true"]')?.scrollIntoView({ block: 'nearest', inline: 'center' });
+      }
+    };
+
+    // Fastlane [data-open] buttons
+    document.querySelectorAll<HTMLButtonElement>('[data-open]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const target = btn.getAttribute('data-open');
+        const targetBrief = btn.getAttribute('data-target-brief');
+        if (target) openDialog(target, targetBrief || undefined);
+      });
+    });
+
+    // Close buttons & backdrop click
+    document.querySelectorAll<HTMLDialogElement>('[data-mc-dialog]').forEach((dlg) => {
+      dlg.querySelector('[data-mc-close]')?.addEventListener('click', () => dlg.close());
+      dlg.addEventListener('click', (e) => {
+        if (e.target === dlg) dlg.close();
+      });
+    });
+
+    // Custom events dispatched by 2D canvas engine
+    document.addEventListener('town:timeline', () => openDialog('timeline'));
+    document.addEventListener('town:radar', () => openDialog('radar'));
+    document.addEventListener('town:telemetry', () => openDialog('telemetry'));
+
+    // Timeline Track Brief Switcher
+    const ticks = document.querySelectorAll<HTMLButtonElement>('[data-brief-for]');
+    const briefs = document.querySelectorAll<HTMLElement>('[data-brief]');
+    ticks.forEach((tick) => {
+      tick.addEventListener('click', () => {
+        ticks.forEach((t) => t.setAttribute('aria-pressed', String(t === tick)));
+        const targetId = tick.getAttribute('data-brief-for');
+        briefs.forEach((b) => {
+          b.hidden = b.getAttribute('data-brief') !== targetId;
+        });
+      });
+    });
+
+    // Radar Tech Blip Switcher
+    const blips = document.querySelectorAll<HTMLButtonElement>('[data-tech]');
+    const techDetails = document.querySelectorAll<HTMLElement>('[data-tech-detail]');
+    const techHint = document.querySelector<HTMLElement>('[data-tech-hint]');
+    blips.forEach((blip) => {
+      blip.addEventListener('click', () => {
+        if (techHint) techHint.hidden = true;
+        blips.forEach((b) => b.setAttribute('aria-pressed', String(b === blip)));
+        const techId = blip.getAttribute('data-tech');
+        techDetails.forEach((td) => {
+          td.hidden = td.getAttribute('data-tech-detail') !== techId;
         });
       });
     });
   }
 
-  document.addEventListener('DOMContentLoaded', initDevTabs);
+  document.addEventListener('DOMContentLoaded', initDevCenter);
+  document.addEventListener('astro:page-load', initDevCenter);
 </script>
