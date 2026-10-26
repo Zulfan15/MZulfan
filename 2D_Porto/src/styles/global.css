@@ -894,36 +894,43 @@
   }
 }
 
-/* ───────────────────────── Retro Lounge & Shop (Home 1F) Theme ───────────────────────── */
+/* ───────────────────────── Retro Lounge & Shop (Home 1F / 2F) Theme ───────────────────────── */
 html[data-place="home"] .panel,
 html:has(.mcp--shop) .panel {
   --mcp-bg: #1d1414;
   --mcp-card: #2a1b1b;
   --mcp-line: #5a3030;
-  --mcp-cyan: #ff6fae;
-  --mcp-amber: #e0a526;
+  --mcp-cyan: #e0a526; /* Primary accent: GOLDEN YELLOW */
+  --mcp-amber: #ff6fae; /* Secondary accent: RETRO NEON PINK */
   --mcp-green: #f6e7c8;
   --mcp-text: #f6e7c8;
   --mcp-dim: #c9a98a;
   color: var(--mcp-text);
-  background: var(--mcp-bg);
+  background: repeating-linear-gradient(0deg, #ffffff06 0 1px, transparent 1px 3px), var(--mcp-bg);
   border-left-color: var(--mcp-line);
   scrollbar-color: var(--mcp-line) var(--mcp-bg);
 }
 
 html[data-place="home"] .panel__bar,
 html:has(.mcp--shop) .panel__bar {
-  background: #150e0e;
-  border-color: var(--mcp-line, #5a3030);
+  background: #150e0e !important;
+  border-bottom: 2px solid var(--mcp-line, #5a3030) !important;
   color: var(--mcp-dim, #c9a98a);
+}
+
+html[data-place="home"] .panel__where,
+html:has(.mcp--shop) .panel__where {
+  color: var(--mcp-cyan, #e0a526) !important;
+  font-family: var(--font-pixel, monospace);
+  font-size: 0.95rem;
+  font-weight: 700;
 }
 
 html[data-place="home"] .panel__floor,
 html:has(.mcp--shop) .panel__floor {
-  color: #1d1414;
-  background: #e0a526;
-  font-family: var(--font-pixel, monospace);
-  font-size: 0.65rem;
+  color: #1d1414 !important;
+  background: var(--mcp-cyan, #e0a526) !important;
+  font-family: var(--font-retro, "Press Start 2P", monospace);
   font-weight: 700;
   border-radius: 3px;
   padding: 0.15rem 0.45rem;
@@ -931,302 +938,113 @@ html:has(.mcp--shop) .panel__floor {
 
 html[data-place="home"] .panel__footer,
 html:has(.mcp--shop) .panel__footer {
-  background: #150e0e;
-  border-color: var(--mcp-line, #5a3030);
-  color: var(--mcp-dim, #c9a98a);
-}
-
-.mcp--shop {
-  --mcp-bg: #1d1414;
-  --mcp-card: #2a1b1b;
-  --mcp-line: #5a3030;
-  --mcp-cyan: #ff6fae;
-  --mcp-amber: #e0a526;
-  --mcp-text: #f6e7c8;
-  --mcp-dim: #c9a98a;
-  font-family: var(--font-terminal, monospace);
-  font-size: 1.25rem;
-  line-height: 1.35;
-  display: grid;
-  gap: 1.2rem;
-}
-
-.shop-id {
-  display: flex;
-  align-items: center;
-  gap: 1.1rem;
-}
-
-.shop-id__avatar {
-  border: 3px solid #ff6fae;
-  width: 80px;
-  height: 80px;
-  image-rendering: pixelated;
-  flex: none;
-  box-shadow: 4px 4px #0d0808;
-  background: #0f1a33;
-}
-
-.shop-id__text {
-  display: grid;
-  gap: 0.35rem;
-  min-width: 0;
-}
-
-.mcp-kicker {
-  font-family: var(--font-pixel, monospace);
-  font-size: 0.6rem;
-  text-transform: uppercase;
-  color: var(--mcp-dim, #c9a98a);
-  margin: 0;
-}
-
-.shop-sign {
-  font-family: "Monoton", "Pixelify Sans", cursive, monospace;
-  font-size: clamp(1.25rem, 2.6vw, 1.85rem);
-  font-weight: 400;
-  line-height: 1.15;
-  color: #ffd6ea;
-  text-shadow: 0 0 4px #ff6fae, 0 0 12px #ff6fae, 0 0 24px rgba(255, 111, 174, 0.6);
-  animation: 7s infinite neon-flicker;
-  margin: 0;
-  letter-spacing: 0.03em;
-}
-
-.shop-sign__sub {
-  font-family: var(--font-pixel, monospace);
-  font-size: 0.62rem;
-  letter-spacing: 0.16em;
-  color: #ff9ecc;
-  text-transform: uppercase;
-  margin-top: 0.2rem;
-  opacity: 0.9;
-}
-
-@keyframes neon-flicker {
-  0%, 91%, 93%, 95%, 100% { opacity: 1; }
-  92%, 94% { opacity: 0.55; }
-}
-
-.shop-id__meta {
-  font-family: var(--font-terminal, monospace);
-  font-size: 1.15rem;
-  line-height: 1.2;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-}
-
-.shop-id__meta div {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.shop-id__meta dt {
-  color: var(--mcp-dim, #c9a98a);
-  text-transform: uppercase;
-}
-.shop-id__meta dt:after {
-  content: ":";
-}
-.shop-id__meta dd {
-  color: #f6e7c8;
-  margin: 0;
-}
-
-.mcp-hint {
-  color: var(--mcp-dim, #c9a98a);
-  margin: 0;
-  font-size: 1.15rem;
-  line-height: 1.4;
-}
-
-.mcp-card {
-  background: var(--mcp-card, #2a1b1b);
-  border: 2px solid var(--mcp-line, #5a3030);
-  border-top: 4px solid var(--mcp-amber, #e0a526);
-  gap: 0.8rem;
-  padding: 1rem 1.1rem;
-  display: grid;
-  box-shadow: 4px 4px #0d0808;
-}
-
-.mcp-h {
-  font-family: var(--font-pixel, monospace);
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: #ff6fae;
-  text-transform: uppercase;
-  margin: 0 0 0.5rem;
-}
-.mcp-h:before {
-  content: "// ";
-  color: var(--mcp-amber, #e0a526);
-}
-
-.stats {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 0.5rem 1rem;
-  margin: 0;
-}
-@media (max-width: 640px) {
-  .stats {
-    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-  }
-}
-
-.stats dt {
-  font-family: var(--font-pixel, monospace);
-  font-size: 0.55rem;
-  font-weight: 700;
-  color: var(--mcp-dim, #c9a98a);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.stats dd {
-  font-family: var(--font-terminal, monospace);
-  font-size: 1.8rem;
-  font-weight: 700;
-  line-height: 1;
-  color: #ff6fae;
-  margin: 0.2rem 0 0;
-}
-
-.quest {
-  font-size: 1.25rem;
-  margin: 0;
-  color: #f6e7c8;
-}
-.quest strong {
-  color: var(--mcp-amber, #e0a526);
-  font-weight: 600;
-}
-
-.achievements {
-  display: grid;
-  gap: 0.45rem;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.achievements li {
-  padding-left: 1.4rem;
-  position: relative;
-  color: #f6e7c8;
-  font-size: 1.15rem;
-}
-
-.achievements li:before {
-  content: "★";
-  color: #ff6fae;
-  position: absolute;
-  left: 0;
-}
-
-.achievements__more summary {
-  cursor: pointer;
-  font-family: var(--font-pixel, monospace);
-  font-size: 0.6rem;
-  text-transform: uppercase;
-  color: var(--mcp-amber, #e0a526);
-  margin-top: 0.4rem;
-}
-
-.mcp-fastlane {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.mcp-btn {
-  min-height: 38px;
-  font-family: var(--font-pixel, monospace);
-  font-size: 0.65rem;
-  font-weight: 600;
-  color: #f6e7c8;
-  border: 2px solid var(--mcp-line, #5a3030);
-  cursor: pointer;
-  background: #1d1414;
-  align-items: center;
-  padding: 0.45rem 0.75rem;
-  text-decoration: none;
-  display: inline-flex;
-  box-shadow: 3px 3px #0d0808;
-  transition: transform 0.1s, border-color 0.1s;
-}
-
-.mcp-btn:hover,
-.mcp-btn:focus-visible {
-  color: #ff6fae;
-  border-color: #ff6fae;
-  transform: translateY(-1px);
-}
-
-.mcp-btn--primary {
-  color: #1d1414 !important;
-  background: #e0a526;
-  border-color: #e0a526;
-  font-weight: 700;
-}
-
-.mcp-btn--primary:hover {
-  background: #ff6fae;
-  border-color: #ff6fae;
-}
-
-/* ───────────────────────── Shop & About Panel (Retro Authentic) ───────────────────────── */
-html:has(.mcp--shop) .panel__bar {
-  background: #150e0e !important;
-  border-bottom: 2px solid var(--mcp-line, #5a3030) !important;
-}
-html:has(.mcp--shop) .panel__where {
-  color: var(--mcp-cyan, #e0a526) !important;
-  font-family: var(--font-pixel, monospace);
-  font-size: 0.95rem;
-  font-weight: 700;
-}
-html:has(.mcp--shop) .panel__footer {
   background: #150e0e !important;
   border-top: 2px solid var(--mcp-line, #5a3030) !important;
   color: var(--mcp-dim, #c9a98a) !important;
 }
+
+html[data-place="home"] .panel__footer a,
 html:has(.mcp--shop) .panel__footer a {
   color: var(--mcp-cyan, #e0a526) !important;
 }
-html:has(.mcp--shop) .panel__floor {
-  color: #1d1414 !important;
-  background: var(--mcp-cyan, #e0a526) !important;
-  font-family: var(--font-retro, monospace);
-  font-weight: 700;
-}
+
+html[data-place="home"] .panel__back,
 html:has(.mcp--shop) .panel__back {
   border-color: var(--mcp-line, #5a3030);
   background: #1d1414;
   color: var(--mcp-text, #f6e7c8);
   box-shadow: 2px 2px #0d0808;
 }
+
+html[data-place="home"] .panel__back:hover,
 html:has(.mcp--shop) .panel__back:hover {
   background: var(--mcp-cyan, #e0a526);
   color: #1d1414;
   border-color: var(--mcp-cyan, #e0a526);
 }
 
+/* ─── MCP Base Layout & Typography ─── */
+.mcp {
+  font: 1.3rem / 1.25 var(--font-terminal, "VT323", monospace);
+  gap: 1.4rem;
+  display: grid;
+  color: var(--mcp-text, #f6e7c8);
+}
+.mcp :is(section, p, h1, h2, h3, h4) {
+  margin: 0;
+}
+.mcp p {
+  color: #f6e7c8;
+  font-family: var(--font-terminal, "VT323", monospace);
+  font-size: 1.3rem;
+  line-height: 1.25;
+}
+.mcp p.lead {
+  color: #ffffff !important;
+  font-family: var(--font-terminal, "VT323", monospace);
+  font-size: 1.3rem;
+  line-height: 1.25;
+}
+.mcp a {
+  color: var(--mcp-cyan, #e0a526);
+}
+.mcp a:hover {
+  color: var(--mcp-amber, #ff6fae);
+}
+.mcp-kicker {
+  font: 400 .5rem / 1.4 var(--font-retro, "Press Start 2P", monospace) !important;
+  color: var(--mcp-dim, #c9a98a) !important;
+  text-transform: uppercase;
+}
+.mcp-h {
+  font: 400 .7rem / 1.5 var(--font-retro, "Press Start 2P", monospace) !important;
+  color: var(--mcp-cyan, #e0a526) !important; /* GOLDEN YELLOW */
+  text-transform: uppercase;
+  margin-bottom: .7rem !important;
+}
+.mcp-h:before {
+  content: "// ";
+  color: var(--mcp-dim, #c9a98a) !important;
+}
+.mcp-sub {
+  font: 400 .5rem / 1.6 var(--font-retro, "Press Start 2P", monospace);
+  color: var(--mcp-amber, #ff6fae);
+  text-transform: uppercase;
+  margin-bottom: .4rem !important;
+}
+.mcp-card {
+  background: var(--mcp-card, #2a1b1b) !important;
+  border: 2px solid var(--mcp-line, #5a3030) !important;
+  border-top: 4px solid var(--mcp-cyan, #e0a526) !important; /* GOLDEN YELLOW TOP BORDER */
+  gap: .8rem;
+  padding: 1rem 1.1rem;
+  display: grid;
+  box-shadow: 4px 4px #0d0808;
+}
+.mcp-card .mcp-h {
+  margin-bottom: 0 !important;
+}
+.mcp-hint, .mcp-dim {
+  color: var(--mcp-dim, #c9a98a) !important;
+  font-family: var(--font-terminal, "VT323", monospace);
+  font-size: 1.25rem;
+  line-height: 1.35;
+}
+
+/* ─── Shop ID & Sign ─── */
 .shop-id {
   align-items: center;
-  gap: 1rem;
+  gap: 1.1rem;
   display: flex;
 }
 .shop-id .shop-id__avatar {
-  border: 3px solid var(--mcp-cyan, #e0a526);
+  border: 3px solid var(--mcp-cyan, #e0a526) !important; /* GOLDEN YELLOW BORDER */
   width: 80px;
   height: 80px;
   image-rendering: pixelated;
   flex: none;
   box-shadow: 4px 4px #0d0808;
+  background: #0f1a33;
 }
 @media (max-width: 480px) {
   .shop-id .shop-id__avatar {
@@ -1235,16 +1053,17 @@ html:has(.mcp--shop) .panel__back:hover {
   }
 }
 .shop-id__text {
-  gap: .5rem;
+  gap: .35rem;
   min-width: 0;
   display: grid;
 }
 .shop-sign {
-  font: 400 clamp(1.4rem, 3vw, 2rem) / 1.15 var(--font-neon, var(--font-retro, monospace));
-  color: #ffd6ea;
-  text-shadow: 0 0 4px #ff6fae, 0 0 12px #ff6fae, 0 0 24px #ff6fae99;
+  font: 400 clamp(1.4rem, 3vw, 2rem) / 1.15 var(--font-neon, "Monoton", monospace) !important;
+  color: #ffd6ea !important;
+  text-shadow: 0 0 4px #ff6fae, 0 0 12px #ff6fae, 0 0 24px #ff6fae99 !important;
   animation: 7s infinite neon-flicker;
   margin: 0;
+  letter-spacing: 0.03em;
 }
 .shop-sign:focus {
   outline: none;
@@ -1255,15 +1074,18 @@ html:has(.mcp--shop) .panel__back:hover {
 }
 
 .shop-id__meta {
-  font: 1.15rem / 1.2 var(--font-terminal, monospace);
+  font: 1.15rem / 1.2 var(--font-terminal, "VT323", monospace) !important;
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
 }
 .shop-id__meta div {
   gap: .5rem;
   display: flex;
 }
 .shop-id__meta dt {
-  color: var(--mcp-dim, #c9a98a);
+  color: var(--mcp-dim, #c9a98a) !important;
   text-transform: uppercase;
 }
 .shop-id__meta dt:after {
@@ -1271,39 +1093,47 @@ html:has(.mcp--shop) .panel__back:hover {
 }
 .shop-id__meta dd {
   margin: 0;
-  color: var(--mcp-text, #f6e7c8);
+  color: var(--mcp-text, #f6e7c8) !important;
 }
 
-.mcp-hint, .mcp-dim {
-  color: var(--mcp-dim, #c9a98a);
-}
-
-.lead {
-  color: #fff;
-}
-
+/* ─── Stats ─── */
 .stats {
-  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-  gap: .75rem 1rem;
-  margin: 0;
   display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: .5rem 1rem;
+  margin: 0;
+}
+@media (max-width: 640px) {
+  .stats {
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  }
 }
 .stats dt {
-  font: 400 .5rem / 1.4 var(--font-retro, monospace);
-  color: var(--mcp-dim, #c9a98a);
+  font: 400 .5rem / 1.4 var(--font-retro, "Press Start 2P", monospace) !important;
+  color: var(--mcp-dim, #c9a98a) !important;
   text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 .stats dd {
-  font: 1.8rem / 1 var(--font-terminal, monospace);
-  color: var(--mcp-cyan, #e0a526);
-  margin: 0;
+  font: 1.8rem / 1 var(--font-terminal, "VT323", monospace) !important;
+  color: var(--mcp-cyan, #e0a526) !important; /* GOLDEN YELLOW */
+  margin: 0.2rem 0 0;
 }
 
+/* ─── Current Quest ─── */
+.quest {
+  font-family: var(--font-terminal, "VT323", monospace) !important;
+  font-size: 1.3rem !important;
+  line-height: 1.25;
+  margin: 0;
+  color: #ffffff !important;
+}
 .quest strong {
-  color: var(--mcp-amber, #ff6fae);
+  color: var(--mcp-amber, #ff6fae) !important; /* RETRO NEON PINK */
   font-weight: 400;
 }
 
+/* ─── Now Spinning ─── */
 .spin {
   align-items: center;
   gap: .9rem;
@@ -1324,6 +1154,8 @@ html:has(.mcp--shop) .panel__back:hover {
   gap: .15rem;
   min-width: 0;
   display: grid;
+  font-family: var(--font-terminal, "VT323", monospace);
+  font-size: 1.25rem;
 }
 .spin__text strong {
   color: #fff;
@@ -1333,12 +1165,46 @@ html:has(.mcp--shop) .panel__back:hover {
   font-size: 1rem;
 }
 
+/* ─── Fastlane & Buttons ─── */
 .mcp-fastlane {
   flex-wrap: wrap;
   gap: .5rem;
   display: flex;
 }
+.mcp-btn {
+  min-height: 38px;
+  font: 400 .5rem / 1.4 var(--font-retro, "Press Start 2P", monospace);
+  color: var(--mcp-text, #f6e7c8);
+  border: 2px solid var(--mcp-line, #5a3030);
+  cursor: pointer;
+  background: #1d1414;
+  align-items: center;
+  padding: .45rem .7rem;
+  text-decoration: none;
+  display: inline-flex;
+  box-shadow: 3px 3px #0d0808;
+  transition: transform 0.1s;
+}
+.mcp-btn:hover, .mcp-btn:focus-visible {
+  color: var(--mcp-amber, #ff6fae);
+  border-color: var(--mcp-amber, #ff6fae);
+}
+.mcp-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px #0d0808;
+}
+.mcp-btn--primary {
+  color: #1d1414 !important;
+  background: var(--mcp-cyan, #e0a526) !important;
+  border-color: var(--mcp-cyan, #e0a526) !important;
+}
+.mcp-btn--primary:hover, .mcp-btn--primary:focus-visible {
+  color: #1d1414 !important;
+  background: var(--mcp-amber, #ff6fae) !important;
+  border-color: var(--mcp-amber, #ff6fae) !important;
+}
 
+/* ─── Achievements ─── */
 .achievements {
   gap: .35rem;
   display: grid;
@@ -1349,17 +1215,20 @@ html:has(.mcp--shop) .panel__back:hover {
 .achievements li {
   padding-left: 1.4rem;
   position: relative;
-  line-height: 1.4;
+  line-height: 1.35;
+  color: #f6e7c8;
+  font-family: var(--font-terminal, "VT323", monospace);
+  font-size: 1.25rem;
 }
 .achievements li:before {
   content: "★";
-  color: var(--mcp-cyan, #e0a526);
+  color: var(--mcp-cyan, #e0a526) !important; /* GOLDEN YELLOW */
   position: absolute;
   left: 0;
 }
 .achievements__more summary {
   cursor: pointer;
-  font: 400 .5rem / 2 var(--font-retro, monospace);
+  font: 400 .5rem / 2 var(--font-retro, "Press Start 2P", monospace);
   text-transform: uppercase;
   color: var(--mcp-amber, #ff6fae);
 }
@@ -1367,6 +1236,7 @@ html:has(.mcp--shop) .panel__back:hover {
   margin-bottom: .35rem;
 }
 
+/* ─── Equipped Stack Chips ─── */
 .stack-chips {
   flex-wrap: wrap;
   gap: .4rem;
@@ -1376,7 +1246,7 @@ html:has(.mcp--shop) .panel__back:hover {
   display: flex;
 }
 .stack-chip {
-  font: 400 .56rem / 1.3 var(--font-retro, monospace);
+  font: 400 .56rem / 1.3 var(--font-retro, "Press Start 2P", monospace);
   letter-spacing: .02em;
   color: #f6e7c8;
   background: #1d1414;
@@ -1398,6 +1268,7 @@ html:has(.mcp--shop) .panel__back:hover {
   font-size: inherit;
 }
 
+/* ─── Side quests & The Closet ─── */
 .quest-item {
   border-bottom: 2px dashed var(--mcp-line, #5a3030);
   gap: .5rem;
@@ -1405,12 +1276,11 @@ html:has(.mcp--shop) .panel__back:hover {
   display: grid;
 }
 .quest-item__title {
-  font: 400 .6rem / 1.6 var(--font-retro, monospace);
-  color: var(--mcp-amber, #ff6fae);
+  font: 400 .6rem / 1.6 var(--font-retro, "Press Start 2P", monospace);
+  color: var(--mcp-cyan, #e0a526) !important; /* GOLDEN YELLOW */
   text-transform: uppercase;
   margin: 0;
 }
-
 .closet {
   scroll-margin-top: 1rem;
 }
@@ -1419,6 +1289,9 @@ html:has(.mcp--shop) .panel__back:hover {
 }
 .closet summary {
   cursor: pointer;
+  font: 400 .6rem / 1.6 var(--font-retro, "Press Start 2P", monospace);
+  color: var(--mcp-cyan, #e0a526) !important; /* GOLDEN YELLOW */
+  text-transform: uppercase;
 }
 .closet[open] summary {
   margin-bottom: .8rem;
@@ -1433,9 +1306,12 @@ html:has(.mcp--shop) .panel__back:hover {
   padding-left: 1.2rem;
   list-style-type: "✂  ";
   display: grid;
+  color: #f6e7c8;
+  font-family: var(--font-terminal, "VT323", monospace);
+  font-size: 1.25rem;
 }
 .closet__tags li::marker {
-  color: var(--mcp-cyan, #e0a526);
+  color: var(--mcp-amber, #ff6fae);
 }
 .polaroids {
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr));
@@ -1476,8 +1352,9 @@ html:has(.mcp--shop) .panel__back:hover {
   display: flex;
 }
 
+/* ─── Say Hi & Link Row ─── */
 .mcp-comms .btn, .link-row .btn {
-  font: 400 .5rem / 1.4 var(--font-retro, monospace);
+  font: 400 .5rem / 1.4 var(--font-retro, "Press Start 2P", monospace);
   color: var(--mcp-text, #f6e7c8);
   border: 2px solid var(--mcp-line, #5a3030);
   background: #1d1414;
