@@ -1,7 +1,7 @@
 import { DIRS, type CharacterPalette, type Dir, type TownData, type TownMap, type Vec } from './types';
 import { createTownMap } from './map';
 import { TILE_SIZE, drawCharacter } from './sprites';
-import { renderBuildings, renderGround, renderSigns } from './tiles';
+import { drawPillBadge, renderBuildings, renderGround, renderLamps, renderLighting, renderProps, renderSigns } from './tiles';
 import { findPath } from './pathfinding';
 import { sfx } from '../game/sfx';
 
@@ -83,7 +83,14 @@ export class TownEngine {
     const rect = this.canvas.getBoundingClientRect();
     this.canvas.width = rect.width * dpr;
     this.canvas.height = rect.height * dpr;
-    this.zoom = rect.width < 600 ? 2.5 * dpr : 3.2 * dpr;
+
+    // Calculate zoom to frame the town cleanly with forest perimeter
+    const targetW = this.map.w * TILE_SIZE * 1.08;
+    const targetH = this.map.h * TILE_SIZE * 1.08;
+    const zoomW = this.canvas.width / targetW;
+    const zoomH = this.canvas.height / targetH;
+    this.zoom = Math.max(Math.min(zoomW, zoomH), 1.2 * dpr);
+
     this.wake();
   };
 
@@ -301,19 +308,16 @@ export class TownEngine {
     const ctx = this.ctx;
     ctx.imageSmoothingEnabled = false;
 
-    // Camera smoothing
-    const currentPX =
-      (this.playerPos.x + (this.playerTarget.x - this.playerPos.x) * this.moveProgress) * TILE_SIZE +
-      TILE_SIZE / 2;
-    const currentPY =
-      (this.playerPos.y + (this.playerTarget.y - this.playerPos.y) * this.moveProgress) * TILE_SIZE +
-      TILE_SIZE / 2;
-
-    this.cameraX = currentPX;
-    this.cameraY = currentPY;
+    // Center camera on the town frame
+    this.cameraX = (this.map.w * TILE_SIZE) / 2;
+    this.cameraY = (this.map.h * TILE_SIZE) / 2;
 
     ctx.save();
     ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+    // Dark forest surround background
+    ctx.fillStyle = '#162e1d';
+    ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
     // Apply zoom & center camera
     ctx.translate(this.canvas.width / 2, this.canvas.height / 2);
@@ -328,13 +332,22 @@ export class TownEngine {
     // 1. Terrain
     renderGround(ctx, this.map, this.tick, viewX, viewY, viewW, viewH);
 
-    // 2. Signs
+    // 2. Warm Street Lamp Glows on Ground
+    renderLighting(ctx, this.map.lamps);
+
+    // 3. Props (Statue / Pedestal)
+    renderProps(ctx, this.map.props);
+
+    // 4. Street Lamp Posts
+    renderLamps(ctx, this.map.lamps);
+
+    // 5. Signs (LinkedIn, Résumé, GitHub, Email)
     renderSigns(ctx, this.map.signs);
 
-    // 3. Buildings
+    // 6. Buildings with glowing windows, balconies, awnings, and floating badges
     renderBuildings(ctx, this.map.buildings);
 
-    // 4. NPCs
+    // 7. NPCs with floating badges
     for (const npc of this.map.npcs) {
       drawCharacter(
         ctx,
@@ -345,9 +358,31 @@ export class TownEngine {
         npc.y * TILE_SIZE,
         1
       );
+
+      // Pill Badge above NPC
+      const label = npc.badge || npc.name;
+      drawPillBadge(ctx, label, npc.x * TILE_SIZE + 8, npc.y * TILE_SIZE - 4);
+
+      // Floating speech bubble if twin
+      if (npc.id === 'twin') {
+        const bx = npc.x * TILE_SIZE + 22;
+        const by = npc.y * TILE_SIZE - 6;
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.roundRect(bx, by, 13, 9, 3);
+        ctx.fill();
+        ctx.strokeStyle = '#1c1726';
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+
+        ctx.fillStyle = '#1c1726';
+        ctx.fillRect(bx + 2.5, by + 3.5, 1.5, 1.5);
+        ctx.fillRect(bx + 5.5, by + 3.5, 1.5, 1.5);
+        ctx.fillRect(bx + 8.5, by + 3.5, 1.5, 1.5);
+      }
     }
 
-    // 5. Player
+    // 8. Player
     const drawX =
       (this.playerPos.x + (this.playerTarget.x - this.playerPos.x) * this.moveProgress) * TILE_SIZE;
     const drawY =

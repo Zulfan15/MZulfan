@@ -1,0 +1,71 @@
+---
+interface Props {
+  size?: number;
+  class?: string;
+}
+
+const { size = 76, class: className = '' } = Astro.props;
+---
+
+<div
+  class:list={[
+    'relative overflow-hidden rounded-md border-2 border-[#1c1726] bg-[#5db3c1] shadow-sm flex items-center justify-center shrink-0',
+    className,
+  ]}
+  style={`width: ${size}px; height: ${size}px;`}
+>
+  <svg
+    viewBox="0 0 16 16"
+    width="100%"
+    height="100%"
+    class="w-full h-full"
+    style="image-rendering: pixelated; shape-rendering: crispEdges;"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <!-- Background is handled by container #5db3c1 -->
+
+    <!-- Hair Back / Top -->
+    <rect x="4" y="2" width="8" height="2" fill="#1c1726" />
+    <rect x="3" y="3" width="10" height="2" fill="#1c1726" />
+    <rect x="2" y="4" width="3" height="4" fill="#1c1726" />
+    <rect x="11" y="4" width="3" height="4" fill="#1c1726" />
+
+    <!-- Face Base (Peach) -->
+    <rect x="4" y="4" width="8" height="6" fill="#fedbb7" />
+    <rect x="3" y="6" width="10" height="4" fill="#fedbb7" />
+    <rect x="4" y="10" width="8" height="1" fill="#fedbb7" />
+
+    <!-- Hair Bangs / Front -->
+    <rect x="4" y="4" width="3" height="2" fill="#1c1726" />
+    <rect x="7" y="4" width="2" height="1" fill="#1c1726" />
+    <rect x="9" y="4" width="3" height="2" fill="#1c1726" />
+    <rect x="3" y="4" width="1" height="3" fill="#1c1726" />
+    <rect x="12" y="4" width="1" height="3" fill="#1c1726" />
+
+    <!-- Eyes (2x1 pixel rectangles) -->
+    <rect x="5" y="7" width="1.5" height="1.5" fill="#1c1726" />
+    <rect x="9.5" y="7" width="1.5" height="1.5" fill="#1c1726" />
+
+    <!-- Cheeks / Blush -->
+    <rect x="4" y="8" width="1" height="1" fill="#f7a89e" />
+    <rect x="11" y="8" width="1" height="1" fill="#f7a89e" />
+
+    <!-- Smile -->
+    <rect x="7" y="9" width="2" height="1" fill="#1c1726" />
+    <rect x="6.5" y="8.5" width="0.8" height="0.8" fill="#1c1726" />
+    <rect x="8.7" y="8.5" width="0.8" height="0.8" fill="#1c1726" />
+
+    <!-- Neck -->
+    <rect x="7" y="11" width="2" height="1" fill="#e8ba94" />
+
+    <!-- Shirt (Teal with dark outline) -->
+    <rect x="3" y="12" width="10" height="4" fill="#1f7a8b" />
+    <rect x="2" y="14" width="12" height="2" fill="#1f7a8b" />
+    <!-- Collar / Trim -->
+    <rect x="6" y="12" width="4" height="1" fill="#fedbb7" />
+    <rect x="7" y="13" width="2" height="1" fill="#13535f" />
+    <!-- Shoulders outline -->
+    <rect x="2" y="13" width="1" height="3" fill="#1c1726" />
+    <rect x="13" y="13" width="1" height="3" fill="#1c1726" />
+  </svg>
+</div>

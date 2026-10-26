@@ -1,0 +1,62 @@
+---
+interface Props {
+  name: string;
+  icon?: string;
+  color?: string;
+}
+
+const { name, color = '#1c1726' } = Astro.props;
+---
+
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border-2 border-[#1c1726] bg-white text-ink shadow-[0_1.5px_0_0_#1c1726] hover:-translate-y-0.5 hover:bg-[#fffdf7] transition-all cursor-default select-none">
+  {name === 'Python' && (
+    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none">
+      <path d="M12 2C6.48 2 6.8 4.4 6.8 4.4L6.81 6.9H12.2V7.7H4.4S2 7.37 2 12.9c0 5.53 2.1 5.3 2.1 5.3h1.25v-1.75s-.07-2.1 2.05-2.1h5.3v-.8H7.4s-1.85.03-1.85-1.8c0-1.83 1.6-1.8 1.6-1.8h8.55s1.7.07 1.7-1.63V4.4S17.52 2 12 2z" fill="#3776AB"/>
+      <path d="M12 22c5.52 0 5.2-2.4 5.2-2.4l-.01-2.5H11.8v-.8h7.8s2.4.33 2.4-5.2c0-5.53-2.1-5.3-2.1-5.3h-1.25v1.75s.07 2.1-2.05 2.1h-5.3v.8h5.3s1.85-.03 1.85 1.8c0 1.83-1.6 1.8-1.6 1.8H8.05s-1.7-.07-1.7 1.63V19.6S6.48 22 12 22z" fill="#FFD43B"/>
+      <circle cx="9.2" cy="4.2" r=".9" fill="#fff"/>
+      <circle cx="14.8" cy="19.8" r=".9" fill="#fff"/>
+    </svg>
+  )}
+
+  {name === 'TypeScript' && (
+    <span class="w-3.5 h-3.5 bg-[#3178C6] text-white rounded-xs font-mono font-bold text-[8px] flex items-center justify-center leading-none">
+      TS
+    </span>
+  )}
+
+  {name === 'Go' && (
+    <span class="w-3.5 h-3.5 bg-[#00ADD8] text-white rounded-xs font-mono font-bold text-[8px] flex items-center justify-center leading-none">
+      Go
+    </span>
+  )}
+
+  {name === 'PHP / Laravel' && (
+    <span class="w-3.5 h-3.5 bg-[#FF2D20] text-white rounded-xs font-mono font-bold text-[8px] flex items-center justify-center leading-none">
+      Lv
+    </span>
+  )}
+
+  {name === 'PyTorch' && (
+    <span class="text-xs leading-none">🔥</span>
+  )}
+
+  {name === 'TensorRT' && (
+    <span class="w-3.5 h-3.5 bg-[#76B900] text-black rounded-xs font-mono font-bold text-[7px] flex items-center justify-center leading-none">
+      RT
+    </span>
+  )}
+
+  {name === 'OpenCV' && (
+    <span class="text-xs leading-none">👁️</span>
+  )}
+
+  {name === 'Docker' && (
+    <span class="text-xs leading-none">🐳</span>
+  )}
+
+  {!['Python', 'TypeScript', 'Go', 'PHP / Laravel', 'PyTorch', 'TensorRT', 'OpenCV', 'Docker'].includes(name) && (
+    <span class="w-2 h-2 rounded-full" style={`background-color: ${color};`}></span>
+  )}
+
+  <span class="font-pixel text-[11px] font-bold tracking-tight text-[#1c1726]">{name}</span>
+</div>

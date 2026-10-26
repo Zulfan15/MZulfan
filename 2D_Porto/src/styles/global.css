@@ -2,7 +2,7 @@
 
 /* ───────────────────────── Design tokens ───────────────────────── */
 @theme {
-  --font-pixel: "Press Start 2P", ui-monospace, monospace;
+  --font-pixel: "Pixelify Sans", "Press Start 2P", ui-monospace, monospace;
   --font-retro: "VT323", ui-monospace, monospace;
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
@@ -160,11 +160,11 @@
   .stage { @apply relative grid min-h-0; grid-template-columns: 1fr; grid-template-rows: minmax(42dvh, 48dvh) auto; }
   @media (min-width: 900px) {
     .shell { @apply h-dvh overflow-hidden; }
-    .stage { grid-template-columns: minmax(0, 1fr) clamp(380px, 36vw, 560px); grid-template-rows: minmax(0, 1fr); }
+    .stage { grid-template-columns: minmax(0, 1.05fr) minmax(460px, 0.95fr); grid-template-rows: minmax(0, 1fr); }
   }
-  .town-wrap { @apply relative min-h-0 overflow-hidden bg-grass-dark; }
-  .panel { @apply relative min-h-0 border-ink bg-cream max-[899px]:border-t-[3px] min-[900px]:border-l-[3px]; }
-  .panel-body { @apply h-full overflow-y-auto px-4 pb-16 pt-5 sm:px-6; background: var(--grass-pattern), var(--color-cream); }
+  .town-wrap { @apply relative min-h-0 overflow-hidden bg-[#162e1d]; }
+  .panel { @apply relative min-h-0 border-ink bg-[#fcf8ef] max-[899px]:border-t-[3px] min-[900px]:border-l-[3px]; }
+  .panel-body { @apply h-full overflow-y-auto px-4 pb-16 pt-3 sm:px-6; background: #fcf8ef; }
   html[data-place="dev"] .panel-body {
     @apply text-mc-text;
     background-color: var(--color-mc-bg);
@@ -172,5 +172,13 @@
       linear-gradient(var(--color-mc-line) 1px, transparent 1px),
       linear-gradient(90deg, var(--color-mc-line) 1px, transparent 1px);
     background-size: 24px 24px;
+  }
+
+  /* Wooden notice board container */
+  .board-frame {
+    background-color: #8c5b34;
+    border: 3px solid #1c1726;
+    box-shadow: inset 0 0 0 3px #a8703f, 0 5px 0 0 #1c1726;
+    border-radius: 8px;
   }
 }

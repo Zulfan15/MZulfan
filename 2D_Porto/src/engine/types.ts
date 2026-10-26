@@ -58,26 +58,38 @@ export interface CharacterPalette {
 export interface Npc extends Interactable, Vec {
   dir: Dir;
   palette: CharacterPalette;
+  badge?: string;
+  bubble?: string;
 }
 
 export interface Sign extends Interactable, Vec {
   style: 'board' | 'post' | 'mailbox';
 }
 
+export interface Lamp extends Vec {
+  radius?: number;
+}
+
+export interface Prop extends Interactable, Vec {
+  badge?: string;
+  type: 'statue' | 'bench' | 'fountain';
+}
+
 export interface Building {
   id: string;
   name: string;
+  badge: string;
   route: string;
   x: number;
   y: number;
   w: number;
   h: number;
-  /** absolute door tiles (bottom row of the building). */
   doors: Vec[];
   roof: string;
   roofDark: string;
   wall: string;
   sign: string;
+  style?: 'mansion' | 'standard' | 'lab' | 'shop';
 }
 
 export interface Spawn extends Vec {
@@ -93,6 +105,8 @@ export interface TownMap {
   buildings: Building[];
   npcs: Npc[];
   signs: Sign[];
+  lamps: Lamp[];
+  props: Prop[];
   /** door tile index → route */
   doors: Map<number, string>;
   spawns: Record<string, Spawn>;

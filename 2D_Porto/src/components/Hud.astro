@@ -2,38 +2,35 @@
 import { profile } from '../lib/profile';
 ---
 
-<header class="h-[var(--hud-h)] border-b-[3px] border-ink bg-paper px-3 sm:px-6 flex items-center justify-between z-30 select-none shadow-[var(--shadow-pixel-sm)]">
+<header class="h-[var(--hud-h)] border-b-2 border-ink bg-[#fcf8ef] px-4 sm:px-6 flex items-center justify-between z-30 select-none">
   <div class="flex items-center gap-3">
     <a href="#content" class="skip-link">Skip to content</a>
     <a href="/" class="flex items-center gap-2 group text-decoration-none">
-      <span class="inline-flex items-center justify-center w-8 h-8 rounded-md bg-ball border-2 border-ink text-paper font-pixel text-xs group-hover:scale-105 transition-transform">
-        {profile.person.initials}
+      <span class="text-xl">🏡</span>
+      <span class="font-pixel text-base font-bold text-ink tracking-wide group-hover:text-ball transition-colors">
+        {profile.person.short_name}'s Town
       </span>
-      <div>
-        <div class="font-pixel text-[11px] text-ink group-hover:text-ball transition-colors">
-          {profile.person.short_name}'s Town
-        </div>
-        <div class="font-mono text-[9px] text-ink-soft hidden sm:block">
-          Informatics Graduate · S.Kom.
-        </div>
-      </div>
     </a>
   </div>
 
   <nav class="flex items-center gap-2">
-    <button id="hud-sound-toggle" type="button" class="btn btn-sm" title="Toggle 8-bit Sound Effects" aria-label="Toggle Sound">
+    <button id="hud-sound-toggle" type="button" class="w-8 h-8 rounded-full border-2 border-ink bg-white text-xs flex items-center justify-center text-ink hover:bg-cream shadow-sm cursor-pointer transition-all" title="Toggle 8-bit Sound Effects" aria-label="Toggle Sound">
       <span id="sound-icon">🔊</span>
     </button>
 
-    <button id="hud-dex-btn" type="button" class="btn btn-sm" title="Open Critterdex" aria-haspopup="dialog">
-      <span class="text-ball">●</span>
-      <span class="hidden sm:inline">DEX</span>
-      <span id="dex-counter" class="font-mono font-bold">0/12</span>
+    <button id="hud-map-btn" type="button" class="flex items-center gap-1.5 px-3 py-1 rounded-full border-2 border-ink bg-white font-pixel text-xs text-ink hover:bg-cream shadow-sm cursor-pointer transition-all" title="Quick Travel Map" aria-haspopup="dialog">
+      <span>🗺️</span>
+      <span class="font-bold">Map</span>
     </button>
 
-    <button id="hud-map-btn" type="button" class="btn btn-sm btn-gold" title="Quick Travel Map" aria-haspopup="dialog">
-      <span>🗺️</span>
-      <span class="hidden sm:inline">MAP</span>
+    <button id="hud-dex-btn" type="button" class="flex items-center gap-1.5 px-3 py-1 rounded-full border-2 border-ink bg-white font-pixel text-xs text-ink hover:bg-cream shadow-sm cursor-pointer transition-all" title="Open Critterdex" aria-haspopup="dialog">
+      <span class="text-grass-dark">🌿</span>
+      <span class="font-bold">Dex</span>
+      <span id="dex-counter" class="font-mono text-xs">0/12</span>
+    </button>
+
+    <button id="hud-help-btn" type="button" class="w-8 h-8 rounded-full border-2 border-ink bg-white font-pixel text-xs font-bold flex items-center justify-center text-ink hover:bg-cream shadow-sm cursor-pointer transition-all" title="How this town works">
+      ?
     </button>
   </nav>
 </header>
@@ -48,6 +45,14 @@ import { profile } from '../lib/profile';
     const dexBtn = document.getElementById('hud-dex-btn');
     const mapBtn = document.getElementById('hud-map-btn');
     const dexCounter = document.getElementById('dex-counter');
+    const helpBtn = document.getElementById('hud-help-btn');
+
+    if (helpBtn) {
+      helpBtn.onclick = () => {
+        sfx.select();
+        document.dispatchEvent(new CustomEvent('town:open-modal', { detail: { target: 'map' } }));
+      };
+    }
 
     if (soundBtn && soundIcon) {
       soundIcon.textContent = sfx.isEnabled() ? '🔊' : '🔇';
