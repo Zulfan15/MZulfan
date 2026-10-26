@@ -1,0 +1,50 @@
+---
+import TownLayout from '../layouts/TownLayout.astro';
+import WhereTo from '../components/WhereTo.astro';
+import { profile } from '../lib/profile';
+---
+
+<TownLayout place="about" title={`Privacy Policy & Colophon — ${profile.person.name}`}>
+  <div class="mcp mcp--shop">
+    <header class="shop-id">
+      <div class="shop-id__text">
+        <p class="mcp-kicker">🔒 SECURITY · PRIVACY · ARCHITECTURE</p>
+        <h1 id="panel-title" class="shop-sign" tabindex="-1">Privacy &amp; Site Notice</h1>
+        <dl class="shop-id__meta">
+          <div>
+            <dt>Certified</dt>
+            <dd>Huawei HCIA-Security V4.0</dd>
+          </div>
+          <div>
+            <dt>Policy</dt>
+            <dd>Zero Tracking · Privacy First</dd>
+          </div>
+        </dl>
+      </div>
+    </header>
+
+    <section class="mcp-card" aria-labelledby="privacy-title">
+      <h2 id="privacy-title" class="mcp-h">Data Privacy</h2>
+      <p class="lead">
+        This portfolio website is designed and engineered with privacy as a foundational principle.
+      </p>
+      <p class="text-xs text-[#f6e7c8] leading-relaxed mt-2">
+        • No third-party behavioral analytics, fingerprinting, or tracking scripts are deployed.<br/>
+        • All interactivity—including the 2D tile canvas engine, collision detection, and audio synthesizers—runs entirely on your local client.<br/>
+        • The Spotify player embed and fastlane jukebox respect standard CSP and do not store persistent tracking cookies.
+      </p>
+    </section>
+
+    <section class="mcp-card" aria-labelledby="colophon-title">
+      <h2 id="colophon-title" class="mcp-h">Colophon &amp; Stack</h2>
+      <p class="text-xs text-[#f6e7c8] leading-relaxed">
+        Built by <strong>{profile.person.name}</strong> using Astro, Vanilla CSS, HTML5 Canvas 2D, TypeScript, and Cloudflare Pages.
+      </p>
+      <p class="mt-2 text-xs">
+        <a href="/about" class="text-[#ff6fae] hover:underline">← Return to Home</a>
+      </p>
+    </section>
+
+    <WhereTo currentPath="/privacy" />
+  </div>
+</TownLayout>

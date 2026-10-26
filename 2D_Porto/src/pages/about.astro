@@ -9,9 +9,9 @@ const emailUrl = `mailto:${profile.person.email}`;
 const classicPortfolioUrl = profile.person.website || 'https://zulfan15.github.io/MZulfan';
 ---
 
-<TownLayout place="about" title={`About ${profile.person.short_name} — Home`}>
+<TownLayout place="about" title={`About ${profile.person.name} — Home`}>
   <div class="mcp mcp--shop">
-    <!-- Shop / Home Header -->
+    <!-- Header with 16x16 Pixel Avatar & Retro Shop Sign -->
     <header class="shop-id">
       <svg
         class="shop-id__avatar portrait portrait--idle"
@@ -19,48 +19,150 @@ const classicPortfolioUrl = profile.person.website || 'https://zulfan15.github.i
         shape-rendering="crispEdges"
         role="img"
         aria-label={`${profile.person.short_name}'s pixel character`}
+        style="--skin: #efc19c"
       >
         <rect width="16" height="16" fill="#0f1a33"></rect>
         <g class="sprite">
-          <!-- Hair (Dark Brown / Black) -->
-          <rect x="5" y="2" width="6" height="1" fill="#141218"></rect>
-          <rect x="4" y="3" width="8" height="2" fill="#1f1a24"></rect>
-          <rect x="3" y="4" width="2" height="4" fill="#141218"></rect>
-          <rect x="11" y="4" width="2" height="4" fill="#141218"></rect>
-          <!-- Face skin tone -->
-          <rect x="5" y="5" width="6" height="5" fill="#efc19c"></rect>
-          <rect x="4" y="6" width="1" height="3" fill="#efc19c"></rect>
-          <rect x="11" y="6" width="1" height="3" fill="#efc19c"></rect>
-          <!-- Eyes -->
-          <rect x="6" y="7" width="1" height="2" fill="#1f1a24"></rect>
-          <rect x="9" y="7" width="1" height="2" fill="#1f1a24"></rect>
-          <!-- Cheeks / blush -->
-          <rect x="5" y="8" width="1" height="1" fill="#f59e9e"></rect>
-          <rect x="10" y="8" width="1" height="1" fill="#f59e9e"></rect>
-          <!-- Mouth -->
-          <rect x="7" y="9" width="2" height="1" fill="#b3544f"></rect>
-          <!-- Torso / Red Jacket Shirt -->
-          <rect x="4" y="11" width="8" height="4" fill="#e8473f"></rect>
-          <rect x="6" y="11" width="4" height="4" fill="#2bb3a3"></rect>
-          <rect x="7" y="11" width="2" height="4" fill="#f6e7c8"></rect>
-          <rect x="3" y="12" width="1" height="3" fill="#e8473f"></rect>
-          <rect x="12" y="12" width="1" height="3" fill="#e8473f"></rect>
-          <!-- Hands -->
+          <rect x="5" y="3" width="1" height="1" fill="#141218"></rect>
+          <rect x="6" y="3" width="1" height="1" fill="#141218"></rect>
+          <rect x="7" y="3" width="1" height="1" fill="#141218"></rect>
+          <rect x="8" y="3" width="1" height="1" fill="#141218"></rect>
+          <rect x="9" y="3" width="1" height="1" fill="#141218"></rect>
+          <rect x="10" y="3" width="1" height="1" fill="#141218"></rect>
+          <rect x="4" y="4" width="1" height="1" fill="#141218"></rect>
+          <rect x="5" y="4" width="1" height="1" fill="#6b6878"></rect>
+          <rect x="6" y="4" width="1" height="1" fill="#6b6878"></rect>
+          <rect x="7" y="4" width="1" height="1" fill="#1f1a24"></rect>
+          <rect x="8" y="4" width="1" height="1" fill="#1f1a24"></rect>
+          <rect x="9" y="4" width="1" height="1" fill="#6b6878"></rect>
+          <rect x="10" y="4" width="1" height="1" fill="#6b6878"></rect>
+          <rect x="11" y="4" width="1" height="1" fill="#141218"></rect>
+          <rect x="3" y="5" width="1" height="1" fill="#141218"></rect>
+          <rect x="4" y="5" width="1" height="1" fill="#6b6878"></rect>
+          <rect x="5" y="5" width="1" height="1" fill="#1f1a24"></rect>
+          <rect x="6" y="5" width="1" height="1" fill="#1f1a24"></rect>
+          <rect x="7" y="5" width="1" height="1" fill="#1f1a24"></rect>
+          <rect x="8" y="5" width="1" height="1" fill="#1f1a24"></rect>
+          <rect x="9" y="5" width="1" height="1" fill="#1f1a24"></rect>
+          <rect x="10" y="5" width="1" height="1" fill="#1f1a24"></rect>
+          <rect x="11" y="5" width="1" height="1" fill="#6b6878"></rect>
+          <rect x="12" y="5" width="1" height="1" fill="#141218"></rect>
+          <rect x="2" y="6" width="1" height="1" fill="#141218"></rect>
+          <rect x="3" y="6" width="1" height="1" fill="#141218"></rect>
+          <rect x="4" y="6" width="1" height="1" fill="#141218"></rect>
+          <rect x="5" y="6" width="1" height="1" fill="#1f1a24"></rect>
+          <rect x="6" y="6" width="1" height="1" fill="#1f1a24"></rect>
+          <rect x="7" y="6" width="1" height="1" fill="#1f1a24"></rect>
+          <rect x="8" y="6" width="1" height="1" fill="#1f1a24"></rect>
+          <rect x="9" y="6" width="1" height="1" fill="#1f1a24"></rect>
+          <rect x="10" y="6" width="1" height="1" fill="#1f1a24"></rect>
+          <rect x="11" y="6" width="1" height="1" fill="#141218"></rect>
+          <rect x="12" y="6" width="1" height="1" fill="#141218"></rect>
+          <rect x="13" y="6" width="1" height="1" fill="#141218"></rect>
+          <rect x="2" y="7" width="1" height="1" fill="#141218"></rect>
+          <rect x="3" y="7" width="1" height="1" fill="#6b6878"></rect>
+          <rect x="4" y="7" width="1" height="1" fill="#141218"></rect>
+          <rect x="5" y="7" width="1" height="1" fill="#1f1a24"></rect>
+          <rect x="6" y="7" width="1" height="1" fill="#efc19c"></rect>
+          <rect x="7" y="7" width="1" height="1" fill="#efc19c"></rect>
+          <rect x="8" y="7" width="1" height="1" fill="#efc19c"></rect>
+          <rect x="9" y="7" width="1" height="1" fill="#efc19c"></rect>
+          <rect x="10" y="7" width="1" height="1" fill="#efc19c"></rect>
+          <rect x="11" y="7" width="1" height="1" fill="#141218"></rect>
+          <rect x="12" y="7" width="1" height="1" fill="#6b6878"></rect>
+          <rect x="13" y="7" width="1" height="1" fill="#141218"></rect>
+          <rect x="2" y="8" width="1" height="1" fill="#141218"></rect>
+          <rect x="3" y="8" width="1" height="1" fill="#6b6878"></rect>
+          <rect x="4" y="8" width="1" height="1" fill="#141218"></rect>
+          <rect x="5" y="8" width="1" height="1" fill="#efc19c"></rect>
+          <rect x="6" y="8" width="1" height="1" fill="#1f1a24" class="eye"></rect>
+          <rect x="7" y="8" width="1" height="1" fill="#efc19c"></rect>
+          <rect x="8" y="8" width="1" height="1" fill="#efc19c"></rect>
+          <rect x="9" y="8" width="1" height="1" fill="#1f1a24" class="eye"></rect>
+          <rect x="10" y="8" width="1" height="1" fill="#efc19c"></rect>
+          <rect x="11" y="8" width="1" height="1" fill="#141218"></rect>
+          <rect x="12" y="8" width="1" height="1" fill="#6b6878"></rect>
+          <rect x="13" y="8" width="1" height="1" fill="#141218"></rect>
+          <rect x="2" y="9" width="1" height="1" fill="#141218"></rect>
+          <rect x="3" y="9" width="1" height="1" fill="#141218"></rect>
+          <rect x="4" y="9" width="1" height="1" fill="#efc19c"></rect>
+          <rect x="5" y="9" width="1" height="1" fill="#f59e9e"></rect>
+          <rect x="6" y="9" width="1" height="1" fill="#efc19c"></rect>
+          <rect x="7" y="9" width="1" height="1" fill="#efc19c"></rect>
+          <rect x="8" y="9" width="1" height="1" fill="#efc19c"></rect>
+          <rect x="9" y="9" width="1" height="1" fill="#efc19c"></rect>
+          <rect x="10" y="9" width="1" height="1" fill="#efc19c"></rect>
+          <rect x="11" y="9" width="1" height="1" fill="#f59e9e"></rect>
+          <rect x="12" y="9" width="1" height="1" fill="#141218"></rect>
+          <rect x="13" y="9" width="1" height="1" fill="#141218"></rect>
+          <rect x="4" y="10" width="1" height="1" fill="#2b2233"></rect>
+          <rect x="5" y="10" width="1" height="1" fill="#efc19c"></rect>
+          <rect x="6" y="10" width="1" height="1" fill="#efc19c"></rect>
+          <rect x="7" y="10" width="1" height="1" fill="#b3544f"></rect>
+          <rect x="8" y="10" width="1" height="1" fill="#b3544f"></rect>
+          <rect x="9" y="10" width="1" height="1" fill="#efc19c"></rect>
+          <rect x="10" y="10" width="1" height="1" fill="#efc19c"></rect>
+          <rect x="11" y="10" width="1" height="1" fill="#2b2233"></rect>
+          <rect x="5" y="11" width="1" height="1" fill="#2b2233"></rect>
+          <rect x="6" y="11" width="1" height="1" fill="#2b2233"></rect>
+          <rect x="7" y="11" width="1" height="1" fill="#efc19c"></rect>
+          <rect x="8" y="11" width="1" height="1" fill="#efc19c"></rect>
+          <rect x="9" y="11" width="1" height="1" fill="#2b2233"></rect>
+          <rect x="10" y="11" width="1" height="1" fill="#2b2233"></rect>
+          <rect x="4" y="12" width="1" height="1" fill="#2b2233"></rect>
+          <rect x="5" y="12" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="6" y="12" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="7" y="12" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="8" y="12" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="9" y="12" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="10" y="12" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="11" y="12" width="1" height="1" fill="#2b2233"></rect>
+          <rect x="3" y="13" width="1" height="1" fill="#2b2233"></rect>
+          <rect x="4" y="13" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="5" y="13" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="6" y="13" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="7" y="13" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="8" y="13" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="9" y="13" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="10" y="13" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="11" y="13" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="12" y="13" width="1" height="1" fill="#2b2233"></rect>
+          <rect x="2" y="14" width="1" height="1" fill="#2b2233"></rect>
+          <rect x="3" y="14" width="1" height="1" fill="#efc19c"></rect>
+          <rect x="4" y="14" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="5" y="14" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="6" y="14" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="7" y="14" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="8" y="14" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="9" y="14" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="10" y="14" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="11" y="14" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="12" y="14" width="1" height="1" fill="#efc19c"></rect>
+          <rect x="13" y="14" width="1" height="1" fill="#2b2233"></rect>
+          <rect x="2" y="15" width="1" height="1" fill="#2b2233"></rect>
           <rect x="3" y="15" width="1" height="1" fill="#efc19c"></rect>
+          <rect x="4" y="15" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="5" y="15" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="6" y="15" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="7" y="15" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="8" y="15" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="9" y="15" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="10" y="15" width="1" height="1" fill="#2bb3a3"></rect>
+          <rect x="11" y="15" width="1" height="1" fill="#2bb3a3"></rect>
           <rect x="12" y="15" width="1" height="1" fill="#efc19c"></rect>
+          <rect x="13" y="15" width="1" height="1" fill="#2b2233"></rect>
         </g>
       </svg>
 
       <div class="shop-id__text">
         <p class="mcp-kicker">🏠 Home · 💿 Records · Vintage</p>
         <h1 id="panel-title" class="shop-sign" tabindex="-1">
-          MUHAMMAD ZULFAN
+          Muhammad Zulfan
         </h1>
-        <div class="shop-sign__sub">ANGGADHIPUTRA</div>
         <dl class="shop-id__meta">
           <div>
             <dt>Class</dt>
-            <dd>{profile.person.title}</dd>
+            <dd>Software &amp; AI Engineer</dd>
           </div>
           <div>
             <dt>Guild</dt>
@@ -74,35 +176,36 @@ const classicPortfolioUrl = profile.person.website || 'https://zulfan15.github.i
       Come on in. The jukebox, the crates and the DJ booth all work. My place is up the stairs at the back. The flags and the desk both have stories, the TV works, and you can leave me a note on the fridge.
     </p>
 
-    <!-- CV Download Card -->
-    <div class="mcp-card bg-[#241717] border-2 border-[#5a3030] flex flex-col sm:flex-row items-center justify-between gap-3 p-3.5">
+    <!-- Verified CV Download Card -->
+    <div class="mcp-card" style="border-top-color: var(--mcp-amber); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.8rem;">
       <div>
-        <div class="font-pixel text-[11px] text-[#ff6fae]">VERIFIED CURRICULUM VITAE (CV)</div>
-        <div class="font-mono text-xs text-[#c9a98a] mt-0.5">Latest edition · PDF format</div>
+        <div style="font-family: var(--font-retro, monospace); font-size: 0.55rem; color: var(--mcp-amber); letter-spacing: 0.05em; text-transform: uppercase;">VERIFIED CURRICULUM VITAE (CV)</div>
+        <div style="font-size: 1.15rem; color: var(--mcp-dim); margin-top: 0.15rem;">Latest edition · Formal PDF format</div>
       </div>
       <a
         href="/cv/CV_Zulfan.pdf"
         target="_blank"
         rel="noopener noreferrer"
-        class="mcp-btn mcp-btn--primary text-xs py-2 px-4 flex items-center gap-2"
+        class="mcp-btn mcp-btn--primary"
+        style="gap: 0.4rem; padding: 0.4rem 0.8rem;"
       >
         <span>📥</span>
         <span>DOWNLOAD CV</span>
       </a>
     </div>
 
-    <!-- // BIO -->
+    <!-- // Bio -->
     <section class="mcp-card" aria-labelledby="bio-title">
       <h2 id="bio-title" class="mcp-h">Bio</h2>
-      <p class="text-white text-sm leading-relaxed">
-        I'm a Software Engineer and AI Developer. I study Informatics at Institut Teknologi Nasional (ITENAS) Bandung with a cumulative GPA of 3.49 / 4.00 (Class of 2026).
+      <p class="lead">
+        I'm a Software and AI Engineer. I graduated with top honors in Informatics / Computer Science and AI from Institut Teknologi Nasional (ITENAS) Bandung (GPA 3.49 / 4.00, Class of 2026).
       </p>
-      <p class="text-[#f6e7c8] text-xs leading-relaxed mt-2">
-        I specialize in building intelligent, computer-vision and edge-AI applications alongside high-performance distributed backend architectures. From real-time UAV military aircraft detection with custom YOLOv11 and TensorRT to cloud-native food-surplus platforms built with Laravel, Redis, Kafka, and Kubernetes, I thrive on engineering rigorous, creative software systems.
+      <p>
+        I specialize in building intelligent, AI-driven applications and computer vision systems that solve complex, real-world problems. From real-time UAV military aircraft detection with custom YOLOv11 and TensorRT (1.8 ms/frame inference) and cloud-native food-rescue platforms with Laravel, Redis, Kafka, and Kubernetes, to competitive game-playing AI agents and LLM orchestration, I thrive on projects that demand a blend of rigorous and creative software development.
       </p>
     </section>
 
-    <!-- // STATS -->
+    <!-- // Stats -->
     <section class="mcp-card" aria-labelledby="stats-title">
       <h2 id="stats-title" class="mcp-h">Stats</h2>
       <dl class="stats">
@@ -116,7 +219,7 @@ const classicPortfolioUrl = profile.person.website || 'https://zulfan15.github.i
         </div>
         <div>
           <dt>Major</dt>
-          <dd>CS &amp; AI</dd>
+          <dd>CS + AI</dd>
         </div>
         <div>
           <dt>Projects</dt>
@@ -129,160 +232,460 @@ const classicPortfolioUrl = profile.person.website || 'https://zulfan15.github.i
       </dl>
     </section>
 
-    <!-- // CURRENT QUEST -->
+    <!-- // Current quest -->
     <section class="mcp-card" aria-labelledby="quest-title">
       <h2 id="quest-title" class="mcp-h">Current quest</h2>
       <p class="quest">
         ▶ <strong>AI Engineer &amp; Full Stack Developer</strong> @ AeroScan &amp; FoodLink
       </p>
-      <p class="mcp-dim text-xs mt-1">
-        📬 Open to: New opportunities in software engineering, AI, computer vision, and data science.
+      <p class="mcp-dim">
+        📬 Open to: New opportunities in AI, computer vision, data science, and software engineering.
       </p>
     </section>
 
-    <!-- // NOW SPINNING -->
-    <section class="mcp-card" aria-labelledby="spin-title">
+    <!-- // Now spinning -->
+    <section class="mcp-card" aria-labelledby="spin-title" data-spotify="" aria-live="polite" data-rendered="1">
       <h2 id="spin-title" class="mcp-h">Now spinning</h2>
-      <p class="mcp-dim text-xs">
-        Warming up the tubes… lo-fi beats, synthwave rhythms &amp; vinyl crackle.
-      </p>
-      <div class="mcp-fastlane mt-2">
+      <div class="spin">
+        <img
+          class="spin__sleeve"
+          src="https://i.scdn.co/image/ab67616d000048512685b70af798b4f272c00d8a"
+          alt="Solar Eclipse album art"
+          width="72"
+          height="72"
+        />
+        <p class="spin__text">
+          <strong>Solar Eclipse (feat. Don Toliver)</strong>
+          <span class="mcp-dim">Drake, Don Toliver</span>
+          <span class="mcp-dim spin__updated">#1 this month · Updated Oct 25</span>
+        </p>
+      </div>
+      <div class="mcp-fastlane">
         <button type="button" class="mcp-btn mcp-btn--primary" data-room-action="shop-jukebox">🎵 Jukebox</button>
         <button type="button" class="mcp-btn" data-room-action="shop-posters">🎸 Gig posters</button>
-        <button type="button" class="mcp-btn" data-room-action="crates">💿 Record crates</button>
-        <button type="button" class="mcp-btn" data-room-action="decks">📞 DJ booth</button>
-        <a class="mcp-btn" href="#closet">🧥 The Closet</a>
+        <button type="button" class="mcp-btn" data-room-action="crates">💿 Crate Match</button>
+        <button type="button" class="mcp-btn" data-room-action="decks">📞 Request line</button>
+        <a class="mcp-btn" href="#closet" data-closet-link="">🧥 The Closet</a>
       </div>
     </section>
 
-    <!-- // ACHIEVEMENTS -->
+    <!-- // Achievements -->
     <section class="mcp-card" aria-labelledby="ach-title">
       <h2 id="ach-title" class="mcp-h">Achievements</h2>
-      <ul class="achievements">
+      <ul class="clean achievements">
         <li>Bronze Medal &amp; Finalist — IDEA FEST 3 National Competition</li>
         <li>Huawei Certified ICT Associate — Security (HCIA-Security V4.0)</li>
         <li>Robotics Laboratory Assistant Coordinator — ITENAS Robotic Club</li>
         <li>6x Laboratory Assistant across Database, OOP, Computer Network, IoT, and Robotics Labs</li>
         <li>Project Lead — AeroScan YOLOv11 TensorRT (1.8 ms/frame inference)</li>
       </ul>
-      <details class="achievements__more mt-2">
+      <details class="achievements__more">
         <summary>Show all honors</summary>
-        <ul class="achievements pt-2">
+        <ul class="clean achievements">
           <li>Dean's Academic Honors &amp; Scholarships at ITENAS</li>
           <li>Published Undergraduate Thesis: YouTube Spam &amp; Phishing Detection (99.56% F1)</li>
           <li>Project Lead — FoodLink Geolocation Food Rescue Redistribution Platform</li>
+          <li>Head Coordinator &amp; Trainer — Embedded Systems &amp; IoT Workshop 2024</li>
         </ul>
       </details>
     </section>
 
-    <!-- // EQUIPPED -->
+    <!-- // Equipped -->
     <section class="mcp-card" aria-labelledby="eq-title">
       <h2 id="eq-title" class="mcp-h">Equipped</h2>
       <ul class="stack-chips">
+        <!-- Python -->
         <li class="stack-chip" style="--brand: #3776AB">
-          <span class="text-sm">🐍</span>
-          <span>Python</span>
+          <svg class="stack-chip__logo" viewBox="-1 -1 14 14" shape-rendering="crispEdges" aria-hidden="true">
+            <rect x="-1" y="-1" width="14" height="14" fill="#f4efe2"></rect>
+            <rect x="3" y="0" width="5" height="1" fill="#3776AB"></rect>
+            <rect x="3" y="1" width="1" height="1" fill="#3776AB"></rect>
+            <rect x="5" y="1" width="4" height="1" fill="#3776AB"></rect>
+            <rect x="3" y="2" width="6" height="1" fill="#3776AB"></rect>
+            <rect x="1" y="3" width="10" height="1" fill="#3776AB"></rect>
+            <rect x="0" y="4" width="12" height="1" fill="#3776AB"></rect>
+            <rect x="0" y="5" width="12" height="1" fill="#3776AB"></rect>
+            <rect x="0" y="6" width="12" height="1" fill="#3776AB"></rect>
+            <rect x="0" y="7" width="12" height="1" fill="#3776AB"></rect>
+            <rect x="1" y="8" width="10" height="1" fill="#3776AB"></rect>
+            <rect x="3" y="9" width="6" height="1" fill="#3776AB"></rect>
+            <rect x="3" y="10" width="4" height="1" fill="#3776AB"></rect>
+            <rect x="8" y="10" width="1" height="1" fill="#3776AB"></rect>
+            <rect x="4" y="11" width="5" height="1" fill="#3776AB"></rect>
+          </svg>
+          <span class="stack-chip__name">Python</span>
         </li>
+
+        <!-- TypeScript -->
         <li class="stack-chip" style="--brand: #3178C6">
-          <span class="text-sm">📘</span>
-          <span>TypeScript</span>
+          <svg class="stack-chip__logo" viewBox="-1 -1 14 14" shape-rendering="crispEdges" aria-hidden="true">
+            <rect x="-1" y="-1" width="14" height="14" fill="#f4efe2"></rect>
+            <rect x="0" y="0" width="12" height="1" fill="#3178C6"></rect>
+            <rect x="0" y="1" width="12" height="1" fill="#3178C6"></rect>
+            <rect x="0" y="2" width="12" height="1" fill="#3178C6"></rect>
+            <rect x="0" y="3" width="12" height="1" fill="#3178C6"></rect>
+            <rect x="0" y="4" width="12" height="1" fill="#3178C6"></rect>
+            <rect x="0" y="5" width="2" height="1" fill="#3178C6"></rect>
+            <rect x="6" y="5" width="2" height="1" fill="#3178C6"></rect>
+            <rect x="11" y="5" width="1" height="1" fill="#3178C6"></rect>
+            <rect x="0" y="6" width="3" height="1" fill="#3178C6"></rect>
+            <rect x="5" y="6" width="2" height="1" fill="#3178C6"></rect>
+            <rect x="8" y="6" width="4" height="1" fill="#3178C6"></rect>
+            <rect x="0" y="7" width="3" height="1" fill="#3178C6"></rect>
+            <rect x="5" y="7" width="2" height="1" fill="#3178C6"></rect>
+            <rect x="9" y="7" width="3" height="1" fill="#3178C6"></rect>
+            <rect x="0" y="8" width="3" height="1" fill="#3178C6"></rect>
+            <rect x="5" y="8" width="4" height="1" fill="#3178C6"></rect>
+            <rect x="11" y="8" width="1" height="1" fill="#3178C6"></rect>
+            <rect x="0" y="9" width="3" height="1" fill="#3178C6"></rect>
+            <rect x="5" y="9" width="4" height="1" fill="#3178C6"></rect>
+            <rect x="11" y="9" width="1" height="1" fill="#3178C6"></rect>
+            <rect x="0" y="10" width="4" height="1" fill="#3178C6"></rect>
+            <rect x="5" y="10" width="2" height="1" fill="#3178C6"></rect>
+            <rect x="10" y="10" width="2" height="1" fill="#3178C6"></rect>
+            <rect x="0" y="11" width="12" height="1" fill="#3178C6"></rect>
+          </svg>
+          <span class="stack-chip__name">TypeScript</span>
         </li>
+
+        <!-- Java -->
+        <li class="stack-chip" style="--brand: #ED8B00">
+          <svg class="stack-chip__logo" viewBox="-1 -1 14 14" shape-rendering="crispEdges" aria-hidden="true">
+            <rect x="-1" y="-1" width="14" height="14" fill="#f4efe2"></rect>
+            <rect x="4" y="0" width="1" height="1" fill="#ED8B00"></rect>
+            <rect x="7" y="0" width="1" height="1" fill="#ED8B00"></rect>
+            <rect x="3" y="1" width="1" height="1" fill="#ED8B00"></rect>
+            <rect x="6" y="1" width="1" height="1" fill="#ED8B00"></rect>
+            <rect x="4" y="2" width="1" height="1" fill="#ED8B00"></rect>
+            <rect x="7" y="2" width="1" height="1" fill="#ED8B00"></rect>
+            <rect x="3" y="3" width="1" height="1" fill="#ED8B00"></rect>
+            <rect x="6" y="3" width="1" height="1" fill="#ED8B00"></rect>
+            <rect x="1" y="5" width="9" height="1" fill="#ED8B00"></rect>
+            <rect x="1" y="6" width="9" height="1" fill="#ED8B00"></rect>
+            <rect x="11" y="6" width="1" height="1" fill="#ED8B00"></rect>
+            <rect x="1" y="7" width="9" height="1" fill="#ED8B00"></rect>
+            <rect x="11" y="7" width="1" height="1" fill="#ED8B00"></rect>
+            <rect x="1" y="8" width="9" height="1" fill="#ED8B00"></rect>
+            <rect x="2" y="9" width="7" height="1" fill="#ED8B00"></rect>
+            <rect x="0" y="10" width="1" height="1" fill="#ED8B00"></rect>
+            <rect x="10" y="10" width="1" height="1" fill="#ED8B00"></rect>
+            <rect x="1" y="11" width="9" height="1" fill="#ED8B00"></rect>
+          </svg>
+          <span class="stack-chip__name">Java</span>
+        </li>
+
+        <!-- Go -->
         <li class="stack-chip" style="--brand: #00ADD8">
-          <span class="text-sm">🐹</span>
-          <span>Go</span>
+          <svg class="stack-chip__logo" viewBox="-1 -1 14 14" shape-rendering="crispEdges" aria-hidden="true">
+            <rect x="-1" y="-1" width="14" height="14" fill="#f4efe2"></rect>
+            <rect x="5" y="3" width="1" height="1" fill="#00ADD8"></rect>
+            <rect x="4" y="4" width="8" height="1" fill="#00ADD8"></rect>
+            <rect x="0" y="5" width="9" height="1" fill="#00ADD8"></rect>
+            <rect x="10" y="5" width="2" height="1" fill="#00ADD8"></rect>
+            <rect x="3" y="6" width="6" height="1" fill="#00ADD8"></rect>
+            <rect x="10" y="6" width="2" height="1" fill="#00ADD8"></rect>
+            <rect x="3" y="7" width="9" height="1" fill="#00ADD8"></rect>
+            <rect x="5" y="8" width="1" height="1" fill="#00ADD8"></rect>
+            <rect x="9" y="8" width="1" height="1" fill="#00ADD8"></rect>
+          </svg>
+          <span class="stack-chip__name">Go</span>
         </li>
-        <li class="stack-chip" style="--brand: #EE4C2C">
-          <span class="text-sm">🔥</span>
-          <span>PyTorch</span>
+
+        <!-- LangChain -->
+        <li class="stack-chip" style="--brand: #7FC8FF">
+          <svg class="stack-chip__logo" viewBox="-1 -1 14 14" shape-rendering="crispEdges" aria-hidden="true">
+            <rect x="-1" y="-1" width="14" height="14" fill="#1b1b2a"></rect>
+            <rect x="5" y="0" width="4" height="1" fill="#7FC8FF"></rect>
+            <rect x="4" y="1" width="6" height="1" fill="#7FC8FF"></rect>
+            <rect x="3" y="2" width="7" height="1" fill="#7FC8FF"></rect>
+            <rect x="3" y="3" width="2" height="1" fill="#7FC8FF"></rect>
+            <rect x="8" y="3" width="2" height="1" fill="#7FC8FF"></rect>
+            <rect x="4" y="4" width="1" height="1" fill="#7FC8FF"></rect>
+            <rect x="7" y="4" width="3" height="1" fill="#7FC8FF"></rect>
+            <rect x="3" y="5" width="7" height="1" fill="#7FC8FF"></rect>
+            <rect x="2" y="6" width="7" height="1" fill="#7FC8FF"></rect>
+            <rect x="2" y="7" width="3" height="1" fill="#7FC8FF"></rect>
+            <rect x="7" y="7" width="1" height="1" fill="#7FC8FF"></rect>
+            <rect x="2" y="8" width="2" height="1" fill="#7FC8FF"></rect>
+            <rect x="7" y="8" width="2" height="1" fill="#7FC8FF"></rect>
+            <rect x="2" y="9" width="7" height="1" fill="#7FC8FF"></rect>
+            <rect x="2" y="10" width="6" height="1" fill="#7FC8FF"></rect>
+            <rect x="3" y="11" width="4" height="1" fill="#7FC8FF"></rect>
+          </svg>
+          <span class="stack-chip__name">LangChain</span>
         </li>
-        <li class="stack-chip" style="--brand: #76B900">
-          <span class="text-sm">⚡</span>
-          <span>TensorRT</span>
+
+        <!-- LangGraph -->
+        <li class="stack-chip" style="--brand: #7FC8FF">
+          <svg class="stack-chip__logo" viewBox="-1 -1 14 14" shape-rendering="crispEdges" aria-hidden="true">
+            <rect x="-1" y="-1" width="14" height="14" fill="#1b1b2a"></rect>
+            <rect x="1" y="0" width="3" height="1" fill="#7FC8FF"></rect>
+            <rect x="8" y="0" width="3" height="1" fill="#7FC8FF"></rect>
+            <rect x="0" y="1" width="5" height="1" fill="#7FC8FF"></rect>
+            <rect x="7" y="1" width="5" height="1" fill="#7FC8FF"></rect>
+            <rect x="0" y="2" width="5" height="1" fill="#7FC8FF"></rect>
+            <rect x="7" y="2" width="5" height="1" fill="#7FC8FF"></rect>
+            <rect x="0" y="3" width="3" height="1" fill="#7FC8FF"></rect>
+            <rect x="9" y="3" width="3" height="1" fill="#7FC8FF"></rect>
+            <rect x="1" y="4" width="2" height="1" fill="#7FC8FF"></rect>
+            <rect x="9" y="4" width="2" height="1" fill="#7FC8FF"></rect>
+            <rect x="1" y="7" width="2" height="1" fill="#7FC8FF"></rect>
+            <rect x="9" y="7" width="2" height="1" fill="#7FC8FF"></rect>
+            <rect x="0" y="8" width="3" height="1" fill="#7FC8FF"></rect>
+            <rect x="9" y="8" width="3" height="1" fill="#7FC8FF"></rect>
+            <rect x="0" y="9" width="5" height="1" fill="#7FC8FF"></rect>
+            <rect x="7" y="9" width="5" height="1" fill="#7FC8FF"></rect>
+            <rect x="0" y="10" width="5" height="1" fill="#7FC8FF"></rect>
+            <rect x="7" y="10" width="5" height="1" fill="#7FC8FF"></rect>
+            <rect x="1" y="11" width="3" height="1" fill="#7FC8FF"></rect>
+            <rect x="8" y="11" width="3" height="1" fill="#7FC8FF"></rect>
+          </svg>
+          <span class="stack-chip__name">LangGraph</span>
         </li>
-        <li class="stack-chip" style="--brand: #5C3EE8">
-          <span class="text-sm">👁️</span>
-          <span>OpenCV</span>
+
+        <!-- LlamaIndex -->
+        <li class="stack-chip" style="--brand: #8A4FFF">
+          <svg class="stack-chip__logo" viewBox="-1 -1 14 14" shape-rendering="crispEdges" aria-hidden="true">
+            <rect x="-1" y="-1" width="14" height="14" fill="#f4efe2"></rect>
+            <rect x="1" y="0" width="10" height="1" fill="#8A4FFF"></rect>
+            <rect x="0" y="1" width="12" height="1" fill="#8A4FFF"></rect>
+            <rect x="0" y="2" width="12" height="1" fill="#8A4FFF"></rect>
+            <rect x="0" y="3" width="2" height="1" fill="#8A4FFF"></rect>
+            <rect x="2" y="3" width="1" height="1" fill="#fff"></rect>
+            <rect x="3" y="3" width="3" height="1" fill="#8A4FFF"></rect>
+            <rect x="6" y="3" width="1" height="1" fill="#fff"></rect>
+            <rect x="7" y="3" width="5" height="1" fill="#8A4FFF"></rect>
+            <rect x="0" y="4" width="2" height="1" fill="#8A4FFF"></rect>
+            <rect x="2" y="4" width="1" height="1" fill="#fff"></rect>
+            <rect x="3" y="4" width="3" height="1" fill="#8A4FFF"></rect>
+            <rect x="6" y="4" width="1" height="1" fill="#fff"></rect>
+            <rect x="7" y="4" width="5" height="1" fill="#8A4FFF"></rect>
+            <rect x="0" y="5" width="2" height="1" fill="#8A4FFF"></rect>
+            <rect x="2" y="5" width="1" height="1" fill="#fff"></rect>
+            <rect x="3" y="5" width="3" height="1" fill="#8A4FFF"></rect>
+            <rect x="6" y="5" width="1" height="1" fill="#fff"></rect>
+            <rect x="7" y="5" width="5" height="1" fill="#8A4FFF"></rect>
+            <rect x="0" y="6" width="2" height="1" fill="#8A4FFF"></rect>
+            <rect x="2" y="6" width="1" height="1" fill="#fff"></rect>
+            <rect x="3" y="6" width="3" height="1" fill="#8A4FFF"></rect>
+            <rect x="6" y="6" width="1" height="1" fill="#fff"></rect>
+            <rect x="7" y="6" width="5" height="1" fill="#8A4FFF"></rect>
+            <rect x="0" y="7" width="2" height="1" fill="#8A4FFF"></rect>
+            <rect x="2" y="7" width="3" height="1" fill="#fff"></rect>
+            <rect x="5" y="7" width="1" height="1" fill="#8A4FFF"></rect>
+            <rect x="6" y="7" width="3" height="1" fill="#fff"></rect>
+            <rect x="9" y="7" width="3" height="1" fill="#8A4FFF"></rect>
+            <rect x="0" y="8" width="12" height="1" fill="#8A4FFF"></rect>
+            <rect x="0" y="9" width="12" height="1" fill="#8A4FFF"></rect>
+            <rect x="0" y="10" width="12" height="1" fill="#8A4FFF"></rect>
+            <rect x="1" y="11" width="10" height="1" fill="#8A4FFF"></rect>
+          </svg>
+          <span class="stack-chip__name">LlamaIndex</span>
         </li>
-        <li class="stack-chip" style="--brand: #FF2D20">
-          <span class="text-sm">🔴</span>
-          <span>Laravel</span>
-        </li>
+
+        <!-- PostgreSQL -->
         <li class="stack-chip" style="--brand: #4169E1">
-          <span class="text-sm">🐘</span>
-          <span>PostgreSQL</span>
+          <svg class="stack-chip__logo" viewBox="-1 -1 14 14" shape-rendering="crispEdges" aria-hidden="true">
+            <rect x="-1" y="-1" width="14" height="14" fill="#f4efe2"></rect>
+            <rect x="1" y="0" width="10" height="1" fill="#4169E1"></rect>
+            <rect x="0" y="1" width="1" height="1" fill="#4169E1"></rect>
+            <rect x="4" y="1" width="1" height="1" fill="#4169E1"></rect>
+            <rect x="8" y="1" width="2" height="1" fill="#4169E1"></rect>
+            <rect x="11" y="1" width="1" height="1" fill="#4169E1"></rect>
+            <rect x="0" y="2" width="1" height="1" fill="#4169E1"></rect>
+            <rect x="3" y="2" width="1" height="1" fill="#4169E1"></rect>
+            <rect x="9" y="2" width="1" height="1" fill="#4169E1"></rect>
+            <rect x="11" y="2" width="1" height="1" fill="#4169E1"></rect>
+            <rect x="0" y="3" width="1" height="1" fill="#4169E1"></rect>
+            <rect x="3" y="3" width="3" height="1" fill="#4169E1"></rect>
+            <rect x="8" y="3" width="2" height="1" fill="#4169E1"></rect>
+            <rect x="11" y="3" width="1" height="1" fill="#4169E1"></rect>
+            <rect x="0" y="4" width="1" height="1" fill="#4169E1"></rect>
+            <rect x="3" y="4" width="1" height="1" fill="#4169E1"></rect>
+            <rect x="5" y="4" width="1" height="1" fill="#4169E1"></rect>
+            <rect x="8" y="4" width="2" height="1" fill="#4169E1"></rect>
+            <rect x="11" y="4" width="1" height="1" fill="#4169E1"></rect>
+            <rect x="0" y="5" width="1" height="1" fill="#4169E1"></rect>
+            <rect x="3" y="5" width="1" height="1" fill="#4169E1"></rect>
+            <rect x="5" y="5" width="1" height="1" fill="#4169E1"></rect>
+            <rect x="8" y="5" width="3" height="1" fill="#4169E1"></rect>
+            <rect x="1" y="6" width="1" height="1" fill="#4169E1"></rect>
+            <rect x="3" y="6" width="1" height="1" fill="#4169E1"></rect>
+            <rect x="5" y="6" width="1" height="1" fill="#4169E1"></rect>
+            <rect x="9" y="6" width="2" height="1" fill="#4169E1"></rect>
+            <rect x="1" y="7" width="1" height="1" fill="#4169E1"></rect>
+            <rect x="3" y="7" width="3" height="1" fill="#4169E1"></rect>
+            <rect x="9" y="7" width="3" height="1" fill="#4169E1"></rect>
+            <rect x="2" y="8" width="5" height="1" fill="#4169E1"></rect>
+            <rect x="9" y="8" width="2" height="1" fill="#4169E1"></rect>
+            <rect x="5" y="9" width="2" height="1" fill="#4169E1"></rect>
+            <rect x="8" y="9" width="2" height="1" fill="#4169E1"></rect>
+            <rect x="6" y="10" width="1" height="1" fill="#4169E1"></rect>
+            <rect x="8" y="10" width="1" height="1" fill="#4169E1"></rect>
+            <rect x="6" y="11" width="3" height="1" fill="#4169E1"></rect>
+          </svg>
+          <span class="stack-chip__name">PostgreSQL</span>
         </li>
+
+        <!-- Docker -->
         <li class="stack-chip" style="--brand: #2496ED">
-          <span class="text-sm">🐳</span>
-          <span>Docker</span>
+          <svg class="stack-chip__logo" viewBox="-1 -1 14 14" shape-rendering="crispEdges" aria-hidden="true">
+            <rect x="-1" y="-1" width="14" height="14" fill="#f4efe2"></rect>
+            <rect x="5" y="2" width="2" height="1" fill="#2496ED"></rect>
+            <rect x="2" y="3" width="5" height="1" fill="#2496ED"></rect>
+            <rect x="1" y="4" width="7" height="1" fill="#2496ED"></rect>
+            <rect x="9" y="4" width="2" height="1" fill="#2496ED"></rect>
+            <rect x="1" y="5" width="7" height="1" fill="#2496ED"></rect>
+            <rect x="9" y="5" width="3" height="1" fill="#2496ED"></rect>
+            <rect x="0" y="6" width="10" height="1" fill="#2496ED"></rect>
+            <rect x="0" y="7" width="10" height="1" fill="#2496ED"></rect>
+            <rect x="0" y="8" width="9" height="1" fill="#2496ED"></rect>
+            <rect x="1" y="9" width="7" height="1" fill="#2496ED"></rect>
+          </svg>
+          <span class="stack-chip__name">Docker</span>
         </li>
+
+        <!-- AWS -->
         <li class="stack-chip" style="--brand: #FF9900">
-          <span class="text-sm">☁️</span>
-          <span>AWS</span>
+          <svg class="stack-chip__logo" viewBox="-1 -1 14 14" shape-rendering="crispEdges" aria-hidden="true">
+            <rect x="-1" y="-1" width="14" height="14" fill="#f4efe2"></rect>
+            <rect x="2" y="1" width="2" height="1" fill="#FF9900"></rect>
+            <rect x="5" y="1" width="1" height="1" fill="#FF9900"></rect>
+            <rect x="7" y="1" width="1" height="1" fill="#FF9900"></rect>
+            <rect x="9" y="1" width="2" height="1" fill="#FF9900"></rect>
+            <rect x="1" y="2" width="1" height="1" fill="#FF9900"></rect>
+            <rect x="3" y="2" width="1" height="1" fill="#FF9900"></rect>
+            <rect x="5" y="2" width="1" height="1" fill="#FF9900"></rect>
+            <rect x="7" y="2" width="1" height="1" fill="#FF9900"></rect>
+            <rect x="9" y="2" width="1" height="1" fill="#FF9900"></rect>
+            <rect x="1" y="3" width="3" height="1" fill="#FF9900"></rect>
+            <rect x="5" y="3" width="1" height="1" fill="#FF9900"></rect>
+            <rect x="7" y="3" width="1" height="1" fill="#FF9900"></rect>
+            <rect x="10" y="3" width="1" height="1" fill="#FF9900"></rect>
+            <rect x="1" y="4" width="1" height="1" fill="#FF9900"></rect>
+            <rect x="3" y="4" width="1" height="1" fill="#FF9900"></rect>
+            <rect x="6" y="4" width="1" height="1" fill="#FF9900"></rect>
+            <rect x="9" y="4" width="2" height="1" fill="#FF9900"></rect>
+            <rect x="0" y="7" width="1" height="1" fill="#FF9900"></rect>
+            <rect x="10" y="7" width="1" height="1" fill="#FF9900"></rect>
+            <rect x="1" y="8" width="1" height="1" fill="#FF9900"></rect>
+            <rect x="9" y="8" width="1" height="1" fill="#FF9900"></rect>
+            <rect x="11" y="8" width="1" height="1" fill="#FF9900"></rect>
+            <rect x="2" y="9" width="7" height="1" fill="#FF9900"></rect>
+            <rect x="11" y="9" width="1" height="1" fill="#FF9900"></rect>
+            <rect x="10" y="10" width="2" height="1" fill="#FF9900"></rect>
+          </svg>
+          <span class="stack-chip__name">AWS</span>
         </li>
       </ul>
-      <p class="pt-2 text-xs">
-        <a href="/dev" class="text-[#ff6fae] hover:underline">Full stack in the Dev Center →</a>
+      <p>
+        <a href="/dev">Full stack in the Dev Center →</a>
       </p>
     </section>
 
-    <!-- // SIDE QUESTS -->
+    <!-- // Side quests -->
     <section class="mcp-card" aria-labelledby="side-title">
       <h2 id="side-title" class="mcp-h">Side quests</h2>
-      <div class="border-b border-dashed border-[#5a3030] pb-3 mb-3">
-        <h3 class="font-pixel text-xs text-[#e0a526] uppercase mb-1">
-          <span>🎧</span> DJing &amp; Audio Synthesis
+      <div class="quest-item">
+        <h3 class="quest-item__title">
+          <span aria-hidden="true">🎧</span> DJing &amp; Audio Mixing
         </h3>
-        <p class="text-xs text-[#f6e7c8] leading-relaxed">
-          When I'm not training neural networks or debugging backends, you can often find me behind the decks mixing tracks.
+        <p>
+          When I'm not debugging or training neural networks, you can often find me behind the DJ deck mixing beats.
         </p>
-        <p class="mcp-fastlane mt-2">
+        <p class="mcp-fastlane">
           <button type="button" class="mcp-btn" data-room-action="shop-jukebox">🎵 Play the jukebox</button>
-          <button type="button" class="mcp-btn" data-room-action="decks">📞 Send a track request</button>
+          <button type="button" class="mcp-btn" data-room-action="decks">📞 Send me a song</button>
         </p>
       </div>
 
       <details class="closet" id="closet">
-        <summary>
-          <span>🧥</span> The Closet · Fashion, Streetwear &amp; Vintage
+        <summary class="quest-item__title">
+          <span aria-hidden="true">🧥</span> The Closet · Fashion &amp; personal style
         </summary>
-        <div class="closet__body pt-2 text-xs text-[#f6e7c8]">
+        <div class="closet__body">
           <p>
-            Passionate about vintage outerwear, curated streetwear, and functional utility design.
+            Passionate about vintage outerwear, curated streetwear, workwear jackets, and aesthetic styling.
           </p>
-          <ul class="closet__tags text-xs">
+          <ul class="closet__tags">
             <li>Curating vintage varsity jackets, workwear jackets, and Japanese denim.</li>
-            <li>Exploring creative direction and aesthetic portfolio storytelling.</li>
+            <li>Creative direction and visual aesthetic storytelling.</li>
+            <li>Active collector of vintage vinyls and retro apparel.</li>
           </ul>
-          <p class="mt-2">
-            <a class="mcp-btn" href={classicPortfolioUrl} target="_blank" rel="noopener noreferrer">
-              View Classic Web Showcase ↗
-            </a>
+          <ul class="clean polaroids">
+            <li class="polaroid">
+              <img
+                src="/_astro/fashion-show-crowd.CdZkFEQ6_PSRXd.webp"
+                alt="Crowd at the fashion show and streetwear showcase"
+                loading="lazy"
+                decoding="async"
+                width="480"
+                height="360"
+              />
+              <span class="polaroid__caption" aria-hidden="true">Vintage Streetwear &amp; Runway Showcase</span>
+            </li>
+            <li class="polaroid">
+              <img
+                src="/_astro/vintage-market-crowd-1.CNGGRUub_Z2pV2yK.webp"
+                alt="Browsing curated vintage market"
+                loading="lazy"
+                decoding="async"
+                width="480"
+                height="360"
+              />
+              <span class="polaroid__caption" aria-hidden="true">Curation &amp; Flea Markets</span>
+            </li>
+            <li class="polaroid">
+              <img
+                src="/_astro/fashion-initiative-exec.fc6ezFPp_r5Wld.webp"
+                alt="The creative board and design collective"
+                loading="lazy"
+                decoding="async"
+                width="480"
+                height="360"
+              />
+              <span class="polaroid__caption" aria-hidden="true">Creative Collective &amp; Visual Direction</span>
+            </li>
+          </ul>
+          <p class="closet__links">
+            <a class="mcp-btn" href="https://github.com/Zulfan15" target="_blank" rel="noopener noreferrer">@Zulfan15 on GitHub ↗</a>
+            <a class="mcp-btn" href={classicPortfolioUrl} target="_blank" rel="noopener noreferrer">Classic Portfolio ↗</a>
           </p>
         </div>
       </details>
     </section>
 
-    <!-- // SAY HI -->
+    <!-- // Say hi -->
     <section class="mcp-card" aria-labelledby="hi-title">
       <h2 id="hi-title" class="mcp-h">Say hi</h2>
-      <div class="flex flex-wrap gap-2">
-        <a class="mcp-btn" href={githubUrl} target="_blank" rel="noopener noreferrer">
-          <span>🐙</span> GitHub
-        </a>
-        <a class="mcp-btn" href={linkedinUrl} target="_blank" rel="noopener noreferrer">
-          <span>💼</span> LinkedIn
-        </a>
-        <a class="mcp-btn" href={emailUrl}>
-          <span>✉️</span> Email
-        </a>
-        <a class="mcp-btn" href={classicPortfolioUrl} target="_blank" rel="noopener noreferrer">
-          <span>🛍️</span> Classic Porto
-        </a>
+      <div class="mcp-comms">
+        <ul class="clean link-row">
+          <li>
+            <a class="btn btn--small" href={githubUrl} target="_blank" rel="noopener noreferrer">
+              <span aria-hidden="true">🐙</span>GitHub
+            </a>
+          </li>
+          <li>
+            <a class="btn btn--small" href={linkedinUrl} target="_blank" rel="noopener noreferrer">
+              <span aria-hidden="true">💼</span>LinkedIn
+            </a>
+          </li>
+          <li>
+            <a class="btn btn--small" href={emailUrl}>
+              <span aria-hidden="true">✉️</span>Email
+            </a>
+          </li>
+          <li>
+            <a class="btn btn--small" href={classicPortfolioUrl} target="_blank" rel="noopener noreferrer">
+              <span aria-hidden="true">🛍️</span>Classic Porto
+            </a>
+          </li>
+        </ul>
       </div>
     </section>
 
-    <p class="mcp-dim text-xs mt-2">
-      Next stop: the <a href="/dev" class="text-[#ff6fae] hover:underline">Dev Center</a> for projects, telemetry and skills radar, or the <a href="/lab" class="text-[#ff6fae] hover:underline">Research Lab</a> for papers and research notes.
+    <p class="mcp-dim">
+      Next stop: the <a href="/dev">Dev Center</a> for my projects, experience and education, or the <a href="/lab">Research Lab</a> for my research.
     </p>
 
     <WhereTo currentPath="/about" />
@@ -301,7 +704,6 @@ const classicPortfolioUrl = profile.person.website || 'https://zulfan15.github.i
         if (targetBtn) {
           targetBtn.click();
         } else {
-          // Dispatch custom event if needed
           document.dispatchEvent(new CustomEvent(`town:${action}`));
         }
       });

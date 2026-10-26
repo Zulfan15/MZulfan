@@ -50,20 +50,27 @@ const {
 
         <!-- Reading Panel matching si-dan.com -->
         <main id="content" class="panel" tabindex="-1" aria-labelledby="panel-title">
-          <button class="panel__tab" type="button" data-panel-tab="" data-name={place === 'town' ? 'Town Square' : place} aria-expanded="true" aria-label="Toggle panel">
+          <button
+            class="panel__tab"
+            type="button"
+            data-panel-tab=""
+            data-name={place === 'town' ? 'Town Square' : place === 'about' ? 'Home' : place === 'dev' ? 'Dev Center' : place === 'lab' ? 'Research Lab' : place === 'arcade' ? 'Arcade' : place}
+            aria-expanded="false"
+            aria-label={`Open the ${place === 'town' ? 'Town Square' : place === 'about' ? 'Home' : place} panel`}
+          >
             <span class="panel__tab-arrow" aria-hidden="true">◀</span>
             <span aria-hidden="true">{place === 'dev' ? '💻' : place === 'lab' ? '🔬' : place === 'arcade' ? '🕹️' : place === 'about' ? '🏠' : '🏡'}</span>
           </button>
 
           <div class="panel__bar">
             {place !== 'town' && (
-              <a class="btn btn-sm panel__back" href="/" aria-label="Back to the town map">← Town</a>
+              <a class="btn btn--small panel__back" href="/" aria-label="Back to the town map">← Town</a>
             )}
-            <span class="panel__where" aria-hidden="true">
+            <span class="panel__where pixel" aria-hidden="true">
               {place === 'dev' ? '💻 Dev Center' : place === 'lab' ? '🔬 Research Lab' : place === 'arcade' ? '🕹️ Arcade' : place === 'about' ? '🏠 Home' : '🏡 Town Square'}
             </span>
             {place === 'about' ? (
-              <span class="panel__floor pixel cursor-pointer hover:opacity-80 transition-opacity" data-floor-chip="" role="button" tabindex="0" title="Click to switch floor (1F/2F)" aria-label="Switch Floor">1F</span>
+              <span class="panel__floor pixel cursor-pointer hover:opacity-80 transition-opacity" data-floor-chip="" role="button" tabindex="0" title="Click to switch floor (1F/2F)" aria-label="Switch Floor">2F</span>
             ) : (
               <span class="panel__floor pixel" data-floor-chip="" aria-hidden="true" hidden=""></span>
             )}
@@ -76,8 +83,8 @@ const {
           <footer class="panel__footer muted">
             <span>Built by Muhammad Zulfan with Astro, Rust/WASM, and Cloudflare.</span>
             <span class="panel__links">
-              <a href="/about">How this site works</a>
-              <a href="/reception">Privacy</a>
+              <a href="/dev#how-its-built">How this site works</a>
+              <a href="/privacy">Privacy</a>
             </span>
           </footer>
         </main>

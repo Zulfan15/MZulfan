@@ -61,6 +61,8 @@
     --grass-pattern: linear-gradient(45deg, #0000000a 25%, transparent 25% 75%, #0000000a 75%) 0 0 / 16px 16px;
     --font-terminal: "VT323", "Courier New", monospace;
     --font-pixel: "Pixelify Sans", "Press Start 2P", monospace;
+    --font-retro: "Press Start 2P", "VT323", monospace;
+    --font-neon: "Monoton", "Press Start 2P", monospace;
   }
   html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
   body {
@@ -1176,7 +1178,318 @@ html:has(.mcp--shop) .panel__footer {
   border-color: #ff6fae;
 }
 
+/* ───────────────────────── Shop & About Panel (Retro Authentic) ───────────────────────── */
+html:has(.mcp--shop) .panel__bar {
+  background: #150e0e !important;
+  border-bottom: 2px solid var(--mcp-line, #5a3030) !important;
+}
+html:has(.mcp--shop) .panel__where {
+  color: var(--mcp-cyan, #e0a526) !important;
+  font-family: var(--font-pixel, monospace);
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+html:has(.mcp--shop) .panel__footer {
+  background: #150e0e !important;
+  border-top: 2px solid var(--mcp-line, #5a3030) !important;
+  color: var(--mcp-dim, #c9a98a) !important;
+}
+html:has(.mcp--shop) .panel__footer a {
+  color: var(--mcp-cyan, #e0a526) !important;
+}
+html:has(.mcp--shop) .panel__floor {
+  color: #1d1414 !important;
+  background: var(--mcp-cyan, #e0a526) !important;
+  font-family: var(--font-retro, monospace);
+  font-weight: 700;
+}
+html:has(.mcp--shop) .panel__back {
+  border-color: var(--mcp-line, #5a3030);
+  background: #1d1414;
+  color: var(--mcp-text, #f6e7c8);
+  box-shadow: 2px 2px #0d0808;
+}
+html:has(.mcp--shop) .panel__back:hover {
+  background: var(--mcp-cyan, #e0a526);
+  color: #1d1414;
+  border-color: var(--mcp-cyan, #e0a526);
+}
+
+.shop-id {
+  align-items: center;
+  gap: 1rem;
+  display: flex;
+}
+.shop-id .shop-id__avatar {
+  border: 3px solid var(--mcp-cyan, #e0a526);
+  width: 80px;
+  height: 80px;
+  image-rendering: pixelated;
+  flex: none;
+  box-shadow: 4px 4px #0d0808;
+}
+@media (max-width: 480px) {
+  .shop-id .shop-id__avatar {
+    width: 60px;
+    height: 60px;
+  }
+}
+.shop-id__text {
+  gap: .5rem;
+  min-width: 0;
+  display: grid;
+}
+.shop-sign {
+  font: 400 clamp(1.4rem, 3vw, 2rem) / 1.15 var(--font-neon, var(--font-retro, monospace));
+  color: #ffd6ea;
+  text-shadow: 0 0 4px #ff6fae, 0 0 12px #ff6fae, 0 0 24px #ff6fae99;
+  animation: 7s infinite neon-flicker;
+  margin: 0;
+}
+.shop-sign:focus {
+  outline: none;
+}
+@keyframes neon-flicker {
+  0%, 91%, 93%, 95%, 100% { opacity: 1; }
+  92%, 94% { opacity: .55; }
+}
+
+.shop-id__meta {
+  font: 1.15rem / 1.2 var(--font-terminal, monospace);
+  margin: 0;
+}
+.shop-id__meta div {
+  gap: .5rem;
+  display: flex;
+}
+.shop-id__meta dt {
+  color: var(--mcp-dim, #c9a98a);
+  text-transform: uppercase;
+}
+.shop-id__meta dt:after {
+  content: ":";
+}
+.shop-id__meta dd {
+  margin: 0;
+  color: var(--mcp-text, #f6e7c8);
+}
+
+.mcp-hint, .mcp-dim {
+  color: var(--mcp-dim, #c9a98a);
+}
+
+.lead {
+  color: #fff;
+}
+
+.stats {
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: .75rem 1rem;
+  margin: 0;
+  display: grid;
+}
+.stats dt {
+  font: 400 .5rem / 1.4 var(--font-retro, monospace);
+  color: var(--mcp-dim, #c9a98a);
+  text-transform: uppercase;
+}
+.stats dd {
+  font: 1.8rem / 1 var(--font-terminal, monospace);
+  color: var(--mcp-cyan, #e0a526);
+  margin: 0;
+}
+
+.quest strong {
+  color: var(--mcp-amber, #ff6fae);
+  font-weight: 400;
+}
+
+.spin {
+  align-items: center;
+  gap: .9rem;
+  display: flex;
+}
+.spin__sleeve {
+  object-fit: cover;
+  background: #0d0808;
+  border: 2px solid #0d0808;
+  flex: none;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  display: grid;
+  box-shadow: 4px 4px #0d0808;
+}
+.spin__text {
+  gap: .15rem;
+  min-width: 0;
+  display: grid;
+}
+.spin__text strong {
+  color: #fff;
+  font-weight: 400;
+}
+.spin__updated {
+  font-size: 1rem;
+}
+
+.mcp-fastlane {
+  flex-wrap: wrap;
+  gap: .5rem;
+  display: flex;
+}
+
+.achievements {
+  gap: .35rem;
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.achievements li {
+  padding-left: 1.4rem;
+  position: relative;
+  line-height: 1.4;
+}
+.achievements li:before {
+  content: "★";
+  color: var(--mcp-cyan, #e0a526);
+  position: absolute;
+  left: 0;
+}
+.achievements__more summary {
+  cursor: pointer;
+  font: 400 .5rem / 2 var(--font-retro, monospace);
+  text-transform: uppercase;
+  color: var(--mcp-amber, #ff6fae);
+}
+.achievements__more[open] summary {
+  margin-bottom: .35rem;
+}
+
 .stack-chips {
+  flex-wrap: wrap;
+  gap: .4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+}
+.stack-chip {
+  font: 400 .56rem / 1.3 var(--font-retro, monospace);
+  letter-spacing: .02em;
+  color: #f6e7c8;
+  background: #1d1414;
+  border: 2px solid var(--mcp-line, #5a3030);
+  box-shadow: inset 0 -3px 0 var(--brand, var(--mcp-cyan, #e0a526));
+  white-space: nowrap;
+  align-items: center;
+  gap: .45em;
+  padding: 3px 7px 6px 3px;
+  display: inline-flex;
+}
+.stack-chip__logo {
+  width: 18px;
+  height: 18px;
+  image-rendering: pixelated;
+  flex: none;
+}
+.stack-chip__name {
+  font-size: inherit;
+}
+
+.quest-item {
+  border-bottom: 2px dashed var(--mcp-line, #5a3030);
+  gap: .5rem;
+  padding-bottom: .8rem;
+  display: grid;
+}
+.quest-item__title {
+  font: 400 .6rem / 1.6 var(--font-retro, monospace);
+  color: var(--mcp-amber, #ff6fae);
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.closet {
+  scroll-margin-top: 1rem;
+}
+.closet p {
+  margin: 0;
+}
+.closet summary {
+  cursor: pointer;
+}
+.closet[open] summary {
+  margin-bottom: .8rem;
+}
+.closet__body {
+  gap: .8rem;
+  display: grid;
+}
+.closet__tags {
+  gap: .35rem;
+  margin: 0;
+  padding-left: 1.2rem;
+  list-style-type: "✂  ";
+  display: grid;
+}
+.closet__tags li::marker {
+  color: var(--mcp-cyan, #e0a526);
+}
+.polaroids {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr));
+  gap: 1.2rem;
+  padding: .5rem .3rem;
+  display: grid;
+  margin: 0;
+  list-style: none;
+}
+.polaroid {
+  background: #fdf8ec;
+  gap: .4rem;
+  padding: .5rem .5rem .6rem;
+  display: grid;
+  transform: rotate(-1.5deg);
+  box-shadow: 4px 4px #0d0808;
+}
+.polaroid:nth-child(2n) {
+  transform: rotate(1.4deg);
+}
+.polaroid:nth-child(3n) {
+  transform: rotate(-.5deg);
+}
+.polaroid img {
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  filter: sepia(.18) saturate(1.1);
+  width: 100%;
+  height: auto;
+}
+.polaroid__caption {
+  font: 1.05rem / 1.1 var(--font-terminal, monospace);
+  color: #3a2a2a;
+}
+.closet__links {
+  flex-wrap: wrap;
+  gap: .6rem;
+  display: flex;
+}
+
+.mcp-comms .btn, .link-row .btn {
+  font: 400 .5rem / 1.4 var(--font-retro, monospace);
+  color: var(--mcp-text, #f6e7c8);
+  border: 2px solid var(--mcp-line, #5a3030);
+  background: #1d1414;
+  border-radius: 0;
+  box-shadow: 3px 3px #0d0808;
+}
+.mcp-comms .btn:hover, .mcp-comms .btn:focus-visible,
+.link-row .btn:hover, .link-row .btn:focus-visible {
+  color: var(--mcp-cyan, #e0a526);
+  border-color: var(--mcp-cyan, #e0a526);
+}
+.link-row {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
@@ -1184,95 +1497,15 @@ html:has(.mcp--shop) .panel__footer {
   padding: 0;
   margin: 0;
 }
-
-.stack-chip {
-  font-family: var(--font-pixel, monospace);
-  font-size: 0.65rem;
-  font-weight: 600;
-  color: #f6e7c8;
-  background: #1d1414;
-  border: 2px solid var(--mcp-line, #5a3030);
-  box-shadow: inset 0 -3px 0 var(--brand, #ff6fae);
-  white-space: nowrap;
-  align-items: center;
-  gap: 0.45rem;
-  padding: 4px 8px 6px 6px;
-  display: inline-flex;
+.btn--small {
+  min-height: 36px;
+  padding: .3em .9em;
+  font-size: .9rem;
 }
-
-.stack-chip__logo {
-  width: 18px;
-  height: 18px;
-  image-rendering: pixelated;
-  flex: none;
-}
-
-.closet summary {
-  cursor: pointer;
-  font-family: var(--font-pixel, monospace);
-  font-size: 0.75rem;
-  color: var(--mcp-amber, #e0a526);
-  text-transform: uppercase;
-}
-
-.closet[open] summary {
-  margin-bottom: 0.8rem;
-}
-
-.closet__body {
-  display: grid;
-  gap: 0.8rem;
-}
-
-.closet__tags {
-  display: grid;
-  gap: 0.35rem;
-  margin: 0;
-  padding-left: 1.2rem;
-  list-style-type: "✂  ";
-  color: #f6e7c8;
-  font-size: 1.15rem;
-}
-
-.polaroids {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr));
-  gap: 1.2rem;
-  padding: 0.5rem 0.3rem;
+ul.clean, ol.clean {
   list-style: none;
+  padding: 0;
   margin: 0;
-}
-
-.polaroid {
-  background: #fdf8ec;
-  gap: 0.4rem;
-  padding: 0.5rem 0.5rem 0.6rem;
-  display: grid;
-  transform: rotate(-1.5deg);
-  box-shadow: 4px 4px #0d0808;
-}
-
-.polaroid:nth-child(2n) {
-  transform: rotate(1.4deg);
-}
-
-.polaroid:nth-child(3n) {
-  transform: rotate(-0.5deg);
-}
-
-.polaroid img {
-  aspect-ratio: 4/3;
-  object-fit: cover;
-  filter: sepia(0.18) saturate(1.1);
-  width: 100%;
-  height: auto;
-}
-
-.polaroid__caption {
-  font-family: var(--font-terminal, monospace);
-  font-size: 1.05rem;
-  line-height: 1.1;
-  color: #3a2a2a;
 }
 
 /* Home Guide Pink Neon Glow */
