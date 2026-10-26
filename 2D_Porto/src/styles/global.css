@@ -455,8 +455,24 @@
     inset: auto 16px 16px;
     z-index: 10;
   }
-  .panel { @apply relative min-h-0 border-ink bg-[#fcf8ef] max-[899px]:border-t-[3px] min-[900px]:border-l-[3px]; display: flex; flex-direction: column; }
-  .panel__body { @apply flex-1 overflow-y-auto px-3 sm:px-6 py-4; background: #fcf8ef; }
+  .panel {
+    @apply relative min-h-0 border-ink max-[899px]:border-t-[3px] min-[900px]:border-l-[3px];
+    display: flex;
+    flex-direction: column;
+    background: var(--cream, #fff8ee);
+  }
+  .panel__body {
+    @apply flex-1 overflow-y-auto px-3 sm:px-6 py-4;
+    background: transparent;
+  }
+  html:not([data-place="home"]):not(:has(.mcp)):not([data-place="dev"]) .panel__body {
+    background: #fcf8ef;
+  }
+  html[data-place="home"] .panel__body,
+  html:has(.mcp--shop) .panel__body {
+    background: repeating-linear-gradient(0deg, #ffffff06 0 1px, transparent 1px 3px), #1d1414 !important;
+    color: var(--mcp-text, #f6e7c8);
+  }
   html[data-place="dev"] .panel__body {
     @apply text-mc-text;
     background-color: var(--color-mc-bg);
@@ -906,9 +922,15 @@ html:has(.mcp--shop) .panel {
   --mcp-text: #f6e7c8;
   --mcp-dim: #c9a98a;
   color: var(--mcp-text);
-  background: repeating-linear-gradient(0deg, #ffffff06 0 1px, transparent 1px 3px), var(--mcp-bg);
+  background: repeating-linear-gradient(0deg, #ffffff06 0 1px, transparent 1px 3px), var(--mcp-bg) !important;
   border-left-color: var(--mcp-line);
   scrollbar-color: var(--mcp-line) var(--mcp-bg);
+}
+
+html[data-place="home"] .panel__body,
+html:has(.mcp--shop) .panel__body {
+  background: repeating-linear-gradient(0deg, #ffffff06 0 1px, transparent 1px 3px), var(--mcp-bg, #1d1414) !important;
+  color: var(--mcp-text, #f6e7c8);
 }
 
 html[data-place="home"] .panel__bar,
