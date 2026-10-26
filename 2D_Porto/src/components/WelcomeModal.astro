@@ -1,0 +1,112 @@
+---
+import { profile } from '../lib/profile';
+---
+
+<dialog id="welcome-modal" class="welcome-sheet m-auto w-[min(92vw,28.5rem)] max-h-[90dvh] overflow-hidden p-0 rounded-2xl border-[3px] border-[#1c1726] bg-white text-[#1c1726] shadow-[0_10px_0_0_#1c1726] backdrop:bg-[#1c1726]/60 backdrop:backdrop-blur-xs select-none">
+  <div class="p-6 sm:p-7 space-y-4">
+    <!-- Header -->
+    <div>
+      <h2 class="font-pixel text-lg sm:text-xl font-bold text-[#1c1726] tracking-wide">
+        Welcome to my little world!
+      </h2>
+      <p class="font-sans text-xs sm:text-[13px] text-[#3a3150] mt-2 leading-relaxed">
+        Hi, I'm {profile.person.short_name} 👋 This town is my portfolio. Each building holds a different part of my story.
+      </p>
+    </div>
+
+    <!-- Instruction list matching screenshot -->
+    <ul class="space-y-3 font-sans text-xs sm:text-[13px] text-[#2c2638] leading-snug pt-1">
+      <li class="flex items-center gap-3">
+        <span class="text-base shrink-0 select-none">⌨️</span>
+        <div class="flex items-center gap-1 flex-wrap">
+          <span>Move with</span>
+          <kbd class="kbd text-[10px] px-1.5 py-0.5">W</kbd>
+          <kbd class="kbd text-[10px] px-1.5 py-0.5">A</kbd>
+          <kbd class="kbd text-[10px] px-1.5 py-0.5">S</kbd>
+          <kbd class="kbd text-[10px] px-1.5 py-0.5">D</kbd>
+          <span>or the arrow keys</span>
+        </div>
+      </li>
+
+      <li class="flex items-center gap-3">
+        <span class="text-base shrink-0 select-none">👆</span>
+        <span>Or click / tap anywhere to walk there</span>
+      </li>
+
+      <li class="flex items-center gap-3">
+        <span class="text-base shrink-0 select-none">🚪</span>
+        <span>Walk into buildings to explore, and say hi to my twin by the Research Lab</span>
+      </li>
+
+      <li class="flex items-center gap-3">
+        <span class="text-base shrink-0 select-none">🗺️</span>
+        <span>In a hurry? The <strong class="font-bold text-[#1c1726]">Map</strong> button jumps anywhere</span>
+      </li>
+
+      <li class="flex items-start gap-3">
+        <span class="text-base shrink-0 select-none pt-0.5">🌿</span>
+        <span>Wild critters live in the tall grass south of Garden Lane. Get Poké Balls from LeBron at its edge, then catch them all for your <strong class="font-bold text-[#1c1726]">Dex</strong></span>
+      </li>
+    </ul>
+
+    <!-- CTA Button -->
+    <div class="pt-2">
+      <button
+        id="welcome-explore-btn"
+        type="button"
+        class="w-full py-3 rounded-xl border-[2.5px] border-[#1c1726] bg-[#f25744] hover:bg-[#e04532] text-white font-pixel text-xs sm:text-sm font-bold tracking-wider shadow-[0_3px_0_0_#1c1726] hover:shadow-[0_1px_0_0_#1c1726] hover:translate-y-0.5 active:translate-y-1 transition-all cursor-pointer"
+      >
+        Let's explore
+      </button>
+    </div>
+  </div>
+</dialog>
+
+<script>
+  import { sfx } from '../game/sfx';
+
+  function initWelcomeModal() {
+    const modal = document.getElementById('welcome-modal') as HTMLDialogElement | null;
+    const exploreBtn = document.getElementById('welcome-explore-btn');
+
+    if (!modal) return;
+
+    // First time visitor check
+    const STORAGE_KEY = 'zulfan_town_welcomed';
+    const hasSeen = localStorage.getItem(STORAGE_KEY);
+
+    if (!hasSeen) {
+      // Show automatically on first visit
+      setTimeout(() => {
+        if (!modal.open) {
+          modal.showModal();
+        }
+      }, 250);
+    }
+
+    // Dismiss on CTA button click
+    exploreBtn?.addEventListener('click', () => {
+      sfx.confirm();
+      localStorage.setItem(STORAGE_KEY, 'true');
+      modal.close();
+    });
+
+    // Dismiss on backdrop click
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        localStorage.setItem(STORAGE_KEY, 'true');
+        modal.close();
+      }
+    });
+
+    // Listen for manual trigger (e.g. from HUD '?' button)
+    document.addEventListener('town:open-modal', (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail?.target === 'welcome' || detail?.target === 'help') {
+        modal.showModal();
+      }
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', initWelcomeModal);
+</script>

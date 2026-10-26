@@ -3,6 +3,7 @@ import '../styles/global.css';
 import Hud from '../components/Hud.astro';
 import TownCanvas from '../components/TownCanvas.astro';
 import MapModal from '../components/MapModal.astro';
+import WelcomeModal from '../components/WelcomeModal.astro';
 import CritterdexModal from '../components/CritterdexModal.astro';
 import EncounterModal from '../components/EncounterModal.astro';
 import { profile } from '../lib/profile';
@@ -57,6 +58,7 @@ const {
     </div>
 
     <!-- Modals -->
+    <WelcomeModal />
     <MapModal />
     <CritterdexModal />
     <EncounterModal />

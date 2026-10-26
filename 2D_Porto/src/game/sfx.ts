@@ -71,6 +71,11 @@ class SoundFX {
     setTimeout(() => this.playTone(780, 'sine', 0.1, 0.06), 40);
   }
 
+  public confirm() {
+    this.playTone(520, 'triangle', 0.1, 0.08);
+    setTimeout(() => this.playTone(1040, 'triangle', 0.16, 0.08), 60);
+  }
+
   public bump() {
     this.playTone(110, 'sawtooth', 0.08, 0.05);
   }

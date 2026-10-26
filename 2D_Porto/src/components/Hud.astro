@@ -50,7 +50,7 @@ import { profile } from '../lib/profile';
     if (helpBtn) {
       helpBtn.onclick = () => {
         sfx.select();
-        document.dispatchEvent(new CustomEvent('town:open-modal', { detail: { target: 'map' } }));
+        document.dispatchEvent(new CustomEvent('town:open-modal', { detail: { target: 'welcome' } }));
       };
     }
 

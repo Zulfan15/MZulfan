@@ -2,6 +2,7 @@
 import TownLayout from '../layouts/TownLayout.astro';
 import PixelAvatar from '../components/PixelAvatar.astro';
 import SkillChip from '../components/SkillChip.astro';
+import WhereTo from '../components/WhereTo.astro';
 import { profile } from '../lib/profile';
 ---
 
@@ -189,6 +190,9 @@ import { profile } from '../lib/profile';
       </div>
     </div>
   </div>
+
+  <!-- Quick Navigation Links (Where to?) -->
+  <WhereTo currentPath="/" />
 
   <!-- Monospace / Pixel Footer matching si-dan.com -->
   <footer class="flex flex-col sm:flex-row items-center justify-between text-[11px] font-pixel text-ink-soft mt-3 px-1 gap-2">
