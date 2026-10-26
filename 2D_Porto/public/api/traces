@@ -1,0 +1,516 @@
+{
+  "summary": {
+    "model": "openai/gpt-6-luna",
+    "p50Ms": 3400,
+    "p95Ms": 9000,
+    "cacheHit": 0.26,
+    "avgCost": 0.0008,
+    "runs24h": 28,
+    "tools": {
+      "check_availability": 4,
+      "check_time": 2
+    }
+  },
+  "traces": [
+    {
+      "id": "1438",
+      "model": "openai/gpt-6-luna",
+      "at": 1729918450000,
+      "totalMs": 3100,
+      "ok": true,
+      "cost": 0.0008,
+      "gate": { "ms": 191, "verdict": "pass" },
+      "rounds": [{ "t0": 191, "ms": 2900, "ttftMs": 580, "in": 7900, "out": 170, "cached": 0, "tools": [] }]
+    },
+    {
+      "id": "0834",
+      "model": "openai/gpt-6-luna",
+      "at": 1729907549000,
+      "totalMs": 6000,
+      "ok": true,
+      "cost": 0.0009,
+      "gate": { "ms": 247, "verdict": "pass" },
+      "rounds": [{ "t0": 247, "ms": 5700, "ttftMs": 820, "in": 8200, "out": 299, "cached": 0, "tools": [] }]
+    },
+    {
+      "id": "8737",
+      "model": "openai/gpt-6-luna",
+      "at": 1729907542000,
+      "totalMs": 121,
+      "ok": true,
+      "cost": 0.0001,
+      "gate": { "ms": 121, "verdict": "flagged" },
+      "rounds": []
+    },
+    {
+      "id": "c894",
+      "model": "openai/gpt-6-luna",
+      "at": 1729907538000,
+      "totalMs": 121,
+      "ok": true,
+      "cost": 0.0001,
+      "gate": { "ms": 121, "verdict": "flagged" },
+      "rounds": []
+    },
+    {
+      "id": "d6a3",
+      "model": "openai/gpt-6-luna",
+      "at": 1729907533000,
+      "totalMs": 158,
+      "ok": true,
+      "cost": 0.0001,
+      "gate": { "ms": 158, "verdict": "flagged" },
+      "rounds": []
+    },
+    {
+      "id": "edc7",
+      "model": "openai/gpt-6-luna",
+      "at": 1729907506000,
+      "totalMs": 4400,
+      "ok": true,
+      "cost": 0.0007,
+      "gate": { "ms": 1400, "verdict": "pass" },
+      "rounds": [{ "t0": 1400, "ms": 3100, "ttftMs": 450, "in": 8000, "out": 113, "cached": 0, "tools": [] }]
+    },
+    {
+      "id": "97f8",
+      "model": "openai/gpt-6-luna",
+      "at": 1729903172000,
+      "totalMs": 178,
+      "ok": true,
+      "cost": 0.0001,
+      "gate": { "ms": 178, "verdict": "off_topic" },
+      "rounds": []
+    },
+    {
+      "id": "6828",
+      "model": "openai/gpt-6-luna",
+      "at": 1729903145000,
+      "totalMs": 207,
+      "ok": true,
+      "cost": 0.0001,
+      "gate": { "ms": 207, "verdict": "off_topic" },
+      "rounds": []
+    },
+    {
+      "id": "f992",
+      "model": "openai/gpt-6-luna",
+      "at": 1729903114000,
+      "totalMs": 2200,
+      "ok": true,
+      "cost": 0.0006,
+      "gate": { "ms": 401, "verdict": "pass" },
+      "rounds": [{ "t0": 401, "ms": 1800, "ttftMs": 380, "in": 7900, "out": 45, "cached": 0, "tools": [] }]
+    },
+    {
+      "id": "df3d",
+      "model": "openai/gpt-6-luna",
+      "at": 1729902797000,
+      "totalMs": 65,
+      "ok": true,
+      "cost": 0.00005,
+      "gate": { "ms": 65, "verdict": "off_topic" },
+      "rounds": []
+    },
+    {
+      "id": "15ff",
+      "model": "openai/gpt-6-luna",
+      "at": 1729902778000,
+      "totalMs": 170,
+      "ok": true,
+      "cost": 0.0001,
+      "gate": { "ms": 170, "verdict": "off_topic" },
+      "rounds": []
+    },
+    {
+      "id": "dbac",
+      "model": "openai/gpt-6-luna",
+      "at": 1729902052000,
+      "totalMs": 2600,
+      "ok": true,
+      "cost": 0.0008,
+      "gate": { "ms": 186, "verdict": "pass" },
+      "rounds": [{ "t0": 186, "ms": 2400, "ttftMs": 510, "in": 7900, "out": 175, "cached": 0, "tools": [] }]
+    },
+    {
+      "id": "3b92",
+      "model": "openai/gpt-6-luna",
+      "at": 1729898742000,
+      "totalMs": 2000,
+      "ok": true,
+      "cost": 0.0006,
+      "gate": { "ms": 247, "verdict": "pass" },
+      "rounds": [{ "t0": 247, "ms": 1800, "ttftMs": 390, "in": 7900, "out": 59, "cached": 0, "tools": [] }]
+    },
+    {
+      "id": "d0e3",
+      "model": "openai/gpt-6-luna",
+      "at": 1729893496000,
+      "totalMs": 4800,
+      "ok": true,
+      "cost": 0.0008,
+      "gate": { "ms": 140, "verdict": "pass" },
+      "rounds": [{ "t0": 140, "ms": 4700, "ttftMs": 640, "in": 8000, "out": 206, "cached": 0, "tools": [] }]
+    },
+    {
+      "id": "c11e",
+      "model": "openai/gpt-6-luna",
+      "at": 1729884360000,
+      "totalMs": 4400,
+      "ok": true,
+      "cost": 0.0008,
+      "gate": { "ms": 442, "verdict": "pass" },
+      "rounds": [{ "t0": 442, "ms": 3900, "ttftMs": 590, "in": 7900, "out": 150, "cached": 0, "tools": [] }]
+    },
+    {
+      "id": "c23d",
+      "model": "openai/gpt-6-luna",
+      "at": 1729884340000,
+      "totalMs": 3200,
+      "ok": true,
+      "cost": 0.0005,
+      "gate": { "ms": 771, "verdict": "pass" },
+      "rounds": [{ "t0": 771, "ms": 2500, "ttftMs": 420, "in": 7900, "out": 27, "cached": 0, "tools": [] }]
+    },
+    {
+      "id": "806c",
+      "model": "openai/gpt-6-luna",
+      "at": 1729882070000,
+      "totalMs": 9000,
+      "ok": true,
+      "cost": 0.0012,
+      "gate": { "ms": 417, "verdict": "pass" },
+      "rounds": [{ "t0": 417, "ms": 8600, "ttftMs": 1100, "in": 7900, "out": 437, "cached": 7800, "tools": [] }]
+    },
+    {
+      "id": "85ec",
+      "model": "openai/gpt-6-luna",
+      "at": 1729882049000,
+      "totalMs": 3000,
+      "ok": true,
+      "cost": 0.0005,
+      "gate": { "ms": 708, "verdict": "pass" },
+      "rounds": [{ "t0": 708, "ms": 2300, "ttftMs": 380, "in": 7900, "out": 31, "cached": 0, "tools": [] }]
+    },
+    {
+      "id": "ed69",
+      "model": "openai/gpt-6-luna",
+      "at": 1729876702000,
+      "totalMs": 718,
+      "ok": true,
+      "cost": 0.0001,
+      "gate": { "ms": 718, "verdict": "off_topic" },
+      "rounds": []
+    },
+    {
+      "id": "47c5",
+      "model": "openai/gpt-6-luna",
+      "at": 1729876631000,
+      "totalMs": 11200,
+      "ok": true,
+      "cost": 0.0011,
+      "gate": { "ms": 436, "verdict": "pass" },
+      "rounds": [{ "t0": 436, "ms": 10800, "ttftMs": 1200, "in": 8100, "out": 167, "cached": 0, "tools": [] }]
+    },
+    {
+      "id": "e565",
+      "model": "openai/gpt-6-luna",
+      "at": 1729876573000,
+      "totalMs": 5400,
+      "ok": true,
+      "cost": 0.0007,
+      "gate": { "ms": 915, "verdict": "pass" },
+      "rounds": [{ "t0": 915, "ms": 4500, "ttftMs": 620, "in": 8000, "out": 85, "cached": 0, "tools": [] }]
+    },
+    {
+      "id": "ea74",
+      "model": "openai/gpt-6-luna",
+      "at": 1729876510000,
+      "totalMs": 5900,
+      "ok": true,
+      "cost": 0.0008,
+      "gate": { "ms": 432, "verdict": "pass" },
+      "rounds": [{ "t0": 432, "ms": 5500, "ttftMs": 710, "in": 7900, "out": 166, "cached": 0, "tools": [] }]
+    },
+    {
+      "id": "83d9",
+      "model": "openai/gpt-6-luna",
+      "at": 1729876485000,
+      "totalMs": 3700,
+      "ok": true,
+      "cost": 0.0005,
+      "gate": { "ms": 728, "verdict": "pass" },
+      "rounds": [{ "t0": 728, "ms": 3000, "ttftMs": 440, "in": 7900, "out": 28, "cached": 0, "tools": [] }]
+    },
+    {
+      "id": "8287",
+      "model": "openai/gpt-6-luna",
+      "at": 1729865153000,
+      "totalMs": 3500,
+      "ok": true,
+      "cost": 0.0008,
+      "gate": { "ms": 446, "verdict": "pass" },
+      "rounds": [{ "t0": 446, "ms": 3000, "ttftMs": 520, "in": 8000, "out": 115, "cached": 7920, "tools": [] }]
+    },
+    {
+      "id": "d526",
+      "model": "openai/gpt-6-luna",
+      "at": 1729865135000,
+      "totalMs": 3400,
+      "ok": true,
+      "cost": 0.0008,
+      "gate": { "ms": 463, "verdict": "pass" },
+      "rounds": [{ "t0": 463, "ms": 2900, "ttftMs": 530, "in": 8000, "out": 177, "cached": 8000, "tools": [] }]
+    },
+    {
+      "id": "ffb7",
+      "model": "openai/gpt-6-luna",
+      "at": 1729865119000,
+      "totalMs": 5100,
+      "ok": true,
+      "cost": 0.0007,
+      "gate": { "ms": 484, "verdict": "pass" },
+      "rounds": [{ "t0": 484, "ms": 4600, "ttftMs": 650, "in": 8000, "out": 80, "cached": 7920, "tools": [] }]
+    },
+    {
+      "id": "c207",
+      "model": "openai/gpt-6-luna",
+      "at": 1729865102000,
+      "totalMs": 4000,
+      "ok": true,
+      "cost": 0.0007,
+      "gate": { "ms": 479, "verdict": "pass" },
+      "rounds": [{ "t0": 479, "ms": 3500, "ttftMs": 510, "in": 7900, "out": 112, "cached": 0, "tools": [] }]
+    },
+    {
+      "id": "e0c6",
+      "model": "openai/gpt-6-luna",
+      "at": 1729865068000,
+      "totalMs": 3700,
+      "ok": true,
+      "cost": 0.0006,
+      "gate": { "ms": 819, "verdict": "pass" },
+      "rounds": [{ "t0": 819, "ms": 2900, "ttftMs": 430, "in": 7900, "out": 55, "cached": 0, "tools": [] }]
+    },
+    {
+      "id": "f3d7",
+      "model": "openai/gpt-6-luna",
+      "at": 1729861081000,
+      "totalMs": 2100,
+      "ok": true,
+      "cost": 0.0006,
+      "gate": { "ms": 257, "verdict": "pass" },
+      "rounds": [{ "t0": 257, "ms": 1900, "ttftMs": 370, "in": 7900, "out": 58, "cached": 0, "tools": [] }]
+    },
+    {
+      "id": "6cb8",
+      "model": "openai/gpt-6-luna",
+      "at": 1729855697000,
+      "totalMs": 87,
+      "ok": true,
+      "cost": 0.00005,
+      "gate": { "ms": 87, "verdict": "off_topic" },
+      "rounds": []
+    },
+    {
+      "id": "edf3",
+      "model": "openai/gpt-6-luna",
+      "at": 1729855692000,
+      "totalMs": 154,
+      "ok": true,
+      "cost": 0.0001,
+      "gate": { "ms": 154, "verdict": "off_topic" },
+      "rounds": []
+    },
+    {
+      "id": "c319",
+      "model": "openai/gpt-6-luna",
+      "at": 1729855602000,
+      "totalMs": 11300,
+      "ok": true,
+      "cost": 0.0012,
+      "gate": { "ms": 84, "verdict": "pass" },
+      "rounds": [{ "t0": 84, "ms": 11200, "ttftMs": 1300, "in": 8200, "out": 313, "cached": 0, "tools": [] }]
+    },
+    {
+      "id": "fdcd",
+      "model": "openai/gpt-6-luna",
+      "at": 1729855575000,
+      "totalMs": 83,
+      "ok": true,
+      "cost": 0.00005,
+      "gate": { "ms": 83, "verdict": "off_topic" },
+      "rounds": []
+    },
+    {
+      "id": "4c0b",
+      "model": "openai/gpt-6-luna",
+      "at": 1729855548000,
+      "totalMs": 502,
+      "ok": true,
+      "cost": 0.0001,
+      "gate": { "ms": 80, "verdict": "pass" },
+      "rounds": [{ "t0": 80, "ms": 422, "ttftMs": 150, "in": 0, "out": 0, "cached": 0, "tools": [] }]
+    },
+    {
+      "id": "8dd8",
+      "model": "openai/gpt-6-luna",
+      "at": 1729855524000,
+      "totalMs": 88,
+      "ok": true,
+      "cost": 0.00005,
+      "gate": { "ms": 88, "verdict": "flagged" },
+      "rounds": []
+    },
+    {
+      "id": "4fbb",
+      "model": "openai/gpt-6-luna",
+      "at": 1729855482000,
+      "totalMs": 2600,
+      "ok": true,
+      "cost": 0.0008,
+      "gate": { "ms": 158, "verdict": "pass" },
+      "rounds": [{ "t0": 158, "ms": 2400, "ttftMs": 480, "in": 7900, "out": 149, "cached": 0, "tools": [] }]
+    },
+    {
+      "id": "7b0a",
+      "model": "openai/gpt-6-luna",
+      "at": 1729849587000,
+      "totalMs": 4500,
+      "ok": true,
+      "cost": 0.0008,
+      "gate": { "ms": 709, "verdict": "pass" },
+      "rounds": [{ "t0": 709, "ms": 3800, "ttftMs": 560, "in": 8000, "out": 178, "cached": 0, "tools": [] }]
+    },
+    {
+      "id": "3046",
+      "model": "openai/gpt-6-luna",
+      "at": 1729846854000,
+      "totalMs": 92,
+      "ok": true,
+      "cost": 0.00005,
+      "gate": { "ms": 92, "verdict": "off_topic" },
+      "rounds": []
+    },
+    {
+      "id": "3a71",
+      "model": "openai/gpt-6-luna",
+      "at": 1729846839000,
+      "totalMs": 171,
+      "ok": true,
+      "cost": 0.0001,
+      "gate": { "ms": 171, "verdict": "off_topic" },
+      "rounds": []
+    },
+    {
+      "id": "0d98",
+      "model": "openai/gpt-6-luna",
+      "at": 1729846796000,
+      "totalMs": 3100,
+      "ok": true,
+      "cost": 0.0008,
+      "gate": { "ms": 249, "verdict": "pass" },
+      "rounds": [{ "t0": 249, "ms": 2900, "ttftMs": 490, "in": 7900, "out": 189, "cached": 0, "tools": [] }]
+    },
+    {
+      "id": "a84e",
+      "model": "openai/gpt-6-luna",
+      "at": 1729845651000,
+      "totalMs": 2700,
+      "ok": true,
+      "cost": 0.0007,
+      "gate": { "ms": 163, "verdict": "pass" },
+      "rounds": [{ "t0": 163, "ms": 2500, "ttftMs": 470, "in": 8000, "out": 144, "cached": 0, "tools": [] }]
+    },
+    {
+      "id": "c352",
+      "model": "openai/gpt-6-luna",
+      "at": 1729836971000,
+      "totalMs": 152,
+      "ok": true,
+      "cost": 0.0001,
+      "gate": { "ms": 152, "verdict": "off_topic" },
+      "rounds": []
+    },
+    {
+      "id": "eec3",
+      "model": "openai/gpt-6-luna",
+      "at": 1729834887000,
+      "totalMs": 8,
+      "ok": false,
+      "cost": 0.0,
+      "gate": { "ms": 2, "verdict": "error" },
+      "rounds": []
+    },
+    {
+      "id": "bd01",
+      "model": "openai/gpt-6-luna",
+      "at": 1729834872000,
+      "totalMs": 34,
+      "ok": false,
+      "cost": 0.0,
+      "gate": { "ms": 2, "verdict": "error" },
+      "rounds": []
+    },
+    {
+      "id": "2bb0",
+      "model": "openai/gpt-6-luna",
+      "at": 1729830194000,
+      "totalMs": 2400,
+      "ok": true,
+      "cost": 0.0007,
+      "gate": { "ms": 156, "verdict": "pass" },
+      "rounds": [{ "t0": 156, "ms": 2300, "ttftMs": 460, "in": 8000, "out": 146, "cached": 0, "tools": [] }]
+    },
+    {
+      "id": "326e",
+      "model": "openai/gpt-6-luna",
+      "at": 1729829662000,
+      "totalMs": 4100,
+      "ok": true,
+      "cost": 0.0007,
+      "gate": { "ms": 609, "verdict": "pass" },
+      "rounds": [{ "t0": 609, "ms": 3500, "ttftMs": 530, "in": 8000, "out": 125, "cached": 0, "tools": [] }]
+    },
+    {
+      "id": "85bc",
+      "model": "openai/gpt-6-luna",
+      "at": 1729824223000,
+      "totalMs": 5800,
+      "ok": true,
+      "cost": 0.0008,
+      "gate": { "ms": 999, "verdict": "pass" },
+      "rounds": [{ "t0": 999, "ms": 4800, "ttftMs": 690, "in": 7900, "out": 163, "cached": 0, "tools": [] }]
+    },
+    {
+      "id": "ee8e",
+      "model": "openai/gpt-6-luna",
+      "at": 1729822616000,
+      "totalMs": 3300,
+      "ok": true,
+      "cost": 0.0008,
+      "gate": { "ms": 344, "verdict": "pass" },
+      "rounds": [{ "t0": 344, "ms": 2900, "ttftMs": 510, "in": 8000, "out": 164, "cached": 0, "tools": [] }]
+    },
+    {
+      "id": "4e3d",
+      "model": "openai/gpt-6-luna",
+      "at": 1729822139000,
+      "totalMs": 1800,
+      "ok": true,
+      "cost": 0.0005,
+      "gate": { "ms": 214, "verdict": "pass" },
+      "rounds": [{ "t0": 214, "ms": 1600, "ttftMs": 380, "in": 7900, "out": 31, "cached": 0, "tools": [] }]
+    },
+    {
+      "id": "3a81",
+      "model": "openai/gpt-6-luna",
+      "at": 1729820709000,
+      "totalMs": 3300,
+      "ok": true,
+      "cost": 0.0006,
+      "gate": { "ms": 1600, "verdict": "pass" },
+      "rounds": [{ "t0": 1600, "ms": 1700, "ttftMs": 410, "in": 8000, "out": 57, "cached": 0, "tools": [] }]
+    }
+  ]
+}

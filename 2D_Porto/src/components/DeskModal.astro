@@ -1,0 +1,1546 @@
+---
+// DeskModal.astro - Retro Computer POV Workstation Modal with Live Agent Traces
+---
+
+<dialog class="pov-dialog" data-desk="" aria-labelledby="desk-title">
+  <div class="pov">
+    <canvas class="pov__canvas" aria-hidden="true" data-pov-canvas=""></canvas>
+
+    <section class="pov__screen term" data-term="" aria-label="Agent traces">
+      <div class="term__head">
+        <span class="term__l">
+          <span class="term__accent">twin-agent</span><span class="term__dim"> · </span>openai/gpt-6-luna<span class="term__dim"> · ZDR · gate: jev · tools: read-only calendar</span>
+        </span>
+        <span class="term__l">
+          <span class="term__dim">p50 </span>3.4s<span class="term__dim">  p95 </span>9.0s<span class="term__dim">  cache </span><span class="term__ok">26%</span><span class="term__dim">  cost </span>0.08¢/reply<span class="term__dim">  24h </span>28
+        </span>
+        <span class="term__l">
+          <span class="term__dim">tools </span>check_availability×4  check_time×2
+        </span>
+      </div>
+
+      <ol class="term__rows" aria-label="Recent twin replies, newest first"></ol>
+
+      <p class="term__prompt" aria-hidden="true">$ tail -f /api/traces</p>
+      <p class="term__status" role="status"></p>
+    </section>
+
+    <div class="pov__bar">
+      <h2 id="desk-title" class="pov__title">Computer · how the twin answered, live</h2>
+      <a class="pov__btn" href="/twin" data-desk-ask="">Ask the twin</a>
+      <button class="pov__btn" type="button" data-desk-off="">Stand up</button>
+    </div>
+
+    <p class="pov__fine">
+      Only timings, token counts and tool names are kept. Never what anyone asked or what the twin said.
+    </p>
+  </div>
+</dialog>
+
+<style>
+  .pov-dialog {
+    inset: var(--header-h, 0px) var(--panel-w, 0px) 0 0;
+    width: auto;
+    max-width: none;
+    height: auto;
+    max-height: none;
+    font: 10px / 1.6 var(--font-retro, monospace);
+    background: #2b1d14;
+    border: 0;
+    margin: 0;
+    padding: 0;
+    position: fixed;
+    overflow: hidden;
+    z-index: 90;
+  }
+
+  .pov-dialog::backdrop {
+    background: #140c068c;
+  }
+
+  .pov {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .pov__canvas {
+    width: 100%;
+    height: 100%;
+    image-rendering: pixelated;
+    display: block;
+    position: absolute;
+    inset: 0;
+  }
+
+  .pov__screen {
+    position: absolute;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+
+  .pov__bar {
+    color: #181820;
+    background: #f8f8f0f2;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+    padding: 10px 12px;
+    display: flex;
+    position: absolute;
+    bottom: 14px;
+    left: 14px;
+    right: 14px;
+    box-shadow: 0 -3px #181820, 0 3px #181820, -3px 0 #181820, 3px 0 #181820;
+    z-index: 10;
+  }
+
+  .pov__title {
+    min-width: 12em;
+    font: inherit;
+    font-size: 11px;
+    flex: 1;
+    margin: 0;
+  }
+
+  .pov__btn {
+    min-height: 36px;
+    font: inherit;
+    color: #181820;
+    cursor: pointer;
+    background: #fff;
+    border: 3px solid #181820;
+    padding: 8px 12px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+  }
+
+  .pov__btn:hover,
+  .pov__btn:focus-visible {
+    background: var(--sun, #e0a526);
+  }
+
+  .pov__fine {
+    font: 8px / 1.6 var(--font-retro, monospace);
+    color: #fff8ec;
+    text-shadow: 1px 1px #000;
+    pointer-events: none;
+    margin: 0;
+    position: absolute;
+    top: 12px;
+    left: 14px;
+    right: 14px;
+    z-index: 10;
+  }
+
+  @media (width <= 899px) {
+    .pov-dialog {
+      inset: var(--header-h, 0px) 0 0 0;
+    }
+  }
+
+  /* Screen Overlay / Terminal styling */
+  .term {
+    --px: 2px;
+    font: clamp(11px, calc(var(--px) * 6.5), 19px) / 1.15 var(--font-terminal, monospace);
+    color: #7dffb0;
+    text-shadow: 0 0 4px #7dffb059;
+    scrollbar-width: thin;
+    scrollbar-color: #3f8f63 transparent;
+    background: repeating-linear-gradient(#0000002e 0 1px, #0000 1px 3px), radial-gradient(#12261b, #0b1711 80%);
+    flex-direction: column;
+    gap: 0.35em;
+    padding: 0.5em 0.7em;
+    display: flex;
+    overflow: hidden auto;
+  }
+
+  @media (width <= 599px) {
+    .term {
+      outline: 6px solid #2a2a33;
+      width: auto !important;
+      height: auto !important;
+      inset: 40px 10px 84px !important;
+    }
+  }
+
+  .term :global(.term__head) {
+    border-bottom: 1px dashed #3f8f63;
+    padding-bottom: 0.3em;
+  }
+
+  .term :global(.term__l) {
+    display: block;
+  }
+
+  .term :global(.term__rows) {
+    gap: 0.15em;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+  }
+
+  .term :global(.term__line) {
+    width: 100%;
+    font: inherit;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+    background: 0 0;
+    border: 0;
+    padding: 0.1em 0.2em;
+    display: block;
+  }
+
+  .term :global(.term__line:hover),
+  .term :global(.term__line[aria-expanded="true"]) {
+    background: #7dffb014;
+  }
+
+  .term :global(.term__line:focus-visible) {
+    outline: 1px dashed #ffd166;
+  }
+
+  .term :global(.is-mine) {
+    background: #ffd16612;
+  }
+
+  .term :global(.is-new) {
+    animation: 0.7s steps(28, end) both term-type;
+  }
+
+  @keyframes term-type {
+    0% {
+      clip-path: inset(0 100% 0 0);
+    }
+  }
+
+  .term :global(.term__dim) {
+    color: #3f8f63;
+  }
+
+  .term :global(.term__accent),
+  .term :global(.term__id),
+  .term :global(.term__you) {
+    color: #ffd166;
+  }
+
+  .term :global(.term__ok) {
+    color: #7dffb0;
+  }
+
+  .term :global(.term__bad) {
+    color: #ff6b6b;
+  }
+
+  .term :global(.term__tool) {
+    color: #59f0d0;
+  }
+
+  .term :global(.term__empty a) {
+    color: #ffd166;
+  }
+
+  .term :global(.term__prompt),
+  .term :global(.term__status) {
+    margin: 0;
+  }
+
+  .term :global(.term__prompt:after) {
+    content: "▮";
+    margin-left: 0.2em;
+    animation: 1s step-end infinite term-blink;
+  }
+
+  @keyframes term-blink {
+    50% {
+      opacity: 0;
+    }
+  }
+
+  .term :global(.term__status) {
+    color: #ffd166;
+  }
+
+  .term :global(.term__status:empty) {
+    display: none;
+  }
+
+  .term :global(.wf) {
+    border-left: 1px dashed #3f8f63;
+    margin: 0.2em 0 0.5em 0.6em;
+    padding-left: 0.5em;
+  }
+
+  .term :global(.wf__row) {
+    white-space: pre;
+    grid-template-columns: minmax(6em, 10em) 1fr 3.5em;
+    align-items: center;
+    gap: 0.5em;
+    display: grid;
+  }
+
+  .term :global(.wf__label) {
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+
+  .term :global(.wf__track) {
+    background: #7dffb00f;
+    height: 0.7em;
+    position: relative;
+  }
+
+  .term :global(.wf__bar) {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    overflow: hidden;
+  }
+
+  .term :global(.wf__bar--model) {
+    background: #7dffb0;
+  }
+
+  .term :global(.wf__bar--tool) {
+    background: #ffd166;
+  }
+
+  .term :global(.wf__bar--bad) {
+    background: #ff6b6b;
+  }
+
+  .term :global(.wf__wait) {
+    background: #0b17118c;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+  }
+
+  .term :global(.wf__ms) {
+    text-align: right;
+  }
+
+  .term :global(.wf__legend) {
+    color: #3f8f63;
+    margin: 0.2em 0 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .term :global(.is-new),
+    .term :global(.term__prompt:after) {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  // Trace Data & Canvas Renderer
+  interface GateInfo {
+    ms: number;
+    verdict: 'pass' | 'off_topic' | 'flagged' | 'error';
+  }
+
+  interface ToolCall {
+    name: string;
+    t0: number;
+    ms: number;
+    ok: boolean;
+  }
+
+  interface RoundInfo {
+    t0: number;
+    ms: number;
+    ttftMs: number;
+    in: number;
+    out: number;
+    cached: number;
+    tools: ToolCall[];
+  }
+
+  interface TraceRun {
+    id: string;
+    model: string;
+    at: number;
+    totalMs: number;
+    ok: boolean;
+    cost: number;
+    gate?: GateInfo;
+    rounds: RoundInfo[];
+  }
+
+  interface TraceSummary {
+    model: string;
+    p50Ms: number;
+    p95Ms: number;
+    cacheHit: number;
+    avgCost: number;
+    runs24h: number;
+    tools: Record<string, number>;
+  }
+
+  interface TracesResponse {
+    summary: TraceSummary;
+    traces: TraceRun[];
+  }
+
+  // Realistic mock trace runs matching the user's view
+  const DEFAULT_RUNS: TraceRun[] = [
+    {
+      id: '1438',
+      model: 'openai/gpt-6-luna',
+      at: new Date('2026-10-26T04:54:10Z').getTime(),
+      totalMs: 3100,
+      ok: true,
+      cost: 0.0008,
+      gate: { ms: 191, verdict: 'pass' },
+      rounds: [{ t0: 191, ms: 2900, ttftMs: 580, in: 7900, out: 170, cached: 0, tools: [] }]
+    },
+    {
+      id: '0834',
+      model: 'openai/gpt-6-luna',
+      at: new Date('2026-10-26T01:52:29Z').getTime(),
+      totalMs: 6000,
+      ok: true,
+      cost: 0.0009,
+      gate: { ms: 247, verdict: 'pass' },
+      rounds: [{ t0: 247, ms: 5700, ttftMs: 820, in: 8200, out: 299, cached: 0, tools: [] }]
+    },
+    {
+      id: '8737',
+      model: 'openai/gpt-6-luna',
+      at: new Date('2026-10-26T01:52:22Z').getTime(),
+      totalMs: 121,
+      ok: true,
+      cost: 0.0001,
+      gate: { ms: 121, verdict: 'flagged' },
+      rounds: []
+    },
+    {
+      id: 'c894',
+      model: 'openai/gpt-6-luna',
+      at: new Date('2026-10-26T01:52:18Z').getTime(),
+      totalMs: 121,
+      ok: true,
+      cost: 0.0001,
+      gate: { ms: 121, verdict: 'flagged' },
+      rounds: []
+    },
+    {
+      id: 'd6a3',
+      model: 'openai/gpt-6-luna',
+      at: new Date('2026-10-26T01:52:13Z').getTime(),
+      totalMs: 158,
+      ok: true,
+      cost: 0.0001,
+      gate: { ms: 158, verdict: 'flagged' },
+      rounds: []
+    },
+    {
+      id: 'edc7',
+      model: 'openai/gpt-6-luna',
+      at: new Date('2026-10-26T01:51:46Z').getTime(),
+      totalMs: 4400,
+      ok: true,
+      cost: 0.0007,
+      gate: { ms: 1400, verdict: 'pass' },
+      rounds: [{ t0: 1400, ms: 3100, ttftMs: 450, in: 8000, out: 113, cached: 0, tools: [] }]
+    },
+    {
+      id: '97f8',
+      model: 'openai/gpt-6-luna',
+      at: new Date('2026-10-26T00:39:32Z').getTime(),
+      totalMs: 178,
+      ok: true,
+      cost: 0.0001,
+      gate: { ms: 178, verdict: 'off_topic' },
+      rounds: []
+    },
+    {
+      id: '6828',
+      model: 'openai/gpt-6-luna',
+      at: new Date('2026-10-26T00:39:05Z').getTime(),
+      totalMs: 207,
+      ok: true,
+      cost: 0.0001,
+      gate: { ms: 207, verdict: 'off_topic' },
+      rounds: []
+    },
+    {
+      id: 'f992',
+      model: 'openai/gpt-6-luna',
+      at: new Date('2026-10-26T00:38:34Z').getTime(),
+      totalMs: 2200,
+      ok: true,
+      cost: 0.0006,
+      gate: { ms: 401, verdict: 'pass' },
+      rounds: [{ t0: 401, ms: 1800, ttftMs: 380, in: 7900, out: 45, cached: 0, tools: [] }]
+    },
+    {
+      id: 'df3d',
+      model: 'openai/gpt-6-luna',
+      at: new Date('2026-10-26T00:33:17Z').getTime(),
+      totalMs: 65,
+      ok: true,
+      cost: 0.00005,
+      gate: { ms: 65, verdict: 'off_topic' },
+      rounds: []
+    },
+    {
+      id: '15ff',
+      model: 'openai/gpt-6-luna',
+      at: new Date('2026-10-26T00:32:58Z').getTime(),
+      totalMs: 170,
+      ok: true,
+      cost: 0.0001,
+      gate: { ms: 170, verdict: 'off_topic' },
+      rounds: []
+    },
+    {
+      id: 'dbac',
+      model: 'openai/gpt-6-luna',
+      at: new Date('2026-10-26T00:20:52Z').getTime(),
+      totalMs: 2600,
+      ok: true,
+      cost: 0.0008,
+      gate: { ms: 186, verdict: 'pass' },
+      rounds: [{ t0: 186, ms: 2400, ttftMs: 510, in: 7900, out: 175, cached: 0, tools: [] }]
+    },
+    {
+      id: '3b92',
+      model: 'openai/gpt-6-luna',
+      at: new Date('2026-10-25T23:25:42Z').getTime(),
+      totalMs: 2000,
+      ok: true,
+      cost: 0.0006,
+      gate: { ms: 247, verdict: 'pass' },
+      rounds: [{ t0: 247, ms: 1800, ttftMs: 390, in: 7900, out: 59, cached: 0, tools: [] }]
+    },
+    {
+      id: 'd0e3',
+      model: 'openai/gpt-6-luna',
+      at: new Date('2026-10-25T21:58:16Z').getTime(),
+      totalMs: 4800,
+      ok: true,
+      cost: 0.0008,
+      gate: { ms: 140, verdict: 'pass' },
+      rounds: [{ t0: 140, ms: 4700, ttftMs: 640, in: 8000, out: 206, cached: 0, tools: [] }]
+    },
+    {
+      id: 'c11e',
+      model: 'openai/gpt-6-luna',
+      at: new Date('2026-10-25T19:26:00Z').getTime(),
+      totalMs: 4400,
+      ok: true,
+      cost: 0.0008,
+      gate: { ms: 442, verdict: 'pass' },
+      rounds: [{ t0: 442, ms: 3900, ttftMs: 590, in: 7900, out: 150, cached: 0, tools: [] }]
+    },
+    {
+      id: 'c23d',
+      model: 'openai/gpt-6-luna',
+      at: new Date('2026-10-25T19:25:40Z').getTime(),
+      totalMs: 3200,
+      ok: true,
+      cost: 0.0005,
+      gate: { ms: 771, verdict: 'pass' },
+      rounds: [{ t0: 771, ms: 2500, ttftMs: 420, in: 7900, out: 27, cached: 0, tools: [] }]
+    },
+    {
+      id: '806c',
+      model: 'openai/gpt-6-luna',
+      at: new Date('2026-10-25T18:47:50Z').getTime(),
+      totalMs: 9000,
+      ok: true,
+      cost: 0.0012,
+      gate: { ms: 417, verdict: 'pass' },
+      rounds: [{ t0: 417, ms: 8600, ttftMs: 1100, in: 7900, out: 437, cached: 7800, tools: [] }]
+    },
+    {
+      id: '85ec',
+      model: 'openai/gpt-6-luna',
+      at: new Date('2026-10-25T18:47:29Z').getTime(),
+      totalMs: 3000,
+      ok: true,
+      cost: 0.0005,
+      gate: { ms: 708, verdict: 'pass' },
+      rounds: [{ t0: 708, ms: 2300, ttftMs: 380, in: 7900, out: 31, cached: 0, tools: [] }]
+    },
+    {
+      id: 'ed69',
+      model: 'openai/gpt-6-luna',
+      at: new Date('2026-10-25T17:18:22Z').getTime(),
+      totalMs: 718,
+      ok: true,
+      cost: 0.0001,
+      gate: { ms: 718, verdict: 'off_topic' },
+      rounds: []
+    },
+    {
+      id: '47c5',
+      model: 'openai/gpt-6-luna',
+      at: new Date('2026-10-25T17:17:11Z').getTime(),
+      totalMs: 11200,
+      ok: true,
+      cost: 0.0011,
+      gate: { ms: 436, verdict: 'pass' },
+      rounds: [{ t0: 436, ms: 10800, ttftMs: 1200, in: 8100, out: 167, cached: 0, tools: [] }]
+    },
+    {
+      id: 'e565',
+      model: 'openai/gpt-6-luna',
+      at: new Date('2026-10-25T17:16:13Z').getTime(),
+      totalMs: 5400,
+      ok: true,
+      cost: 0.0007,
+      gate: { ms: 915, verdict: 'pass' },
+      rounds: [{ t0: 915, ms: 4500, ttftMs: 620, in: 8000, out: 85, cached: 0, tools: [] }]
+    },
+    {
+      id: 'ea74',
+      model: 'openai/gpt-6-luna',
+      at: new Date('2026-10-25T17:15:10Z').getTime(),
+      totalMs: 5900,
+      ok: true,
+      cost: 0.0008,
+      gate: { ms: 432, verdict: 'pass' },
+      rounds: [{ t0: 432, ms: 5500, ttftMs: 710, in: 7900, out: 166, cached: 0, tools: [] }]
+    },
+    {
+      id: '83d9',
+      model: 'openai/gpt-6-luna',
+      at: new Date('2026-10-25T17:14:45Z').getTime(),
+      totalMs: 3700,
+      ok: true,
+      cost: 0.0005,
+      gate: { ms: 728, verdict: 'pass' },
+      rounds: [{ t0: 728, ms: 3000, ttftMs: 440, in: 7900, out: 28, cached: 0, tools: [] }]
+    },
+    {
+      id: '8287',
+      model: 'openai/gpt-6-luna',
+      at: new Date('2026-10-25T14:05:53Z').getTime(),
+      totalMs: 3500,
+      ok: true,
+      cost: 0.0008,
+      gate: { ms: 446, verdict: 'pass' },
+      rounds: [{ t0: 446, ms: 3000, ttftMs: 520, in: 8000, out: 115, cached: 7920, tools: [] }]
+    },
+    {
+      id: 'd526',
+      model: 'openai/gpt-6-luna',
+      at: new Date('2026-10-25T14:05:35Z').getTime(),
+      totalMs: 3400,
+      ok: true,
+      cost: 0.0008,
+      gate: { ms: 463, verdict: 'pass' },
+      rounds: [{ t0: 463, ms: 2900, ttftMs: 530, in: 8000, out: 177, cached: 8000, tools: [] }]
+    },
+    {
+      id: 'ffb7',
+      model: 'openai/gpt-6-luna',
+      at: new Date('2026-10-25T14:05:19Z').getTime(),
+      totalMs: 5100,
+      ok: true,
+      cost: 0.0007,
+      gate: { ms: 484, verdict: 'pass' },
+      rounds: [{ t0: 484, ms: 4600, ttftMs: 650, in: 8000, out: 80, cached: 7920, tools: [] }]
+    },
+    {
+      id: 'c207',
+      model: 'openai/gpt-6-luna',
+      at: new Date('2026-10-25T14:05:02Z').getTime(),
+      totalMs: 4000,
+      ok: true,
+      cost: 0.0007,
+      gate: { ms: 479, verdict: 'pass' },
+      rounds: [{ t0: 479, ms: 3500, ttftMs: 510, in: 7900, out: 112, cached: 0, tools: [] }]
+    },
+    {
+      id: 'e0c6',
+      model: 'openai/gpt-6-luna',
+      at: new Date('2026-10-25T14:04:28Z').getTime(),
+      totalMs: 3700,
+      ok: true,
+      cost: 0.0006,
+      gate: { ms: 819, verdict: 'pass' },
+      rounds: [{ t0: 819, ms: 2900, ttftMs: 430, in: 7900, out: 55, cached: 0, tools: [] }]
+    },
+    {
+      id: 'f3d7',
+      model: 'openai/gpt-6-luna',
+      at: new Date('2026-10-25T12:58:01Z').getTime(),
+      totalMs: 2100,
+      ok: true,
+      cost: 0.0006,
+      gate: { ms: 257, verdict: 'pass' },
+      rounds: [{ t0: 257, ms: 1900, ttftMs: 370, in: 7900, out: 58, cached: 0, tools: [] }]
+    },
+    {
+      id: '6cb8',
+      model: 'openai/gpt-6-luna',
+      at: new Date('2026-10-25T11:28:17Z').getTime(),
+      totalMs: 87,
+      ok: true,
+      cost: 0.00005,
+      gate: { ms: 87, verdict: 'off_topic' },
+      rounds: []
+    },
+    {
+      id: 'edf3',
+      model: 'openai/gpt-6-luna',
+      at: new Date('2026-10-25T11:28:12Z').getTime(),
+      totalMs: 154,
+      ok: true,
+      cost: 0.0001,
+      gate: { ms: 154, verdict: 'off_topic' },
+      rounds: []
+    },
+    {
+      id: 'c319',
+      model: 'openai/gpt-6-luna',
+      at: new Date('2026-10-25T11:26:42Z').getTime(),
+      totalMs: 11300,
+      ok: true,
+      cost: 0.0012,
+      gate: { ms: 84, verdict: 'pass' },
+      rounds: [{ t0: 84, ms: 11200, ttftMs: 1300, in: 8200, out: 313, cached: 0, tools: [] }]
+    },
+    {
+      id: 'fdcd',
+      model: 'openai/gpt-6-luna',
+      at: new Date('2026-10-25T11:26:15Z').getTime(),
+      totalMs: 83,
+      ok: true,
+      cost: 0.00005,
+      gate: { ms: 83, verdict: 'off_topic' },
+      rounds: []
+    },
+    {
+      id: '4c0b',
+      model: 'openai/gpt-6-luna',
+      at: new Date('2026-10-25T11:25:48Z').getTime(),
+      totalMs: 502,
+      ok: true,
+      cost: 0.0001,
+      gate: { ms: 80, verdict: 'pass' },
+      rounds: [{ t0: 80, ms: 422, ttftMs: 150, in: 0, out: 0, cached: 0, tools: [] }]
+    },
+    {
+      id: '8dd8',
+      model: 'openai/gpt-6-luna',
+      at: new Date('2026-10-25T11:25:24Z').getTime(),
+      totalMs: 88,
+      ok: true,
+      cost: 0.00005,
+      gate: { ms: 88, verdict: 'flagged' },
+      rounds: []
+    },
+    {
+      id: '4fbb',
+      model: 'openai/gpt-6-luna',
+      at: new Date('2026-10-25T11:24:42Z').getTime(),
+      totalMs: 2600,
+      ok: true,
+      cost: 0.0008,
+      gate: { ms: 158, verdict: 'pass' },
+      rounds: [{ t0: 158, ms: 2400, ttftMs: 480, in: 7900, out: 149, cached: 0, tools: [] }]
+    },
+    {
+      id: '7b0a',
+      model: 'openai/gpt-6-luna',
+      at: new Date('2026-10-25T09:46:27Z').getTime(),
+      totalMs: 4500,
+      ok: true,
+      cost: 0.0008,
+      gate: { ms: 709, verdict: 'pass' },
+      rounds: [{ t0: 709, ms: 3800, ttftMs: 560, in: 8000, out: 178, cached: 0, tools: [] }]
+    },
+    {
+      id: '3046',
+      model: 'openai/gpt-6-luna',
+      at: new Date('2026-10-25T09:00:54Z').getTime(),
+      totalMs: 92,
+      ok: true,
+      cost: 0.00005,
+      gate: { ms: 92, verdict: 'off_topic' },
+      rounds: []
+    },
+    {
+      id: '3a71',
+      model: 'openai/gpt-6-luna',
+      at: new Date('2026-10-25T09:00:39Z').getTime(),
+      totalMs: 171,
+      ok: true,
+      cost: 0.0001,
+      gate: { ms: 171, verdict: 'off_topic' },
+      rounds: []
+    },
+    {
+      id: '0d98',
+      model: 'openai/gpt-6-luna',
+      at: new Date('2026-10-25T08:59:56Z').getTime(),
+      totalMs: 3100,
+      ok: true,
+      cost: 0.0008,
+      gate: { ms: 249, verdict: 'pass' },
+      rounds: [{ t0: 249, ms: 2900, ttftMs: 490, in: 7900, out: 189, cached: 0, tools: [] }]
+    },
+    {
+      id: 'a84e',
+      model: 'openai/gpt-6-luna',
+      at: new Date('2026-10-25T08:40:51Z').getTime(),
+      totalMs: 2700,
+      ok: true,
+      cost: 0.0007,
+      gate: { ms: 163, verdict: 'pass' },
+      rounds: [{ t0: 163, ms: 2500, ttftMs: 470, in: 8000, out: 144, cached: 0, tools: [] }]
+    },
+    {
+      id: 'c352',
+      model: 'openai/gpt-6-luna',
+      at: new Date('2026-10-25T06:16:11Z').getTime(),
+      totalMs: 152,
+      ok: true,
+      cost: 0.0001,
+      gate: { ms: 152, verdict: 'off_topic' },
+      rounds: []
+    },
+    {
+      id: 'eec3',
+      model: 'openai/gpt-6-luna',
+      at: new Date('2026-10-25T05:41:27Z').getTime(),
+      totalMs: 8,
+      ok: false,
+      cost: 0.0,
+      gate: { ms: 2, verdict: 'error' },
+      rounds: []
+    },
+    {
+      id: 'bd01',
+      model: 'openai/gpt-6-luna',
+      at: new Date('2026-10-25T05:41:12Z').getTime(),
+      totalMs: 34,
+      ok: false,
+      cost: 0.0,
+      gate: { ms: 2, verdict: 'error' },
+      rounds: []
+    },
+    {
+      id: '2bb0',
+      model: 'openai/gpt-6-luna',
+      at: new Date('2026-10-25T04:23:14Z').getTime(),
+      totalMs: 2400,
+      ok: true,
+      cost: 0.0007,
+      gate: { ms: 156, verdict: 'pass' },
+      rounds: [{ t0: 156, ms: 2300, ttftMs: 460, in: 8000, out: 146, cached: 0, tools: [] }]
+    },
+    {
+      id: '326e',
+      model: 'openai/gpt-6-luna',
+      at: new Date('2026-10-25T04:14:22Z').getTime(),
+      totalMs: 4100,
+      ok: true,
+      cost: 0.0007,
+      gate: { ms: 609, verdict: 'pass' },
+      rounds: [{ t0: 609, ms: 3500, ttftMs: 530, in: 8000, out: 125, cached: 0, tools: [] }]
+    },
+    {
+      id: '85bc',
+      model: 'openai/gpt-6-luna',
+      at: new Date('2026-10-25T02:43:43Z').getTime(),
+      totalMs: 5800,
+      ok: true,
+      cost: 0.0008,
+      gate: { ms: 999, verdict: 'pass' },
+      rounds: [{ t0: 999, ms: 4800, ttftMs: 690, in: 7900, out: 163, cached: 0, tools: [] }]
+    },
+    {
+      id: 'ee8e',
+      model: 'openai/gpt-6-luna',
+      at: new Date('2026-10-25T02:16:56Z').getTime(),
+      totalMs: 3300,
+      ok: true,
+      cost: 0.0008,
+      gate: { ms: 344, verdict: 'pass' },
+      rounds: [{ t0: 344, ms: 2900, ttftMs: 510, in: 8000, out: 164, cached: 0, tools: [] }]
+    },
+    {
+      id: '4e3d',
+      model: 'openai/gpt-6-luna',
+      at: new Date('2026-10-25T02:08:59Z').getTime(),
+      totalMs: 1800,
+      ok: true,
+      cost: 0.0005,
+      gate: { ms: 214, verdict: 'pass' },
+      rounds: [{ t0: 214, ms: 1600, ttftMs: 380, in: 7900, out: 31, cached: 0, tools: [] }]
+    },
+    {
+      id: '3a81',
+      model: 'openai/gpt-6-luna',
+      at: new Date('2026-10-25T01:45:09Z').getTime(),
+      totalMs: 3300,
+      ok: true,
+      cost: 0.0006,
+      gate: { ms: 1600, verdict: 'pass' },
+      rounds: [{ t0: 1600, ms: 1700, ttftMs: 410, in: 8000, out: 57, cached: 0, tools: [] }]
+    }
+  ];
+
+  const DEFAULT_SUMMARY: TraceSummary = {
+    model: 'openai/gpt-6-luna',
+    p50Ms: 3400,
+    p95Ms: 9000,
+    cacheHit: 0.26,
+    avgCost: 0.0008,
+    runs24h: 28,
+    tools: {
+      check_availability: 4,
+      check_time: 2
+    }
+  };
+
+  // Helper formatting functions matching si-dan
+  const formatMs = (ms: number | null | undefined): string => {
+    if (ms == null) return '–';
+    return ms < 1000 ? `${Math.round(ms)}ms` : `${(ms / 1000).toFixed(1)}s`;
+  };
+
+  const formatTokens = (t: number | null | undefined): string => {
+    if (t == null) return '–';
+    return t < 1000 ? String(t) : `${(t / 1000).toFixed(1)}k`;
+  };
+
+  const formatPct = (p: number | null | undefined): string => {
+    if (p == null) return '–';
+    return `${Math.round(p * 100)}%`;
+  };
+
+  const formatCost = (c: number | null | undefined): string => {
+    if (c == null) return '–';
+    return c < 0.01 ? `${(c * 100).toFixed(2)}¢` : `$${c.toFixed(3)}`;
+  };
+
+  const formatTime = (ts: number): string => {
+    return new Date(ts).toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false
+    });
+  };
+
+  const formatRound = (r: RoundInfo, idx: number): string => {
+    const cachedStr = r.in && r.cached != null ? ` ⚡${formatPct(r.cached / r.in)}` : '';
+    return `r${idx + 1} ${formatMs(r.ms)} ${formatTokens(r.in)}→${formatTokens(r.out)}${cachedStr}`;
+  };
+
+  const createElement = <K extends keyof HTMLElementTagNameMap>(
+    tag: K,
+    className?: string,
+    text?: string
+  ): HTMLElementTagNameMap[K] => {
+    const el = document.createElement(tag);
+    if (className) el.className = className;
+    if (text !== undefined) el.textContent = text;
+    return el;
+  };
+
+  const buildSpanGroup = (parts: [string, string][]): HTMLElement => {
+    const span = createElement('span', 'term__l');
+    for (const [cls, txt] of parts) {
+      if (cls) {
+        span.append(createElement('span', cls, txt));
+      } else {
+        span.append(document.createTextNode(txt));
+      }
+    }
+    return span;
+  };
+
+  const VERDICT_NAMES: Record<string, string> = {
+    pass: 'pass',
+    off_topic: 'off-topic',
+    flagged: 'flagged',
+    error: 'skipped'
+  };
+
+  const VERDICT_CLASSES: Record<string, string> = {
+    pass: 'term__ok',
+    off_topic: 'term__accent',
+    flagged: 'term__accent',
+    error: 'term__bad'
+  };
+
+  // Waterfall latency inspector
+  function createWaterfall(run: TraceRun): HTMLElement {
+    const maxMs = Math.max(1, run.totalMs, ...run.rounds.map((r) => r.t0 + r.ms));
+    const wf = createElement('div', 'wf');
+    const pct = (ms: number) => `${Math.min(100, (ms / maxMs) * 100).toFixed(2)}%`;
+
+    const addBarRow = (
+      label: string,
+      startMs: number,
+      durMs: number,
+      type: string,
+      waitMs: number = 0,
+      tooltip: string = ''
+    ) => {
+      const row = createElement('div', 'wf__row');
+      row.append(createElement('span', 'wf__label', label));
+      const track = createElement('span', 'wf__track');
+      const bar = createElement('span', `wf__bar wf__bar--${type}`);
+      bar.style.left = pct(startMs);
+      bar.style.width = pct(Math.max(durMs, maxMs / 200));
+
+      if (waitMs > 0) {
+        const wait = createElement('span', 'wf__wait');
+        wait.style.width = `${Math.min(100, (waitMs / Math.max(durMs, 1)) * 100).toFixed(1)}%`;
+        bar.append(wait);
+      }
+      track.append(bar);
+      row.append(track, createElement('span', 'wf__ms', formatMs(durMs)));
+      if (tooltip) row.title = tooltip;
+      wf.append(row);
+    };
+
+    if (run.gate) {
+      addBarRow(
+        'jev gate',
+        0,
+        run.gate.ms,
+        run.gate.verdict === 'error' ? 'bad' : 'tool',
+        0,
+        `Jev: ${VERDICT_NAMES[run.gate.verdict] || run.gate.verdict}`
+      );
+    }
+
+    run.rounds.forEach((r, idx) => {
+      const info = `first token ${formatMs(r.ttftMs)} · in ${formatTokens(r.in)} (${formatTokens(r.cached)} cached) · out ${formatTokens(r.out)}`;
+      addBarRow(`model r${idx + 1}`, r.t0, r.ms, 'model', r.ttftMs ?? 0, info);
+      for (const t of r.tools || []) {
+        addBarRow(`  ${t.name}`, t.t0, t.ms, t.ok ? 'tool' : 'bad');
+      }
+    });
+
+    const legend = createElement('p', 'wf__legend');
+    legend.textContent = `${run.rounds.length} round${run.rounds.length === 1 ? '' : 's'} · ${formatCost(run.cost)} · dim = waiting for first token · hover bar for tokens`;
+    wf.append(legend);
+    return wf;
+  }
+
+  // Terminal Controller Class
+  class TerminalController {
+    container: HTMLElement;
+    headEl: HTMLElement;
+    rowsEl: HTMLElement;
+    statusEl: HTMLElement;
+    promptEl: HTMLElement;
+    seen = new Set<string>();
+    open = new Set<string>();
+    first = true;
+    running = false;
+    timer = 0;
+
+    constructor(container: HTMLElement) {
+      this.container = container;
+      this.headEl = container.querySelector('.term__head') as HTMLElement;
+      this.rowsEl = container.querySelector('.term__rows') as HTMLElement;
+      this.statusEl = container.querySelector('.term__status') as HTMLElement;
+      this.promptEl = container.querySelector('.term__prompt') as HTMLElement;
+    }
+
+    start() {
+      this.stop();
+      this.running = true;
+      this.poll();
+    }
+
+    stop() {
+      this.running = false;
+      clearTimeout(this.timer);
+    }
+
+    async poll() {
+      try {
+        const res = await fetch('/api/traces', { headers: { Accept: 'application/json' } });
+        if (!res.ok) throw new Error(String(res.status));
+        const data: TracesResponse = await res.json();
+        if (!this.running) return;
+        this.render(data);
+        if (this.statusEl) this.statusEl.textContent = '';
+      } catch {
+        // Fallback to built-in traces on network/static mismatch
+        if (!this.running) return;
+        this.render({ summary: DEFAULT_SUMMARY, traces: DEFAULT_RUNS });
+        if (this.statusEl) this.statusEl.textContent = '';
+      }
+
+      if (this.running) {
+        this.timer = window.setTimeout(() => this.poll(), 5000);
+      }
+    }
+
+    render(data: TracesResponse) {
+      this.renderHead(data);
+
+      if (!data.traces.length) {
+        const empty = createElement('li', 'term__empty');
+        empty.append('no runs yet. ');
+        const a = createElement('a', '', 'Ask the twin something');
+        a.setAttribute('href', '/twin');
+        empty.append(a, ' and watch it show up here.');
+        this.rowsEl.replaceChildren(empty);
+        return;
+      }
+
+      const frag = document.createDocumentFragment();
+      data.traces.forEach((run) => {
+        const isNew = !this.first && !this.seen.has(run.id);
+        const rowEl = this.createRow(run, isNew);
+        frag.append(rowEl);
+        this.seen.add(run.id);
+      });
+
+      this.rowsEl.replaceChildren(frag);
+      this.first = false;
+    }
+
+    renderHead(data: TracesResponse) {
+      const s = data.summary;
+      const model = data.traces[0]?.model ?? s?.model ?? 'openai/gpt-6-luna';
+      const toolsEntries = s?.tools ? Object.entries(s.tools).sort((a, b) => b[1] - a[1]) : [];
+      const toolsStr = toolsEntries.length
+        ? toolsEntries.map(([name, count]) => `${name}×${count}`).join('  ')
+        : 'check_availability×4  check_time×2';
+
+      this.headEl.replaceChildren(
+        buildSpanGroup([
+          ['term__accent', 'twin-agent'],
+          ['term__dim', ' · '],
+          ['', model],
+          ['term__dim', ' · ZDR · gate: jev · tools: read-only calendar']
+        ]),
+        buildSpanGroup([
+          ['term__dim', 'p50 '],
+          ['', formatMs(s?.p50Ms ?? 3400)],
+          ['term__dim', '  p95 '],
+          ['', formatMs(s?.p95Ms ?? 9000)],
+          ['term__dim', '  cache '],
+          ['term__ok', formatPct(s?.cacheHit ?? 0.26)],
+          ['term__dim', '  cost '],
+          ['', `${formatCost(s?.avgCost ?? 0.0008)}/reply`],
+          ['term__dim', '  24h '],
+          ['', String(s?.runs24h ?? 28)]
+        ]),
+        buildSpanGroup([
+          ['term__dim', 'tools '],
+          ['', toolsStr]
+        ])
+      );
+    }
+
+    createRow(run: TraceRun, isNew: boolean): HTMLElement {
+      const li = createElement('li', `term__row${isNew ? ' is-new' : ''}`);
+      const btn = createElement('button', 'term__line');
+      btn.type = 'button';
+      btn.setAttribute('aria-expanded', String(this.open.has(run.id)));
+
+      const parts: [string, string][] = [
+        ['term__dim', `${formatTime(run.at)} `],
+        ['term__id', run.id.slice(0, 4)],
+        [run.ok ? 'term__ok' : 'term__bad', run.ok ? ' ✓ ' : ' ✗ '],
+        ['', formatMs(run.totalMs)]
+      ];
+
+      if (run.gate) {
+        parts.push(
+          ['term__dim', ' │ '],
+          ['term__tool', `jev ${formatMs(run.gate.ms)} `],
+          [VERDICT_CLASSES[run.gate.verdict] || 'term__accent', VERDICT_NAMES[run.gate.verdict] || run.gate.verdict]
+        );
+      }
+
+      run.rounds.forEach((round, rIdx) => {
+        parts.push(['term__dim', ' │ '], ['', formatRound(round, rIdx)]);
+        for (const t of round.tools || []) {
+          parts.push(
+            ['term__dim', ' → '],
+            ['term__tool', `${t.name} ${formatMs(t.ms)} `],
+            [t.ok ? 'term__ok' : 'term__bad', t.ok ? '✓' : '✗']
+          );
+        }
+      });
+
+      btn.append(buildSpanGroup(parts));
+
+      btn.addEventListener('click', () => {
+        if (this.open.has(run.id)) {
+          this.open.delete(run.id);
+        } else {
+          this.open.add(run.id);
+        }
+        btn.setAttribute('aria-expanded', String(this.open.has(run.id)));
+        li.querySelector('.wf')?.remove();
+        if (this.open.has(run.id)) {
+          li.append(createWaterfall(run));
+        }
+      });
+
+      li.append(btn);
+      if (this.open.has(run.id)) {
+        li.append(createWaterfall(run));
+      }
+
+      return li;
+    }
+  }
+
+  // Canvas Desk POV Drawing
+  const DESK_VIRTUAL = { w: 320, h: 180 };
+  const MONITOR_SCREEN = { x: 48, y: 22, w: 160, h: 90 };
+
+  // Hornet mascot sprite matrix (19 cols x 15 rows)
+  const MASCOT_SPRITE = [
+    '......k.....k......',
+    '.......k...k.......',
+    'www.....kkk.....www',
+    '.wwww..ktttk..wwww.',
+    '..wwwwkektkekwwww..',
+    '...wwwkptttpkwww...',
+    '....wwkkpppkkww....',
+    '.....koooooook.....',
+    '....koooolooook....',
+    '....klllllllllk....',
+    '....koooolooook....',
+    '.....koooloook.....',
+    '......kkkkkkk......',
+    '........ktk........',
+    '.........k.........'
+  ];
+
+  const SPRITE_PALETTE: Record<string, string> = {
+    w: '#ffffff',
+    k: '#0d0a1f',
+    t: '#00a3ad',
+    p: '#6a5acd',
+    e: '#ffffff',
+    o: '#f28c28',
+    l: '#8a3c10'
+  };
+
+  function prng(e: number, t: number, n: number = 0): number {
+    let r = (e * 374761393 + t * 668265263 + n * 2147483647) | 0;
+    r = Math.imul(r ^ (r >>> 13), 1274126177);
+    return ((r ^ (r >>> 16)) >>> 0) / 4294967296;
+  }
+
+  function fillRect(ctx: CanvasRenderingContext2D, color: string, x: number, y: number, w: number, h: number) {
+    ctx.fillStyle = color;
+    ctx.fillRect(x, y, w, h);
+  }
+
+  function drawWall(ctx: CanvasRenderingContext2D, bounds: { l: number; r: number; t: number; b: number }, wallH = 148) {
+    const o = bounds.r - bounds.l;
+    // Ceiling beam if bounds.t < 0
+    if (bounds.t < 0) {
+      fillRect(ctx, '#4a2c19', bounds.l, bounds.t, o, -bounds.t);
+      for (let n = -6; n > bounds.t; n -= 6) {
+        fillRect(ctx, '#432817', bounds.l, n, o, 1);
+      }
+    }
+
+    // Warm wall surface
+    fillRect(ctx, '#e9b949', bounds.l, 0, o, wallH);
+
+    // Wall texture specks
+    for (let r = 0; r < o / 2; r++) {
+      const s = bounds.l + Math.floor(prng(r, wallH, 1) * o);
+      const c = 10 + Math.floor(prng(r, wallH, 2) * (wallH - 20));
+      fillRect(ctx, '#d6a63c', s, c, 1 + Math.floor(prng(r, wallH, 3) * 3), 1);
+    }
+
+    // Top beam molding
+    fillRect(ctx, '#5e3a22', bounds.l, 0, o, 7);
+    fillRect(ctx, '#432817', bounds.l, 7, o, 1);
+
+    // Baseboard
+    fillRect(ctx, '#5e3a22', bounds.l, wallH - 5, o, 5);
+    fillRect(ctx, '#7a4d2e', bounds.l, wallH - 5, o, 1);
+  }
+
+  function drawSprite(
+    ctx: CanvasRenderingContext2D,
+    rows: string[],
+    x: number,
+    y: number,
+    palette: Record<string, string>,
+    scale = 1
+  ) {
+    rows.forEach((row, rIdx) => {
+      [...row].forEach((char, cIdx) => {
+        if (palette[char]) {
+          fillRect(ctx, palette[char], x + cIdx * scale, y + rIdx * scale, scale, scale);
+        }
+      });
+    });
+  }
+
+  function drawBanner(
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+    bg: string,
+    onDraw: (bx: number, by: number, bw: number, bh: number) => void
+  ) {
+    // Banner hanging rod with brass finials
+    fillRect(ctx, '#2b1d14', x - 3, y - 3, w + 6, 2);
+    fillRect(ctx, '#e0b040', x - 4, y - 3, 1, 2);
+    fillRect(ctx, '#e0b040', x + w + 3, y - 3, 1, 2);
+
+    // Drop shadow & background
+    fillRect(ctx, 'rgba(0,0,0,0.18)', x + 2, y + 2, w, h);
+    fillRect(ctx, bg, x, y, w, h);
+    onDraw(x, y, w, h);
+  }
+
+  function drawDeskLamp(ctx: CanvasRenderingContext2D, x: number, y: number) {
+    fillRect(ctx, 'rgba(255, 230, 150, 0.16)', x - 6, y - 40, 50, 40); // Lamp warm glow
+    fillRect(ctx, '#2b1d14', x, y - 4, 20, 4); // Base outline
+    fillRect(ctx, '#2f6db5', x + 1, y - 3, 18, 2); // Blue base
+
+    // Angled neck
+    for (let r = 0; r < 30; r++) {
+      fillRect(ctx, '#2b1d14', x + 9 + Math.round(r * 0.3), y - 4 - r, 2, 1);
+    }
+    for (let r = 0; r < 14; r++) {
+      fillRect(ctx, '#2b1d14', x + 18 - r, y - 34 - Math.round(r * 0.4), 2, 1);
+    }
+
+    // Lamp head & bulb
+    fillRect(ctx, '#2b1d14', x - 2, y - 42, 14, 8);
+    fillRect(ctx, '#2f6db5', x - 1, y - 41, 12, 6);
+    fillRect(ctx, '#fff3a0', x, y - 35, 10, 2);
+  }
+
+  function drawMonitorFrame(ctx: CanvasRenderingContext2D) {
+    const t = MONITOR_SCREEN;
+    fillRect(ctx, 'rgba(0,0,0,0.25)', t.x - 4, 132, t.w + 16, 6); // Shadow on desk
+
+    const cx = t.x + t.w / 2; // 128
+    // Stand Neck
+    fillRect(ctx, '#2b1d14', cx - 10, 120, 20, 14);
+    fillRect(ctx, '#3a3a44', cx - 9, 120, 18, 13);
+    // Stand Base
+    fillRect(ctx, '#2b1d14', cx - 28, 132, 56, 7);
+    fillRect(ctx, '#3a3a44', cx - 27, 133, 54, 5);
+
+    // Bezel
+    fillRect(ctx, '#2b1d14', t.x - 9, t.y - 9, t.w + 18, t.h + 22);
+    fillRect(ctx, '#2a2a33', t.x - 8, t.y - 8, t.w + 16, t.h + 20);
+    fillRect(ctx, '#3a3a44', t.x - 8, t.y - 8, t.w + 16, 1);
+
+    // Dark screen background
+    fillRect(ctx, '#0d1b14', t.x, t.y, t.w, t.h);
+
+    // Power LED & Logo
+    fillRect(ctx, '#7dffb0', t.x + t.w - 4, t.y + t.h + 6, 2, 1);
+    fillRect(ctx, '#d5dde8', t.x + 4, t.y + t.h + 3, 6, 6);
+    fillRect(ctx, '#7df9ff', t.x + 5, t.y + t.h + 4, 1, 1);
+    fillRect(ctx, '#7df9ff', t.x + 8, t.y + t.h + 4, 1, 1);
+    fillRect(ctx, '#2b1d14', t.x + 5, t.y + t.h + 7, 4, 1);
+  }
+
+  function drawKeyboard(ctx: CanvasRenderingContext2D, x: number, y: number) {
+    fillRect(ctx, '#2b1d14', x, y, 128, 18);
+    fillRect(ctx, '#d5dde8', x + 1, y + 1, 126, 16);
+
+    for (let r = 0; r < 3; r++) {
+      for (let a = 0; a < 15; a++) {
+        fillRect(ctx, '#b8c2d0', x + 4 + a * 8 + (r % 2) * 2, y + 3 + r * 4, 6, 2);
+      }
+    }
+    fillRect(ctx, '#b8c2d0', x + 36, y + 15, 48, 2); // Spacebar
+  }
+
+  function drawDeskScene(ctx: CanvasRenderingContext2D, bounds: { l: number; r: number; t: number; b: number }) {
+    // 1. Wall background
+    drawWall(ctx, bounds, 148);
+
+    // 2. Banner on right wall
+    drawBanner(ctx, 210, 10, 104, 80, '#1d1160', (bx, by, bw, bh) => {
+      fillRect(ctx, '#00788c', bx, by, bw, 7);
+      fillRect(ctx, '#00788c', bx, by + bh - 7, bw, 7);
+      fillRect(ctx, '#f28c28', bx, by + 7, bw, 1);
+      fillRect(ctx, '#f28c28', bx, by + bh - 8, bw, 1);
+      drawSprite(
+        ctx,
+        MASCOT_SPRITE,
+        bx + Math.floor((bw - 57) / 2),
+        by + Math.floor((bh - 45) / 2),
+        SPRITE_PALETTE,
+        3
+      );
+    });
+
+    // 3. Sticky notes on left wall
+    const notes: [number, number, string][] = [
+      [14, 24, '#fff6b8'],
+      [22, 40, '#ffd1dc'],
+      [12, 56, '#cfe8ff']
+    ];
+    for (const [nx, ny, col] of notes) {
+      fillRect(ctx, col, nx, ny, 12, 12);
+      fillRect(ctx, 'rgba(0,0,0,0.15)', nx + 2, ny + 4, 8, 1);
+      fillRect(ctx, 'rgba(0,0,0,0.15)', nx + 2, ny + 7, 6, 1);
+    }
+
+    // 4. Desk table surface (y: 139 to bottom)
+    const deskW = bounds.r - bounds.l;
+    fillRect(ctx, '#2b1d14', bounds.l, 139, deskW, 1);
+    fillRect(ctx, '#b0703f', bounds.l, 140, deskW, bounds.b - 140);
+    fillRect(ctx, '#c4844f', bounds.l, 140, deskW, 2);
+    for (let n = 148, r = 6; n < bounds.b; n += r, r += 2) {
+      fillRect(ctx, '#965a30', bounds.l, n, deskW, 1);
+    }
+
+    // 5. Desk Lamp on the left
+    drawDeskLamp(ctx, 8, 140);
+
+    // 6. CRT Monitor
+    drawMonitorFrame(ctx);
+
+    // 7. Keyboard
+    drawKeyboard(ctx, 64, 150);
+
+    // 8. Coffee Mug on the right
+    fillRect(ctx, '#2b1d14', 268, 120, 18, 22);
+    fillRect(ctx, '#fffaf0', 269, 121, 16, 20);
+    fillRect(ctx, '#c4605a', 269, 127, 16, 3);
+    fillRect(ctx, '#2b1d14', 286, 125, 4, 10);
+    fillRect(ctx, '#fffaf0', 286, 126, 2, 8);
+    fillRect(ctx, '#5a3420', 270, 121, 14, 2);
+  }
+
+  function initDeskModal() {
+    const dialog = document.querySelector<HTMLDialogElement>('[data-desk]');
+    if (!dialog) return;
+
+    const canvas = dialog.querySelector<HTMLCanvasElement>('[data-pov-canvas]');
+    const screenOverlay = dialog.querySelector<HTMLElement>('[data-term]');
+    const offBtn = dialog.querySelector<HTMLButtonElement>('[data-desk-off]');
+
+    if (!canvas || !screenOverlay) return;
+
+    const termCtrl = new TerminalController(screenOverlay);
+
+    const resizeAndRender = () => {
+      const cw = canvas.clientWidth;
+      const ch = canvas.clientHeight;
+      if (!cw || !ch) return;
+
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = Math.round(cw * dpr);
+      canvas.height = Math.round(ch * dpr);
+
+      // Compute integer scale s and virtual coordinate offset
+      const pixelW = Math.round(cw * dpr);
+      const pixelH = Math.round(ch * dpr);
+      const s = Math.max(1, Math.floor(Math.min(pixelW / DESK_VIRTUAL.w, pixelH / DESK_VIRTUAL.h)));
+      const virtualW = Math.ceil(pixelW / s);
+      const virtualH = Math.ceil(pixelH / s);
+      const ox = Math.floor((virtualW - DESK_VIRTUAL.w) / 2);
+      const oy = Math.floor((virtualH - DESK_VIRTUAL.h) / 2);
+
+      // Position the DOM screen overlay directly on the CRT monitor
+      const cssScale = s / dpr;
+      const left = (ox + MONITOR_SCREEN.x) * cssScale;
+      const top = (oy + MONITOR_SCREEN.y) * cssScale;
+      const width = MONITOR_SCREEN.w * cssScale;
+      const height = MONITOR_SCREEN.h * cssScale;
+
+      Object.assign(screenOverlay.style, {
+        left: `${left}px`,
+        top: `${top}px`,
+        width: `${width}px`,
+        height: `${height}px`
+      });
+      screenOverlay.style.setProperty('--px', `${cssScale}px`);
+
+      // Render 2D canvas scene
+      const ctx = canvas.getContext('2d', { alpha: false });
+      if (!ctx) return;
+      ctx.imageSmoothingEnabled = false;
+      ctx.setTransform(s, 0, 0, s, ox * s, oy * s);
+
+      const bounds = {
+        l: -ox,
+        r: virtualW - ox,
+        t: -oy,
+        b: virtualH - oy
+      };
+
+      drawDeskScene(ctx, bounds);
+    };
+
+    const ro = new ResizeObserver(() => {
+      if (dialog.open) resizeAndRender();
+    });
+
+    const openDesk = () => {
+      if (dialog.open) return;
+      dialog.showModal();
+      ro.observe(canvas);
+      requestAnimationFrame(() => {
+        resizeAndRender();
+        termCtrl.start();
+      });
+    };
+
+    const closeDesk = () => {
+      if (!dialog.open) return;
+      dialog.close();
+      termCtrl.stop();
+      ro.disconnect();
+    };
+
+    // Close on Stand up button
+    offBtn?.addEventListener('click', closeDesk);
+
+    // Close on backdrop click
+    dialog.addEventListener('click', (e) => {
+      if (e.target === dialog) closeDesk();
+    });
+
+    // Close on Escape key
+    dialog.addEventListener('cancel', () => {
+      termCtrl.stop();
+      ro.disconnect();
+    });
+
+    // Listen to custom event from town engine
+    document.addEventListener('town:desk', () => {
+      openDesk();
+    });
+
+    // Listen to triggers with [data-desk-trigger]
+    document.querySelectorAll('[data-desk-trigger]').forEach((trigger) => {
+      trigger.addEventListener('click', (e) => {
+        e.preventDefault();
+        openDesk();
+      });
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', initDeskModal);
+  document.addEventListener('astro:page-load', initDeskModal);
+</script>

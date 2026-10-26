@@ -173,7 +173,7 @@ const classicPortfolioUrl = profile.person.website || 'https://zulfan15.github.i
     </header>
 
     <p class="mcp-hint">
-      Come on in. The jukebox, the crates and the DJ booth all work. My place is up the stairs at the back. The flags and the desk both have stories, the TV works, and you can <button type="button" class="underline text-[var(--mcp-cyan)] hover:text-[var(--mcp-amber)] cursor-pointer bg-transparent border-0 p-0 font-inherit inline" data-fridge-trigger="">leave me a note on the fridge</button>.
+      Come on in. The jukebox, the crates and the DJ booth all work. My place is up the stairs at the back. The flags and <button type="button" class="underline text-[var(--mcp-cyan)] hover:text-[var(--mcp-amber)] cursor-pointer bg-transparent border-0 p-0 font-inherit inline" data-desk-trigger="">the desk</button> both have stories, the TV works, and you can <button type="button" class="underline text-[var(--mcp-cyan)] hover:text-[var(--mcp-amber)] cursor-pointer bg-transparent border-0 p-0 font-inherit inline" data-fridge-trigger="">leave me a note on the fridge</button>.
     </p>
 
     <!-- Verified CV Download Card -->
@@ -683,6 +683,11 @@ const classicPortfolioUrl = profile.person.website || 'https://zulfan15.github.i
           <li>
             <button type="button" class="btn btn--small cursor-pointer" data-fridge-trigger="">
               <span aria-hidden="true">📝</span>Fridge Note
+            </button>
+          </li>
+          <li>
+            <button type="button" class="btn btn--small cursor-pointer" data-desk-trigger="">
+              <span aria-hidden="true">💻</span>Desk Traces
             </button>
           </li>
         </ul>

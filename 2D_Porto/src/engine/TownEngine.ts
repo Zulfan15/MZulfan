@@ -825,6 +825,9 @@ export class TownEngine {
           if (prop.id === 'home2f-fridge') {
             document.dispatchEvent(new CustomEvent('town:fridge'));
           }
+          if (prop.id === 'home2f-computer') {
+            document.dispatchEvent(new CustomEvent('town:desk'));
+          }
           if (this.callbacks.onBubble) {
             this.callbacks.onBubble(prop.name, prop.lines.join(' '), prop.action);
           } else {
