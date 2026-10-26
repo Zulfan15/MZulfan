@@ -22,7 +22,7 @@ const {
 ---
 
 <!doctype html>
-<html lang="en" data-place={place}>
+<html lang="en" data-place={place === 'about' ? 'home' : place} data-room={place === 'about' ? '' : undefined}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -34,7 +34,7 @@ const {
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Pixelify+Sans:wght@500;600;700&family=Press+Start+2P&family=VT323&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Monoton&family=Pixelify+Sans:wght@500;600;700&family=Press+Start+2P&family=VT323&display=swap"
       rel="stylesheet"
     />
 
@@ -62,7 +62,11 @@ const {
             <span class="panel__where" aria-hidden="true">
               {place === 'dev' ? '💻 Dev Center' : place === 'lab' ? '🔬 Research Lab' : place === 'arcade' ? '🕹️ Arcade' : place === 'about' ? '🏠 Home' : '🏡 Town Square'}
             </span>
-            <span class="panel__floor font-pixel" data-floor-chip="" aria-hidden="true" hidden=""></span>
+            {place === 'about' ? (
+              <span class="panel__floor pixel" data-floor-chip="" aria-hidden="true">1F</span>
+            ) : (
+              <span class="panel__floor pixel" data-floor-chip="" aria-hidden="true" hidden=""></span>
+            )}
           </div>
 
           <div class="panel__body">

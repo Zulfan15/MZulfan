@@ -4,6 +4,17 @@ import { TILE_SIZE, drawCharacter, drawPixelMatrix } from './sprites';
 import { renderBuildings, renderGround, renderLamps, renderLighting, renderProps, renderSigns } from './tiles';
 import { findPath } from './pathfinding';
 import { sfx } from '../game/sfx';
+import {
+  HOME_COLS,
+  HOME_ROWS,
+  HOME_SPAWN,
+  HOME_COLLISION,
+  HOME_PROPS,
+  isHomeWalkable,
+  renderHomeFloor,
+  renderHomeWalls,
+  renderHomeProps,
+} from './homeScene';
 
 export interface EngineCallbacks {
   onDialogue: (name: string, lines: string[], onAction?: () => void) => void;
@@ -65,6 +76,7 @@ export class TownEngine {
   private ctx: CanvasRenderingContext2D;
   private map: TownMap;
   private callbacks: EngineCallbacks;
+  private currentScene: 'town' | 'home' = 'town';
 
   // Player state
   private playerPos: Vec = { x: 18, y: 12 };
@@ -112,12 +124,22 @@ export class TownEngine {
     this.callbacks = callbacks;
     this.map = createTownMap(townData);
 
-    const spawn = this.map.spawns[initialSpawn] || this.map.spawns.town;
-    this.playerPos = { x: spawn.x, y: spawn.y };
-    this.playerTarget = { x: spawn.x, y: spawn.y };
-    this.playerDir = spawn.dir;
-    this.cameraX = (this.map.w * TILE_SIZE) / 2;
-    this.cameraY = (this.map.h * TILE_SIZE) / 2;
+    if (initialSpawn === 'about' || initialSpawn === 'home') {
+      this.currentScene = 'home';
+      this.playerPos = { x: HOME_SPAWN.x, y: HOME_SPAWN.y };
+      this.playerTarget = { x: HOME_SPAWN.x, y: HOME_SPAWN.y };
+      this.playerDir = HOME_SPAWN.dir;
+      this.cameraX = (HOME_COLS * TILE_SIZE) / 2;
+      this.cameraY = (HOME_ROWS * TILE_SIZE) / 2;
+    } else {
+      this.currentScene = 'town';
+      const spawn = this.map.spawns[initialSpawn] || this.map.spawns.town;
+      this.playerPos = { x: spawn.x, y: spawn.y };
+      this.playerTarget = { x: spawn.x, y: spawn.y };
+      this.playerDir = spawn.dir;
+      this.cameraX = (this.map.w * TILE_SIZE) / 2;
+      this.cameraY = (this.map.h * TILE_SIZE) / 2;
+    }
 
     this.initParticles();
     this.bindControls();
@@ -157,12 +179,24 @@ export class TownEngine {
     this.canvas.style.width = `${Math.round(rect.width)}px`;
     this.canvas.style.height = `${Math.round(rect.height)}px`;
 
-    // Calculate zoom to frame the town cleanly with forest perimeter
-    const targetW = this.map.w * TILE_SIZE * 1.08;
-    const targetH = this.map.h * TILE_SIZE * 1.08;
-    const zoomW = this.canvas.width / targetW;
-    const zoomH = this.canvas.height / targetH;
-    this.zoom = Math.max(Math.min(zoomW, zoomH), 1.2 * dpr);
+    // Calculate zoom to frame the scene cleanly
+    if (this.currentScene === 'home') {
+      const targetW = HOME_COLS * TILE_SIZE * 1.05;
+      const targetH = HOME_ROWS * TILE_SIZE * 1.05;
+      const zoomW = this.canvas.width / targetW;
+      const zoomH = this.canvas.height / targetH;
+      this.zoom = Math.max(Math.min(zoomW, zoomH), 1.8 * dpr);
+      this.cameraX = (HOME_COLS * TILE_SIZE) / 2;
+      this.cameraY = (HOME_ROWS * TILE_SIZE) / 2;
+    } else {
+      const targetW = this.map.w * TILE_SIZE * 1.08;
+      const targetH = this.map.h * TILE_SIZE * 1.08;
+      const zoomW = this.canvas.width / targetW;
+      const zoomH = this.canvas.height / targetH;
+      this.zoom = Math.max(Math.min(zoomW, zoomH), 1.2 * dpr);
+      this.cameraX = (this.map.w * TILE_SIZE) / 2;
+      this.cameraY = (this.map.h * TILE_SIZE) / 2;
+    }
 
     this.updateDomLabels();
     this.wake();
@@ -249,9 +283,12 @@ export class TownEngine {
   }
 
   public walkTo(targetX: number, targetY: number) {
-    if (targetX < 0 || targetX >= this.map.w || targetY < 0 || targetY >= this.map.h) return;
+    const cols = this.currentScene === 'home' ? HOME_COLS : this.map.w;
+    const rows = this.currentScene === 'home' ? HOME_ROWS : this.map.h;
+    if (targetX < 0 || targetX >= cols || targetY < 0 || targetY >= rows) return;
     const start = this.isMoving ? this.playerTarget : this.playerPos;
-    const found = findPath(start, { x: targetX, y: targetY }, this.map.collision, this.map.w, this.map.h);
+    const collisionMap = this.currentScene === 'home' ? HOME_COLLISION : this.map.collision;
+    const found = findPath(start, { x: targetX, y: targetY }, collisionMap, cols, rows);
     if (found && found.length > 0) {
       this.marker = { x: targetX, y: targetY };
       this.path = found;
@@ -260,6 +297,49 @@ export class TownEngine {
   }
 
   public walkToObject(id: string) {
+    if (this.currentScene === 'home') {
+      this.pendingTarget = id;
+      switch (id) {
+        case 'shop-posters':
+          this.walkTo(2, 2);
+          break;
+        case 'shop-polaroids':
+          this.walkTo(9, 2);
+          break;
+        case 'stairs-up':
+          this.walkTo(12, 3);
+          break;
+        case 'shop-jukebox':
+          this.walkTo(2, 5);
+          break;
+        case 'shop-closet':
+          this.walkTo(10, 6);
+          break;
+        case 'crates':
+          this.walkTo(6, 7);
+          break;
+        case 'decks':
+          this.walkTo(6, 10);
+          break;
+        case 'mirror':
+          this.walkTo(12, 8);
+          break;
+        case 'counter':
+          this.walkTo(2, 10);
+          break;
+        case 'plant':
+          this.walkTo(12, 12);
+          break;
+        case 'motorbike':
+          this.walkTo(10, 13);
+          break;
+        case 'exit':
+          this.walkTo(7, 14);
+          break;
+      }
+      return;
+    }
+
     switch (id) {
       case 'home':
         this.pendingTarget = null;
@@ -334,6 +414,9 @@ export class TownEngine {
   }
 
   private canWalk(x: number, y: number): boolean {
+    if (this.currentScene === 'home') {
+      return isHomeWalkable(x, y);
+    }
     if (x < 0 || x >= this.map.w || y < 0 || y >= this.map.h) return false;
     return this.map.collision[y * this.map.w + x] === 0;
   }
@@ -429,6 +512,15 @@ export class TownEngine {
   }
 
   private onStepComplete() {
+    if (this.currentScene === 'home') {
+      if (this.playerPos.x === 7 && this.playerPos.y === 14) {
+        sfx.door();
+        this.callbacks.onNavigate('/');
+        return;
+      }
+      return;
+    }
+
     const tileIdx = this.playerPos.y * this.map.w + this.playerPos.x;
 
     // 1. Door trigger
@@ -450,6 +542,32 @@ export class TownEngine {
   }
 
   public interactFacing() {
+    if (this.currentScene === 'home') {
+      const fx = this.playerPos.x + DIRS[this.playerDir].x;
+      const fy = this.playerPos.y + DIRS[this.playerDir].y;
+      const prop =
+        HOME_PROPS.find(
+          (p) =>
+            (fx >= p.x && fx < p.x + p.w && fy >= p.y && fy < p.y + p.h) ||
+            (this.playerPos.x >= p.x - 1 &&
+              this.playerPos.x <= p.x + p.w &&
+              this.playerPos.y >= p.y - 1 &&
+              this.playerPos.y <= p.y + p.h &&
+              p.id === this.pendingTarget)
+        ) || (this.pendingTarget ? HOME_PROPS.find((p) => p.id === this.pendingTarget) : undefined);
+
+      if (prop) {
+        sfx.select();
+        if (this.callbacks.onBubble) {
+          this.callbacks.onBubble(prop.name, prop.lines.join(' '), prop.action);
+        } else {
+          this.callbacks.onDialogue(prop.name, prop.lines);
+        }
+        this.wake();
+      }
+      return;
+    }
+
     const fx = this.playerPos.x + DIRS[this.playerDir].x;
     const fy = this.playerPos.y + DIRS[this.playerDir].y;
 
@@ -555,6 +673,36 @@ export class TownEngine {
     const rect = this.canvas.getBoundingClientRect();
     if (!rect.width || !rect.height) return;
 
+    if (this.currentScene === 'home') {
+      const homeLabels: Record<string, { x: number; y: number; w: number; h: number; lift?: number }> = {
+        'shop-posters': { x: 1, y: 1, w: 4, h: 1, lift: 0 },
+        'shop-polaroids': { x: 8, y: 1, w: 4, h: 1, lift: 0 },
+        'stairs-up': { x: 12, y: 2, w: 1, h: 1, lift: 2 },
+        'shop-jukebox': { x: 1, y: 3, w: 2, h: 2, lift: 0 },
+        'shop-closet': { x: 9, y: 5, w: 3, h: 1, lift: 0 },
+      };
+
+      const buttons = container.querySelectorAll<HTMLButtonElement>('.town-label');
+      buttons.forEach((btn) => {
+        const id = btn.getAttribute('data-id');
+        if (!id || !homeLabels[id]) return;
+
+        const obj = homeLabels[id];
+        const worldX = (obj.x + obj.w / 2) * TILE_SIZE;
+        const worldY = (obj.y - (obj.lift ?? 0)) * TILE_SIZE;
+
+        const canvasX = this.canvas.width / 2 + (worldX - this.cameraX) * this.zoom;
+        const canvasY = this.canvas.height / 2 + (worldY - this.cameraY) * this.zoom;
+
+        const cssX = canvasX / dpr;
+        const cssY = canvasY / dpr;
+
+        btn.style.transform = `translate(${Math.round(cssX)}px, ${Math.round(cssY)}px) translate(-50%, -100%)`;
+        btn.style.visibility = 'visible';
+      });
+      return;
+    }
+
     const labelDefs: Record<string, { x: number; y: number; w: number; h: number; kind: string; lift?: number }> = {
       home: { x: 4, y: 3, w: 8, h: 6, kind: 'building', lift: 0 },
       statue: { x: 14, y: 6, w: 2, h: 2, kind: 'statue', lift: 0 },
@@ -602,6 +750,54 @@ export class TownEngine {
   private render() {
     const ctx = this.ctx;
     ctx.imageSmoothingEnabled = false;
+
+    if (this.currentScene === 'home') {
+      this.cameraX = (HOME_COLS * TILE_SIZE) / 2;
+      this.cameraY = (HOME_ROWS * TILE_SIZE) / 2;
+
+      ctx.save();
+      ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+      // Dark burgundy interior background
+      ctx.fillStyle = '#1d1414';
+      ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+      ctx.translate(this.canvas.width / 2, this.canvas.height / 2);
+      ctx.scale(this.zoom, this.zoom);
+      ctx.translate(-this.cameraX, -this.cameraY);
+
+      // 1. Parquet wood floor
+      renderHomeFloor(ctx);
+
+      // 2. Burgundy slatted walls & CRATE & CLOSET neon sign
+      renderHomeWalls(ctx, this.tick);
+
+      // 3. Room props (Jukebox, closet, crates, decks, mirror, counter, plant, motorbike, exit mat)
+      renderHomeProps(ctx, this.tick);
+
+      // 4. Click marker
+      if (this.marker) {
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+        const mx = this.marker.x * TILE_SIZE;
+        const my = this.marker.y * TILE_SIZE;
+        ctx.fillRect(mx + 4, my + 12, 8, 2);
+        ctx.fillRect(mx + 6, my + 11, 4, 4);
+      }
+
+      // 5. Player character inside the room
+      const drawX =
+        (this.playerPos.x + (this.playerTarget.x - this.playerPos.x) * this.moveProgress) * TILE_SIZE;
+      const drawY =
+        (this.playerPos.y + (this.playerTarget.y - this.playerPos.y) * this.moveProgress) * TILE_SIZE;
+      const stepFrame = this.isMoving ? Math.floor(this.moveProgress * 4) : 0;
+
+      drawCharacter(ctx, this.playerPalette, this.playerDir, stepFrame, drawX, drawY, 1);
+
+      ctx.restore();
+
+      this.updateDomLabels();
+      return;
+    }
 
     // Center camera on the town frame
     this.cameraX = (this.map.w * TILE_SIZE) / 2;

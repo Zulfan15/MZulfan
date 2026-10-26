@@ -10,3 +10,4 @@ rust/kalah-ai/pkg/
 public/wasm/
 *.log
 .DS_Store
+scratch/

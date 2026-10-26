@@ -2,107 +2,311 @@
 import TownLayout from '../layouts/TownLayout.astro';
 import WhereTo from '../components/WhereTo.astro';
 import { profile } from '../lib/profile';
+
+const githubUrl = profile.socials.find((s) => s.label === 'GitHub')?.url || 'https://github.com/Zulfan15';
+const linkedinUrl = profile.socials.find((s) => s.label === 'LinkedIn')?.url || 'https://www.linkedin.com/in/muhammad-zulfan-anggadhiputra';
+const emailUrl = `mailto:${profile.person.email}`;
+const classicPortfolioUrl = profile.person.website || 'https://zulfan15.github.io/MZulfan';
 ---
 
 <TownLayout place="about" title={`About ${profile.person.short_name} — Home`}>
-  <div class="space-y-6">
-    <!-- Header -->
-    <div class="border-b-2 border-ink/20 pb-4">
-      <div class="eyebrow text-ball">🏠 HOME · WHO I AM</div>
-      <h1 class="font-pixel text-lg text-ink mt-1">
-        {profile.person.name}
-      </h1>
-      <p class="font-mono text-xs text-ink-soft mt-1">
-        {profile.person.title} · Bandung, Indonesia
-      </p>
-    </div>
+  <div class="mcp mcp--shop">
+    <!-- Shop / Home Header -->
+    <header class="shop-id">
+      <svg
+        class="shop-id__avatar portrait portrait--idle"
+        viewBox="0 0 16 16"
+        shape-rendering="crispEdges"
+        role="img"
+        aria-label={`${profile.person.short_name}'s pixel character`}
+      >
+        <rect width="16" height="16" fill="#0f1a33"></rect>
+        <g class="sprite">
+          <!-- Hair (Dark Brown / Black) -->
+          <rect x="5" y="2" width="6" height="1" fill="#141218"></rect>
+          <rect x="4" y="3" width="8" height="2" fill="#1f1a24"></rect>
+          <rect x="3" y="4" width="2" height="4" fill="#141218"></rect>
+          <rect x="11" y="4" width="2" height="4" fill="#141218"></rect>
+          <!-- Face skin tone -->
+          <rect x="5" y="5" width="6" height="5" fill="#efc19c"></rect>
+          <rect x="4" y="6" width="1" height="3" fill="#efc19c"></rect>
+          <rect x="11" y="6" width="1" height="3" fill="#efc19c"></rect>
+          <!-- Eyes -->
+          <rect x="6" y="7" width="1" height="2" fill="#1f1a24"></rect>
+          <rect x="9" y="7" width="1" height="2" fill="#1f1a24"></rect>
+          <!-- Cheeks / blush -->
+          <rect x="5" y="8" width="1" height="1" fill="#f59e9e"></rect>
+          <rect x="10" y="8" width="1" height="1" fill="#f59e9e"></rect>
+          <!-- Mouth -->
+          <rect x="7" y="9" width="2" height="1" fill="#b3544f"></rect>
+          <!-- Torso / Red Jacket Shirt -->
+          <rect x="4" y="11" width="8" height="4" fill="#e8473f"></rect>
+          <rect x="6" y="11" width="4" height="4" fill="#2bb3a3"></rect>
+          <rect x="7" y="11" width="2" height="4" fill="#f6e7c8"></rect>
+          <rect x="3" y="12" width="1" height="3" fill="#e8473f"></rect>
+          <rect x="12" y="12" width="1" height="3" fill="#e8473f"></rect>
+          <!-- Hands -->
+          <rect x="3" y="15" width="1" height="1" fill="#efc19c"></rect>
+          <rect x="12" y="15" width="1" height="1" fill="#efc19c"></rect>
+        </g>
+      </svg>
 
-    <!-- CV Action Card -->
-    <div class="card p-4 bg-cream flex flex-col sm:flex-row items-center justify-between gap-3 border-2">
+      <div class="shop-id__text">
+        <p class="mcp-kicker">🏠 Home · 💿 Records · Vintage</p>
+        <h1 id="panel-title" class="shop-sign" tabindex="-1">
+          MUHAMMAD ZULFAN
+        </h1>
+        <div class="shop-sign__sub">ANGGADHIPUTRA</div>
+        <dl class="shop-id__meta">
+          <div>
+            <dt>Class</dt>
+            <dd>{profile.person.title}</dd>
+          </div>
+          <div>
+            <dt>Guild</dt>
+            <dd>ITENAS Bandung</dd>
+          </div>
+        </dl>
+      </div>
+    </header>
+
+    <p class="mcp-hint">
+      Come on in. The jukebox, the crates and the DJ booth all work. My place is up the stairs at the back. The flags and the desk both have stories, the TV works, and you can leave me a note on the fridge.
+    </p>
+
+    <!-- CV Download Card -->
+    <div class="mcp-card bg-[#241717] border-2 border-[#5a3030] flex flex-col sm:flex-row items-center justify-between gap-3 p-3.5">
       <div>
-        <div class="font-pixel text-xs text-ink">CURRICULUM VITAE (CV)</div>
-        <div class="font-mono text-[10px] text-ink-soft mt-0.5">Latest verified edition · PDF</div>
+        <div class="font-pixel text-[11px] text-[#ff6fae]">VERIFIED CURRICULUM VITAE (CV)</div>
+        <div class="font-mono text-xs text-[#c9a98a] mt-0.5">Latest edition · PDF format</div>
       </div>
       <a
         href="/cv/CV_Zulfan.pdf"
         target="_blank"
         rel="noopener noreferrer"
-        class="btn btn-primary text-xs py-2 px-4 flex items-center gap-2"
+        class="mcp-btn mcp-btn--primary text-xs py-2 px-4 flex items-center gap-2"
       >
         <span>📥</span>
         <span>DOWNLOAD CV</span>
       </a>
     </div>
 
-    <!-- Bio & Summary -->
-    <div class="space-y-3 font-sans text-xs text-ink leading-relaxed">
-      <div class="section-title">
-        <span>PROFILE SUMMARY</span>
-      </div>
-      <p class="bg-paper p-3.5 rounded-lg border-2 border-ink shadow-sm">
-        {profile.person.summary}
+    <!-- // BIO -->
+    <section class="mcp-card" aria-labelledby="bio-title">
+      <h2 id="bio-title" class="mcp-h">Bio</h2>
+      <p class="text-white text-sm leading-relaxed">
+        I'm a Software Engineer and AI Developer. I study Informatics at Institut Teknologi Nasional (ITENAS) Bandung with a cumulative GPA of 3.49 / 4.00 (Class of 2026).
       </p>
-    </div>
+      <p class="text-[#f6e7c8] text-xs leading-relaxed mt-2">
+        I specialize in building intelligent, computer-vision and edge-AI applications alongside high-performance distributed backend architectures. From real-time UAV military aircraft detection with custom YOLOv11 and TensorRT to cloud-native food-surplus platforms built with Laravel, Redis, Kafka, and Kubernetes, I thrive on engineering rigorous, creative software systems.
+      </p>
+    </section>
 
-    <!-- Education -->
-    <div class="space-y-3">
-      <div class="section-title">
-        <span>EDUCATION</span>
-      </div>
-      {profile.education.map((edu) => (
-        <div class="card p-3.5 space-y-1.5">
-          <div class="flex items-center justify-between">
-            <span class="font-pixel text-[11px] text-ball">{edu.degree}</span>
-            <span class="font-mono text-[10px] text-ink-soft">{edu.start} – {edu.end || 'Present'}</span>
-          </div>
-          <div class="font-mono text-xs text-ink font-bold">{edu.school}</div>
-          <div class="text-[11px] text-ink-soft">{edu.location} {edu.gpa ? `· GPA: ${edu.gpa}` : ''}</div>
-          {edu.highlights && (
-            <ul class="list-disc list-inside text-xs text-ink-soft pt-1 space-y-0.5 font-sans">
-              {edu.highlights.map((h) => <li>{h}</li>)}
-            </ul>
-          )}
+    <!-- // STATS -->
+    <section class="mcp-card" aria-labelledby="stats-title">
+      <h2 id="stats-title" class="mcp-h">Stats</h2>
+      <dl class="stats">
+        <div>
+          <dt>GPA</dt>
+          <dd>3.49</dd>
         </div>
-      ))}
-    </div>
-
-    <!-- Honors & Certifications -->
-    <div class="space-y-3">
-      <div class="section-title">
-        <span>HONORS & CERTIFICATIONS</span>
-      </div>
-      {profile.honors.map((h) => (
-        <div class="card p-3 space-y-1">
-          <div class="flex items-center justify-between">
-            <span class="font-pixel text-[10px] text-ink">🏆 {h.title}</span>
-            <span class="font-mono text-[10px] text-ink-soft">{h.date}</span>
-          </div>
-          <div class="font-mono text-[11px] text-amber font-semibold">{h.issuer}</div>
-          {h.note && <div class="font-sans text-xs text-ink-soft">{h.note}</div>}
+        <div>
+          <dt>Class of</dt>
+          <dd>2026</dd>
         </div>
-      ))}
-    </div>
+        <div>
+          <dt>Major</dt>
+          <dd>CS &amp; AI</dd>
+        </div>
+        <div>
+          <dt>Projects</dt>
+          <dd>8+</dd>
+        </div>
+        <div>
+          <dt>Roles</dt>
+          <dd>6</dd>
+        </div>
+      </dl>
+    </section>
 
-    <!-- Socials & Connect -->
-    <div class="space-y-3">
-      <div class="section-title">
-        <span>COMMUNICATION RUNES</span>
+    <!-- // CURRENT QUEST -->
+    <section class="mcp-card" aria-labelledby="quest-title">
+      <h2 id="quest-title" class="mcp-h">Current quest</h2>
+      <p class="quest">
+        ▶ <strong>AI Engineer &amp; Full Stack Developer</strong> @ AeroScan &amp; FoodLink
+      </p>
+      <p class="mcp-dim text-xs mt-1">
+        📬 Open to: New opportunities in software engineering, AI, computer vision, and data science.
+      </p>
+    </section>
+
+    <!-- // NOW SPINNING -->
+    <section class="mcp-card" aria-labelledby="spin-title">
+      <h2 id="spin-title" class="mcp-h">Now spinning</h2>
+      <p class="mcp-dim text-xs">
+        Warming up the tubes… lo-fi beats, synthwave rhythms &amp; vinyl crackle.
+      </p>
+      <div class="mcp-fastlane mt-2">
+        <button type="button" class="mcp-btn mcp-btn--primary" data-room-action="shop-jukebox">🎵 Jukebox</button>
+        <button type="button" class="mcp-btn" data-room-action="shop-posters">🎸 Gig posters</button>
+        <button type="button" class="mcp-btn" data-room-action="crates">💿 Record crates</button>
+        <button type="button" class="mcp-btn" data-room-action="decks">📞 DJ booth</button>
+        <a class="mcp-btn" href="#closet">🧥 The Closet</a>
       </div>
-      <div class="grid grid-cols-2 gap-2">
-        {profile.socials.map((s) => (
-          <a
-            href={s.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="card card-hover flex items-center gap-2.5 p-2.5 no-underline text-ink font-pixel text-[10px]"
-          >
-            <span>🔗</span>
-            <span class="truncate">{s.label}</span>
-          </a>
-        ))}
+    </section>
+
+    <!-- // ACHIEVEMENTS -->
+    <section class="mcp-card" aria-labelledby="ach-title">
+      <h2 id="ach-title" class="mcp-h">Achievements</h2>
+      <ul class="achievements">
+        <li>Bronze Medal &amp; Finalist — IDEA FEST 3 National Competition</li>
+        <li>Huawei Certified ICT Associate — Security (HCIA-Security V4.0)</li>
+        <li>Robotics Laboratory Assistant Coordinator — ITENAS Robotic Club</li>
+        <li>6x Laboratory Assistant across Database, OOP, Computer Network, IoT, and Robotics Labs</li>
+        <li>Project Lead — AeroScan YOLOv11 TensorRT (1.8 ms/frame inference)</li>
+      </ul>
+      <details class="achievements__more mt-2">
+        <summary>Show all honors</summary>
+        <ul class="achievements pt-2">
+          <li>Dean's Academic Honors &amp; Scholarships at ITENAS</li>
+          <li>Published Undergraduate Thesis: YouTube Spam &amp; Phishing Detection (99.56% F1)</li>
+          <li>Project Lead — FoodLink Geolocation Food Rescue Redistribution Platform</li>
+        </ul>
+      </details>
+    </section>
+
+    <!-- // EQUIPPED -->
+    <section class="mcp-card" aria-labelledby="eq-title">
+      <h2 id="eq-title" class="mcp-h">Equipped</h2>
+      <ul class="stack-chips">
+        <li class="stack-chip" style="--brand: #3776AB">
+          <span class="text-sm">🐍</span>
+          <span>Python</span>
+        </li>
+        <li class="stack-chip" style="--brand: #3178C6">
+          <span class="text-sm">📘</span>
+          <span>TypeScript</span>
+        </li>
+        <li class="stack-chip" style="--brand: #00ADD8">
+          <span class="text-sm">🐹</span>
+          <span>Go</span>
+        </li>
+        <li class="stack-chip" style="--brand: #EE4C2C">
+          <span class="text-sm">🔥</span>
+          <span>PyTorch</span>
+        </li>
+        <li class="stack-chip" style="--brand: #76B900">
+          <span class="text-sm">⚡</span>
+          <span>TensorRT</span>
+        </li>
+        <li class="stack-chip" style="--brand: #5C3EE8">
+          <span class="text-sm">👁️</span>
+          <span>OpenCV</span>
+        </li>
+        <li class="stack-chip" style="--brand: #FF2D20">
+          <span class="text-sm">🔴</span>
+          <span>Laravel</span>
+        </li>
+        <li class="stack-chip" style="--brand: #4169E1">
+          <span class="text-sm">🐘</span>
+          <span>PostgreSQL</span>
+        </li>
+        <li class="stack-chip" style="--brand: #2496ED">
+          <span class="text-sm">🐳</span>
+          <span>Docker</span>
+        </li>
+        <li class="stack-chip" style="--brand: #FF9900">
+          <span class="text-sm">☁️</span>
+          <span>AWS</span>
+        </li>
+      </ul>
+      <p class="pt-2 text-xs">
+        <a href="/dev" class="text-[#ff6fae] hover:underline">Full stack in the Dev Center →</a>
+      </p>
+    </section>
+
+    <!-- // SIDE QUESTS -->
+    <section class="mcp-card" aria-labelledby="side-title">
+      <h2 id="side-title" class="mcp-h">Side quests</h2>
+      <div class="border-b border-dashed border-[#5a3030] pb-3 mb-3">
+        <h3 class="font-pixel text-xs text-[#e0a526] uppercase mb-1">
+          <span>🎧</span> DJing &amp; Audio Synthesis
+        </h3>
+        <p class="text-xs text-[#f6e7c8] leading-relaxed">
+          When I'm not training neural networks or debugging backends, you can often find me behind the decks mixing tracks.
+        </p>
+        <p class="mcp-fastlane mt-2">
+          <button type="button" class="mcp-btn" data-room-action="shop-jukebox">🎵 Play the jukebox</button>
+          <button type="button" class="mcp-btn" data-room-action="decks">📞 Send a track request</button>
+        </p>
       </div>
-    </div>
+
+      <details class="closet" id="closet">
+        <summary>
+          <span>🧥</span> The Closet · Fashion, Streetwear &amp; Vintage
+        </summary>
+        <div class="closet__body pt-2 text-xs text-[#f6e7c8]">
+          <p>
+            Passionate about vintage outerwear, curated streetwear, and functional utility design.
+          </p>
+          <ul class="closet__tags text-xs">
+            <li>Curating vintage varsity jackets, workwear jackets, and Japanese denim.</li>
+            <li>Exploring creative direction and aesthetic portfolio storytelling.</li>
+          </ul>
+          <p class="mt-2">
+            <a class="mcp-btn" href={classicPortfolioUrl} target="_blank" rel="noopener noreferrer">
+              View Classic Web Showcase ↗
+            </a>
+          </p>
+        </div>
+      </details>
+    </section>
+
+    <!-- // SAY HI -->
+    <section class="mcp-card" aria-labelledby="hi-title">
+      <h2 id="hi-title" class="mcp-h">Say hi</h2>
+      <div class="flex flex-wrap gap-2">
+        <a class="mcp-btn" href={githubUrl} target="_blank" rel="noopener noreferrer">
+          <span>🐙</span> GitHub
+        </a>
+        <a class="mcp-btn" href={linkedinUrl} target="_blank" rel="noopener noreferrer">
+          <span>💼</span> LinkedIn
+        </a>
+        <a class="mcp-btn" href={emailUrl}>
+          <span>✉️</span> Email
+        </a>
+        <a class="mcp-btn" href={classicPortfolioUrl} target="_blank" rel="noopener noreferrer">
+          <span>🛍️</span> Classic Porto
+        </a>
+      </div>
+    </section>
+
+    <p class="mcp-dim text-xs mt-2">
+      Next stop: the <a href="/dev" class="text-[#ff6fae] hover:underline">Dev Center</a> for projects, telemetry and skills radar, or the <a href="/lab" class="text-[#ff6fae] hover:underline">Research Lab</a> for papers and research notes.
+    </p>
 
     <WhereTo currentPath="/about" />
   </div>
 </TownLayout>
+
+<script>
+  function setupRoomActions() {
+    const buttons = document.querySelectorAll<HTMLButtonElement>('[data-room-action]');
+    buttons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const action = btn.getAttribute('data-room-action');
+        if (!action) return;
+
+        const targetBtn = document.querySelector<HTMLButtonElement>(`.town-label[data-id="${action}"]`);
+        if (targetBtn) {
+          targetBtn.click();
+        } else {
+          // Dispatch custom event if needed
+          document.dispatchEvent(new CustomEvent(`town:${action}`));
+        }
+      });
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', setupRoomActions);
+</script>
