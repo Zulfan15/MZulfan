@@ -1,6 +1,6 @@
 import { DIRS, type CharacterPalette, type Dir, type TownData, type TownMap, type Vec } from './types';
 import { createTownMap } from './map';
-import { TILE_SIZE, drawCharacter } from './sprites';
+import { TILE_SIZE, drawCharacter, drawPixelMatrix } from './sprites';
 import { renderBuildings, renderGround, renderLamps, renderLighting, renderProps, renderSigns } from './tiles';
 import { findPath } from './pathfinding';
 import { sfx } from '../game/sfx';
@@ -12,6 +12,52 @@ export interface EngineCallbacks {
   onEncounter: () => void;
   onRefill: () => void;
   onOpenModal: (target: 'map' | 'dex') => void;
+}
+
+const LEBRON_SPRITE = [
+  '...oooooo.....',
+  '..ohhhhhho....',
+  '.owwwwwwwwo...',
+  '.ohssssssho...',
+  '.osesssseso...',
+  '.ossssnssso...',
+  '.ohhmmmmhho...',
+  '..ohhhhhho....',
+  '....onno......',
+  '.osyyyyyyso...',
+  'osyyuuyuuyso..',
+  'osyyuuyuuybbb.',
+  'osyyyyyyybBbBb',
+  '.suuuuuuubbBbb',
+  '..oyyyyyybBbBb',
+  '..oyyo.oyybbb.',
+  '..osso.osso...',
+  '..owwo.owwo...',
+  '..okko.okko...',
+];
+
+const LEBRON_COLORS: Record<string, string> = {
+  o: '#1a1420',
+  h: '#2a1f1a',
+  w: '#f4f1ea',
+  s: '#8a5a3c',
+  n: '#6e452c',
+  e: '#1a1420',
+  m: '#f4f1ea',
+  y: '#fdb927',
+  u: '#552583',
+  b: '#e8742a',
+  B: '#8a3d10',
+  k: '#3d1a63',
+};
+
+interface BreezeParticle {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  size: number;
+  alpha: number;
 }
 
 export class TownEngine {
@@ -29,6 +75,8 @@ export class TownEngine {
   private stepCount = 0;
   private path: Vec[] = [];
   private pendingTarget: string | null = null;
+  private marker: Vec | null = null;
+  private particles: BreezeParticle[] = [];
 
   private playerPalette: CharacterPalette = {
     skin: '#e0b48a',
@@ -71,9 +119,26 @@ export class TownEngine {
     this.cameraX = (this.map.w * TILE_SIZE) / 2;
     this.cameraY = (this.map.h * TILE_SIZE) / 2;
 
+    this.initParticles();
     this.bindControls();
     this.handleResize();
     this.wake();
+  }
+
+  private initParticles() {
+    const totalW = this.map.w * TILE_SIZE;
+    const totalH = this.map.h * TILE_SIZE;
+    this.particles = [];
+    for (let i = 0; i < 28; i++) {
+      this.particles.push({
+        x: Math.random() * totalW,
+        y: Math.random() * totalH,
+        vx: 0.35 + Math.random() * 0.45,
+        vy: 0.2 + Math.random() * 0.25,
+        size: Math.random() > 0.4 ? 2 : 1,
+        alpha: 0.35 + Math.random() * 0.45,
+      });
+    }
   }
 
   public destroy() {
@@ -87,8 +152,10 @@ export class TownEngine {
     const rect = this.canvas.getBoundingClientRect();
     if (!rect.width || !rect.height) return;
 
-    this.canvas.width = rect.width * dpr;
-    this.canvas.height = rect.height * dpr;
+    this.canvas.width = Math.round(rect.width * dpr);
+    this.canvas.height = Math.round(rect.height * dpr);
+    this.canvas.style.width = `${Math.round(rect.width)}px`;
+    this.canvas.style.height = `${Math.round(rect.height)}px`;
 
     // Calculate zoom to frame the town cleanly with forest perimeter
     const targetW = this.map.w * TILE_SIZE * 1.08;
@@ -125,8 +192,8 @@ export class TownEngine {
     this.update(dt);
     this.render();
 
-    // Check if we can sleep: idle, no active path
-    if (!this.isMoving && this.path.length === 0) {
+    // Keep loop active while moving or path is present
+    if (!this.isMoving && this.path.length === 0 && !this.marker) {
       this.sleep();
       return;
     }
@@ -166,6 +233,7 @@ export class TownEngine {
       const targetTileX = Math.floor(worldX / TILE_SIZE);
       const targetTileY = Math.floor(worldY / TILE_SIZE);
 
+      this.pendingTarget = null;
       this.walkTo(targetTileX, targetTileY);
     };
 
@@ -185,6 +253,7 @@ export class TownEngine {
     const start = this.isMoving ? this.playerTarget : this.playerPos;
     const found = findPath(start, { x: targetX, y: targetY }, this.map.collision, this.map.w, this.map.h);
     if (found && found.length > 0) {
+      this.marker = { x: targetX, y: targetY };
       this.path = found;
       this.wake();
     }
@@ -246,6 +315,7 @@ export class TownEngine {
   public queueMove(dir: Dir) {
     this.path = []; // cancel auto path
     this.pendingTarget = null;
+    this.marker = null;
     this.playerDir = dir;
     const next = {
       x: this.playerPos.x + DIRS[dir].x,
@@ -271,6 +341,16 @@ export class TownEngine {
   private update(dt: number) {
     this.tick++;
 
+    // Update ambient breeze particles
+    const totalW = this.map.w * TILE_SIZE;
+    const totalH = this.map.h * TILE_SIZE;
+    for (const p of this.particles) {
+      p.x += p.vx;
+      p.y += p.vy;
+      if (p.x > totalW) p.x = 0;
+      if (p.y > totalH) p.y = 0;
+    }
+
     if (this.isMoving) {
       const speed = 5.5; // tiles per second
       this.moveProgress += dt * speed;
@@ -285,11 +365,14 @@ export class TownEngine {
         // Check tile triggers
         this.onStepComplete();
 
-        // Trigger interaction when reaching target
-        if (this.path.length === 0 && this.pendingTarget) {
-          const t = this.pendingTarget;
-          this.pendingTarget = null;
-          this.triggerPendingTarget(t);
+        // If path is complete, clear marker and trigger pending interaction
+        if (this.path.length === 0) {
+          this.marker = null;
+          if (this.pendingTarget) {
+            const t = this.pendingTarget;
+            this.pendingTarget = null;
+            this.triggerPendingTarget(t);
+          }
         }
       }
     } else if (this.path.length > 0) {
@@ -559,17 +642,33 @@ export class TownEngine {
     // 6. Buildings with glowing windows, balconies, awnings
     renderBuildings(ctx, this.map.buildings);
 
-    // 7. NPCs
+    // 7. Click target pulse marker
+    if (this.marker) {
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+      const mx = this.marker.x * TILE_SIZE;
+      const my = this.marker.y * TILE_SIZE;
+      ctx.fillRect(mx + 4, my + 12, 8, 2);
+      ctx.fillRect(mx + 6, my + 11, 4, 4);
+    }
+
+    // 8. NPCs
     for (const npc of this.map.npcs) {
-      drawCharacter(
-        ctx,
-        npc.palette,
-        npc.dir,
-        0,
-        npc.x * TILE_SIZE,
-        npc.y * TILE_SIZE,
-        1
-      );
+      if (npc.id === 'ranger' || npc.id === 'lebron') {
+        // Authentic LeBron pixel sprite in Lakers jersey
+        ctx.fillStyle = 'rgba(40, 60, 20, 0.25)';
+        ctx.fillRect(npc.x * TILE_SIZE + 3, npc.y * TILE_SIZE + 13, 10, 3);
+        drawPixelMatrix(ctx, LEBRON_SPRITE, LEBRON_COLORS, npc.x * TILE_SIZE + 1, npc.y * TILE_SIZE - 3, 1);
+      } else {
+        drawCharacter(
+          ctx,
+          npc.palette,
+          npc.dir,
+          0,
+          npc.x * TILE_SIZE,
+          npc.y * TILE_SIZE,
+          1
+        );
+      }
 
       // Floating speech bubble if twin
       if (npc.id === 'twin') {
@@ -590,7 +689,7 @@ export class TownEngine {
       }
     }
 
-    // 8. Player
+    // 9. Player
     const drawX =
       (this.playerPos.x + (this.playerTarget.x - this.playerPos.x) * this.moveProgress) * TILE_SIZE;
     const drawY =
@@ -598,6 +697,12 @@ export class TownEngine {
     const stepFrame = this.isMoving ? Math.floor(this.moveProgress * 4) : 0;
 
     drawCharacter(ctx, this.playerPalette, this.playerDir, stepFrame, drawX, drawY, 1);
+
+    // 10. Ambient breeze leaves
+    for (const p of this.particles) {
+      ctx.fillStyle = `rgba(180, 230, 140, ${p.alpha})`;
+      ctx.fillRect(Math.floor(p.x), Math.floor(p.y), p.size, p.size);
+    }
 
     ctx.restore();
 
