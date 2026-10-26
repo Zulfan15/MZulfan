@@ -822,6 +822,9 @@ export class TownEngine {
             this.switchHomeFloor('1F');
             return;
           }
+          if (prop.id === 'home2f-fridge') {
+            document.dispatchEvent(new CustomEvent('town:fridge'));
+          }
           if (this.callbacks.onBubble) {
             this.callbacks.onBubble(prop.name, prop.lines.join(' '), prop.action);
           } else {
