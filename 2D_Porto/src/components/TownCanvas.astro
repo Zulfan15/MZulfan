@@ -19,20 +19,109 @@ const townData: TownData = {
   toolbelt: topSkills.map((s) => s.name),
   places: places,
 };
+
+const dataPlaces = {
+  town: { name: 'Town Square', href: '/' },
+  home: { name: 'Home', href: '/about' },
+  dev: { name: 'Dev Center', href: '/dev' },
+  lab: { name: 'Research Lab', href: '/lab' },
+  arcade: { name: 'Arcade', href: '/arcade' },
+  twin: { name: 'Digital Twin', href: '/twin' },
+  reception: { name: 'Front Desk', href: '/reception' },
+};
+
+const githubUrl = profile.socials.find((s) => s.label === 'GitHub')?.url || 'https://github.com/Zulfan15';
+const linkedinUrl = profile.socials.find((s) => s.label === 'LinkedIn')?.url || 'https://www.linkedin.com/in/muhammad-zulfan-anggadhiputra';
+const emailUrl = `mailto:${profile.person.email}`;
+const classicPortfolioUrl = profile.person.website || 'https://zulfan15.github.io/MZulfan';
+
+const dataLinks = {
+  github: { label: 'GitHub', url: githubUrl },
+  linkedin: { label: 'LinkedIn', url: linkedinUrl },
+  email: { label: 'Email', url: emailUrl },
+  depop: { label: 'Depop', url: classicPortfolioUrl },
+};
+
+const dataPlaceRooms = {
+  reception: 'dev',
+};
 ---
 
-<div class="town-wrap w-full h-full relative select-none">
-  <canvas id="town-canvas" class="w-full h-full block cursor-pointer"></canvas>
+<section
+  data-astro-transition-persist="town"
+  class="town"
+  aria-labelledby="town-title"
+  data-town=""
+  data-places={JSON.stringify(dataPlaces)}
+  data-links={JSON.stringify(dataLinks)}
+  data-place-rooms={JSON.stringify(dataPlaceRooms)}
+>
+  <h2 id="town-title" class="visually-hidden">Town map</h2>
+  <p id="town-help" class="visually-hidden">
+    An interactive pixel-art town. Use the arrow keys or W A S D to walk, Enter to interact, or click or tap where you want to go. Every place is also listed in the Map menu and under "Where to?".
+  </p>
 
-  <!-- Controls overlay hint -->
-  <div class="absolute top-3 left-3 pointer-events-none hidden md:flex items-center gap-1.5 bg-ink/75 text-paper px-2 py-1 rounded text-[10px] font-pixel border border-ink/40">
-    <span>WASD / Click to walk</span>
-    <span class="text-gold font-bold">·</span>
-    <span>Enter to talk</span>
+  <canvas
+    id="town-canvas"
+    tabindex="0"
+    role="img"
+    aria-label="Pixel-art town. Walk into buildings to explore."
+    aria-describedby="town-help"
+    class="w-full h-full block cursor-pointer"
+  ></canvas>
+
+  <div class="town-labels" data-town-labels="">
+    <button type="button" class="town-label town-label--building" data-id="home" aria-label="Walk to Home">Home</button>
+    <button type="button" class="town-label town-label--statue" data-id="statue" aria-label="Walk to the LeBron James statue">LeBron James</button>
+    <button type="button" class="town-label town-label--building" data-id="dev" aria-label="Walk to Dev Center">Dev Center</button>
+    <button type="button" class="town-label town-label--building" data-id="lab" aria-label="Walk to Research Lab">Research Lab</button>
+    <button type="button" class="town-label town-label--building" data-id="arcade" aria-label="Walk to Arcade">Arcade</button>
+    <button type="button" class="town-label town-label--npc" data-id="twin" aria-label="Talk to the Digital Twin">Digital Twin</button>
+    <button type="button" class="town-label town-label--stall" data-id="depop" aria-label="Walk to the Depop sign">Depop</button>
+    <button type="button" class="town-label town-label--npc" data-id="lebron" aria-label="Talk to the LeBron">LeBron</button>
+    <button type="button" class="town-label town-label--board" data-id="linkedin" aria-label="Walk to the LinkedIn sign">LinkedIn</button>
+    <button type="button" class="town-label town-label--signpost" data-id="github" aria-label="Walk to the GitHub sign">GitHub</button>
+    <button type="button" class="town-label town-label--mailbox" data-id="email" aria-label="Walk to the Email sign">Email</button>
+    <button type="button" class="town-label town-label--resume" data-id="resume" aria-label="Walk to the Résumé sign">Résumé</button>
   </div>
 
+  <button class="town-pov-exit" type="button" data-pov-exit="">← Back to the room</button>
+
+  <div class="town-bubble" data-town-bubble="" role="status" hidden=""></div>
+
+  <div class="town-guide" data-town-guide="" hidden="">
+    <button
+      class="town-guide__toggle"
+      type="button"
+      aria-expanded="false"
+      aria-controls="town-guide-card"
+      data-town-guide-toggle=""
+    >
+      <span aria-hidden="true">i</span>
+      <span class="visually-hidden">About this room</span>
+    </button>
+    <div
+      class="town-guide__card"
+      id="town-guide-card"
+      role="region"
+      aria-labelledby="town-guide-title"
+      hidden=""
+      data-town-guide-card=""
+    >
+      <div class="town-guide__body">
+        <strong id="town-guide-title" data-town-guide-title="">Town Square</strong>
+        <p data-town-guide-text="">
+          An interactive pixel-art town. Walk into buildings to explore projects, lab research, and dev logs. Inspect social runes or talk to the Digital Twin.
+        </p>
+      </div>
+      <button class="town-guide__close" type="button" aria-label="Hide room guide" data-town-guide-close="">×</button>
+    </div>
+  </div>
+
+  <div class="visually-hidden" aria-live="polite" data-town-live=""></div>
+
   <!-- Mobile D-pad / Touch controls -->
-  <div class="absolute bottom-4 left-4 z-10 flex flex-col items-center gap-1 md:hidden opacity-85">
+  <div class="absolute bottom-4 left-4 z-20 flex flex-col items-center gap-1 md:hidden opacity-85">
     <button id="dpad-up" class="btn btn-sm w-9 h-9 p-0 text-xs">▲</button>
     <div class="flex gap-1">
       <button id="dpad-left" class="btn btn-sm w-9 h-9 p-0 text-xs">◀</button>
@@ -41,25 +130,16 @@ const townData: TownData = {
     </div>
   </div>
 
-  <div class="absolute bottom-4 right-4 z-10 md:hidden opacity-85">
+  <div class="absolute bottom-4 right-4 z-20 md:hidden opacity-85">
     <button id="btn-interact" class="btn btn-sm btn-gold w-12 h-12 rounded-full p-0 text-xs font-bold font-pixel">
       A
     </button>
   </div>
 
-  <!-- Dialogue Box -->
-  <div id="dialogue-box" class="dialogue hidden">
-    <div class="flex items-start justify-between gap-2 mb-1 border-b border-ink/20 pb-1">
-      <span id="dialogue-speaker" class="font-pixel text-[11px] text-ball uppercase"></span>
-      <button id="dialogue-close" class="btn btn-sm btn-ghost p-0 text-xs text-ink/60 hover:text-ink">✕</button>
-    </div>
-    <div id="dialogue-text" class="text-lg md:text-xl leading-snug min-h-[3rem] text-ink font-retro"></div>
-    <div class="mt-2 flex items-center justify-between">
-      <button id="dialogue-action-btn" class="btn btn-sm btn-primary hidden"></button>
-      <div id="dialogue-next" class="dialogue-more cursor-pointer">▼</div>
-    </div>
-  </div>
-</div>
+  <noscript>
+    <p class="town-noscript">The town needs JavaScript, but every page works without it. Use the menu above.</p>
+  </noscript>
+</section>
 
 <script define:vars={{ townData, currentPlace }}>
   window.__TOWN_DATA__ = townData;
@@ -76,61 +156,100 @@ const townData: TownData = {
     const canvas = document.getElementById('town-canvas') as HTMLCanvasElement;
     if (!canvas) return;
 
-    const dialogueBox = document.getElementById('dialogue-box')!;
-    const dialogueSpeaker = document.getElementById('dialogue-speaker')!;
-    const dialogueText = document.getElementById('dialogue-text')!;
-    const dialogueClose = document.getElementById('dialogue-close')!;
-    const dialogueActionBtn = document.getElementById('dialogue-action-btn') as HTMLButtonElement;
-    const dialogueNext = document.getElementById('dialogue-next')!;
+    const bubble = document.querySelector('[data-town-bubble]') as HTMLDivElement | null;
+    let bubbleActionLink: HTMLAnchorElement | HTMLButtonElement | null = null;
 
-    let currentLines: string[] = [];
-    let currentLineIdx = 0;
-    let onCurrentAction: (() => void) | undefined;
+    const showBubble = (
+      title: string,
+      text: string,
+      action?: { label: string; href?: string; onClick?: () => void }
+    ) => {
+      if (!bubble) return;
+      bubble.innerHTML = '';
+      bubbleActionLink = null;
 
-    const showDialogue = (name: string, lines: string[], onAction?: () => void) => {
-      dialogueSpeaker.textContent = name;
-      currentLines = lines;
-      currentLineIdx = 0;
-      onCurrentAction = onAction;
-      dialogueBox.classList.remove('hidden');
-      renderLine();
-    };
+      const strong = document.createElement('strong');
+      strong.textContent = title;
+      bubble.appendChild(strong);
 
-    const renderLine = () => {
-      dialogueText.textContent = currentLines[currentLineIdx] || '';
-      sfx.blip();
+      const span = document.createElement('span');
+      span.textContent = text;
+      bubble.appendChild(span);
 
-      const isLast = currentLineIdx >= currentLines.length - 1;
-      if (isLast && onCurrentAction) {
-        dialogueActionBtn.textContent = 'ENTER ➜';
-        dialogueActionBtn.classList.remove('hidden');
-        dialogueActionBtn.onclick = () => {
-          dialogueBox.classList.add('hidden');
-          onCurrentAction?.();
-        };
-      } else {
-        dialogueActionBtn.classList.add('hidden');
+      if (action) {
+        if (action.href) {
+          const a = document.createElement('a');
+          a.className = 'town-bubble__action';
+          a.href = action.href;
+          a.target = action.href.startsWith('http') ? '_blank' : '_self';
+          if (a.target === '_blank') a.rel = 'noopener noreferrer';
+          a.textContent = `${action.label} ➜`;
+          bubble.appendChild(a);
+          bubbleActionLink = a;
+        } else if (action.onClick) {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'town-bubble__action';
+          btn.textContent = `${action.label} ➜`;
+          btn.onclick = () => {
+            hideBubble();
+            action.onClick?.();
+          };
+          bubble.appendChild(btn);
+          bubbleActionLink = btn;
+        }
       }
+
+      const hint = document.createElement('span');
+      hint.className = 'town-bubble__hint';
+      hint.innerHTML = 'Press <kbd>Enter</kbd> to open';
+      bubble.appendChild(hint);
+
+      const closeBtn = document.createElement('button');
+      closeBtn.type = 'button';
+      closeBtn.className = 'town-bubble__close';
+      closeBtn.setAttribute('aria-label', 'Close message');
+      closeBtn.textContent = '×';
+      closeBtn.onclick = hideBubble;
+      bubble.appendChild(closeBtn);
+
+      bubble.removeAttribute('hidden');
+      sfx.select();
     };
 
-    const advanceLine = () => {
-      if (currentLineIdx < currentLines.length - 1) {
-        currentLineIdx++;
-        renderLine();
-      } else {
-        dialogueBox.classList.add('hidden');
-      }
+    const hideBubble = () => {
+      if (bubble) bubble.setAttribute('hidden', '');
+      bubbleActionLink = null;
     };
 
-    dialogueNext.onclick = advanceLine;
-    dialogueClose.onclick = () => dialogueBox.classList.add('hidden');
+    // Keyboard handlers for bubble
+    window.addEventListener(
+      'keydown',
+      (e) => {
+        if (!bubble || bubble.hasAttribute('hidden')) return;
+
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          hideBubble();
+          canvas.focus();
+        } else if (e.key === 'Enter' && bubbleActionLink) {
+          e.preventDefault();
+          bubbleActionLink.click();
+          hideBubble();
+        }
+      },
+      { capture: true }
+    );
 
     // Initialize TownEngine
     const townData = (window as unknown as { __TOWN_DATA__: any }).__TOWN_DATA__;
     const spawnPlace = (window as unknown as { __CURRENT_PLACE__: string }).__CURRENT_PLACE__ || 'town';
 
     engine = new TownEngine(canvas, townData, spawnPlace, {
-      onDialogue: showDialogue,
+      onDialogue: (name, lines) => {
+        showBubble(name, lines.join(' '));
+      },
+      onBubble: showBubble,
       onNavigate: (route) => {
         window.location.href = route;
       },
@@ -143,6 +262,57 @@ const townData: TownData = {
       onOpenModal: (target) => {
         document.dispatchEvent(new CustomEvent('town:open-modal', { detail: { target } }));
       },
+    });
+
+    const townSection = document.querySelector('.town') as HTMLElement | null;
+    if (townSection && window.ResizeObserver) {
+      new ResizeObserver(() => {
+        engine?.handleResize();
+      }).observe(townSection);
+    }
+    const labelButtons = document.querySelectorAll<HTMLButtonElement>('.town-label');
+    labelButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-id');
+        if (id && engine) {
+          hideBubble();
+          engine.walkToObject(id);
+          canvas.focus();
+        }
+      });
+    });
+
+    // Town Room Guide
+    const guide = document.querySelector('[data-town-guide]') as HTMLElement | null;
+    const guideToggle = document.querySelector('[data-town-guide-toggle]') as HTMLButtonElement | null;
+    const guideCard = document.getElementById('town-guide-card');
+    const guideClose = document.querySelector('[data-town-guide-close]');
+
+    if (guide && guideToggle && guideCard) {
+      guide.removeAttribute('hidden');
+
+      guideToggle.addEventListener('click', () => {
+        const expanded = guideToggle.getAttribute('aria-expanded') === 'true';
+        if (expanded) {
+          guideToggle.setAttribute('aria-expanded', 'false');
+          guideCard.setAttribute('hidden', '');
+        } else {
+          guideToggle.setAttribute('aria-expanded', 'true');
+          guideCard.removeAttribute('hidden');
+          sfx.select();
+        }
+      });
+
+      guideClose?.addEventListener('click', () => {
+        guideToggle.setAttribute('aria-expanded', 'false');
+        guideCard.setAttribute('hidden', '');
+      });
+    }
+
+    // Back to room / POV Exit button
+    const povExit = document.querySelector('[data-pov-exit]');
+    povExit?.addEventListener('click', () => {
+      window.location.href = '/';
     });
 
     // Touch D-Pad bindings

@@ -335,9 +335,6 @@ export function renderBuildings(ctx: CanvasRenderingContext2D, buildings: Buildi
         ctx.fillRect(dx + 11, dy + 5, 2, 3);
       }
     }
-
-    // Floating Pill Badge above building roof!
-    drawPillBadge(ctx, b.badge, bx + bw / 2, by - 4);
   }
 }
 
@@ -361,10 +358,6 @@ export function renderProps(ctx: CanvasRenderingContext2D, props: Prop[]) {
       ctx.fill();
       ctx.strokeStyle = '#1c1726';
       ctx.stroke();
-
-      if (p.badge) {
-        drawPillBadge(ctx, p.badge, px + 8, py - 14);
-      }
     }
   }
 }
@@ -381,8 +374,5 @@ export function renderSigns(ctx: CanvasRenderingContext2D, signs: Sign[]) {
     ctx.fillRect(sx + 1, sy + 2, 14, 7);
     ctx.strokeStyle = '#1c1726';
     ctx.strokeRect(sx + 1, sy + 2, 14, 7);
-
-    // Floating Pill Badge above signpost!
-    drawPillBadge(ctx, s.name, sx + 8, sy - 3);
   }
 }
