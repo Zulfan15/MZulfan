@@ -10,10 +10,18 @@ import {
   HOME_SPAWN,
   HOME_COLLISION,
   HOME_PROPS,
+  HOME2F_COLS,
+  HOME2F_ROWS,
+  HOME2F_SPAWN,
+  HOME2F_COLLISION,
+  HOME2F_PROPS,
   isHomeWalkable,
   renderHomeFloor,
   renderHomeWalls,
   renderHomeProps,
+  renderHome2FFloor,
+  renderHome2FWalls,
+  renderHome2FProps,
 } from './homeScene';
 
 export interface EngineCallbacks {
@@ -77,6 +85,7 @@ export class TownEngine {
   private map: TownMap;
   private callbacks: EngineCallbacks;
   private currentScene: 'town' | 'home' = 'town';
+  private homeFloor: '1F' | '2F' = '1F';
 
   // Player state
   private playerPos: Vec = { x: 18, y: 12 };
@@ -126,11 +135,16 @@ export class TownEngine {
 
     if (initialSpawn === 'about' || initialSpawn === 'home') {
       this.currentScene = 'home';
-      this.playerPos = { x: HOME_SPAWN.x, y: HOME_SPAWN.y };
-      this.playerTarget = { x: HOME_SPAWN.x, y: HOME_SPAWN.y };
-      this.playerDir = HOME_SPAWN.dir;
-      this.cameraX = (HOME_COLS * TILE_SIZE) / 2;
-      this.cameraY = (HOME_ROWS * TILE_SIZE) / 2;
+      const is2F =
+        typeof window !== 'undefined' &&
+        (window.location.search.includes('floor=2') || window.location.hash === '#2f');
+      this.homeFloor = is2F ? '2F' : '1F';
+      const spawn = is2F ? HOME2F_SPAWN : HOME_SPAWN;
+      this.playerPos = { x: spawn.x, y: spawn.y };
+      this.playerTarget = { x: spawn.x, y: spawn.y };
+      this.playerDir = spawn.dir;
+      this.cameraX = ((is2F ? HOME2F_COLS : HOME_COLS) * TILE_SIZE) / 2;
+      this.cameraY = ((is2F ? HOME2F_ROWS : HOME_ROWS) * TILE_SIZE) / 2;
     } else {
       this.currentScene = 'town';
       const spawn = this.map.spawns[initialSpawn] || this.map.spawns.town;
@@ -144,6 +158,10 @@ export class TownEngine {
     this.initParticles();
     this.bindControls();
     this.handleResize();
+    if (this.currentScene === 'home') {
+      this.updateFloorBadge();
+      this.updateRoomGuide();
+    }
     this.wake();
   }
 
@@ -283,14 +301,41 @@ export class TownEngine {
   }
 
   public walkTo(targetX: number, targetY: number) {
-    const cols = this.currentScene === 'home' ? HOME_COLS : this.map.w;
-    const rows = this.currentScene === 'home' ? HOME_ROWS : this.map.h;
+    const is2F = this.currentScene === 'home' && this.homeFloor === '2F';
+    const cols = this.currentScene === 'home' ? (is2F ? HOME2F_COLS : HOME_COLS) : this.map.w;
+    const rows = this.currentScene === 'home' ? (is2F ? HOME2F_ROWS : HOME_ROWS) : this.map.h;
     if (targetX < 0 || targetX >= cols || targetY < 0 || targetY >= rows) return;
     const start = this.isMoving ? this.playerTarget : this.playerPos;
-    const collisionMap = this.currentScene === 'home' ? HOME_COLLISION : this.map.collision;
-    const found = findPath(start, { x: targetX, y: targetY }, collisionMap, cols, rows);
+    const collisionMap =
+      this.currentScene === 'home'
+        ? is2F
+          ? HOME2F_COLLISION
+          : HOME_COLLISION
+        : this.map.collision;
+
+    let destX = targetX;
+    let destY = targetY;
+    if (collisionMap[destY * cols + destX] !== 0) {
+      const neighbors = [
+        { x: destX, y: destY + 1 },
+        { x: destX, y: destY - 1 },
+        { x: destX + 1, y: destY },
+        { x: destX - 1, y: destY },
+      ].filter(
+        (n) => n.x >= 0 && n.x < cols && n.y >= 0 && n.y < rows && collisionMap[n.y * cols + n.x] === 0
+      );
+      if (neighbors.length > 0) {
+        neighbors.sort(
+          (a, b) => Math.hypot(a.x - start.x, a.y - start.y) - Math.hypot(b.x - start.x, b.y - start.y)
+        );
+        destX = neighbors[0].x;
+        destY = neighbors[0].y;
+      }
+    }
+
+    const found = findPath(start, { x: destX, y: destY }, collisionMap, cols, rows);
     if (found && found.length > 0) {
-      this.marker = { x: targetX, y: targetY };
+      this.marker = { x: destX, y: destY };
       this.path = found;
       this.wake();
     }
@@ -307,7 +352,7 @@ export class TownEngine {
           this.walkTo(9, 2);
           break;
         case 'stairs-up':
-          this.walkTo(12, 3);
+          this.switchHomeFloor('2F');
           break;
         case 'shop-jukebox':
           this.walkTo(2, 5);
@@ -335,6 +380,33 @@ export class TownEngine {
           break;
         case 'exit':
           this.walkTo(7, 14);
+          break;
+        case 'home2f-fridge':
+          this.walkTo(2, 3);
+          break;
+        case 'home2f-tv':
+          this.walkTo(6, 3);
+          break;
+        case 'home2f-twin':
+          this.walkTo(6, 5);
+          break;
+        case 'home2f-computer':
+          this.walkTo(11, 8);
+          break;
+        case 'home2f-couch':
+          this.walkTo(5, 5);
+          break;
+        case 'home2f-coffee':
+          this.walkTo(9, 5);
+          break;
+        case 'home2f-palm':
+          this.walkTo(2, 10);
+          break;
+        case 'home2f-bamboo':
+          this.walkTo(12, 10);
+          break;
+        case 'home2f-stairs-down':
+          this.switchHomeFloor('1F');
           break;
       }
       return;
@@ -415,6 +487,10 @@ export class TownEngine {
 
   private canWalk(x: number, y: number): boolean {
     if (this.currentScene === 'home') {
+      if (this.homeFloor === '2F') {
+        if (x < 0 || x >= HOME2F_COLS || y < 0 || y >= HOME2F_ROWS) return false;
+        return HOME2F_COLLISION[y * HOME2F_COLS + x] === 0;
+      }
       return isHomeWalkable(x, y);
     }
     if (x < 0 || x >= this.map.w || y < 0 || y >= this.map.h) return false;
@@ -478,45 +554,123 @@ export class TownEngine {
     switch (id) {
       case 'statue':
         this.playerDir = 'up';
-        this.interactFacing();
+        this.interactFacing('statue');
         break;
       case 'twin':
         this.playerDir = 'up';
-        this.interactFacing();
+        this.interactFacing('twin');
         break;
       case 'lebron':
         this.playerDir = 'down';
-        this.interactFacing();
+        this.interactFacing('lebron');
         break;
       case 'linkedin':
         this.playerDir = 'up';
-        this.interactFacing();
+        this.interactFacing('linkedin');
         break;
       case 'resume':
         this.playerDir = 'up';
-        this.interactFacing();
+        this.interactFacing('resume');
         break;
       case 'github':
         this.playerDir = 'down';
-        this.interactFacing();
+        this.interactFacing('github');
         break;
       case 'email':
         this.playerDir = 'down';
-        this.interactFacing();
+        this.interactFacing('email');
         break;
       case 'depop':
         this.playerDir = 'up';
-        this.interactFacing();
+        this.interactFacing('depop');
+        break;
+      // Home 1F props
+      case 'shop-posters':
+        this.playerDir = 'up';
+        this.interactFacing('shop-posters');
+        break;
+      case 'shop-polaroids':
+        this.playerDir = 'up';
+        this.interactFacing('shop-polaroids');
+        break;
+      case 'shop-jukebox':
+        this.playerDir = 'up';
+        this.interactFacing('shop-jukebox');
+        break;
+      case 'shop-closet':
+        this.playerDir = 'up';
+        this.interactFacing('shop-closet');
+        break;
+      case 'crates':
+      case 'decks':
+      case 'mirror':
+      case 'counter':
+      case 'plant':
+      case 'motorbike':
+        this.interactFacing(id);
+        break;
+      case 'stairs-up':
+        this.switchHomeFloor('2F');
+        break;
+      // Home 2F props
+      case 'home2f-fridge':
+        this.playerDir = 'left';
+        this.interactFacing('home2f-fridge');
+        break;
+      case 'home2f-tv':
+        this.playerDir = 'up';
+        this.interactFacing('home2f-tv');
+        break;
+      case 'home2f-twin':
+      case 'home2f-couch':
+        this.playerDir = 'down';
+        this.interactFacing('home2f-twin');
+        break;
+      case 'home2f-computer':
+        this.playerDir = 'down';
+        this.interactFacing('home2f-computer');
+        break;
+      case 'home2f-coffee':
+        this.playerDir = 'up';
+        this.interactFacing('home2f-coffee');
+        break;
+      case 'home2f-palm':
+        this.playerDir = 'left';
+        this.interactFacing('home2f-palm');
+        break;
+      case 'home2f-bamboo':
+        this.playerDir = 'right';
+        this.interactFacing('home2f-bamboo');
+        break;
+      case 'home2f-stairs-down':
+        this.switchHomeFloor('1F');
+        break;
+      default:
+        this.interactFacing(id);
         break;
     }
   }
 
   private onStepComplete() {
     if (this.currentScene === 'home') {
-      if (this.playerPos.x === 7 && this.playerPos.y === 14) {
-        sfx.door();
-        this.callbacks.onNavigate('/');
-        return;
+      if (this.homeFloor === '1F') {
+        if (this.playerPos.x === 7 && this.playerPos.y === 14) {
+          sfx.door();
+          this.callbacks.onNavigate('/');
+          return;
+        }
+        if ((this.playerPos.x === 12 || this.playerPos.x === 13) && this.playerPos.y === 2) {
+          sfx.step();
+          this.switchHomeFloor('2F');
+          return;
+        }
+      } else {
+        // In 2F
+        if ((this.playerPos.x === 12 || this.playerPos.x === 13) && this.playerPos.y === 2) {
+          sfx.step();
+          this.switchHomeFloor('1F');
+          return;
+        }
       }
       return;
     }
@@ -541,29 +695,140 @@ export class TownEngine {
     }
   }
 
-  public interactFacing() {
-    if (this.currentScene === 'home') {
-      const fx = this.playerPos.x + DIRS[this.playerDir].x;
-      const fy = this.playerPos.y + DIRS[this.playerDir].y;
-      const prop =
-        HOME_PROPS.find(
-          (p) =>
-            (fx >= p.x && fx < p.x + p.w && fy >= p.y && fy < p.y + p.h) ||
-            (this.playerPos.x >= p.x - 1 &&
-              this.playerPos.x <= p.x + p.w &&
-              this.playerPos.y >= p.y - 1 &&
-              this.playerPos.y <= p.y + p.h &&
-              p.id === this.pendingTarget)
-        ) || (this.pendingTarget ? HOME_PROPS.find((p) => p.id === this.pendingTarget) : undefined);
+  public getHomeFloor(): '1F' | '2F' {
+    return this.homeFloor;
+  }
 
-      if (prop) {
-        sfx.select();
-        if (this.callbacks.onBubble) {
-          this.callbacks.onBubble(prop.name, prop.lines.join(' '), prop.action);
-        } else {
-          this.callbacks.onDialogue(prop.name, prop.lines);
+  public switchHomeFloor(floor: '1F' | '2F') {
+    this.homeFloor = floor;
+    if (floor === '2F') {
+      this.playerPos = { x: 12, y: 4 };
+      this.playerTarget = { x: 12, y: 4 };
+      this.playerDir = 'down';
+      this.cameraX = (HOME2F_COLS * TILE_SIZE) / 2;
+      this.cameraY = (HOME2F_ROWS * TILE_SIZE) / 2;
+      try {
+        history.replaceState(null, '', '/about?floor=2');
+      } catch {}
+    } else {
+      this.playerPos = { x: 12, y: 4 };
+      this.playerTarget = { x: 12, y: 4 };
+      this.playerDir = 'down';
+      this.cameraX = (HOME_COLS * TILE_SIZE) / 2;
+      this.cameraY = (HOME_ROWS * TILE_SIZE) / 2;
+      try {
+        history.replaceState(null, '', '/about');
+      } catch {}
+    }
+    this.path = [];
+    this.isMoving = false;
+    this.pendingTarget = null;
+    this.marker = null;
+    this.updateFloorBadge();
+    this.updateRoomGuide();
+    this.updateDomLabels();
+    this.wake();
+  }
+
+  private updateFloorBadge() {
+    const chip = document.querySelector('[data-floor-chip]');
+    if (chip) {
+      chip.textContent = this.homeFloor;
+      chip.removeAttribute('hidden');
+    }
+    document.documentElement.setAttribute('data-floor', this.homeFloor);
+  }
+
+  private updateRoomGuide() {
+    const titleEl = document.querySelector('[data-town-guide-title]');
+    const textEl = document.querySelector('[data-town-guide-text]');
+    if (this.currentScene === 'home') {
+      if (this.homeFloor === '2F') {
+        if (titleEl) titleEl.textContent = "ZULFAN'S PLACE";
+        if (textEl)
+          textEl.textContent =
+            'The TV works, you can leave Zulfan a note on the fridge, sit at his desk, or say hi to the twin on the couch. Take the stairs back down to the shop.';
+      } else {
+        if (titleEl) titleEl.textContent = 'CRATE & CLOSET';
+        if (textEl)
+          textEl.textContent =
+            "Pick a song on the jukebox, dig the crates for a Crate Match, call in a request at the DJ booth and browse the closet. The stairs at the back go up to Zulfan's place. Step on the mat to leave.";
+      }
+    }
+  }
+
+  public interactFacing(targetId?: string) {
+    const activeTarget = targetId || this.pendingTarget;
+    if (this.currentScene === 'home') {
+      if (this.homeFloor === '1F') {
+        if (
+          activeTarget === 'stairs-up' ||
+          ((this.playerPos.x === 12 || this.playerPos.x === 13) && this.playerPos.y <= 2)
+        ) {
+          this.switchHomeFloor('2F');
+          return;
         }
-        this.wake();
+        const fx = this.playerPos.x + DIRS[this.playerDir].x;
+        const fy = this.playerPos.y + DIRS[this.playerDir].y;
+        const prop =
+          (activeTarget ? HOME_PROPS.find((p) => p.id === activeTarget) : undefined) ||
+          HOME_PROPS.find(
+            (p) =>
+              (fx >= p.x && fx < p.x + p.w && fy >= p.y && fy < p.y + p.h) ||
+              (this.playerPos.x >= p.x - 1 &&
+                this.playerPos.x <= p.x + p.w &&
+                this.playerPos.y >= p.y - 1 &&
+                this.playerPos.y <= p.y + p.h)
+          );
+
+        if (prop) {
+          sfx.select();
+          if (prop.id === 'stairs-up') {
+            this.switchHomeFloor('2F');
+            return;
+          }
+          if (this.callbacks.onBubble) {
+            this.callbacks.onBubble(prop.name, prop.lines.join(' '), prop.action);
+          } else {
+            this.callbacks.onDialogue(prop.name, prop.lines);
+          }
+          this.wake();
+        }
+      } else {
+        // 2F
+        if (
+          activeTarget === 'home2f-stairs-down' ||
+          ((this.playerPos.x === 12 || this.playerPos.x === 13) && this.playerPos.y <= 2)
+        ) {
+          this.switchHomeFloor('1F');
+          return;
+        }
+        const fx = this.playerPos.x + DIRS[this.playerDir].x;
+        const fy = this.playerPos.y + DIRS[this.playerDir].y;
+        const prop =
+          (activeTarget ? HOME2F_PROPS.find((p) => p.id === activeTarget) : undefined) ||
+          HOME2F_PROPS.find(
+            (p) =>
+              (fx >= p.x && fx < p.x + p.w && fy >= p.y && fy < p.y + p.h) ||
+              (this.playerPos.x >= p.x - 1 &&
+                this.playerPos.x <= p.x + p.w &&
+                this.playerPos.y >= p.y - 1 &&
+                this.playerPos.y <= p.y + p.h)
+          );
+
+        if (prop) {
+          sfx.select();
+          if (prop.id === 'home2f-stairs-down') {
+            this.switchHomeFloor('1F');
+            return;
+          }
+          if (this.callbacks.onBubble) {
+            this.callbacks.onBubble(prop.name, prop.lines.join(' '), prop.action);
+          } else {
+            this.callbacks.onDialogue(prop.name, prop.lines);
+          }
+          this.wake();
+        }
       }
       return;
     }
@@ -572,7 +837,9 @@ export class TownEngine {
     const fy = this.playerPos.y + DIRS[this.playerDir].y;
 
     // 1. Check NPC
-    const npc = this.map.npcs.find((n) => n.x === fx && n.y === fy);
+    const npc =
+      (activeTarget ? this.map.npcs.find((n) => n.id === activeTarget) : undefined) ||
+      this.map.npcs.find((n) => n.x === fx && n.y === fy);
     if (npc) {
       sfx.select();
       if (this.callbacks.onBubble) {
@@ -674,20 +941,39 @@ export class TownEngine {
     if (!rect.width || !rect.height) return;
 
     if (this.currentScene === 'home') {
-      const homeLabels: Record<string, { x: number; y: number; w: number; h: number; lift?: number }> = {
+      const is2F = this.homeFloor === '2F';
+      const home1FLabels: Record<string, { x: number; y: number; w: number; h: number; lift?: number }> = {
         'shop-posters': { x: 1, y: 1, w: 4, h: 1, lift: 0 },
         'shop-polaroids': { x: 8, y: 1, w: 4, h: 1, lift: 0 },
-        'stairs-up': { x: 12, y: 2, w: 1, h: 1, lift: 2 },
+        'stairs-up': { x: 12, y: 2, w: 2, h: 1, lift: 0.5 },
         'shop-jukebox': { x: 1, y: 3, w: 2, h: 2, lift: 0 },
         'shop-closet': { x: 9, y: 5, w: 3, h: 1, lift: 0 },
       };
 
+      const home2FLabels: Record<string, { x: number; y: number; w: number; h: number; lift?: number }> = {
+        'home2f-fridge': { x: 1, y: 2, w: 1, h: 2, lift: 1 },
+        'home2f-tv': { x: 5, y: 2, w: 3, h: 1, lift: 2 },
+        'home2f-twin': { x: 6, y: 6, w: 1, h: 1, lift: 1 },
+        'home2f-computer': { x: 11, y: 9, w: 2, h: 1, lift: 1.5 },
+        'home2f-stairs-down': { x: 12, y: 2, w: 2, h: 1, lift: 0.5 },
+      };
+
+      const activeLabels = is2F ? home2FLabels : home1FLabels;
+      const inactiveLabels = is2F ? home1FLabels : home2FLabels;
+
       const buttons = container.querySelectorAll<HTMLButtonElement>('.town-label');
       buttons.forEach((btn) => {
         const id = btn.getAttribute('data-id');
-        if (!id || !homeLabels[id]) return;
+        if (!id) return;
+        if (inactiveLabels[id]) {
+          btn.style.visibility = 'hidden';
+          btn.style.display = 'none';
+          return;
+        }
+        if (!activeLabels[id]) return;
 
-        const obj = homeLabels[id];
+        btn.style.display = '';
+        const obj = activeLabels[id];
         const worldX = (obj.x + obj.w / 2) * TILE_SIZE;
         const worldY = (obj.y - (obj.lift ?? 0)) * TILE_SIZE;
 
@@ -752,8 +1038,11 @@ export class TownEngine {
     ctx.imageSmoothingEnabled = false;
 
     if (this.currentScene === 'home') {
-      this.cameraX = (HOME_COLS * TILE_SIZE) / 2;
-      this.cameraY = (HOME_ROWS * TILE_SIZE) / 2;
+      const is2F = this.homeFloor === '2F';
+      const cols = is2F ? HOME2F_COLS : HOME_COLS;
+      const rows = is2F ? HOME2F_ROWS : HOME_ROWS;
+      this.cameraX = (cols * TILE_SIZE) / 2;
+      this.cameraY = (rows * TILE_SIZE) / 2;
 
       ctx.save();
       ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -766,14 +1055,25 @@ export class TownEngine {
       ctx.scale(this.zoom, this.zoom);
       ctx.translate(-this.cameraX, -this.cameraY);
 
-      // 1. Parquet wood floor
-      renderHomeFloor(ctx);
+      if (is2F) {
+        // 1. Home 2F parquet wood floor & red rug
+        renderHome2FFloor(ctx);
 
-      // 2. Burgundy slatted walls & CRATE & CLOSET neon sign
-      renderHomeWalls(ctx, this.tick);
+        // 2. Home 2F walls, Indonesian flag, clock, window, stairwell
+        renderHome2FWalls(ctx, this.tick);
 
-      // 3. Room props (Jukebox, closet, crates, decks, mirror, counter, plant, motorbike, exit mat)
-      renderHomeProps(ctx, this.tick);
+        // 3. Home 2F furniture (Fridge, TV, Couch, Twin, Desk, Swivel chair, Plants)
+        renderHome2FProps(ctx, this.tick);
+      } else {
+        // 1. Parquet wood floor
+        renderHomeFloor(ctx);
+
+        // 2. Burgundy slatted walls & CRATE & CLOSET neon sign
+        renderHomeWalls(ctx, this.tick);
+
+        // 3. Room props (Jukebox, closet, crates, decks, mirror, counter, plant, motorbike, exit mat)
+        renderHomeProps(ctx, this.tick);
+      }
 
       // 4. Click marker
       if (this.marker) {

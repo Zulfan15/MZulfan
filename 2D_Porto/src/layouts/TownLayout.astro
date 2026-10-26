@@ -63,7 +63,7 @@ const {
               {place === 'dev' ? '💻 Dev Center' : place === 'lab' ? '🔬 Research Lab' : place === 'arcade' ? '🕹️ Arcade' : place === 'about' ? '🏠 Home' : '🏡 Town Square'}
             </span>
             {place === 'about' ? (
-              <span class="panel__floor pixel" data-floor-chip="" aria-hidden="true">1F</span>
+              <span class="panel__floor pixel cursor-pointer hover:opacity-80 transition-opacity" data-floor-chip="" role="button" tabindex="0" title="Click to switch floor (1F/2F)" aria-label="Switch Floor">1F</span>
             ) : (
               <span class="panel__floor pixel" data-floor-chip="" aria-hidden="true" hidden=""></span>
             )}

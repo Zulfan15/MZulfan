@@ -82,6 +82,11 @@ const dataPlaceRooms = {
         <button type="button" class="town-label" data-id="stairs-up" aria-label="Go upstairs">Upstairs</button>
         <button type="button" class="town-label" data-id="shop-jukebox" aria-label="Pick a song on the jukebox">Jukebox</button>
         <button type="button" class="town-label" data-id="shop-closet" aria-label="Browse the closet">The Closet</button>
+        <button type="button" class="town-label" data-id="home2f-fridge" aria-label="Leave a note on the fridge" style="display:none;">Fridge</button>
+        <button type="button" class="town-label" data-id="home2f-tv" aria-label="Turn on the TV" style="display:none;">TV</button>
+        <button type="button" class="town-label" data-id="home2f-twin" aria-label="Talk to the Digital Twin" style="display:none;">Digital Twin</button>
+        <button type="button" class="town-label" data-id="home2f-computer" aria-label="Sit at the computer" style="display:none;">Computer</button>
+        <button type="button" class="town-label" data-id="home2f-stairs-down" aria-label="Go downstairs" style="display:none;">Downstairs</button>
       </>
     ) : (
       <>
@@ -109,7 +114,7 @@ const dataPlaceRooms = {
     <button
       class="town-guide__toggle"
       type="button"
-      aria-expanded={currentPlace === 'about' ? 'true' : 'false'}
+      aria-expanded="false"
       aria-controls="town-guide-card"
       data-town-guide-toggle=""
     >
@@ -121,7 +126,7 @@ const dataPlaceRooms = {
       id="town-guide-card"
       role="region"
       aria-labelledby="town-guide-title"
-      hidden={currentPlace === 'about' ? undefined : ''}
+      hidden=""
       data-town-guide-card=""
     >
       <div class="town-guide__body">
@@ -301,6 +306,20 @@ const dataPlaceRooms = {
         }
       });
     });
+
+    // Floor Chip Click Listener (toggle 1F <-> 2F)
+    const floorChip = document.querySelector('[data-floor-chip]') as HTMLElement | null;
+    if (floorChip) {
+      floorChip.style.cursor = 'pointer';
+      floorChip.title = 'Click to switch floor (1F / 2F)';
+      floorChip.addEventListener('click', () => {
+        if (engine) {
+          hideBubble();
+          const next = engine.getHomeFloor() === '1F' ? '2F' : '1F';
+          engine.switchHomeFloor(next);
+        }
+      });
+    }
 
     // Town Room Guide
     const guide = document.querySelector('[data-town-guide]') as HTMLElement | null;
