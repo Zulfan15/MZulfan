@@ -1343,8 +1343,7 @@ export class TownEngine {
 
     if (this.currentScene === 'arcade') {
       const arcadeLabels: Record<string, { x: number; y: number; w: number; h: number; lift?: number }> = {
-        robot: { x: 8, y: 4, w: 3, h: 3, lift: 1.6 },
-        scoreboard: { x: 13, y: 1, w: 1, h: 1, lift: 1.1 },
+        robot: { x: 8, y: 4, w: 3, h: 3, lift: 1.375 },
       };
 
       const buttons = container.querySelectorAll<HTMLButtonElement>('.town-label');

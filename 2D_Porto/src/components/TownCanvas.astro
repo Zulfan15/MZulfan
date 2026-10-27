@@ -103,8 +103,7 @@ const dataPlaceRooms = {
       </>
     ) : currentPlace === 'arcade' ? (
       <>
-        <button type="button" class="town-label" data-id="robot" aria-label="Play Mancala with the robot">Mancala Robot</button>
-        <button type="button" class="town-label" data-id="scoreboard" aria-label="Check the scoreboard">Scoreboard</button>
+        <button type="button" class="town-label town-label--npc" data-id="robot" aria-label="Talk to the Mancala Robot">Mancala Robot</button>
       </>
     ) : (
       <>
@@ -132,7 +131,7 @@ const dataPlaceRooms = {
     <button
       class="town-guide__toggle"
       type="button"
-      aria-expanded={currentPlace === 'dev' || currentPlace === 'lab' || currentPlace === 'arcade' ? 'true' : 'false'}
+      aria-expanded={currentPlace === 'dev' || currentPlace === 'lab' ? 'true' : 'false'}
       aria-controls="town-guide-card"
       data-town-guide-toggle=""
     >
@@ -144,12 +143,12 @@ const dataPlaceRooms = {
       id="town-guide-card"
       role="region"
       aria-labelledby="town-guide-title"
-      hidden={currentPlace === 'dev' || currentPlace === 'lab' || currentPlace === 'arcade' ? undefined : ''}
+      hidden={currentPlace === 'dev' || currentPlace === 'lab' ? undefined : ''}
       data-town-guide-card=""
     >
       <div class="town-guide__body">
         <strong id="town-guide-title" data-town-guide-title="">
-          {currentPlace === 'about' ? 'CRATE & CLOSET' : currentPlace === 'dev' ? 'DEV CENTER' : currentPlace === 'lab' ? 'RESEARCH LAB' : currentPlace === 'arcade' ? 'ARCADE' : 'Town Square'}
+          {currentPlace === 'about' ? 'CRATE & CLOSET' : currentPlace === 'dev' ? 'DEV CENTER' : currentPlace === 'lab' ? 'RESEARCH LAB' : currentPlace === 'arcade' ? 'Arcade' : 'Town Square'}
         </strong>
         <p data-town-guide-text="">
           {currentPlace === 'about'
@@ -159,7 +158,7 @@ const dataPlaceRooms = {
             : currentPlace === 'lab'
             ? "Where Zulfan's research lives. The poster wall has a poster per project, the whiteboard has what he wants to study next, and the bench lays out his methods. His papers are on the shelf. Step on the mat to leave."
             : currentPlace === 'arcade'
-            ? "The arcade. Challenge the robot in the back to a match of Mancala, inspect the retro cabinets and check the high scores on the scoreboard. Step on the mat to leave."
+            ? "Walk up to the robot and press Enter (or tap it) to play Mancala. Step on the mat to leave."
             : "An interactive pixel-art town. Walk into buildings to explore projects, lab research, and dev logs. Inspect social runes or talk to the Digital Twin."}
         </p>
       </div>
@@ -167,7 +166,7 @@ const dataPlaceRooms = {
     </div>
   </div>
 
-  <div class="visually-hidden" aria-live="polite" data-town-live=""></div>
+  <div class="visually-hidden" aria-live="polite" data-town-live="">{currentPlace === 'arcade' ? 'Arcade: Walk up to the robot and press Enter (or tap it) to play Mancala. Step on the mat to leave.' : ''}</div>
 
   <!-- Mobile D-pad / Touch controls -->
   <div class="absolute bottom-4 left-4 z-20 flex flex-col items-center gap-1 md:hidden opacity-85">
