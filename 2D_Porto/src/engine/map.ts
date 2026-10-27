@@ -163,12 +163,12 @@ export function createTownMap(_data: TownData): TownMap {
   const props: Prop[] = [
     {
       id: 'statue',
-      name: 'LeBron James Statue',
-      badge: 'LeBron James',
+      name: 'Charizard Monument',
+      badge: 'Charizard',
       x: 14,
       y: 6,
       type: 'statue',
-      lines: ['LEBRON JAMES STATUE', 'A monument to discipline, vision, and relentless execution.'],
+      lines: ['CHARIZARD MONUMENT', 'A monument to burning passion, relentless growth, and soaring to new heights.'],
     },
   ];
 
@@ -193,22 +193,22 @@ export function createTownMap(_data: TownData): TownMap {
       action: { kind: 'navigate', route: '/twin', prompt: 'Talk to the Digital Twin?' },
     },
     {
-      id: 'lebron',
-      name: 'LeBron',
-      badge: 'LeBron',
+      id: 'charizard',
+      name: 'Charizard',
+      badge: 'Charizard',
       x: 16,
       y: 25,
       dir: 'down',
       palette: {
-        skin: '#d9a066',
-        hair: '#1c1726',
-        shirt: '#e8a838',
-        pants: '#4a2574',
-        shoes: '#1c1726',
-        cap: '#e8a838',
+        skin: '#f08030',
+        hair: '#209888',
+        shirt: '#f8e8a0',
+        pants: '#b04010',
+        shoes: '#181820',
+        cap: '#ff7a59',
       },
-      lines: [`LeBron says: Keep striving for greatness!`],
-      action: { kind: 'event', name: 'lebron' },
+      lines: [`GRAAWR! Charizard flares its wings warmly!`],
+      action: { kind: 'event', name: 'charizard' },
     },
   ];
 

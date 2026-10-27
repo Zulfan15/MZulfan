@@ -25,7 +25,7 @@ const critters = profile.critters;
     </section>
     <div class="cb__foe" data-foe>
       <canvas class="cb__sprite cb__sprite--critter" data-critter role="img"></canvas>
-      <canvas class="cb__sprite cb__sprite--npc" data-npc role="img" aria-label="LeBron"></canvas>
+      <canvas class="cb__sprite cb__sprite--npc" data-npc role="img" aria-label="Charizard"></canvas>
       <span class="cb__ball" data-ball hidden aria-hidden="true"><canvas data-ball-art></canvas></span>
     </div>
     <div class="cb__me">
@@ -58,7 +58,7 @@ const critters = profile.critters;
 
 <script>
   import { sfx } from '../game/sfx';
-  import { LEBRON_QUIZ, type QuizQuestion } from '../game/lebronQuiz';
+  import { CHARIZARD_QUIZ, type QuizQuestion } from '../game/charizardQuiz';
   import { renderCritterOnCanvas } from '../game/critterArt';
 
   const POKEBALL_SPRITE = [
@@ -83,40 +83,46 @@ const critters = profile.critters;
     s: '#c8c8d0',
   };
 
-  const LEBRON_SPRITE = [
-    '...oooooo.....',
-    '..ohhhhhho....',
-    '.owwwwwwwwo...',
-    '.ohssssssho...',
-    '.osesssseso...',
-    '.ossssnssso...',
-    '.ohhmmmmhho...',
-    '..ohhhhhho....',
-    '....onno......',
-    '.osyyyyyyso...',
-    'osyyuuyuuyso..',
-    'osyyuuyuuybbb.',
-    'osyyyyyyybBbBb',
-    '.suuuuuuubbBbb',
-    '..oyyyyyybBbBb',
-    '..oyyo.oyybbb.',
-    '..osso.osso...',
-    '..owwo.owwo...',
-    '..okko.okko...',
+  const CHARIZARD_BATTLE_SPRITE = [
+    '..ooo..........ooo......',
+    '.ottto..oooo..otttco....',
+    'otlltocoocccoootlltco...',
+    'otltcoyykkkccotwttltco..',
+    'otw.cyyykeekcttw..wtco..',
+    'otw..cyykkkcctw....wto..',
+    '.o...occcccccw.....o....',
+    '.....occhhhcdo..........',
+    '....occyyyyyccdo........',
+    '...occyyyyyyyccdo.......',
+    '..occcyyyyyyycccdo......',
+    '..occkcyyyyyyckcdo......',
+    '.ottkkcyyyyyyckktto.....',
+    'otltwtcyyyyyycdtwllto...',
+    'otw.wocccccccddtw.wto...',
+    '.o...occcccccddo...o....',
+    '.....occkkcckkco....jj..',
+    '.....occkkcckkco...offj.',
+    '.....occkkcckkcdo.oorfj.',
+    '......ooo...ooodcooorj..',
+    '................ooooj...',
+    '..................oo....',
   ];
-  const LEBRON_COLORS: Record<string, string> = {
-    o: '#1a1420',
-    h: '#2a1f1a',
-    w: '#f4f1ea',
-    s: '#8a5a3c',
-    n: '#6e452c',
-    e: '#1a1420',
-    m: '#f4f1ea',
-    y: '#fdb927',
-    u: '#552583',
-    b: '#e8742a',
-    B: '#8a3d10',
-    k: '#3d1a63',
+
+  const CHARIZARD_COLORS: Record<string, string> = {
+    o: '#181820',
+    c: '#e86820',
+    h: '#fca058',
+    d: '#b04010',
+    y: '#f8e8a0',
+    b: '#dfc878',
+    t: '#209888',
+    l: '#44ccb8',
+    w: '#105850',
+    k: '#ffffff',
+    e: '#22d8e0',
+    r: '#e63946',
+    f: '#ff7a59',
+    j: '#ffd166',
   };
 
   const PLAYER_SPRITE = [
@@ -222,7 +228,7 @@ const critters = profile.critters;
     document.dispatchEvent(new CustomEvent('critterdex:change'));
   }
 
-  function meetLebron(time = Date.now()) {
+  function meetCharizard(time = Date.now()) {
     const s = getStore();
     if (!s.met) {
       s.met = time;
@@ -249,7 +255,7 @@ const critters = profile.critters;
   function recordQuiz(id: string) {
     const s = getStore();
     if (!s.quiz.includes(id)) s.quiz.push(id);
-    if (s.quiz.length >= LEBRON_QUIZ.length) s.quiz = [];
+    if (s.quiz.length >= CHARIZARD_QUIZ.length) s.quiz = [];
     saveStore();
   }
 
@@ -263,19 +269,32 @@ const critters = profile.critters;
   }
 
   function pickQuestions(answeredSet: Set<string>, rng = Math.random): QuizQuestion[] {
-    const unanswered = shuffle(LEBRON_QUIZ.filter((q) => !answeredSet.has(q.id)), rng);
-    const answered = shuffle(LEBRON_QUIZ.filter((q) => answeredSet.has(q.id)), rng);
+    const unanswered = shuffle(CHARIZARD_QUIZ.filter((q) => !answeredSet.has(q.id)), rng);
+    const answered = shuffle(CHARIZARD_QUIZ.filter((q) => answeredSet.has(q.id)), rng);
     return [...unanswered, ...answered].slice(0, 2);
   }
 
-  const GREETINGS = ["What's good, fam?", 'Ayo, back for more?', "The King is in. What we doin'?"];
-  const CORRECT_QUOTES = ["That's a bucket!", 'And one!', 'Nothing but net!', 'You know ball, fam!'];
-  const WRONG_QUOTES = ['Brick!', 'Nah, fam.', 'Airball!'];
+  const GREETINGS = [
+    "GRAAWR! Charizard flares its wings with enthusiasm!",
+    "The flame on Charizard's tail crackles warmly with fiery energy!",
+    "Charizard lets out a welcoming roar of flames!",
+  ];
+  const CORRECT_QUOTES = [
+    "Super effective! That's a critical hit!",
+    "Direct hit! The flame burns even brighter!",
+    "You know your Pokémon, Trainer!",
+    "Champion-tier battle knowledge!",
+  ];
+  const WRONG_QUOTES = [
+    "It wasn't very effective...",
+    "Attack missed!",
+    "Not quite...",
+  ];
   const IDLE_QUOTES = [
-    "IT'S TACO TUESDAY! ...Every day can be Taco Tuesday.",
-    'Not one, not two, not three... OK, I\'ll stop.',
-    "Strive for greatness. That's the motto.",
-    'Gotta get my film in tonight. Stay locked in.',
+    "Charizard lets out a contented puff of flame into the sky!",
+    "The flame on Charizard's tail burns fiercely with passion.",
+    "Charizard proudly spreads its majestic wings to feel the town breeze.",
+    "Charizard nudges your shoulder with its snout, ready to battle anytime!",
   ];
 
   function pickRandom<T>(list: T[]): T {
@@ -621,31 +640,32 @@ const critters = profile.critters;
     }
   }
 
-  // LeBron Flow
-  function setupLeBronView(modal: CritterBattleModal) {
-    drawMatrix(modal.npc, LEBRON_SPRITE, LEBRON_COLORS);
+  // Charizard Flow
+  function setupCharizardView(modal: CritterBattleModal) {
+    drawMatrix(modal.npc, CHARIZARD_BATTLE_SPRITE, CHARIZARD_COLORS);
+    modal.npc.setAttribute('aria-label', 'Charizard');
     modal.foe.removeAttribute('data-critter');
     modal.foe.removeAttribute('data-shiny');
     modal.foe.removeAttribute('data-state');
-    modal.name.textContent = 'LEBRON';
-    modal.lv.textContent = 'Lv23';
-    modal.owned.textContent = '4× NBA CHAMPION';
+    modal.name.textContent = 'CHARIZARD';
+    modal.lv.textContent = 'Lv76';
+    modal.owned.textContent = 'FLAME POKÉMON · #006';
     modal.owned.hidden = false;
   }
 
-  function startLeBronEncounter(modal: CritterBattleModal) {
+  function startCharizardEncounter(modal: CritterBattleModal) {
     return modal.play(
       {
         mode: 'talk',
-        title: 'LeBron',
-        leave: { label: 'BYE', line: 'Aight. Strive for greatness!' },
+        title: 'Charizard',
+        leave: { label: 'BYE', line: 'ROAR! Charizard gives a fierce, friendly salute of fire!' },
       },
       async () => {
-        setupLeBronView(modal);
+        setupCharizardView(modal);
         if (getStore().met) {
-          await runLeBronRepeat(modal);
+          await runCharizardRepeat(modal);
         } else {
-          await runLeBronFirstMeeting(modal);
+          await runCharizardFirstMeeting(modal);
         }
       }
     );
@@ -655,34 +675,34 @@ const critters = profile.critters;
     return modal.play(
       {
         mode: 'talk',
-        title: 'LeBron',
-        leave: { label: 'BYE', line: 'Aight. Strive for greatness!' },
+        title: 'Charizard',
+        leave: { label: 'BYE', line: 'ROAR! Stay safe out there!' },
       },
       async () => {
-        setupLeBronView(modal);
-        await modal.say("Yo, hold up! Don't go out there without any POKé BALLS!", true);
-        await modal.say("Come holla at me. I'm right here at the edge of the grass.", true);
+        setupCharizardView(modal);
+        await modal.say("Yo, hold up! Don't head into the tall grass without any POKé BALLS!", true);
+        await modal.say("Come holla at Charizard right here at the edge of the grass.", true);
       }
     );
   }
 
-  async function runLeBronFirstMeeting(modal: CritterBattleModal) {
-    await modal.say("Yo! What's good? It's LeBron. Just a kid from Akron.", true);
-    await modal.say("See that tall grass? Critters all over it. You can't catch 'em with your bare hands, though.", true);
-    await modal.say(`So here go ${formatBalls(5)}. On me.`, true);
+  async function runCharizardFirstMeeting(modal: CritterBattleModal) {
+    await modal.say("GRAAAWWRR! (It's Charizard! The mighty Flame Pokémon.)", true);
+    await modal.say("See that tall grass? Wild Pokémon and critters hide all over it. You can't catch 'em with your bare hands, though.", true);
+    await modal.say(`Charizard shares ${formatBalls(5)} with you to kickstart your journey!`, true);
 
-    meetLebron();
+    meetCharizard();
     sfx.play('win');
     await modal.popup(formatBalls(5), (canvas) => drawMatrix(canvas, POKEBALL_SPRITE, POKEBALL_COLORS), [
-      `You got ${formatBalls(5)} from LeBron!`,
+      `You got ${formatBalls(5)} from Charizard!`,
       'Throw them at wild critters in the tall grass.',
     ]);
 
-    await modal.say("Run outta balls? Come holla at me. Get my career questions right and I'll put more in your bag.", true);
-    await modal.say("Every bucket's worth 2 balls. Now go strive for greatness!", true);
+    await modal.say("Run outta balls? Come challenge Charizard! Answer Pokémon trivia to fuel the flame and earn 2 POKé BALLS per correct answer.", true);
+    await modal.say("Now go explore the tall grass and catch 'em all!", true);
   }
 
-  async function runLeBronRepeat(modal: CritterBattleModal) {
+  async function runCharizardRepeat(modal: CritterBattleModal) {
     await modal.say(`${pickRandom(GREETINGS)} You got ${formatBalls(getStore().balls)}.`, true);
 
     const choice = await modal.choose('Wanna earn some more?', [
@@ -693,12 +713,12 @@ const critters = profile.critters;
     if (choice === 'hi') {
       await modal.say(pickRandom(IDLE_QUOTES), true);
     } else {
-      await runLeBronQuiz(modal);
+      await runCharizardQuiz(modal);
     }
   }
 
-  async function runLeBronQuiz(modal: CritterBattleModal) {
-    await modal.say("Bet. 2 questions about my career, 2 balls a bucket. Let's work.", true);
+  async function runCharizardQuiz(modal: CritterBattleModal) {
+    await modal.say("ROAAAR! 2 questions about Pokémon and Charizard lore. Let's battle!", true);
     let correctCount = 0;
     const questions = pickQuestions(new Set(getStore().quiz));
 
@@ -722,16 +742,16 @@ const critters = profile.critters;
     if (correctCount === 2) {
       addBalls(1);
       sfx.play('win');
-      await modal.say('2 for 2! Perfect from the line. Bonus ball!', true);
+      await modal.say('2 for 2! Flawless victory! Charizard roars in triumph! Bonus ball!', true);
     } else if (correctCount > 0) {
-      await modal.say(`${correctCount} for 2. Not bad. Go watch some film and run it back.`, true);
+      await modal.say(`${correctCount} for 2. Solid effort! Charizard nods with respect.`, true);
     } else {
-      await modal.say('0 for 2. Tough night. We run it back next time.', true);
+      await modal.say("0 for 2. Tough round. Charizard snorts a puff of smoke. Let's train and try again!", true);
     }
 
     if (correctCount > 0) {
       const earned = correctCount * 2 + (correctCount === 2 ? 1 : 0);
-      await modal.say(`You got ${formatBalls(earned)}! Now you have ${getStore().balls}.`, true);
+      await modal.say(`You earned ${formatBalls(earned)}! Now you have ${getStore().balls}.`, true);
     }
   }
 
@@ -805,8 +825,8 @@ const critters = profile.critters;
             await modal.say("You don't have any POKé BALLS!", true);
             await modal.say(
               getStore().met
-                ? 'LeBron, at the edge of the grass, gives out more for his hoops trivia.'
-                : 'LeBron, at the edge of the grass, is handing them out.',
+                ? 'Charizard, at the edge of the grass, gives out more for Pokémon trivia.'
+                : 'Charizard, at the edge of the grass, is handing them out.',
               true
             );
             await modal.say('Got away safely!');
@@ -870,12 +890,16 @@ const critters = profile.critters;
     const modal = new CritterBattleModal(root);
 
     // Event listeners
+    document.addEventListener('town:charizard', () => {
+      if (!modal.isOpen) startCharizardEncounter(modal);
+    });
+
     document.addEventListener('town:lebron', () => {
-      if (!modal.isOpen) startLeBronEncounter(modal);
+      if (!modal.isOpen) startCharizardEncounter(modal);
     });
 
     document.addEventListener('town:refill-balls', () => {
-      if (!modal.isOpen) startLeBronEncounter(modal);
+      if (!modal.isOpen) startCharizardEncounter(modal);
     });
 
     document.addEventListener('town:grass', (e: any) => {

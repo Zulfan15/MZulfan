@@ -59,41 +59,39 @@ export interface EngineCallbacks {
   onOpenModal: (target: 'map' | 'dex') => void;
 }
 
-const LEBRON_SPRITE = [
-  '...oooooo.....',
-  '..ohhhhhho....',
-  '.owwwwwwwwo...',
-  '.ohssssssho...',
-  '.osesssseso...',
-  '.ossssnssso...',
-  '.ohhmmmmhho...',
-  '..ohhhhhho....',
-  '....onno......',
-  '.osyyyyyyso...',
-  'osyyuuyuuyso..',
-  'osyyuuyuuybbb.',
-  'osyyyyyyybBbBb',
-  '.suuuuuuubbBbb',
-  '..oyyyyyybBbBb',
-  '..oyyo.oyybbb.',
-  '..osso.osso...',
-  '..owwo.owwo...',
-  '..okko.okko...',
+const CHARIZARD_OVERWORLD_SPRITE = [
+  '..oo......oo....',
+  '.ottco..otttco..',
+  'otlltocoottllto.',
+  'otltcoyyccwtlto.',
+  '.otwceeykcwtto..',
+  '..otwyyykcwto...',
+  '..otwccccwto....',
+  '..otcyyyycwto...',
+  '.ottcyyyycwto...',
+  'otltcyyyycwtto..',
+  'otw.ccccccw.to..',
+  '.o..ckcckc...o..',
+  '....ckcckco...jj',
+  '....ooooooo..off',
+  '............oorf',
+  '..............oo',
 ];
 
-const LEBRON_COLORS: Record<string, string> = {
-  o: '#1a1420',
-  h: '#2a1f1a',
-  w: '#f4f1ea',
-  s: '#8a5a3c',
-  n: '#6e452c',
-  e: '#1a1420',
-  m: '#f4f1ea',
-  y: '#fdb927',
-  u: '#552583',
-  b: '#e8742a',
-  B: '#8a3d10',
-  k: '#3d1a63',
+const CHARIZARD_OVERWORLD_COLORS: Record<string, string> = {
+  o: '#181820',
+  c: '#e86820',
+  h: '#fca058',
+  d: '#b04010',
+  y: '#f8e8a0',
+  t: '#209888',
+  l: '#44ccb8',
+  w: '#105850',
+  k: '#ffffff',
+  e: '#22d8e0',
+  r: '#e63946',
+  f: '#ff7a59',
+  j: '#ffd166',
 };
 
 interface BreezeParticle {
@@ -652,8 +650,9 @@ export class TownEngine {
         this.pendingTarget = 'twin';
         this.walkTo(13, 15);
         break;
+      case 'charizard':
       case 'lebron':
-        this.pendingTarget = 'lebron';
+        this.pendingTarget = 'charizard';
         this.walkTo(16, 24);
         break;
       case 'linkedin':
@@ -783,9 +782,10 @@ export class TownEngine {
         this.playerDir = 'up';
         this.interactFacing('twin');
         break;
+      case 'charizard':
       case 'lebron':
         this.playerDir = 'down';
-        this.interactFacing('lebron');
+        this.interactFacing('charizard');
         break;
       case 'linkedin':
         this.playerDir = 'up';
@@ -1207,7 +1207,7 @@ export class TownEngine {
       this.map.npcs.find((n) => n.x === fx && n.y === fy);
     if (npc) {
       sfx.select();
-      if (npc.id === 'lebron' || npc.action?.kind === 'event') {
+      if (npc.id === 'charizard' || npc.id === 'lebron' || npc.action?.kind === 'event') {
         const evt = npc.action?.kind === 'event' ? npc.action.name : npc.id;
         document.dispatchEvent(new CustomEvent(`town:${evt}`));
         this.wake();
@@ -1468,6 +1468,7 @@ export class TownEngine {
       arcade: { x: 19, y: 12, w: 9, h: 5, kind: 'building', lift: 0 },
       twin: { x: 13, y: 14, w: 1, h: 1, kind: 'npc' },
       depop: { x: 4, y: 20, w: 7, h: 4, kind: 'stall', lift: 0 },
+      charizard: { x: 16, y: 25, w: 1, h: 1, kind: 'npc' },
       lebron: { x: 16, y: 25, w: 1, h: 1, kind: 'npc' },
       linkedin: { x: 23, y: 20, w: 1, h: 1, kind: 'board' },
       resume: { x: 27, y: 20, w: 1, h: 1, kind: 'resume' },
@@ -1752,11 +1753,18 @@ export class TownEngine {
 
     // 8. NPCs
     for (const npc of this.map.npcs) {
-      if (npc.id === 'ranger' || npc.id === 'lebron') {
-        // Authentic LeBron pixel sprite in Lakers jersey
+      if (npc.id === 'charizard' || npc.id === 'ranger' || npc.id === 'lebron') {
+        // Authentic Charizard pixel sprite on overworld
         ctx.fillStyle = 'rgba(40, 60, 20, 0.25)';
-        ctx.fillRect(npc.x * TILE_SIZE + 3, npc.y * TILE_SIZE + 13, 10, 3);
-        drawPixelMatrix(ctx, LEBRON_SPRITE, LEBRON_COLORS, npc.x * TILE_SIZE + 1, npc.y * TILE_SIZE - 3, 1);
+        ctx.fillRect(npc.x * TILE_SIZE + 2, npc.y * TILE_SIZE + 13, 12, 3);
+        drawPixelMatrix(
+          ctx,
+          CHARIZARD_OVERWORLD_SPRITE,
+          CHARIZARD_OVERWORLD_COLORS,
+          npc.x * TILE_SIZE,
+          npc.y * TILE_SIZE,
+          1
+        );
       } else {
         drawCharacter(
           ctx,
