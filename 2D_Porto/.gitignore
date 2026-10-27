@@ -7,7 +7,8 @@ dist/
 worker/generated/
 rust/kalah-ai/target/
 rust/kalah-ai/pkg/
-public/wasm/
+public/wasm/*
+!public/wasm/mancala.wasm
 *.log
 .DS_Store
 scratch/

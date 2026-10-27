@@ -41,6 +41,14 @@ import {
   createLabBackgroundCanvas,
   renderLabAnimations,
 } from './labScene';
+import {
+  ARCADE_COLS,
+  ARCADE_ROWS,
+  ARCADE_SPAWN,
+  ARCADE_COLLISION,
+  ARCADE_PROPS,
+  createArcadeBackgroundCanvas,
+} from './arcadeScene';
 
 export interface EngineCallbacks {
   onDialogue: (name: string, lines: string[], onAction?: () => void) => void;
@@ -102,10 +110,11 @@ export class TownEngine {
   private ctx: CanvasRenderingContext2D;
   private map: TownMap;
   private callbacks: EngineCallbacks;
-  private currentScene: 'town' | 'home' | 'dev' | 'lab' = 'town';
+  private currentScene: 'town' | 'home' | 'dev' | 'lab' | 'arcade' = 'town';
   private homeFloor: '1F' | '2F' = '1F';
   private devBackgroundCanvas: HTMLCanvasElement | null = null;
   private labBackgroundCanvas: HTMLCanvasElement | null = null;
+  private arcadeBackgroundCanvas: HTMLCanvasElement | null = null;
 
   // Player state
   private playerPos: Vec = { x: 18, y: 12 };
@@ -179,6 +188,13 @@ export class TownEngine {
       this.playerDir = LAB_SPAWN.dir;
       this.cameraX = (LAB_COLS * TILE_SIZE) / 2;
       this.cameraY = (LAB_ROWS * TILE_SIZE) / 2;
+    } else if (initialSpawn === 'arcade') {
+      this.currentScene = 'arcade';
+      this.playerPos = { x: ARCADE_SPAWN.x, y: ARCADE_SPAWN.y };
+      this.playerTarget = { x: ARCADE_SPAWN.x, y: ARCADE_SPAWN.y };
+      this.playerDir = ARCADE_SPAWN.dir;
+      this.cameraX = (ARCADE_COLS * TILE_SIZE) / 2;
+      this.cameraY = (ARCADE_ROWS * TILE_SIZE) / 2;
     } else {
       this.currentScene = 'town';
       const spawn = this.map.spawns[initialSpawn] || this.map.spawns.town;
@@ -256,6 +272,14 @@ export class TownEngine {
       this.zoom = Math.max(Math.min(zoomW, zoomH), 1.8 * dpr);
       this.cameraX = (LAB_COLS * TILE_SIZE) / 2;
       this.cameraY = (LAB_ROWS * TILE_SIZE) / 2;
+    } else if (this.currentScene === 'arcade') {
+      const targetW = ARCADE_COLS * TILE_SIZE * 1.05;
+      const targetH = ARCADE_ROWS * TILE_SIZE * 1.05;
+      const zoomW = this.canvas.width / targetW;
+      const zoomH = this.canvas.height / targetH;
+      this.zoom = Math.max(Math.min(zoomW, zoomH), 1.8 * dpr);
+      this.cameraX = (ARCADE_COLS * TILE_SIZE) / 2;
+      this.cameraY = (ARCADE_ROWS * TILE_SIZE) / 2;
     } else {
       const targetW = this.map.w * TILE_SIZE * 1.08;
       const targetH = this.map.h * TILE_SIZE * 1.08;
@@ -364,6 +388,8 @@ export class TownEngine {
         ? DEV_COLS
         : this.currentScene === 'lab'
         ? LAB_COLS
+        : this.currentScene === 'arcade'
+        ? ARCADE_COLS
         : this.map.w;
     const rows =
       this.currentScene === 'home'
@@ -372,6 +398,8 @@ export class TownEngine {
         ? DEV_ROWS
         : this.currentScene === 'lab'
         ? LAB_ROWS
+        : this.currentScene === 'arcade'
+        ? ARCADE_ROWS
         : this.map.h;
     if (targetX < 0 || targetX >= cols || targetY < 0 || targetY >= rows) return;
     const start = this.isMoving ? this.playerTarget : this.playerPos;
@@ -384,6 +412,8 @@ export class TownEngine {
         ? DEV_COLLISION
         : this.currentScene === 'lab'
         ? LAB_COLLISION
+        : this.currentScene === 'arcade'
+        ? ARCADE_COLLISION
         : this.map.collision;
 
     let destX = targetX;
@@ -415,6 +445,26 @@ export class TownEngine {
   }
 
   public walkToObject(id: string) {
+    if (this.currentScene === 'arcade') {
+      this.pendingTarget = id;
+      switch (id) {
+        case 'robot':
+          this.walkTo(9, 6);
+          break;
+        case 'scoreboard':
+          this.walkTo(13, 2);
+          break;
+        case 'exit':
+          this.walkTo(9, 13);
+          break;
+        default:
+          const prop = ARCADE_PROPS.find((p) => p.id === id);
+          if (prop) this.walkTo(prop.x, prop.y + prop.h);
+          break;
+      }
+      return;
+    }
+
     if (this.currentScene === 'lab') {
       this.pendingTarget = id;
       switch (id) {
@@ -654,6 +704,18 @@ export class TownEngine {
       }
       return isHomeWalkable(x, y);
     }
+    if (this.currentScene === 'dev') {
+      if (x < 0 || x >= DEV_COLS || y < 0 || y >= DEV_ROWS) return false;
+      return DEV_COLLISION[y * DEV_COLS + x] === 0;
+    }
+    if (this.currentScene === 'lab') {
+      if (x < 0 || x >= LAB_COLS || y < 0 || y >= LAB_ROWS) return false;
+      return LAB_COLLISION[y * LAB_COLS + x] === 0;
+    }
+    if (this.currentScene === 'arcade') {
+      if (x < 0 || x >= ARCADE_COLS || y < 0 || y >= ARCADE_ROWS) return false;
+      return ARCADE_COLLISION[y * ARCADE_COLS + x] === 0;
+    }
     if (x < 0 || x >= this.map.w || y < 0 || y >= this.map.h) return false;
     return this.map.collision[y * this.map.w + x] === 0;
   }
@@ -813,6 +875,15 @@ export class TownEngine {
   }
 
   private onStepComplete() {
+    if (this.currentScene === 'arcade') {
+      if (this.playerPos.x === 9 && this.playerPos.y === 13) {
+        sfx.door();
+        this.callbacks.onNavigate('/');
+        return;
+      }
+      return;
+    }
+
     if (this.currentScene === 'lab') {
       if (this.playerPos.x === 6 && this.playerPos.y === 14) {
         sfx.door();
@@ -938,6 +1009,38 @@ export class TownEngine {
 
   public interactFacing(targetId?: string) {
     const activeTarget = targetId || this.pendingTarget;
+    if (this.currentScene === 'arcade') {
+      const fx = this.playerPos.x + DIRS[this.playerDir].x;
+      const fy = this.playerPos.y + DIRS[this.playerDir].y;
+      const prop =
+        (activeTarget ? ARCADE_PROPS.find((p) => p.id === activeTarget) : undefined) ||
+        ARCADE_PROPS.find(
+          (p) =>
+            (fx >= p.x && fx < p.x + p.w && fy >= p.y && fy < p.y + p.h) ||
+            (this.playerPos.x >= p.x - 1 &&
+              this.playerPos.x <= p.x + p.w &&
+              this.playerPos.y >= p.y - 1 &&
+              this.playerPos.y <= p.y + p.h)
+        );
+
+      if (prop) {
+        sfx.select();
+        if (prop.target.type === 'event' && prop.target.name) {
+          document.dispatchEvent(new CustomEvent(`town:${prop.target.name}`));
+        } else if (prop.target.type === 'note' && prop.target.text) {
+          if (this.callbacks.onBubble) {
+            this.callbacks.onBubble(prop.label, prop.target.text);
+          } else {
+            this.callbacks.onDialogue(prop.label, [prop.target.text]);
+          }
+        } else if (prop.target.type === 'place' && prop.target.id) {
+          this.callbacks.onNavigate(`/${prop.target.id}`);
+        }
+        this.wake();
+      }
+      return;
+    }
+
     if (this.currentScene === 'lab') {
       const fx = this.playerPos.x + DIRS[this.playerDir].x;
       const fy = this.playerPos.y + DIRS[this.playerDir].y;
@@ -1238,6 +1341,39 @@ export class TownEngine {
       return;
     }
 
+    if (this.currentScene === 'arcade') {
+      const arcadeLabels: Record<string, { x: number; y: number; w: number; h: number; lift?: number }> = {
+        robot: { x: 8, y: 4, w: 3, h: 3, lift: 1.6 },
+        scoreboard: { x: 13, y: 1, w: 1, h: 1, lift: 1.1 },
+      };
+
+      const buttons = container.querySelectorAll<HTMLButtonElement>('.town-label');
+      buttons.forEach((btn) => {
+        const id = btn.getAttribute('data-id');
+        if (!id || !arcadeLabels[id]) {
+          btn.style.visibility = 'hidden';
+          btn.style.display = 'none';
+          return;
+        }
+
+        btn.style.display = '';
+        const obj = arcadeLabels[id];
+        const worldX = (obj.x + obj.w / 2) * TILE_SIZE;
+        const worldY = (obj.y - (obj.lift ?? 0)) * TILE_SIZE;
+
+        const canvasX = this.canvas.width / 2 + (worldX - this.cameraX) * this.zoom;
+        const canvasY = this.canvas.height / 2 + (worldY - this.cameraY) * this.zoom;
+
+        const dpr = window.devicePixelRatio || 1;
+        const cssX = canvasX / dpr;
+        const cssY = canvasY / dpr;
+
+        btn.style.transform = `translate(${Math.round(cssX)}px, ${Math.round(cssY)}px) translate(-50%, -100%)`;
+        btn.style.visibility = 'visible';
+      });
+      return;
+    }
+
     if (this.currentScene === 'lab') {
       const labLabels: Record<string, { x: number; y: number; w: number; h: number; lift?: number }> = {
         'lab-posters': { x: 1, y: 1, w: 4, h: 1, lift: 0.8 },
@@ -1450,6 +1586,47 @@ export class TownEngine {
       }
 
       // 4. Player character
+      const drawX =
+        (this.playerPos.x + (this.playerTarget.x - this.playerPos.x) * this.moveProgress) * TILE_SIZE;
+      const drawY =
+        (this.playerPos.y + (this.playerTarget.y - this.playerPos.y) * this.moveProgress) * TILE_SIZE;
+      const stepFrame = this.isMoving ? Math.floor(this.moveProgress * 4) : 0;
+
+      drawCharacter(ctx, this.playerPalette, this.playerDir, stepFrame, drawX, drawY, 1);
+
+      ctx.restore();
+
+      this.updateDomLabels();
+      return;
+    }
+
+    if (this.currentScene === 'arcade') {
+      this.cameraX = (ARCADE_COLS * TILE_SIZE) / 2;
+      this.cameraY = (ARCADE_ROWS * TILE_SIZE) / 2;
+
+      ctx.save();
+      ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+      ctx.fillStyle = '#151026';
+      ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+      ctx.translate(this.canvas.width / 2, this.canvas.height / 2);
+      ctx.scale(this.zoom, this.zoom);
+      ctx.translate(-this.cameraX, -this.cameraY);
+
+      if (!this.arcadeBackgroundCanvas) {
+        this.arcadeBackgroundCanvas = createArcadeBackgroundCanvas();
+      }
+      ctx.drawImage(this.arcadeBackgroundCanvas, 0, 0);
+
+      if (this.marker) {
+        ctx.fillStyle = 'rgba(255, 209, 102, 0.75)';
+        const mx = this.marker.x * TILE_SIZE;
+        const my = this.marker.y * TILE_SIZE;
+        ctx.fillRect(mx + 4, my + 12, 8, 2);
+        ctx.fillRect(mx + 6, my + 11, 4, 4);
+      }
+
       const drawX =
         (this.playerPos.x + (this.playerTarget.x - this.playerPos.x) * this.moveProgress) * TILE_SIZE;
       const drawY =

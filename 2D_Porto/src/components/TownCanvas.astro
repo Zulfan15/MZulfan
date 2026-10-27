@@ -55,8 +55,8 @@ const dataPlaceRooms = {
   data-places={JSON.stringify(dataPlaces)}
   data-links={JSON.stringify(dataLinks)}
   data-place-rooms={JSON.stringify(dataPlaceRooms)}
-  data-scene={currentPlace === 'about' ? 'home' : currentPlace === 'dev' ? 'dev' : currentPlace === 'lab' ? 'lab' : 'town'}
-  data-retro={currentPlace === 'about' || currentPlace === 'dev' || currentPlace === 'lab' ? '' : undefined}
+  data-scene={currentPlace === 'about' ? 'home' : currentPlace === 'dev' ? 'dev' : currentPlace === 'lab' ? 'lab' : currentPlace === 'arcade' ? 'arcade' : 'town'}
+  data-retro={currentPlace === 'about' || currentPlace === 'dev' || currentPlace === 'lab' || currentPlace === 'arcade' ? '' : undefined}
 >
   <h2 id="town-title" class="visually-hidden">Town map</h2>
   <p id="town-help" class="visually-hidden">
@@ -101,6 +101,11 @@ const dataPlaceRooms = {
         <button type="button" class="town-label" data-id="lab-whiteboard" aria-label="Read the whiteboard">Whiteboard</button>
         <button type="button" class="town-label" data-id="lab-bench" aria-label="Look over the lab bench">Lab bench</button>
       </>
+    ) : currentPlace === 'arcade' ? (
+      <>
+        <button type="button" class="town-label" data-id="robot" aria-label="Play Mancala with the robot">Mancala Robot</button>
+        <button type="button" class="town-label" data-id="scoreboard" aria-label="Check the scoreboard">Scoreboard</button>
+      </>
     ) : (
       <>
         <button type="button" class="town-label town-label--building" data-id="home" aria-label="Walk to Home">Home</button>
@@ -127,7 +132,7 @@ const dataPlaceRooms = {
     <button
       class="town-guide__toggle"
       type="button"
-      aria-expanded={currentPlace === 'dev' || currentPlace === 'lab' ? 'true' : 'false'}
+      aria-expanded={currentPlace === 'dev' || currentPlace === 'lab' || currentPlace === 'arcade' ? 'true' : 'false'}
       aria-controls="town-guide-card"
       data-town-guide-toggle=""
     >
@@ -139,12 +144,12 @@ const dataPlaceRooms = {
       id="town-guide-card"
       role="region"
       aria-labelledby="town-guide-title"
-      hidden={currentPlace === 'dev' || currentPlace === 'lab' ? undefined : ''}
+      hidden={currentPlace === 'dev' || currentPlace === 'lab' || currentPlace === 'arcade' ? undefined : ''}
       data-town-guide-card=""
     >
       <div class="town-guide__body">
         <strong id="town-guide-title" data-town-guide-title="">
-          {currentPlace === 'about' ? 'CRATE & CLOSET' : currentPlace === 'dev' ? 'DEV CENTER' : currentPlace === 'lab' ? 'RESEARCH LAB' : 'Town Square'}
+          {currentPlace === 'about' ? 'CRATE & CLOSET' : currentPlace === 'dev' ? 'DEV CENTER' : currentPlace === 'lab' ? 'RESEARCH LAB' : currentPlace === 'arcade' ? 'ARCADE' : 'Town Square'}
         </strong>
         <p data-town-guide-text="">
           {currentPlace === 'about'
@@ -153,6 +158,8 @@ const dataPlaceRooms = {
             ? "Mission control. LeBronette at the front desk can tell you all about Zulfan. The viewscreen runs his projects, roles, school and honors; check the stack radar and the telemetry wall too. Step on the mat to leave."
             : currentPlace === 'lab'
             ? "Where Zulfan's research lives. The poster wall has a poster per project, the whiteboard has what he wants to study next, and the bench lays out his methods. His papers are on the shelf. Step on the mat to leave."
+            : currentPlace === 'arcade'
+            ? "The arcade. Challenge the robot in the back to a match of Mancala, inspect the retro cabinets and check the high scores on the scoreboard. Step on the mat to leave."
             : "An interactive pixel-art town. Walk into buildings to explore projects, lab research, and dev logs. Inspect social runes or talk to the Digital Twin."}
         </p>
       </div>
@@ -369,6 +376,14 @@ const dataPlaceRooms = {
     const povExit = document.querySelector('[data-pov-exit]');
     povExit?.addEventListener('click', () => {
       window.location.href = '/';
+    });
+
+    // Scoreboard event listener
+    document.addEventListener('town:scoreboard', () => {
+      showBubble(
+        'Scoreboard',
+        'ROBOT vs. EVERYONE (W-L-D): EASY: 48-12-4 | MEDIUM: 89-3-2 | HARD: 142-0-0. The robot plays FairKalah minimax search.'
+      );
     });
 
     // Touch D-Pad bindings
