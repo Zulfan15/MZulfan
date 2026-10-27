@@ -60,38 +60,42 @@ export interface EngineCallbacks {
 }
 
 const CHARIZARD_OVERWORLD_SPRITE = [
-  '..oo......oo....',
-  '.ottco..otttco..',
-  'otlltocoottllto.',
-  'otltcoyyccwtlto.',
-  '.otwceeykcwtto..',
-  '..otwyyykcwto...',
-  '..otwccccwto....',
-  '..otcyyyycwto...',
-  '.ottcyyyycwto...',
-  'otltcyyyycwtto..',
-  'otw.ccccccw.to..',
-  '.o..ckcckc...o..',
-  '....ckcckco...jj',
-  '....ooooooo..off',
-  '............oorf',
-  '..............oo',
+  '...........kkk...kkk...........',
+  '.........kkook...kookkk........',
+  '.......kkoook.....kooookk......',
+  '......kooook......kokkkook.....',
+  '.....koooook......kokttkkok....',
+  '...kkkokwoook.....kokttttkok...',
+  '..kooookwooook....koktttttkok..',
+  '..kokooooooook....koktttttkok..',
+  '...kkkkkookoook..kookttttttkok.',
+  '.r....kookkoook..koktttttttkok.',
+  '.rr.rkook..koookkookttttttttkok',
+  'rryr..kk...koookookttttkkkttkok',
+  '.ryy.......koooookktttk...ktkok',
+  '..r....kkkkoooooooktkk...k.kkok',
+  '......kookkooookoook....krk.kok',
+  '......kkokccokkookok....krrk.k.',
+  '.......kkkcckooookook...kryrk..',
+  '.........kcckwookoook....kyrk..',
+  '........koccckkkoooook...ckok..',
+  '........koccccckoooookkkkkook..',
+  '........kokccckooooookoooook...',
+  '.........kokcckooooookoooook...',
+  '.........kookkckooookooookk....',
+  '........kwoookkkkoookkkkk......',
+  '........kkkkk..kwokwk..........',
+  '................kkkkk..........',
 ];
 
 const CHARIZARD_OVERWORLD_COLORS: Record<string, string> = {
-  o: '#181820',
-  c: '#e86820',
-  h: '#fca058',
-  d: '#b04010',
-  y: '#f8e8a0',
-  t: '#209888',
-  l: '#44ccb8',
-  w: '#105850',
-  k: '#ffffff',
-  e: '#22d8e0',
-  r: '#e63946',
-  f: '#ff7a59',
-  j: '#ffd166',
+  k: '#181820',
+  o: '#ef8338',
+  t: '#018574',
+  c: '#f6e2ad',
+  r: '#f6521d',
+  y: '#fcd839',
+  w: '#ffffff',
 };
 
 interface BreezeParticle {
@@ -1468,8 +1472,8 @@ export class TownEngine {
       arcade: { x: 19, y: 12, w: 9, h: 5, kind: 'building', lift: 0 },
       twin: { x: 13, y: 14, w: 1, h: 1, kind: 'npc' },
       depop: { x: 4, y: 20, w: 7, h: 4, kind: 'stall', lift: 0 },
-      charizard: { x: 16, y: 25, w: 1, h: 1, kind: 'npc' },
-      lebron: { x: 16, y: 25, w: 1, h: 1, kind: 'npc' },
+      charizard: { x: 16, y: 25, w: 1, h: 1, kind: 'npc', lift: 0.6 },
+      lebron: { x: 16, y: 25, w: 1, h: 1, kind: 'npc', lift: 0.6 },
       linkedin: { x: 23, y: 20, w: 1, h: 1, kind: 'board' },
       resume: { x: 27, y: 20, w: 1, h: 1, kind: 'resume' },
       github: { x: 23, y: 23, w: 1, h: 1, kind: 'signpost' },
@@ -1756,13 +1760,13 @@ export class TownEngine {
       if (npc.id === 'charizard' || npc.id === 'ranger' || npc.id === 'lebron') {
         // Authentic Charizard pixel sprite on overworld
         ctx.fillStyle = 'rgba(40, 60, 20, 0.25)';
-        ctx.fillRect(npc.x * TILE_SIZE + 2, npc.y * TILE_SIZE + 13, 12, 3);
+        ctx.fillRect(npc.x * TILE_SIZE - 4, npc.y * TILE_SIZE + 13, 24, 4);
         drawPixelMatrix(
           ctx,
           CHARIZARD_OVERWORLD_SPRITE,
           CHARIZARD_OVERWORLD_COLORS,
-          npc.x * TILE_SIZE,
-          npc.y * TILE_SIZE,
+          npc.x * TILE_SIZE - 7,
+          npc.y * TILE_SIZE - 10,
           1
         );
       } else {
