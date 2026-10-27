@@ -935,8 +935,21 @@ export class TownEngine {
       return;
     }
 
-    // 2. Tall grass encounter (15% chance per step in tall grass)
+    // 2. Tall grass encounter
     if (this.map.ground[tileIdx] === 2) {
+      let handled = false;
+      document.dispatchEvent(
+        new CustomEvent('town:grass', {
+          detail: {
+            at: { ...this.playerPos },
+            reply: (h: boolean) => {
+              handled = h;
+            },
+          },
+        })
+      );
+      if (handled) return;
+
       if (Math.random() < 0.15) {
         sfx.encounter();
         this.callbacks.onEncounter();
@@ -1194,6 +1207,12 @@ export class TownEngine {
       this.map.npcs.find((n) => n.x === fx && n.y === fy);
     if (npc) {
       sfx.select();
+      if (npc.id === 'lebron' || npc.action?.kind === 'event') {
+        const evt = npc.action?.kind === 'event' ? npc.action.name : npc.id;
+        document.dispatchEvent(new CustomEvent(`town:${evt}`));
+        this.wake();
+        return;
+      }
       if (this.callbacks.onBubble) {
         let action: { label: string; href?: string; onClick?: () => void } | undefined;
         if (npc.action) {

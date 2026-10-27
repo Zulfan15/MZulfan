@@ -33,7 +33,8 @@ export const BLOCKING: ReadonlySet<number> = new Set([Tile.WATER, Tile.TREE, Til
 export type Action =
   | { kind: 'navigate'; route: string; prompt?: string }
   | { kind: 'refill' }
-  | { kind: 'open'; target: 'map' | 'dex' };
+  | { kind: 'open'; target: 'map' | 'dex' }
+  | { kind: 'event'; name: string };
 
 /** Anything the player can talk to / read. */
 export interface Interactable {

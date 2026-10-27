@@ -3,147 +3,925 @@ import { profile } from '../lib/profile';
 const critters = profile.critters;
 ---
 
-<dialog id="encounter-modal" class="sheet bg-ink text-paper border-4 border-paper shadow-2xl">
-  <div class="p-4 sm:p-6 space-y-4">
-    <!-- Battle Stage -->
-    <div class="relative bg-gradient-to-b from-[#25507a] to-[#4aa3df] rounded-lg border-2 border-paper p-4 overflow-hidden h-48 flex items-center justify-between">
-      <!-- Foe Info -->
-      <div class="absolute top-2 left-2 bg-ink/80 text-paper border border-paper/40 rounded px-3 py-1 font-pixel text-[9px]">
-        <div id="encounter-critter-name" class="text-gold font-bold">WILD CRITTER</div>
-        <div id="encounter-critter-type" class="text-[8px] text-paper/70">Lv. 5 · Grass</div>
-      </div>
-
-      <!-- Foe Sprite -->
-      <div class="w-full flex justify-end pr-6">
-        <canvas id="encounter-canvas" width="96" height="96" class="animate-[var(--animate-bob)]"></canvas>
-      </div>
-
-      <!-- Battle Platform -->
-      <div class="absolute -bottom-4 right-2 w-40 h-10 bg-grass/50 rounded-full blur-[1px]"></div>
+<div
+  data-astro-transition-persist="critter-battle"
+  class="cb"
+  data-critter-battle
+  hidden
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="cb-title"
+  tabindex="-1"
+>
+  <h2 id="cb-title" class="visually-hidden">A wild critter</h2>
+  <div class="cb__top">
+    <button class="cb__btn" type="button" data-sound aria-label="Sound" aria-pressed="false">♪ OFF</button>
+    <button class="cb__btn" type="button" data-leave>RUN</button>
+  </div>
+  <div class="cb__stage">
+    <section class="cb__info cb__info--foe" aria-label="Wild critter">
+      <p class="cb__name"><span data-name></span> <span class="cb__lv" data-level></span></p>
+      <p class="cb__owned" data-owned hidden></p>
+    </section>
+    <div class="cb__foe" data-foe>
+      <canvas class="cb__sprite cb__sprite--critter" data-critter role="img"></canvas>
+      <canvas class="cb__sprite cb__sprite--npc" data-npc role="img" aria-label="LeBron"></canvas>
+      <span class="cb__ball" data-ball hidden aria-hidden="true"><canvas data-ball-art></canvas></span>
     </div>
-
-    <!-- Battle Dialog Text -->
-    <div class="window-dark p-3 font-retro text-2xl min-h-[4rem] flex items-center text-paper">
-      <span id="encounter-text">A wild critter jumped out from the tall grass!</span>
+    <div class="cb__me">
+      <canvas class="cb__sprite cb__sprite--player" data-player aria-hidden="true"></canvas>
     </div>
-
-    <!-- Actions -->
-    <div class="grid grid-cols-2 gap-3 font-pixel">
-      <button id="btn-throw-ball" type="button" class="btn btn-primary py-3 text-xs flex items-center justify-center gap-2">
-        <span>🔴</span>
-        <span>THROW POKé BALL (<span id="encounter-balls-left">5</span>)</span>
-      </button>
-      <button id="btn-run-away" type="button" class="btn py-3 text-xs flex items-center justify-center gap-2">
-        <span>🏃</span>
-        <span>RUN AWAY</span>
-      </button>
+    <section class="cb__info cb__info--me" aria-label="You">
+      <p class="cb__name">YOU</p>
+      <p class="cb__owned" data-balls></p>
+    </section>
+  </div>
+  <div class="cb__dialog" data-dialog>
+    <p class="cb__text" data-text aria-hidden="true"></p>
+    <p class="visually-hidden" data-live aria-live="polite"></p>
+    <span class="cb__more" data-more aria-hidden="true" hidden>▼</span>
+    <ul class="cb__menu" data-menu role="listbox" aria-label="Choices" hidden></ul>
+  </div>
+  <div class="cb__popup" data-popup hidden>
+    <div class="cb__window" role="document" aria-labelledby="cb-popup-title">
+      <p class="cb__window-title" id="cb-popup-title" data-popup-title></p>
+      <canvas class="cb__window-art" data-popup-art aria-hidden="true"></canvas>
+      <div class="cb__window-body" data-popup-body></div>
+      <p class="cb__window-ok"><span aria-hidden="true">▶</span> OK</p>
     </div>
   </div>
-</dialog>
+</div>
 
 <script define:vars={{ critters }}>
   window.__BATTLE_CRITTERS__ = critters;
 </script>
 
 <script>
-  import { gameStore } from '../game/store';
-  import { renderCritterOnCanvas } from '../game/critterArt';
   import { sfx } from '../game/sfx';
+  import { LEBRON_QUIZ, type QuizQuestion } from '../game/lebronQuiz';
+  import { renderCritterOnCanvas } from '../game/critterArt';
 
-  function initEncounter() {
-    const modal = document.getElementById('encounter-modal') as HTMLDialogElement;
-    const canvas = document.getElementById('encounter-canvas') as HTMLCanvasElement;
-    const nameEl = document.getElementById('encounter-critter-name')!;
-    const typeEl = document.getElementById('encounter-critter-type')!;
-    const textEl = document.getElementById('encounter-text')!;
-    const ballsLeftEl = document.getElementById('encounter-balls-left')!;
-    const throwBtn = document.getElementById('btn-throw-ball') as HTMLButtonElement;
-    const runBtn = document.getElementById('btn-run-away') as HTMLButtonElement;
+  const POKEBALL_SPRITE = [
+    '....oooo....',
+    '..oorrrroo..',
+    '.orhhrrrrro.',
+    '.orhrrrrrro.',
+    'orrroooorrro',
+    'ooooowwooooo',
+    'owwwowwowwwo',
+    'owwwoooowwwo',
+    '.owwwwwwwso.',
+    '.owwwwwwsso.',
+    '..oowwssoo..',
+    '....oooo....',
+  ];
+  const POKEBALL_COLORS: Record<string, string> = {
+    o: '#181820',
+    r: '#e63946',
+    h: '#ff9a9a',
+    w: '#f8f8f0',
+    s: '#c8c8d0',
+  };
 
-    const critters = (window as unknown as { __BATTLE_CRITTERS__: any[] }).__BATTLE_CRITTERS__;
-    let currentCritter: any = null;
-    let isActing = false;
+  const LEBRON_SPRITE = [
+    '...oooooo.....',
+    '..ohhhhhho....',
+    '.owwwwwwwwo...',
+    '.ohssssssho...',
+    '.osesssseso...',
+    '.ossssnssso...',
+    '.ohhmmmmhho...',
+    '..ohhhhhho....',
+    '....onno......',
+    '.osyyyyyyso...',
+    'osyyuuyuuyso..',
+    'osyyuuyuuybbb.',
+    'osyyyyyyybBbBb',
+    '.suuuuuuubbBbb',
+    '..oyyyyyybBbBb',
+    '..oyyo.oyybbb.',
+    '..osso.osso...',
+    '..owwo.owwo...',
+    '..okko.okko...',
+  ];
+  const LEBRON_COLORS: Record<string, string> = {
+    o: '#1a1420',
+    h: '#2a1f1a',
+    w: '#f4f1ea',
+    s: '#8a5a3c',
+    n: '#6e452c',
+    e: '#1a1420',
+    m: '#f4f1ea',
+    y: '#fdb927',
+    u: '#552583',
+    b: '#e8742a',
+    B: '#8a3d10',
+    k: '#3d1a63',
+  };
 
-    const startEncounter = () => {
-      // Pick random critter (weighted towards uncaught ones)
-      const state = gameStore.getState();
-      const uncaught = critters.filter((c) => !state.caught.includes(c.id));
-      const pool = uncaught.length > 0 && Math.random() < 0.7 ? uncaught : critters;
-      currentCritter = pool[Math.floor(Math.random() * pool.length)];
+  const PLAYER_SPRITE = [
+    '...oooooo...',
+    '..ohhhhhho..',
+    '.ohhhhhhhho.',
+    '.ohhhhhhhho.',
+    '.ohhhhhhhho.',
+    '.ohhhhhhhho.',
+    '.ohhhhhhhho.',
+    '..ohhhhhho..',
+    '...oossoo...',
+    '..occcccco..',
+    '.occcccccco.',
+    'osccccccccso',
+    'osccccccccso',
+    '.oddddddddo.',
+    '..oppppppo..',
+    '..oppo.oppo.',
+    '..oppo.oppo.',
+    '..okko.okko.',
+  ];
+  const PLAYER_PALETTE: Record<string, string> = {
+    o: '#3b2a2a',
+    h: '#5b3a29',
+    s: '#f6c9a3',
+    e: '#2b2233',
+    p: '#41507f',
+    m: '#c4605a',
+    c: '#ff8a5b',
+    d: '#e06a3e',
+    k: '#2b2233',
+  };
 
-      nameEl.textContent = currentCritter.name.toUpperCase();
-      typeEl.textContent = `${currentCritter.type} · ${currentCritter.rarity.toUpperCase()}`;
-      ballsLeftEl.textContent = String(state.balls);
-      textEl.textContent = `A wild ${currentCritter.name} appeared!`;
-
-      renderCritterOnCanvas(canvas, currentCritter, 96);
-      isActing = false;
-      throwBtn.disabled = state.balls <= 0;
-
-      modal.showModal();
-    };
-
-    throwBtn.addEventListener('click', () => {
-      if (isActing || !currentCritter) return;
-      const state = gameStore.getState();
-      if (state.balls <= 0) {
-        textEl.textContent = "You don't have any Poké Balls left! Talk to Ranger Asep.";
-        return;
-      }
-
-      isActing = true;
-      sfx.select();
-      textEl.textContent = `You threw a Poké Ball at ${currentCritter.name}...`;
-
-      // Catch calculation based on rarity
-      const catchRate =
-        currentCritter.rarity === 'common'
-          ? 0.75
-          : currentCritter.rarity === 'uncommon'
-          ? 0.55
-          : currentCritter.rarity === 'rare'
-          ? 0.35
-          : 0.2;
-
-      setTimeout(() => {
-        const success = Math.random() < catchRate;
-        gameStore.catchCritter(currentCritter.id);
-        ballsLeftEl.textContent = String(gameStore.getState().balls);
-
-        if (success) {
-          sfx.catchSuccess();
-          textEl.textContent = `Gotcha! ${currentCritter.name} was caught! Added to your Critterdex!`;
-          setTimeout(() => {
-            modal.close();
-            isActing = false;
-          }, 1800);
-        } else {
-          sfx.bump();
-          textEl.textContent = `Oh no! The wild ${currentCritter.name} broke free!`;
-          setTimeout(() => {
-            textEl.textContent = `What will you do next?`;
-            isActing = false;
-          }, 1200);
+  function drawMatrix(
+    canvas: HTMLCanvasElement,
+    sprite: string[],
+    colors: Record<string, string>
+  ) {
+    canvas.width = sprite[0].length;
+    canvas.height = sprite.length;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    sprite.forEach((row, y) => {
+      [...row].forEach((char, x) => {
+        const color = colors[char];
+        if (color) {
+          ctx.fillStyle = color;
+          ctx.fillRect(x, y, 1, 1);
         }
-      }, 900);
-    });
-
-    runBtn.addEventListener('click', () => {
-      if (isActing) return;
-      sfx.select();
-      textEl.textContent = 'Got away safely!';
-      setTimeout(() => {
-        modal.close();
-      }, 500);
-    });
-
-    document.addEventListener('town:wild-encounter', startEncounter);
-
-    document.addEventListener('town:refill-balls', () => {
-      gameStore.refillBalls(5);
-      sfx.catchSuccess();
+      });
     });
   }
 
-  document.addEventListener('DOMContentLoaded', initEncounter);
+  // Storage
+  const STORAGE_KEY = 'critterdex:v1';
+  interface GameData {
+    seen: Record<string, number>;
+    caught: Record<string, { at: number; shiny?: boolean }>;
+    steps: number;
+    balls: number;
+    quiz: string[];
+    met?: number | boolean;
+    name?: string;
+    since?: number;
+  }
+
+  let memoryStore: GameData | null = null;
+  function getStore(): GameData {
+    if (memoryStore) return memoryStore;
+    let data: GameData = { seen: {}, caught: {}, steps: 0, balls: 0, quiz: [] };
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        data = {
+          seen: parsed.seen || {},
+          caught: parsed.caught || {},
+          steps: parsed.steps || 0,
+          balls: typeof parsed.balls === 'number' ? parsed.balls : 0,
+          quiz: Array.isArray(parsed.quiz) ? parsed.quiz : [],
+          met: parsed.met,
+          name: parsed.name,
+          since: parsed.since,
+        };
+      }
+    } catch {}
+    memoryStore = data;
+    return data;
+  }
+
+  function saveStore() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(memoryStore));
+      const legacy = {
+        balls: memoryStore?.balls ?? 0,
+        caught: Object.keys(memoryStore?.caught || {}),
+        trainerName: memoryStore?.name || 'TRAINER',
+      };
+      localStorage.setItem('zulfan_town_save', JSON.stringify(legacy));
+    } catch {}
+    document.dispatchEvent(new CustomEvent('critterdex:change'));
+  }
+
+  function meetLebron(time = Date.now()) {
+    const s = getStore();
+    if (!s.met) {
+      s.met = time;
+      addBalls(5);
+      return true;
+    }
+    return false;
+  }
+
+  function addBalls(n: number) {
+    const s = getStore();
+    s.balls = Math.min(99, (s.balls || 0) + n);
+    saveStore();
+  }
+
+  function useBall(): boolean {
+    const s = getStore();
+    if (s.balls <= 0) return false;
+    s.balls--;
+    saveStore();
+    return true;
+  }
+
+  function recordQuiz(id: string) {
+    const s = getStore();
+    if (!s.quiz.includes(id)) s.quiz.push(id);
+    if (s.quiz.length >= LEBRON_QUIZ.length) s.quiz = [];
+    saveStore();
+  }
+
+  function shuffle<T>(arr: T[], rng = Math.random): T[] {
+    const n = [...arr];
+    for (let i = n.length - 1; i > 0; i--) {
+      const j = Math.floor(rng() * (i + 1));
+      [n[i], n[j]] = [n[j], n[i]];
+    }
+    return n;
+  }
+
+  function pickQuestions(answeredSet: Set<string>, rng = Math.random): QuizQuestion[] {
+    const unanswered = shuffle(LEBRON_QUIZ.filter((q) => !answeredSet.has(q.id)), rng);
+    const answered = shuffle(LEBRON_QUIZ.filter((q) => answeredSet.has(q.id)), rng);
+    return [...unanswered, ...answered].slice(0, 2);
+  }
+
+  const GREETINGS = ["What's good, fam?", 'Ayo, back for more?', "The King is in. What we doin'?"];
+  const CORRECT_QUOTES = ["That's a bucket!", 'And one!', 'Nothing but net!', 'You know ball, fam!'];
+  const WRONG_QUOTES = ['Brick!', 'Nah, fam.', 'Airball!'];
+  const IDLE_QUOTES = [
+    "IT'S TACO TUESDAY! ...Every day can be Taco Tuesday.",
+    'Not one, not two, not three... OK, I\'ll stop.',
+    "Strive for greatness. That's the motto.",
+    'Gotta get my film in tonight. Stay locked in.',
+  ];
+
+  function pickRandom<T>(list: T[]): T {
+    return list[Math.floor(Math.random() * list.length)];
+  }
+  const formatBalls = (n: number) => `${n} POKé BALL${n === 1 ? '' : 'S'}`;
+
+  const KEY_STEPS: Record<string, number> = {
+    ArrowUp: -1,
+    ArrowLeft: -1,
+    w: -1,
+    a: -1,
+    W: -1,
+    A: -1,
+    ArrowDown: 1,
+    ArrowRight: 1,
+    s: 1,
+    d: 1,
+    S: 1,
+    D: 1,
+  };
+  const KEY_CONFIRM = new Set(['Enter', ' ', 'z', 'Z']);
+  const CANCEL_TOKEN = Symbol('cancel');
+  const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+  class CritterBattleModal {
+    root: HTMLElement;
+    abort = new AbortController();
+    session = 0;
+    leaveLine = '';
+    waiter: { resolve: (val?: any) => void; reject: (err?: any) => void } | null = null;
+    typing = false;
+    skip = false;
+    menu: { options: { label: string; value: any }[]; index: number; resolve: (val: any) => void } | null = null;
+
+    title: HTMLElement;
+    text: HTMLElement;
+    live: HTMLElement;
+    more: HTMLElement;
+    menuEl: HTMLElement;
+    dialog: HTMLElement;
+    foe: HTMLElement;
+    critter: HTMLCanvasElement;
+    npc: HTMLCanvasElement;
+    ball: HTMLElement;
+    ballArt: HTMLCanvasElement;
+    player: HTMLCanvasElement;
+    name: HTMLElement;
+    lv: HTMLElement;
+    owned: HTMLElement;
+    balls: HTMLElement;
+    sound: HTMLButtonElement;
+    leaveBtn: HTMLButtonElement;
+    popupEl: HTMLElement;
+    popupTitle: HTMLElement;
+    popupArt: HTMLCanvasElement;
+    popupBody: HTMLElement;
+
+    constructor(root: HTMLElement) {
+      this.root = root;
+      const q = <T extends HTMLElement = HTMLElement>(sel: string) => root.querySelector(sel) as T;
+      this.title = q('#cb-title');
+      this.text = q('[data-text]');
+      this.live = q('[data-live]');
+      this.more = q('[data-more]');
+      this.menuEl = q('[data-menu]');
+      this.dialog = q('[data-dialog]');
+      this.foe = q('[data-foe]');
+      this.critter = q('[data-critter]');
+      this.npc = q('[data-npc]');
+      this.ball = q('[data-ball]');
+      this.ballArt = q('[data-ball-art]');
+      this.player = q('[data-player]');
+      this.name = q('[data-name]');
+      this.lv = q('[data-level]');
+      this.owned = q('[data-owned]');
+      this.balls = q('[data-balls]');
+      this.sound = q('[data-sound]');
+      this.leaveBtn = q('[data-leave]');
+      this.popupEl = q('[data-popup]');
+      this.popupTitle = q('[data-popup-title]');
+      this.popupArt = q('[data-popup-art]');
+      this.popupBody = q('[data-popup-body]');
+
+      // Draw player sprite & Poké Ball
+      drawMatrix(this.player, PLAYER_SPRITE, PLAYER_PALETTE);
+      drawMatrix(this.ballArt, POKEBALL_SPRITE, POKEBALL_COLORS);
+
+      this.bind();
+      this.updateSound();
+      this.showBalls();
+
+      document.addEventListener('critterdex:change', () => this.showBalls(), {
+        signal: this.abort.signal,
+      });
+    }
+
+    get isOpen() {
+      return !this.root.hidden;
+    }
+
+    async play(
+      config: { mode: string; title: string; leave: { label: string; line: string } },
+      action: () => Promise<void>
+    ) {
+      if (!this.root.hidden) return;
+      const currentSession = ++this.session;
+      this.root.dataset.mode = config.mode;
+      this.title.textContent = config.title;
+      this.leaveBtn.textContent = config.leave.label;
+      this.leaveLine = config.leave.line;
+      this.text.textContent = '';
+      this.root.dataset.sky = 'day';
+      this.root.removeAttribute('data-glitch');
+      this.root.classList.remove('is-entering');
+      this.root.hidden = false;
+
+      if (config.mode === 'battle') {
+        void this.root.offsetWidth;
+        this.root.classList.add('is-entering');
+      }
+
+      document.dispatchEvent(new CustomEvent('town:pause'));
+      this.root.focus({ preventScroll: true });
+
+      try {
+        await action();
+        this.close();
+      } catch (err) {
+        if (currentSession !== this.session || err === CANCEL_TOKEN) return;
+        this.close();
+      }
+    }
+
+    async wait(ms: number) {
+      const s = this.session;
+      await sleep(ms);
+      this.check(s);
+    }
+
+    async popup(title: string, drawFn: (canvas: HTMLCanvasElement) => void, lines: string[]) {
+      const s = this.session;
+      this.popupTitle.textContent = title;
+      drawFn(this.popupArt);
+      this.popupBody.replaceChildren(
+        ...lines.map((l) => {
+          const p = document.createElement('p');
+          p.textContent = l;
+          return p;
+        })
+      );
+      this.live.textContent = `${title}. ${lines.join(' ')}`;
+      this.popupEl.hidden = false;
+      sfx.play('select');
+
+      await new Promise((resolve, reject) => {
+        this.waiter = { resolve, reject };
+      });
+      this.popupEl.hidden = true;
+      this.check(s);
+    }
+
+    close() {
+      this.cancel();
+      this.root.hidden = true;
+      this.ball.hidden = true;
+      document.dispatchEvent(new CustomEvent('town:resume'));
+      document.dispatchEvent(new CustomEvent('town:focus'));
+    }
+
+    cancel() {
+      this.session++;
+      this.waiter?.reject(CANCEL_TOKEN);
+      this.waiter = null;
+      this.menu = null;
+      this.menuEl.hidden = true;
+      this.more.hidden = true;
+      this.popupEl.hidden = true;
+    }
+
+    async leave() {
+      if (this.root.hidden) return;
+      this.cancel();
+      const s = this.session;
+      sfx.play('back');
+      await this.say(this.leaveLine).catch(() => {});
+      if (s === this.session) this.close();
+    }
+
+    check(s: number) {
+      if (s !== this.session) throw CANCEL_TOKEN;
+    }
+
+    showBalls() {
+      this.balls.textContent = `POKé BALLS ×${getStore().balls}`;
+    }
+
+    bind() {
+      window.addEventListener(
+        'keydown',
+        (e) => {
+          if (this.root.hidden || e.altKey || e.ctrlKey || e.metaKey) return;
+          if (e.key === 'Escape') {
+            e.preventDefault();
+            this.leave();
+            return;
+          }
+          if (e.target instanceof HTMLButtonElement && e.target.closest('.cb__top')) return;
+
+          const step = KEY_STEPS[e.key];
+          if (this.menu && step) {
+            this.moveMenu(step);
+          } else if (this.menu && KEY_CONFIRM.has(e.key)) {
+            this.pickMenu(this.menu.index);
+          } else if (KEY_CONFIRM.has(e.key)) {
+            this.advance();
+          } else if (!step) {
+            return;
+          }
+          e.preventDefault();
+          e.stopPropagation();
+        },
+        { signal: this.abort.signal, capture: true }
+      );
+
+      this.dialog.addEventListener(
+        'click',
+        (e) => {
+          if (!(e.target as HTMLElement).closest('[data-menu]')) {
+            this.advance();
+          }
+        },
+        { signal: this.abort.signal }
+      );
+
+      this.popupEl.addEventListener('click', () => this.advance(), { signal: this.abort.signal });
+      this.leaveBtn.addEventListener('click', () => void this.leave(), { signal: this.abort.signal });
+      this.sound.addEventListener(
+        'click',
+        () => {
+          sfx.toggle();
+          this.updateSound();
+        },
+        { signal: this.abort.signal }
+      );
+    }
+
+    advance() {
+      if (!this.menu) {
+        if (this.typing) {
+          this.skip = true;
+        } else if (this.waiter) {
+          sfx.play('move');
+          const w = this.waiter;
+          this.waiter = null;
+          w.resolve();
+        }
+      }
+    }
+
+    updateSound() {
+      this.sound.textContent = sfx.on ? '♪ ON' : '♪ OFF';
+      this.sound.setAttribute('aria-pressed', String(sfx.on));
+    }
+
+    async say(msg: string, waitInput = false) {
+      const s = this.session;
+      const chars = [...msg];
+      this.live.textContent = msg;
+      this.more.hidden = true;
+      this.typing = true;
+      this.skip = false;
+
+      for (let i = 1; i <= chars.length; i++) {
+        if (this.skip) i = chars.length;
+        this.text.textContent = chars.slice(0, i).join('');
+        if (i % 3 === 0) sfx.play('blip');
+        if (i < chars.length) await sleep(24);
+        this.check(s);
+      }
+
+      this.typing = false;
+      this.skip = false;
+
+      if (waitInput) {
+        this.more.hidden = false;
+        await new Promise((resolve, reject) => {
+          this.waiter = { resolve, reject };
+        });
+        this.more.hidden = true;
+      } else {
+        await sleep(450);
+      }
+      this.check(s);
+    }
+
+    async choose(promptText: string, options: { label: string; value: any }[]) {
+      await this.say(promptText);
+      const s = this.session;
+      const chosen = await new Promise((resolve) => {
+        this.menu = { options, index: 0, resolve };
+        this.renderMenu();
+      });
+      this.check(s);
+      return chosen;
+    }
+
+    renderMenu() {
+      const m = this.menu;
+      this.menuEl.hidden = !m;
+      if (!m) return;
+      this.menuEl.replaceChildren(
+        ...m.options.map((opt, idx) => {
+          const li = document.createElement('li');
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'cb__option' + (idx === m.index ? ' is-current' : '');
+          btn.textContent = opt.label;
+          btn.setAttribute('role', 'option');
+          btn.setAttribute('aria-selected', String(idx === m.index));
+          btn.addEventListener('click', () => this.pickMenu(idx));
+          li.append(btn);
+          return li;
+        })
+      );
+    }
+
+    moveMenu(delta: number) {
+      if (!this.menu) return;
+      this.menu.index = (this.menu.index + delta + this.menu.options.length) % this.menu.options.length;
+      sfx.play('move');
+      this.renderMenu();
+    }
+
+    pickMenu(idx: number) {
+      const m = this.menu;
+      if (m) {
+        this.menu = null;
+        this.menuEl.hidden = true;
+        sfx.play('select');
+        m.resolve(m.options[idx].value);
+      }
+    }
+  }
+
+  // LeBron Flow
+  function setupLeBronView(modal: CritterBattleModal) {
+    drawMatrix(modal.npc, LEBRON_SPRITE, LEBRON_COLORS);
+    modal.foe.removeAttribute('data-critter');
+    modal.foe.removeAttribute('data-shiny');
+    modal.foe.removeAttribute('data-state');
+    modal.name.textContent = 'LEBRON';
+    modal.lv.textContent = 'Lv23';
+    modal.owned.textContent = '4× NBA CHAMPION';
+    modal.owned.hidden = false;
+  }
+
+  function startLeBronEncounter(modal: CritterBattleModal) {
+    return modal.play(
+      {
+        mode: 'talk',
+        title: 'LeBron',
+        leave: { label: 'BYE', line: 'Aight. Strive for greatness!' },
+      },
+      async () => {
+        setupLeBronView(modal);
+        if (getStore().met) {
+          await runLeBronRepeat(modal);
+        } else {
+          await runLeBronFirstMeeting(modal);
+        }
+      }
+    );
+  }
+
+  function warnNoBallsGrass(modal: CritterBattleModal) {
+    return modal.play(
+      {
+        mode: 'talk',
+        title: 'LeBron',
+        leave: { label: 'BYE', line: 'Aight. Strive for greatness!' },
+      },
+      async () => {
+        setupLeBronView(modal);
+        await modal.say("Yo, hold up! Don't go out there without any POKé BALLS!", true);
+        await modal.say("Come holla at me. I'm right here at the edge of the grass.", true);
+      }
+    );
+  }
+
+  async function runLeBronFirstMeeting(modal: CritterBattleModal) {
+    await modal.say("Yo! What's good? It's LeBron. Just a kid from Akron.", true);
+    await modal.say("See that tall grass? Critters all over it. You can't catch 'em with your bare hands, though.", true);
+    await modal.say(`So here go ${formatBalls(5)}. On me.`, true);
+
+    meetLebron();
+    sfx.play('win');
+    await modal.popup(formatBalls(5), (canvas) => drawMatrix(canvas, POKEBALL_SPRITE, POKEBALL_COLORS), [
+      `You got ${formatBalls(5)} from LeBron!`,
+      'Throw them at wild critters in the tall grass.',
+    ]);
+
+    await modal.say("Run outta balls? Come holla at me. Get my career questions right and I'll put more in your bag.", true);
+    await modal.say("Every bucket's worth 2 balls. Now go strive for greatness!", true);
+  }
+
+  async function runLeBronRepeat(modal: CritterBattleModal) {
+    await modal.say(`${pickRandom(GREETINGS)} You got ${formatBalls(getStore().balls)}.`, true);
+
+    const choice = await modal.choose('Wanna earn some more?', [
+      { label: 'QUIZ ME', value: 'quiz' },
+      { label: 'JUST SAYING HI', value: 'hi' },
+    ]);
+
+    if (choice === 'hi') {
+      await modal.say(pickRandom(IDLE_QUOTES), true);
+    } else {
+      await runLeBronQuiz(modal);
+    }
+  }
+
+  async function runLeBronQuiz(modal: CritterBattleModal) {
+    await modal.say("Bet. 2 questions about my career, 2 balls a bucket. Let's work.", true);
+    let correctCount = 0;
+    const questions = pickQuestions(new Set(getStore().quiz));
+
+    for (let i = 0; i < questions.length; i++) {
+      const q = questions[i];
+      const shuffledOptions = shuffle(q.options).map((opt) => ({ label: opt, value: opt }));
+
+      const answer = await modal.choose(`${i + 1}/2. ${q.ask}`, shuffledOptions);
+      if (answer === q.options[0]) {
+        correctCount++;
+        recordQuiz(q.id);
+        addBalls(2);
+        sfx.play('capture');
+        await modal.say(`${pickRandom(CORRECT_QUOTES)} +2 POKé BALLS.`, true);
+      } else {
+        sfx.play('lose');
+        await modal.say(`${pickRandom(WRONG_QUOTES)} ${q.fact}`, true);
+      }
+    }
+
+    if (correctCount === 2) {
+      addBalls(1);
+      sfx.play('win');
+      await modal.say('2 for 2! Perfect from the line. Bonus ball!', true);
+    } else if (correctCount > 0) {
+      await modal.say(`${correctCount} for 2. Not bad. Go watch some film and run it back.`, true);
+    } else {
+      await modal.say('0 for 2. Tough night. We run it back next time.', true);
+    }
+
+    if (correctCount > 0) {
+      const earned = correctCount * 2 + (correctCount === 2 ? 1 : 0);
+      await modal.say(`You got ${formatBalls(earned)}! Now you have ${getStore().balls}.`, true);
+    }
+  }
+
+  // Wild Critter Battle
+  async function tossBallAnimation(modal: CritterBattleModal, wobbles: number, caught: boolean) {
+    sfx.play('drop');
+    modal.ball.hidden = false;
+    modal.ball.dataset.phase = 'toss';
+    await modal.wait(500);
+    modal.foe.dataset.state = 'in-ball';
+    modal.ball.dataset.phase = 'rest';
+
+    for (let i = 0; i < wobbles; i++) {
+      await modal.wait(350);
+      modal.ball.dataset.phase = 'wobble';
+      sfx.play('blip');
+      await modal.wait(400);
+      modal.ball.dataset.phase = 'rest';
+    }
+
+    await modal.wait(350);
+    if (caught) {
+      modal.ball.dataset.phase = 'caught';
+    } else {
+      modal.ball.hidden = true;
+      modal.foe.removeAttribute('data-state');
+    }
+  }
+
+  function startWildBattle(modal: CritterBattleModal, critter: any) {
+    return modal.play(
+      {
+        mode: 'battle',
+        title: 'A wild critter',
+        leave: { label: 'RUN', line: 'Got away safely!' },
+      },
+      async () => {
+        const store = getStore();
+        const isCaughtBefore = Boolean(store.caught[critter.id]);
+
+        modal.critter.width = 64;
+        modal.critter.height = 64;
+        renderCritterOnCanvas(modal.critter, critter, 64);
+        modal.foe.dataset.critter = critter.id;
+        modal.foe.removeAttribute('data-shiny');
+        modal.foe.removeAttribute('data-state');
+        modal.name.textContent = critter.name.toUpperCase();
+        modal.lv.textContent = `Lv${critter.level || 5}`;
+        modal.owned.textContent = '● In your Critterdex';
+        modal.owned.hidden = !isCaughtBefore;
+
+        sfx.play('start');
+        await modal.wait(900);
+        await modal.say(`A wild ${critter.name} appeared!`, true);
+
+        // Turn loop
+        for (let turn = 1; ; turn++) {
+          const choice = await modal.choose('What will you do?', [
+            { label: `POKé BALL ×${getStore().balls}`, value: 'throw' },
+            { label: 'RUN', value: 'run' },
+          ]);
+
+          if (choice === 'run') {
+            sfx.play('back');
+            await modal.say('Got away safely!');
+            return;
+          }
+
+          if (!useBall()) {
+            sfx.play('back');
+            await modal.say("You don't have any POKé BALLS!", true);
+            await modal.say(
+              getStore().met
+                ? 'LeBron, at the edge of the grass, gives out more for his hoops trivia.'
+                : 'LeBron, at the edge of the grass, is handing them out.',
+              true
+            );
+            await modal.say('Got away safely!');
+            return;
+          }
+
+          await modal.say('You threw a POKé BALL!');
+
+          // Catch calculation
+          const catchOdds = critter.rarity === 'common' ? 0.75 : critter.rarity === 'uncommon' ? 0.55 : 0.35;
+          const isCaught = Math.random() < catchOdds;
+          const wobbles = isCaught ? 3 : Math.floor(Math.random() * 3);
+
+          await tossBallAnimation(modal, wobbles, isCaught);
+
+          if (isCaught) {
+            sfx.play('capture');
+            await modal.say(`Gotcha! ${critter.name} was caught!`, true);
+
+            // Register in store
+            const s = getStore();
+            const wasNew = !s.caught[critter.id];
+            s.caught[critter.id] = { at: Date.now() };
+            s.seen[critter.id] = Date.now();
+            saveStore();
+
+            if (wasNew) {
+              await modal.popup(
+                critter.name,
+                (canvas) => renderCritterOnCanvas(canvas, critter, 48),
+                ['Registered to the Critterdex!', critter.blurb || 'A wild critter caught in the tall grass.']
+              );
+            }
+            return;
+          }
+
+          sfx.play('back');
+          modal.foe.removeAttribute('data-state');
+          const missQuotes = ['Oh no! It broke free!', 'Aww! It appeared to be caught!', 'Argh! Almost had it!'];
+          await modal.say(missQuotes[wobbles], true);
+
+          if (turn >= 3) {
+            modal.foe.dataset.state = 'fled';
+            sfx.play('lose');
+            await modal.say(`The wild ${critter.name} ran away!`, true);
+            return;
+          }
+
+          if (getStore().balls === 0) {
+            await modal.say('That was your last POKé BALL!', true);
+          }
+        }
+      }
+    );
+  }
+
+  function initCritterBattle() {
+    const root = document.querySelector('[data-critter-battle]') as HTMLElement;
+    if (!root) return;
+
+    const modal = new CritterBattleModal(root);
+
+    // Event listeners
+    document.addEventListener('town:lebron', () => {
+      if (!modal.isOpen) startLeBronEncounter(modal);
+    });
+
+    document.addEventListener('town:refill-balls', () => {
+      if (!modal.isOpen) startLeBronEncounter(modal);
+    });
+
+    document.addEventListener('town:grass', (e: any) => {
+      const { reply } = e.detail || {};
+      if (modal.isOpen) {
+        if (reply) reply(false);
+        return;
+      }
+
+      const store = getStore();
+      if (!store.met) {
+        if (reply) reply(true);
+        warnNoBallsGrass(modal);
+        return;
+      }
+
+      if (store.balls <= 0) {
+        if (reply) reply(true);
+        warnNoBallsGrass(modal);
+        return;
+      }
+
+      // Random chance for wild battle
+      if (Math.random() < 0.15) {
+        if (reply) reply(true);
+        const critters = (window as any).__BATTLE_CRITTERS__ || [];
+        const critter = critters[Math.floor(Math.random() * critters.length)];
+        if (critter) startWildBattle(modal, critter);
+      } else {
+        if (reply) reply(false);
+      }
+    });
+
+    document.addEventListener('town:wild-encounter', () => {
+      if (modal.isOpen) return;
+      const store = getStore();
+      if (!store.met || store.balls <= 0) {
+        warnNoBallsGrass(modal);
+        return;
+      }
+      const critters = (window as any).__BATTLE_CRITTERS__ || [];
+      const critter = critters[Math.floor(Math.random() * critters.length)];
+      if (critter) startWildBattle(modal, critter);
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', initCritterBattle);
+  document.addEventListener('astro:page-load', initCritterBattle);
 </script>

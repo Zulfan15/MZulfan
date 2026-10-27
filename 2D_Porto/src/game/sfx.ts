@@ -99,6 +99,52 @@ class SoundFX {
       setTimeout(() => this.playTone(f, 'triangle', 0.18, 0.08), i * 90);
     });
   }
+
+  public get on(): boolean {
+    return this.enabled;
+  }
+
+  public play(name: string, mult = 1) {
+    if (!this.enabled) return;
+    this.init();
+    if (!this.ctx) return;
+
+    const sounds: Record<string, [number, number][]> = {
+      blip: [[880, 18]],
+      move: [[660, 40]],
+      select: [[990, 50], [1320, 70]],
+      back: [[440, 60]],
+      drop: [[520, 45]],
+      store: [[784, 60], [1046, 90]],
+      capture: [[523, 70], [659, 70], [784, 70], [1046, 140]],
+      extra: [[784, 80], [988, 80], [1175, 160]],
+      win: [[523, 120], [659, 120], [784, 120], [1046, 120], [784, 100], [1046, 320]],
+      lose: [[392, 180], [370, 180], [349, 180], [330, 420]],
+      start: [[392, 90], [523, 90], [659, 90], [784, 200]],
+    };
+
+    const seq = sounds[name];
+    if (!seq) return;
+
+    try {
+      let t = this.ctx.currentTime;
+      for (const [freq, ms] of seq) {
+        const osc = this.ctx.createOscillator();
+        const gainNode = this.ctx.createGain();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(freq * mult, t);
+        gainNode.gain.setValueAtTime(0.06, t);
+        gainNode.gain.exponentialRampToValueAtTime(0.0008, t + ms / 1000);
+        osc.connect(gainNode);
+        gainNode.connect(this.ctx.destination);
+        osc.start(t);
+        osc.stop(t + ms / 1000);
+        t += ms / 1000;
+      }
+    } catch {
+      // Audio autoplay policy fallback
+    }
+  }
 }
 
 export const sfx = new SoundFX();

@@ -193,7 +193,7 @@ export function createTownMap(_data: TownData): TownMap {
       action: { kind: 'navigate', route: '/twin', prompt: 'Talk to the Digital Twin?' },
     },
     {
-      id: 'ranger',
+      id: 'lebron',
       name: 'LeBron',
       badge: 'LeBron',
       x: 16,
@@ -207,8 +207,8 @@ export function createTownMap(_data: TownData): TownMap {
         shoes: '#1c1726',
         cap: '#e8a838',
       },
-      lines: [`LeBron says: Keep striving for greatness!`, 'Wild critters hide in the tall grass meadow below.', "Here's full Poké Balls for your journey!"],
-      action: { kind: 'refill' },
+      lines: [`LeBron says: Keep striving for greatness!`],
+      action: { kind: 'event', name: 'lebron' },
     },
   ];
 
