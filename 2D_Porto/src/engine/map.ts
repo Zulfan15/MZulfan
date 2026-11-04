@@ -83,14 +83,14 @@ export function createTownMap(_data: TownData): TownMap {
   rectGround(3, 27, 2, 16, Tile.PATH);   // Brick cycling & jogging track (X: 3..4, Y: 27..42)
   makeWalkable(3, 27, 2, 16);            // Walkable cycling track
 
-  // 2. South Pokémon Dex Catching Reserve & Meadows (X: 3..18 & X: 25..37, Y: 56..61)
+  // 2. South Pokémon Dex Catching Reserve & Meadows (X: 3..18 & X: 25..42, Y: 56..61)
   // A. West Dex Meadow:
   makeWalkableGrass(3, 56, 16, 1);       // Walkable lawn gateway path from West Plaza
   makeWalkableTallGrass(3, 57, 16, 5);   // X: 3..18, Y: 57..61 (Expansive wild tall grass reserve for Dex encounters!)
 
   // B. East Dex Meadow:
-  makeWalkableGrass(25, 56, 13, 1);      // Walkable lawn gateway path from Café & Promenade
-  makeWalkableTallGrass(25, 57, 13, 5);  // X: 25..37, Y: 57..61 (Expansive wild tall grass reserve for Dex encounters!)
+  makeWalkableGrass(25, 56, 18, 1);      // Walkable lawn gateway path from Café & Promenade
+  makeWalkableTallGrass(25, 57, 18, 5);  // X: 25..42, Y: 57..61 (Expansive wild tall grass reserve for Dex encounters!)
 
   // 3. Walkable Streets & Plazas (Master-Planned 3-Zone Urban Grid)
   // A. Central Boulevard (North-South grand avenue at X: 21..23, completely unblocked!)
@@ -154,7 +154,7 @@ export function createTownMap(_data: TownData): TownMap {
   // J. South Civic Plaza, Contest Stage, Kiosk & Café Terrace (X: 24..42, Y: 46..56)
   makeWalkable(24, 46, 10, 10); // X: 24..33, Y: 46..55 (Seamless South Civic Plaza, Contest Stage & Barista grounds)
   makeWalkable(34, 48, 9, 8);   // Shifted Café Terrace (Socials tables at X: 34..42, Y: 48..55)
-  makeWalkable(20, 56, 23, 2);  // South gate connecting road
+  makeWalkable(20, 56, 23, 1);  // South gate connecting road (Y: 56)
 
   // Block the fountain pool inside the fountain plaza (center 28.5, 31)
   for (let j = 30; j <= 32; j++) {

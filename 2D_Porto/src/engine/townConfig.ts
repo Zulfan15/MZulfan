@@ -1479,6 +1479,11 @@ class TownConfigManager {
               continue;
             }
           }
+          // Purge legacy corrupted grass in East Dex Meadow tall grass reserve (X: 25..42, Y: 58..61)
+          if (x >= 25 && x <= 42 && y >= 58 && y <= 61 && v === 'grass') {
+            purgedLegacyFound = true;
+            continue;
+          }
           // Purge legacy corrupted paver in Contest Stage footprint
           if (contest && !contest.hidden && x >= contest.x && x < contest.x + contest.w && y >= contest.y && y < contest.y + contest.h) {
             purgedLegacyFound = true;
