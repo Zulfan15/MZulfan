@@ -304,17 +304,17 @@ export const DEV_PROPS: DevProp[] = [
     hideLabel: true,
   },
   {
-    id: 'lebronette',
+    id: 'snorlax',
     kind: 'npc',
     x: 6,
     y: 13,
     w: 3,
     h: 2,
     target: { type: 'place', id: 'reception' },
-    label: 'LeBronette',
-    style: 'lebronette',
+    label: 'Snorlax',
+    style: 'snorlax',
     labelLift: -2,
-    hint: 'Talk to LeBronette 🎧',
+    hint: 'Talk to Snorlax 💤',
   },
   {
     id: 'exit',
@@ -367,7 +367,7 @@ markDevSolid(1, 11, 1, 2);  // Whiteboard
 markDevSolid(13, 11, 1, 2); // Server rack
 markDevSolid(13, 14, 1, 1); // Coffee machine
 markDevSolid(1, 16, 1, 1);  // Plant
-markDevSolid(6, 13, 3, 2);  // LeBronette desk
+markDevSolid(6, 13, 3, 2);  // Snorlax desk
 
 // Color Constants
 const C_BG = '#070a14';
@@ -419,32 +419,15 @@ const RADAR = { cx: 32, cy: 57, r: 11 };
 // Telemetry Box
 const TELEM = { x: 192, y: 40, w: 32, h: 52 };
 
-// LeBronette Avatar Sprite (Receptionist)
-const LEBRONETTE_SPRITE = [
-  '...oooooo...',
-  '..ohhhhhho..',
-  '.ohhhhhhhho.',
-  'bohhssssshob',
-  'bohsesseshob',
-  'gohsssssshob',
-  '.gghsmmsshh.',
-  '.ohhossoohho',
-  'ohcccyycccho',
-  'occcccycccco',
-  'occcccccccco',
-];
+// Snorlax Avatar Sprite (Diamond / Pearl authentic sprite)
+export const SNORLAX_IMAGE_SRC =
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAMAAAC5zwKfAAAAAXNSR0IArs4c6QAAADBQTFRFAAAAAAAAEDlBYkEgMVp7c1ogc3NzpHNSUousaqS0xZxa5sWszc3N9t69/+7F////UFXDjQAAAAF0Uk5TAEDm2GYAAAJlSURBVHja7djrrqMgFEBhFwVkzvby/m87gNFNNaKV/po5K+kl6fbrNtE0affbP5AxX+ZCMF/cx9jQBtoQDN0WIWYtDaAeb4DwHdACmGS1gyYkLrxlW0SsDX9SJdgikrmceikee9oY20DLU3CaFm5KRbIJNCE7m5dF2yCasDDRU1AaQDJYFj2RBnCqgA9EY6cy7wEvseegh43Dj3FDaQGxea9Jawd3jd8EvYLqNYh+ZrfgIzEXOQfIWICGSJrPvRCCnXEuYZunmc+5JJIx9Z6IyuUV957Gba/8CTlyGp97BuecbD0SUS4tKO89EFmxFNO0Iz8GsUVsN51GVayDpryTRwU/Eik8FFTShvAMVE/F7KU+FwGlVFzBcA1qoNoeTJ6C5p7olDiKbwtyD+xrIAfP8tBTMDMKWhpAbJFpBvdeK+ixFfCBN3P0cjwDgZ3XAB5WxN4FXQUEjHp3wbFy1fh5IZFr0PvlwTiegzD4ARCRa3AmPxAV9150fNbugMwzzFlUcs/lWECogJ4IDs7NSZXc+J5sMbO8VMEBnBvdHFWknp/Jzxfg4PIeURUuvEi5+DwQJVBwJzo9uarIEKnlXGAYyN4xoqegq3iONCsOxA03QcHKSeVYAjm/asa+75fBLFY8FdEFD9H/xPoNtHdAQcFD/KResoTt5RillyN5NbB/bYP9+YJpsgaq2BegOfV6/WYM3Vn0KQUtJ+ArcsukOOjOQ70MWnYkEjl5xbEVhK4WIoUHdBTm+r4AXXcR6MF0S6ytH790QSqWkpVBXfGl3lW63LkYOfXaQtZQrylQ7kuR+v07+j/uL9CEXbPoSJqbAAAAAElFTkSuQmCC';
 
-const LEBRONETTE_PALETTE: Record<string, string> = {
-  o: '#1a1420',
-  h: '#3a2418',
-  s: '#c68a5e',
-  e: '#1a1420',
-  m: '#c23b52',
-  c: C_PURPLE,
-  y: C_GOLD,
-  b: '#141218',
-  g: '#8d8a99',
-};
+let snorlaxImg: HTMLImageElement | null = null;
+if (typeof Image !== 'undefined') {
+  snorlaxImg = new Image();
+  snorlaxImg.src = SNORLAX_IMAGE_SRC;
+}
 
 // Static Prop Drawers
 function drawRadarHousing(ctx: CanvasRenderingContext2D, p: DevProp) {
@@ -648,25 +631,19 @@ function drawPlant(ctx: CanvasRenderingContext2D, p: DevProp) {
   ctx.fillRect(rx + 5, ry + 7, 6, 7);
 }
 
-function drawLeBronetteDesk(ctx: CanvasRenderingContext2D, p: DevProp) {
+function drawSnorlaxDesk(ctx: CanvasRenderingContext2D, p: DevProp) {
   const cx = (p.x + p.w / 2) * 16;
   const cy = (p.y + 1) * 16 - 4;
-
-  // LeBronette avatar
-  drawSpriteMatrix(
-    ctx,
-    LEBRONETTE_SPRITE,
-    cx - 6,
-    cy - LEBRONETTE_SPRITE.length,
-    LEBRONETTE_PALETTE
-  );
-  ctx.fillStyle = C_BG;
-  ctx.fillRect(cx - 8, cy - 6, 2, 6);
-  ctx.fillRect(cx + 6, cy - 6, 2, 6);
-
-  // Front desk
   const dx = p.x * 16 - 2;
   const dw = p.w * 16 + 4;
+
+  // Snorlax avatar (seated comfortably behind front desk)
+  if (snorlaxImg && snorlaxImg.complete && snorlaxImg.naturalWidth > 0) {
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(snorlaxImg, cx - 24, cy - 25, 48, 48);
+  }
+
+  // Front desk
   ctx.fillStyle = 'rgba(0,0,0,0.35)';
   ctx.fillRect(dx + 2, cy + 20, dw, 3);
   ctx.fillStyle = C_BG;
@@ -682,8 +659,8 @@ function drawLeBronetteDesk(ctx: CanvasRenderingContext2D, p: DevProp) {
   ctx.fillStyle = C_BG;
   ctx.fillRect(dx + dw - 12, cy - 3, 8, 3);
 
-  // "LEBRONETTE" Nameplate
-  const name = 'LEBRONETTE';
+  // "SNORLAX" Golden Nameplate
+  const name = 'SNORLAX';
   const nw = textPixelWidth(name);
   ctx.fillStyle = C_BG;
   ctx.fillRect(cx - nw / 2 - 2, cy + 7, nw + 4, 9);
@@ -816,8 +793,9 @@ export function createDevBackgroundCanvas(): HTMLCanvasElement {
       case 'plant':
         drawPlant(ctx, prop);
         break;
+      case 'snorlax':
       case 'lebronette':
-        drawLeBronetteDesk(ctx, prop);
+        drawSnorlaxDesk(ctx, prop);
         break;
       case 'exit':
         drawExitMat(ctx, prop);
@@ -1053,15 +1031,69 @@ function renderClock(ctx: CanvasRenderingContext2D) {
   );
 }
 
-// 6. LeBronette Headset Blinking Light
-function renderLeBronetteLight(ctx: CanvasRenderingContext2D, now: number) {
-  const npc = DEV_PROPS.find((p) => p.id === 'lebronette');
-  if (!npc) return;
-  const cx = (npc.x + npc.w / 2) * 16;
-  const cy = (npc.y + 1) * 16 - 4;
-  const blink = Math.floor(now / 900) % 2 === 0;
-  ctx.fillStyle = blink ? C_RED : '#5a1a22';
-  ctx.fillRect(cx - 5, cy - LEBRONETTE_SPRITE.length + 6, 1, 1);
+// 6. Snorlax Sleeping Breathing Animation & Drifting "Zzz"
+function renderSnorlax(ctx: CanvasRenderingContext2D, now: number) {
+  const prop = DEV_PROPS.find((p) => p.id === 'snorlax' || p.id === 'lebronette');
+  if (!prop) return;
+
+  const cx = (prop.x + prop.w / 2) * 16;
+  const cy = (prop.y + 1) * 16 - 4;
+  const dx = prop.x * 16 - 2;
+  const dw = prop.w * 16 + 4;
+
+  // Slow, deep sleeping breathing cycle (gentle bobbing)
+  const breath = Math.sin(now * 0.0022) * 1.2;
+
+  // Draw Snorlax with breathing offset
+  if (snorlaxImg && snorlaxImg.complete && snorlaxImg.naturalWidth > 0) {
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(snorlaxImg, cx - 24, cy - 25 + breath, 48, 48);
+  }
+
+  // Front desk overlay ensuring lower belly sits behind desk counter
+  ctx.fillStyle = 'rgba(0,0,0,0.35)';
+  ctx.fillRect(dx + 2, cy + 20, dw, 3);
+  ctx.fillStyle = C_BG;
+  ctx.fillRect(dx, cy, dw, 20);
+  ctx.fillStyle = C_DESK_TOP;
+  ctx.fillRect(dx + 1, cy + 1, dw - 2, 3);
+  ctx.fillStyle = C_FRAME;
+  ctx.fillRect(dx + 1, cy + 4, dw - 2, 15);
+  ctx.fillStyle = C_BG;
+  ctx.fillRect(dx + 4, cy - 9, 10, 9);
+  ctx.fillStyle = C_DESK_BODY;
+  ctx.fillRect(dx + 5, cy - 8, 8, 7);
+  ctx.fillStyle = C_BG;
+  ctx.fillRect(dx + dw - 12, cy - 3, 8, 3);
+
+  // "SNORLAX" Golden Nameplate
+  const name = 'SNORLAX';
+  const nw = textPixelWidth(name);
+  ctx.fillStyle = C_BG;
+  ctx.fillRect(cx - nw / 2 - 2, cy + 7, nw + 4, 9);
+  drawPixelText(ctx, name, Math.round(cx - nw / 2), cy + 9, C_GOLD);
+
+  // Floating "Zzz" sleep particles drifting up from Snorlax
+  const zCount = 3;
+  for (let i = 0; i < zCount; i++) {
+    const cycle = ((now * 0.0009) + (i * 0.75)) % 2.25;
+    const progress = cycle / 2.25;
+    if (progress > 0.05 && progress < 0.95) {
+      const alpha = progress < 0.25 ? progress / 0.25 : progress > 0.7 ? (0.95 - progress) / 0.25 : 1;
+      const zx = cx + 8 + Math.sin(cycle * 3) * 4 + progress * 6;
+      const zy = cy - 20 - progress * 22;
+      const zColor = `rgba(186, 230, 253, ${alpha * 0.9})`;
+
+      // Draw pixel Z (4x4)
+      ctx.fillStyle = zColor;
+      const ox = Math.round(zx);
+      const oy = Math.round(zy);
+      ctx.fillRect(ox, oy, 4, 1);
+      ctx.fillRect(ox + 2, oy + 1, 1, 1);
+      ctx.fillRect(ox + 1, oy + 2, 1, 1);
+      ctx.fillRect(ox, oy + 3, 4, 1);
+    }
+  }
 }
 
 /**
@@ -1073,5 +1105,5 @@ export function renderDevAnimations(ctx: CanvasRenderingContext2D, now: number) 
   renderTelemetry(ctx, now);
   renderRackLights(ctx, now);
   renderClock(ctx);
-  renderLeBronetteLight(ctx, now);
+  renderSnorlax(ctx, now);
 }

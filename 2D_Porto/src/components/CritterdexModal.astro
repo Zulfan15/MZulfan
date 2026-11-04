@@ -207,10 +207,14 @@ const critters = profile.critters;
     ctx.fillRect(16, 122, canvas.width - 32, 26);
     ctx.strokeRect(16, 122, canvas.width - 32, 26);
 
-    // Draw small badges based on caught critters
-    const badges = ['⚡', '🌿', '💧', '🔥', '🔮', '⭐'];
+    // Draw small badges based on caught critters & Arena Frontier Gym Challenge
+    let hasFrontier = false;
+    try {
+      hasFrontier = !!localStorage.getItem('town:badge:frontier');
+    } catch {}
+    const badges = ['⚡', '🌿', '💧', '🔥', '🔮', hasFrontier ? '🏆' : '⭐'];
     badges.forEach((b, i) => {
-      const earned = caughtCount >= (i + 1) * 2;
+      const earned = (i === 5 && hasFrontier) || caughtCount >= (i + 1) * 2;
       ctx.fillStyle = earned ? '#1c1726' : '#cbbb9e';
       ctx.font = '14px sans-serif';
       ctx.fillText(earned ? b : '○', 28 + i * 40, 140);

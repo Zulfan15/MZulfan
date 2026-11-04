@@ -203,6 +203,8 @@ export const places: Place[] = [
   { id: 'arcade', route: '/arcade', name: 'Arcade', icon: '🕹️', blurb: 'Play Kalah against my Alpha-Beta bot.' },
   { id: 'twin', route: '/twin', name: 'Digital Twin', icon: '💬', blurb: 'Ask my AI twin anything about me.' },
   { id: 'reception', route: '/reception', name: 'Front Desk', icon: '🎧', blurb: 'Mira at the Dev Center desk tells you about me.' },
+  { id: 'mart', route: '/mart', name: 'Poké Mart', icon: '🏪', blurb: 'Engineering services, tech stacks, developer gear, and downloadable CV.' },
+  { id: 'tower', route: '/tower', name: 'Tech Tower', icon: '🏢', blurb: 'Robotics R&D, IoT prototypes, Huawei network security and cloud microservices.' },
 ];
 
 export const placeById = (id: string): Place => places.find((p) => p.id === id) ?? places[0];

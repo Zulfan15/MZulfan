@@ -83,6 +83,15 @@ const C_ROBOT_BODY = '#d5dde8';
 const C_ROBOT_SHADOW = '#9aa8b8';
 const C_ROBOT_CYAN = '#7df9ff';
 
+export const DEOXYS_IMAGE_SRC =
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAMAAADVRocKAAAALVBMVEUAAAAYGBg5UmJSUlJSlKxiOTlqxd5zOYtzc2qcYrS9amrFxdX/c0r/tJT///+ODjS3AAAAAXRSTlMAQObYZgAAAy5JREFUeNrt2W1v2kAQBOCby84Bk6X//+c2e17zIuRS22epUhkSyUmUeZhDMh8on3zyyb8WScfWX915YP/16u46TOA1gBCO7XcdI4jemiZA5GBDktcW6QDdfagRhdWbhaAA5BEOBFqrrV1aRJEQhHGAZDNQAUlmrQ0ECinUDuAXqAzKwBDfdrm0+v0NiRIBlLEB7NIASBJZDgjsZD/JszlMEIFyVHAxgSBZDgkJ0ASXeEg9xWoB+BEAdaXTTE53ihx9OPluk/2SOLLeHdcOZCQCI+vd4Vd3Asz+cfc69HoYev8kSBM6guh9qBYAgMsJHaiAghjSj+i3Cgcuvy7o/fFzUOCA/hL9KAGcYsEEJCGM6G+GUiACpxNd6kJrtWDfGyd6f6mtoZQUEP1kqbXtFvjUH8CcXrlfgDt6kaE8CygjBLqL8wACIWS6BtTWbBKweUACdAko+IpHp6KWNSbkhm0D8oToigDnBKJTUrVmk4DdAyLEuRPxN/XEhHwuO4HsP3/9PM7ZfwMKJOw4oQSoAOILrgymM6Ik7hgwA4z+M+F3YPsEuO4A8g7NrzPlcI0A9AjIJfiUrokMgAlQEjcChigIQDMgUfldqtk8YQuQ/w/6TRBcVIRiGQU4OxCZALcAMAiAuTwETgDlapI4CEAz9wAkRAIwMwllHyAm0PvZCbJAdLe2FyhUHjGa9zAIRBl9wIKcEIB5huglGLIgJ9QYkEHJvAJUAqsn1PsAlGUAsbZsEarh1r8I5IDV4b3/FbBHAHG9IXgasLyA2g+Iy4DVuNwU3IDe/3pEOSH4zUDeQp8AuZoeAWwEqhkkd70Abo8AynagQsquZ+ER4Ob+ReD+S4SwY4AmgEsAtRqodb5oZtAsLABYDdTW6uS0ZuAMYBFIYQ3Q6k9a9Jd3ALUaQG1Tsl/knwGUB6H+BQVkPfI2jBegcAYwATH6dr7vg57swSKAkkD0Nqs/sQBWBL2GfAfEhoytATC3vAFCSKKu6Ae0COAZ6ERk7dOXMF9yAXixVwFAXi8BOWFbEPULQGECOWF3yLIAzEtHBwnkpXAgUHAskK/W8FBiOTIAP5/sfvLJf5Tf1501spbpxLUAAAAASUVORK5CYII=';
+
+let deoxysImg: HTMLImageElement | null = null;
+if (typeof Image !== 'undefined') {
+  deoxysImg = new Image();
+  deoxysImg.src = DEOXYS_IMAGE_SRC;
+}
+
 export const ARCADE_PROPS: ArcadeProp[] = [
   {
     id: 'robot',
@@ -92,10 +101,10 @@ export const ARCADE_PROPS: ArcadeProp[] = [
     w: 3,
     h: 3,
     target: { type: 'event', name: 'mancala' },
-    label: 'Mancala Robot',
-    style: 'robot',
+    label: 'Deoxys',
+    style: 'deoxys',
     labelLift: 22,
-    hint: 'Challenge the robot to Mancala 🕹️',
+    hint: 'Challenge Deoxys to Mancala 🌌',
   },
   {
     id: 'Stone Muncher',
@@ -104,7 +113,7 @@ export const ARCADE_PROPS: ArcadeProp[] = [
     y: 2,
     w: 1,
     h: 2,
-    target: { type: 'note', text: 'High score: 48, set by ROBOT. Suspicious.' },
+    target: { type: 'note', text: 'High score: 48, set by DEOXYS. Cosmic supremacy.' },
     label: 'Stone Muncher',
     style: '#ff7a59',
     hideLabel: true,
@@ -116,7 +125,7 @@ export const ARCADE_PROPS: ArcadeProp[] = [
     y: 2,
     w: 1,
     h: 2,
-    target: { type: 'note', text: 'Out of order. The robot says it “calculated too hard.”' },
+    target: { type: 'note', text: 'Out of order. Deoxys telepathically claims it warped space-time too hard.' },
     label: 'Kalah Kart',
     style: '#59f0d0',
     hideLabel: true,
@@ -180,7 +189,7 @@ export const ARCADE_PROPS: ArcadeProp[] = [
     label: 'Scoreboard',
     style: 'scoreboard',
     labelLift: 18,
-    hint: 'Check the robot score records 🏆',
+    hint: 'Check Deoxys score records 🏆',
     hideLabel: false,
   },
   {
@@ -502,43 +511,24 @@ function renderScoreboard(ctx: CanvasRenderingContext2D, prop: ArcadeProp) {
   fill(ctx, '#ffd166', px + 11, py + 18, 4, 2);
 }
 
-// Mancala Robot seated at physical Mancala board table
-function renderMancalaRobot(ctx: CanvasRenderingContext2D, prop: ArcadeProp) {
+// Mythical Deoxys seated at physical Mancala board table
+function renderMancalaDeoxys(ctx: CanvasRenderingContext2D, prop: ArcadeProp) {
   const centerX = (prop.x + prop.w / 2) * 16;
   const py = prop.y * 16;
 
-  // Antenna & bulb
-  fill(ctx, C_DARK, centerX - 1, py - 20, 2, 7);
-  fill(ctx, C_DARK, centerX - 3, py - 24, 6, 5);
-  fill(ctx, '#7dffb0', centerX - 2, py - 23, 4, 3);
+  // Cosmic psychic aura around hovering Deoxys
+  ctx.save();
+  ctx.fillStyle = 'rgba(168, 85, 247, 0.25)';
+  ctx.beginPath();
+  ctx.arc(centerX, py - 4, 18, 0, Math.PI * 2);
+  ctx.fill();
 
-  // Robot Head
-  fill(ctx, C_DARK, centerX - 12, py - 14, 24, 19);
-  fill(ctx, C_ROBOT_BODY, centerX - 11, py - 13, 22, 17);
-  fill(ctx, C_DARK, centerX - 14, py - 9, 3, 8);
-  fill(ctx, C_DARK, centerX + 11, py - 9, 3, 8);
-
-  // Screen & Face
-  fill(ctx, '#14202c', centerX - 8, py - 10, 16, 11);
-  fill(ctx, C_ROBOT_CYAN, centerX - 5, py - 7, 2, 3);
-  fill(ctx, C_ROBOT_CYAN, centerX + 3, py - 7, 2, 3);
-  fill(ctx, C_ROBOT_CYAN, centerX - 3, py - 2, 6, 1);
-  fill(ctx, C_ROBOT_CYAN, centerX - 4, py - 3, 1, 1);
-  fill(ctx, C_ROBOT_CYAN, centerX + 3, py - 3, 1, 1);
-
-  // Neck & Torso
-  fill(ctx, C_DARK, centerX - 4, py + 5, 8, 4);
-  fill(ctx, C_DARK, centerX - 10, py + 8, 20, 10);
-  fill(ctx, C_ROBOT_BODY, centerX - 9, py + 9, 18, 9);
-  fill(ctx, '#ff7a59', centerX - 5, py + 11, 2, 2);
-  fill(ctx, '#ffd166', centerX - 1, py + 11, 2, 2);
-  fill(ctx, '#59f0d0', centerX + 3, py + 11, 2, 2);
-
-  // Arms
-  fill(ctx, C_DARK, centerX - 15, py + 9, 5, 10);
-  fill(ctx, C_ROBOT_SHADOW, centerX - 14, py + 10, 3, 9);
-  fill(ctx, C_DARK, centerX + 10, py + 9, 5, 10);
-  fill(ctx, C_ROBOT_SHADOW, centerX + 11, py + 10, 3, 9);
+  // Deoxys sprite
+  if (deoxysImg && deoxysImg.complete && deoxysImg.naturalWidth > 0) {
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(deoxysImg, centerX - 24, py - 24, 48, 48);
+  }
+  ctx.restore();
 
   // Wooden Mancala Table
   const tableX = prop.x * 16 + 1;
@@ -602,8 +592,9 @@ export function createArcadeBackgroundCanvas(): HTMLCanvasElement {
       case 'exit':
         renderExitMat(ctx, prop);
         break;
+      case 'deoxys':
       case 'robot':
-        renderMancalaRobot(ctx, prop);
+        renderMancalaDeoxys(ctx, prop);
         break;
       case 'vending':
         renderVendingMachine(ctx, prop);

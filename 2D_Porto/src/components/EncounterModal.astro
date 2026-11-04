@@ -668,21 +668,6 @@ const critters = profile.critters;
     );
   }
 
-  function warnNoBallsGrass(modal: CritterBattleModal) {
-    return modal.play(
-      {
-        mode: 'talk',
-        title: 'Charizard',
-        leave: { label: 'BYE', line: 'ROAR! Stay safe out there!' },
-      },
-      async () => {
-        setupCharizardView(modal);
-        await modal.say("Yo, hold up! Don't head into the tall grass without any POKé BALLS!", true);
-        await modal.say("Come holla at Charizard right here at the edge of the grass.", true);
-      }
-    );
-  }
-
   async function runCharizardFirstMeeting(modal: CritterBattleModal) {
     await modal.say("GRAAAWWRR! (It's Charizard! The mighty Flame Pokémon.)", true);
     await modal.say("See that tall grass? Wild Pokémon and critters hide all over it. You can't catch 'em with your bare hands, though.", true);
@@ -822,8 +807,8 @@ const critters = profile.critters;
             await modal.say("You don't have any POKé BALLS!", true);
             await modal.say(
               getStore().met
-                ? 'Charizard, at the edge of the grass, gives out more for Pokémon trivia.'
-                : 'Charizard, at the edge of the grass, is handing them out.',
+                ? 'Charizard at Central Plaza gives out more for Pokémon trivia.'
+                : 'Charizard at Central Plaza is handing them out.',
               true
             );
             await modal.say('Got away safely!');
@@ -907,20 +892,14 @@ const critters = profile.critters;
       }
 
       const store = getStore();
-      if (!store.met) {
-        if (reply) reply(true);
-        warnNoBallsGrass(modal);
+      // Only initiate wild encounter if player has Poké Balls to catch critters
+      if (!store.met || store.balls <= 0) {
+        if (reply) reply(false);
         return;
       }
 
-      if (store.balls <= 0) {
-        if (reply) reply(true);
-        warnNoBallsGrass(modal);
-        return;
-      }
-
-      // Random chance for wild battle
-      if (Math.random() < 0.15) {
+      // Random chance for wild battle (12% per step in tall grass)
+      if (Math.random() < 0.12) {
         if (reply) reply(true);
         const critters = (window as any).__BATTLE_CRITTERS__ || [];
         const critter = critters[Math.floor(Math.random() * critters.length)];
@@ -933,10 +912,7 @@ const critters = profile.critters;
     document.addEventListener('town:wild-encounter', () => {
       if (modal.isOpen) return;
       const store = getStore();
-      if (!store.met || store.balls <= 0) {
-        warnNoBallsGrass(modal);
-        return;
-      }
+      if (!store.met || store.balls <= 0) return;
       const critters = (window as any).__BATTLE_CRITTERS__ || [];
       const critter = critters[Math.floor(Math.random() * critters.length)];
       if (critter) startWildBattle(modal, critter);

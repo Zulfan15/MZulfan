@@ -1,0 +1,354 @@
+---
+import TownLayout from '../layouts/TownLayout.astro';
+import WhereTo from '../components/WhereTo.astro';
+import { profile } from '../lib/profile';
+
+const githubUrl = profile.socials.find((s) => s.label === 'GitHub')?.url || 'https://github.com/Zulfan15';
+const linkedinUrl = profile.socials.find((s) => s.label === 'LinkedIn')?.url || 'https://www.linkedin.com/in/muhammad-zulfan-anggadhiputra';
+const emailUrl = `mailto:${profile.person.email}`;
+const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
+---
+
+<TownLayout place="tower" title="Tech Tower · Innovation, Robotics & Enterprise R&D — Muhammad Zulfan">
+  <div class="space-y-8">
+    <!-- Header Hero Banner -->
+    <header class="window p-4 md:p-5 bg-gradient-to-br from-slate-900 via-slate-800 to-sky-950 text-slate-100 border-2 border-sky-600 shadow-lg">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-sky-500/30 pb-4 mb-4">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-xl bg-sky-500/20 border-2 border-sky-400 flex items-center justify-center text-2xl shadow-inner">
+            🏢
+          </div>
+          <div>
+            <div class="eyebrow text-sky-400 flex items-center gap-1.5 font-bold tracking-wider">
+              <span>WEST COMMERCIAL DISTRICT</span>
+              <span>•</span>
+              <span>TECH TOWER HQ</span>
+            </div>
+            <h1 class="font-pixel text-base md:text-lg text-white mt-0.5">
+              Tech Tower · Innovation & Enterprise R&D
+            </h1>
+          </div>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-sky-950/80 border border-sky-400 text-sky-300 font-mono text-[10px] font-bold">
+            <span class="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></span>
+            XURKITREE AI HOST ONLINE ⚡
+          </span>
+          <span class="chip bg-sky-900/60 text-sky-200 border-sky-500 font-mono text-xs px-2.5 py-1 font-bold">
+            FLOORS 1F - 4F
+          </span>
+        </div>
+      </div>
+
+      <!-- Cyber Host Dialogue Box -->
+      <div class="flex flex-col md:flex-row gap-4 items-start">
+        <div class="p-3.5 rounded-lg bg-slate-950/70 border border-sky-500/30 flex-1 text-xs leading-relaxed text-slate-300">
+          <p class="font-medium text-white mb-1.5 flex items-center gap-2">
+            <span>⚡</span>
+            <strong>Xurkitree (Ultra Beast Host):</strong>
+            <span class="text-[11px] font-mono text-sky-400 font-semibold">"Bzzzt-Kzzt! Welcome to Tech Tower HQ!"</span>
+          </p>
+          <p>
+            Tech Tower is Muhammad Zulfan's innovation hub for enterprise systems, robotics, and distributed cloud architecture. In this 4-story facility, you can explore his track record coordinating the <strong>ITENAS Robotics Laboratory</strong>, IoT hardware prototypes, <strong>Huawei HCIA-Security</strong> network engineering certification, and industrial software development at <strong>PT Dwi Purwa Teknologi</strong>.
+          </p>
+        </div>
+      </div>
+    </header>
+
+    <!-- Interactive Floor Directory Tabs -->
+    <section class="window p-4 md:p-5 bg-paper border-2 space-y-5" id="tower-directory">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b-2 border-ink/15 pb-4">
+        <div>
+          <h2 class="font-pixel text-xs text-ink uppercase tracking-wide flex items-center gap-2">
+            <span>🛗</span>
+            <span>Tech Tower Floor Directory</span>
+          </h2>
+          <p class="font-sans text-[11px] text-ink-soft mt-0.5">
+            Use the executive elevator to switch floors and inspect Zulfan's engineering departments.
+          </p>
+        </div>
+
+        <!-- Floor Selector Tabs -->
+        <div class="flex flex-wrap gap-1.5" role="tablist" aria-label="Floor selection tabs">
+          <button
+            type="button"
+            class="tower-tab-btn btn btn-sm btn-paper font-pixel text-[10px] active"
+            data-tower-floor="all"
+          >
+            🏢 All Floors (4)
+          </button>
+          <button
+            type="button"
+            class="tower-tab-btn btn btn-sm btn-paper font-pixel text-[10px]"
+            data-tower-floor="floor-1"
+          >
+            1F: Lobby & AI (1)
+          </button>
+          <button
+            type="button"
+            class="tower-tab-btn btn btn-sm btn-paper font-pixel text-[10px]"
+            data-tower-floor="floor-2"
+          >
+            2F: Robotics & IoT (2)
+          </button>
+          <button
+            type="button"
+            class="tower-tab-btn btn btn-sm btn-paper font-pixel text-[10px]"
+            data-tower-floor="floor-3"
+          >
+            3F: Cloud & Security (2)
+          </button>
+          <button
+            type="button"
+            class="tower-tab-btn btn btn-sm btn-paper font-pixel text-[10px]"
+            data-tower-floor="floor-4"
+          >
+            4F: Enterprise & Career (2)
+          </button>
+        </div>
+      </div>
+
+      <!-- Department Cards Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="tower-grid">
+        <!-- 1F: Executive Lobby & Xurkitree AI Host -->
+        <article class="tower-card p-4 rounded-xl bg-cream/50 border-2 border-ink/20 flex flex-col justify-between hover:border-sky-500 transition-all shadow-sm" data-floor="floor-1">
+          <div>
+            <div class="flex items-start justify-between gap-2 mb-2">
+              <span class="text-2xl p-1.5 rounded-lg bg-yellow-100 border border-yellow-300">⚡</span>
+              <span class="chip bg-sky-600 text-paper border-sky-800 font-mono font-bold text-[10px] px-2 py-0.5 uppercase">
+                1F · LOBBY & AI RECEPTION
+              </span>
+            </div>
+            <h3 class="font-pixel text-xs text-ink">Cyber Reception & System Telemetry</h3>
+            <p class="font-mono text-[11px] text-sky-700 font-bold mb-2">Xurkitree AI Directory & Executive Overview</p>
+            <p class="text-xs text-ink-soft leading-relaxed mb-3">
+              Tech Tower's digital reception. Highlights key metrics of Zulfan's technical leadership: B.S. in Computer Science from ITENAS (GPA 3.49/4.00), trusted 6 times as a Laboratory Assistant, and Bronze Medalist at the National IDEA FEST 3.
+            </p>
+            <div class="grid grid-cols-3 gap-2 p-2 bg-paper rounded border border-ink/10 font-mono text-center text-xs mb-3">
+              <div>
+                <span class="block text-ink font-bold">3.49</span>
+                <span class="text-[10px] text-ink-soft">GPA / 4.00</span>
+              </div>
+              <div>
+                <span class="block text-ink font-bold">6x</span>
+                <span class="text-[10px] text-ink-soft">Lab Assistant</span>
+              </div>
+              <div>
+                <span class="block text-ink font-bold">National</span>
+                <span class="text-[10px] text-ink-soft">3rd Place IDEA FEST</span>
+              </div>
+            </div>
+          </div>
+          <div class="pt-3 border-t border-ink/10 flex items-center justify-between gap-2">
+            <span class="font-mono text-[11px] text-ink-soft">UB-03 Lighting Host</span>
+            <a href={cvUrl} target="_blank" class="btn btn-sm btn-paper text-[10px] font-pixel">
+              📄 Download CV
+            </a>
+          </div>
+        </article>
+
+        <!-- 2F: Robotics Coordinator & Curriculum -->
+        <article class="tower-card p-4 rounded-xl bg-cream/50 border-2 border-ink/20 flex flex-col justify-between hover:border-sky-500 transition-all shadow-sm" data-floor="floor-2">
+          <div>
+            <div class="flex items-start justify-between gap-2 mb-2">
+              <span class="text-2xl p-1.5 rounded-lg bg-amber-100 border border-amber-300">🤖</span>
+              <span class="chip bg-amber-600 text-paper border-amber-800 font-mono font-bold text-[10px] px-2 py-0.5 uppercase">
+                2F · ROBOTICS R&D LAB
+              </span>
+            </div>
+            <h3 class="font-pixel text-xs text-ink">Robotics Laboratory Assistant Coordinator</h3>
+            <p class="font-mono text-[11px] text-amber-700 font-bold mb-2">ITENAS Robotics Laboratory (Feb – Jun 2026)</p>
+            <p class="text-xs text-ink-soft leading-relaxed mb-3">
+              Led a team of lab assistants in authoring and delivering the robotics laboratory curriculum. Supervised robot kinematics coursework, multimodal sensor integration, microcontrollers, and final project evaluation standards.
+            </p>
+            <div class="flex flex-wrap gap-1 mb-4">
+              <span class="chip text-[10px]">Leadership</span>
+              <span class="chip text-[10px]">Robotics</span>
+              <span class="chip text-[10px]">Kinematics</span>
+              <span class="chip text-[10px]">Arduino</span>
+              <span class="chip text-[10px]">Sensors</span>
+            </div>
+          </div>
+          <div class="pt-3 border-t border-ink/10 flex items-center justify-between gap-2">
+            <span class="font-mono text-[11px] text-ink-soft">Lab Team Coordinator</span>
+            <span class="chip bg-amber-100 text-amber-900 border-amber-300 font-mono text-[10px]">Lab Coordinator</span>
+          </div>
+        </article>
+
+        <!-- 2F: Remote Control Tank IoT Prototype -->
+        <article class="tower-card p-4 rounded-xl bg-cream/50 border-2 border-ink/20 flex flex-col justify-between hover:border-sky-500 transition-all shadow-sm" data-floor="floor-2">
+          <div>
+            <div class="flex items-start justify-between gap-2 mb-2">
+              <span class="text-2xl p-1.5 rounded-lg bg-emerald-100 border border-emerald-300">🛡️</span>
+              <span class="chip bg-emerald-600 text-paper border-emerald-800 font-mono font-bold text-[10px] px-2 py-0.5 uppercase">
+                2F · EMBEDDED & IOT
+              </span>
+            </div>
+            <h3 class="font-pixel text-xs text-ink">Remote Control Tank & IoT Telemetry</h3>
+            <p class="font-mono text-[11px] text-emerald-700 font-bold mb-2">ESP32 + Flutter Mobile Controller + Web Dashboard</p>
+            <p class="text-xs text-ink-soft leading-relaxed mb-3">
+              ESP32-powered robot tank prototype integrated with dual motor drivers, onboard sensors, a mobile Flutter controller via WiFi/Bluetooth, and a real-time telemetry monitoring dashboard.
+            </p>
+            <div class="flex flex-wrap gap-1 mb-4">
+              <span class="chip text-[10px]">ESP32</span>
+              <span class="chip text-[10px]">C / C++</span>
+              <span class="chip text-[10px]">Flutter</span>
+              <span class="chip text-[10px]">IoT Sensors</span>
+              <span class="chip text-[10px]">Telemetry</span>
+            </div>
+          </div>
+          <div class="pt-3 border-t border-ink/10 flex items-center justify-between gap-2">
+            <span class="font-mono text-[11px] text-ink-soft">Firmware & Hardware</span>
+            <span class="chip bg-emerald-100 text-emerald-900 border-emerald-300 font-mono text-[10px]">Hardware Demo</span>
+          </div>
+        </article>
+
+        <!-- 3F: Huawei HCIA-Security Certified & Network Lab -->
+        <article class="tower-card p-4 rounded-xl bg-cream/50 border-2 border-ink/20 flex flex-col justify-between hover:border-sky-500 transition-all shadow-sm" data-floor="floor-3">
+          <div>
+            <div class="flex items-start justify-between gap-2 mb-2">
+              <span class="text-2xl p-1.5 rounded-lg bg-indigo-100 border border-indigo-300">🔒</span>
+              <span class="chip bg-indigo-600 text-paper border-indigo-800 font-mono font-bold text-[10px] px-2 py-0.5 uppercase">
+                3F · NETWORK OPERATIONS (NOC)
+              </span>
+            </div>
+            <h3 class="font-pixel text-xs text-ink">Huawei HCIA-Security & Network Engineering</h3>
+            <p class="font-mono text-[11px] text-indigo-700 font-bold mb-2">HCIA-Security V4.0 + Computer Network Lab Assistant</p>
+            <p class="text-xs text-ink-soft leading-relaxed mb-3">
+              Internationally certified by Huawei in enterprise network security architecture: firewall policies, NAT traversal, IPSec VPN, intrusion prevention, plus instructor for MikroTik router configuration and TCP/IP troubleshooting at the ITENAS Network Lab.
+            </p>
+            <div class="flex flex-wrap gap-1 mb-4">
+              <span class="chip text-[10px]">HCIA-Security</span>
+              <span class="chip text-[10px]">Firewall</span>
+              <span class="chip text-[10px]">VPN / IPsec</span>
+              <span class="chip text-[10px]">MikroTik</span>
+              <span class="chip text-[10px]">TCP/IP</span>
+            </div>
+          </div>
+          <div class="pt-3 border-t border-ink/10 flex items-center justify-between gap-2">
+            <span class="font-mono text-[11px] text-ink-soft">Huawei Certified 2025</span>
+            <span class="chip bg-indigo-100 text-indigo-900 border-indigo-300 font-mono text-[10px]">Certified</span>
+          </div>
+        </article>
+
+        <!-- 3F: Cloud-Native & Distributed Microservices -->
+        <article class="tower-card p-4 rounded-xl bg-cream/50 border-2 border-ink/20 flex flex-col justify-between hover:border-sky-500 transition-all shadow-sm" data-floor="floor-3">
+          <div>
+            <div class="flex items-start justify-between gap-2 mb-2">
+              <span class="text-2xl p-1.5 rounded-lg bg-purple-100 border border-purple-300">☁️</span>
+              <span class="chip bg-purple-600 text-paper border-purple-800 font-mono font-bold text-[10px] px-2 py-0.5 uppercase">
+                3F · CLOUD INFRASTRUCTURE
+              </span>
+            </div>
+            <h3 class="font-pixel text-xs text-ink">Distributed Cloud & Event-Driven Systems</h3>
+            <p class="font-mono text-[11px] text-purple-700 font-bold mb-2">Kafka + Redis Mutex + Docker & Kubernetes</p>
+            <p class="text-xs text-ink-soft leading-relaxed mb-3">
+              High-throughput backend architecture with strong concurrency guarantees (FOR UPDATE locks & Redis Lua distributed mutexes), Apache Kafka event streaming, and containerization pipelines orchestrated via Kubernetes (HPA, RollingUpdate).
+            </p>
+            <div class="flex flex-wrap gap-1 mb-4">
+              <span class="chip text-[10px]">Kafka</span>
+              <span class="chip text-[10px]">Redis</span>
+              <span class="chip text-[10px]">Kubernetes</span>
+              <span class="chip text-[10px]">Docker</span>
+              <span class="chip text-[10px]">PostGIS</span>
+            </div>
+          </div>
+          <div class="pt-3 border-t border-ink/10 flex items-center justify-between gap-2">
+            <span class="font-mono text-[11px] text-ink-soft">High-Concurrency Cloud</span>
+            <a href="/dev#foodlink" class="btn btn-sm btn-paper text-[10px] font-pixel">
+              🔍 Architecture Details
+            </a>
+          </div>
+        </article>
+
+        <!-- 4F: Software Development Intern at PT Dwi Purwa Teknologi -->
+        <article class="tower-card p-4 rounded-xl bg-cream/50 border-2 border-ink/20 flex flex-col justify-between hover:border-sky-500 transition-all shadow-sm" data-floor="floor-4">
+          <div>
+            <div class="flex items-start justify-between gap-2 mb-2">
+              <span class="text-2xl p-1.5 rounded-lg bg-blue-100 border border-blue-300">💼</span>
+              <span class="chip bg-blue-600 text-paper border-blue-800 font-mono font-bold text-[10px] px-2 py-0.5 uppercase">
+                4F · INDUSTRY CONSULTING
+              </span>
+            </div>
+            <h3 class="font-pixel text-xs text-ink">Software Development Intern</h3>
+            <p class="font-mono text-[11px] text-blue-700 font-bold mb-2">PT Dwi Purwa Teknologi (Jul – Sep 2025)</p>
+            <p class="text-xs text-ink-soft leading-relaxed mb-3">
+              Delivered digital solutions for client projects in a professional consulting environment. Actively contributed to application feature development, functional testing, performance debugging, and cross-disciplinary team collaboration.
+            </p>
+            <div class="flex flex-wrap gap-1 mb-4">
+              <span class="chip text-[10px]">JavaScript</span>
+              <span class="chip text-[10px]">Software Testing</span>
+              <span class="chip text-[10px]">SDLC</span>
+              <span class="chip text-[10px]">Client Solutions</span>
+            </div>
+          </div>
+          <div class="pt-3 border-t border-ink/10 flex items-center justify-between gap-2">
+            <span class="font-mono text-[11px] text-ink-soft">Industry Experience</span>
+            <span class="chip bg-blue-100 text-blue-900 border-blue-300 font-mono text-[10px]">Internship</span>
+          </div>
+        </article>
+
+        <!-- 4F: 6x ITENAS Laboratory Assistantship -->
+        <article class="tower-card p-4 rounded-xl bg-cream/50 border-2 border-ink/20 flex flex-col justify-between hover:border-sky-500 transition-all shadow-sm" data-floor="floor-4">
+          <div>
+            <div class="flex items-start justify-between gap-2 mb-2">
+              <span class="text-2xl p-1.5 rounded-lg bg-rose-100 border border-rose-300">🎓</span>
+              <span class="chip bg-rose-600 text-paper border-rose-800 font-mono font-bold text-[10px] px-2 py-0.5 uppercase">
+                4F · ACADEMIC MENTORSHIP
+              </span>
+            </div>
+            <h3 class="font-pixel text-xs text-ink">6x Laboratory Assistant Track Record</h3>
+            <p class="font-mono text-[11px] text-rose-700 font-bold mb-2">Institut Teknologi Nasional Bandung (2024 – 2026)</p>
+            <p class="text-xs text-ink-soft leading-relaxed mb-3">
+              Proven academic leadership and mentorship record as a teaching assistant across 6 different laboratories: Robotics, IoT, Computer Networks, Object-Oriented Programming (Java), and Database Programming (Delphi & MySQL).
+            </p>
+            <div class="flex flex-wrap gap-1 mb-4">
+              <span class="chip text-[10px]">Robotics Lab</span>
+              <span class="chip text-[10px]">IoT Lab</span>
+              <span class="chip text-[10px]">Network Lab</span>
+              <span class="chip text-[10px]">OOP Java</span>
+              <span class="chip text-[10px]">Database SQL</span>
+            </div>
+          </div>
+          <div class="pt-3 border-t border-ink/10 flex items-center justify-between gap-2">
+            <span class="font-mono text-[11px] text-ink-soft">Academic Mentorship</span>
+            <a href="/dev#timeline" class="btn btn-sm btn-paper text-[10px] font-pixel">
+              📜 Full Timeline
+            </a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Quick Links & Where To -->
+    <WhereTo currentPath="/tower" />
+  </div>
+
+  <!-- Interactive Client Script for Floor Tab Filtering -->
+  <script>
+    function initTowerTabs() {
+      const tabButtons = document.querySelectorAll<HTMLButtonElement>('.tower-tab-btn');
+      const cards = document.querySelectorAll<HTMLElement>('.tower-card');
+
+      tabButtons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const floor = btn.getAttribute('data-tower-floor');
+          tabButtons.forEach((b) => b.classList.remove('active'));
+          btn.classList.add('active');
+
+          cards.forEach((card) => {
+            const cardFloor = card.getAttribute('data-floor');
+            if (floor === 'all' || cardFloor === floor) {
+              card.style.display = '';
+            } else {
+              card.style.display = 'none';
+            }
+          });
+        });
+      });
+    }
+
+    document.addEventListener('astro:page-load', initTowerTabs);
+    document.addEventListener('DOMContentLoaded', initTowerTabs);
+  </script>
+</TownLayout>

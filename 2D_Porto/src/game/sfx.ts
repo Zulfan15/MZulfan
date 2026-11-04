@@ -100,6 +100,14 @@ class SoundFX {
     });
   }
 
+  public heal() {
+    // Authentic Pokémon Center recovery chime: B5 - E6 - B5 - E6 - G#6 - F#6 - E6
+    const jingle = [988, 1319, 988, 1319, 1661, 1480, 1319];
+    jingle.forEach((f, i) => {
+      setTimeout(() => this.playTone(f, 'sine', 0.22, 0.09), i * 140);
+    });
+  }
+
   public get on(): boolean {
     return this.enabled;
   }

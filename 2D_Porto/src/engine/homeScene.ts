@@ -743,8 +743,8 @@ export const HOME2F_PROPS: RoomProp[] = [
     w: 1,
     h: 1,
     lines: [
-      "Zulfan's Digital Twin relaxing on the comfy couch.",
-      'Say hi! He knows all about computer vision (YOLOv11), IoT, robotics, and cloud-native backends.',
+      "Zulfan's Digital Twin (Lucario) relaxing on the comfy couch with his laptop.",
+      'Say hi! He senses the Aura and knows all about computer vision (YOLOv11), IoT, robotics, and cloud-native backends.',
     ],
   },
   {
@@ -1277,38 +1277,42 @@ export function renderHome2FProps(ctx: CanvasRenderingContext2D, _tick: number) 
   }
 
   // Digital Twin sitting on the couch in the middle (x: 104)
+  // Digital Twin (Lucario) sitting on the couch in the middle (x: 104)
   const twX = 104;
-  const twY = couchY - 15;
-  // Hair
-  ctx.fillStyle = '#141218';
-  ctx.fillRect(twX - 3, twY, 7, 2);
-  ctx.fillRect(twX - 4, twY + 1, 9, 2);
-  // Face skin
-  ctx.fillStyle = '#efc19c';
-  ctx.fillRect(twX - 3, twY + 3, 7, 5);
-  // Eyes
-  ctx.fillStyle = '#141218';
-  ctx.fillRect(twX - 2, twY + 4, 1, 2);
-  ctx.fillRect(twX + 2, twY + 4, 1, 2);
-  // Jacket / Torso
-  ctx.fillStyle = '#e8473f';
-  ctx.fillRect(twX - 4, twY + 8, 9, 5);
-  ctx.fillStyle = '#2bb3a3';
-  ctx.fillRect(twX - 2, twY + 8, 5, 5);
-  ctx.fillStyle = '#f6e7c8';
-  ctx.fillRect(twX - 1, twY + 8, 3, 5);
-  // Legs / blue jeans
-  ctx.fillStyle = '#1d2b53';
-  ctx.fillRect(twX - 4, twY + 13, 9, 4);
-  // Laptop on lap (silver shell with glowing screen)
+  const twY = couchY - 17;
+  // Lucario pointed ears
+  ctx.fillStyle = '#0e0c0b';
+  ctx.fillRect(twX - 4, twY - 4, 3, 5);
+  ctx.fillRect(twX + 2, twY - 4, 3, 5);
+  ctx.fillStyle = '#276cbd';
+  ctx.fillRect(twX - 3, twY - 3, 2, 4);
+  ctx.fillRect(twX + 3, twY - 3, 2, 4);
+  // Head / Charcoal mask
+  ctx.fillStyle = '#333431';
+  ctx.fillRect(twX - 4, twY + 1, 9, 6);
+  ctx.fillStyle = '#276cbd';
+  ctx.fillRect(twX - 3, twY + 6, 7, 2);
+  // Red Eyes
+  ctx.fillStyle = '#e02424';
+  ctx.fillRect(twX - 3, twY + 3, 2, 2);
+  ctx.fillRect(twX + 2, twY + 3, 2, 2);
+  // Cream chest with silver spike
+  ctx.fillStyle = '#feedd0';
+  ctx.fillRect(twX - 3, twY + 8, 7, 6);
+  ctx.fillStyle = '#c8d0d8';
+  ctx.fillRect(twX, twY + 9, 2, 3);
+  // Blue thighs / arms
+  ctx.fillStyle = '#276cbd';
+  ctx.fillRect(twX - 5, twY + 10, 3, 5);
+  ctx.fillRect(twX - 4, twY + 14, 9, 3);
+  // Laptop on lap (silver shell with glowing cyan screen)
   ctx.fillStyle = '#2b1d14';
-  ctx.fillRect(twX + 2, twY + 7, 9, 8);
+  ctx.fillRect(twX + 1, twY + 8, 9, 8);
+  ctx.fillStyle = '#38bdf8';
+  ctx.fillRect(twX + 2, twY + 9, 7, 6);
   ctx.fillStyle = '#ffffff';
-  ctx.fillRect(twX + 3, twY + 8, 7, 6);
-  ctx.fillStyle = '#2bb3a3';
-  ctx.fillRect(twX + 4, twY + 10, 1, 1);
-  ctx.fillRect(twX + 6, twY + 10, 1, 1);
-  ctx.fillRect(twX + 8, twY + 10, 1, 1);
+  ctx.fillRect(twX + 3, twY + 11, 2, 1);
+  ctx.fillRect(twX + 6, twY + 11, 2, 1);
 
   // 4. Coffee Side Table / Phin at x: 9, y: 6
   const cfX = 9 * 16;

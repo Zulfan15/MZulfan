@@ -1,9 +1,12 @@
-import { DIRS, type CharacterPalette, type Dir, type TownData, type TownMap, type Vec } from './types';
+import { DIRS, Tile, type CharacterPalette, type Dir, type Lamp, type TownData, type TownMap, type Vec } from './types';
 import { createTownMap } from './map';
-import { TILE_SIZE, drawCharacter, drawPixelMatrix } from './sprites';
-import { renderBuildings, renderGround, renderLamps, renderLighting, renderProps, renderSigns } from './tiles';
+import { createTownBackgroundCanvas } from './townBackground';
+import { TILE_SIZE, drawCharacter, drawLucario, drawPixelMatrix } from './sprites';
+import { renderLighting } from './tiles';
 import { findPath } from './pathfinding';
 import { sfx } from '../game/sfx';
+import { townConfig, SPAWNABLE_TEMPLATES } from './townConfig';
+import { TownEditor } from './townEditor';
 import {
   HOME_COLS,
   HOME_ROWS,
@@ -49,6 +52,47 @@ import {
   ARCADE_PROPS,
   createArcadeBackgroundCanvas,
 } from './arcadeScene';
+import {
+  RECEPTION_COLS,
+  RECEPTION_ROWS,
+  RECEPTION_SPAWN,
+  RECEPTION_COLLISION,
+  RECEPTION_PROPS,
+  createReceptionBackgroundCanvas,
+  renderReceptionAnimations,
+} from './receptionScene';
+import {
+  MART_COLS,
+  MART_ROWS,
+  MART_SPAWN,
+  MART_COLLISION,
+  MART_PROPS,
+  createMartBackgroundCanvas,
+  renderMartAnimations,
+} from './martScene';
+import {
+  TOWER_COLS,
+  TOWER_ROWS,
+  TOWER_SPAWN,
+  TOWER_COLLISION,
+  TOWER_PROPS,
+  createTowerBackgroundCanvas,
+  renderTowerAnimations,
+} from './towerScene';
+import { RESHIRAM_IMAGE_SRC } from './reshiramSprite';
+import { ZEKROM_IMAGE_SRC } from './zekromSprite';
+import { GIRATINA_IMAGE_SRC } from './giratinaSprite';
+import { PALKIA_IMAGE_SRC } from './palkiaSprite';
+import { DIALGA_IMAGE_SRC } from './dialgaSprite';
+import { RAYQUAZA_IMAGE_SRC } from './rayquazaSprite';
+import { GROUDON_IMAGE_SRC } from './groudonSprite';
+import { KYOGRE_IMAGE_SRC } from './kyogreSprite';
+import { LATIOS_IMAGE_SRC } from './latiosSprite';
+import { LATIAS_IMAGE_SRC } from './latiasSprite';
+import { DARKRAI_IMAGE_SRC } from './darkraiSprite';
+import { NECROZMA_IMAGE_SRC } from './necrozmaSprite';
+import { LUNALA_IMAGE_SRC } from './lunalaSprite';
+import { SOLGALEO_IMAGE_SRC } from './solgaleoSprite';
 
 export interface EngineCallbacks {
   onDialogue: (name: string, lines: string[], onAction?: () => void) => void;
@@ -88,6 +132,12 @@ const CHARIZARD_OVERWORLD_SPRITE = [
   '................kkkkk..........',
 ];
 
+const MEWTWO_IMAGE_SRC = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHAAAABwBAMAAAA0zul4AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAIVBMVEUAAAD4+Pjg4PC4sMi4iMCYiJh4gHiIWJBQWFBAQEAAAABuf+WbAAAAAXRSTlMAQObYZgAAAWxJREFUeNrt2DGtJDEQRdGi8Ck8Co+CKRSFT8EUmkJRuChX7vGMg81Wqk52bmjpSC+wHDi+ffv27dsz8TTEPAvxhvAgXASJp+CvBEg+MIBGqNWvfCCMMWmC6G/HWDVBtHvB4ybRDfWGzDGA6IHoZLPhntkNbXNcI7S82OUDiUYY3LCuHx9YdMJAyoufn+1u2QpJSYzlKs8F6ISSvILMa8sx6IOB064igkziyDYYVJXzNfXAQQ88Y6WrktjRDiVd3u5s7YJkZUp52WfqHLMNkllSpsHmuNEEwS5LEhFY3GdzLtcCKVd5zqkXUQHzrgdil1RjjCUJpJpv1wFxvtySKVEfSPTA5TYsSSq9JEQPDD6wrC1rsx4Y3NvGmKU3NBGNMJBdc25YSmUzDMisDV2iD54+0jZOoh9WJuDlAqIbcruIKNtFRDcklzsvJf3wdjvsfhhAPAtPID0KKaX0KJRSxIMwQI/BQ+Nf4f/7/fYHGujw6q4E2bwAAAAASUVORK5CYII=';
+
+const ARCEUS_IMAGE_SRC = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAMAAAC5zwKfAAAAMFBMVEX///+EhIyEcwDexTq9pRkA5gAAnAD/71rFADp7hJQ6QlJaWmNaY3O1tb3m5u8QEBBxRTodAAAAAXRSTlMAQObYZgAAA4dJREFUeNrl1tuO4zgMRVGRotMdWdT5/78dUdQlU6lJ2W0/DND7JQgMLFCxIjt8jCjcGiludUkdRMH/EyStERGoADd5xaJSUHTfw0vaOueZ5p6BNTcd65dO3K3BKRUHXbCKd87UX+KcwQtcaa75xf2AR78MXEFTSln/pWEUDkTTyyi1qvV0cMs5NiAXCznDP1Itz5Jxp0H83raE5lYMreQcwrkIubb93h6+4pcVwgrnQ6o9Hjn7whEuB7UZt2Sge9fFlLYN1YPeBCLDPCXcdNQQGZdIbwFTSmipGriHO6JiGciRb+DM66KB17mZgVdFcmmQqKD3h152R9eIIrHFF0BPVQHZHiYCCBbznw+oukPEQNN6ODto8tGKZR6ziGkLPCkmNY/mDxgGuEThc2AtlREcvDaipufwtIEcLohImpI2TAGECqL2DXhwa+L5TE/3msLA1z3IvtVjDce8BjYPEr1XEbGHHzwiwtNBC/u+w2J5BZkf2xajCHDgP4xsnpbWXnoAD9FW+ng8Ioz7GUTKOeXsjIueNpEr55l2wFvge5VyjYFD4F7H0Q+gNk4ABHDEEW7XCVJZsWWfjTtwQDhnqWZkE7unvlTLTBYuRFSIUemP3jr/DETpuQtENw30xo9I3punnasBKZXRGBQQE0WEF7jX1K9/JaHTUzJuzVsW2UDMO47ympML1M75dIvH+gKx0L0B6rOG1iu4q1UKpkZEqKkuEcwTdE+zc+EtOLi8GkhbZUyvw0PmKFDN2UCEbwKLKqZHpAAHwD31HLRgYG659xZEGErjnhXAD+khLs+bIBC+bxcx0PIRDGQW6IhZRKDdi/jE+YiC5QUDTRC8ctAByrqvn0csZYIWEExh6XYeA07s84g0vApum3EWLLucM9YmxAFQINOrIM/piRyETs/BH9YsiNJA9r/t9GpwUDuoCAfWvAdE9sMFMHB5NO8a9zP259BAF23VsYvoYDSQuT87D4EIfcT+LEd4FW2hHPsNORRC8BERXERYIuwKTnkevgd3m1CioW0FhDMij/23jjeqoL0tAO20pXIGfH/mgtrrwhb7SQw9AQa8gWxcBR8VtJ6++w+HLyDPt4XzoIcvX62+cYqB7l1o/vtcLPeA3Ef0KFwV2UBpIJuYL4LgJiKgiDh4XSQaz7O7QNwPWmxrRrgN9BERbhAHwneDkJhzuB7wenrcGv99YPhv7x9JGV04/CcT4gAAAABJRU5ErkJggg==';
+
+const BLASTOISE_IMAGE_SRC = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHAAAABwCAMAAADxPgR5AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAM1BMVEUAAAAAAAA4YJBIgLh4uPj4+PhAQEC4uMBgUDDAkFB4gIj46LCYgEjIwHhQWGjQ0NCAaEjmoCi6AAAAAXRSTlMAQObYZgAAAfRJREFUeNrt2stqxDAQRNG0NCo/Ysf+/69Ny0VTmGSRVUg7uruBgQPFaITBb6PRaDQajUaj0Wg0Gv0s854MmgHTZPY8UFwHSZr3RLB5JBfP7Glgp5q3rvCWZZ7v5H1ou8oDilzXaSIYpIB5jqHN2pVZAvBGOncVo5Ik5tyVeRx+XUlmApcFIKeIkQP4jdZwlQcU+XrBa1dkxIE5qEkzgiQDhSeuIw56OhY5QHG1dlLsyyMpkCQvsmwgORb4x0efN8jVA9h5mmUDCUXk5hmIQ0Kylw0UpxRBomDiUoPA96S4TKBZHIpShNR6A0l65wlkAYVxQIK1mjXvPqly0jPLAXaseARJAue5LDz4tQaIK5EZQHI9cYrgvtdKTvNq1Axg8QR+4TxA3I1MAMagpQCl6NgTC+47cJqygMU7jurx+Acl7P0dXq0syDzgcRTPPH7uACPGgKBqDbCTfxkUSYyRZKTIkQqycywDqESK0qAigW0DxOUBNenmBbZ5QGtBAqUAOUH91QGEAt53koCuKHKZQHFBRru3bcSiUsjlBfnDILZ5+07uSSCHBTomTmCtZrlAkeSYWVTKncsJ6nrioGb3xwFxeUGz40rX8p3sicsEKlFKJOt0TlApca2VEjVPZH5QY7crzf4cUKimfBaoyP0qOF4h+T99AssBQk1+reAdAAAAAElFTkSuQmCC';
+
 const CHARIZARD_OVERWORLD_COLORS: Record<string, string> = {
   k: '#181820',
   o: '#ef8338',
@@ -112,11 +162,34 @@ export class TownEngine {
   private ctx: CanvasRenderingContext2D;
   private map: TownMap;
   private callbacks: EngineCallbacks;
-  private currentScene: 'town' | 'home' | 'dev' | 'lab' | 'arcade' = 'town';
+  private currentScene: 'town' | 'home' | 'dev' | 'lab' | 'arcade' | 'reception' | 'mart' | 'tower' = 'town';
   private homeFloor: '1F' | '2F' = '1F';
   private devBackgroundCanvas: HTMLCanvasElement | null = null;
   private labBackgroundCanvas: HTMLCanvasElement | null = null;
   private arcadeBackgroundCanvas: HTMLCanvasElement | null = null;
+  private blastoiseImg: HTMLImageElement | null = null;
+  private arceusImg: HTMLImageElement | null = null;
+  private mewtwoImg: HTMLImageElement | null = null;
+  private reshiramImg: HTMLImageElement | null = null;
+  private zekromImg: HTMLImageElement | null = null;
+  private giratinaImg: HTMLImageElement | null = null;
+  private palkiaImg: HTMLImageElement | null = null;
+  private dialgaImg: HTMLImageElement | null = null;
+  private rayquazaImg: HTMLImageElement | null = null;
+  private groudonImg: HTMLImageElement | null = null;
+  private kyogreImg: HTMLImageElement | null = null;
+  private latiosImg: HTMLImageElement | null = null;
+  private latiasImg: HTMLImageElement | null = null;
+  private darkraiImg: HTMLImageElement | null = null;
+  private necrozmaImg: HTMLImageElement | null = null;
+  private lunalaImg: HTMLImageElement | null = null;
+  private solgaleoImg: HTMLImageElement | null = null;
+  private receptionBackgroundCanvas: HTMLCanvasElement | null = null;
+  private martBackgroundCanvas: HTMLCanvasElement | null = null;
+  private towerBackgroundCanvas: HTMLCanvasElement | null = null;
+  private townBackgroundCanvas: HTMLCanvasElement | null = null;
+  public townAtmosphere: 'day' | 'sunset' | 'night' = 'day';
+  private editor: TownEditor;
 
   // Player state
   private playerPos: Vec = { x: 18, y: 12 };
@@ -129,18 +202,26 @@ export class TownEngine {
   private pendingTarget: string | null = null;
   private marker: Vec | null = null;
   private particles: BreezeParticle[] = [];
+  private heldDirs: Dir[] = [];
+  private bufferedDir: Dir | null = null;
+  private isShiftHeld = false;
+  private lastBumpTime = 0;
 
   private playerPalette: CharacterPalette = {
-    skin: '#e0b48a',
-    hair: '#1c1726',
-    shirt: '#e8473f',
-    pants: '#1d2b53',
-    shoes: '#1c1726',
-    cap: '#e8473f',
+    skin: '#fecda5',
+    hair: '#000000',
+    shirt: '#0665d9',
+    pants: '#0665d9',
+    shoes: '#000000',
+    cap: '#de1e1b',
+    isAsh: true,
   };
 
   // Rendering & Camera
   private zoom = 3;
+  private defaultZoom = 2;
+  private isCustomZoom = false;
+  private zoomTimeout: number | null = null;
   private cameraX = 0;
   private cameraY = 0;
   private tick = 0;
@@ -197,6 +278,27 @@ export class TownEngine {
       this.playerDir = ARCADE_SPAWN.dir;
       this.cameraX = (ARCADE_COLS * TILE_SIZE) / 2;
       this.cameraY = (ARCADE_ROWS * TILE_SIZE) / 2;
+    } else if (initialSpawn === 'reception') {
+      this.currentScene = 'reception';
+      this.playerPos = { x: RECEPTION_SPAWN.x, y: RECEPTION_SPAWN.y };
+      this.playerTarget = { x: RECEPTION_SPAWN.x, y: RECEPTION_SPAWN.y };
+      this.playerDir = RECEPTION_SPAWN.dir;
+      this.cameraX = (RECEPTION_COLS * TILE_SIZE) / 2;
+      this.cameraY = (RECEPTION_ROWS * TILE_SIZE) / 2;
+    } else if (initialSpawn === 'mart' || initialSpawn === 'shop') {
+      this.currentScene = 'mart';
+      this.playerPos = { x: MART_SPAWN.x, y: MART_SPAWN.y };
+      this.playerTarget = { x: MART_SPAWN.x, y: MART_SPAWN.y };
+      this.playerDir = MART_SPAWN.dir;
+      this.cameraX = (MART_COLS * TILE_SIZE) / 2;
+      this.cameraY = (MART_ROWS * TILE_SIZE) / 2;
+    } else if (initialSpawn === 'tower' || initialSpawn === 'office') {
+      this.currentScene = 'tower';
+      this.playerPos = { x: TOWER_SPAWN.x, y: TOWER_SPAWN.y };
+      this.playerTarget = { x: TOWER_SPAWN.x, y: TOWER_SPAWN.y };
+      this.playerDir = TOWER_SPAWN.dir;
+      this.cameraX = (TOWER_COLS * TILE_SIZE) / 2;
+      this.cameraY = (TOWER_ROWS * TILE_SIZE) / 2;
     } else {
       this.currentScene = 'town';
       const spawn = this.map.spawns[initialSpawn] || this.map.spawns.town;
@@ -206,6 +308,49 @@ export class TownEngine {
       this.cameraX = (this.map.w * TILE_SIZE) / 2;
       this.cameraY = (this.map.h * TILE_SIZE) / 2;
     }
+
+    this.editor = new TownEditor(this);
+    if (typeof Image !== 'undefined') {
+      this.blastoiseImg = new Image();
+      this.blastoiseImg.src = BLASTOISE_IMAGE_SRC;
+      this.arceusImg = new Image();
+      this.arceusImg.src = ARCEUS_IMAGE_SRC;
+      this.mewtwoImg = new Image();
+      this.mewtwoImg.src = MEWTWO_IMAGE_SRC;
+      this.reshiramImg = new Image();
+      this.reshiramImg.src = RESHIRAM_IMAGE_SRC;
+      this.zekromImg = new Image();
+      this.zekromImg.src = ZEKROM_IMAGE_SRC;
+      this.giratinaImg = new Image();
+      this.giratinaImg.src = GIRATINA_IMAGE_SRC;
+      this.palkiaImg = new Image();
+      this.palkiaImg.src = PALKIA_IMAGE_SRC;
+      this.dialgaImg = new Image();
+      this.dialgaImg.src = DIALGA_IMAGE_SRC;
+      this.rayquazaImg = new Image();
+      this.rayquazaImg.src = RAYQUAZA_IMAGE_SRC;
+      this.groudonImg = new Image();
+      this.groudonImg.src = GROUDON_IMAGE_SRC;
+      this.kyogreImg = new Image();
+      this.kyogreImg.src = KYOGRE_IMAGE_SRC;
+      this.latiosImg = new Image();
+      this.latiosImg.src = LATIOS_IMAGE_SRC;
+      this.latiasImg = new Image();
+      this.latiasImg.src = LATIAS_IMAGE_SRC;
+      this.darkraiImg = new Image();
+      this.darkraiImg.src = DARKRAI_IMAGE_SRC;
+      this.necrozmaImg = new Image();
+      this.necrozmaImg.src = NECROZMA_IMAGE_SRC;
+      this.lunalaImg = new Image();
+      this.lunalaImg.src = LUNALA_IMAGE_SRC;
+      this.solgaleoImg = new Image();
+      this.solgaleoImg.src = SOLGALEO_IMAGE_SRC;
+    }
+    townConfig.subscribe(() => {
+      this.invalidateBackgroundCanvas();
+      this.updateDomLabels();
+      this.wake();
+    });
 
     this.initParticles();
     this.bindControls();
@@ -239,15 +384,174 @@ export class TownEngine {
     this.unbindEvents = [];
   }
 
+  public invalidateBackgroundCanvas() {
+    this.townBackgroundCanvas = null;
+  }
+
+  public getCanvas(): HTMLCanvasElement {
+    return this.canvas;
+  }
+
+  public getCameraX(): number {
+    return this.cameraX;
+  }
+
+  public getCameraY(): number {
+    return this.cameraY;
+  }
+
+  public setCameraPos(x: number, y: number): void {
+    this.cameraX = x;
+    this.cameraY = y;
+    this.updateDomLabels();
+    this.wake();
+  }
+
+  public getScene(): string {
+    return this.currentScene;
+  }
+
+  public getZoom(): number {
+    return this.zoom;
+  }
+
+  public getDefaultZoom(): number {
+    return this.defaultZoom;
+  }
+
+  public setZoom(zoom: number) {
+    const dpr = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
+    this.isCustomZoom = true;
+    this.zoom = Math.max(0.6 * dpr, Math.min(5.0 * dpr, zoom));
+    this.updateDomLabels();
+    this.showZoomIndicator();
+    this.wake();
+  }
+
+  public zoomBy(factor: number) {
+    this.setZoom(this.zoom * factor);
+  }
+
+  public showZoomIndicator() {
+    if (typeof document === 'undefined') return;
+    const indicator = document.getElementById('town-zoom-indicator');
+    const text = document.getElementById('town-zoom-text');
+    if (!indicator || !text) return;
+
+    const base = this.defaultZoom > 0 ? this.defaultZoom : 1;
+    const pct = Math.round((this.zoom / base) * 100);
+    text.textContent = `${pct}%`;
+
+    indicator.classList.add('is-visible');
+    if (this.zoomTimeout) {
+      window.clearTimeout(this.zoomTimeout);
+    }
+    this.zoomTimeout = window.setTimeout(() => {
+      indicator.classList.remove('is-visible');
+    }, 1400);
+  }
+
+  public panCamera(dx: number, dy: number) {
+    this.cameraX += dx;
+    this.cameraY += dy;
+    this.updateDomLabels();
+    this.wake();
+  }
+
+  public getEditor(): TownEditor {
+    return this.editor;
+  }
+
+  public worldToScreen(worldX: number, worldY: number): { x: number; y: number } {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const canvasX = this.canvas.width / 2 + (worldX - this.cameraX) * this.zoom;
+    const canvasY = this.canvas.height / 2 + (worldY - this.cameraY) * this.zoom;
+    return {
+      x: canvasX / dpr,
+      y: canvasY / dpr,
+    };
+  }
+
+  public isWalkable(x: number, y: number): boolean {
+    return this.canWalk(x, y);
+  }
+
+  public setPlayerTile(x: number, y: number): void {
+    const clampedX = Math.max(0, Math.min(this.map.w - 1, Math.round(x)));
+    const clampedY = Math.max(0, Math.min(this.map.h - 1, Math.round(y)));
+    this.playerPos = { x: clampedX, y: clampedY };
+    this.playerTarget = { x: clampedX, y: clampedY };
+    this.isMoving = false;
+    this.moveProgress = 0;
+    this.cameraX = (clampedX + 0.5) * TILE_SIZE;
+    this.cameraY = (clampedY + 0.5) * TILE_SIZE;
+    this.updateDomLabels();
+    this.wake();
+  }
+
+  public getPlayerPos(): Vec {
+    return { ...this.playerPos };
+  }
+
+  public getMap(): TownMap {
+    return this.map;
+  }
+
+  public getActiveLamps(): Lamp[] {
+    const allBuildings = townConfig.getBuildings(true);
+    if (allBuildings.length > 0) {
+      const lamps: Lamp[] = [];
+      const buildings = townConfig.getBuildings();
+      for (const b of buildings) {
+        if (b.hidden) continue;
+        if (b.kind === 'lamp') {
+          if (b.subType === 'stone_lantern') {
+            lamps.push({ x: b.x, y: b.y, radius: 44, color: 'amber' });
+          } else if (b.subType === 'lamp_cyber') {
+            lamps.push({ x: b.x, y: b.y, radius: 52, color: 'cyan' });
+          } else {
+            lamps.push({ x: b.x, y: b.y, radius: 48, color: 'warm' });
+          }
+        } else if (b.kind === 'object') {
+          if (b.subType === 'holo_projector' || b.id.startsWith('holo_projector')) {
+            lamps.push({ x: b.x, y: b.y, radius: 40, color: 'cyan' });
+          } else if (b.subType === 'pokestop' || b.id.startsWith('pokestop')) {
+            lamps.push({ x: b.x, y: b.y, radius: 42, color: 'cyan' });
+          } else if (b.subType === 'server_rack' || b.id.startsWith('server_rack')) {
+            lamps.push({ x: b.x, y: b.y, radius: 34, color: 'cyan' });
+          } else if (b.subType === 'pc_terminal' || b.id.startsWith('pc_terminal')) {
+            lamps.push({ x: b.x, y: b.y, radius: 36, color: 'cyan' });
+          } else if (b.subType === 'egg_incubator' || b.id.startsWith('egg_incubator')) {
+            lamps.push({ x: b.x, y: b.y, radius: 36, color: 'gold' });
+          } else if (b.subType === 'jukebox' || b.id.startsWith('jukebox')) {
+            lamps.push({ x: b.x, y: b.y, radius: 40, color: 'magenta' });
+          } else if (b.subType === 'campfire' || b.id === 'campfire') {
+            lamps.push({ x: b.x + 0.5, y: b.y + 0.5, radius: 52, color: 'amber' });
+          }
+        }
+      }
+      return lamps;
+    }
+    return this.map.lamps;
+  }
+
   public handleResize = () => {
     const dpr = window.devicePixelRatio || 1;
-    const rect = this.canvas.getBoundingClientRect();
+    // Measure parent container to prevent canvas inline style feedback loop
+    const container = this.canvas.parentElement || this.canvas;
+    const rect = container.getBoundingClientRect();
     if (!rect.width || !rect.height) return;
+
+    if (this.currentScene === 'town') {
+      this.townBackgroundCanvas = null;
+    }
 
     this.canvas.width = Math.round(rect.width * dpr);
     this.canvas.height = Math.round(rect.height * dpr);
-    this.canvas.style.width = `${Math.round(rect.width)}px`;
-    this.canvas.style.height = `${Math.round(rect.height)}px`;
+    this.canvas.style.width = '100%';
+    this.canvas.style.height = '100%';
+
+    const previousRatio = this.defaultZoom > 0 ? this.zoom / this.defaultZoom : 1;
 
     // Calculate zoom to frame the scene cleanly
     if (this.currentScene === 'home') {
@@ -255,7 +559,7 @@ export class TownEngine {
       const targetH = HOME_ROWS * TILE_SIZE * 1.05;
       const zoomW = this.canvas.width / targetW;
       const zoomH = this.canvas.height / targetH;
-      this.zoom = Math.max(Math.min(zoomW, zoomH), 1.8 * dpr);
+      this.defaultZoom = Math.max(Math.min(zoomW, zoomH), 1.8 * dpr);
       this.cameraX = (HOME_COLS * TILE_SIZE) / 2;
       this.cameraY = (HOME_ROWS * TILE_SIZE) / 2;
     } else if (this.currentScene === 'dev') {
@@ -263,7 +567,7 @@ export class TownEngine {
       const targetH = DEV_ROWS * TILE_SIZE * 1.05;
       const zoomW = this.canvas.width / targetW;
       const zoomH = this.canvas.height / targetH;
-      this.zoom = Math.max(Math.min(zoomW, zoomH), 1.8 * dpr);
+      this.defaultZoom = Math.max(Math.min(zoomW, zoomH), 1.8 * dpr);
       this.cameraX = (DEV_COLS * TILE_SIZE) / 2;
       this.cameraY = (DEV_ROWS * TILE_SIZE) / 2;
     } else if (this.currentScene === 'lab') {
@@ -271,7 +575,7 @@ export class TownEngine {
       const targetH = LAB_ROWS * TILE_SIZE * 1.05;
       const zoomW = this.canvas.width / targetW;
       const zoomH = this.canvas.height / targetH;
-      this.zoom = Math.max(Math.min(zoomW, zoomH), 1.8 * dpr);
+      this.defaultZoom = Math.max(Math.min(zoomW, zoomH), 1.8 * dpr);
       this.cameraX = (LAB_COLS * TILE_SIZE) / 2;
       this.cameraY = (LAB_ROWS * TILE_SIZE) / 2;
     } else if (this.currentScene === 'arcade') {
@@ -279,22 +583,59 @@ export class TownEngine {
       const targetH = ARCADE_ROWS * TILE_SIZE * 1.05;
       const zoomW = this.canvas.width / targetW;
       const zoomH = this.canvas.height / targetH;
-      this.zoom = Math.max(Math.min(zoomW, zoomH), 1.8 * dpr);
+      this.defaultZoom = Math.max(Math.min(zoomW, zoomH), 1.8 * dpr);
       this.cameraX = (ARCADE_COLS * TILE_SIZE) / 2;
       this.cameraY = (ARCADE_ROWS * TILE_SIZE) / 2;
-    } else {
-      const targetW = this.map.w * TILE_SIZE * 1.08;
-      const targetH = this.map.h * TILE_SIZE * 1.08;
+    } else if (this.currentScene === 'reception') {
+      const targetW = RECEPTION_COLS * TILE_SIZE * 1.05;
+      const targetH = RECEPTION_ROWS * TILE_SIZE * 1.05;
       const zoomW = this.canvas.width / targetW;
       const zoomH = this.canvas.height / targetH;
-      this.zoom = Math.max(Math.min(zoomW, zoomH), 1.2 * dpr);
+      this.defaultZoom = Math.max(Math.min(zoomW, zoomH), 1.8 * dpr);
+      this.cameraX = (RECEPTION_COLS * TILE_SIZE) / 2;
+      this.cameraY = (RECEPTION_ROWS * TILE_SIZE) / 2;
+    } else if (this.currentScene === 'mart') {
+      const targetW = MART_COLS * TILE_SIZE * 1.05;
+      const targetH = MART_ROWS * TILE_SIZE * 1.05;
+      const zoomW = this.canvas.width / targetW;
+      const zoomH = this.canvas.height / targetH;
+      this.defaultZoom = Math.max(Math.min(zoomW, zoomH), 1.8 * dpr);
+      this.cameraX = (MART_COLS * TILE_SIZE) / 2;
+      this.cameraY = (MART_ROWS * TILE_SIZE) / 2;
+    } else if (this.currentScene === 'tower') {
+      const targetW = TOWER_COLS * TILE_SIZE * 1.05;
+      const targetH = TOWER_ROWS * TILE_SIZE * 1.05;
+      const zoomW = this.canvas.width / targetW;
+      const zoomH = this.canvas.height / targetH;
+      this.defaultZoom = Math.max(Math.min(zoomW, zoomH), 1.8 * dpr);
+      this.cameraX = (TOWER_COLS * TILE_SIZE) / 2;
+      this.cameraY = (TOWER_ROWS * TILE_SIZE) / 2;
+    } else {
+      const targetW = this.map.w * TILE_SIZE * 1.05;
+      const zoomW = this.canvas.width / targetW;
+      this.defaultZoom = Math.max(zoomW, 1.15 * dpr);
       this.cameraX = (this.map.w * TILE_SIZE) / 2;
       this.cameraY = (this.map.h * TILE_SIZE) / 2;
+    }
+
+    if (!this.isCustomZoom) {
+      this.zoom = this.defaultZoom;
+    } else if (previousRatio > 0) {
+      this.zoom = this.defaultZoom * previousRatio;
     }
 
     this.updateDomLabels();
     this.wake();
   };
+
+  public recenterCamera() {
+    this.isCustomZoom = false;
+    this.zoom = this.defaultZoom;
+    this.handleResize();
+    this.updateDomLabels();
+    this.showZoomIndicator();
+    this.wake();
+  }
 
   // Energy-efficient sleep/wake loop
   public wake() {
@@ -320,12 +661,17 @@ export class TownEngine {
     this.update(dt);
     this.render();
 
-    // In dev scene, continue loop for radar sweep, clock and blinking lights
+    // Dev, lab, reception, mart, and tower scenes continue loop for animated lights, screen scanlines, and idle states
     if (
       this.currentScene !== 'dev' &&
+      this.currentScene !== 'lab' &&
+      this.currentScene !== 'reception' &&
+      this.currentScene !== 'mart' &&
+      this.currentScene !== 'tower' &&
       !this.isMoving &&
       this.path.length === 0 &&
-      !this.marker
+      !this.marker &&
+      this.heldDirs.length === 0
     ) {
       this.sleep();
       return;
@@ -335,26 +681,63 @@ export class TownEngine {
   };
 
   private bindControls() {
+    const codeToDir: Record<string, Dir> = {
+      ArrowUp: 'up',
+      KeyW: 'up',
+      ArrowDown: 'down',
+      KeyS: 'down',
+      ArrowLeft: 'left',
+      KeyA: 'left',
+      ArrowRight: 'right',
+      KeyD: 'right',
+    };
+
     const onKeyDown = (e: KeyboardEvent) => {
-      if (['ArrowUp', 'KeyW'].includes(e.code)) {
+      // Don't intercept when user is typing in forms / modals / inputs
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes((e.target as HTMLElement)?.tagName)) {
+        return;
+      }
+
+      if (e.shiftKey !== this.isShiftHeld) {
+        this.isShiftHeld = e.shiftKey;
+      }
+
+      // If town editor is enabled and NOT in playtest mode, editor handles keys
+      if (this.currentScene === 'town' && this.editor.isEnabled() && !this.editor.isPlaytesting()) {
+        return;
+      }
+
+      const dir = codeToDir[e.code];
+      if (dir) {
         e.preventDefault();
-        this.queueMove('up');
-      } else if (['ArrowDown', 'KeyS'].includes(e.code)) {
-        e.preventDefault();
-        this.queueMove('down');
-      } else if (['ArrowLeft', 'KeyA'].includes(e.code)) {
-        e.preventDefault();
-        this.queueMove('left');
-      } else if (['ArrowRight', 'KeyD'].includes(e.code)) {
-        e.preventDefault();
-        this.queueMove('right');
+        this.setDirPressed(dir, true);
       } else if (e.code === 'Enter' || e.code === 'Space') {
         e.preventDefault();
         this.interactFacing();
       }
     };
 
+    const onKeyUp = (e: KeyboardEvent) => {
+      if (e.shiftKey !== this.isShiftHeld) {
+        this.isShiftHeld = e.shiftKey;
+      }
+      const dir = codeToDir[e.code];
+      if (dir) {
+        this.setDirPressed(dir, false);
+      }
+    };
+
+    const onBlur = () => {
+      this.heldDirs = [];
+      this.bufferedDir = null;
+      this.isShiftHeld = false;
+    };
+
     const onClick = (e: MouseEvent) => {
+      if (this.currentScene === 'town' && this.editor.isEnabled()) {
+        return;
+      }
+
       const rect = this.canvas.getBoundingClientRect();
       const clickScreenX = (e.clientX - rect.left) * (this.canvas.width / rect.width);
       const clickScreenY = (e.clientY - rect.top) * (this.canvas.height / rect.height);
@@ -366,43 +749,194 @@ export class TownEngine {
       const targetTileX = Math.floor(worldX / TILE_SIZE);
       const targetTileY = Math.floor(worldY / TILE_SIZE);
 
+      // If clicking inside a building footprint, redirect target to its door
+      for (const b of this.map.buildings) {
+        const cfg = townConfig.getBuilding(b.id) || b;
+        const bx = cfg.x;
+        const by = cfg.y;
+        const bw = cfg.w;
+        const bh = cfg.h;
+        if (targetTileX >= bx && targetTileX < bx + bw && targetTileY >= by && targetTileY < by + bh) {
+          const doorX = (cfg as any).doorX ?? b.doors?.[0]?.x;
+          const doorY = (cfg as any).doorY ?? b.doors?.[0]?.y;
+          if (doorX !== undefined && doorY !== undefined) {
+            this.pendingTarget = null;
+            this.walkTo(doorX, doorY);
+            return;
+          }
+        }
+      }
+
       this.pendingTarget = null;
       this.walkTo(targetTileX, targetTileY);
     };
 
+    const onMouseDown = (e: MouseEvent) => {
+      if (this.currentScene === 'town' && this.editor.isEnabled()) {
+        this.editor.handleMouseDown(e);
+        this.wake();
+      }
+    };
+
+    const onMouseMove = (e: MouseEvent) => {
+      if (this.currentScene === 'town' && this.editor.isEnabled()) {
+        this.editor.handleMouseMove(e);
+        this.wake();
+      }
+    };
+
+    const onMouseUp = () => {
+      if (this.currentScene === 'town' && this.editor.isEnabled()) {
+        this.editor.handleMouseUp();
+        this.wake();
+      }
+    };
+
+    const onWheel = (e: WheelEvent) => {
+      // Prevent browser window from scrolling while hovering/wheeling over the town canvas
+      e.preventDefault();
+
+      const dpr = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
+      // Exponential zoom based on deltaY (silky smooth for mouse wheel and precision trackpads)
+      const zoomFactor = Math.exp(-e.deltaY * 0.0018);
+      const minZoom = 0.65 * dpr;
+      const maxZoom = 4.8 * dpr;
+      const newZoom = Math.max(minZoom, Math.min(maxZoom, this.zoom * zoomFactor));
+
+      if (Math.abs(newZoom - this.zoom) > 0.0001) {
+        // Zoom centered around mouse pointer if in editor mode
+        if (this.currentScene === 'town' && this.editor.isEnabled() && !this.editor.isPlaytesting()) {
+          const rect = this.canvas.getBoundingClientRect();
+          const mouseCanvasX = (e.clientX - rect.left) * dpr;
+          const mouseCanvasY = (e.clientY - rect.top) * dpr;
+          const worldX = (mouseCanvasX - this.canvas.width / 2) / this.zoom + this.cameraX;
+          const worldY = (mouseCanvasY - this.canvas.height / 2) / this.zoom + this.cameraY;
+          this.cameraX = worldX - (mouseCanvasX - this.canvas.width / 2) / newZoom;
+          this.cameraY = worldY - (mouseCanvasY - this.canvas.height / 2) / newZoom;
+        }
+
+        this.isCustomZoom = true;
+        this.zoom = newZoom;
+        this.updateDomLabels();
+        this.showZoomIndicator();
+        this.wake();
+      }
+    };
+
+    let touchStartDist = 0;
+    let touchStartZoom = this.zoom;
+
+    const onTouchStart = (e: TouchEvent) => {
+      if (e.touches.length === 2) {
+        touchStartDist = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+        touchStartZoom = this.zoom;
+      }
+    };
+
+    const onTouchMove = (e: TouchEvent) => {
+      if (e.touches.length === 2 && touchStartDist > 0) {
+        e.preventDefault();
+        const dist = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+        const scale = dist / touchStartDist;
+        const dpr = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
+        const minZoom = 0.65 * dpr;
+        const maxZoom = 4.8 * dpr;
+        const newZoom = Math.max(minZoom, Math.min(maxZoom, touchStartZoom * scale));
+        if (Math.abs(newZoom - this.zoom) > 0.001) {
+          this.isCustomZoom = true;
+          this.zoom = newZoom;
+          this.updateDomLabels();
+          this.showZoomIndicator();
+          this.wake();
+        }
+      }
+    };
+
+    const onTouchEnd = (e: TouchEvent) => {
+      if (e.touches.length < 2) {
+        touchStartDist = 0;
+      }
+    };
+
+    const onContextMenu = (e: MouseEvent) => {
+      if (this.currentScene === 'town' && this.editor.isEnabled()) {
+        e.preventDefault();
+      }
+    };
+
     window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('keyup', onKeyUp);
+    window.addEventListener('blur', onBlur);
     this.canvas.addEventListener('click', onClick);
+    this.canvas.addEventListener('mousedown', onMouseDown);
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+    this.canvas.addEventListener('wheel', onWheel, { passive: false });
+    this.canvas.addEventListener('touchstart', onTouchStart, { passive: true });
+    this.canvas.addEventListener('touchmove', onTouchMove, { passive: false });
+    this.canvas.addEventListener('touchend', onTouchEnd, { passive: true });
+    this.canvas.addEventListener('contextmenu', onContextMenu);
     window.addEventListener('resize', this.handleResize);
 
     this.unbindEvents.push(
       () => window.removeEventListener('keydown', onKeyDown),
+      () => window.removeEventListener('keyup', onKeyUp),
+      () => window.removeEventListener('blur', onBlur),
       () => this.canvas.removeEventListener('click', onClick),
+      () => this.canvas.removeEventListener('mousedown', onMouseDown),
+      () => window.removeEventListener('mousemove', onMouseMove),
+      () => window.removeEventListener('mouseup', onMouseUp),
+      () => this.canvas.removeEventListener('wheel', onWheel),
+      () => this.canvas.removeEventListener('touchstart', onTouchStart),
+      () => this.canvas.removeEventListener('touchmove', onTouchMove),
+      () => this.canvas.removeEventListener('touchend', onTouchEnd),
+      () => this.canvas.removeEventListener('contextmenu', onContextMenu),
       () => window.removeEventListener('resize', this.handleResize)
     );
   }
 
   public walkTo(targetX: number, targetY: number) {
+    this.heldDirs = [];
+    this.bufferedDir = null;
     const is2F = this.currentScene === 'home' && this.homeFloor === '2F';
     const cols =
       this.currentScene === 'home'
         ? (is2F ? HOME2F_COLS : HOME_COLS)
         : this.currentScene === 'dev'
-        ? DEV_COLS
-        : this.currentScene === 'lab'
-        ? LAB_COLS
-        : this.currentScene === 'arcade'
-        ? ARCADE_COLS
-        : this.map.w;
+          ? DEV_COLS
+          : this.currentScene === 'lab'
+            ? LAB_COLS
+            : this.currentScene === 'arcade'
+              ? ARCADE_COLS
+              : this.currentScene === 'reception'
+                ? RECEPTION_COLS
+                : this.currentScene === 'mart'
+                  ? MART_COLS
+                  : this.currentScene === 'tower'
+                    ? TOWER_COLS
+                    : this.map.w;
     const rows =
       this.currentScene === 'home'
         ? (is2F ? HOME2F_ROWS : HOME_ROWS)
         : this.currentScene === 'dev'
-        ? DEV_ROWS
-        : this.currentScene === 'lab'
-        ? LAB_ROWS
-        : this.currentScene === 'arcade'
-        ? ARCADE_ROWS
-        : this.map.h;
+          ? DEV_ROWS
+          : this.currentScene === 'lab'
+            ? LAB_ROWS
+            : this.currentScene === 'arcade'
+              ? ARCADE_ROWS
+              : this.currentScene === 'reception'
+                ? RECEPTION_ROWS
+                : this.currentScene === 'mart'
+                  ? MART_ROWS
+                  : this.currentScene === 'tower'
+                    ? TOWER_ROWS
+                    : this.map.h;
     if (targetX < 0 || targetX >= cols || targetY < 0 || targetY >= rows) return;
     const start = this.isMoving ? this.playerTarget : this.playerPos;
     const collisionMap =
@@ -411,12 +945,18 @@ export class TownEngine {
           ? HOME2F_COLLISION
           : HOME_COLLISION
         : this.currentScene === 'dev'
-        ? DEV_COLLISION
-        : this.currentScene === 'lab'
-        ? LAB_COLLISION
-        : this.currentScene === 'arcade'
-        ? ARCADE_COLLISION
-        : this.map.collision;
+          ? DEV_COLLISION
+          : this.currentScene === 'lab'
+            ? LAB_COLLISION
+            : this.currentScene === 'arcade'
+              ? ARCADE_COLLISION
+              : this.currentScene === 'reception'
+                ? RECEPTION_COLLISION
+                : this.currentScene === 'mart'
+                  ? MART_COLLISION
+                  : this.currentScene === 'tower'
+                    ? TOWER_COLLISION
+                    : this.getEffectiveCollisionMap();
 
     let destX = targetX;
     let destY = targetY;
@@ -443,10 +983,224 @@ export class TownEngine {
       this.marker = { x: destX, y: destY };
       this.path = found;
       this.wake();
+    } else if (this.pendingTarget) {
+      const t = this.pendingTarget;
+      this.pendingTarget = null;
+      this.triggerPendingTarget(t);
+    }
+  }
+
+  public isTileWalkable(x: number, y: number): boolean {
+    if (x < 0 || x >= this.map.w || y < 0 || y >= this.map.h) return false;
+
+    // 1. Explicit tile brush overrides
+    const override = townConfig.getTileOverride(x, y);
+    if (override === 'walkable_override') return true;
+    if (
+      override === 'solid_override' ||
+      override === 'water' ||
+      override === 'hedge' ||
+      override === 'fence' ||
+      override === 'fence_water'
+    ) {
+      return false;
+    }
+
+    // 2. Dynamic entities from townConfig (Buildings, NPCs, Objects, Props, Trees, Benches, Signs)
+    for (const b of townConfig.getBuildings()) {
+      if (b.hidden) continue;
+
+      // Open-air walkable zones (arenas, gardens, contest grounds)
+      if (b.id === 'arena' || b.id === 'garden' || b.id === 'contest') continue;
+
+      // Tree collision: trunk row at bottom of tree footprint
+      if (b.kind === 'tree') {
+        const trunkY = b.y + b.h - 1;
+        if (x >= b.x && x < b.x + b.w && y >= trunkY && y < b.y + b.h) {
+          return false;
+        }
+        continue;
+      }
+
+      // Check if coordinate is inside entity footprint
+      if (x >= b.x && x < b.x + b.w && y >= b.y && y < b.y + b.h) {
+        // Buildings: footprint is solid EXCEPT entrance door
+        if (b.kind === 'building') {
+          const doorX = b.doorX !== undefined ? b.doorX : b.x + Math.floor(b.w / 2);
+          const doorY = b.doorY !== undefined ? b.doorY : b.y + b.h - 1;
+          const isDoor =
+            ((x === doorX || (b.w >= 6 && (x === doorX - 1 || x === doorX + 1))) &&
+             (y === doorY || y === b.y + b.h - 1));
+          if (isDoor) continue;
+          return false;
+        }
+
+        // All other objects, NPCs, benches, hedges, signs, water fences are solid obstacles
+        return false;
+      }
+    }
+
+    // 3. Tile override clearing base fence/obstacle
+    if (
+      override === 'grass' ||
+      override === 'cobble' ||
+      override === 'lab_paver' ||
+      override === 'dev_paver' ||
+      override === 'tall_grass'
+    ) {
+      const baseGround = this.map.ground[y * this.map.w + x];
+      if (baseGround === Tile.FENCE || ((x === 38 || x === 39) && y === 30)) {
+        return true;
+      }
+    }
+
+    // 4. Base map terrain collision (island boundaries, cliffs, water)
+    return this.map.collision[y * this.map.w + x] === 0;
+  }
+
+  private getEffectiveCollisionMap(): Uint8Array {
+    const coll = new Uint8Array(this.map.w * this.map.h);
+    for (let y = 0; y < this.map.h; y++) {
+      for (let x = 0; x < this.map.w; x++) {
+        coll[y * this.map.w + x] = this.isTileWalkable(x, y) ? 0 : 1;
+      }
+    }
+    return coll;
+  }
+
+  public cycleAtmosphere(): 'day' | 'sunset' | 'night' {
+    if (this.townAtmosphere === 'day') {
+      this.townAtmosphere = 'sunset';
+    } else if (this.townAtmosphere === 'sunset') {
+      this.townAtmosphere = 'night';
+    } else {
+      this.townAtmosphere = 'day';
+    }
+    sfx.select();
+    this.wake();
+    return this.townAtmosphere;
+  }
+
+  public harvestBerries() {
+    try {
+      const STORAGE_KEY = 'critterdex:v1';
+      let data: any = { seen: {}, caught: {}, steps: 0, balls: 0, quiz: [] };
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        data = JSON.parse(raw);
+      }
+      data.balls = (data.balls || 0) + 3;
+      data.met = true;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      sfx.heal();
+      if (this.callbacks.onBubble) {
+        this.callbacks.onBubble(
+          'Berry Harvest 🍇',
+          `You picked fresh Oran, Sitrus & Cheri berries! +3 Poké Balls added to your bag. Total Poké Balls: ${data.balls} 🎒`
+        );
+      }
+    } catch {
+      if (this.callbacks.onBubble) {
+        this.callbacks.onBubble('Berry Harvest 🍇', 'You picked some delicious berries! (+3 Poké Balls)');
+      }
     }
   }
 
   public walkToObject(id: string) {
+    if (this.currentScene === 'tower') {
+      this.pendingTarget = id;
+      switch (id) {
+        case 'xurkitree':
+        case 'porygon':
+          this.walkTo(7, 4);
+          break;
+        case 'robotics-bay':
+          this.walkTo(2, 5);
+          break;
+        case 'server-rack':
+          this.walkTo(12, 6);
+          break;
+        case 'career-terminal':
+          this.walkTo(2, 9);
+          break;
+        case 'elevator':
+          this.walkTo(9, 9);
+          break;
+        case 'lounge':
+          this.walkTo(12, 8);
+          break;
+        case 'exit':
+          this.walkTo(7, 11);
+          break;
+        default:
+          const prop = TOWER_PROPS.find((p) => p.id === id);
+          if (prop) this.walkTo(prop.x, prop.y + prop.h);
+          break;
+      }
+      return;
+    }
+
+    if (this.currentScene === 'mart') {
+      this.pendingTarget = id;
+      switch (id) {
+        case 'clerk':
+          this.walkTo(6, 6);
+          break;
+        case 'services-shelf':
+          this.walkTo(2, 5);
+          break;
+        case 'tech-tms':
+          this.walkTo(11, 5);
+          break;
+        case 'potions-shelf':
+          this.walkTo(2, 6);
+          break;
+        case 'key-showcase':
+          this.walkTo(11, 6);
+          break;
+        case 'drink-cooler':
+          this.walkTo(12, 4);
+          break;
+        case 'exit':
+          this.walkTo(7, 11);
+          break;
+        default:
+          const prop = MART_PROPS.find((p) => p.id === id);
+          if (prop) this.walkTo(prop.x, prop.y + prop.h);
+          break;
+      }
+      return;
+    }
+
+    if (this.currentScene === 'reception') {
+      this.pendingTarget = id;
+      switch (id) {
+        case 'mira':
+          this.walkTo(7, 5);
+          break;
+        case 'healing-machine':
+          this.walkTo(11, 4);
+          break;
+        case 'pc-terminal':
+          this.walkTo(13, 6);
+          break;
+        case 'directory-board':
+          this.walkTo(2, 4);
+          break;
+        case 'waiting-couch':
+          this.walkTo(4, 7);
+          break;
+        case 'exit':
+          this.walkTo(7, 11);
+          break;
+        default:
+          const prop = RECEPTION_PROPS.find((p) => p.id === id);
+          if (prop) this.walkTo(prop.x, prop.y + prop.h);
+          break;
+      }
+      return;
+    }
+
     if (this.currentScene === 'arcade') {
       this.pendingTarget = id;
       switch (id) {
@@ -625,63 +1379,225 @@ export class TownEngine {
       return;
     }
 
+    const ALIAS_MAP: Record<string, string[]> = {
+      depop: ['shop'],
+      shop: ['depop'],
+      berry: ['garden'],
+      garden: ['berry'],
+      lookout: ['telescope', 'sign_lookout'],
+      hobby: ['gazebo', 'sign_hobby'],
+      ranger: ['ranger', 'camp'],
+      contest: ['contest', 'podium'],
+      kiosk: ['cafe', 'bar'],
+    };
+
+    let cfg = townConfig.getBuilding(id);
+    if (!cfg && ALIAS_MAP[id]) {
+      for (const alias of ALIAS_MAP[id]) {
+        cfg = townConfig.getBuilding(alias);
+        if (cfg) break;
+      }
+    }
+
+    if (cfg && cfg.doorX !== undefined && cfg.doorY !== undefined) {
+      if (cfg.kind === 'building') {
+        this.pendingTarget = null;
+      } else {
+        this.pendingTarget = id;
+      }
+      this.walkTo(cfg.doorX, cfg.doorY);
+      return;
+    }
+
+    // Dynamic fallback for custom/moved objects in town layout
+    if (cfg) {
+      if (cfg.kind === 'building') {
+        this.pendingTarget = null;
+        this.walkTo(cfg.x + Math.floor(cfg.w / 2), cfg.y + cfg.h);
+      } else if (cfg.kind === 'npc') {
+        this.pendingTarget = id;
+        this.walkTo(cfg.x, cfg.y + 1);
+      } else {
+        this.pendingTarget = id;
+        this.walkTo(cfg.x + Math.floor(cfg.w / 2), cfg.y + cfg.h);
+      }
+      return;
+    }
+
     switch (id) {
       case 'home':
         this.pendingTarget = null;
-        this.walkTo(8, 8);
+        this.walkTo(15, 27);
         break;
       case 'dev':
         this.pendingTarget = null;
-        this.walkTo(22, 8);
+        this.walkTo(16, 12);
         break;
       case 'lab':
         this.pendingTarget = null;
-        this.walkTo(8, 16);
+        this.walkTo(27, 9);
+        break;
+      case 'villa':
+        this.pendingTarget = null;
+        this.walkTo(38, 14);
         break;
       case 'arcade':
         this.pendingTarget = null;
-        this.walkTo(23, 16);
+        this.walkTo(28, 43);
         break;
+      case 'reception':
+        this.pendingTarget = null;
+        this.walkTo(15, 35);
+        break;
+      case 'office':
+      case 'tower':
+        this.pendingTarget = null;
+        this.walkTo(6, 51);
+        break;
+      case 'shop':
+      case 'mart':
       case 'depop':
-        this.pendingTarget = 'depop';
-        this.walkTo(7, 24);
+        this.pendingTarget = null;
+        this.walkTo(15, 42);
         break;
       case 'statue':
         this.pendingTarget = 'statue';
-        this.walkTo(14, 7);
+        this.walkTo(16, 17);
+        break;
+      case 'fountain':
+        this.pendingTarget = 'fountain';
+        this.walkTo(28, 33);
         break;
       case 'twin':
         this.pendingTarget = 'twin';
-        this.walkTo(13, 15);
+        this.walkTo(25, 27);
+        break;
+      case 'reshiram':
+        this.pendingTarget = 'reshiram';
+        this.walkTo(8, 28);
+        break;
+      case 'zekrom':
+        this.pendingTarget = 'zekrom';
+        this.walkTo(8, 38);
+        break;
+      case 'giratina':
+        this.pendingTarget = 'giratina';
+        this.walkTo(31, 26);
+        break;
+      case 'palkia':
+        this.pendingTarget = 'palkia';
+        this.walkTo(31, 33);
+        break;
+      case 'dialga':
+        this.pendingTarget = 'dialga';
+        this.walkTo(38, 36);
         break;
       case 'charizard':
       case 'lebron':
         this.pendingTarget = 'charizard';
-        this.walkTo(16, 24);
+        this.walkTo(26, 33);
+        break;
+      case 'kiosk':
+        this.pendingTarget = 'kiosk';
+        this.walkTo(28, 52);
         break;
       case 'linkedin':
         this.pendingTarget = 'linkedin';
-        this.walkTo(23, 21);
+        this.walkTo(36, 48);
         break;
       case 'resume':
         this.pendingTarget = 'resume';
-        this.walkTo(27, 21);
+        this.walkTo(40, 48);
         break;
       case 'github':
         this.pendingTarget = 'github';
-        this.walkTo(23, 22);
+        this.walkTo(36, 52);
         break;
       case 'email':
         this.pendingTarget = 'email';
-        this.walkTo(27, 22);
+        this.walkTo(40, 52);
+        break;
+      case 'lookout':
+        this.pendingTarget = 'lookout';
+        this.walkTo(39, 4);
+        break;
+      case 'arena': {
+        this.pendingTarget = 'arena';
+        const arenaCfg = townConfig.getBuilding('arena');
+        const targetX = arenaCfg ? arenaCfg.x + Math.floor(arenaCfg.w / 2) : 28;
+        const targetY = arenaCfg ? arenaCfg.y + arenaCfg.h - 1 : 24;
+        this.walkTo(targetX, targetY);
+        break;
+      }
+      case 'ace': {
+        this.pendingTarget = 'ace';
+        const arenaCfg = townConfig.getBuilding('arena');
+        const targetX = arenaCfg ? arenaCfg.x + Math.floor(arenaCfg.w / 2) - 1 : 28;
+        const targetY = arenaCfg ? arenaCfg.y + 2 : 18;
+        this.walkTo(targetX, targetY);
+        break;
+      }
+      case 'berry':
+        this.pendingTarget = 'berry';
+        this.walkTo(36, 21);
+        break;
+      case 'contest': {
+        this.pendingTarget = 'contest';
+        const cCfg = townConfig.getBuilding('contest');
+        if (cCfg && !cCfg.hidden) {
+          this.walkTo(cCfg.x + 3, cCfg.y + 5);
+        } else {
+          this.walkTo(39, 31);
+        }
+        break;
+      }
+      case 'ranger':
+        this.pendingTarget = 'ranger';
+        this.walkTo(37, 43);
+        break;
+      case 'hobby':
+        this.pendingTarget = 'hobby';
+        this.walkTo(8, 35);
+        break;
+      case 'ace':
+        this.pendingTarget = 'ace';
+        this.walkTo(28, 18);
         break;
     }
   }
 
-  public queueMove(dir: Dir) {
-    this.path = []; // cancel auto path
-    this.pendingTarget = null;
-    this.marker = null;
+  public getActiveHeldDir(): Dir | null {
+    if (this.heldDirs.length === 0) return null;
+    return this.heldDirs[this.heldDirs.length - 1];
+  }
+
+  public setDirPressed(dir: Dir, pressed: boolean) {
+    if (pressed) {
+      if (!this.heldDirs.includes(dir)) {
+        this.heldDirs.push(dir);
+      } else {
+        this.heldDirs = this.heldDirs.filter((d) => d !== dir);
+        this.heldDirs.push(dir);
+      }
+      this.path = [];
+      this.pendingTarget = null;
+      this.marker = null;
+
+      if (!this.isMoving) {
+        this.stepTowards(dir);
+      } else {
+        this.bufferedDir = dir;
+      }
+      this.wake();
+    } else {
+      this.heldDirs = this.heldDirs.filter((d) => d !== dir);
+      if (this.bufferedDir === dir) {
+        this.bufferedDir = null;
+      }
+    }
+  }
+
+  private stepTowards(dir: Dir) {
     this.playerDir = dir;
     const next = {
       x: this.playerPos.x + DIRS[dir].x,
@@ -694,9 +1610,29 @@ export class TownEngine {
       this.moveProgress = 0;
       this.wake();
     } else {
-      sfx.bump();
+      this.isMoving = false;
+      this.moveProgress = 0;
+      const now = performance.now();
+      if (now - this.lastBumpTime > 300) {
+        sfx.bump();
+        this.lastBumpTime = now;
+      }
       this.wake();
     }
+  }
+
+  public queueMove(dir: Dir) {
+    this.path = []; // cancel auto path
+    this.pendingTarget = null;
+    this.marker = null;
+    this.playerDir = dir;
+
+    if (this.isMoving) {
+      this.bufferedDir = dir;
+      return;
+    }
+
+    this.stepTowards(dir);
   }
 
   private canWalk(x: number, y: number): boolean {
@@ -719,8 +1655,19 @@ export class TownEngine {
       if (x < 0 || x >= ARCADE_COLS || y < 0 || y >= ARCADE_ROWS) return false;
       return ARCADE_COLLISION[y * ARCADE_COLS + x] === 0;
     }
-    if (x < 0 || x >= this.map.w || y < 0 || y >= this.map.h) return false;
-    return this.map.collision[y * this.map.w + x] === 0;
+    if (this.currentScene === 'reception') {
+      if (x < 0 || x >= RECEPTION_COLS || y < 0 || y >= RECEPTION_ROWS) return false;
+      return RECEPTION_COLLISION[y * RECEPTION_COLS + x] === 0;
+    }
+    if (this.currentScene === 'mart') {
+      if (x < 0 || x >= MART_COLS || y < 0 || y >= MART_ROWS) return false;
+      return MART_COLLISION[y * MART_COLS + x] === 0;
+    }
+    if (this.currentScene === 'tower') {
+      if (x < 0 || x >= TOWER_COLS || y < 0 || y >= TOWER_ROWS) return false;
+      return TOWER_COLLISION[y * TOWER_COLS + x] === 0;
+    }
+    return this.isTileWalkable(x, y);
   }
 
   private update(dt: number) {
@@ -737,26 +1684,75 @@ export class TownEngine {
     }
 
     if (this.isMoving) {
-      const speed = 5.5; // tiles per second
+      const speed = this.isShiftHeld ? 8.5 : 5.5; // tiles per second (Shift = running shoes!)
       this.moveProgress += dt * speed;
 
       if (this.moveProgress >= 1) {
         this.playerPos = { ...this.playerTarget };
-        this.isMoving = false;
-        this.moveProgress = 0;
         this.stepCount++;
         sfx.step();
 
         // Check tile triggers
+        const prevScene = this.currentScene;
+        const prevFloor = this.homeFloor;
         this.onStepComplete();
+        if (this.currentScene !== prevScene || this.homeFloor !== prevFloor) {
+          this.heldDirs = [];
+          this.bufferedDir = null;
+          this.isMoving = false;
+          this.moveProgress = 0;
+          return;
+        }
 
         // If path is complete, clear marker and trigger pending interaction
-        if (this.path.length === 0) {
+        if (this.path.length > 0) {
+          const nextStep = this.path.shift()!;
+          const dx = nextStep.x - this.playerPos.x;
+          const dy = nextStep.y - this.playerPos.y;
+
+          if (dx === 1) this.playerDir = 'right';
+          else if (dx === -1) this.playerDir = 'left';
+          else if (dy === 1) this.playerDir = 'down';
+          else if (dy === -1) this.playerDir = 'up';
+
+          this.playerTarget = nextStep;
+          this.moveProgress = Math.max(0, this.moveProgress - 1);
+          this.isMoving = true;
+        } else {
           this.marker = null;
           if (this.pendingTarget) {
             const t = this.pendingTarget;
             this.pendingTarget = null;
             this.triggerPendingTarget(t);
+          }
+
+          // Check if WASD key is held or if a direction was buffered
+          const nextDir = this.bufferedDir || this.getActiveHeldDir();
+          this.bufferedDir = null;
+
+          if (nextDir) {
+            this.playerDir = nextDir;
+            const next = {
+              x: this.playerPos.x + DIRS[nextDir].x,
+              y: this.playerPos.y + DIRS[nextDir].y,
+            };
+
+            if (this.canWalk(next.x, next.y)) {
+              this.playerTarget = next;
+              this.moveProgress = Math.max(0, this.moveProgress - 1);
+              this.isMoving = true;
+            } else {
+              this.isMoving = false;
+              this.moveProgress = 0;
+              const now = performance.now();
+              if (now - this.lastBumpTime > 300) {
+                sfx.bump();
+                this.lastBumpTime = now;
+              }
+            }
+          } else {
+            this.isMoving = false;
+            this.moveProgress = 0;
           }
         }
       }
@@ -773,6 +1769,11 @@ export class TownEngine {
       this.playerTarget = nextStep;
       this.isMoving = true;
       this.moveProgress = 0;
+    } else if (this.heldDirs.length > 0) {
+      const activeDir = this.getActiveHeldDir();
+      if (activeDir) {
+        this.stepTowards(activeDir);
+      }
     }
   }
 
@@ -786,10 +1787,36 @@ export class TownEngine {
         this.playerDir = 'up';
         this.interactFacing('twin');
         break;
+      case 'reshiram':
+        this.playerDir = 'left';
+        this.interactFacing('reshiram');
+        break;
+      case 'zekrom':
+        this.playerDir = 'left';
+        this.interactFacing('zekrom');
+        break;
+      case 'giratina':
+        this.playerDir = 'right';
+        this.interactFacing('giratina');
+        break;
+      case 'palkia':
+        this.playerDir = 'right';
+        this.interactFacing('palkia');
+        break;
+      case 'dialga':
+        this.playerDir = 'right';
+        this.interactFacing('dialga');
+        break;
       case 'charizard':
       case 'lebron':
         this.playerDir = 'down';
         this.interactFacing('charizard');
+        break;
+      case 'kiosk':
+      case 'cafe':
+      case 'bar':
+        this.playerDir = 'up';
+        this.interactFacing('kiosk');
         break;
       case 'linkedin':
         this.playerDir = 'up';
@@ -807,9 +1834,40 @@ export class TownEngine {
         this.playerDir = 'down';
         this.interactFacing('email');
         break;
+      case 'shop':
+      case 'mart':
       case 'depop':
         this.playerDir = 'up';
         this.interactFacing('depop');
+        break;
+      case 'lookout':
+        this.playerDir = 'up';
+        this.interactFacing('lookout');
+        break;
+      case 'arena':
+        this.playerDir = 'up';
+        this.interactFacing('arena');
+        break;
+      case 'berry':
+      case 'garden':
+        this.playerDir = 'up';
+        this.interactFacing('berry');
+        break;
+      case 'contest':
+        this.playerDir = 'up';
+        this.interactFacing('contest');
+        break;
+      case 'ranger':
+        this.playerDir = 'up';
+        this.interactFacing('ranger');
+        break;
+      case 'hobby':
+        this.playerDir = 'up';
+        this.interactFacing('hobby');
+        break;
+      case 'ace':
+        this.playerDir = 'up';
+        this.interactFacing('ace');
         break;
       // Home 1F props
       case 'shop-posters':
@@ -872,6 +1930,78 @@ export class TownEngine {
       case 'home2f-stairs-down':
         this.switchHomeFloor('1F');
         break;
+      // Reception props
+      case 'mira':
+        this.playerDir = 'up';
+        this.interactFacing('mira');
+        break;
+      case 'healing-machine':
+        this.playerDir = 'up';
+        this.interactFacing('healing-machine');
+        break;
+      case 'pc-terminal':
+        this.playerDir = 'up';
+        this.interactFacing('pc-terminal');
+        break;
+      case 'directory-board':
+        this.playerDir = 'up';
+        this.interactFacing('directory-board');
+        break;
+      case 'waiting-couch':
+        this.playerDir = 'left';
+        this.interactFacing('waiting-couch');
+        break;
+      // Tech Tower props
+      case 'xurkitree':
+      case 'porygon':
+        this.playerDir = 'up';
+        this.interactFacing('porygon');
+        break;
+      case 'robotics-bay':
+        this.playerDir = 'up';
+        this.interactFacing('robotics-bay');
+        break;
+      case 'server-rack':
+        this.playerDir = 'up';
+        this.interactFacing('server-rack');
+        break;
+      case 'career-terminal':
+        this.playerDir = 'up';
+        this.interactFacing('career-terminal');
+        break;
+      case 'elevator':
+        this.playerDir = 'up';
+        this.interactFacing('elevator');
+        break;
+      case 'lounge':
+        this.playerDir = 'right';
+        this.interactFacing('lounge');
+        break;
+      // Poké Mart props
+      case 'clerk':
+        this.playerDir = 'up';
+        this.interactFacing('clerk');
+        break;
+      case 'services-shelf':
+        this.playerDir = 'up';
+        this.interactFacing('services-shelf');
+        break;
+      case 'tech-tms':
+        this.playerDir = 'up';
+        this.interactFacing('tech-tms');
+        break;
+      case 'potions-shelf':
+        this.playerDir = 'up';
+        this.interactFacing('potions-shelf');
+        break;
+      case 'key-showcase':
+        this.playerDir = 'up';
+        this.interactFacing('key-showcase');
+        break;
+      case 'drink-cooler':
+        this.playerDir = 'right';
+        this.interactFacing('drink-cooler');
+        break;
       default:
         this.interactFacing(id);
         break;
@@ -879,6 +2009,33 @@ export class TownEngine {
   }
 
   private onStepComplete() {
+    if (this.currentScene === 'tower') {
+      if (this.playerPos.x === 7 && this.playerPos.y === 11) {
+        sfx.door();
+        this.callbacks.onNavigate('/');
+        return;
+      }
+      return;
+    }
+
+    if (this.currentScene === 'mart') {
+      if (this.playerPos.x === 7 && this.playerPos.y === 11) {
+        sfx.door();
+        this.callbacks.onNavigate('/');
+        return;
+      }
+      return;
+    }
+
+    if (this.currentScene === 'reception') {
+      if (this.playerPos.x === 7 && this.playerPos.y === 11) {
+        sfx.door();
+        this.callbacks.onNavigate('/');
+        return;
+      }
+      return;
+    }
+
     if (this.currentScene === 'arcade') {
       if (this.playerPos.x === 9 && this.playerPos.y === 13) {
         sfx.door();
@@ -931,7 +2088,37 @@ export class TownEngine {
 
     const tileIdx = this.playerPos.y * this.map.w + this.playerPos.x;
 
-    // 1. Door trigger
+    // 1. Dynamic building door triggers from townConfig (door tile or entrance step walking up)
+    for (const b of this.map.buildings) {
+      const cfg = townConfig.getBuilding(b.id);
+      const doorX = cfg?.doorX ?? b.doors?.[0]?.x;
+      const doorY = cfg?.doorY ?? b.doors?.[0]?.y;
+      const route = cfg?.link ?? b.route;
+      if (doorX !== undefined && doorY !== undefined && route) {
+        if (
+          (this.playerPos.x === doorX && this.playerPos.y === doorY) ||
+          (this.playerPos.x === doorX && this.playerPos.y === doorY + 1 && this.playerDir === 'up')
+        ) {
+          sfx.door();
+          this.callbacks.onNavigate(route);
+          return;
+        }
+      }
+      if (Array.isArray(b.doors)) {
+        for (const d of b.doors) {
+          if (
+            (d.x === this.playerPos.x && d.y === this.playerPos.y) ||
+            (d.x === this.playerPos.x && d.y === this.playerPos.y + 1 && this.playerDir === 'up')
+          ) {
+            sfx.door();
+            this.callbacks.onNavigate(route || '/');
+            return;
+          }
+        }
+      }
+    }
+
+    // Static door fallback
     const route = this.map.doors.get(tileIdx);
     if (route) {
       sfx.door();
@@ -939,26 +2126,16 @@ export class TownEngine {
       return;
     }
 
-    // 2. Tall grass encounter
-    if (this.map.ground[tileIdx] === 2) {
-      let handled = false;
+    // 2. Tall grass encounter (Map ground or custom tall_grass override)
+    const customOverride = townConfig.getTileOverride(this.playerPos.x, this.playerPos.y);
+    if (this.map.ground[tileIdx] === 2 || customOverride === 'tall_grass') {
       document.dispatchEvent(
         new CustomEvent('town:grass', {
           detail: {
             at: { ...this.playerPos },
-            reply: (h: boolean) => {
-              handled = h;
-            },
           },
         })
       );
-      if (handled) return;
-
-      if (Math.random() < 0.15) {
-        sfx.encounter();
-        this.callbacks.onEncounter();
-        return;
-      }
     }
   }
 
@@ -976,7 +2153,7 @@ export class TownEngine {
       this.cameraY = (HOME2F_ROWS * TILE_SIZE) / 2;
       try {
         history.replaceState(null, '', '/about?floor=2');
-      } catch {}
+      } catch { }
     } else {
       this.playerPos = { x: 12, y: 4 };
       this.playerTarget = { x: 12, y: 4 };
@@ -985,7 +2162,7 @@ export class TownEngine {
       this.cameraY = (HOME_ROWS * TILE_SIZE) / 2;
       try {
         history.replaceState(null, '', '/about');
-      } catch {}
+      } catch { }
     }
     this.path = [];
     this.isMoving = false;
@@ -1026,6 +2203,293 @@ export class TownEngine {
 
   public interactFacing(targetId?: string) {
     const activeTarget = targetId || this.pendingTarget;
+    if (this.currentScene === 'tower') {
+      const fx = this.playerPos.x + DIRS[this.playerDir].x;
+      const fy = this.playerPos.y + DIRS[this.playerDir].y;
+      const prop =
+        (activeTarget ? TOWER_PROPS.find((p) => p.id === activeTarget) : undefined) ||
+        TOWER_PROPS.find(
+          (p) =>
+            (fx >= p.x && fx < p.x + p.w && fy >= p.y && fy < p.y + p.h) ||
+            (this.playerPos.x >= p.x - 1 &&
+              this.playerPos.x <= p.x + p.w &&
+              this.playerPos.y >= p.y - 1 &&
+              this.playerPos.y <= p.y + p.h)
+        );
+
+      if (prop) {
+        sfx.select();
+        if (prop.target.type === 'event' && prop.target.name) {
+          if (prop.target.name === 'xurkitree' || prop.target.name === 'porygon') {
+            if (this.callbacks.onBubble) {
+              this.callbacks.onBubble(
+                'Xurkitree AI Host · Tech Tower ⚡',
+                '⚡ BZZZZT-KZZT! Welcome to Tech Tower! I am Xurkitree (UB-03 Lighting), the high-voltage AI Host managing Muhammad Zulfan\'s cloud architecture, IoT robotics, and AI research.',
+                {
+                  label: 'Floor Directory',
+                  onClick: () => {
+                    const el = document.getElementById('tower-directory');
+                    el?.scrollIntoView({ behavior: 'smooth' });
+                  },
+                }
+              );
+            } else {
+              this.callbacks.onDialogue('Xurkitree AI Host ⚡', [
+                '⚡ BZZZT-KZZT! Welcome to Tech Tower! This 4-story facility is Muhammad Zulfan\'s research hub for robotics, cloud infrastructure, and distributed AI.',
+                'Use the Executive Elevator to the right to explore floors 1F through 4F!',
+              ]);
+            }
+          } else if (prop.target.name === 'robotics-bay') {
+            if (this.callbacks.onBubble) {
+              this.callbacks.onBubble(
+                'Robotics & IoT Bay (2F) 🤖',
+                'Robotics workshop & IoT prototypes: ESP32 RC Tank with dual motor drive, ultrasonic sensor telemetry, and ITENAS Robotics Lab Coordinator documentation.',
+                {
+                  label: 'View 2F Details',
+                  onClick: () => {
+                    const tab = document.querySelector<HTMLButtonElement>('[data-tower-floor="floor-2"]');
+                    tab?.click();
+                    const el = document.getElementById('tower-directory');
+                    el?.scrollIntoView({ behavior: 'smooth' });
+                  },
+                }
+              );
+            }
+          } else if (prop.target.name === 'server-rack') {
+            if (this.callbacks.onBubble) {
+              this.callbacks.onBubble(
+                'Cloud & Network NOC (3F) 🖧',
+                'High-security cloud infrastructure: Huawei HCIA-Security V4.0 certification, Docker & Kubernetes container orchestration, plus Kafka & Redis architecture.',
+                {
+                  label: 'View 3F Details',
+                  onClick: () => {
+                    const tab = document.querySelector<HTMLButtonElement>('[data-tower-floor="floor-3"]');
+                    tab?.click();
+                    const el = document.getElementById('tower-directory');
+                    el?.scrollIntoView({ behavior: 'smooth' });
+                  },
+                }
+              );
+            }
+          } else if (prop.target.name === 'career-terminal') {
+            if (this.callbacks.onBubble) {
+              this.callbacks.onBubble(
+                'Experience Terminal (4F) 💼',
+                'Professional career kiosk: 6x ITENAS Laboratory Assistant, Software Development Internship at PT Dwi Purwa Teknologi, and 3rd Place IDEA FEST.',
+                {
+                  label: 'View 4F Details',
+                  onClick: () => {
+                    const tab = document.querySelector<HTMLButtonElement>('[data-tower-floor="floor-4"]');
+                    tab?.click();
+                    const el = document.getElementById('tower-directory');
+                    el?.scrollIntoView({ behavior: 'smooth' });
+                  },
+                }
+              );
+            }
+          } else if (prop.target.name === 'elevator') {
+            if (this.callbacks.onBubble) {
+              this.callbacks.onBubble(
+                'Executive Elevator 🛗',
+                'Tech Tower inter-floor elevator: 1F Lobby & AI Receptionist, 2F Robotics & IoT Bay, 3F Cloud & NOC, 4F Enterprise Mentorship.',
+                {
+                  label: 'Open Floor Directory',
+                  onClick: () => {
+                    const el = document.getElementById('tower-directory');
+                    el?.scrollIntoView({ behavior: 'smooth' });
+                  },
+                }
+              );
+            }
+          } else {
+            document.dispatchEvent(new CustomEvent(`town:${prop.target.name}`));
+          }
+        } else if (prop.target.type === 'note' && prop.target.text) {
+          if (this.callbacks.onBubble) {
+            this.callbacks.onBubble(prop.label, prop.target.text);
+          } else {
+            this.callbacks.onDialogue(prop.label, [prop.target.text]);
+          }
+        } else if (prop.target.type === 'place' && prop.target.id) {
+          this.callbacks.onNavigate(`/${prop.target.id === 'town' ? '' : prop.target.id}`);
+        }
+        this.wake();
+      }
+      return;
+    }
+
+    if (this.currentScene === 'mart') {
+      const fx = this.playerPos.x + DIRS[this.playerDir].x;
+      const fy = this.playerPos.y + DIRS[this.playerDir].y;
+      const prop =
+        (activeTarget ? MART_PROPS.find((p) => p.id === activeTarget) : undefined) ||
+        MART_PROPS.find(
+          (p) =>
+            (fx >= p.x && fx < p.x + p.w && fy >= p.y && fy < p.y + p.h) ||
+            (this.playerPos.x >= p.x - 1 &&
+              this.playerPos.x <= p.x + p.w &&
+              this.playerPos.y >= p.y - 1 &&
+              this.playerPos.y <= p.y + p.h)
+        );
+
+      if (prop) {
+        sfx.select();
+        if (prop.target.type === 'event' && prop.target.name) {
+          if (prop.target.name === 'clerk') {
+            if (this.callbacks.onBubble) {
+              this.callbacks.onBubble(
+                'Clerk Kevin · Poké Mart',
+                "Welcome to Zulfan's Poké Mart! We supply full-stack web platforms, low-latency TensorRT AI models, and technical consultations. What would you like to inspect?",
+                {
+                  label: 'Browse Catalog',
+                  onClick: () => {
+                    const el = document.getElementById('mart-catalog');
+                    el?.scrollIntoView({ behavior: 'smooth' });
+                  },
+                }
+              );
+            } else {
+              this.callbacks.onDialogue('Clerk Kevin', [
+                "Welcome to Zulfan's Poké Mart! Browse our software services, developer potions, or pick up Zulfan's official CV below!",
+              ]);
+            }
+          } else if (prop.target.name === 'services-shelf') {
+            if (this.callbacks.onBubble) {
+              this.callbacks.onBubble(
+                'Engineering Services Shelf 🎒',
+                'Custom software solutions ready for commission: Full-Stack Web Development (Laravel 12 / Next.js) and Edge AI Computer Vision (YOLOv11 + TensorRT ~1.8ms/frame).',
+                {
+                  label: 'Commission Services',
+                  onClick: () => {
+                    const el = document.getElementById('item-service-fullstack');
+                    el?.scrollIntoView({ behavior: 'smooth' });
+                  },
+                }
+              );
+            }
+          } else if (prop.target.name === 'tech-tms') {
+            if (this.callbacks.onBubble) {
+              this.callbacks.onBubble(
+                'Technical TMs & Stack Discs 💿',
+                'Inscribe cutting-edge technologies into your codebase: Python & PyTorch, TypeScript & Astro, Laravel 12 & PHP, Docker & Kubernetes, and TensorRT & CUDA.',
+                {
+                  label: 'Explore Tech TMs',
+                  onClick: () => {
+                    const tab = document.querySelector<HTMLButtonElement>('[data-tab="tech"]');
+                    tab?.click();
+                    const el = document.getElementById('mart-catalog');
+                    el?.scrollIntoView({ behavior: 'smooth' });
+                  },
+                }
+              );
+            }
+          } else if (prop.target.name === 'potions-shelf') {
+            if (this.callbacks.onBubble) {
+              this.callbacks.onBubble(
+                'Dev Potions & Productivity Boosters 🧪',
+                'Essential engineer supplies: Bandung Specialty Espresso (+50% Focus), Clean Architecture Ether (100% Code Quality), and Git Full Restore.',
+                {
+                  label: 'Inspect Potions',
+                  onClick: () => {
+                    const tab = document.querySelector<HTMLButtonElement>('[data-tab="potions"]');
+                    tab?.click();
+                    const el = document.getElementById('mart-catalog');
+                    el?.scrollIntoView({ behavior: 'smooth' });
+                  },
+                }
+              );
+            }
+          } else if (prop.target.name === 'key-showcase') {
+            if (this.callbacks.onBubble) {
+              this.callbacks.onBubble(
+                'Key Items Pedestal & CV 🔑',
+                "Pedestal showcasing Muhammad Zulfan's ITENAS Informatics Diploma (GPA 3.49), AeroScan AI Weights, and Official CV / Résumé.",
+                {
+                  label: 'Download CV (PDF)',
+                  href: '/cv/CV_Zulfan.pdf',
+                }
+              );
+            }
+          } else {
+            document.dispatchEvent(new CustomEvent(`town:${prop.target.name}`));
+          }
+        } else if (prop.target.type === 'note' && prop.target.text) {
+          if (this.callbacks.onBubble) {
+            this.callbacks.onBubble(prop.label, prop.target.text);
+          } else {
+            this.callbacks.onDialogue(prop.label, [prop.target.text]);
+          }
+        } else if (prop.target.type === 'place' && prop.target.id) {
+          this.callbacks.onNavigate(`/${prop.target.id === 'town' ? '' : prop.target.id}`);
+        }
+        this.wake();
+      }
+      return;
+    }
+
+    if (this.currentScene === 'reception') {
+      const fx = this.playerPos.x + DIRS[this.playerDir].x;
+      const fy = this.playerPos.y + DIRS[this.playerDir].y;
+      const prop =
+        (activeTarget ? RECEPTION_PROPS.find((p) => p.id === activeTarget) : undefined) ||
+        RECEPTION_PROPS.find(
+          (p) =>
+            (fx >= p.x && fx < p.x + p.w && fy >= p.y && fy < p.y + p.h) ||
+            (this.playerPos.x >= p.x - 1 &&
+              this.playerPos.x <= p.x + p.w &&
+              this.playerPos.y >= p.y - 1 &&
+              this.playerPos.y <= p.y + p.h)
+        );
+
+      if (prop) {
+        sfx.select();
+        if (prop.target.type === 'event' && prop.target.name) {
+          if (prop.target.name === 'mira') {
+            if (this.callbacks.onBubble) {
+              this.callbacks.onBubble(
+                'Nurse Mira · Front Desk',
+                "Welcome to the Pokémon Center! I'm Mira. Feel free to ask me anything about Zulfan's experience, research, or ask me for directions!",
+                {
+                  label: 'Chat with Mira',
+                  onClick: () => {
+                    const input = document.querySelector<HTMLInputElement>('#chat-input');
+                    input?.focus();
+                  },
+                }
+              );
+            } else {
+              this.callbacks.onDialogue('Nurse Mira', [
+                "Welcome to the Pokémon Center! I'm Mira. Ask me anything about Zulfan's background or town directions!",
+              ]);
+            }
+          } else if (prop.target.name === 'healing-machine') {
+            sfx.heal();
+            this.callbacks.onRefill();
+            if (this.callbacks.onBubble) {
+              this.callbacks.onBubble(
+                'Pokéball Healing Station',
+                'Your party has been fully rested and all Poké Balls refilled to 10! ✨'
+              );
+            }
+          } else if (prop.target.name === 'pc-terminal') {
+            this.callbacks.onOpenModal('dex');
+          } else {
+            document.dispatchEvent(new CustomEvent(`town:${prop.target.name}`));
+          }
+        } else if (prop.target.type === 'note' && prop.target.text) {
+          if (this.callbacks.onBubble) {
+            this.callbacks.onBubble(prop.label, prop.target.text);
+          } else {
+            this.callbacks.onDialogue(prop.label, [prop.target.text]);
+          }
+        } else if (prop.target.type === 'place' && prop.target.id) {
+          this.callbacks.onNavigate(`/${prop.target.id === 'town' ? '' : prop.target.id}`);
+        }
+        this.wake();
+      }
+      return;
+    }
+
     if (this.currentScene === 'arcade') {
       const fx = this.playerPos.x + DIRS[this.playerDir].x;
       const fy = this.playerPos.y + DIRS[this.playerDir].y;
@@ -1205,12 +2669,352 @@ export class TownEngine {
     const fx = this.playerPos.x + DIRS[this.playerDir].x;
     const fy = this.playerPos.y + DIRS[this.playerDir].y;
 
+    const arenaCfg = townConfig.getBuilding('arena');
+    const aceX = arenaCfg ? arenaCfg.x + Math.floor(arenaCfg.w / 2) - 1 : 28;
+    const aceY = arenaCfg ? arenaCfg.y + 1 : 17;
+
     // 1. Check NPC
     const npc =
       (activeTarget ? this.map.npcs.find((n) => n.id === activeTarget) : undefined) ||
-      this.map.npcs.find((n) => n.x === fx && n.y === fy);
+      this.map.npcs.find((n) => {
+        const cfg = townConfig.getBuilding(n.id);
+        const nx = cfg ? cfg.x : (n.id === 'ace' ? aceX : n.x);
+        const ny = cfg ? cfg.y : (n.id === 'ace' ? aceY : n.y);
+        return nx === fx && ny === fy;
+      });
     if (npc) {
       sfx.select();
+      if (npc.id === 'dialga' || (npc as any).subType === 'dialga') {
+        sfx.select();
+        const dialgaLines = [
+          'DIALGA: "Gugyugubah...!" ⏳🔷',
+          'Di koridor timur antara Contest Stage dan Ranger Camp, Dialga Sang Penguasa Dimensi Waktu berdiri kokoh nan megah.',
+          'Kristal berlian di dadanya memancarkan denyut waktu kosmik (Roar of Time) yang menjaga detak masa lalu, masa kini, dan masa depan.',
+          'Dalam mitologi Sinnoh, waktu mulai mengalir saat Dialga lahir bersama Palkia dan Giratina dari kehendak Arceus.',
+        ];
+        if (this.callbacks.onBubble) {
+          this.callbacks.onBubble(
+            'Dialga (The Temporal Pokémon) ⏳🔷',
+            'Gugyugubah...! ⏳🔷 (Kristal berlian di dada Dialga memancarkan denyut distorsi waktu Roar of Time. Sang Penguasa Waktu mengawasi setiap detik evolusi teknologi di Zulfan\'s Town.)',
+            {
+              label: 'Dentang Waktu Roar of Time ⏳',
+              onClick: () => sfx.encounter(),
+            }
+          );
+        } else {
+          this.callbacks.onDialogue('Dialga Sang Penguasa Waktu ⏳🔷', dialgaLines);
+        }
+        document.dispatchEvent(new CustomEvent('town:dialga'));
+        this.wake();
+        return;
+      }
+      if (npc.id === 'palkia' || (npc as any).subType === 'palkia') {
+        sfx.select();
+        const palkiaLines = [
+          'PALKIA: "Gyaaa-ooohhn...!" 🌌💧',
+          'Di pelataran timur Fountain Plaza, Palkia Sang Penguasa Dimensi Ruang berdiri dengan anggun.',
+          'Mutiara kosmik di pundaknya berpendar memancarkan riak pemecah ruang (Spacial Rend).',
+          'Dalam mitologi Sinnoh, Palkia lahir bersama Dialga dan Giratina dari kehendak Arceus untuk menenun dan menjaga kain ruang alam semesta.',
+        ];
+        if (this.callbacks.onBubble) {
+          this.callbacks.onBubble(
+            'Palkia (The Spatial Pokémon) 🌌💧',
+            'Gyaaa-ooohhn...! 🌌💧 (Mutiara kosmik di pundak Palkia berpendar dengan riak pemecah ruang Spacial Rend. Sang Penguasa Ruang mengamati Zulfan\'s Town dengan aura agung pelindung dimensi.)',
+            {
+              label: 'Riak Dimensi Spacial Rend 🌌',
+              onClick: () => sfx.encounter(),
+            }
+          );
+        } else {
+          this.callbacks.onDialogue('Palkia Sang Penguasa Ruang 🌌💧', palkiaLines);
+        }
+        document.dispatchEvent(new CustomEvent('town:palkia'));
+        this.wake();
+        return;
+      }
+      if (npc.id === 'giratina' || (npc as any).subType === 'giratina') {
+        sfx.select();
+        const giratinaLines = [
+          'GIRATINA: "Gyaaa-shhhooo...!" 👻🌌',
+          'Di sudut promenade, Giratina Sang Penguasa Dunia Distorsi berdiri dalam bayang-bayang dimensi antimateri.',
+          'Enam sayap hitam berhiaskan cakar merah darah mengepak dalam keheningan dimensi lain.',
+          'Menurut mitologi Sinnoh, Giratina diciptakan oleh Arceus bersama Dialga dan Palkia untuk menjaga keseimbangan gravitasi dan antimateri.',
+        ];
+        if (this.callbacks.onBubble) {
+          this.callbacks.onBubble(
+            'Giratina (The Renegade Pokémon) 👻🌌',
+            'Gyaaa-shhhooo...! 👻🌌 (Kabut antimateri ungu pekat dan portal bayangan berputar di bawah Giratina. Sang Penguasa Dunia Distorsi mengawasi keseimbangan Zulfan\'s Town dari celah dimensi.)',
+            {
+              label: 'Gemuruh Dunia Distorsi 🌌',
+              onClick: () => sfx.encounter(),
+            }
+          );
+        } else {
+          this.callbacks.onDialogue('Giratina Sang Penguasa Distorsi 👻🌌', giratinaLines);
+        }
+        document.dispatchEvent(new CustomEvent('town:giratina'));
+        this.wake();
+        return;
+      }
+      if (npc.id === 'zekrom' || (npc as any).subType === 'zekrom') {
+        sfx.select();
+        const zekromLines = [
+          'ZEKROM: "Bzzzz-Vrrrooom...!" 🖤⚡',
+          'Di pelataran tebing pesisir selatan, Zekrom Sang Deep Black Pokémon berdiri dengan perkasa.',
+          'Ekor generator listriknya berputar kencang memancarkan kilatan petir bertegangan raksasa (Fusion Bolt).',
+          'Dalam mitologi Unova, Zekrom hadir mendampingi para visioner yang gigih mewujudkan cita-cita dan idealisme demi peradaban masa depan.',
+        ];
+        if (this.callbacks.onBubble) {
+          this.callbacks.onBubble(
+            'Zekrom (The Deep Black Pokémon) 🖤⚡',
+            'Bzzzz-Vrrrooom...! 🖤⚡ (Ekor generator Zekrom berputar kencang memancarkan kilatan petir bertegangan tinggi. Sang Naga Legendaris mengamati laut lepas Zulfan\'s Town dengan aura idealisme yang membara.)',
+            {
+              label: 'Kilatan Fusion Bolt ⚡',
+              onClick: () => sfx.encounter(),
+            }
+          );
+        } else {
+          this.callbacks.onDialogue('Zekrom Sang Naga Idealisme 🖤⚡', zekromLines);
+        }
+        document.dispatchEvent(new CustomEvent('town:zekrom'));
+        this.wake();
+        return;
+      }
+      if (npc.id === 'reshiram' || (npc as any).subType === 'reshiram') {
+        sfx.select();
+        const reshiramLines = [
+          'RESHIRAM: "Vaaa-zhooom...!" 🤍🔥',
+          'Di tebing pesisir pantai barat, Reshiram Sang Vast White Pokémon berdiri dengan megah.',
+          'Ekor turbinnya memancarkan api kebenaran murni (Fusion Flare), menghangatkan semilir angin laut Zulfan\'s Town.',
+          'Dalam mitologi Unova, Reshiram hadir membimbing mereka yang memiliki integritas dan tekad kuat dalam membangun masa depan teknologi.',
+        ];
+        if (this.callbacks.onBubble) {
+          this.callbacks.onBubble(
+            'Reshiram (The Vast White Pokémon) 🤍🔥',
+            'Vaaa-zhooom...! 🤍🔥 (Ekor turbin Reshiram membara dengan api kebenaran murni. Sang Naga Legendaris mengamati lautan lepas Zulfan\'s Town dengan aura agung nan suci.)',
+            {
+              label: 'Gemuruh Fusion Flare 🔥',
+              onClick: () => sfx.encounter(),
+            }
+          );
+        } else {
+          this.callbacks.onDialogue('Reshiram Sang Naga Kebenaran 🤍🔥', reshiramLines);
+        }
+        document.dispatchEvent(new CustomEvent('town:reshiram'));
+        this.wake();
+        return;
+      }
+      if (npc.id === 'arceus') {
+        sfx.select();
+        const arceusLines = [
+          'ARCEUS: "Dooo-oooonnn...!" ✨',
+          'Di pelataran Dev Center, Arceus Sang Alpha Pokémon berdiri mengamati kota.',
+          'Konon dalam mitologi Sinnoh, Arceus lahir sebelum alam semesta terbentuk dan menciptakan ruang serta waktu dengan 1.000 lengannya.',
+          'Kehadirannya di Zulfan\'s Town membawa berkat kedamaian dan inspirasi kreativitas teknologi tanpa batas.',
+        ];
+        if (this.callbacks.onBubble) {
+          this.callbacks.onBubble(
+            'Arceus (The Alpha Pokémon) 🌟',
+            'Dooo-oooonnn...! ✨ (Pendaran cahaya keemasan terpancar dari cincin roda kosmik Arceus. Sang Alpha Pokémon mengawasi pelataran Zulfan\'s Town dengan aura agung.)'
+          );
+        } else {
+          this.callbacks.onDialogue('Arceus Sang Pencipta 🌟', arceusLines);
+        }
+        this.wake();
+        return;
+      }
+      if (npc.id === 'groudon' || (npc as any).subType === 'groudon') {
+        sfx.select();
+        const groudonLines = [
+          'GROUDON: "Gwoooaaarrr-ghuuu...!" 🌋🔥',
+          'Di pelataran daratan Zulfan\'s Town, Groudon Sang Penguasa Magma & Benua berdiri kokoh nan perkasa.',
+          'Aura panas Desolate Land memancar dari alur garis hitam di tubuh merah crimsonnya, mengeringkan kabut dan memadatkan magma menjadi daratan kokoh.',
+          'Dalam mitologi Hoenn purba, Groudon adalah Pokémon Legendaris yang menciptakan dan memperluas benua alam semesta.',
+        ];
+        if (this.callbacks.onBubble) {
+          this.callbacks.onBubble(
+            'Groudon (The Continent Pokémon) 🌋🔥',
+            'Gwoooaaarrr-ghuuu...! 🌋🔥 (Kerak bumi bergetar dan gelombang panas Desolate Land memancar dari tubuh Groudon. Sang Penguasa Daratan menjaga kestabilan pondasi benua di Zulfan\'s Town.)',
+            {
+              label: 'Gemuruh Magma Precipice Blades 🌋',
+              onClick: () => sfx.encounter(),
+            }
+          );
+        } else {
+          this.callbacks.onDialogue('Groudon Sang Penguasa Daratan 🌋🔥', groudonLines);
+        }
+        document.dispatchEvent(new CustomEvent('town:groudon'));
+        this.wake();
+        return;
+      }
+      if (npc.id === 'kyogre' || (npc as any).subType === 'kyogre') {
+        sfx.select();
+        const kyogreLines = [
+          'KYOGRE: "Gyaaa-oooh-shuuu...!" 🌊💧',
+          'Di perairan dan pesisir Zulfan\'s Town, Kyogre Sang Penguasa Samudra & Palung Laut melayang dengan anggun.',
+          'Aura hujan lebat Primordial Sea memancar dari guratan merah di sirip lebarnya, mengisi sumber mata air dan menjaga kedalaman samudra tanpa batas.',
+          'Dalam mitologi Hoenn purba, Kyogre dipuja sebagai pencipta lautan luas yang mempertemukan pulau-pulau di alam semesta.',
+        ];
+        if (this.callbacks.onBubble) {
+          this.callbacks.onBubble(
+            'Kyogre (The Sea Basin Pokémon) 🌊💧',
+            'Gyaaa-oooh-shuuu...! 🌊💧 (Deru ombak samudra dan rintik hujan Primordial Sea memancar dari sirip Kyogre. Sang Penguasa Samudra menjaga kemurnian aliran air di Zulfan\'s Town.)',
+            {
+              label: 'Gelombang Samudra Origin Pulse 🌊',
+              onClick: () => sfx.encounter(),
+            }
+          );
+        } else {
+          this.callbacks.onDialogue('Kyogre Sang Penguasa Samudra 🌊💧', kyogreLines);
+        }
+        document.dispatchEvent(new CustomEvent('town:kyogre'));
+        this.wake();
+        return;
+      }
+      if (npc.id === 'latios' || (npc as any).subType === 'latios') {
+        sfx.select();
+        const latiosLines = [
+          'LATIOS: "Shwiii-shooo...!" ✈️🔷',
+          'Di angkasa Zulfan\'s Town, Latios Sang Pokémon Eon melayang dengan aerodinamika supersonik.',
+          'Bentuk tubuhnya yang ramping seperti pesawat jet memungkinkannya melesat melebihi kecepatan suara sambil memproyeksikan telepati kedamaian.',
+          'Dalam legenda Hoenn dan Alto Mare, Latios adalah pelindung berhati murni yang menjaga Soul Dew demi keselamatan seluruh kota.',
+        ];
+        if (this.callbacks.onBubble) {
+          this.callbacks.onBubble(
+            'Latios (The Eon Pokémon) ✈️🔷',
+            'Shwiii-shooo...! ✈️🔷 (Sayap jet Latios berpendar memancarkan gelombang psikis aerodinamis. Sang Penjaga Jiwa dan Cahaya mengawasi Zulfan\'s Town dengan kecepatan kilat.)',
+            {
+              label: 'Kecepatan Jet Luster Purge 🔷',
+              onClick: () => sfx.encounter(),
+            }
+          );
+        } else {
+          this.callbacks.onDialogue('Latios Sang Penjelajah Angkasa ✈️🔷', latiosLines);
+        }
+        document.dispatchEvent(new CustomEvent('town:latios'));
+        this.wake();
+        return;
+      }
+      if (npc.id === 'latias' || (npc as any).subType === 'latias') {
+        sfx.select();
+        const latiasLines = [
+          'LATIAS: "Kyuuu-wiiin...!" 💖✨',
+          'Di taman dan angkasa Zulfan\'s Town, Latias Sang Pokémon Eon melayang dengan keanggunan berhati murni.',
+          'Bulu halusnya dapat membiaskan cahaya untuk berkamuflase, memancarkan telepati kehangatan dan empati kepada setiap orang.',
+          'Dalam legenda Hoenn dan Alto Mare, Latias adalah pelindung lembut nan pemberani yang menjaga keharmonisan kota.',
+        ];
+        if (this.callbacks.onBubble) {
+          this.callbacks.onBubble(
+            'Latias (The Eon Pokémon) 💖✨',
+            'Kyuuu-wiiin...! 💖✨ (Sayap kemerahan Latias berpendar membiaskan kilau cahaya Refract Light. Sang Pelindung Jiwa menyebarkan aura kedamaian dan kehangatan di Zulfan\'s Town.)',
+            {
+              label: 'Cahaya Mistik Mist Ball 💖',
+              onClick: () => sfx.encounter(),
+            }
+          );
+        } else {
+          this.callbacks.onDialogue('Latias Sang Pelindung Hati 💖✨', latiasLines);
+        }
+        document.dispatchEvent(new CustomEvent('town:latias'));
+        this.wake();
+        return;
+      }
+      if (npc.id === 'darkrai' || (npc as any).subType === 'darkrai') {
+        sfx.select();
+        const darkraiLines = [
+          'DARKRAI: "Zzzz-shhhwaaaddd...!" 🌑💤',
+          'Di perbatasan bayang-bayang Zulfan\'s Town, Darkrai Sang Pokémon Mistik melayang dalam keheningan malam.',
+          'Kabut bayangan hitam pekat berputar di bawah mantelnya. Konon saat bulan baru muncul, Darkrai dapat memicu tidur lelap dan mimpi buruk tak berujung (Dark Void).',
+          'Namun di balik reputasinya yang menakutkan, Darkrai bertindak sebagai pelindung tersembunyi yang mengusir marabahaya dari dimensi bayangan.',
+        ];
+        if (this.callbacks.onBubble) {
+          this.callbacks.onBubble(
+            'Darkrai (The Pitch-Black Pokémon) 🌑💤',
+            'Zzzz-shhhwaaaddd...! 🌑💤 (Kabut bayangan hitam berputar di bawah mantel Darkrai. Sang Penguasa Dimensi Mimpi Buruk mengawasi perbatasan Zulfan\'s Town dari balik tirai kegelapan.)',
+            {
+              label: 'Dimensi Bayangan Dark Void 🌑',
+              onClick: () => sfx.encounter(),
+            }
+          );
+        } else {
+          this.callbacks.onDialogue('Darkrai Sang Penguasa Mimpi Buruk 🌑💤', darkraiLines);
+        }
+        document.dispatchEvent(new CustomEvent('town:darkrai'));
+        this.wake();
+        return;
+      }
+      if (npc.id === 'necrozma' || (npc as any).subType === 'necrozma' || npc.id === 'necrozma_dusk_mane') {
+        sfx.select();
+        const necrozmaLines = [
+          'NECROZMA (Dusk Mane): "Ggg-rraaa-shhh-kzzzt...!" 🦁☀️',
+          'Di pelataran Zulfan\'s Town, wujud fusi perkasa Necrozma Dusk Mane berdiri memancarkan cahaya surya menyilaukan.',
+          'Prisma kristal hitam di kepalanya menyerap dan membiaskan energi matahari dari Solgaleo menjadi pancaran daya tak terbatas.',
+          'Dalam legenda Alola dan Ultra Megalopolis, Necrozma adalah Pembawa Cahaya legendaris yang menguasai ruang antar-dimensi Ultra Space.',
+        ];
+        if (this.callbacks.onBubble) {
+          this.callbacks.onBubble(
+            'Necrozma Dusk Mane (The Prism Pokémon) 🦁☀️',
+            'Ggg-rraaa-shhh-kzzzt...! 🦁☀️ (Prisma kristal hitam beresonansi dengan surya terang Solgaleo. Necrozma Dusk Mane memancarkan kekuatan cahaya murni Sunsteel Strike yang menerangi Zulfan\'s Town.)',
+            {
+              label: 'Cahaya Surya Sunsteel Strike ☀️',
+              onClick: () => sfx.encounter(),
+            }
+          );
+        } else {
+          this.callbacks.onDialogue('Necrozma Dusk Mane Sang Prisma Surya 🦁☀️', necrozmaLines);
+        }
+        document.dispatchEvent(new CustomEvent('town:necrozma'));
+        this.wake();
+        return;
+      }
+      if (npc.id === 'lunala' || (npc as any).subType === 'lunala') {
+        sfx.select();
+        const lunalaLines = [
+          'LUNALA: "Mahaaalo-laaa...!" 🌙✨',
+          'Di angkasa malam Zulfan\'s Town, Lunala Sang Utusan Rembulan membentangkan sayap sabitnya yang mempesona.',
+          'Sayapnya menyerap dan membiaskan cahaya malam menjadi energi kosmik penenang jiwa.',
+          'Dalam legenda Alola dan mitologi Ultra Space, Lunala dipuja sebagai pelindung malam yang membawa berkah kedamaian.',
+        ];
+        if (this.callbacks.onBubble) {
+          this.callbacks.onBubble(
+            'Lunala (The Moone Pokémon) 🌙✨',
+            'Mahaaalo-laaa...! 🌙✨ (Sayap bulan sabit Lunala membentang menyerap cahaya malam dalam fase Full Moon. Sang Utusan Rembulan menaburkan debu kosmik starlight yang melindungi Zulfan\'s Town.)',
+            {
+              label: 'Sinar Rembulan Moongeist Beam 🌙',
+              onClick: () => sfx.encounter(),
+            }
+          );
+        } else {
+          this.callbacks.onDialogue('Lunala Sang Utusan Rembulan 🌙✨', lunalaLines);
+        }
+        document.dispatchEvent(new CustomEvent('town:lunala'));
+        this.wake();
+        return;
+      }
+      if (npc.id === 'solgaleo' || (npc as any).subType === 'solgaleo') {
+        sfx.select();
+        const solgaleoLines = [
+          'SOLGALEO: "Laaa-lionnn-shooo...!" ☀️🦁',
+          'Di pelataran Zulfan\'s Town, Solgaleo Sang Utusan Mentari berdiri perkasa dengan surai surya yang berkobar.',
+          'Surai dan tubuhnya memancarkan energi matahari berlimpah yang menghangatkan seluruh penjuru kota.',
+          'Dalam mitologi Alola dan peradaban kuno, Solgaleo disembah sebagai Sang Pemangsa Mentari yang membawa cahaya kehidupan abadi.',
+        ];
+        if (this.callbacks.onBubble) {
+          this.callbacks.onBubble(
+            'Solgaleo (The Sunne Pokémon) ☀️🦁',
+            'Laaa-lionnn-shooo...! ☀️🦁 (Surai keemasan Solgaleo berkobar terang benderang dalam fase Radiant Sun. Sang Utusan Mentari memancarkan kehangatan surya Sunsteel Strike yang melindungi Zulfan\'s Town.)',
+            {
+              label: 'Cahaya Surya Sunsteel Strike ☀️',
+              onClick: () => sfx.encounter(),
+            }
+          );
+        } else {
+          this.callbacks.onDialogue('Solgaleo Sang Utusan Mentari ☀️🦁', solgaleoLines);
+        }
+        document.dispatchEvent(new CustomEvent('town:solgaleo'));
+        this.wake();
+        return;
+      }
       if (npc.id === 'charizard' || npc.id === 'lebron' || npc.action?.kind === 'event') {
         const evt = npc.action?.kind === 'event' ? npc.action.name : npc.id;
         document.dispatchEvent(new CustomEvent(`town:${evt}`));
@@ -1224,6 +3028,9 @@ export class TownEngine {
             action = { label: 'Talk / Enter', href: npc.action.route };
           } else if (npc.action.kind === 'refill') {
             action = { label: 'Refill Poké Balls', onClick: () => this.callbacks.onRefill() };
+          } else if (npc.action.kind === 'open') {
+            const t = npc.action.target;
+            action = { label: `Open ${t.toUpperCase()}`, onClick: () => this.callbacks.onOpenModal(t) };
           }
         }
         this.callbacks.onBubble(npc.name, npc.lines.join(' '), action);
@@ -1235,6 +3042,9 @@ export class TownEngine {
             onAction = () => this.callbacks.onNavigate(r);
           } else if (npc.action.kind === 'refill') {
             onAction = () => this.callbacks.onRefill();
+          } else if (npc.action.kind === 'open') {
+            const t = npc.action.target;
+            onAction = () => this.callbacks.onOpenModal(t);
           }
         }
         this.callbacks.onDialogue(npc.name, npc.lines, onAction);
@@ -1255,6 +3065,14 @@ export class TownEngine {
           } else if (sign.action.kind === 'open') {
             const t = sign.action.target;
             action = { label: `Open ${sign.name}`, onClick: () => this.callbacks.onOpenModal(t) };
+          } else if (sign.action.kind === 'event') {
+            const evt = sign.action.name;
+            action = {
+              label: '☕ Order Dev Roast',
+              onClick: () => {
+                document.dispatchEvent(new CustomEvent(`town:${evt}`));
+              },
+            };
           }
         }
         this.callbacks.onBubble(sign.name, sign.lines.join(' '), action);
@@ -1275,10 +3093,303 @@ export class TownEngine {
       return;
     }
 
-    // 3. Check Prop (Statue)
-    const prop = this.map.props.find((p) => (p.x === fx || p.x + 1 === fx) && (p.y === fy || p.y + 1 === fy));
+    // 2a. Check dynamic building entrance doors
+    for (const b of townConfig.getBuildings()) {
+      if (b.hidden || b.kind !== 'building' || !b.link) continue;
+      const doorX = b.doorX !== undefined ? b.doorX : b.x + Math.floor(b.w / 2);
+      const doorY = b.doorY !== undefined ? b.doorY : b.y + b.h;
+      const route = b.link;
+
+      const isFacingDoor = (fx === doorX && fy === doorY) || (b.w >= 6 && fx === doorX - 1 && fy === doorY);
+      const isAtEntrance = (this.playerDir === 'up' && this.playerPos.y === doorY + 1 && (this.playerPos.x === doorX || (b.w >= 6 && this.playerPos.x === doorX - 1)));
+      const isStandingOnDoor = (this.playerPos.x === doorX && this.playerPos.y === doorY) || (b.w >= 6 && this.playerPos.x === doorX - 1 && this.playerPos.y === doorY);
+
+      if (isFacingDoor || isAtEntrance || isStandingOnDoor) {
+        sfx.door();
+        this.callbacks.onNavigate(route);
+        this.wake();
+        return;
+      }
+    }
+
+    // Static door fallback in interactFacing: only if building hasn't moved
+    for (const b of this.map.buildings) {
+      const cfg = townConfig.getBuilding(b.id);
+      if (cfg && (cfg.x !== b.x || cfg.y !== b.y || cfg.hidden)) continue;
+      if (Array.isArray(b.doors)) {
+        for (const d of b.doors) {
+          if ((fx === d.x && fy === d.y) || (this.playerPos.x === d.x && this.playerPos.y === d.y)) {
+            sfx.door();
+            this.callbacks.onNavigate(cfg?.link ?? b.route ?? '/');
+            this.wake();
+            return;
+          }
+        }
+      }
+    }
+
+    // 2b. Check Custom Placed Objects, NPCs, Signs, Props from townConfig
+    const customPlaced = townConfig.getBuildings().find((b) => {
+      if (b.hidden) return false;
+      // Skip major indoor buildings which have their own doors
+      if (['dev', 'lab', 'home', 'shop', 'arcade', 'reception', 'office', 'tower'].includes(b.id)) return false;
+      const inFacing = fx >= b.x && fx < b.x + b.w && fy >= b.y && fy < b.y + b.h;
+      const isAdjacent = (
+        this.playerPos.x >= b.x - 1 &&
+        this.playerPos.x <= b.x + b.w &&
+        this.playerPos.y >= b.y - 1 &&
+        this.playerPos.y <= b.y + b.h
+      );
+      return inFacing || isAdjacent;
+    });
+
+    if (activeTarget === 'kiosk' || activeTarget === 'cafe' || activeTarget === 'bar' || customPlaced?.id === 'kiosk') {
+      sfx.select();
+      const kioskLines = [
+        'POKÉ-CAFÉ BARISTA STAND ☕',
+        'Specialty roasts & Castelia Cones crafted fresh for devs & trainers!',
+        '"Today\'s blend: Dark Roasted TypeScript with notes of React & zero runtime bugs!"',
+      ];
+      const kioskAction = {
+        label: '☕ Minum Dev Roast (+100 Energy)',
+        onClick: () => {
+          sfx.heal();
+          this.callbacks.onRefill();
+          document.dispatchEvent(new CustomEvent('town:cafe-coffee'));
+          if (this.callbacks.onBubble) {
+            this.callbacks.onBubble(
+              'Poké-Café Barista Stand ☕',
+              'Kamu menikmati secangkir Dev Roast hangat! Aroma kopi TypeScript segar memulihkan stamina dan fokus kodingmu hingga 100%! ☕✨'
+            );
+          }
+        },
+      };
+      if (this.callbacks.onBubble) {
+        this.callbacks.onBubble('Poké-Café Barista Stand ☕', kioskLines.join(' '), kioskAction);
+      } else {
+        this.callbacks.onDialogue('Poké-Café Barista Stand ☕', kioskLines, kioskAction.onClick);
+      }
+      this.wake();
+      return;
+    }
+
+    if (
+      activeTarget === 'berry' ||
+      activeTarget === 'garden' ||
+      customPlaced?.id === 'garden' ||
+      customPlaced?.id === 'berry'
+    ) {
+      sfx.select();
+      const berryLines = [
+        'ORGANIC BERRY ORCHARD & SAKURA GROVE 🌸',
+        'Oran, Sitrus, dan Cheri berries tumbuh subur di kebun botani di bawah naungan pohon sakura.',
+        'Tempat yang asri dan tenang untuk memulihkan stamina para trainer dan developer!',
+      ];
+      const berryAction = {
+        label: '🍇 Petik Buah Berry (+3 Poké Balls)',
+        onClick: () => this.harvestBerries(),
+      };
+      if (this.callbacks.onBubble) {
+        this.callbacks.onBubble('Berry Garden & Sakura Grove 🌸', berryLines.join(' '), berryAction);
+      } else {
+        this.callbacks.onDialogue('Berry Garden & Sakura Grove 🌸', berryLines, berryAction.onClick);
+      }
+      this.wake();
+      return;
+    }
+
+    if (customPlaced) {
+      const tpl = SPAWNABLE_TEMPLATES.find(
+        (t) => t.id === customPlaced.id || t.id === 'tpl_' + customPlaced.id || t.subType === customPlaced.subType || t.subType === customPlaced.id
+      );
+      if (customPlaced.dialogue || tpl?.defaultDialogue || customPlaced.kind === 'npc' || customPlaced.kind === 'sign') {
+        sfx.select();
+        const text = customPlaced.dialogue || tpl?.defaultDialogue || `${customPlaced.name} berdiri di koordinat (${customPlaced.x}, ${customPlaced.y}).`;
+
+        let action: { label: string; href?: string; onClick?: () => void } | undefined;
+        if (customPlaced.link) {
+          action = { label: 'Buka / Kunjungi ↗', href: customPlaced.link };
+        } else if (customPlaced.subType === 'pokeball_item') {
+          action = {
+            label: '🎁 Ambil Item (+2 Poké Ball)',
+            onClick: () => {
+              sfx.heal();
+              this.callbacks.onRefill();
+              if (this.callbacks.onBubble) {
+                this.callbacks.onBubble(customPlaced.name, 'Kamu membuka Poké Ball ini dan menemukan persediaan bola cadangan! ✨');
+              }
+            },
+          };
+        } else if (customPlaced.subType === 'pokestop') {
+          action = {
+            label: '🔄 Putar Piringan Poké-Stop',
+            onClick: () => {
+              sfx.heal();
+              this.callbacks.onRefill();
+              if (this.callbacks.onBubble) {
+                this.callbacks.onBubble('Poké-Stop ✨', 'Piringan berputar cepat! Kamu mendapatkan Poké Ball segar dan energi petualang baru! 🎒');
+              }
+            },
+          };
+        } else if (customPlaced.subType === 'groudon') {
+          action = {
+            label: '🌋 Gemuruh Magma Precipice Blades',
+            onClick: () => sfx.encounter(),
+          };
+        } else if (customPlaced.subType === 'kyogre') {
+          action = {
+            label: '🌊 Gelombang Samudra Origin Pulse',
+            onClick: () => sfx.encounter(),
+          };
+        } else if (customPlaced.subType === 'latios') {
+          action = {
+            label: '🔷 Kecepatan Jet Luster Purge',
+            onClick: () => sfx.encounter(),
+          };
+        } else if (customPlaced.subType === 'latias') {
+          action = {
+            label: '💖 Cahaya Mistik Mist Ball',
+            onClick: () => sfx.encounter(),
+          };
+        } else if (customPlaced.subType === 'darkrai') {
+          action = {
+            label: '🌑 Dimensi Bayangan Dark Void',
+            onClick: () => sfx.encounter(),
+          };
+        } else if (customPlaced.subType === 'necrozma' || customPlaced.subType === 'necrozma_dusk_mane') {
+          action = {
+            label: '☀️ Cahaya Surya Sunsteel Strike',
+            onClick: () => sfx.encounter(),
+          };
+        } else if (customPlaced.subType === 'lunala') {
+          action = {
+            label: '🌙 Sinar Rembulan Moongeist Beam',
+            onClick: () => sfx.encounter(),
+          };
+        } else if (customPlaced.subType === 'solgaleo') {
+          action = {
+            label: '☀️ Kilau Surya Sunsteel Strike',
+            onClick: () => sfx.encounter(),
+          };
+        } else if (customPlaced.subType === 'rayquaza') {
+          action = {
+            label: '🐉 Deru Angin Delta Stream',
+            onClick: () => sfx.encounter(),
+          };
+        }
+
+        if (this.callbacks.onBubble) {
+          this.callbacks.onBubble(customPlaced.name, text, action);
+        } else {
+          this.callbacks.onDialogue(
+            customPlaced.name,
+            [text],
+            action?.href ? () => this.callbacks.onNavigate(action!.href!) : action?.onClick
+          );
+        }
+        this.wake();
+        return;
+      }
+    }
+
+    // 3. Check Prop (Statue / Fountain / East & West POIs)
+    const contestCfg = townConfig.getBuilding('contest');
+    const prop = this.map.props.find((p) => {
+      let px = p.x;
+      let py = p.y;
+      if (p.id === 'contest' && contestCfg && !contestCfg.hidden) {
+        px = contestCfg.x + 3;
+        py = contestCfg.y + 2;
+      }
+      return (
+        Math.hypot(px - fx, py - fy) <= 2.8 ||
+        (Math.abs(px - this.playerPos.x) <= 2 && Math.abs(py - this.playerPos.y) <= 2)
+      );
+    });
     if (prop) {
       sfx.select();
+      if (prop.id === 'lookout') {
+        const next = this.townAtmosphere === 'day' ? 'Sunset' : this.townAtmosphere === 'sunset' ? 'Night' : 'Day';
+        const action = {
+          label: `🌅 Switch to ${next} Time`,
+          onClick: () => {
+            const current = this.cycleAtmosphere();
+            const upcoming = current === 'day' ? 'Sunset' : current === 'sunset' ? 'Night' : 'Day';
+            if (this.callbacks.onBubble) {
+              this.callbacks.onBubble(
+                'Scenic Lookout Point 🔭',
+                `Panoramic ocean vista overlooking Sinnoh. Atmosphere switched to ${current.toUpperCase()}!`,
+                {
+                  label: `🌅 Switch to ${upcoming} Time`,
+                  onClick: () => this.cycleAtmosphere(),
+                }
+              );
+            }
+          },
+        };
+        if (this.callbacks.onBubble) {
+          this.callbacks.onBubble('Scenic Lookout Point 🔭', prop.lines.join(' '), action);
+        } else {
+          this.callbacks.onDialogue('Scenic Lookout Point', prop.lines);
+        }
+        this.wake();
+        return;
+      }
+      if (prop.id === 'berry') {
+        const action = {
+          label: '🍇 Pick Berries (+3 Poké Balls)',
+          onClick: () => this.harvestBerries(),
+        };
+        if (this.callbacks.onBubble) {
+          this.callbacks.onBubble('Berry Garden & Sakura Grove 🌸', prop.lines.join(' '), action);
+        } else {
+          this.callbacks.onDialogue('Berry Garden', prop.lines);
+        }
+        this.wake();
+        return;
+      }
+      if (prop.id === 'contest') {
+        if (contestCfg && contestCfg.hidden) {
+          return;
+        }
+        const action = {
+          label: '🌟 View Frontend Architecture',
+          onClick: () => this.callbacks.onNavigate('/dev'),
+        };
+        if (this.callbacks.onBubble) {
+          this.callbacks.onBubble('Contest Stage Podium 🎪', prop.lines.join(' '), action);
+        } else {
+          this.callbacks.onDialogue('Contest Stage', prop.lines);
+        }
+        this.wake();
+        return;
+      }
+      if (prop.id === 'arena') {
+        const action = {
+          label: '🔮 Challenge Mewtwo',
+          onClick: () => document.dispatchEvent(new CustomEvent('town:arena-quiz')),
+        };
+        if (this.callbacks.onBubble) {
+          this.callbacks.onBubble('Pokémon Battle Arena ⚔️', prop.lines.join(' '), action);
+        } else {
+          this.callbacks.onDialogue('Battle Arena', prop.lines);
+        }
+        this.wake();
+        return;
+      }
+      if (prop.id === 'hobby') {
+        const action = {
+          label: '☕ Check Arcade Showcase',
+          onClick: () => this.callbacks.onNavigate('/arcade'),
+        };
+        if (this.callbacks.onBubble) {
+          this.callbacks.onBubble("Off-Duty Pergola & Boardwalk 🚴", prop.lines.join(' '), action);
+        } else {
+          this.callbacks.onDialogue('Off-Duty Pergola', prop.lines);
+        }
+        this.wake();
+        return;
+      }
       if (this.callbacks.onBubble) {
         this.callbacks.onBubble(prop.name, prop.lines.join(' '));
       } else {
@@ -1358,7 +3469,124 @@ export class TownEngine {
         const cssX = canvasX / dpr;
         const cssY = canvasY / dpr;
 
-        btn.style.transform = `translate(${Math.round(cssX)}px, ${Math.round(cssY)}px) translate(-50%, -100%)`;
+        btn.style.left = `${Math.round(cssX)}px`;
+        btn.style.top = `${Math.round(cssY)}px`;
+        btn.style.transform = '';
+        btn.style.visibility = 'visible';
+      });
+      return;
+    }
+
+    if (this.currentScene === 'tower') {
+      const towerLabels: Record<string, { x: number; y: number; w: number; h: number; lift?: number }> = {
+        xurkitree: { x: 7, y: 3, w: 1, h: 1, lift: 1.1 },
+        porygon: { x: 7, y: 3, w: 1, h: 1, lift: 1.1 },
+        'robotics-bay': { x: 1, y: 3, w: 3, h: 2, lift: 0.75 },
+        'server-rack': { x: 11, y: 3, w: 3, h: 3, lift: 0.75 },
+        'career-terminal': { x: 1, y: 7, w: 3, h: 2, lift: 0.75 },
+        elevator: { x: 8, y: 7, w: 3, h: 2, lift: 0.75 },
+      };
+
+      const buttons = container.querySelectorAll<HTMLButtonElement>('.town-label');
+      buttons.forEach((btn) => {
+        const id = btn.getAttribute('data-id');
+        if (!id || !towerLabels[id]) {
+          btn.style.visibility = 'hidden';
+          btn.style.display = 'none';
+          return;
+        }
+
+        btn.style.display = '';
+        const obj = towerLabels[id];
+        const worldX = (obj.x + obj.w / 2) * TILE_SIZE;
+        const worldY = (obj.y - (obj.lift ?? 0)) * TILE_SIZE;
+
+        const canvasX = this.canvas.width / 2 + (worldX - this.cameraX) * this.zoom;
+        const canvasY = this.canvas.height / 2 + (worldY - this.cameraY) * this.zoom;
+
+        const cssX = canvasX / dpr;
+        const cssY = canvasY / dpr;
+
+        btn.style.left = `${Math.round(cssX)}px`;
+        btn.style.top = `${Math.round(cssY)}px`;
+        btn.style.transform = '';
+        btn.style.visibility = 'visible';
+      });
+      return;
+    }
+
+    if (this.currentScene === 'mart') {
+      const martLabels: Record<string, { x: number; y: number; w: number; h: number; lift?: number }> = {
+        clerk: { x: 6, y: 3, w: 1, h: 1, lift: 1.1 },
+        'services-shelf': { x: 1, y: 3, w: 3, h: 2, lift: 0.75 },
+        'tech-tms': { x: 10, y: 3, w: 3, h: 2, lift: 0.75 },
+        'potions-shelf': { x: 1, y: 7, w: 3, h: 2, lift: 0.75 },
+        'key-showcase': { x: 10, y: 7, w: 3, h: 2, lift: 0.75 },
+        'drink-cooler': { x: 13, y: 3, w: 1, h: 3, lift: 0.5 },
+      };
+
+      const buttons = container.querySelectorAll<HTMLButtonElement>('.town-label');
+      buttons.forEach((btn) => {
+        const id = btn.getAttribute('data-id');
+        if (!id || !martLabels[id]) {
+          btn.style.visibility = 'hidden';
+          btn.style.display = 'none';
+          return;
+        }
+
+        btn.style.display = '';
+        const obj = martLabels[id];
+        const worldX = (obj.x + obj.w / 2) * TILE_SIZE;
+        const worldY = (obj.y - (obj.lift ?? 0)) * TILE_SIZE;
+
+        const canvasX = this.canvas.width / 2 + (worldX - this.cameraX) * this.zoom;
+        const canvasY = this.canvas.height / 2 + (worldY - this.cameraY) * this.zoom;
+
+        const dpr = window.devicePixelRatio || 1;
+        const cssX = canvasX / dpr;
+        const cssY = canvasY / dpr;
+
+        btn.style.left = `${Math.round(cssX)}px`;
+        btn.style.top = `${Math.round(cssY)}px`;
+        btn.style.transform = '';
+        btn.style.visibility = 'visible';
+      });
+      return;
+    }
+
+    if (this.currentScene === 'reception') {
+      const receptionLabels: Record<string, { x: number; y: number; w: number; h: number; lift?: number }> = {
+        mira: { x: 7, y: 3, w: 1, h: 1, lift: 1.1 },
+        'healing-machine': { x: 10, y: 2, w: 3, h: 2, lift: 0.75 },
+        'pc-terminal': { x: 13, y: 4, w: 1, h: 2, lift: 0.5 },
+        'directory-board': { x: 1, y: 3, w: 2, h: 1, lift: 1.25 },
+        'waiting-couch': { x: 1, y: 6, w: 3, h: 2, lift: 0.25 },
+      };
+
+      const buttons = container.querySelectorAll<HTMLButtonElement>('.town-label');
+      buttons.forEach((btn) => {
+        const id = btn.getAttribute('data-id');
+        if (!id || !receptionLabels[id]) {
+          btn.style.visibility = 'hidden';
+          btn.style.display = 'none';
+          return;
+        }
+
+        btn.style.display = '';
+        const obj = receptionLabels[id];
+        const worldX = (obj.x + obj.w / 2) * TILE_SIZE;
+        const worldY = (obj.y - (obj.lift ?? 0)) * TILE_SIZE;
+
+        const canvasX = this.canvas.width / 2 + (worldX - this.cameraX) * this.zoom;
+        const canvasY = this.canvas.height / 2 + (worldY - this.cameraY) * this.zoom;
+
+        const dpr = window.devicePixelRatio || 1;
+        const cssX = canvasX / dpr;
+        const cssY = canvasY / dpr;
+
+        btn.style.left = `${Math.round(cssX)}px`;
+        btn.style.top = `${Math.round(cssY)}px`;
+        btn.style.transform = '';
         btn.style.visibility = 'visible';
       });
       return;
@@ -1390,7 +3618,9 @@ export class TownEngine {
         const cssX = canvasX / dpr;
         const cssY = canvasY / dpr;
 
-        btn.style.transform = `translate(${Math.round(cssX)}px, ${Math.round(cssY)}px) translate(-50%, -100%)`;
+        btn.style.left = `${Math.round(cssX)}px`;
+        btn.style.top = `${Math.round(cssY)}px`;
+        btn.style.transform = '';
         btn.style.visibility = 'visible';
       });
       return;
@@ -1424,7 +3654,9 @@ export class TownEngine {
         const cssX = canvasX / dpr;
         const cssY = canvasY / dpr;
 
-        btn.style.transform = `translate(${Math.round(cssX)}px, ${Math.round(cssY)}px) translate(-50%, -100%)`;
+        btn.style.left = `${Math.round(cssX)}px`;
+        btn.style.top = `${Math.round(cssY)}px`;
+        btn.style.transform = '';
         btn.style.visibility = 'visible';
       });
       return;
@@ -1458,36 +3690,144 @@ export class TownEngine {
         const cssX = canvasX / dpr;
         const cssY = canvasY / dpr;
 
-        btn.style.transform = `translate(${Math.round(cssX)}px, ${Math.round(cssY)}px) translate(-50%, -100%)`;
+        btn.style.left = `${Math.round(cssX)}px`;
+        btn.style.top = `${Math.round(cssY)}px`;
+        btn.style.transform = '';
         btn.style.visibility = 'visible';
       });
       return;
     }
 
+    const ALIAS_MAP: Record<string, string[]> = {
+      depop: ['shop'],
+      shop: ['depop'],
+      berry: ['garden'],
+      garden: ['berry'],
+      lookout: ['telescope', 'sign_lookout'],
+      hobby: ['gazebo', 'sign_hobby'],
+      ranger: ['ranger', 'camp'],
+      contest: ['contest', 'podium'],
+      kiosk: ['cafe', 'bar'],
+    };
+
+    const STATIC_LABELS = new Set(['linkedin', 'resume', 'github', 'email']);
+    const POKEMON_LABEL_IDS = new Set([
+      'charizard',
+      'lebron',
+      'reshiram',
+      'zekrom',
+      'giratina',
+      'palkia',
+      'dialga',
+      'rayquaza',
+      'groudon',
+      'kyogre',
+      'latios',
+      'latias',
+      'darkrai',
+      'necrozma',
+      'necrozma_dusk_mane',
+      'lunala',
+      'solgaleo',
+      'arceus',
+      'ranger',
+      'ace',
+      'mewtwo',
+    ]);
+
     const labelDefs: Record<string, { x: number; y: number; w: number; h: number; kind: string; lift?: number }> = {
-      home: { x: 4, y: 3, w: 8, h: 6, kind: 'building', lift: 0 },
-      statue: { x: 14, y: 6, w: 2, h: 2, kind: 'statue', lift: 0 },
-      dev: { x: 18, y: 3, w: 11, h: 6, kind: 'building', lift: 0 },
-      lab: { x: 4, y: 12, w: 8, h: 5, kind: 'building', lift: 0 },
-      arcade: { x: 19, y: 12, w: 9, h: 5, kind: 'building', lift: 0 },
-      twin: { x: 13, y: 14, w: 1, h: 1, kind: 'npc' },
-      depop: { x: 4, y: 20, w: 7, h: 4, kind: 'stall', lift: 0 },
-      charizard: { x: 16, y: 25, w: 1, h: 1, kind: 'npc', lift: 0.6 },
-      lebron: { x: 16, y: 25, w: 1, h: 1, kind: 'npc', lift: 0.6 },
-      linkedin: { x: 23, y: 20, w: 1, h: 1, kind: 'board' },
-      resume: { x: 27, y: 20, w: 1, h: 1, kind: 'resume' },
-      github: { x: 23, y: 23, w: 1, h: 1, kind: 'signpost' },
-      email: { x: 27, y: 23, w: 1, h: 1, kind: 'mailbox' },
+      dev: { x: 10, y: 1, w: 12, h: 11, kind: 'building', lift: 0.1 },
+      lab: { x: 24, y: 3, w: 7, h: 6, kind: 'building', lift: 0.1 },
+      villa: { x: 36, y: 9, w: 6, h: 5, kind: 'building', lift: 0.1 },
+      home: { x: 11, y: 20, w: 10, h: 7, kind: 'building', lift: 0.5 },
+      reception: { x: 12, y: 29, w: 7, h: 6, kind: 'building', lift: 0.05 },
+      office: { x: 3, y: 46, w: 6, h: 8, kind: 'building', lift: 0.1 },
+      arcade: { x: 25, y: 36, w: 8, h: 7, kind: 'building', lift: 0.1 },
+      shop: { x: 12, y: 37, w: 6, h: 6, kind: 'building', lift: 0.08 },
+      depop: { x: 12, y: 37, w: 6, h: 6, kind: 'building', lift: 0.08 },
+      fountain: { x: 27, y: 29, w: 4, h: 4, kind: 'fountain', lift: 0.2 },
+      statue: { x: 16, y: 16, w: 1, h: 1, kind: 'statue', lift: 0.1 },
+      twin: { x: 25, y: 26, w: 1, h: 1, kind: 'npc', lift: 0.35 },
+      kiosk: { x: 26, y: 47, w: 5, h: 4, kind: 'board', lift: 0.15 },
+      linkedin: { x: 34.5, y: 49, w: 1, h: 1, kind: 'board', lift: 0.1 },
+      resume: { x: 41.5, y: 49, w: 1, h: 1, kind: 'resume', lift: 0.1 },
+      github: { x: 34.5, y: 53.5, w: 1, h: 1, kind: 'signpost', lift: 0.1 },
+      email: { x: 41.5, y: 53.5, w: 1, h: 1, kind: 'mailbox', lift: 0.1 },
+      lookout: { x: 37, y: 3, w: 2, h: 2, kind: 'statue', lift: 0.1 },
+      arena: { x: 24, y: 17, w: 10, h: 9, kind: 'statue', lift: 0.1 },
+      berry: { x: 36, y: 17, w: 7, h: 9, kind: 'statue', lift: 0.1 },
+      contest: { x: 36, y: 28, w: 7, h: 8, kind: 'statue', lift: 0.1 },
+      hobby: { x: 6, y: 32, w: 3, h: 3, kind: 'board', lift: 0.25 },
     };
 
     const buttons = container.querySelectorAll<HTMLButtonElement>('.town-label');
     buttons.forEach((btn) => {
       const id = btn.getAttribute('data-id');
-      if (!id || !labelDefs[id]) return;
+      if (!id) return;
+      if (POKEMON_LABEL_IDS.has(id)) {
+        btn.style.visibility = 'hidden';
+        btn.style.display = 'none';
+        return;
+      }
+      if (!labelDefs[id]) return;
 
-      const obj = labelDefs[id];
-      const worldX = (obj.x + obj.w / 2) * TILE_SIZE;
-      const worldY = (obj.y - (obj.lift ?? 0)) * TILE_SIZE;
+      const obj = { ...labelDefs[id] };
+
+      // 1. Resolve dynamic building config (with alias fallback)
+      let bConfig = townConfig.getBuilding(id);
+      if (!bConfig && ALIAS_MAP[id]) {
+        for (const alias of ALIAS_MAP[id]) {
+          bConfig = townConfig.getBuilding(alias);
+          if (bConfig) break;
+        }
+      }
+
+      // If this is a managed town object and it has been deleted or hidden, hide its DOM tag
+      if (!STATIC_LABELS.has(id)) {
+        if (!bConfig || bConfig.hidden) {
+          btn.style.visibility = 'hidden';
+          btn.style.display = 'none';
+          return;
+        }
+      }
+
+      // Special check for Ace Trainer when tied to Arena
+      if (id === 'ace') {
+        const arenaCfg = townConfig.getBuilding('arena');
+        if (bConfig && bConfig.hidden) {
+          btn.style.visibility = 'hidden';
+          btn.style.display = 'none';
+          return;
+        }
+        if (arenaCfg && arenaCfg.hidden) {
+          btn.style.visibility = 'hidden';
+          btn.style.display = 'none';
+          return;
+        }
+      }
+
+      btn.style.display = '';
+
+      // 2. Compute dynamic world coordinates (centered horizontally and anchored above roof)
+      let worldX: number;
+      let worldY: number;
+
+      const hasCustomPin =
+        bConfig &&
+        bConfig.labelX !== undefined &&
+        bConfig.labelY !== undefined &&
+        (bConfig.w <= 1 || Math.abs(bConfig.labelX - bConfig.x) > 0.1);
+
+      if (hasCustomPin && bConfig) {
+        worldX = bConfig.labelX! * TILE_SIZE;
+        worldY = (bConfig.labelY! - (obj.lift ?? 0)) * TILE_SIZE;
+      } else if (bConfig) {
+        worldX = (bConfig.x + bConfig.w / 2) * TILE_SIZE;
+        worldY = (bConfig.y - (obj.lift ?? 0)) * TILE_SIZE;
+      } else {
+        worldX = (obj.x + obj.w / 2) * TILE_SIZE;
+        worldY = (obj.y - (obj.lift ?? 0)) * TILE_SIZE;
+      }
 
       const canvasX = this.canvas.width / 2 + (worldX - this.cameraX) * this.zoom;
       const canvasY = this.canvas.height / 2 + (worldY - this.cameraY) * this.zoom;
@@ -1503,10 +3843,66 @@ export class TownEngine {
         cssY -= 2;
       }
 
+      // Clamping to ensure top-edge badges (e.g. Dev Center) are never cut off by viewport
+      if (cssY < 24) cssY = 24;
+
       const visible = cssX > -60 && cssX < rect.width + 60 && cssY > -40 && cssY < rect.height + 40;
-      btn.style.transform = `translate(${Math.round(cssX)}px, ${Math.round(cssY)}px) translate(-50%, -100%)`;
+      btn.style.left = `${Math.round(cssX)}px`;
+      btn.style.top = `${Math.round(cssY)}px`;
+      btn.style.transform = '';
       btn.style.visibility = visible ? 'visible' : 'hidden';
     });
+
+    // Update Floating Transform Action Bubble position in editor mode
+    const transformBubble = document.getElementById('town-transform-bubble');
+    if (transformBubble) {
+      if (
+        this.currentScene === 'town' &&
+        this.editor &&
+        this.editor.isEnabled() &&
+        !this.editor.isPlaytesting()
+      ) {
+        const selected = this.editor.getSelectedBuilding();
+        if (selected) {
+          const worldX = (selected.x + selected.w / 2) * TILE_SIZE;
+          const worldY = selected.y * TILE_SIZE;
+          const pt = this.worldToScreen(worldX, worldY);
+          const rect = this.canvas.getBoundingClientRect();
+          const isTopClipped = pt.y < 85;
+          const topPos = isTopClipped
+            ? pt.y + (selected.h * TILE_SIZE * this.zoom) / dpr + 32
+            : pt.y - 14;
+          transformBubble.style.left = `${Math.round(
+            Math.max(120, Math.min(rect.width - 120, pt.x))
+          )}px`;
+          transformBubble.style.top = `${Math.round(topPos)}px`;
+          transformBubble.style.display = 'block';
+          transformBubble.classList.remove('hidden');
+
+          const titleEl = document.getElementById('transform-bubble-title');
+          const badgeEl = document.getElementById(
+            'transform-bubble-orient-badge'
+          );
+          if (titleEl) titleEl.textContent = selected.name;
+          if (badgeEl) {
+            const orient = selected.orientation || 'N';
+            const orientLabels: Record<'N' | 'E' | 'S' | 'W', string> = {
+              W: '⬅️ Hadap Kiri',
+              E: '➡️ Hadap Kanan',
+              S: '⬇️ Hadap Depan',
+              N: '⬆️ Hadap Belakang',
+            };
+            badgeEl.textContent = orientLabels[orient] || orient;
+          }
+        } else {
+          transformBubble.style.display = 'none';
+          transformBubble.classList.add('hidden');
+        }
+      } else {
+        transformBubble.style.display = 'none';
+        transformBubble.classList.add('hidden');
+      }
+    }
   }
 
   private render() {
@@ -1623,6 +4019,135 @@ export class TownEngine {
       return;
     }
 
+    if (this.currentScene === 'tower') {
+      this.cameraX = (TOWER_COLS * TILE_SIZE) / 2;
+      this.cameraY = (TOWER_ROWS * TILE_SIZE) / 2;
+
+      ctx.save();
+      ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+      ctx.fillStyle = '#090d16';
+      ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+      ctx.translate(this.canvas.width / 2, this.canvas.height / 2);
+      ctx.scale(this.zoom, this.zoom);
+      ctx.translate(-this.cameraX, -this.cameraY);
+
+      if (!this.towerBackgroundCanvas) {
+        this.towerBackgroundCanvas = createTowerBackgroundCanvas();
+      }
+      ctx.drawImage(this.towerBackgroundCanvas, 0, 0);
+
+      renderTowerAnimations(ctx, this.tick);
+
+      if (this.marker) {
+        ctx.fillStyle = 'rgba(56, 189, 248, 0.75)';
+        const mx = this.marker.x * TILE_SIZE;
+        const my = this.marker.y * TILE_SIZE;
+        ctx.fillRect(mx + 4, my + 12, 8, 2);
+        ctx.fillRect(mx + 6, my + 11, 4, 4);
+      }
+
+      const drawX =
+        (this.playerPos.x + (this.playerTarget.x - this.playerPos.x) * this.moveProgress) * TILE_SIZE;
+      const drawY =
+        (this.playerPos.y + (this.playerTarget.y - this.playerPos.y) * this.moveProgress) * TILE_SIZE;
+      const stepFrame = this.isMoving ? Math.floor(this.moveProgress * 4) : 0;
+
+      drawCharacter(ctx, this.playerPalette, this.playerDir, stepFrame, drawX, drawY, 1);
+
+      ctx.restore();
+
+      this.updateDomLabels();
+      return;
+    }
+
+    if (this.currentScene === 'mart') {
+      this.cameraX = (MART_COLS * TILE_SIZE) / 2;
+      this.cameraY = (MART_ROWS * TILE_SIZE) / 2;
+
+      ctx.save();
+      ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+      ctx.fillStyle = '#0a1128';
+      ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+      ctx.translate(this.canvas.width / 2, this.canvas.height / 2);
+      ctx.scale(this.zoom, this.zoom);
+      ctx.translate(-this.cameraX, -this.cameraY);
+
+      if (!this.martBackgroundCanvas) {
+        this.martBackgroundCanvas = createMartBackgroundCanvas();
+      }
+      ctx.drawImage(this.martBackgroundCanvas, 0, 0);
+
+      renderMartAnimations(ctx, this.tick);
+
+      if (this.marker) {
+        ctx.fillStyle = 'rgba(56, 189, 248, 0.75)';
+        const mx = this.marker.x * TILE_SIZE;
+        const my = this.marker.y * TILE_SIZE;
+        ctx.fillRect(mx + 4, my + 12, 8, 2);
+        ctx.fillRect(mx + 6, my + 11, 4, 4);
+      }
+
+      const drawX =
+        (this.playerPos.x + (this.playerTarget.x - this.playerPos.x) * this.moveProgress) * TILE_SIZE;
+      const drawY =
+        (this.playerPos.y + (this.playerTarget.y - this.playerPos.y) * this.moveProgress) * TILE_SIZE;
+      const stepFrame = this.isMoving ? Math.floor(this.moveProgress * 4) : 0;
+
+      drawCharacter(ctx, this.playerPalette, this.playerDir, stepFrame, drawX, drawY, 1);
+
+      ctx.restore();
+
+      this.updateDomLabels();
+      return;
+    }
+
+    if (this.currentScene === 'reception') {
+      this.cameraX = (RECEPTION_COLS * TILE_SIZE) / 2;
+      this.cameraY = (RECEPTION_ROWS * TILE_SIZE) / 2;
+
+      ctx.save();
+      ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+      ctx.translate(this.canvas.width / 2, this.canvas.height / 2);
+      ctx.scale(this.zoom, this.zoom);
+      ctx.translate(-this.cameraX, -this.cameraY);
+
+      if (!this.receptionBackgroundCanvas) {
+        this.receptionBackgroundCanvas = createReceptionBackgroundCanvas();
+      }
+      ctx.drawImage(this.receptionBackgroundCanvas, 0, 0);
+
+      renderReceptionAnimations(ctx, this.tick);
+
+      if (this.marker) {
+        ctx.fillStyle = 'rgba(239, 68, 68, 0.75)';
+        const mx = this.marker.x * TILE_SIZE;
+        const my = this.marker.y * TILE_SIZE;
+        ctx.fillRect(mx + 4, my + 12, 8, 2);
+        ctx.fillRect(mx + 6, my + 11, 4, 4);
+      }
+
+      const drawX =
+        (this.playerPos.x + (this.playerTarget.x - this.playerPos.x) * this.moveProgress) * TILE_SIZE;
+      const drawY =
+        (this.playerPos.y + (this.playerTarget.y - this.playerPos.y) * this.moveProgress) * TILE_SIZE;
+      const stepFrame = this.isMoving ? Math.floor(this.moveProgress * 4) : 0;
+
+      drawCharacter(ctx, this.playerPalette, this.playerDir, stepFrame, drawX, drawY, 1);
+
+      ctx.restore();
+
+      this.updateDomLabels();
+      return;
+    }
+
     if (this.currentScene === 'arcade') {
       this.cameraX = (ARCADE_COLS * TILE_SIZE) / 2;
       this.cameraY = (ARCADE_ROWS * TILE_SIZE) / 2;
@@ -1707,9 +4232,34 @@ export class TownEngine {
       return;
     }
 
-    // Center camera on the town frame
-    this.cameraX = (this.map.w * TILE_SIZE) / 2;
-    this.cameraY = (this.map.h * TILE_SIZE) / 2;
+    // Smooth camera following player with map boundary clamps
+    const targetCamX =
+      (this.playerPos.x + (this.playerTarget.x - this.playerPos.x) * this.moveProgress + 0.5) * TILE_SIZE;
+    const targetCamY =
+      (this.playerPos.y + (this.playerTarget.y - this.playerPos.y) * this.moveProgress + 0.5) * TILE_SIZE;
+
+    const viewW = this.canvas.width / this.zoom;
+    const viewH = this.canvas.height / this.zoom;
+    const mapPixelW = this.map.w * TILE_SIZE;
+    const mapPixelH = this.map.h * TILE_SIZE;
+
+    // Horizontal camera positioning & boundary clamping
+    if (mapPixelW <= viewW) {
+      this.cameraX = mapPixelW / 2;
+    } else if (this.currentScene === 'town' && this.editor.isEnabled() && !this.editor.isPlaytesting()) {
+      this.cameraX = Math.max(viewW / 2, Math.min(mapPixelW - viewW / 2, this.cameraX));
+    } else {
+      this.cameraX = Math.max(viewW / 2, Math.min(mapPixelW - viewW / 2, targetCamX));
+    }
+
+    // Vertical camera positioning & boundary clamping
+    if (mapPixelH <= viewH) {
+      this.cameraY = mapPixelH / 2;
+    } else if (this.currentScene === 'town' && this.editor.isEnabled() && !this.editor.isPlaytesting()) {
+      this.cameraY = Math.max(viewH / 2, Math.min(mapPixelH - viewH / 2, this.cameraY));
+    } else {
+      this.cameraY = Math.max(viewH / 2, Math.min(mapPixelH - viewH / 2, targetCamY));
+    }
 
     ctx.save();
     ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -1723,28 +4273,35 @@ export class TownEngine {
     ctx.scale(this.zoom, this.zoom);
     ctx.translate(-this.cameraX, -this.cameraY);
 
-    const viewW = this.canvas.width / this.zoom;
-    const viewH = this.canvas.height / this.zoom;
-    const viewX = this.cameraX - viewW / 2;
-    const viewY = this.cameraY - viewH / 2;
+    // 1. Procedural 2D Pixel-Art Background Canvas (Handcrafted Pokémon Gen 4/5 style)
+    if (!this.townBackgroundCanvas) {
+      this.townBackgroundCanvas = createTownBackgroundCanvas(this.map);
+    }
+    ctx.drawImage(this.townBackgroundCanvas, 0, 0);
 
-    // 1. Terrain
-    renderGround(ctx, this.map, this.tick, viewX, viewY, viewW, viewH);
+    // 2. Sparkling animated water reflection on the fountain pool & courtyard basin
+    const fountain = townConfig.getBuilding('fountain') || { x: 27, y: 29 };
+    const basin = townConfig.getBuilding('basin') || { x: 15, y: 15 };
+    const shimmer = Math.sin(this.tick * 0.08);
+    ctx.fillStyle = `rgba(180, 240, 255, ${0.28 + shimmer * 0.16})`;
+    ctx.beginPath();
+    ctx.arc((fountain.x + 2) * TILE_SIZE, (fountain.y + 2) * TILE_SIZE, 1.7 * TILE_SIZE, 0, Math.PI * 2);
+    ctx.fill();
 
-    // 2. Warm Street Lamp Glows on Ground
-    renderLighting(ctx, this.map.lamps);
+    ctx.beginPath();
+    ctx.arc((basin.x + 1) * TILE_SIZE, (basin.y + 1) * TILE_SIZE, 0.7 * TILE_SIZE, 0, Math.PI * 2);
+    ctx.fill();
 
-    // 3. Props (Statue / Pedestal)
-    renderProps(ctx, this.map.props);
+    // 3. Dynamic animated water wave foam on the ocean coast (left side)
+    const oceanShimmer = Math.sin(this.tick * 0.05);
+    ctx.fillStyle = `rgba(255, 255, 255, ${0.15 + oceanShimmer * 0.08})`;
+    for (let oy = 4; oy < 32; oy += 3) {
+      const ox = 2 + ((oy * 7 + Math.floor(this.tick / 18)) % 5);
+      ctx.fillRect(ox * TILE_SIZE, oy * TILE_SIZE, 14, 2);
+    }
 
-    // 4. Street Lamp Posts
-    renderLamps(ctx, this.map.lamps);
-
-    // 5. Signs (LinkedIn, Résumé, GitHub, Email)
-    renderSigns(ctx, this.map.signs);
-
-    // 6. Buildings with glowing windows, balconies, awnings
-    renderBuildings(ctx, this.map.buildings);
+    // 4. Warm street lamp lighting pools on the ground (Dynamic from townConfig)
+    renderLighting(ctx, this.getActiveLamps());
 
     // 7. Click target pulse marker
     if (this.marker) {
@@ -1755,36 +4312,896 @@ export class TownEngine {
       ctx.fillRect(mx + 6, my + 11, 4, 4);
     }
 
-    // 8. NPCs
+    // 8. NPCs (Reading dynamic positions from townConfig)
     for (const npc of this.map.npcs) {
-      if (npc.id === 'charizard' || npc.id === 'ranger' || npc.id === 'lebron') {
+      const cfg = townConfig.getBuilding(npc.id);
+      if (cfg?.hidden) continue;
+      const arenaCfg = townConfig.getBuilding('arena');
+      const curTileX = cfg ? cfg.x : (npc.id === 'ace' && arenaCfg ? arenaCfg.x + Math.floor(arenaCfg.w / 2) - 1 : npc.x);
+      const curTileY = cfg ? cfg.y : (npc.id === 'ace' && arenaCfg ? arenaCfg.y + 1 : npc.y);
+
+      if (npc.id === 'twin') {
+        const isFlipped = cfg?.orientation === 'W';
+        if (isFlipped) {
+          ctx.save();
+          ctx.translate(curTileX * TILE_SIZE + 8, 0);
+          ctx.scale(-1, 1);
+          ctx.translate(-(curTileX * TILE_SIZE + 8), 0);
+        }
+        drawLucario(ctx, curTileX * TILE_SIZE, curTileY * TILE_SIZE, this.tick, 1);
+        if (isFlipped) ctx.restore();
+      } else if (npc.id === 'charizard' || npc.id === 'lebron') {
+        const isFlipped = cfg?.orientation === 'W';
+        if (isFlipped) {
+          ctx.save();
+          ctx.translate(curTileX * TILE_SIZE + 8, 0);
+          ctx.scale(-1, 1);
+          ctx.translate(-(curTileX * TILE_SIZE + 8), 0);
+        }
         // Authentic Charizard pixel sprite on overworld
         ctx.fillStyle = 'rgba(40, 60, 20, 0.25)';
-        ctx.fillRect(npc.x * TILE_SIZE - 4, npc.y * TILE_SIZE + 13, 24, 4);
+        ctx.fillRect(curTileX * TILE_SIZE - 4, curTileY * TILE_SIZE + 13, 24, 4);
         drawPixelMatrix(
           ctx,
           CHARIZARD_OVERWORLD_SPRITE,
           CHARIZARD_OVERWORLD_COLORS,
-          npc.x * TILE_SIZE - 7,
-          npc.y * TILE_SIZE - 10,
+          curTileX * TILE_SIZE - 7,
+          curTileY * TILE_SIZE - 10,
           1
         );
+        if (isFlipped) ctx.restore();
+      } else if (npc.id === 'dialga' || (npc as any).subType === 'dialga') {
+        // Authentic Dialga Temporal Steel/Dragon Overworld Sprite with Roar of Time Diamond Aura
+        const drawX = curTileX * TILE_SIZE;
+        const drawY = curTileY * TILE_SIZE;
+        const levitate = Math.sin(this.tick * 0.04) * 1.5;
+
+        // Ground contact shadow
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.45)';
+        ctx.beginPath();
+        ctx.ellipse(drawX + 8, drawY + 16, 14, 5, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Diamond Chest Core Temporal Energy Glow (pulsing cyan / cobalt / diamond blue)
+        const corePulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
+        const coreX = drawX + 8;
+        const coreY = drawY - 2 + levitate;
+        const coreGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 18);
+        coreGrad.addColorStop(0, `rgba(224, 242, 254, ${corePulse + 0.35})`);
+        coreGrad.addColorStop(0.45, `rgba(56, 189, 248, ${corePulse + 0.1})`);
+        coreGrad.addColorStop(1, 'rgba(2, 132, 199, 0)');
+        ctx.fillStyle = coreGrad;
+        ctx.beginPath();
+        ctx.arc(coreX, coreY, 18, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Roar of Time temporal distortion pulse ring (concentric expanding wave)
+        const timePhase = (this.tick * 0.045) % 1;
+        const ringRadius = 5 + timePhase * 16;
+        const ringAlpha = (1 - timePhase) * 0.65;
+        ctx.strokeStyle = `rgba(56, 189, 248, ${ringAlpha})`;
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.arc(coreX, coreY, ringRadius, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // Diamond time-sparkles floating around Dialga
+        if (this.tick % 24 < 14) {
+          ctx.fillStyle = '#f0f9ff';
+          ctx.fillRect(coreX + Math.sin(this.tick * 0.2) * 12, coreY - 4 - (this.tick % 14), 1.5, 1.5);
+          ctx.fillStyle = '#38bdf8';
+          ctx.fillRect(coreX - 6 + Math.cos(this.tick * 0.16) * 10, coreY + 4 - (this.tick % 10), 2, 2);
+        }
+
+        // Draw Dialga sprite
+        if (this.dialgaImg && this.dialgaImg.complete && this.dialgaImg.naturalWidth > 0) {
+          const isFlipped = (cfg?.orientation || 'E') === 'W';
+          if (isFlipped) {
+            ctx.save();
+            ctx.translate(drawX + 8, 0);
+            ctx.scale(-1, 1);
+            ctx.translate(-(drawX + 8), 0);
+          }
+          ctx.drawImage(this.dialgaImg, drawX - 13, drawY - 20 + levitate, 42, 42);
+          if (isFlipped) ctx.restore();
+        }
+      } else if (npc.id === 'palkia' || (npc as any).subType === 'palkia') {
+        // Authentic Palkia Spatial Dragon/Water Overworld Sprite with Spacial Rend Pearl Aura
+        const drawX = curTileX * TILE_SIZE;
+        const drawY = curTileY * TILE_SIZE;
+        const levitate = Math.sin(this.tick * 0.04) * 1.6;
+
+        // Ground contact shadow
+        ctx.fillStyle = 'rgba(25, 20, 35, 0.4)';
+        ctx.beginPath();
+        ctx.ellipse(drawX + 8, drawY + 16, 14, 5, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Dimensional Spatial Pearl Glow (rippling pink/magenta spacetime wave)
+        const spatialPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
+        const pearlX = drawX + 8;
+        const pearlY = drawY - 2 + levitate;
+        const spatGrad = ctx.createRadialGradient(pearlX, pearlY, 3, pearlX, pearlY, 18);
+        spatGrad.addColorStop(0, `rgba(240, 171, 252, ${spatialPulse + 0.3})`);
+        spatGrad.addColorStop(0.5, `rgba(192, 38, 211, ${spatialPulse})`);
+        spatGrad.addColorStop(1, 'rgba(192, 38, 211, 0)');
+        ctx.fillStyle = spatGrad;
+        ctx.beginPath();
+        ctx.arc(pearlX, pearlY, 18, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Spacial Rend dimensional space-warp slice lines
+        const rendAngle = this.tick * 0.03;
+        for (let r = 0; r < 2; r++) {
+          const angle = rendAngle + (r * Math.PI) / 2;
+          const rx1 = pearlX + Math.cos(angle) * 14;
+          const ry1 = pearlY + Math.sin(angle) * 8;
+          const rx2 = pearlX - Math.cos(angle) * 14;
+          const ry2 = pearlY - Math.sin(angle) * 8;
+          ctx.strokeStyle = 'rgba(244, 114, 182, 0.7)';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(rx1, ry1);
+          ctx.lineTo(rx2, ry2);
+          ctx.stroke();
+        }
+
+        // Pearlescent sparkles
+        if (this.tick % 24 < 14) {
+          ctx.fillStyle = '#fdf4ff';
+          ctx.fillRect(pearlX + Math.sin(this.tick * 0.2) * 12, pearlY - 4 - (this.tick % 14), 1.5, 1.5);
+          ctx.fillStyle = '#e879f9';
+          ctx.fillRect(pearlX - 6 + Math.cos(this.tick * 0.16) * 10, pearlY + 4 - (this.tick % 10), 2, 2);
+        }
+
+        // Draw Palkia sprite
+        if (this.palkiaImg && this.palkiaImg.complete && this.palkiaImg.naturalWidth > 0) {
+          const isFlipped = (cfg?.orientation || 'E') === 'W';
+          if (isFlipped) {
+            ctx.save();
+            ctx.translate(drawX + 8, 0);
+            ctx.scale(-1, 1);
+            ctx.translate(-(drawX + 8), 0);
+          }
+          ctx.drawImage(this.palkiaImg, drawX - 13, drawY - 20 + levitate, 42, 42);
+          if (isFlipped) ctx.restore();
+        }
+      } else if (npc.id === 'giratina' || (npc as any).subType === 'giratina') {
+        // Authentic Giratina Altered Forme Overworld Sprite with Distortion World Antimatter Portal
+        const drawX = curTileX * TILE_SIZE;
+        const drawY = curTileY * TILE_SIZE;
+        const levitate = Math.sin(this.tick * 0.04) * 1.8;
+
+        // Distortion World Antimatter Ground Portal (swirling dark rift)
+        const portalPulse = 0.45 + Math.sin(this.tick * 0.07) * 0.15;
+        const portalX = drawX + 8;
+        const portalY = drawY + 16;
+        const portGrad = ctx.createRadialGradient(portalX, portalY, 3, portalX, portalY, 16);
+        portGrad.addColorStop(0, `rgba(88, 28, 135, ${portalPulse + 0.3})`);
+        portGrad.addColorStop(0.5, `rgba(24, 24, 27, ${portalPulse})`);
+        portGrad.addColorStop(1, 'rgba(24, 24, 27, 0)');
+        ctx.fillStyle = portGrad;
+        ctx.beginPath();
+        ctx.ellipse(portalX, portalY, 16, 6, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Swirling antimatter rift orbit ring
+        ctx.strokeStyle = `rgba(220, 38, 38, ${portalPulse * 0.7})`;
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.ellipse(portalX, portalY, 13 + Math.sin(this.tick * 0.08) * 2, 4.5, this.tick * 0.02, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // Floating ghost / dark antimatter wisps
+        if (this.tick % 22 < 14) {
+          ctx.fillStyle = '#c084fc';
+          ctx.fillRect(portalX + Math.sin(this.tick * 0.2) * 10, portalY - 6 - (this.tick % 16), 1.5, 1.5);
+          ctx.fillStyle = '#ef4444';
+          ctx.fillRect(portalX - 4 + Math.cos(this.tick * 0.18) * 12, portalY - 4 - (this.tick % 14), 2, 2);
+          ctx.fillStyle = '#f87171';
+          ctx.fillRect(portalX + 4 - Math.sin(this.tick * 0.15) * 8, portalY - 8 - (this.tick % 12), 1.5, 1.5);
+        }
+
+        // Draw Giratina sprite
+        if (this.giratinaImg && this.giratinaImg.complete && this.giratinaImg.naturalWidth > 0) {
+          const isFlipped = (cfg?.orientation || 'E') === 'W';
+          if (isFlipped) {
+            ctx.save();
+            ctx.translate(drawX + 8, 0);
+            ctx.scale(-1, 1);
+            ctx.translate(-(drawX + 8), 0);
+          }
+          ctx.drawImage(this.giratinaImg, drawX - 13, drawY - 20 + levitate, 42, 42);
+          if (isFlipped) ctx.restore();
+        }
+      } else if (npc.id === 'zekrom' || (npc as any).subType === 'zekrom') {
+        // Authentic Zekrom (Deep Black Pokémon) Overworld Sprite with Lightning Generator Turbine
+        const drawX = curTileX * TILE_SIZE;
+        const drawY = curTileY * TILE_SIZE;
+        const levitate = Math.sin(this.tick * 0.035) * 1.5;
+
+        // Ground contact shadow
+        ctx.fillStyle = 'rgba(10, 15, 25, 0.45)';
+        ctx.beginPath();
+        ctx.ellipse(drawX + 8, drawY + 16, 14, 5, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Electric Lightning Turbine Glow behind tail (Fusion Bolt)
+        const turbineGlow = 0.35 + Math.sin(this.tick * 0.09) * 0.15;
+        const tailX = drawX - 3;
+        const tailY = drawY + 8 + levitate;
+        const elecGrad = ctx.createRadialGradient(tailX, tailY, 2, tailX, tailY, 15);
+        elecGrad.addColorStop(0, `rgba(56, 189, 248, ${turbineGlow + 0.3})`);
+        elecGrad.addColorStop(0.5, `rgba(2, 132, 199, ${turbineGlow})`);
+        elecGrad.addColorStop(1, 'rgba(2, 132, 199, 0)');
+        ctx.fillStyle = elecGrad;
+        ctx.beginPath();
+        ctx.arc(tailX, tailY, 15, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Dynamic blue/cyan lightning discharges surging from the tail
+        const sparkPhase = Math.floor(this.tick / 3) % 4;
+        if (this.tick % 20 < 14) {
+          ctx.fillStyle = sparkPhase % 2 === 0 ? '#38bdf8' : '#e0f2fe';
+          ctx.fillRect(tailX + Math.sin(this.tick * 0.25) * 8, tailY - 5 - (this.tick % 14), 2, 2);
+          ctx.fillStyle = '#0284c7';
+          ctx.fillRect(tailX - 3 + Math.cos(this.tick * 0.2) * 9, tailY - 2 - (this.tick % 10), 1.5, 1.5);
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(tailX + 3 - Math.sin(this.tick * 0.15) * 8, tailY - 7 - (this.tick % 12), 1.5, 1.5);
+        }
+
+        // Draw Zekrom sprite
+        if (this.zekromImg && this.zekromImg.complete && this.zekromImg.naturalWidth > 0) {
+          const isFlipped = (cfg?.orientation || 'E') === 'W';
+          if (isFlipped) {
+            ctx.save();
+            ctx.translate(drawX + 8, 0);
+            ctx.scale(-1, 1);
+            ctx.translate(-(drawX + 8), 0);
+          }
+          ctx.drawImage(this.zekromImg, drawX - 13, drawY - 20 + levitate, 42, 42);
+          if (isFlipped) ctx.restore();
+        }
+      } else if (npc.id === 'reshiram' || (npc as any).subType === 'reshiram') {
+        // Authentic Reshiram (Vast White Pokémon) Overworld Sprite with Jet Turbine Fusion Flare
+        const drawX = curTileX * TILE_SIZE;
+        const drawY = curTileY * TILE_SIZE;
+        const levitate = Math.sin(this.tick * 0.035) * 1.5;
+
+        // Ground contact shadow
+        ctx.fillStyle = 'rgba(20, 25, 35, 0.4)';
+        ctx.beginPath();
+        ctx.ellipse(drawX + 8, drawY + 16, 14, 5, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Fiery Jet Turbine Glow behind tail (Fusion Flare)
+        const turbineGlow = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
+        const tailX = drawX - 3;
+        const tailY = drawY + 8 + levitate;
+        const fireGrad = ctx.createRadialGradient(tailX, tailY, 2, tailX, tailY, 14);
+        fireGrad.addColorStop(0, `rgba(255, 165, 0, ${turbineGlow + 0.25})`);
+        fireGrad.addColorStop(0.5, `rgba(239, 68, 68, ${turbineGlow})`);
+        fireGrad.addColorStop(1, 'rgba(239, 68, 68, 0)');
+        ctx.fillStyle = fireGrad;
+        ctx.beginPath();
+        ctx.arc(tailX, tailY, 14, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Fiery ember particles rising from tail turbine
+        if (this.tick % 24 < 16) {
+          ctx.fillStyle = '#ffedd5';
+          ctx.fillRect(tailX + Math.sin(this.tick * 0.2) * 6, tailY - 4 - (this.tick % 16), 1.5, 1.5);
+          ctx.fillStyle = '#f97316';
+          ctx.fillRect(tailX - 2 + Math.cos(this.tick * 0.15) * 8, tailY - 2 - (this.tick % 12), 2, 2);
+          ctx.fillStyle = '#ef4444';
+          ctx.fillRect(tailX + 2 - Math.sin(this.tick * 0.1) * 7, tailY - 6 - (this.tick % 14), 1.5, 1.5);
+        }
+
+        // Draw Reshiram sprite
+        if (this.reshiramImg && this.reshiramImg.complete && this.reshiramImg.naturalWidth > 0) {
+          const isFlipped = (cfg?.orientation || 'E') === 'W';
+          if (isFlipped) {
+            ctx.save();
+            ctx.translate(drawX + 8, 0);
+            ctx.scale(-1, 1);
+            ctx.translate(-(drawX + 8), 0);
+          }
+          ctx.drawImage(this.reshiramImg, drawX - 13, drawY - 20 + levitate, 42, 42);
+          if (isFlipped) ctx.restore();
+        }
+      } else if (npc.id === 'arceus' || (npc as any).subType === 'arceus') {
+        // Divine Arceus Overworld Sprite with Golden Judgment Ring
+        const drawX = curTileX * TILE_SIZE;
+        const drawY = curTileY * TILE_SIZE;
+        const levitate = Math.sin(this.tick * 0.04) * 2;
+
+        // Ground shadow
+        ctx.fillStyle = 'rgba(20, 25, 30, 0.4)';
+        ctx.beginPath();
+        ctx.ellipse(drawX + 8, drawY + 16, 12, 4.5, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Celestial Golden Halo Rings (Judgment Wheel Ring)
+        const haloR = 14 + Math.sin(this.tick * 0.05) * 2;
+        ctx.strokeStyle = 'rgba(250, 204, 21, 0.45)';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(drawX + 8, drawY - 4 + levitate, haloR, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // Cross rays of the Wheel of Origin
+        const angle = this.tick * 0.015;
+        for (let a = 0; a < 4; a++) {
+          const rayAngle = angle + (a * Math.PI) / 2;
+          const rx1 = drawX + 8 + Math.cos(rayAngle) * (haloR - 4);
+          const ry1 = drawY - 4 + levitate + Math.sin(rayAngle) * (haloR - 4);
+          const rx2 = drawX + 8 + Math.cos(rayAngle) * (haloR + 4);
+          const ry2 = drawY - 4 + levitate + Math.sin(rayAngle) * (haloR + 4);
+          ctx.strokeStyle = '#fef08a';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(rx1, ry1);
+          ctx.lineTo(rx2, ry2);
+          ctx.stroke();
+        }
+
+        // Divine golden stardust sparkles
+        if (this.tick % 30 < 15) {
+          ctx.fillStyle = '#fef08a';
+          ctx.fillRect(drawX + 8 + Math.cos(this.tick * 0.1) * 16, drawY - 4 + levitate + Math.sin(this.tick * 0.1) * 16, 2, 2);
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(drawX + 8 - Math.sin(this.tick * 0.12) * 14, drawY - 4 + levitate - Math.cos(this.tick * 0.12) * 14, 1.5, 1.5);
+        }
+
+        // Draw Arceus sprite with levitation
+        if (this.arceusImg && this.arceusImg.complete && this.arceusImg.naturalWidth > 0) {
+          const isFlipped = (cfg?.orientation || 'E') === 'W';
+          if (isFlipped) {
+            ctx.save();
+            ctx.translate(drawX + 8, 0);
+            ctx.scale(-1, 1);
+            ctx.translate(-(drawX + 8), 0);
+          }
+          ctx.drawImage(this.arceusImg, drawX - 12, drawY - 18 + levitate, 40, 40);
+          if (isFlipped) ctx.restore();
+        }
+      } else if (npc.id === 'ranger' || npc.id === 'blastoise') {
+        // Authentic Blastoise Pokémon Overworld Sprite
+        const drawX = curTileX * TILE_SIZE;
+        const drawY = curTileY * TILE_SIZE;
+        const bob = Math.sin(this.tick * 0.05) * 1.2;
+
+        // Ground shadow
+        ctx.fillStyle = 'rgba(15, 30, 45, 0.4)';
+        ctx.beginPath();
+        ctx.ellipse(drawX + 8, drawY + 14, 14, 5, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Water Cannon Ambient Mist/Vapor
+        if (this.tick % 40 < 20) {
+          ctx.fillStyle = 'rgba(56, 189, 248, 0.55)';
+          ctx.fillRect(drawX - 2, drawY - 6 + bob, 3, 3);
+          ctx.fillRect(drawX + 15, drawY - 6 + bob, 3, 3);
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+          ctx.fillRect(drawX - 1, drawY - 7 + bob, 2, 2);
+          ctx.fillRect(drawX + 16, drawY - 7 + bob, 2, 2);
+        }
+
+        if (this.blastoiseImg && this.blastoiseImg.complete && this.blastoiseImg.naturalWidth > 0) {
+          const isFlipped = (cfg?.orientation || 'E') === 'W';
+          if (isFlipped) {
+            ctx.save();
+            ctx.translate(drawX + 8, 0);
+            ctx.scale(-1, 1);
+            ctx.translate(-(drawX + 8), 0);
+          }
+          ctx.drawImage(this.blastoiseImg, drawX - 11, drawY - 14 + bob, 38, 38);
+          if (isFlipped) ctx.restore();
+        }
+      } else if (npc.id === 'ace' || npc.id === 'mewtwo' || (npc as any).subType === 'mewtwo') {
+        // Authentic Mewtwo Pokémon Overworld Sprite with Psychic Aura & Telekinesis
+        const drawX = curTileX * TILE_SIZE;
+        const drawY = curTileY * TILE_SIZE;
+        const levitate = Math.sin(this.tick * 0.045) * 2.2;
+
+        // Ground shadow (subtly pulses with levitation height)
+        const shadowScale = 1 - Math.sin(this.tick * 0.045) * 0.15;
+        ctx.fillStyle = 'rgba(25, 15, 35, 0.45)';
+        ctx.beginPath();
+        ctx.ellipse(drawX + 8, drawY + 16, 12 * shadowScale, 4.5 * shadowScale, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Pulsing Psystrike / Psychic Aura Rings
+        const auraR = 14 + Math.sin(this.tick * 0.06) * 2;
+        ctx.strokeStyle = 'rgba(168, 85, 247, 0.45)';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(drawX + 8, drawY - 2 + levitate, auraR, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // Orbiting telekinetic psychic energy orbs
+        for (let i = 0; i < 3; i++) {
+          const orbAngle = this.tick * 0.04 + (i * Math.PI * 2) / 3;
+          const ox = drawX + 8 + Math.cos(orbAngle) * (auraR - 2);
+          const oy = drawY - 2 + levitate + Math.sin(orbAngle) * (auraR - 4) * 0.5;
+          ctx.fillStyle = '#e9d5ff';
+          ctx.beginPath();
+          ctx.arc(ox, oy, 1.8, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // Ambient psychic sparkles
+        if (this.tick % 24 < 12) {
+          ctx.fillStyle = '#c084fc';
+          ctx.fillRect(drawX + 8 + Math.cos(this.tick * 0.1) * 14, drawY - 4 + levitate + Math.sin(this.tick * 0.1) * 14, 2, 2);
+          ctx.fillStyle = '#f3e8ff';
+          ctx.fillRect(drawX + 8 - Math.sin(this.tick * 0.15) * 12, drawY - 2 + levitate - Math.cos(this.tick * 0.15) * 12, 1.5, 1.5);
+        }
+
+        if (this.mewtwoImg && this.mewtwoImg.complete && this.mewtwoImg.naturalWidth > 0) {
+          const isFlipped = (cfg?.orientation || 'E') === 'W';
+          if (isFlipped) {
+            ctx.save();
+            ctx.translate(drawX + 8, 0);
+            ctx.scale(-1, 1);
+            ctx.translate(-(drawX + 8), 0);
+          }
+          ctx.drawImage(this.mewtwoImg, drawX - 11, drawY - 16 + levitate, 38, 38);
+          if (isFlipped) ctx.restore();
+        }
+      } else if (npc.id === 'rayquaza' || (npc as any).subType === 'rayquaza') {
+        // Authentic Rayquaza Sky High Dragon/Flying Overworld Sprite with Ozone Emerald Aura
+        const drawX = curTileX * TILE_SIZE;
+        const drawY = curTileY * TILE_SIZE;
+        const levitate = Math.sin(this.tick * 0.04) * 2.0;
+
+        // Ground shadow
+        ctx.fillStyle = 'rgba(10, 30, 20, 0.4)';
+        ctx.beginPath();
+        ctx.ellipse(drawX + 8, drawY + 16, 14, 5, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Atmospheric Ozone Emerald Aura
+        const auraPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
+        const coreX = drawX + 8;
+        const coreY = drawY - 2 + levitate;
+        const spatGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 18);
+        spatGrad.addColorStop(0, `rgba(167, 243, 208, ${auraPulse + 0.3})`);
+        spatGrad.addColorStop(0.5, `rgba(16, 185, 129, ${auraPulse})`);
+        spatGrad.addColorStop(1, 'rgba(5, 150, 105, 0)');
+        ctx.fillStyle = spatGrad;
+        ctx.beginPath();
+        ctx.arc(coreX, coreY, 18, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Stardust & Delta Stream wind sparkles
+        if (this.tick % 24 < 14) {
+          ctx.fillStyle = '#fef08a';
+          ctx.fillRect(coreX + Math.sin(this.tick * 0.2) * 12, coreY - 4 - (this.tick % 14), 1.5, 1.5);
+          ctx.fillStyle = '#34d399';
+          ctx.fillRect(coreX - 6 + Math.cos(this.tick * 0.16) * 10, coreY + 4 - (this.tick % 10), 2, 2);
+        }
+
+        // Draw Rayquaza sprite
+        if (this.rayquazaImg && this.rayquazaImg.complete && this.rayquazaImg.naturalWidth > 0) {
+          const isFlipped = (cfg?.orientation || 'E') === 'W';
+          if (isFlipped) {
+            ctx.save();
+            ctx.translate(drawX + 8, 0);
+            ctx.scale(-1, 1);
+            ctx.translate(-(drawX + 8), 0);
+          }
+          ctx.drawImage(this.rayquazaImg, drawX - 13, drawY - 20 + levitate, 42, 42);
+          if (isFlipped) ctx.restore();
+        }
+      } else if (npc.id === 'groudon' || (npc as any).subType === 'groudon') {
+        // Authentic Groudon Continent Ground Overworld Sprite with Primal Magma & Desolate Land Aura
+        const drawX = curTileX * TILE_SIZE;
+        const drawY = curTileY * TILE_SIZE;
+        const breath = Math.sin(this.tick * 0.04) * 0.8;
+        const coreX = drawX + 8;
+        const coreY = drawY + 8;
+
+        // Ground shadow beneath heavy continent body
+        ctx.fillStyle = 'rgba(25, 12, 6, 0.45)';
+        ctx.beginPath();
+        ctx.ellipse(coreX, drawY + 16, 15, 6, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Primal Magma / Desolate Land Heat Radiance (ambient pulsing heat wave gradient)
+        const magmaPulse = 0.35 + Math.sin(this.tick * 0.07) * 0.15;
+        const heatGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 20);
+        heatGrad.addColorStop(0, `rgba(239, 68, 68, ${magmaPulse + 0.25})`);
+        heatGrad.addColorStop(0.5, `rgba(249, 115, 22, ${magmaPulse * 0.8})`);
+        heatGrad.addColorStop(1, 'rgba(180, 83, 9, 0)');
+        ctx.fillStyle = heatGrad;
+        ctx.beginPath();
+        ctx.arc(coreX, coreY, 20, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Volcanic embers & magma sparks rising upward from the scorched earth
+        if (this.tick % 20 < 12) {
+          ctx.fillStyle = '#f59e0b';
+          ctx.fillRect(coreX + Math.sin(this.tick * 0.25) * 14, coreY + 8 - ((this.tick * 1.5) % 18), 1.5, 1.5);
+          ctx.fillStyle = '#ef4444';
+          ctx.fillRect(coreX - 8 + Math.cos(this.tick * 0.18) * 12, coreY + 10 - ((this.tick * 1.2) % 16), 2, 2);
+          ctx.fillStyle = '#fde047';
+          ctx.fillRect(coreX + 4 + Math.sin(this.tick * 0.3) * 10, coreY + 6 - (this.tick % 14), 1.5, 1.5);
+        }
+
+        // Draw Groudon sprite
+        if (this.groudonImg && this.groudonImg.complete && this.groudonImg.naturalWidth > 0) {
+          const isFlipped = (cfg?.orientation || 'E') === 'W';
+          if (isFlipped) {
+            ctx.save();
+            ctx.translate(drawX + 8, 0);
+            ctx.scale(-1, 1);
+            ctx.translate(-(drawX + 8), 0);
+          }
+          ctx.drawImage(this.groudonImg, drawX - 13, drawY - 20 + breath, 42, 42);
+          if (isFlipped) ctx.restore();
+        }
+      } else if (npc.id === 'kyogre' || (npc as any).subType === 'kyogre') {
+        // Authentic Kyogre Sea Basin Water Overworld Sprite with Primordial Sea Aqua Aura
+        const drawX = curTileX * TILE_SIZE;
+        const drawY = curTileY * TILE_SIZE;
+        const swimY = Math.sin(this.tick * 0.04) * 1.8;
+        const coreX = drawX + 8;
+        const coreY = drawY + 2 + swimY;
+
+        // Water ripple shadow
+        ctx.fillStyle = 'rgba(7, 43, 79, 0.4)';
+        ctx.beginPath();
+        ctx.ellipse(coreX, drawY + 16, 15, 5.5, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Primordial Sea Oceanic Hydro Aura
+        const waterPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
+        const aquaGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 19);
+        aquaGrad.addColorStop(0, `rgba(186, 230, 253, ${waterPulse + 0.3})`);
+        aquaGrad.addColorStop(0.5, `rgba(14, 165, 233, ${waterPulse})`);
+        aquaGrad.addColorStop(1, 'rgba(3, 105, 161, 0)');
+        ctx.fillStyle = aquaGrad;
+        ctx.beginPath();
+        ctx.arc(coreX, coreY, 19, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Hydro droplet & bioluminescent mist bubbles
+        if (this.tick % 22 < 13) {
+          ctx.fillStyle = '#7dd3fc';
+          ctx.fillRect(coreX + Math.sin(this.tick * 0.22) * 13, coreY - 4 + Math.cos(this.tick * 0.22) * 8, 1.5, 1.5);
+          ctx.fillStyle = '#38bdf8';
+          ctx.fillRect(coreX - 7 + Math.cos(this.tick * 0.17) * 11, coreY + 4 + Math.sin(this.tick * 0.17) * 7, 2, 2);
+          ctx.fillStyle = '#f0f9ff';
+          ctx.fillRect(coreX + 5 + Math.sin(this.tick * 0.28) * 9, coreY - 6 - (this.tick % 8), 1.5, 1.5);
+        }
+
+        // Draw Kyogre sprite
+        if (this.kyogreImg && this.kyogreImg.complete && this.kyogreImg.naturalWidth > 0) {
+          const isFlipped = (cfg?.orientation || 'E') === 'W';
+          if (isFlipped) {
+            ctx.save();
+            ctx.translate(drawX + 8, 0);
+            ctx.scale(-1, 1);
+            ctx.translate(-(drawX + 8), 0);
+          }
+          ctx.drawImage(this.kyogreImg, drawX - 13, drawY - 20 + swimY, 42, 42);
+          if (isFlipped) ctx.restore();
+        }
+      } else if (npc.id === 'latios' || (npc as any).subType === 'latios') {
+        // Authentic Latios Eon Dragon/Psychic Overworld Sprite with Jet Stream Azure Aura
+        const drawX = curTileX * TILE_SIZE;
+        const drawY = curTileY * TILE_SIZE;
+        const jetHover = Math.sin(this.tick * 0.055) * 2.2;
+        const coreX = drawX + 8;
+        const coreY = drawY + 1 + jetHover;
+
+        // Aerodynamic ground shadow
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.35)';
+        ctx.beginPath();
+        ctx.ellipse(coreX, drawY + 16, 13, 4.5, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Eon Psychic / Jet Stream Azure Radiant Aura
+        const jetPulse = 0.35 + Math.sin(this.tick * 0.09) * 0.15;
+        const auraGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 18);
+        auraGrad.addColorStop(0, `rgba(191, 219, 254, ${jetPulse + 0.3})`);
+        auraGrad.addColorStop(0.5, `rgba(59, 130, 246, ${jetPulse})`);
+        auraGrad.addColorStop(1, 'rgba(29, 78, 216, 0)');
+        ctx.fillStyle = auraGrad;
+        ctx.beginPath();
+        ctx.arc(coreX, coreY, 18, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Jet stream vapor trails & psychic stardust
+        if (this.tick % 20 < 12) {
+          ctx.fillStyle = '#93c5fd';
+          ctx.fillRect(coreX + Math.sin(this.tick * 0.24) * 12, coreY - 4 + Math.cos(this.tick * 0.24) * 8, 1.5, 1.5);
+          ctx.fillStyle = '#60a5fa';
+          ctx.fillRect(coreX - 8 + Math.cos(this.tick * 0.18) * 10, coreY + 3 + Math.sin(this.tick * 0.18) * 6, 2, 2);
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(coreX + 4 + Math.sin(this.tick * 0.3) * 8, coreY - 5 - (this.tick % 7), 1.5, 1.5);
+        }
+
+        // Draw Latios sprite
+        if (this.latiosImg && this.latiosImg.complete && this.latiosImg.naturalWidth > 0) {
+          const isFlipped = (cfg?.orientation || 'E') === 'W';
+          if (isFlipped) {
+            ctx.save();
+            ctx.translate(drawX + 8, 0);
+            ctx.scale(-1, 1);
+            ctx.translate(-(drawX + 8), 0);
+          }
+          ctx.drawImage(this.latiosImg, drawX - 13, drawY - 20 + jetHover, 42, 42);
+          if (isFlipped) ctx.restore();
+        }
+      } else if (npc.id === 'latias' || (npc as any).subType === 'latias') {
+        // Authentic Latias Eon Dragon/Psychic Overworld Sprite with Crimson Rose Mist Aura
+        const drawX = curTileX * TILE_SIZE;
+        const drawY = curTileY * TILE_SIZE;
+        const floatY = Math.sin(this.tick * 0.055 + 1.2) * 2.2;
+        const coreX = drawX + 8;
+        const coreY = drawY + 1 + floatY;
+
+        // Aerodynamic ground shadow
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.35)';
+        ctx.beginPath();
+        ctx.ellipse(coreX, drawY + 16, 12, 4.5, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Eon Crimson / Rose Mist Radiant Aura
+        const rosePulse = 0.35 + Math.sin(this.tick * 0.09 + 1.0) * 0.15;
+        const auraGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 18);
+        auraGrad.addColorStop(0, `rgba(254, 205, 211, ${rosePulse + 0.3})`);
+        auraGrad.addColorStop(0.5, `rgba(244, 63, 94, ${rosePulse})`);
+        auraGrad.addColorStop(1, 'rgba(190, 18, 60, 0)');
+        ctx.fillStyle = auraGrad;
+        ctx.beginPath();
+        ctx.arc(coreX, coreY, 18, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Light refraction glass crystals & pink stardust
+        if (this.tick % 20 < 12) {
+          ctx.fillStyle = '#fda4af';
+          ctx.fillRect(coreX + Math.sin(this.tick * 0.24) * 12, coreY - 4 + Math.cos(this.tick * 0.24) * 8, 1.5, 1.5);
+          ctx.fillStyle = '#f43f5e';
+          ctx.fillRect(coreX - 7 + Math.cos(this.tick * 0.18) * 10, coreY + 3 + Math.sin(this.tick * 0.18) * 6, 2, 2);
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(coreX + 4 + Math.sin(this.tick * 0.3) * 8, coreY - 5 - (this.tick % 7), 1.5, 1.5);
+        }
+
+        // Draw Latias sprite
+        if (this.latiasImg && this.latiasImg.complete && this.latiasImg.naturalWidth > 0) {
+          const isFlipped = (cfg?.orientation || 'E') === 'W';
+          if (isFlipped) {
+            ctx.save();
+            ctx.translate(drawX + 8, 0);
+            ctx.scale(-1, 1);
+            ctx.translate(-(drawX + 8), 0);
+          }
+          ctx.drawImage(this.latiasImg, drawX - 13, drawY - 20 + floatY, 42, 42);
+          if (isFlipped) ctx.restore();
+        }
+      } else if (npc.id === 'darkrai' || (npc as any).subType === 'darkrai') {
+        // Authentic Darkrai Pitch-Black Dark Overworld Sprite with Dark Void Nightmare Aura
+        const drawX = curTileX * TILE_SIZE;
+        const drawY = curTileY * TILE_SIZE;
+        const levitate = Math.sin(this.tick * 0.04) * 2.0;
+        const coreX = drawX + 8;
+        const coreY = drawY + 2 + levitate;
+
+        // Shadowy abyss portal pool
+        const portalPulse = 0.4 + Math.sin(this.tick * 0.08) * 0.15;
+        ctx.fillStyle = `rgba(15, 23, 42, ${portalPulse + 0.2})`;
+        ctx.beginPath();
+        ctx.ellipse(coreX, drawY + 16, 14, 5.5, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Pitch-Black / Nightmare Dark Void Aura
+        const voidPulse = 0.35 + Math.sin(this.tick * 0.07) * 0.15;
+        const voidGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 19);
+        voidGrad.addColorStop(0, `rgba(192, 132, 252, ${voidPulse + 0.25})`);
+        voidGrad.addColorStop(0.5, `rgba(88, 28, 135, ${voidPulse})`);
+        voidGrad.addColorStop(1, 'rgba(15, 23, 42, 0)');
+        ctx.fillStyle = voidGrad;
+        ctx.beginPath();
+        ctx.arc(coreX, coreY, 19, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Shadow mist wisps & nightmare sparks
+        if (this.tick % 22 < 14) {
+          ctx.fillStyle = '#a855f7';
+          ctx.fillRect(coreX + Math.sin(this.tick * 0.2) * 12, coreY + 6 - ((this.tick * 1.3) % 18), 1.5, 1.5);
+          ctx.fillStyle = '#1e1b4b';
+          ctx.fillRect(coreX - 8 + Math.cos(this.tick * 0.16) * 10, coreY + 8 - ((this.tick * 1.1) % 16), 2, 2);
+          ctx.fillStyle = '#f3e8ff';
+          ctx.fillRect(coreX + 4 + Math.sin(this.tick * 0.28) * 8, coreY - 4 - (this.tick % 10), 1.5, 1.5);
+        }
+
+        // Draw Darkrai sprite
+        if (this.darkraiImg && this.darkraiImg.complete && this.darkraiImg.naturalWidth > 0) {
+          const isFlipped = (cfg?.orientation || 'E') === 'W';
+          if (isFlipped) {
+            ctx.save();
+            ctx.translate(drawX + 8, 0);
+            ctx.scale(-1, 1);
+            ctx.translate(-(drawX + 8), 0);
+          }
+          ctx.drawImage(this.darkraiImg, drawX - 13, drawY - 20 + levitate, 42, 42);
+          if (isFlipped) ctx.restore();
+        }
+      } else if (npc.id === 'necrozma' || (npc as any).subType === 'necrozma' || npc.id === 'necrozma_dusk_mane') {
+        // Authentic Necrozma Dusk Mane Prism Psychic/Steel Overworld Sprite with Solar Flare Aura
+        const drawX = curTileX * TILE_SIZE;
+        const drawY = curTileY * TILE_SIZE;
+        const breath = Math.sin(this.tick * 0.04) * 0.9;
+        const coreX = drawX + 8;
+        const coreY = drawY + 6;
+
+        // Ground shadow beneath heavy lion paws
+        ctx.fillStyle = 'rgba(25, 15, 10, 0.45)';
+        ctx.beginPath();
+        ctx.ellipse(coreX, drawY + 16, 16, 6, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Radiant Solar Prism Aura
+        const solarPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
+        const sunGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 20);
+        sunGrad.addColorStop(0, `rgba(254, 240, 138, ${solarPulse + 0.3})`);
+        sunGrad.addColorStop(0.4, `rgba(245, 158, 11, ${solarPulse})`);
+        sunGrad.addColorStop(0.8, `rgba(79, 70, 229, ${solarPulse * 0.6})`);
+        sunGrad.addColorStop(1, 'rgba(30, 27, 75, 0)');
+        ctx.fillStyle = sunGrad;
+        ctx.beginPath();
+        ctx.arc(coreX, coreY, 20, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Solar flare / prism laser sparkles
+        if (this.tick % 20 < 12) {
+          ctx.fillStyle = '#fbbf24';
+          ctx.fillRect(coreX + Math.sin(this.tick * 0.25) * 14, coreY + 6 - ((this.tick * 1.4) % 18), 1.5, 1.5);
+          ctx.fillStyle = '#818cf8';
+          ctx.fillRect(coreX - 8 + Math.cos(this.tick * 0.18) * 12, coreY + 8 - ((this.tick * 1.2) % 16), 2, 2);
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(coreX + 4 + Math.sin(this.tick * 0.3) * 10, coreY + 4 - (this.tick % 14), 1.5, 1.5);
+        }
+
+        // Draw Necrozma Dusk Mane sprite (120x112 scaled to 46x43)
+        if (this.necrozmaImg && this.necrozmaImg.complete && this.necrozmaImg.naturalWidth > 0) {
+          const isFlipped = (cfg?.orientation || 'E') === 'W';
+          if (isFlipped) {
+            ctx.save();
+            ctx.translate(drawX + 8, 0);
+            ctx.scale(-1, 1);
+            ctx.translate(-(drawX + 8), 0);
+          }
+          ctx.drawImage(this.necrozmaImg, drawX - 15, drawY - 21 + breath, 46, 43);
+          if (isFlipped) ctx.restore();
+        }
+      } else if (npc.id === 'lunala' || (npc as any).subType === 'lunala') {
+        // Authentic Lunala Moone Psychic/Ghost Overworld Sprite with Full Moon Starlight Aura
+        const drawX = curTileX * TILE_SIZE;
+        const drawY = curTileY * TILE_SIZE;
+        const levitate = Math.sin(this.tick * 0.045) * 2.2;
+        const coreX = drawX + 8;
+        const coreY = drawY + 2 + levitate;
+
+        // Crescent lunar ground shadow beneath wingspan
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.35)';
+        ctx.beginPath();
+        ctx.ellipse(coreX, drawY + 16, 17, 5, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Full Moon Cosmic Starlight Radiant Aura
+        const moonPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
+        const moonGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 20);
+        moonGrad.addColorStop(0, `rgba(224, 231, 255, ${moonPulse + 0.3})`);
+        moonGrad.addColorStop(0.5, `rgba(129, 140, 248, ${moonPulse})`);
+        moonGrad.addColorStop(0.8, `rgba(67, 56, 202, ${moonPulse * 0.5})`);
+        moonGrad.addColorStop(1, 'rgba(15, 23, 42, 0)');
+        ctx.fillStyle = moonGrad;
+        ctx.beginPath();
+        ctx.arc(coreX, coreY, 20, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Lunar dust sparkles & starlight constellation glints
+        if (this.tick % 20 < 12) {
+          ctx.fillStyle = '#c7d2fe';
+          ctx.fillRect(coreX + Math.sin(this.tick * 0.22) * 14, coreY - 4 + Math.cos(this.tick * 0.22) * 8, 1.5, 1.5);
+          ctx.fillStyle = '#38bdf8';
+          ctx.fillRect(coreX - 9 + Math.cos(this.tick * 0.16) * 12, coreY + 3 + Math.sin(this.tick * 0.16) * 6, 2, 2);
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(coreX + 5 + Math.sin(this.tick * 0.28) * 10, coreY - 6 - (this.tick % 7), 1.5, 1.5);
+        }
+
+        // Draw Lunala sprite (256x256 scaled to 46x46)
+        if (this.lunalaImg && this.lunalaImg.complete && this.lunalaImg.naturalWidth > 0) {
+          const isFlipped = (cfg?.orientation || 'E') === 'W';
+          if (isFlipped) {
+            ctx.save();
+            ctx.translate(drawX + 8, 0);
+            ctx.scale(-1, 1);
+            ctx.translate(-(drawX + 8), 0);
+          }
+          ctx.drawImage(this.lunalaImg, drawX - 15, drawY - 21 + levitate, 46, 46);
+          if (isFlipped) ctx.restore();
+        }
+      } else if (npc.id === 'solgaleo' || (npc as any).subType === 'solgaleo') {
+        // Authentic Solgaleo Sunne Psychic/Steel Overworld Sprite with Radiant Sun Solar Corona Aura
+        const drawX = curTileX * TILE_SIZE;
+        const drawY = curTileY * TILE_SIZE;
+        const breath = Math.sin(this.tick * 0.04) * 0.9;
+        const coreX = drawX + 8;
+        const coreY = drawY + 6;
+
+        // Ground shadow beneath heavy lion paws
+        ctx.fillStyle = 'rgba(25, 15, 5, 0.45)';
+        ctx.beginPath();
+        ctx.ellipse(coreX, drawY + 16, 16, 6, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Radiant Sun Solar Corona Aura (pure radiant gold / amber / white heat)
+        const sunPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
+        const sunGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 20);
+        sunGrad.addColorStop(0, `rgba(255, 255, 255, ${sunPulse + 0.35})`);
+        sunGrad.addColorStop(0.35, `rgba(254, 240, 138, ${sunPulse + 0.2})`);
+        sunGrad.addColorStop(0.7, `rgba(245, 158, 11, ${sunPulse * 0.7})`);
+        sunGrad.addColorStop(1, 'rgba(234, 88, 12, 0)');
+        ctx.fillStyle = sunGrad;
+        ctx.beginPath();
+        ctx.arc(coreX, coreY, 20, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Solar flare sparks & prism glints
+        if (this.tick % 20 < 12) {
+          ctx.fillStyle = '#fef08a';
+          ctx.fillRect(coreX + Math.sin(this.tick * 0.22) * 14, coreY + 4 - ((this.tick * 1.3) % 16), 1.5, 1.5);
+          ctx.fillStyle = '#f97316';
+          ctx.fillRect(coreX - 8 + Math.cos(this.tick * 0.17) * 12, coreY + 6 - ((this.tick * 1.1) % 15), 2, 2);
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(coreX + 4 + Math.sin(this.tick * 0.28) * 10, coreY + 2 - (this.tick % 13), 1.5, 1.5);
+        }
+
+        // Draw Solgaleo sprite (120x112 scaled to 46x43)
+        if (this.solgaleoImg && this.solgaleoImg.complete && this.solgaleoImg.naturalWidth > 0) {
+          const isFlipped = (cfg?.orientation || 'E') === 'W';
+          if (isFlipped) {
+            ctx.save();
+            ctx.translate(drawX + 8, 0);
+            ctx.scale(-1, 1);
+            ctx.translate(-(drawX + 8), 0);
+          }
+          ctx.drawImage(this.solgaleoImg, drawX - 15, drawY - 21 + breath, 46, 43);
+          if (isFlipped) ctx.restore();
+        }
       } else {
+        const drawX = curTileX * TILE_SIZE;
+        const drawY = curTileY * TILE_SIZE;
+        const dir =
+          cfg?.orientation === 'W'
+            ? 'left'
+            : cfg?.orientation === 'E'
+            ? 'right'
+            : cfg?.orientation === 'N'
+            ? 'up'
+            : cfg?.orientation === 'S'
+            ? 'down'
+            : npc.dir;
         drawCharacter(
           ctx,
           npc.palette,
-          npc.dir,
+          dir,
           0,
-          npc.x * TILE_SIZE,
-          npc.y * TILE_SIZE,
+          drawX,
+          drawY,
           1
         );
       }
 
       // Floating speech bubble if twin
       if (npc.id === 'twin') {
-        const bx = npc.x * TILE_SIZE + 22;
-        const by = npc.y * TILE_SIZE - 6;
+        const bx = curTileX * TILE_SIZE + 22;
+        const by = curTileY * TILE_SIZE - 8 + Math.sin(this.tick * 0.08) * 1.5;
         ctx.fillStyle = '#ffffff';
         ctx.beginPath();
         ctx.roundRect(bx, by, 13, 9, 3);
@@ -1800,6 +5217,349 @@ export class TownEngine {
       }
     }
 
+    // Custom spawned NPCs
+    for (const b of townConfig.getBuildings()) {
+      if (b.kind === 'npc' && !this.map.npcs.some((n) => n.id === b.id)) {
+        if (b.hidden) continue;
+        const isFlipped = b.orientation === 'W';
+        const centerX = b.x * TILE_SIZE + 8;
+        if (isFlipped) {
+          ctx.save();
+          ctx.translate(centerX, 0);
+          ctx.scale(-1, 1);
+          ctx.translate(-centerX, 0);
+        }
+        if ((b.subType === 'dialga' || b.id === 'dialga') && this.dialgaImg && this.dialgaImg.complete) {
+          const lev = Math.sin(this.tick * 0.04) * 1.5;
+          ctx.drawImage(this.dialgaImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + lev, 42, 42);
+        } else if ((b.subType === 'palkia' || b.id === 'palkia') && this.palkiaImg && this.palkiaImg.complete) {
+          const lev = Math.sin(this.tick * 0.04) * 1.6;
+          ctx.drawImage(this.palkiaImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + lev, 42, 42);
+        } else if ((b.subType === 'giratina' || b.id === 'giratina') && this.giratinaImg && this.giratinaImg.complete) {
+          const lev = Math.sin(this.tick * 0.04) * 1.8;
+          ctx.drawImage(this.giratinaImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + lev, 42, 42);
+        } else if ((b.subType === 'zekrom' || b.id === 'zekrom') && this.zekromImg && this.zekromImg.complete) {
+          const lev = Math.sin(this.tick * 0.035) * 1.5;
+          ctx.drawImage(this.zekromImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + lev, 42, 42);
+        } else if ((b.subType === 'reshiram' || b.id === 'reshiram') && this.reshiramImg && this.reshiramImg.complete) {
+          const lev = Math.sin(this.tick * 0.035) * 1.5;
+          ctx.drawImage(this.reshiramImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + lev, 42, 42);
+        } else if (b.subType === 'arceus' && this.arceusImg && this.arceusImg.complete) {
+          const lev = Math.sin(this.tick * 0.04) * 2;
+          ctx.drawImage(this.arceusImg, b.x * TILE_SIZE - 12, b.y * TILE_SIZE - 18 + lev, 40, 40);
+        } else if ((b.subType === 'mewtwo' || b.id === 'mewtwo') && this.mewtwoImg && this.mewtwoImg.complete) {
+          const lev = Math.sin(this.tick * 0.045) * 2.2;
+          ctx.drawImage(this.mewtwoImg, b.x * TILE_SIZE - 11, b.y * TILE_SIZE - 16 + lev, 38, 38);
+        } else if ((b.subType === 'rayquaza' || b.id === 'rayquaza') && this.rayquazaImg && this.rayquazaImg.complete) {
+          const lev = Math.sin(this.tick * 0.04) * 2.0;
+
+          // Atmospheric Ozone Emerald Aura
+          const auraPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
+          const coreX = b.x * TILE_SIZE + 8;
+          const coreY = b.y * TILE_SIZE - 2 + lev;
+          const spatGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 18);
+          spatGrad.addColorStop(0, `rgba(167, 243, 208, ${auraPulse + 0.3})`);
+          spatGrad.addColorStop(0.5, `rgba(16, 185, 129, ${auraPulse})`);
+          spatGrad.addColorStop(1, 'rgba(5, 150, 105, 0)');
+          ctx.fillStyle = spatGrad;
+          ctx.beginPath();
+          ctx.arc(coreX, coreY, 18, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Stardust & Delta Stream wind sparkles
+          if (this.tick % 24 < 14) {
+            ctx.fillStyle = '#fef08a';
+            ctx.fillRect(coreX + Math.sin(this.tick * 0.2) * 12, coreY - 4 - (this.tick % 14), 1.5, 1.5);
+            ctx.fillStyle = '#34d399';
+            ctx.fillRect(coreX - 6 + Math.cos(this.tick * 0.16) * 10, coreY + 4 - (this.tick % 10), 2, 2);
+          }
+
+          ctx.drawImage(this.rayquazaImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + lev, 42, 42);
+        } else if ((b.subType === 'groudon' || b.id === 'groudon') && this.groudonImg && this.groudonImg.complete) {
+          const breath = Math.sin(this.tick * 0.04) * 0.8;
+          const coreX = b.x * TILE_SIZE + 8;
+          const coreY = b.y * TILE_SIZE + 8;
+
+          // Ground shadow beneath heavy continent body
+          ctx.fillStyle = 'rgba(25, 12, 6, 0.45)';
+          ctx.beginPath();
+          ctx.ellipse(coreX, b.y * TILE_SIZE + 16, 15, 6, 0, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Primal Magma / Desolate Land Heat Radiance
+          const magmaPulse = 0.35 + Math.sin(this.tick * 0.07) * 0.15;
+          const heatGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 20);
+          heatGrad.addColorStop(0, `rgba(239, 68, 68, ${magmaPulse + 0.25})`);
+          heatGrad.addColorStop(0.5, `rgba(249, 115, 22, ${magmaPulse * 0.8})`);
+          heatGrad.addColorStop(1, 'rgba(180, 83, 9, 0)');
+          ctx.fillStyle = heatGrad;
+          ctx.beginPath();
+          ctx.arc(coreX, coreY, 20, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Volcanic embers & magma sparks rising upward from the scorched earth
+          if (this.tick % 20 < 12) {
+            ctx.fillStyle = '#f59e0b';
+            ctx.fillRect(coreX + Math.sin(this.tick * 0.25) * 14, coreY + 8 - ((this.tick * 1.5) % 18), 1.5, 1.5);
+            ctx.fillStyle = '#ef4444';
+            ctx.fillRect(coreX - 8 + Math.cos(this.tick * 0.18) * 12, coreY + 10 - ((this.tick * 1.2) % 16), 2, 2);
+            ctx.fillStyle = '#fde047';
+            ctx.fillRect(coreX + 4 + Math.sin(this.tick * 0.3) * 10, coreY + 6 - (this.tick % 14), 1.5, 1.5);
+          }
+
+          ctx.drawImage(this.groudonImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + breath, 42, 42);
+        } else if ((b.subType === 'kyogre' || b.id === 'kyogre') && this.kyogreImg && this.kyogreImg.complete) {
+          const swimY = Math.sin(this.tick * 0.04) * 1.8;
+          const coreX = b.x * TILE_SIZE + 8;
+          const coreY = b.y * TILE_SIZE + 2 + swimY;
+
+          // Water ripple shadow
+          ctx.fillStyle = 'rgba(7, 43, 79, 0.4)';
+          ctx.beginPath();
+          ctx.ellipse(coreX, b.y * TILE_SIZE + 16, 15, 5.5, 0, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Primordial Sea Oceanic Hydro Aura
+          const waterPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
+          const aquaGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 19);
+          aquaGrad.addColorStop(0, `rgba(186, 230, 253, ${waterPulse + 0.3})`);
+          aquaGrad.addColorStop(0.5, `rgba(14, 165, 233, ${waterPulse})`);
+          aquaGrad.addColorStop(1, 'rgba(3, 105, 161, 0)');
+          ctx.fillStyle = aquaGrad;
+          ctx.beginPath();
+          ctx.arc(coreX, coreY, 19, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Hydro droplet & bioluminescent mist bubbles
+          if (this.tick % 22 < 13) {
+            ctx.fillStyle = '#7dd3fc';
+            ctx.fillRect(coreX + Math.sin(this.tick * 0.22) * 13, coreY - 4 + Math.cos(this.tick * 0.22) * 8, 1.5, 1.5);
+            ctx.fillStyle = '#38bdf8';
+            ctx.fillRect(coreX - 7 + Math.cos(this.tick * 0.17) * 11, coreY + 4 + Math.sin(this.tick * 0.17) * 7, 2, 2);
+            ctx.fillStyle = '#f0f9ff';
+            ctx.fillRect(coreX + 5 + Math.sin(this.tick * 0.28) * 9, coreY - 6 - (this.tick % 8), 1.5, 1.5);
+          }
+
+          ctx.drawImage(this.kyogreImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + swimY, 42, 42);
+        } else if ((b.subType === 'latios' || b.id === 'latios') && this.latiosImg && this.latiosImg.complete) {
+          const jetHover = Math.sin(this.tick * 0.055) * 2.2;
+          const coreX = b.x * TILE_SIZE + 8;
+          const coreY = b.y * TILE_SIZE + 1 + jetHover;
+
+          // Aerodynamic ground shadow
+          ctx.fillStyle = 'rgba(15, 23, 42, 0.35)';
+          ctx.beginPath();
+          ctx.ellipse(coreX, b.y * TILE_SIZE + 16, 13, 4.5, 0, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Eon Psychic / Jet Stream Azure Radiant Aura
+          const jetPulse = 0.35 + Math.sin(this.tick * 0.09) * 0.15;
+          const auraGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 18);
+          auraGrad.addColorStop(0, `rgba(191, 219, 254, ${jetPulse + 0.3})`);
+          auraGrad.addColorStop(0.5, `rgba(59, 130, 246, ${jetPulse})`);
+          auraGrad.addColorStop(1, 'rgba(29, 78, 216, 0)');
+          ctx.fillStyle = auraGrad;
+          ctx.beginPath();
+          ctx.arc(coreX, coreY, 18, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Jet stream vapor trails & psychic stardust
+          if (this.tick % 20 < 12) {
+            ctx.fillStyle = '#93c5fd';
+            ctx.fillRect(coreX + Math.sin(this.tick * 0.24) * 12, coreY - 4 + Math.cos(this.tick * 0.24) * 8, 1.5, 1.5);
+            ctx.fillStyle = '#60a5fa';
+            ctx.fillRect(coreX - 8 + Math.cos(this.tick * 0.18) * 10, coreY + 3 + Math.sin(this.tick * 0.18) * 6, 2, 2);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(coreX + 4 + Math.sin(this.tick * 0.3) * 8, coreY - 5 - (this.tick % 7), 1.5, 1.5);
+          }
+
+          ctx.drawImage(this.latiosImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + jetHover, 42, 42);
+        } else if ((b.subType === 'latias' || b.id === 'latias') && this.latiasImg && this.latiasImg.complete) {
+          const floatY = Math.sin(this.tick * 0.055 + 1.2) * 2.2;
+          const coreX = b.x * TILE_SIZE + 8;
+          const coreY = b.y * TILE_SIZE + 1 + floatY;
+
+          // Aerodynamic ground shadow
+          ctx.fillStyle = 'rgba(15, 23, 42, 0.35)';
+          ctx.beginPath();
+          ctx.ellipse(coreX, b.y * TILE_SIZE + 16, 12, 4.5, 0, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Eon Crimson / Rose Mist Radiant Aura
+          const rosePulse = 0.35 + Math.sin(this.tick * 0.09 + 1.0) * 0.15;
+          const auraGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 18);
+          auraGrad.addColorStop(0, `rgba(254, 205, 211, ${rosePulse + 0.3})`);
+          auraGrad.addColorStop(0.5, `rgba(244, 63, 94, ${rosePulse})`);
+          auraGrad.addColorStop(1, 'rgba(190, 18, 60, 0)');
+          ctx.fillStyle = auraGrad;
+          ctx.beginPath();
+          ctx.arc(coreX, coreY, 18, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Light refraction glass crystals & pink stardust
+          if (this.tick % 20 < 12) {
+            ctx.fillStyle = '#fda4af';
+            ctx.fillRect(coreX + Math.sin(this.tick * 0.24) * 12, coreY - 4 + Math.cos(this.tick * 0.24) * 8, 1.5, 1.5);
+            ctx.fillStyle = '#f43f5e';
+            ctx.fillRect(coreX - 7 + Math.cos(this.tick * 0.18) * 10, coreY + 3 + Math.sin(this.tick * 0.18) * 6, 2, 2);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(coreX + 4 + Math.sin(this.tick * 0.3) * 8, coreY - 5 - (this.tick % 7), 1.5, 1.5);
+          }
+
+          ctx.drawImage(this.latiasImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + floatY, 42, 42);
+        } else if ((b.subType === 'darkrai' || b.id === 'darkrai') && this.darkraiImg && this.darkraiImg.complete) {
+          const levitate = Math.sin(this.tick * 0.04) * 2.0;
+          const coreX = b.x * TILE_SIZE + 8;
+          const coreY = b.y * TILE_SIZE + 2 + levitate;
+
+          // Shadowy abyss portal pool
+          const portalPulse = 0.4 + Math.sin(this.tick * 0.08) * 0.15;
+          ctx.fillStyle = `rgba(15, 23, 42, ${portalPulse + 0.2})`;
+          ctx.beginPath();
+          ctx.ellipse(coreX, b.y * TILE_SIZE + 16, 14, 5.5, 0, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Pitch-Black / Nightmare Dark Void Aura
+          const voidPulse = 0.35 + Math.sin(this.tick * 0.07) * 0.15;
+          const voidGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 19);
+          voidGrad.addColorStop(0, `rgba(192, 132, 252, ${voidPulse + 0.25})`);
+          voidGrad.addColorStop(0.5, `rgba(88, 28, 135, ${voidPulse})`);
+          voidGrad.addColorStop(1, 'rgba(15, 23, 42, 0)');
+          ctx.fillStyle = voidGrad;
+          ctx.beginPath();
+          ctx.arc(coreX, coreY, 19, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Shadow mist wisps & nightmare sparks
+          if (this.tick % 22 < 14) {
+            ctx.fillStyle = '#a855f7';
+            ctx.fillRect(coreX + Math.sin(this.tick * 0.2) * 12, coreY + 6 - ((this.tick * 1.3) % 18), 1.5, 1.5);
+            ctx.fillStyle = '#1e1b4b';
+            ctx.fillRect(coreX - 8 + Math.cos(this.tick * 0.16) * 10, coreY + 8 - ((this.tick * 1.1) % 16), 2, 2);
+            ctx.fillStyle = '#f3e8ff';
+            ctx.fillRect(coreX + 4 + Math.sin(this.tick * 0.28) * 8, coreY - 4 - (this.tick % 10), 1.5, 1.5);
+          }
+
+          ctx.drawImage(this.darkraiImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + levitate, 42, 42);
+        } else if ((b.subType === 'necrozma' || b.subType === 'necrozma_dusk_mane' || b.id === 'necrozma' || b.id === 'necrozma_dusk_mane') && this.necrozmaImg && this.necrozmaImg.complete) {
+          const breath = Math.sin(this.tick * 0.04) * 0.9;
+          const coreX = b.x * TILE_SIZE + 8;
+          const coreY = b.y * TILE_SIZE + 6;
+
+          // Ground shadow beneath heavy lion paws
+          ctx.fillStyle = 'rgba(25, 15, 10, 0.45)';
+          ctx.beginPath();
+          ctx.ellipse(coreX, b.y * TILE_SIZE + 16, 16, 6, 0, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Radiant Solar Prism Aura
+          const solarPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
+          const sunGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 20);
+          sunGrad.addColorStop(0, `rgba(254, 240, 138, ${solarPulse + 0.3})`);
+          sunGrad.addColorStop(0.4, `rgba(245, 158, 11, ${solarPulse})`);
+          sunGrad.addColorStop(0.8, `rgba(79, 70, 229, ${solarPulse * 0.6})`);
+          sunGrad.addColorStop(1, 'rgba(30, 27, 75, 0)');
+          ctx.fillStyle = sunGrad;
+          ctx.beginPath();
+          ctx.arc(coreX, coreY, 20, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Solar flare / prism laser sparkles
+          if (this.tick % 20 < 12) {
+            ctx.fillStyle = '#fbbf24';
+            ctx.fillRect(coreX + Math.sin(this.tick * 0.25) * 14, coreY + 6 - ((this.tick * 1.4) % 18), 1.5, 1.5);
+            ctx.fillStyle = '#818cf8';
+            ctx.fillRect(coreX - 8 + Math.cos(this.tick * 0.18) * 12, coreY + 8 - ((this.tick * 1.2) % 16), 2, 2);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(coreX + 4 + Math.sin(this.tick * 0.3) * 10, coreY + 4 - (this.tick % 14), 1.5, 1.5);
+          }
+
+          ctx.drawImage(this.necrozmaImg, b.x * TILE_SIZE - 15, b.y * TILE_SIZE - 21 + breath, 46, 43);
+        } else if ((b.subType === 'lunala' || b.id === 'lunala') && this.lunalaImg && this.lunalaImg.complete) {
+          const levitate = Math.sin(this.tick * 0.045) * 2.2;
+          const coreX = b.x * TILE_SIZE + 8;
+          const coreY = b.y * TILE_SIZE + 2 + levitate;
+
+          // Crescent lunar ground shadow beneath wingspan
+          ctx.fillStyle = 'rgba(15, 23, 42, 0.35)';
+          ctx.beginPath();
+          ctx.ellipse(coreX, b.y * TILE_SIZE + 16, 17, 5, 0, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Full Moon Cosmic Starlight Radiant Aura
+          const moonPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
+          const moonGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 20);
+          moonGrad.addColorStop(0, `rgba(224, 231, 255, ${moonPulse + 0.3})`);
+          moonGrad.addColorStop(0.5, `rgba(129, 140, 248, ${moonPulse})`);
+          moonGrad.addColorStop(0.8, `rgba(67, 56, 202, ${moonPulse * 0.5})`);
+          moonGrad.addColorStop(1, 'rgba(15, 23, 42, 0)');
+          ctx.fillStyle = moonGrad;
+          ctx.beginPath();
+          ctx.arc(coreX, coreY, 20, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Lunar dust sparkles & starlight constellation glints
+          if (this.tick % 20 < 12) {
+            ctx.fillStyle = '#c7d2fe';
+            ctx.fillRect(coreX + Math.sin(this.tick * 0.22) * 14, coreY - 4 + Math.cos(this.tick * 0.22) * 8, 1.5, 1.5);
+            ctx.fillStyle = '#38bdf8';
+            ctx.fillRect(coreX - 9 + Math.cos(this.tick * 0.16) * 12, coreY + 3 + Math.sin(this.tick * 0.16) * 6, 2, 2);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(coreX + 5 + Math.sin(this.tick * 0.28) * 10, coreY - 6 - (this.tick % 7), 1.5, 1.5);
+          }
+
+          ctx.drawImage(this.lunalaImg, b.x * TILE_SIZE - 15, b.y * TILE_SIZE - 21 + levitate, 46, 46);
+        } else if ((b.subType === 'solgaleo' || b.id === 'solgaleo') && this.solgaleoImg && this.solgaleoImg.complete) {
+          const breath = Math.sin(this.tick * 0.04) * 0.9;
+          const coreX = b.x * TILE_SIZE + 8;
+          const coreY = b.y * TILE_SIZE + 6;
+
+          // Ground shadow beneath heavy lion paws
+          ctx.fillStyle = 'rgba(25, 15, 5, 0.45)';
+          ctx.beginPath();
+          ctx.ellipse(coreX, b.y * TILE_SIZE + 16, 16, 6, 0, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Radiant Sun Solar Corona Aura
+          const sunPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
+          const sunGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 20);
+          sunGrad.addColorStop(0, `rgba(255, 255, 255, ${sunPulse + 0.35})`);
+          sunGrad.addColorStop(0.35, `rgba(254, 240, 138, ${sunPulse + 0.2})`);
+          sunGrad.addColorStop(0.7, `rgba(245, 158, 11, ${sunPulse * 0.7})`);
+          sunGrad.addColorStop(1, 'rgba(234, 88, 12, 0)');
+          ctx.fillStyle = sunGrad;
+          ctx.beginPath();
+          ctx.arc(coreX, coreY, 20, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Solar flare sparks & prism glints
+          if (this.tick % 20 < 12) {
+            ctx.fillStyle = '#fef08a';
+            ctx.fillRect(coreX + Math.sin(this.tick * 0.22) * 14, coreY + 4 - ((this.tick * 1.3) % 16), 1.5, 1.5);
+            ctx.fillStyle = '#f97316';
+            ctx.fillRect(coreX - 8 + Math.cos(this.tick * 0.17) * 12, coreY + 6 - ((this.tick * 1.1) % 15), 2, 2);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(coreX + 4 + Math.sin(this.tick * 0.28) * 10, coreY + 2 - (this.tick % 13), 1.5, 1.5);
+          }
+
+          ctx.drawImage(this.solgaleoImg, b.x * TILE_SIZE - 15, b.y * TILE_SIZE - 21 + breath, 46, 43);
+        } else {
+          const dir =
+            b.orientation === 'W'
+              ? 'left'
+              : b.orientation === 'E'
+              ? 'right'
+              : b.orientation === 'N'
+              ? 'up'
+              : 'down';
+          drawCharacter(ctx, this.playerPalette, dir, 0, b.x * TILE_SIZE, b.y * TILE_SIZE, 1);
+        }
+        if (isFlipped) {
+          ctx.restore();
+        }
+      }
+    }
+
     // 9. Player
     const drawX =
       (this.playerPos.x + (this.playerTarget.x - this.playerPos.x) * this.moveProgress) * TILE_SIZE;
@@ -1809,10 +5569,44 @@ export class TownEngine {
 
     drawCharacter(ctx, this.playerPalette, this.playerDir, stepFrame, drawX, drawY, 1);
 
+    // Authentic Pokémon tall grass immersion (grass blades rustle over trainer's feet)
+    if (this.currentScene === 'town') {
+      const curTile = this.map.ground[this.playerPos.y * this.map.w + this.playerPos.x];
+      if (curTile === 2) {
+        ctx.fillStyle = '#458f2f';
+        ctx.fillRect(drawX + 1, drawY + 11, 14, 5);
+        ctx.fillStyle = '#55a437';
+        ctx.fillRect(drawX + 2, drawY + 9, 3, 4);
+        ctx.fillRect(drawX + 7, drawY + 8, 3, 5);
+        ctx.fillRect(drawX + 11, drawY + 10, 3, 4);
+        ctx.fillStyle = '#8ce458';
+        ctx.fillRect(drawX + 3, drawY + 8, 2, 2);
+        ctx.fillRect(drawX + 8, drawY + 7, 2, 2);
+      }
+    }
+
     // 10. Ambient breeze leaves
     for (const p of this.particles) {
       ctx.fillStyle = `rgba(180, 230, 140, ${p.alpha})`;
       ctx.fillRect(Math.floor(p.x), Math.floor(p.y), p.size, p.size);
+    }
+
+    // 11. Day / Sunset / Night Atmosphere Overlay & Dynamic Lighting
+    if (this.currentScene === 'town') {
+      if (this.townAtmosphere === 'sunset') {
+        ctx.fillStyle = 'rgba(255, 140, 60, 0.14)';
+        ctx.fillRect(0, 0, this.map.w * TILE_SIZE, this.map.h * TILE_SIZE);
+        renderLighting(ctx, this.getActiveLamps());
+      } else if (this.townAtmosphere === 'night') {
+        ctx.fillStyle = 'rgba(15, 25, 65, 0.36)';
+        ctx.fillRect(0, 0, this.map.w * TILE_SIZE, this.map.h * TILE_SIZE);
+        renderLighting(ctx, this.getActiveLamps());
+      }
+    }
+
+    // 12. Town Editor Overlay (Grid, Building Dragging, Coordinates Tooltip)
+    if (this.currentScene === 'town' && this.editor.isEnabled()) {
+      this.editor.renderOverlay(ctx);
     }
 
     ctx.restore();

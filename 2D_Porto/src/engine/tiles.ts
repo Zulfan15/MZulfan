@@ -141,10 +141,32 @@ export function renderLighting(ctx: CanvasRenderingContext2D, lamps: Lamp[]) {
     const radius = l.radius || 48;
 
     const grad = ctx.createRadialGradient(lx, ly, 3, lx, ly, radius);
-    grad.addColorStop(0, 'rgba(255, 238, 140, 0.55)');
-    grad.addColorStop(0.35, 'rgba(255, 230, 110, 0.32)');
-    grad.addColorStop(0.7, 'rgba(255, 220, 90, 0.12)');
-    grad.addColorStop(1, 'rgba(255, 220, 90, 0)');
+    if (l.color === 'cyan') {
+      grad.addColorStop(0, 'rgba(56, 189, 248, 0.7)');
+      grad.addColorStop(0.35, 'rgba(14, 165, 233, 0.4)');
+      grad.addColorStop(0.7, 'rgba(2, 132, 199, 0.15)');
+      grad.addColorStop(1, 'rgba(2, 132, 199, 0)');
+    } else if (l.color === 'amber' || l.color === 'orange') {
+      grad.addColorStop(0, 'rgba(251, 146, 60, 0.75)');
+      grad.addColorStop(0.35, 'rgba(249, 115, 22, 0.42)');
+      grad.addColorStop(0.7, 'rgba(234, 88, 12, 0.16)');
+      grad.addColorStop(1, 'rgba(234, 88, 12, 0)');
+    } else if (l.color === 'magenta' || l.color === 'purple') {
+      grad.addColorStop(0, 'rgba(236, 72, 153, 0.7)');
+      grad.addColorStop(0.35, 'rgba(217, 70, 239, 0.38)');
+      grad.addColorStop(0.7, 'rgba(192, 38, 211, 0.14)');
+      grad.addColorStop(1, 'rgba(192, 38, 211, 0)');
+    } else if (l.color === 'gold') {
+      grad.addColorStop(0, 'rgba(250, 204, 21, 0.7)');
+      grad.addColorStop(0.35, 'rgba(234, 179, 8, 0.38)');
+      grad.addColorStop(0.7, 'rgba(202, 138, 4, 0.14)');
+      grad.addColorStop(1, 'rgba(202, 138, 4, 0)');
+    } else {
+      grad.addColorStop(0, 'rgba(255, 238, 140, 0.55)');
+      grad.addColorStop(0.35, 'rgba(255, 230, 110, 0.32)');
+      grad.addColorStop(0.7, 'rgba(255, 220, 90, 0.12)');
+      grad.addColorStop(1, 'rgba(255, 220, 90, 0)');
+    }
 
     ctx.fillStyle = grad;
     ctx.beginPath();

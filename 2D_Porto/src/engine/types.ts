@@ -54,6 +54,8 @@ export interface CharacterPalette {
   accent?: string;
   /** render semi-transparent with a scanline flicker (hologram). */
   holo?: boolean;
+  /** render as Ash Ketchum with Pikachu on shoulder */
+  isAsh?: boolean;
 }
 
 export interface Npc extends Interactable, Vec {
@@ -69,6 +71,7 @@ export interface Sign extends Interactable, Vec {
 
 export interface Lamp extends Vec {
   radius?: number;
+  color?: string;
 }
 
 export interface Prop extends Interactable, Vec {

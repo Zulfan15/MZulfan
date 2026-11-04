@@ -2,22 +2,356 @@
 import TownLayout from '../layouts/TownLayout.astro';
 import WhereTo from '../components/WhereTo.astro';
 import ChatBox from '../components/ChatBox.astro';
+import { profile } from '../lib/profile';
+
+const githubUrl = profile.socials.find((s) => s.label === 'GitHub')?.url || 'https://github.com/Zulfan15';
+const linkedinUrl = profile.socials.find((s) => s.label === 'LinkedIn')?.url || 'https://www.linkedin.com/in/muhammad-zulfan-anggadhiputra';
+const emailUrl = `mailto:${profile.person.email}`;
 ---
 
-<TownLayout place="reception" title="Front Desk · Mira Receptionist">
-  <div class="space-y-6">
-    <div class="border-b-2 border-ink/20 pb-4">
-      <div class="eyebrow text-ball">🎧 FRONT DESK · DEV CENTER RECEPTION</div>
-      <h1 class="font-pixel text-lg text-ink mt-1">
-        Mira at Reception
-      </h1>
-      <p class="font-mono text-xs text-ink-soft mt-1">
-        Ask Mira about Zulfan's work experience, lab assistant roles, or directions around town.
+<TownLayout place="reception" title="Poké Center · Front Desk & Visitor Services — Muhammad Zulfan">
+  <div class="space-y-8">
+    <!-- Header Hero Banner -->
+    <header class="window p-4 md:p-5 bg-gradient-to-br from-cream via-paper to-cream border-2">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b-2 border-ink/15 pb-4 mb-4">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-xl bg-ball/10 border-2 border-ball flex items-center justify-center text-2xl shadow-sm">
+            🏥
+          </div>
+          <div>
+            <div class="eyebrow text-ball flex items-center gap-1.5 font-bold">
+              <span>DEV CENTER CAMPUS</span>
+              <span>•</span>
+              <span>POKÉ CENTER FRONT DESK</span>
+            </div>
+            <h1 class="font-pixel text-base md:text-lg text-ink mt-0.5">
+              Visitor Services & Reception Desk
+            </h1>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-100 border border-emerald-400 text-emerald-800 font-mono text-[10px] font-bold">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            MIRA ONLINE
+          </span>
+        </div>
+      </div>
+
+      <div class="flex flex-col md:flex-row gap-4 items-start">
+        <div class="p-3 rounded-lg bg-paper border border-ink/20 flex-1 text-xs leading-relaxed text-ink-soft">
+          <p class="font-medium text-ink mb-1.5">
+            👋 <strong>Welcome to Muhammad Zulfan's Portfolio Town!</strong>
+          </p>
+          <p>
+            I'm <strong>Nurse Mira</strong> at the Front Desk. Whether you need directions to the <a href="/dev" class="font-semibold text-ball underline">Dev Center</a>, want to inspect Zulfan's <a href="/lab" class="font-semibold text-ball underline">Research Lab</a>, challenge the bot in the <a href="/arcade" class="font-semibold text-ball underline">Arcade</a>, or refill your Poké Balls before catching critters in the tall grass, I'm here to assist you!
+          </p>
+        </div>
+      </div>
+    </header>
+
+    <!-- Pokéball Refill & Healing Station Widget -->
+    <section class="window p-4 md:p-5 bg-paper border-2 space-y-4" id="healing-station-widget">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b-2 border-ink/15 pb-3">
+        <div class="flex items-center gap-2.5">
+          <span class="text-xl">✨</span>
+          <div>
+            <h2 class="font-pixel text-xs text-ink uppercase tracking-wide">
+              Pokéball Refill & Healing Machine
+            </h2>
+            <p class="font-sans text-[11px] text-ink-soft">
+              Fully restore party status and replenish your inventory to 10 Poké Balls
+            </p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="font-mono text-xs text-ink-soft">Inventory:</span>
+          <span id="ball-count-badge" class="chip bg-ball text-paper border-ink font-mono font-bold text-xs px-2 py-0.5">
+            10 / 10 Balls
+          </span>
+        </div>
+      </div>
+
+      <!-- 6-Slot Visual Sequencer -->
+      <div class="bg-cream/60 p-3.5 rounded-lg border border-ink/20 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-2.5">
+          <span class="font-pixel text-[9px] text-ink-soft uppercase hidden sm:inline">Slots:</span>
+          <div class="flex items-center gap-2" id="healing-slots-container">
+            <div class="healing-slot w-7 h-7 rounded-full bg-paper border-2 border-ink flex items-center justify-center text-xs shadow-inner transition-transform" data-slot="0">🔴</div>
+            <div class="healing-slot w-7 h-7 rounded-full bg-paper border-2 border-ink flex items-center justify-center text-xs shadow-inner transition-transform" data-slot="1">🔴</div>
+            <div class="healing-slot w-7 h-7 rounded-full bg-paper border-2 border-ink flex items-center justify-center text-xs shadow-inner transition-transform" data-slot="2">🔴</div>
+            <div class="healing-slot w-7 h-7 rounded-full bg-paper border-2 border-ink flex items-center justify-center text-xs shadow-inner transition-transform" data-slot="3">🔴</div>
+            <div class="healing-slot w-7 h-7 rounded-full bg-paper border-2 border-ink flex items-center justify-center text-xs shadow-inner transition-transform" data-slot="4">🔴</div>
+            <div class="healing-slot w-7 h-7 rounded-full bg-paper border-2 border-ink flex items-center justify-center text-xs shadow-inner transition-transform" data-slot="5">🔴</div>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          id="btn-trigger-heal"
+          class="btn btn-primary w-full sm:w-auto px-4 py-2 flex items-center justify-center gap-2 text-xs font-pixel shadow-sm hover:scale-[1.02] active:scale-95 transition-all"
+        >
+          <span>💖</span>
+          <span>Rest & Refill Balls</span>
+        </button>
+      </div>
+
+      <!-- Feedback Toast -->
+      <div id="heal-feedback" class="hidden p-2.5 rounded-lg bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs font-sans flex items-center gap-2">
+        <span>✨</span>
+        <span id="heal-feedback-text">Your party is full of energy and your bag has been refilled to 10 Poké Balls!</span>
+      </div>
+    </section>
+
+    <!-- Interactive AI Front Desk (Mira) -->
+    <section class="space-y-3">
+      <div class="flex items-center justify-between">
+        <h2 class="section-title">
+          <span>Front Desk AI · Ask Mira</span>
+        </h2>
+        <span class="font-mono text-[10px] text-ink-soft">Powered by Knowledge Base</span>
+      </div>
+
+      <ChatBox persona="reception" />
+    </section>
+
+    <!-- Campus Quick Directory Cards -->
+    <section class="space-y-3">
+      <h2 class="section-title">
+        <span>Town & Campus Directory</span>
+      </h2>
+      <p class="font-sans text-xs text-ink-soft">
+        Select a building below to view details or click anywhere on the 2D map on the left to walk there directly.
       </p>
-    </div>
 
-    <ChatBox persona="reception" />
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+        <!-- Dev Center Card -->
+        <a href="/dev" class="card card-hover flex flex-col justify-between group p-3.5 no-underline">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-2xl p-1.5 rounded-lg bg-blue-100 border border-blue-300">💻</span>
+              <span class="chip font-mono text-[9px] uppercase">North Zone</span>
+            </div>
+            <h3 class="font-pixel text-xs text-ink group-hover:text-ball transition-colors">
+              Dev Center · Mission Control
+            </h3>
+            <p class="font-sans text-xs text-ink-soft mt-1 leading-relaxed">
+              Production full-stack projects, telemetry wall, radar scanner, and Snorlax at Mission Control.
+            </p>
+          </div>
+          <div class="mt-3 pt-2 border-t border-ink/10 flex items-center justify-between font-mono text-[10px] text-ink-soft">
+            <span>Route: /dev</span>
+            <span class="text-ball font-bold group-hover:translate-x-1 transition-transform">Enter →</span>
+          </div>
+        </a>
 
+        <!-- Research Lab Card -->
+        <a href="/lab" class="card card-hover flex flex-col justify-between group p-3.5 no-underline">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-2xl p-1.5 rounded-lg bg-emerald-100 border border-emerald-300">🔬</span>
+              <span class="chip font-mono text-[9px] uppercase">North-East Zone</span>
+            </div>
+            <h3 class="font-pixel text-xs text-ink group-hover:text-ball transition-colors">
+              Research Lab · AI & Vision
+            </h3>
+            <p class="font-sans text-xs text-ink-soft mt-1 leading-relaxed">
+              AeroScan UAV detection, IndoSpam classifier, ITENAS thesis papers, and research posters.
+            </p>
+          </div>
+          <div class="mt-3 pt-2 border-t border-ink/10 flex items-center justify-between font-mono text-[10px] text-ink-soft">
+            <span>Route: /lab</span>
+            <span class="text-ball font-bold group-hover:translate-x-1 transition-transform">Enter →</span>
+          </div>
+        </a>
+
+        <!-- Arcade Card -->
+        <a href="/arcade" class="card card-hover flex flex-col justify-between group p-3.5 no-underline">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-2xl p-1.5 rounded-lg bg-amber-100 border border-amber-300">🕹️</span>
+              <span class="chip font-mono text-[9px] uppercase">East Plaza</span>
+            </div>
+            <h3 class="font-pixel text-xs text-ink group-hover:text-ball transition-colors">
+              Retro Arcade · Kalah AI
+            </h3>
+            <p class="font-sans text-xs text-ink-soft mt-1 leading-relaxed">
+              Challenge the Mancala minimax robot, test your board tactics, and check the high score hall.
+            </p>
+          </div>
+          <div class="mt-3 pt-2 border-t border-ink/10 flex items-center justify-between font-mono text-[10px] text-ink-soft">
+            <span>Route: /arcade</span>
+            <span class="text-ball font-bold group-hover:translate-x-1 transition-transform">Play →</span>
+          </div>
+        </a>
+
+        <!-- Home & Studio Card -->
+        <a href="/about" class="card card-hover flex flex-col justify-between group p-3.5 no-underline">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-2xl p-1.5 rounded-lg bg-purple-100 border border-purple-300">🏠</span>
+              <span class="chip font-mono text-[9px] uppercase">West Row</span>
+            </div>
+            <h3 class="font-pixel text-xs text-ink group-hover:text-ball transition-colors">
+              Home & Studio · Crate & Closet
+            </h3>
+            <p class="font-sans text-xs text-ink-soft mt-1 leading-relaxed">
+              Zulfan's biography, music jukebox, vinyl crates, 2F chill lounge, and fridge notes.
+            </p>
+          </div>
+          <div class="mt-3 pt-2 border-t border-ink/10 flex items-center justify-between font-mono text-[10px] text-ink-soft">
+            <span>Route: /about</span>
+            <span class="text-ball font-bold group-hover:translate-x-1 transition-transform">Visit →</span>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <!-- Front Desk FAQ & Quick Logistics -->
+    <section class="window p-4 md:p-5 bg-paper border-2 space-y-4">
+      <h2 class="font-pixel text-xs text-ink uppercase tracking-wide flex items-center gap-2 border-b-2 border-ink/15 pb-2.5">
+        <span>📋</span>
+        <span>Visitor Inquiries & Information</span>
+      </h2>
+
+      <div class="space-y-3 font-sans text-xs">
+        <div class="p-3 rounded-lg bg-cream/70 border border-ink/15">
+          <div class="font-bold text-ink mb-1 flex items-center gap-1.5">
+            <span>💼</span>
+            <span>Is Zulfan currently available for roles?</span>
+          </div>
+          <p class="text-ink-soft leading-relaxed">
+            Yes! Zulfan is actively open to Software Engineering, Full-Stack Developer, and AI / Computer Vision opportunities. He welcomes remote worldwide positions as well as hybrid roles based in Bandung or Jakarta.
+          </p>
+        </div>
+
+        <div class="p-3 rounded-lg bg-cream/70 border border-ink/15">
+          <div class="font-bold text-ink mb-1 flex items-center gap-1.5">
+            <span>🎓</span>
+            <span>What is Zulfan's academic background?</span>
+          </div>
+          <p class="text-ink-soft leading-relaxed">
+            He holds a Bachelor's degree in Informatics / Computer Science from Institut Teknologi Nasional (ITENAS) Bandung, graduating with a 3.82 GPA, serving as coordinator for multiple computer laboratories (Databases, OOP, Networking, and IoT).
+          </p>
+        </div>
+
+        <div class="p-3 rounded-lg bg-cream/70 border border-ink/15">
+          <div class="font-bold text-ink mb-1 flex items-center gap-1.5">
+            <span>📬</span>
+            <span>How can recruiters and collaborators get in touch?</span>
+          </div>
+          <p class="text-ink-soft leading-relaxed">
+            Send an email directly to <a href={emailUrl} class="font-semibold text-ball underline">{profile.person.email}</a>, or connect via <a href={linkedinUrl} target="_blank" rel="noopener noreferrer" class="font-semibold text-ball underline">LinkedIn</a>. You can also view open-source projects on <a href={githubUrl} target="_blank" rel="noopener noreferrer" class="font-semibold text-ball underline">GitHub</a>.
+          </p>
+        </div>
+      </div>
+
+      <div class="pt-2 flex flex-wrap gap-2.5">
+        <a href="/resume.pdf" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-gold">
+          <span>📄</span>
+          <span>Download Résumé (PDF)</span>
+        </a>
+        <a href="/" class="btn btn-sm">
+          <span>🗺️</span>
+          <span>Return to Town Square</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- Navigation WhereTo -->
     <WhereTo currentPath="/reception" />
   </div>
 </TownLayout>
+
+<script>
+  import { sfx } from '../game/sfx';
+
+  // Interactive Healing Station Logic
+  function initHealingStation() {
+    const btnHeal = document.getElementById('btn-trigger-heal');
+    const badge = document.getElementById('ball-count-badge');
+    const feedback = document.getElementById('heal-feedback');
+    const feedbackText = document.getElementById('heal-feedback-text');
+    const slotElements = document.querySelectorAll<HTMLElement>('.healing-slot');
+
+    function getBallCount(): number {
+      try {
+        const raw = localStorage.getItem('critters_inventory');
+        if (raw) {
+          const inv = JSON.parse(raw);
+          return typeof inv.balls === 'number' ? inv.balls : 10;
+        }
+      } catch {}
+      return 10;
+    }
+
+    function updateBadge() {
+      if (badge) {
+        const count = getBallCount();
+        badge.textContent = `${count} / 10 Balls`;
+        if (count <= 2) {
+          badge.className = 'chip bg-amber-500 text-paper border-ink font-mono font-bold text-xs px-2 py-0.5';
+        } else {
+          badge.className = 'chip bg-ball text-paper border-ink font-mono font-bold text-xs px-2 py-0.5';
+        }
+      }
+    }
+
+    updateBadge();
+
+    // Listen for refill events from engine or other components
+    window.addEventListener('town:refill-balls', () => {
+      executeHealingEffect(false);
+    });
+
+    function executeHealingEffect(triggerSound = true) {
+      if (triggerSound) {
+        sfx.heal();
+      }
+
+      // Sequentially animate the 6 slots
+      slotElements.forEach((el, index) => {
+        setTimeout(() => {
+          el.style.backgroundColor = '#fecdd3';
+          el.style.borderColor = '#e11d48';
+          el.style.transform = 'scale(1.25)';
+          setTimeout(() => {
+            el.style.backgroundColor = '';
+            el.style.borderColor = '';
+            el.style.transform = '';
+          }, 350);
+        }, index * 90);
+      });
+
+      // Update localStorage inventory to 10 balls
+      try {
+        const raw = localStorage.getItem('critters_inventory');
+        const inv = raw ? JSON.parse(raw) : {};
+        inv.balls = 10;
+        localStorage.setItem('critters_inventory', JSON.stringify(inv));
+      } catch {}
+
+      updateBadge();
+
+      // Show feedback
+      if (feedback && feedbackText) {
+        feedback.classList.remove('hidden');
+        feedbackText.textContent = '✨ All team members fully rested and 10 Poké Balls refilled!';
+        setTimeout(() => {
+          feedback.classList.add('hidden');
+        }, 5000);
+      }
+    }
+
+    if (btnHeal) {
+      btnHeal.addEventListener('click', () => {
+        executeHealingEffect(true);
+      });
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initHealingStation);
+  } else {
+    initHealingStation();
+  }
+</script>

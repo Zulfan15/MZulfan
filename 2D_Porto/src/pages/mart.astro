@@ -1,0 +1,799 @@
+---
+import TownLayout from '../layouts/TownLayout.astro';
+import WhereTo from '../components/WhereTo.astro';
+import { profile } from '../lib/profile';
+
+const githubUrl = profile.socials.find((s) => s.label === 'GitHub')?.url || 'https://github.com/Zulfan15';
+const linkedinUrl = profile.socials.find((s) => s.label === 'LinkedIn')?.url || 'https://www.linkedin.com/in/muhammad-zulfan-anggadhiputra';
+const emailUrl = `mailto:${profile.person.email}`;
+const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
+---
+
+<TownLayout place="mart" title="Poké Mart · Tech Services & Inventory — Muhammad Zulfan">
+  <div class="space-y-8">
+    <!-- Header Hero Banner -->
+    <header class="window p-4 md:p-5 bg-gradient-to-br from-cream via-paper to-cream border-2">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b-2 border-ink/15 pb-4 mb-4">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-xl bg-blue-500/10 border-2 border-blue-600 flex items-center justify-center text-2xl shadow-sm">
+            🏪
+          </div>
+          <div>
+            <div class="eyebrow text-blue-600 flex items-center gap-1.5 font-bold">
+              <span>TOWN COMMERCIAL DISTRICT</span>
+              <span>•</span>
+              <span>POKÉ MART STORE #01</span>
+            </div>
+            <h1 class="font-pixel text-base md:text-lg text-ink mt-0.5">
+              Poké Mart · Tech Services & Inventory
+            </h1>
+          </div>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-100 border border-blue-400 text-blue-900 font-mono text-[10px] font-bold">
+            <span class="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
+            CLERK KEVIN ON DUTY
+          </span>
+          <button
+            type="button"
+            id="wallet-badge-btn"
+            class="chip bg-amber-100 hover:bg-amber-200 text-amber-900 border-amber-400 font-mono text-xs px-2.5 py-1 font-bold cursor-pointer transition-colors"
+            title="Click to check wallet balance"
+          >
+            💰 ₽ 9,999
+          </button>
+        </div>
+      </div>
+
+      <!-- Clerk Kevin Dialogue Box -->
+      <div class="flex flex-col md:flex-row gap-4 items-start">
+        <div class="p-3.5 rounded-lg bg-paper border border-ink/20 flex-1 text-xs leading-relaxed text-ink-soft">
+          <p class="font-medium text-ink mb-1.5 flex items-center gap-1.5">
+            <span>👨‍💼</span>
+            <strong>Clerk Kevin:</strong>
+            <span class="text-[11px] font-mono text-blue-600 font-semibold">"Welcome to Zulfan's Poké Mart!"</span>
+          </p>
+          <p>
+            Looking to commission a high-speed Edge AI system? Need full-stack web engineering, custom IoT integrations, or want to pick up Zulfan's official credentials? Browse the catalog below, add items to your <strong>Project Inquiry Bag</strong>, or download Zulfan's official CV right from the Key Items shelf!
+          </p>
+        </div>
+      </div>
+    </header>
+
+    <!-- Catalog Section with Category Filter Tabs -->
+    <section class="window p-4 md:p-5 bg-paper border-2 space-y-5" id="mart-catalog">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b-2 border-ink/15 pb-4">
+        <div>
+          <h2 class="font-pixel text-xs text-ink uppercase tracking-wide flex items-center gap-2">
+            <span>📦</span>
+            <span>Store Shelves & Technical Inventory</span>
+          </h2>
+          <p class="font-sans text-[11px] text-ink-soft mt-0.5">
+            Select a department to view available technical services, skill TMs, developer perks, and credentials.
+          </p>
+        </div>
+
+        <!-- Category Tabs -->
+        <div class="flex flex-wrap gap-1.5" role="tablist" aria-label="Department categories">
+          <button
+            type="button"
+            class="mart-tab-btn btn btn-sm btn-paper font-pixel text-[10px] active"
+            data-mart-tab="all"
+          >
+            🌟 All (12)
+          </button>
+          <button
+            type="button"
+            class="mart-tab-btn btn btn-sm btn-paper font-pixel text-[10px]"
+            data-mart-tab="services"
+          >
+            🎒 Services & Solutions (4)
+          </button>
+          <button
+            type="button"
+            class="mart-tab-btn btn btn-sm btn-paper font-pixel text-[10px]"
+            data-mart-tab="tms"
+          >
+            💿 Technical TMs (4)
+          </button>
+          <button
+            type="button"
+            class="mart-tab-btn btn btn-sm btn-paper font-pixel text-[10px]"
+            data-mart-tab="potions"
+          >
+            🧪 Dev Potions (2)
+          </button>
+          <button
+            type="button"
+            class="mart-tab-btn btn btn-sm btn-paper font-pixel text-[10px]"
+            data-mart-tab="key"
+          >
+            🔑 Key Items & CV (2)
+          </button>
+        </div>
+      </div>
+
+      <!-- Item Cards Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="mart-grid">
+        <!-- 1. Edge AI & Computer Vision -->
+        <article class="mart-card p-4 rounded-xl bg-cream/50 border-2 border-ink/20 flex flex-col justify-between hover:border-blue-500 transition-all shadow-sm" data-category="services">
+          <div>
+            <div class="flex items-start justify-between gap-2 mb-2">
+              <span class="text-2xl p-1.5 rounded-lg bg-blue-100 border border-blue-300">🦅</span>
+              <span class="chip bg-blue-600 text-paper border-blue-800 font-mono font-bold text-[10px] px-2 py-0.5 uppercase">
+                AI / ML SERVICE
+              </span>
+            </div>
+            <h3 class="font-pixel text-xs text-ink">Edge AI & Computer Vision</h3>
+            <p class="font-mono text-[11px] text-blue-700 font-bold mb-2">AeroScan YOLOv11 + TensorRT</p>
+            <p class="text-xs text-ink-soft leading-relaxed mb-3">
+              Ultra-fast object detection and tracking optimized for edge computing (~1.8 ms/frame). Custom dataset annotation, model pruning, and FP16/INT8 TensorRT engine build.
+            </p>
+            <div class="flex flex-wrap gap-1 mb-4">
+              <span class="chip text-[10px]">YOLOv11</span>
+              <span class="chip text-[10px]">TensorRT</span>
+              <span class="chip text-[10px]">PyTorch</span>
+              <span class="chip text-[10px]">OpenCV</span>
+              <span class="chip text-[10px]">CUDA</span>
+            </div>
+          </div>
+          <div class="pt-3 border-t border-ink/10 flex items-center justify-between gap-2">
+            <span class="font-pixel text-xs text-amber-700 font-bold">₽ 1,500 <span class="font-sans text-[10px] text-ink-soft font-normal">/ sprint</span></span>
+            <button
+              type="button"
+              class="btn btn-sm btn-ball add-to-bag-btn text-[10px] font-pixel"
+              data-item-id="srv-ai"
+              data-item-name="Edge AI & Computer Vision Service"
+              data-item-price="₽ 1,500"
+            >
+              ➕ Add to Brief
+            </button>
+          </div>
+        </article>
+
+        <!-- 2. Full-Stack Cloud Platform -->
+        <article class="mart-card p-4 rounded-xl bg-cream/50 border-2 border-ink/20 flex flex-col justify-between hover:border-blue-500 transition-all shadow-sm" data-category="services">
+          <div>
+            <div class="flex items-start justify-between gap-2 mb-2">
+              <span class="text-2xl p-1.5 rounded-lg bg-emerald-100 border border-emerald-300">🌐</span>
+              <span class="chip bg-emerald-600 text-paper border-emerald-800 font-mono font-bold text-[10px] px-2 py-0.5 uppercase">
+                FULL-STACK WEB
+              </span>
+            </div>
+            <h3 class="font-pixel text-xs text-ink">Cloud-Native Web Systems</h3>
+            <p class="font-mono text-[11px] text-emerald-700 font-bold mb-2">FoodLink & Modern Web Apps</p>
+            <p class="text-xs text-ink-soft leading-relaxed mb-3">
+              Scalable web architectures with clean domain design, spatial PostGIS queries, real-time event streaming via Kafka & Redis, and automated containerized CI/CD.
+            </p>
+            <div class="flex flex-wrap gap-1 mb-4">
+              <span class="chip text-[10px]">Laravel 12</span>
+              <span class="chip text-[10px]">TypeScript</span>
+              <span class="chip text-[10px]">Astro</span>
+              <span class="chip text-[10px]">PostGIS</span>
+              <span class="chip text-[10px]">Redis</span>
+              <span class="chip text-[10px]">Kafka</span>
+            </div>
+          </div>
+          <div class="pt-3 border-t border-ink/10 flex items-center justify-between gap-2">
+            <span class="font-pixel text-xs text-amber-700 font-bold">₽ 1,200 <span class="font-sans text-[10px] text-ink-soft font-normal">/ sprint</span></span>
+            <button
+              type="button"
+              class="btn btn-sm btn-ball add-to-bag-btn text-[10px] font-pixel"
+              data-item-id="srv-web"
+              data-item-name="Cloud-Native Web Platform Service"
+              data-item-price="₽ 1,200"
+            >
+              ➕ Add to Brief
+            </button>
+          </div>
+        </article>
+
+        <!-- 3. IoT & Embedded Systems -->
+        <article class="mart-card p-4 rounded-xl bg-cream/50 border-2 border-ink/20 flex flex-col justify-between hover:border-blue-500 transition-all shadow-sm" data-category="services">
+          <div>
+            <div class="flex items-start justify-between gap-2 mb-2">
+              <span class="text-2xl p-1.5 rounded-lg bg-purple-100 border border-purple-300">🤖</span>
+              <span class="chip bg-purple-600 text-paper border-purple-800 font-mono font-bold text-[10px] px-2 py-0.5 uppercase">
+                EMBEDDED / IOT
+              </span>
+            </div>
+            <h3 class="font-pixel text-xs text-ink">IoT & Robotics Integration</h3>
+            <p class="font-mono text-[11px] text-purple-700 font-bold mb-2">ITENAS Robotics Coordinator</p>
+            <p class="text-xs text-ink-soft leading-relaxed mb-3">
+              Hardware microcontroller prototyping, sensor fusion, MQTT telemetry, ROS robotics control, and end-to-end device-to-dashboard communication pipelines.
+            </p>
+            <div class="flex flex-wrap gap-1 mb-4">
+              <span class="chip text-[10px]">ESP32</span>
+              <span class="chip text-[10px]">STM32</span>
+              <span class="chip text-[10px]">ROS</span>
+              <span class="chip text-[10px]">MQTT</span>
+              <span class="chip text-[10px]">C++ / MicroPython</span>
+            </div>
+          </div>
+          <div class="pt-3 border-t border-ink/10 flex items-center justify-between gap-2">
+            <span class="font-pixel text-xs text-amber-700 font-bold">₽ 1,000 <span class="font-sans text-[10px] text-ink-soft font-normal">/ project</span></span>
+            <button
+              type="button"
+              class="btn btn-sm btn-ball add-to-bag-btn text-[10px] font-pixel"
+              data-item-id="srv-iot"
+              data-item-name="IoT & Robotics Integration Service"
+              data-item-price="₽ 1,000"
+            >
+              ➕ Add to Brief
+            </button>
+          </div>
+        </article>
+
+        <!-- 4. Architecture Advisory & Code Review -->
+        <article class="mart-card p-4 rounded-xl bg-cream/50 border-2 border-ink/20 flex flex-col justify-between hover:border-blue-500 transition-all shadow-sm" data-category="services">
+          <div>
+            <div class="flex items-start justify-between gap-2 mb-2">
+              <span class="text-2xl p-1.5 rounded-lg bg-amber-100 border border-amber-300">🧠</span>
+              <span class="chip bg-amber-600 text-paper border-amber-800 font-mono font-bold text-[10px] px-2 py-0.5 uppercase">
+                ADVISORY & AUDIT
+              </span>
+            </div>
+            <h3 class="font-pixel text-xs text-ink">System Architecture Advisory</h3>
+            <p class="font-mono text-[11px] text-amber-800 font-bold mb-2">Code Review & Security Audit</p>
+            <p class="text-xs text-ink-soft leading-relaxed mb-3">
+              Comprehensive architectural audits, database indexing optimization, HCIA-certified network security review, Docker orchestration, and performance tuning.
+            </p>
+            <div class="flex flex-wrap gap-1 mb-4">
+              <span class="chip text-[10px]">Docker</span>
+              <span class="chip text-[10px]">HCIA-Security</span>
+              <span class="chip text-[10px]">MySQL</span>
+              <span class="chip text-[10px]">PostgreSQL</span>
+              <span class="chip text-[10px]">Linux</span>
+            </div>
+          </div>
+          <div class="pt-3 border-t border-ink/10 flex items-center justify-between gap-2">
+            <span class="font-pixel text-xs text-amber-700 font-bold">₽ 800 <span class="font-sans text-[10px] text-ink-soft font-normal">/ session</span></span>
+            <button
+              type="button"
+              class="btn btn-sm btn-ball add-to-bag-btn text-[10px] font-pixel"
+              data-item-id="srv-advisory"
+              data-item-name="System Architecture & Security Audit"
+              data-item-price="₽ 800"
+            >
+              ➕ Add to Brief
+            </button>
+          </div>
+        </article>
+
+        <!-- 5. TM 01: PyTorch & Deep Learning -->
+        <article class="mart-card p-4 rounded-xl bg-cream/50 border-2 border-ink/20 flex flex-col justify-between hover:border-blue-500 transition-all shadow-sm" data-category="tms">
+          <div>
+            <div class="flex items-start justify-between gap-2 mb-2">
+              <span class="text-2xl p-1.5 rounded-lg bg-orange-100 border border-orange-300">💿</span>
+              <span class="chip bg-orange-600 text-paper border-orange-800 font-mono font-bold text-[10px] px-2 py-0.5 uppercase">
+                TM 01 · ML
+              </span>
+            </div>
+            <h3 class="font-pixel text-xs text-ink">TM 01: PyTorch & Deep Learning</h3>
+            <p class="font-mono text-[11px] text-orange-700 font-bold mb-2">Model Architecture & Training</p>
+            <p class="text-xs text-ink-soft leading-relaxed mb-3">
+              Deep convolutional neural networks, vision transformers, transfer learning workflows, and data augmentation pipelines.
+            </p>
+            <div class="flex flex-wrap gap-1 mb-4">
+              <span class="chip text-[10px]">PyTorch</span>
+              <span class="chip text-[10px]">Torchvision</span>
+              <span class="chip text-[10px]">Weights & Biases</span>
+            </div>
+          </div>
+          <div class="pt-3 border-t border-ink/10 flex items-center justify-between gap-2">
+            <span class="font-pixel text-xs text-emerald-700 font-bold">FREE · OPEN</span>
+            <a href="/lab" class="btn btn-sm btn-paper text-[10px] font-pixel">
+              🔬 Lab R&D
+            </a>
+          </div>
+        </article>
+
+        <!-- 6. TM 02: TypeScript & Modern Astro -->
+        <article class="mart-card p-4 rounded-xl bg-cream/50 border-2 border-ink/20 flex flex-col justify-between hover:border-blue-500 transition-all shadow-sm" data-category="tms">
+          <div>
+            <div class="flex items-start justify-between gap-2 mb-2">
+              <span class="text-2xl p-1.5 rounded-lg bg-cyan-100 border border-cyan-300">💿</span>
+              <span class="chip bg-cyan-600 text-paper border-cyan-800 font-mono font-bold text-[10px] px-2 py-0.5 uppercase">
+                TM 02 · FRONTEND
+              </span>
+            </div>
+            <h3 class="font-pixel text-xs text-ink">TM 02: TypeScript & Astro Islands</h3>
+            <p class="font-mono text-[11px] text-cyan-700 font-bold mb-2">Zero-JS Runtime & Canvas 2D</p>
+            <p class="text-xs text-ink-soft leading-relaxed mb-3">
+              Type-safe full-stack web development with component islands, HTML5 Canvas game engines, and pixel-perfect responsive layouts.
+            </p>
+            <div class="flex flex-wrap gap-1 mb-4">
+              <span class="chip text-[10px]">TypeScript 5</span>
+              <span class="chip text-[10px]">Astro 5</span>
+              <span class="chip text-[10px]">HTML5 Canvas</span>
+            </div>
+          </div>
+          <div class="pt-3 border-t border-ink/10 flex items-center justify-between gap-2">
+            <span class="font-pixel text-xs text-emerald-700 font-bold">FREE · OPEN</span>
+            <a href={githubUrl} target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-paper text-[10px] font-pixel">
+              💻 GitHub
+            </a>
+          </div>
+        </article>
+
+        <!-- 7. TM 03: Laravel 12 & Event Streaming -->
+        <article class="mart-card p-4 rounded-xl bg-cream/50 border-2 border-ink/20 flex flex-col justify-between hover:border-blue-500 transition-all shadow-sm" data-category="tms">
+          <div>
+            <div class="flex items-start justify-between gap-2 mb-2">
+              <span class="text-2xl p-1.5 rounded-lg bg-red-100 border border-red-300">💿</span>
+              <span class="chip bg-red-600 text-paper border-red-800 font-mono font-bold text-[10px] px-2 py-0.5 uppercase">
+                TM 03 · BACKEND
+              </span>
+            </div>
+            <h3 class="font-pixel text-xs text-ink">TM 03: Laravel 12 & Microservices</h3>
+            <p class="font-mono text-[11px] text-red-700 font-bold mb-2">Event-Driven Architecture</p>
+            <p class="text-xs text-ink-soft leading-relaxed mb-3">
+              Enterprise PHP/Laravel with PostGIS spatial data, Kafka streaming, Redis cache invalidation, and automated Pest unit tests.
+            </p>
+            <div class="flex flex-wrap gap-1 mb-4">
+              <span class="chip text-[10px]">Laravel 12</span>
+              <span class="chip text-[10px]">Kafka</span>
+              <span class="chip text-[10px]">PostGIS</span>
+              <span class="chip text-[10px]">Pest PHP</span>
+            </div>
+          </div>
+          <div class="pt-3 border-t border-ink/10 flex items-center justify-between gap-2">
+            <span class="font-pixel text-xs text-emerald-700 font-bold">FREE · OPEN</span>
+            <a href="/dev" class="btn btn-sm btn-paper text-[10px] font-pixel">
+              🚀 Dev Center
+            </a>
+          </div>
+        </article>
+
+        <!-- 8. TM 04: TensorRT & CUDA High-Performance -->
+        <article class="mart-card p-4 rounded-xl bg-cream/50 border-2 border-ink/20 flex flex-col justify-between hover:border-blue-500 transition-all shadow-sm" data-category="tms">
+          <div>
+            <div class="flex items-start justify-between gap-2 mb-2">
+              <span class="text-2xl p-1.5 rounded-lg bg-emerald-100 border border-emerald-300">💿</span>
+              <span class="chip bg-emerald-600 text-paper border-emerald-800 font-mono font-bold text-[10px] px-2 py-0.5 uppercase">
+                TM 04 · GPU / HPC
+              </span>
+            </div>
+            <h3 class="font-pixel text-xs text-ink">TM 04: TensorRT & CUDA Engines</h3>
+            <p class="font-mono text-[11px] text-emerald-700 font-bold mb-2">High-Throughput Inference</p>
+            <p class="text-xs text-ink-soft leading-relaxed mb-3">
+              Low-level GPU acceleration, FP16 quantization calibration, multi-stream parallel inference, and memory bandwidth optimization.
+            </p>
+            <div class="flex flex-wrap gap-1 mb-4">
+              <span class="chip text-[10px]">NVIDIA TensorRT</span>
+              <span class="chip text-[10px]">CUDA 12</span>
+              <span class="chip text-[10px]">ONNX Runtime</span>
+            </div>
+          </div>
+          <div class="pt-3 border-t border-ink/10 flex items-center justify-between gap-2">
+            <span class="font-pixel text-xs text-emerald-700 font-bold">FREE · OPEN</span>
+            <a href="/lab" class="btn btn-sm btn-paper text-[10px] font-pixel">
+              🔬 Model Specs
+            </a>
+          </div>
+        </article>
+
+        <!-- 9. Developer Potion: Bandung Espresso -->
+        <article class="mart-card p-4 rounded-xl bg-cream/50 border-2 border-ink/20 flex flex-col justify-between hover:border-blue-500 transition-all shadow-sm" data-category="potions">
+          <div>
+            <div class="flex items-start justify-between gap-2 mb-2">
+              <span class="text-2xl p-1.5 rounded-lg bg-amber-100 border border-amber-300">☕</span>
+              <span class="chip bg-amber-800 text-paper border-amber-950 font-mono font-bold text-[10px] px-2 py-0.5 uppercase">
+                POTION · FOCUS
+              </span>
+            </div>
+            <h3 class="font-pixel text-xs text-ink">Bandung Specialty Espresso</h3>
+            <p class="font-mono text-[11px] text-amber-900 font-bold mb-2">Developer Caffeine Fuel</p>
+            <p class="text-xs text-ink-soft leading-relaxed mb-3">
+              Single-origin West Java Arabica roast. Instantly cures developer fatigue, grants +100% bug elimination speed, and guarantees clean commits.
+            </p>
+            <div class="flex flex-wrap gap-1 mb-4">
+              <span class="chip text-[10px]">+100% Focus</span>
+              <span class="chip text-[10px]">0 Syntax Errors</span>
+            </div>
+          </div>
+          <div class="pt-3 border-t border-ink/10 flex items-center justify-between gap-2">
+            <span class="font-pixel text-xs text-amber-700 font-bold">₽ 50</span>
+            <button
+              type="button"
+              class="btn btn-sm btn-gold font-pixel text-[10px]"
+              id="drink-coffee-btn"
+            >
+              ☕ Drink Now
+            </button>
+          </div>
+        </article>
+
+        <!-- 10. Developer Potion: Clean Architecture Max Ether -->
+        <article class="mart-card p-4 rounded-xl bg-cream/50 border-2 border-ink/20 flex flex-col justify-between hover:border-blue-500 transition-all shadow-sm" data-category="potions">
+          <div>
+            <div class="flex items-start justify-between gap-2 mb-2">
+              <span class="text-2xl p-1.5 rounded-lg bg-teal-100 border border-teal-300">🧪</span>
+              <span class="chip bg-teal-700 text-paper border-teal-900 font-mono font-bold text-[10px] px-2 py-0.5 uppercase">
+                POTION · REFACTOR
+              </span>
+            </div>
+            <h3 class="font-pixel text-xs text-ink">Clean Architecture Max Ether</h3>
+            <p class="font-mono text-[11px] text-teal-800 font-bold mb-2">Technical Debt Cleanser</p>
+            <p class="text-xs text-ink-soft leading-relaxed mb-3">
+              Purges spaghetti code, restores SOLID design principles, and increases automated test coverage metrics above 95%.
+            </p>
+            <div class="flex flex-wrap gap-1 mb-4">
+              <span class="chip text-[10px]">SOLID Principles</span>
+              <span class="chip text-[10px]">95% Test Coverage</span>
+            </div>
+          </div>
+          <div class="pt-3 border-t border-ink/10 flex items-center justify-between gap-2">
+            <span class="font-pixel text-xs text-amber-700 font-bold">₽ 100</span>
+            <button
+              type="button"
+              class="btn btn-sm btn-paper font-pixel text-[10px]"
+              id="drink-ether-btn"
+            >
+              🧪 Use Ether
+            </button>
+          </div>
+        </article>
+
+        <!-- 11. Key Item: Official CV Download -->
+        <article class="mart-card p-4 rounded-xl bg-blue-50/80 border-2 border-blue-400 flex flex-col justify-between hover:border-blue-600 transition-all shadow-md" data-category="key">
+          <div>
+            <div class="flex items-start justify-between gap-2 mb-2">
+              <span class="text-2xl p-1.5 rounded-lg bg-blue-200 border border-blue-400">📄</span>
+              <span class="chip bg-blue-700 text-paper border-blue-900 font-mono font-bold text-[10px] px-2 py-0.5 uppercase">
+                KEY ITEM · RESUME
+              </span>
+            </div>
+            <h3 class="font-pixel text-xs text-ink">Zulfan's Official CV (PDF)</h3>
+            <p class="font-mono text-[11px] text-blue-800 font-bold mb-2">Curriculum Vitae Document</p>
+            <p class="text-xs text-ink-soft leading-relaxed mb-3">
+              Complete professional curriculum vitae featuring technical projects, ITENAS lab assistant coordinator experience, honors, and verified contact links.
+            </p>
+            <div class="flex flex-wrap gap-1 mb-4">
+              <span class="chip text-[10px]">PDF Format</span>
+              <span class="chip text-[10px]">Verified 2026</span>
+              <span class="chip text-[10px]">Full Experience</span>
+            </div>
+          </div>
+          <div class="pt-3 border-t border-blue-200 flex items-center justify-between gap-2">
+            <span class="font-pixel text-xs text-blue-900 font-bold">KEY ITEM</span>
+            <a
+              href={cvUrl}
+              download="CV_Muhammad_Zulfan.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="btn btn-sm btn-gold font-pixel text-[10px] flex items-center gap-1.5 shadow-sm"
+            >
+              <span>📥</span>
+              <span>Download CV (PDF)</span>
+            </a>
+          </div>
+        </article>
+
+        <!-- 12. Key Item: Academic Degree & Honors -->
+        <article class="mart-card p-4 rounded-xl bg-blue-50/80 border-2 border-blue-400 flex flex-col justify-between hover:border-blue-600 transition-all shadow-md" data-category="key">
+          <div>
+            <div class="flex items-start justify-between gap-2 mb-2">
+              <span class="text-2xl p-1.5 rounded-lg bg-blue-200 border border-blue-400">🎓</span>
+              <span class="chip bg-blue-700 text-paper border-blue-900 font-mono font-bold text-[10px] px-2 py-0.5 uppercase">
+                KEY ITEM · DEGREE
+              </span>
+            </div>
+            <h3 class="font-pixel text-xs text-ink">Bachelor of Informatics</h3>
+            <p class="font-mono text-[11px] text-blue-800 font-bold mb-2">ITENAS Bandung (GPA 3.49)</p>
+            <p class="text-xs text-ink-soft leading-relaxed mb-3">
+              Informatics Degree (S.Kom.), HCIA-Security Certified, IDEA FEST 3 Bronze Medalist, and 6-time computer science lab assistant.
+            </p>
+            <div class="flex flex-wrap gap-1 mb-4">
+              <span class="chip text-[10px]">GPA 3.49</span>
+              <span class="chip text-[10px]">HCIA-Security</span>
+              <span class="chip text-[10px]">Idea Fest Bronze</span>
+            </div>
+          </div>
+          <div class="pt-3 border-t border-blue-200 flex items-center justify-between gap-2">
+            <span class="font-pixel text-xs text-blue-900 font-bold">KEY ITEM</span>
+            <a href="/dev" class="btn btn-sm btn-paper font-pixel text-[10px]">
+              🎖️ Track Record
+            </a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Interactive Project Inquiry Bag -->
+    <section class="window p-4 md:p-5 bg-gradient-to-r from-blue-900 via-slate-900 to-blue-950 text-paper border-2 space-y-4" id="inquiry-bag-section">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/20 pb-3">
+        <div class="flex items-center gap-2.5">
+          <span class="text-2xl">🎒</span>
+          <div>
+            <h2 class="font-pixel text-xs text-white uppercase tracking-wide">
+              Project Inquiry Bag
+            </h2>
+            <p class="font-sans text-[11px] text-blue-200">
+              Assemble the technical services and expertise you need, then forward your inquiry directly to Zulfan's email
+            </p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <span id="bag-count-badge" class="chip bg-blue-500 text-white border-white/40 font-mono font-bold text-xs px-2.5 py-1">
+            0 Items Selected
+          </span>
+          <button type="button" id="clear-bag-btn" class="btn btn-sm btn-paper text-[10px] font-pixel text-ink hidden">
+            Clear Bag
+          </button>
+        </div>
+      </div>
+
+      <!-- Bag Items List -->
+      <div id="bag-items-list" class="space-y-2 text-xs">
+        <p class="text-blue-300 italic py-2 text-center" id="empty-bag-message">
+          No services added yet. Click <strong>"➕ Add to Brief"</strong> on any item above to assemble your project inquiry.
+        </p>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="pt-2 flex flex-wrap items-center justify-between gap-3 border-t border-white/10">
+        <div class="text-[11px] text-blue-200 font-mono">
+          📧 Inquiries sent directly to: <strong class="text-white underline">{profile.person.email}</strong>
+        </div>
+        <a
+          href={emailUrl}
+          id="send-inquiry-email-btn"
+          class="btn btn-sm btn-gold font-pixel text-xs flex items-center gap-2 shadow-md cursor-pointer"
+        >
+          <span>📨</span>
+          <span>Draft Project Inquiry Email</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- Clerk Kevin FAQ & Hiring Info -->
+    <section class="window p-4 md:p-5 bg-paper border-2 space-y-4">
+      <div class="flex items-center gap-2 border-b-2 border-ink/15 pb-3">
+        <span class="text-xl">💬</span>
+        <h2 class="font-pixel text-xs text-ink uppercase tracking-wide">
+          Clerk Kevin's Ordering & Hiring Guide
+        </h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+        <div class="p-3 rounded-lg bg-cream/70 border border-ink/15">
+          <div class="font-bold text-ink mb-1 flex items-center gap-1.5">
+            <span>💼</span>
+            <span>What collaboration and hiring models are available?</span>
+          </div>
+          <p class="text-ink-soft leading-relaxed">
+            Zulfan is open to <strong>Full-Time Software Engineer / AI Developer</strong> roles, <strong>Project-Based Contracts</strong>, and <strong>Independent Technical Advisory</strong>—available both Remotely and Hybrid (Bandung/Jakarta).
+          </p>
+        </div>
+
+        <div class="p-3 rounded-lg bg-cream/70 border border-ink/15">
+          <div class="font-bold text-ink mb-1 flex items-center gap-1.5">
+            <span>⏱️</span>
+            <span>What is the estimated project turnaround time?</span>
+          </div>
+          <p class="text-ink-soft leading-relaxed">
+            For Edge AI and Full-Stack Web MVPs/prototypes, timelines typically range between 2–4 weeks per sprint, accompanied by regular demos, comprehensive unit tests, and thorough documentation.
+          </p>
+        </div>
+
+        <div class="p-3 rounded-lg bg-cream/70 border border-ink/15">
+          <div class="font-bold text-ink mb-1 flex items-center gap-1.5">
+            <span>📑</span>
+            <span>How can I download Zulfan's CV and Portfolio?</span>
+          </div>
+          <p class="text-ink-soft leading-relaxed">
+            You can directly click <a href={cvUrl} download class="font-semibold text-blue-600 underline">Download CV (PDF)</a> on the Key Items shelf above, or explore his research track record in the <a href="/lab" class="font-semibold text-blue-600 underline">Research Lab</a>.
+          </p>
+        </div>
+
+        <div class="p-3 rounded-lg bg-cream/70 border border-ink/15">
+          <div class="font-bold text-ink mb-1 flex items-center gap-1.5">
+            <span>⚡</span>
+            <span>What is the quickest way to reach Zulfan?</span>
+          </div>
+          <p class="text-ink-soft leading-relaxed">
+            Send your project brief directly via email to <a href={emailUrl} class="font-semibold text-blue-600 underline">{profile.person.email}</a> or connect professionally on <a href={linkedinUrl} target="_blank" rel="noopener noreferrer" class="font-semibold text-blue-600 underline">LinkedIn</a>.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Navigation WhereTo -->
+    <WhereTo currentPath="/mart" />
+  </div>
+</TownLayout>
+
+<script>
+  import { sfx } from '../game/sfx';
+
+  function initMartPage() {
+    // 1. Category Filtering
+    const tabs = document.querySelectorAll<HTMLButtonElement>('.mart-tab-btn');
+    const cards = document.querySelectorAll<HTMLElement>('.mart-card');
+
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        tabs.forEach((t) => t.classList.remove('active', 'btn-ball'));
+        tab.classList.add('active', 'btn-ball');
+
+        const cat = tab.getAttribute('data-mart-tab');
+        sfx.select();
+
+        cards.forEach((card) => {
+          if (cat === 'all' || card.getAttribute('data-category') === cat) {
+            card.style.display = '';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      });
+    });
+
+    // 2. Interactive Project Inquiry Bag
+    interface BagItem {
+      id: string;
+      name: string;
+      price: string;
+    }
+
+    let bag: BagItem[] = [];
+
+    // Load from session storage if any
+    try {
+      const stored = sessionStorage.getItem('mart_inquiry_bag');
+      if (stored) bag = JSON.parse(stored);
+    } catch {}
+
+    const bagCountBadge = document.getElementById('bag-count-badge');
+    const bagList = document.getElementById('bag-items-list');
+    const clearBtn = document.getElementById('clear-bag-btn');
+    const emailBtn = document.getElementById('send-inquiry-email-btn') as HTMLAnchorElement | null;
+    const emptyMsg = document.getElementById('empty-bag-message');
+
+    function renderBag() {
+      if (!bagCountBadge || !bagList) return;
+
+      bagCountBadge.textContent = `${bag.length} ${bag.length === 1 ? 'Item' : 'Items'} Selected`;
+
+      if (bag.length === 0) {
+        if (emptyMsg) emptyMsg.style.display = '';
+        if (clearBtn) clearBtn.classList.add('hidden');
+        bagList.innerHTML = '';
+        if (emptyMsg) bagList.appendChild(emptyMsg);
+        if (emailBtn) {
+          emailBtn.href = `mailto:zulfanangga2908@gmail.com?subject=Project Inquiry via Poké Mart&body=Hi Zulfan,%0D%0A%0D%0AI visited your Poké Mart and would like to discuss an engineering project with you.`;
+        }
+        return;
+      }
+
+      if (clearBtn) clearBtn.classList.remove('hidden');
+      if (emptyMsg) emptyMsg.style.display = 'none';
+      bagList.innerHTML = '';
+
+      bag.forEach((item, index) => {
+        const row = document.createElement('div');
+        row.className = 'flex items-center justify-between p-2 rounded bg-white/10 border border-white/10 text-white';
+        row.innerHTML = `
+          <div class="flex items-center gap-2">
+            <span class="text-blue-300 font-mono font-bold">#${index + 1}</span>
+            <span class="font-medium">${item.name}</span>
+            <span class="text-amber-300 font-mono text-[11px]">(${item.price})</span>
+          </div>
+          <button type="button" class="text-red-400 hover:text-red-300 px-2 py-0.5 rounded font-mono font-bold text-xs remove-item-btn" data-index="${index}">
+            ✕ Remove
+          </button>
+        `;
+        bagList.appendChild(row);
+      });
+
+      // Bind remove buttons
+      bagList.querySelectorAll<HTMLButtonElement>('.remove-item-btn').forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+          const idx = parseInt((e.currentTarget as HTMLElement).getAttribute('data-index') || '0', 10);
+          bag.splice(idx, 1);
+          saveAndRenderBag();
+          sfx.select();
+        });
+      });
+
+      // Update mailto link
+      if (emailBtn) {
+        const itemsText = bag.map((it, idx) => `${idx + 1}. ${it.name} (${it.price})`).join('%0D%0A');
+        const body = `Hi Muhammad Zulfan,%0D%0A%0D%0AI visited your portfolio Poké Mart and would like to inquire about the following services / technical topics:%0D%0A%0D%0A${itemsText}%0D%0A%0D%0APlease let me know your availability and timeline for a discussion.%0D%0A%0D%0ABest regards,`;
+        emailBtn.href = `mailto:zulfanangga2908@gmail.com?subject=Project Inquiry via Poké Mart (${bag.length} items)&body=${body}`;
+      }
+    }
+
+    function saveAndRenderBag() {
+      try {
+        sessionStorage.setItem('mart_inquiry_bag', JSON.stringify(bag));
+      } catch {}
+      renderBag();
+    }
+
+    // Add buttons
+    document.querySelectorAll<HTMLButtonElement>('.add-to-bag-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-item-id') || '';
+        const name = btn.getAttribute('data-item-name') || '';
+        const price = btn.getAttribute('data-item-price') || '';
+
+        bag.push({ id, name, price });
+        saveAndRenderBag();
+        sfx.select();
+
+        // Button feedback
+        const orig = btn.textContent;
+        btn.textContent = '✓ Added to Brief!';
+        btn.classList.add('bg-emerald-600', 'border-emerald-700');
+        setTimeout(() => {
+          btn.textContent = orig;
+          btn.classList.remove('bg-emerald-600', 'border-emerald-700');
+        }, 1200);
+
+        // Scroll to bag section smoothly
+        const bagSec = document.getElementById('inquiry-bag-section');
+        if (bagSec) {
+          bagSec.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      });
+    });
+
+    if (clearBtn) {
+      clearBtn.addEventListener('click', () => {
+        bag = [];
+        saveAndRenderBag();
+        sfx.select();
+      });
+    }
+
+    // Potion interactions
+    const coffeeBtn = document.getElementById('drink-coffee-btn');
+    if (coffeeBtn) {
+      coffeeBtn.addEventListener('click', () => {
+        sfx.heal();
+        const orig = coffeeBtn.textContent;
+        coffeeBtn.textContent = '✨ Max Stamina!';
+        coffeeBtn.classList.add('bg-emerald-500', 'text-white');
+        setTimeout(() => {
+          coffeeBtn.textContent = orig;
+          coffeeBtn.classList.remove('bg-emerald-500', 'text-white');
+        }, 2000);
+      });
+    }
+
+    const etherBtn = document.getElementById('drink-ether-btn');
+    if (etherBtn) {
+      etherBtn.addEventListener('click', () => {
+        sfx.heal();
+        const orig = etherBtn.textContent;
+        etherBtn.textContent = '⚡ Code Refactored!';
+        etherBtn.classList.add('bg-teal-500', 'text-white');
+        setTimeout(() => {
+          etherBtn.textContent = orig;
+          etherBtn.classList.remove('bg-teal-500', 'text-white');
+        }, 2000);
+      });
+    }
+
+    // Wallet click interaction
+    const walletBtn = document.getElementById('wallet-badge-btn');
+    if (walletBtn) {
+      walletBtn.addEventListener('click', () => {
+        sfx.select();
+        alert('💰 Your Balance: ₽ 9,999 Poké Dollars!\nAll Technical TMs and Zulfan\'s CV are free to download!');
+      });
+    }
+
+    // Initial render
+    renderBag();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initMartPage);
+  } else {
+    initMartPage();
+  }
+</script>
+

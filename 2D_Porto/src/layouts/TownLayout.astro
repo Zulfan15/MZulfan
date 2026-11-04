@@ -57,12 +57,13 @@ const {
             class="panel__tab"
             type="button"
             data-panel-tab=""
-            data-name={place === 'town' ? 'Town Square' : place === 'about' ? 'Home' : place === 'dev' ? 'Dev Center' : place === 'lab' ? 'Research Lab' : place === 'arcade' ? 'Arcade' : place}
-            aria-expanded="false"
-            aria-label={`Open the ${place === 'town' ? 'Town Square' : place === 'about' ? 'Home' : place} panel`}
+            data-name={place === 'town' ? 'Town Square' : place === 'about' ? 'Home' : place === 'dev' ? 'Dev Center' : place === 'lab' ? 'Research Lab' : place === 'arcade' ? 'Arcade' : place === 'reception' ? 'Poké Center' : place === 'mart' ? 'Poké Mart' : place === 'tower' ? 'Tech Tower' : place}
+            aria-expanded="true"
+            title="Tutup / Sembunyikan Panel Bacaan (Layar Penuh Kanvas)"
+            aria-label={`Toggle the ${place === 'town' ? 'Town Square' : place === 'about' ? 'Home' : place === 'reception' ? 'Poké Center' : place === 'mart' ? 'Poké Mart' : place === 'tower' ? 'Tech Tower' : place} reading panel`}
           >
             <span class="panel__tab-arrow" aria-hidden="true">◀</span>
-            <span aria-hidden="true">{place === 'dev' ? '💻' : place === 'lab' ? '🔬' : place === 'arcade' ? '🕹️' : place === 'about' ? '🏠' : '🏡'}</span>
+            <span aria-hidden="true">{place === 'dev' ? '💻' : place === 'lab' ? '🔬' : place === 'arcade' ? '🕹️' : place === 'about' ? '🏠' : place === 'reception' ? '🏥' : place === 'mart' ? '🏪' : place === 'tower' ? '🏢' : '🏡'}</span>
           </button>
 
           <div class="panel__bar">
@@ -70,7 +71,7 @@ const {
               <a class="btn btn--small panel__back" href="/" aria-label="Back to the town map">← Town</a>
             )}
             <span class="panel__where pixel" aria-hidden="true">
-              {place === 'dev' ? '💻 Dev Center' : place === 'lab' ? '🔬 Research Lab' : place === 'arcade' ? '🕹️ Arcade' : place === 'about' ? '🏠 Home' : '🏡 Town Square'}
+              {place === 'dev' ? '💻 Dev Center' : place === 'lab' ? '🔬 Research Lab' : place === 'arcade' ? '🕹️ Arcade' : place === 'about' ? '🏠 Home' : place === 'reception' ? '🏥 Poké Center' : place === 'mart' ? '🏪 Poké Mart' : place === 'tower' ? '🏢 Tech Tower' : '🏡 Town Square'}
             </span>
             {place === 'about' ? (
               <span class="panel__floor pixel cursor-pointer hover:opacity-80 transition-opacity" data-floor-chip="" role="button" tabindex="0" title="Click to switch floor (1F/2F)" aria-label="Switch Floor">2F</span>
@@ -104,22 +105,44 @@ const {
 
     <script>
       function initPanelTab() {
-        const tab = document.querySelector('[data-panel-tab]');
-        const panel = document.querySelector('.panel');
-        if (tab && panel) {
-          tab.addEventListener('click', () => {
-            const isOpen = panel.hasAttribute('data-open');
-            if (isOpen) {
-              panel.removeAttribute('data-open');
-              tab.setAttribute('aria-expanded', 'false');
-            } else {
-              panel.setAttribute('data-open', '');
-              tab.setAttribute('aria-expanded', 'true');
-            }
-          });
-        }
+        const tab = document.querySelector<HTMLButtonElement>('[data-panel-tab]');
+        const panel = document.querySelector<HTMLElement>('.panel');
+        const stage = document.querySelector<HTMLElement>('.stage');
+        if (!tab || !panel || !stage) return;
+
+        // Clone node to safely prevent duplicate listeners on Astro page transitions
+        const newTab = tab.cloneNode(true) as HTMLButtonElement;
+        tab.parentNode?.replaceChild(newTab, tab);
+
+        newTab.addEventListener('click', () => {
+          const isClosed = panel.hasAttribute('data-closed');
+          if (isClosed) {
+            // Buka kembali panel bacaan
+            panel.removeAttribute('data-closed');
+            stage.classList.remove('is-panel-closed');
+            newTab.setAttribute('aria-expanded', 'true');
+            newTab.setAttribute('title', 'Tutup / Sembunyikan Panel Bacaan (Layar Penuh Kanvas)');
+          } else {
+            // Tutup / sembunyikan panel agar kanvas kota full screen
+            panel.setAttribute('data-closed', '');
+            stage.classList.add('is-panel-closed');
+            newTab.setAttribute('aria-expanded', 'false');
+            newTab.setAttribute('title', 'Buka Panel Bacaan Konten');
+          }
+
+          // Trigger resize event agar TownEngine menyesuaikan canvas pixel size dengan lebar baru
+          window.dispatchEvent(new Event('resize'));
+          window.setTimeout(() => window.dispatchEvent(new Event('resize')), 150);
+          window.setTimeout(() => window.dispatchEvent(new Event('resize')), 320);
+        });
       }
-      document.addEventListener('DOMContentLoaded', initPanelTab);
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initPanelTab);
+      } else {
+        initPanelTab();
+      }
+      document.addEventListener('astro:page-load', initPanelTab);
     </script>
   </body>
 </html>
