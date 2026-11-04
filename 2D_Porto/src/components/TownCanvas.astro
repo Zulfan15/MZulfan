@@ -99,6 +99,17 @@ const dataPlaceRooms = {
     <div class="town-hud-actions town-hud-actions--desktop">
       <button
         type="button"
+        class="town-hud-btn town-hud-btn--xray"
+        id="btn-toggle-xray"
+        aria-label="Toggle X-Ray Collision Inspector"
+        title="Mode X-Ray (Lihat & Hapus Rintangan / Tekan X)"
+      >
+        <span class="town-hud-btn__icon" aria-hidden="true">🔬</span>
+        <span class="town-hud-btn__label">X-Ray</span>
+      </button>
+
+      <button
+        type="button"
         class="town-hud-btn"
         id="btn-toggle-labels"
         aria-label="Toggle landmark badges"
@@ -216,6 +227,15 @@ const dataPlaceRooms = {
         </div>
 
         <div class="town-burger-dropdown__list">
+          <button type="button" class="town-burger-dropdown__item" id="burger-item-xray" role="menuitem">
+            <span class="town-burger-dropdown__item-icon" id="burger-xray-icon">🔬</span>
+            <div class="town-burger-dropdown__item-info">
+              <span class="town-burger-dropdown__item-title">Mode X-Ray</span>
+              <span class="town-burger-dropdown__item-sub">Lihat tabrakan & hapus rintangan</span>
+            </div>
+            <kbd class="town-burger-dropdown__kbd">X</kbd>
+          </button>
+
           <button type="button" class="town-burger-dropdown__item" id="burger-item-labels" role="menuitem">
             <span class="town-burger-dropdown__item-icon" id="burger-labels-icon">🏷️</span>
             <div class="town-burger-dropdown__item-info">
@@ -568,6 +588,8 @@ const dataPlaceRooms = {
     <span class="town-legend-sep">•</span>
     <span class="town-legend-item"><kbd class="town-kbd">Scroll</kbd> Zoom</span>
     <span class="town-legend-sep">•</span>
+    <span class="town-legend-item"><kbd class="town-kbd">X</kbd> X-Ray</span>
+    <span class="town-legend-sep">•</span>
     <span class="town-legend-item"><kbd class="town-kbd">L</kbd> Badges</span>
     <span class="town-legend-sep">•</span>
     <span class="town-legend-item"><kbd class="town-kbd">C</kbd> Recenter</span>
@@ -578,6 +600,28 @@ const dataPlaceRooms = {
     <span class="town-zoom-icon" aria-hidden="true">🔍</span>
     <span id="town-zoom-text" class="town-zoom-text">100%</span>
     <button type="button" id="town-zoom-reset" class="town-zoom-reset" title="Reset Zoom (Press C)" aria-label="Reset Zoom">↺</button>
+  </div>
+
+  <!-- Floating X-Ray Inspector Bar (Active when X-Ray is toggled ON) -->
+  <div id="town-xray-bar" class="town-xray-bar hidden" style="display: none;" role="status" aria-label="X-Ray Inspector Bar">
+    <div class="town-xray-bar__inner">
+      <div class="town-xray-bar__status">
+        <span class="town-xray-pulse" aria-hidden="true"></span>
+        <span class="town-xray-badge">🔬 X-RAY ON</span>
+        <span class="town-xray-text">Klik rintangan atau kotak merah untuk <strong>menghapus / membuka jalan</strong>!</span>
+      </div>
+      <div class="town-xray-bar__actions">
+        <button type="button" id="btn-xray-purge-hidden" class="town-xray-action-btn town-xray-action-btn--purge" title="Hapus permanen semua objek hidden yang tersisa di peta">
+          👻 Bersihkan Hidden
+        </button>
+        <button type="button" id="btn-xray-save" class="town-xray-action-btn town-xray-action-btn--save" title="Simpan ke file konfigurasi kota">
+          💾 Simpan
+        </button>
+        <button type="button" id="btn-xray-close" class="town-xray-action-btn town-xray-action-btn--close" title="Tutup mode X-Ray (Tekan X)">
+          ✕ Tutup
+        </button>
+      </div>
+    </div>
   </div>
 
   <button class="town-pov-exit" type="button" data-pov-exit="">← Back to the room</button>
@@ -1146,6 +1190,56 @@ const dataPlaceRooms = {
     }
 
     // Town HUD Action Buttons
+    const btnToggleXray = document.getElementById('btn-toggle-xray');
+    const burgerItemXray = document.getElementById('burger-item-xray');
+    const townXrayBar = document.getElementById('town-xray-bar');
+    const btnXrayClose = document.getElementById('btn-xray-close');
+    const btnXraySave = document.getElementById('btn-xray-save');
+    const btnXrayPurgeHidden = document.getElementById('btn-xray-purge-hidden');
+
+    btnToggleXray?.addEventListener('click', () => {
+      engine?.toggleXray();
+    });
+
+    btnXrayPurgeHidden?.addEventListener('click', () => {
+      const count = townConfig.purgeAllHiddenBuildings();
+      sfx.confirm();
+      window.dispatchEvent(
+        new CustomEvent('town:editor-toast', {
+          detail: count > 0
+            ? `🗑️ Berhasil menghapus permanen ${count} objek tersembunyi!`
+            : 'ℹ️ Tidak ada objek tersembunyi yang tersisa di peta.',
+        })
+      );
+      engine?.wake();
+    });
+
+    btnXrayClose?.addEventListener('click', () => {
+      if (engine?.isXray()) {
+        engine.toggleXray();
+      }
+    });
+
+    btnXraySave?.addEventListener('click', async () => {
+      townConfig.saveToStorage();
+      try {
+        const res = await townConfig.saveToDisk();
+        sfx.confirm();
+        window.dispatchEvent(
+          new CustomEvent('town:editor-toast', {
+            detail: res?.success ? '💾 Perubahan peta berhasil disimpan ke disk!' : '💾 Disimpan ke memori browser (localStorage)!',
+          })
+        );
+      } catch {
+        sfx.confirm();
+        window.dispatchEvent(
+          new CustomEvent('town:editor-toast', {
+            detail: '💾 Perubahan peta berhasil disimpan ke browser!',
+          })
+        );
+      }
+    });
+
     const toggleLabelsBtn = document.getElementById('btn-toggle-labels');
     const labelsContainer = document.querySelector('[data-town-labels]');
     if (toggleLabelsBtn && labelsContainer) {
@@ -1282,6 +1376,8 @@ const dataPlaceRooms = {
 
       const isLabelsActive = toggleLabelsBtn?.classList.contains('is-active');
       burgerItemLabels?.classList.toggle('is-active', !!isLabelsActive);
+      const isXrayActive = engine?.isXray();
+      burgerItemXray?.classList.toggle('is-active', !!isXrayActive);
       const isEditorActive = btnToggleEditor?.classList.contains('is-active');
       burgerItemEditor?.classList.toggle('is-active', !!isEditorActive);
 
@@ -1300,6 +1396,11 @@ const dataPlaceRooms = {
 
     btnBurgerClose?.addEventListener('click', (e) => {
       e.stopPropagation();
+      closeBurgerMenu();
+    });
+
+    burgerItemXray?.addEventListener('click', () => {
+      engine?.toggleXray();
       closeBurgerMenu();
     });
 
@@ -2345,7 +2446,9 @@ const dataPlaceRooms = {
       const editorActive = editor?.isEnabled() || editor?.isPlaytesting();
 
       if (!editorActive) {
-        if (e.key === 'l' || e.key === 'L') {
+        if (e.key === 'x' || e.key === 'X') {
+          btnToggleXray?.click();
+        } else if (e.key === 'l' || e.key === 'L') {
           toggleLabelsBtn?.click();
         } else if (e.key === 'c' || e.key === 'C') {
           recenterBtn?.click();
@@ -2372,6 +2475,7 @@ const dataPlaceRooms = {
     // Back to room / POV Exit button
     const povExit = document.querySelector('[data-pov-exit]');
     povExit?.addEventListener('click', () => {
+      sessionStorage.setItem('town:respawn', '22,28');
       window.location.href = '/';
     });
 

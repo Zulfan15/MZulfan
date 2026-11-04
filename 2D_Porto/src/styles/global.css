@@ -2606,6 +2606,174 @@ ul.clean, ol.clean {
   border-color: #38c98a;
 }
 
+/* ─── 🔬 X-Ray Collision & Obstacle Inspector HUD & Banner ─── */
+.town-hud-btn--xray.is-active {
+  background: #0284c7 !important;
+  color: #ffffff !important;
+  border-color: #38bdf8 !important;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.7) !important;
+}
+
+.town-hud-btn--xray.is-active .town-hud-btn__label {
+  color: #ffffff !important;
+  font-weight: 700;
+}
+
+.town-burger-dropdown__item.is-active#burger-item-xray {
+  background: rgba(2, 132, 199, 0.22) !important;
+  border-color: #38bdf8 !important;
+}
+
+.town-xray-bar {
+  position: absolute;
+  top: 56px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 45;
+  background: rgba(10, 15, 30, 0.94);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1.5px solid #38bdf8;
+  border-radius: 9999px;
+  padding: 6px 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45), 0 0 16px rgba(56, 189, 248, 0.35);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  pointer-events: auto;
+  user-select: none;
+  animation: townXraySlideDown 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  max-width: 92vw;
+}
+
+@keyframes townXraySlideDown {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -10px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+.town-xray-bar__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  width: 100%;
+}
+
+.town-xray-bar__status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #e2e8f0;
+  font-size: 0.78rem;
+  line-height: 1.2;
+}
+
+.town-xray-pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #38bdf8;
+  box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.7);
+  animation: townXrayPulseAnim 1.8s infinite;
+  flex-shrink: 0;
+}
+
+@keyframes townXrayPulseAnim {
+  0% {
+    box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(56, 189, 248, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(56, 189, 248, 0);
+  }
+}
+
+.town-xray-badge {
+  font-family: monospace;
+  font-weight: 800;
+  font-size: 0.72rem;
+  background: rgba(56, 189, 248, 0.2);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.5);
+  border-radius: 4px;
+  padding: 2px 6px;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.town-xray-text {
+  color: #cbd5e1;
+  font-size: 0.78rem;
+}
+
+.town-xray-text strong {
+  color: #38bdf8;
+}
+
+.town-xray-bar__actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.town-xray-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.town-xray-action-btn--purge {
+  background: rgba(168, 85, 247, 0.25);
+  color: #f3e8ff;
+  border: 1px solid rgba(192, 132, 252, 0.6);
+}
+
+.town-xray-action-btn--purge:hover {
+  background: rgba(168, 85, 247, 0.45);
+  color: #ffffff;
+  border-color: #c084fc;
+  transform: translateY(-1px);
+}
+
+.town-xray-action-btn--save {
+  background: #0284c7;
+  color: #ffffff;
+  border: 1px solid #38bdf8;
+}
+
+.town-xray-action-btn--save:hover {
+  background: #0369a1;
+  transform: translateY(-1px);
+}
+
+.town-xray-action-btn--close {
+  background: rgba(255, 255, 255, 0.1);
+  color: #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.town-xray-action-btn--close:hover {
+  background: rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+  border-color: #ef4444;
+}
+
 /* ─── Town Builder / Editor HUD & Toolbar ─── */
 .town-hud-btn--editor.is-active {
   background: #1f6feb !important;

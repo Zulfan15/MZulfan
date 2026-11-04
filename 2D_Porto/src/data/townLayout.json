@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updatedAt": "2026-11-04T06:57:28.283Z",
+  "updatedAt": "2026-11-04T08:49:24.100Z",
   "buildings": [
     {
       "id": "dev",
@@ -53,11 +53,11 @@
     {
       "id": "reception",
       "name": "Poké Center",
-      "x": 36,
+      "x": 35,
       "y": 11,
       "w": 7,
       "h": 6,
-      "doorX": 39,
+      "doorX": 38,
       "doorY": 16,
       "kind": "building",
       "hidden": false
@@ -79,11 +79,11 @@
       "id": "arcade",
       "name": "Arcade Hub",
       "x": 24,
-      "y": 11,
+      "y": 10,
       "w": 8,
       "h": 7,
       "doorX": 27,
-      "doorY": 17,
+      "doorY": 16,
       "kind": "building",
       "hidden": false
     },
@@ -103,13 +103,13 @@
     {
       "id": "villa",
       "name": "Studio Villa",
-      "x": 26,
+      "x": 25,
       "y": 20,
       "w": 6,
       "h": 5,
       "kind": "building",
       "hidden": false,
-      "doorX": 29,
+      "doorX": 28,
       "doorY": 25
     },
     {
@@ -556,7 +556,8 @@
       "hidden": false,
       "labelX": 12.5,
       "labelY": 46,
-      "orientation": "W"
+      "orientation": "W",
+      "subType": "tyranitar"
     },
     {
       "id": "ace",
@@ -749,6 +750,30 @@
       "orientation": "N",
       "dialogue": "SOLGALEO: 'Laaa-lionnn-shooo...!' ☀️🦁 Surai keemasan Solgaleo berkobar terang benderang. Sang Utusan Mentari memasuki fase Radiant Sun (Sunsteel Strike), menyinari seluruh Zulfan's Town dengan kehangatan dan energi kehidupan surya tanpa batas.",
       "hidden": false
+    },
+    {
+      "id": "garchomp_mw1vke4z",
+      "name": "Garchomp Sang Predator Darat #1",
+      "x": 18,
+      "y": 49,
+      "w": 2,
+      "h": 2,
+      "kind": "npc",
+      "subType": "garchomp",
+      "orientation": "N",
+      "dialogue": "GARCHOMP: 'Gyaaa-shhh...!' 🦈🌪️ Sayap sirip tajam Garchomp berdesir membelah angin. Sang Mach Pokémon berdiri sigap dengan kecepatan supersonik menjaga ketertiban Zulfan's Town."
+    },
+    {
+      "id": "urshifu_mw1vkr24",
+      "name": "Urshifu G-Max Rapid Strike #1",
+      "x": 12,
+      "y": 49,
+      "w": 2,
+      "h": 2,
+      "kind": "npc",
+      "subType": "urshifu",
+      "orientation": "W",
+      "dialogue": "URSHIFU: 'Hssshaaarrr-kwooo...!' 🥋🌊 Aliran deras jurus Rapid Strike bergemuruh di sekitar Urshifu Gigantamax. Sang Master Wushu berdiri tegak memancarkan energi petarung legendaris di Zulfan's Town."
     }
   ],
   "tiles": [
@@ -817,14 +842,6 @@
       "dev_paver"
     ],
     [
-      "25,54",
-      "dev_paver"
-    ],
-    [
-      "25,55",
-      "dev_paver"
-    ],
-    [
       "23,54",
       "dev_paver"
     ],
@@ -882,7 +899,7 @@
     ],
     [
       "20,39",
-      "cobble"
+      "dev_paver"
     ],
     [
       "16,43",
@@ -1098,43 +1115,43 @@
     ],
     [
       "19,19",
-      "cobble"
+      "dev_paver"
     ],
     [
       "18,19",
-      "cobble"
+      "dev_paver"
     ],
     [
       "17,19",
-      "cobble"
+      "dev_paver"
     ],
     [
       "16,19",
-      "cobble"
+      "dev_paver"
     ],
     [
       "15,19",
-      "cobble"
+      "dev_paver"
     ],
     [
       "14,19",
-      "cobble"
+      "dev_paver"
     ],
     [
       "13,19",
-      "cobble"
+      "dev_paver"
     ],
     [
       "12,19",
-      "cobble"
+      "dev_paver"
     ],
     [
       "11,19",
-      "cobble"
+      "dev_paver"
     ],
     [
       "10,19",
-      "cobble"
+      "dev_paver"
     ],
     [
       "21,52",
@@ -1146,7 +1163,7 @@
     ],
     [
       "20,38",
-      "cobble"
+      "dev_paver"
     ],
     [
       "21,38",
@@ -1162,7 +1179,7 @@
     ],
     [
       "20,40",
-      "cobble"
+      "dev_paver"
     ],
     [
       "21,40",
@@ -1174,7 +1191,7 @@
     ],
     [
       "20,41",
-      "cobble"
+      "dev_paver"
     ],
     [
       "21,41",
@@ -1186,7 +1203,7 @@
     ],
     [
       "20,42",
-      "cobble"
+      "dev_paver"
     ],
     [
       "21,42",
@@ -1206,7 +1223,7 @@
     ],
     [
       "20,37",
-      "cobble"
+      "dev_paver"
     ],
     [
       "22,37",
@@ -1214,7 +1231,7 @@
     ],
     [
       "20,36",
-      "cobble"
+      "dev_paver"
     ],
     [
       "21,36",
@@ -1226,7 +1243,7 @@
     ],
     [
       "20,35",
-      "cobble"
+      "dev_paver"
     ],
     [
       "21,35",
@@ -1238,7 +1255,7 @@
     ],
     [
       "20,34",
-      "cobble"
+      "dev_paver"
     ],
     [
       "21,34",
@@ -1678,11 +1695,11 @@
     ],
     [
       "21,19",
-      "cobble"
+      "dev_paver"
     ],
     [
       "22,19",
-      "cobble"
+      "dev_paver"
     ],
     [
       "23,19",
@@ -1706,7 +1723,7 @@
     ],
     [
       "20,19",
-      "cobble"
+      "dev_paver"
     ],
     [
       "19,18",
@@ -2945,10 +2962,6 @@
       "dev_paver"
     ],
     [
-      "19,46",
-      "dev_paver"
-    ],
-    [
       "18,44",
       "dev_paver"
     ],
@@ -3345,27 +3358,11 @@
       "dev_paver"
     ],
     [
-      "19,47",
-      "dev_paver"
-    ],
-    [
-      "19,48",
-      "dev_paver"
-    ],
-    [
-      "19,49",
-      "dev_paver"
-    ],
-    [
       "17,50",
       "dev_paver"
     ],
     [
       "18,50",
-      "dev_paver"
-    ],
-    [
-      "19,50",
       "dev_paver"
     ],
     [
@@ -3406,14 +3403,6 @@
     ],
     [
       "15,52",
-      "dev_paver"
-    ],
-    [
-      "19,51",
-      "dev_paver"
-    ],
-    [
-      "19,52",
       "dev_paver"
     ],
     [
@@ -3998,43 +3987,43 @@
     ],
     [
       "34,47",
-      "dev_paver"
+      "hedge"
     ],
     [
       "35,47",
-      "dev_paver"
+      "hedge"
     ],
     [
       "36,47",
-      "dev_paver"
+      "hedge"
     ],
     [
       "37,47",
-      "dev_paver"
+      "hedge"
     ],
     [
       "38,47",
-      "dev_paver"
+      "hedge"
     ],
     [
       "39,47",
-      "dev_paver"
+      "hedge"
     ],
     [
       "40,47",
-      "dev_paver"
+      "hedge"
     ],
     [
       "41,47",
-      "dev_paver"
+      "hedge"
     ],
     [
       "42,47",
-      "dev_paver"
+      "hedge"
     ],
     [
       "33,56",
-      "dev_paver"
+      "hedge"
     ],
     [
       "34,56",
@@ -5082,7 +5071,7 @@
     ],
     [
       "2,27",
-      "cobble"
+      "dev_paver"
     ],
     [
       "1,32",
@@ -5130,11 +5119,11 @@
     ],
     [
       "0,27",
-      "cobble"
+      "dev_paver"
     ],
     [
       "1,27",
-      "cobble"
+      "dev_paver"
     ],
     [
       "2,29",
@@ -5158,10 +5147,6 @@
     ],
     [
       "9,38",
-      "dev_paver"
-    ],
-    [
-      "8,38",
       "dev_paver"
     ],
     [
@@ -5750,7 +5735,7 @@
     ],
     [
       "9,19",
-      "cobble"
+      "dev_paver"
     ],
     [
       "42,10",
@@ -7018,11 +7003,11 @@
     ],
     [
       "3,27",
-      "cobble"
+      "dev_paver"
     ],
     [
       "4,27",
-      "cobble"
+      "dev_paver"
     ],
     [
       "18,61",
@@ -7538,7 +7523,7 @@
     ],
     [
       "33,55",
-      "dev_paver"
+      "hedge"
     ],
     [
       "32,54",
@@ -7546,15 +7531,15 @@
     ],
     [
       "33,54",
-      "dev_paver"
+      "hedge"
     ],
     [
       "33,53",
-      "dev_paver"
+      "hedge"
     ],
     [
       "33,52",
-      "dev_paver"
+      "hedge"
     ],
     [
       "33,51",
@@ -7566,15 +7551,15 @@
     ],
     [
       "33,49",
-      "dev_paver"
+      "hedge"
     ],
     [
       "33,48",
-      "dev_paver"
+      "hedge"
     ],
     [
       "33,47",
-      "dev_paver"
+      "hedge"
     ],
     [
       "9,34",
@@ -8035,6 +8020,50 @@
     [
       "9,17",
       "hedge"
+    ],
+    [
+      "8,20",
+      "dev_paver"
+    ],
+    [
+      "8,21",
+      "dev_paver"
+    ],
+    [
+      "8,22",
+      "dev_paver"
+    ],
+    [
+      "8,23",
+      "dev_paver"
+    ],
+    [
+      "8,24",
+      "dev_paver"
+    ],
+    [
+      "8,25",
+      "dev_paver"
+    ],
+    [
+      "8,26",
+      "dev_paver"
+    ],
+    [
+      "8,27",
+      "dev_paver"
+    ],
+    [
+      "7,27",
+      "dev_paver"
+    ],
+    [
+      "6,27",
+      "dev_paver"
+    ],
+    [
+      "5,27",
+      "dev_paver"
     ]
   ]
 }

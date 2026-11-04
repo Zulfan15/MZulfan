@@ -393,6 +393,54 @@ export const SPAWNABLE_TEMPLATES: SpawnableTemplate[] = [
     defaultDialogue: "DIALGA: 'Gugyugubah...!' ⏳🔷 Denyut distorsi waktu memancar dari kristal dada Dialga. Sang Penguasa Dimensi Waktu menjaga kelancaran aliran masa lalu, kini, dan masa depan.",
   },
   {
+    id: 'tpl_charizard',
+    name: 'Charizard Sang Naga Api',
+    icon: '🔥',
+    category: 'Dunia Pokémon',
+    w: 2,
+    h: 2,
+    kind: 'npc',
+    subType: 'charizard',
+    desc: 'Pokémon Api/Terbang Flame Dragon yang tangguh dan setia (2x2)',
+    defaultDialogue: "CHARIZARD: 'GRAAAWWWRRR...!' 🔥 Ekor api Charizard berkobar cerah penuh semangat petualang. Sayap megahnya membentang siap mengarungi langit bersama sang Pelatih.",
+  },
+  {
+    id: 'tpl_tyranitar',
+    name: 'Tyranitar Sang Pelindung Zirah',
+    icon: '🪨',
+    category: 'Dunia Pokémon',
+    w: 2,
+    h: 2,
+    kind: 'npc',
+    subType: 'tyranitar',
+    desc: 'Pokémon Armor Rock/Dark bertubuh zirah batu baja yang kokoh dan perkasa (2x2)',
+    defaultDialogue: "TYRANITAR: 'Gwoooaaargh...!' 🪨 Badai pasir tipis berhembus di sekitar pijakan Tyranitar. Sang Armor Pokémon berdiri kokoh melindungi ketentraman Zulfan's Town.",
+  },
+  {
+    id: 'tpl_garchomp',
+    name: 'Garchomp Sang Predator Darat',
+    icon: '🦈',
+    category: 'Dunia Pokémon',
+    w: 2,
+    h: 2,
+    kind: 'npc',
+    subType: 'garchomp',
+    desc: 'Pokémon Naga/Tanah Mach Pokémon secepat jet tempur supersonik (2x2)',
+    defaultDialogue: "GARCHOMP: 'Gyaaa-shhh...!' 🦈🌪️ Sayap sirip tajam Garchomp berdesir membelah angin. Sang Mach Pokémon berdiri sigap dengan kecepatan supersonik menjaga ketertiban Zulfan's Town.",
+  },
+  {
+    id: 'tpl_urshifu',
+    name: 'Urshifu G-Max Rapid Strike',
+    icon: '🥋',
+    category: 'Dunia Pokémon',
+    w: 2,
+    h: 2,
+    kind: 'npc',
+    subType: 'urshifu',
+    desc: 'Pokémon Wushu Petarung/Air Gigantamax dengan jurus Serbuan Beruntun tiada henti (2x2)',
+    defaultDialogue: "URSHIFU: 'Hssshaaarrr-kwooo...!' 🥋🌊 Aliran deras jurus Rapid Strike bergemuruh di sekitar Urshifu Gigantamax. Sang Master Wushu berdiri tegak memancarkan energi petarung legendaris di Zulfan's Town.",
+  },
+  {
     id: 'tpl_rayquaza',
     name: 'Rayquaza Sang Naga Langit',
     icon: '🐉',
@@ -951,6 +999,30 @@ class TownConfigManager {
     this.notify();
   }
 
+  public purgeBuilding(id: string) {
+    if (!this.buildings.has(id)) return;
+    this.pushSnapshot(this.captureSnapshot());
+    this.buildings.delete(id);
+    this.saveToStorage();
+    this.notify();
+  }
+
+  public purgeAllHiddenBuildings(): number {
+    this.pushSnapshot(this.captureSnapshot());
+    let count = 0;
+    for (const [id, b] of this.buildings.entries()) {
+      if (b.hidden) {
+        this.buildings.delete(id);
+        count++;
+      }
+    }
+    if (count > 0) {
+      this.saveToStorage();
+      this.notify();
+    }
+    return count;
+  }
+
   public deleteBuildings(ids: string[]) {
     const valid = ids.filter((id) => {
       const b = this.buildings.get(id);
@@ -1416,6 +1488,11 @@ class TownConfigManager {
               if (b.id === 'ace') {
                 existing.name = 'Mewtwo';
                 existing.subType = 'mewtwo';
+              }
+              if (b.id === 'ranger' && (b.name === 'Blastoise' || b.name === 'Pokémon Ranger Alex' || !b.name)) {
+                existing.name = 'Tyranitar';
+                existing.subType = 'tyranitar';
+                existing.dialogue = "TYRANITAR: 'Gwoooaaargh!' 🪨 Tubuh zirah batu baja Tyranitar kokoh tak tergoyahkan. Siap melindungi perbatasan Zulfan's Town!";
               }
               if (b.id === 'shop' || b.id === 'depop') {
                 existing.id = 'shop';

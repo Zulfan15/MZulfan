@@ -93,6 +93,10 @@ import { DARKRAI_IMAGE_SRC } from './darkraiSprite';
 import { NECROZMA_IMAGE_SRC } from './necrozmaSprite';
 import { LUNALA_IMAGE_SRC } from './lunalaSprite';
 import { SOLGALEO_IMAGE_SRC } from './solgaleoSprite';
+import { CHARIZARD_IMAGE_SRC } from './charizardSprite';
+import { TYRANITAR_IMAGE_SRC } from './tyranitarSprite';
+import { GARCHOMP_IMAGE_SRC } from './garchompSprite';
+import { URSHIFU_IMAGE_SRC } from './urshifuSprite';
 
 export interface EngineCallbacks {
   onDialogue: (name: string, lines: string[], onAction?: () => void) => void;
@@ -103,50 +107,11 @@ export interface EngineCallbacks {
   onOpenModal: (target: 'map' | 'dex') => void;
 }
 
-const CHARIZARD_OVERWORLD_SPRITE = [
-  '...........kkk...kkk...........',
-  '.........kkook...kookkk........',
-  '.......kkoook.....kooookk......',
-  '......kooook......kokkkook.....',
-  '.....koooook......kokttkkok....',
-  '...kkkokwoook.....kokttttkok...',
-  '..kooookwooook....koktttttkok..',
-  '..kokooooooook....koktttttkok..',
-  '...kkkkkookoook..kookttttttkok.',
-  '.r....kookkoook..koktttttttkok.',
-  '.rr.rkook..koookkookttttttttkok',
-  'rryr..kk...koookookttttkkkttkok',
-  '.ryy.......koooookktttk...ktkok',
-  '..r....kkkkoooooooktkk...k.kkok',
-  '......kookkooookoook....krk.kok',
-  '......kkokccokkookok....krrk.k.',
-  '.......kkkcckooookook...kryrk..',
-  '.........kcckwookoook....kyrk..',
-  '........koccckkkoooook...ckok..',
-  '........koccccckoooookkkkkook..',
-  '........kokccckooooookoooook...',
-  '.........kokcckooooookoooook...',
-  '.........kookkckooookooookk....',
-  '........kwoookkkkoookkkkk......',
-  '........kkkkk..kwokwk..........',
-  '................kkkkk..........',
-];
-
 const MEWTWO_IMAGE_SRC = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHAAAABwBAMAAAA0zul4AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAIVBMVEUAAAD4+Pjg4PC4sMi4iMCYiJh4gHiIWJBQWFBAQEAAAABuf+WbAAAAAXRSTlMAQObYZgAAAWxJREFUeNrt2DGtJDEQRdGi8Ck8Co+CKRSFT8EUmkJRuChX7vGMg81Wqk52bmjpSC+wHDi+ffv27dsz8TTEPAvxhvAgXASJp+CvBEg+MIBGqNWvfCCMMWmC6G/HWDVBtHvB4ybRDfWGzDGA6IHoZLPhntkNbXNcI7S82OUDiUYY3LCuHx9YdMJAyoufn+1u2QpJSYzlKs8F6ISSvILMa8sx6IOB064igkziyDYYVJXzNfXAQQ88Y6WrktjRDiVd3u5s7YJkZUp52WfqHLMNkllSpsHmuNEEwS5LEhFY3GdzLtcCKVd5zqkXUQHzrgdil1RjjCUJpJpv1wFxvtySKVEfSPTA5TYsSSq9JEQPDD6wrC1rsx4Y3NvGmKU3NBGNMJBdc25YSmUzDMisDV2iD54+0jZOoh9WJuDlAqIbcruIKNtFRDcklzsvJf3wdjvsfhhAPAtPID0KKaX0KJRSxIMwQI/BQ+Nf4f/7/fYHGujw6q4E2bwAAAAASUVORK5CYII=';
 
 const ARCEUS_IMAGE_SRC = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAMAAAC5zwKfAAAAMFBMVEX///+EhIyEcwDexTq9pRkA5gAAnAD/71rFADp7hJQ6QlJaWmNaY3O1tb3m5u8QEBBxRTodAAAAAXRSTlMAQObYZgAAA4dJREFUeNrl1tuO4zgMRVGRotMdWdT5/78dUdQlU6lJ2W0/DND7JQgMLFCxIjt8jCjcGiludUkdRMH/EyStERGoADd5xaJSUHTfw0vaOueZ5p6BNTcd65dO3K3BKRUHXbCKd87UX+KcwQtcaa75xf2AR78MXEFTSln/pWEUDkTTyyi1qvV0cMs5NiAXCznDP1Itz5Jxp0H83raE5lYMreQcwrkIubb93h6+4pcVwgrnQ6o9Hjn7whEuB7UZt2Sge9fFlLYN1YPeBCLDPCXcdNQQGZdIbwFTSmipGriHO6JiGciRb+DM66KB17mZgVdFcmmQqKD3h152R9eIIrHFF0BPVQHZHiYCCBbznw+oukPEQNN6ODto8tGKZR6ziGkLPCkmNY/mDxgGuEThc2AtlREcvDaipufwtIEcLohImpI2TAGECqL2DXhwa+L5TE/3msLA1z3IvtVjDce8BjYPEr1XEbGHHzwiwtNBC/u+w2J5BZkf2xajCHDgP4xsnpbWXnoAD9FW+ng8Ioz7GUTKOeXsjIueNpEr55l2wFvge5VyjYFD4F7H0Q+gNk4ABHDEEW7XCVJZsWWfjTtwQDhnqWZkE7unvlTLTBYuRFSIUemP3jr/DETpuQtENw30xo9I3punnasBKZXRGBQQE0WEF7jX1K9/JaHTUzJuzVsW2UDMO47ympML1M75dIvH+gKx0L0B6rOG1iu4q1UKpkZEqKkuEcwTdE+zc+EtOLi8GkhbZUyvw0PmKFDN2UCEbwKLKqZHpAAHwD31HLRgYG659xZEGErjnhXAD+khLs+bIBC+bxcx0PIRDGQW6IhZRKDdi/jE+YiC5QUDTRC8ctAByrqvn0csZYIWEExh6XYeA07s84g0vApum3EWLLucM9YmxAFQINOrIM/piRyETs/BH9YsiNJA9r/t9GpwUDuoCAfWvAdE9sMFMHB5NO8a9zP259BAF23VsYvoYDSQuT87D4EIfcT+LEd4FW2hHPsNORRC8BERXERYIuwKTnkevgd3m1CioW0FhDMij/23jjeqoL0tAO20pXIGfH/mgtrrwhb7SQw9AQa8gWxcBR8VtJ6++w+HLyDPt4XzoIcvX62+cYqB7l1o/vtcLPeA3Ef0KFwV2UBpIJuYL4LgJiKgiDh4XSQaz7O7QNwPWmxrRrgN9BERbhAHwneDkJhzuB7wenrcGv99YPhv7x9JGV04/CcT4gAAAABJRU5ErkJggg==';
 
-const BLASTOISE_IMAGE_SRC = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHAAAABwCAMAAADxPgR5AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAM1BMVEUAAAAAAAA4YJBIgLh4uPj4+PhAQEC4uMBgUDDAkFB4gIj46LCYgEjIwHhQWGjQ0NCAaEjmoCi6AAAAAXRSTlMAQObYZgAAAfRJREFUeNrt2stqxDAQRNG0NCo/Ysf+/69Ny0VTmGSRVUg7uruBgQPFaITBb6PRaDQajUaj0Wg0Gv0s854MmgHTZPY8UFwHSZr3RLB5JBfP7Glgp5q3rvCWZZ7v5H1ou8oDilzXaSIYpIB5jqHN2pVZAvBGOncVo5Ik5tyVeRx+XUlmApcFIKeIkQP4jdZwlQcU+XrBa1dkxIE5qEkzgiQDhSeuIw56OhY5QHG1dlLsyyMpkCQvsmwgORb4x0efN8jVA9h5mmUDCUXk5hmIQ0Kylw0UpxRBomDiUoPA96S4TKBZHIpShNR6A0l65wlkAYVxQIK1mjXvPqly0jPLAXaseARJAue5LDz4tQaIK5EZQHI9cYrgvtdKTvNq1Axg8QR+4TxA3I1MAMagpQCl6NgTC+47cJqygMU7jurx+Acl7P0dXq0syDzgcRTPPH7uACPGgKBqDbCTfxkUSYyRZKTIkQqycywDqESK0qAigW0DxOUBNenmBbZ5QGtBAqUAOUH91QGEAt53koCuKHKZQHFBRru3bcSiUsjlBfnDILZ5+07uSSCHBTomTmCtZrlAkeSYWVTKncsJ6nrioGb3xwFxeUGz40rX8p3sicsEKlFKJOt0TlApca2VEjVPZH5QY7crzf4cUKimfBaoyP0qOF4h+T99AssBQk1+reAdAAAAAElFTkSuQmCC';
-
-const CHARIZARD_OVERWORLD_COLORS: Record<string, string> = {
-  k: '#181820',
-  o: '#ef8338',
-  t: '#018574',
-  c: '#f6e2ad',
-  r: '#f6521d',
-  y: '#fcd839',
-  w: '#ffffff',
-};
+const BLASTOISE_IMAGE_SRC = TYRANITAR_IMAGE_SRC;
 
 interface BreezeParticle {
   x: number;
@@ -167,6 +132,10 @@ export class TownEngine {
   private devBackgroundCanvas: HTMLCanvasElement | null = null;
   private labBackgroundCanvas: HTMLCanvasElement | null = null;
   private arcadeBackgroundCanvas: HTMLCanvasElement | null = null;
+  private charizardImg: HTMLImageElement | null = null;
+  private tyranitarImg: HTMLImageElement | null = null;
+  private garchompImg: HTMLImageElement | null = null;
+  private urshifuImg: HTMLImageElement | null = null;
   private blastoiseImg: HTMLImageElement | null = null;
   private arceusImg: HTMLImageElement | null = null;
   private mewtwoImg: HTMLImageElement | null = null;
@@ -190,6 +159,10 @@ export class TownEngine {
   private townBackgroundCanvas: HTMLCanvasElement | null = null;
   public townAtmosphere: 'day' | 'sunset' | 'night' = 'day';
   private editor: TownEditor;
+
+  // X-Ray Collision Inspector Mode
+  private xrayMode: boolean = false;
+  private xrayHoverTile: Vec | null = null;
 
   // Player state
   private playerPos: Vec = { x: 18, y: 12 };
@@ -301,18 +274,37 @@ export class TownEngine {
       this.cameraY = (TOWER_ROWS * TILE_SIZE) / 2;
     } else {
       this.currentScene = 'town';
-      const spawn = this.map.spawns[initialSpawn] || this.map.spawns.town;
-      this.playerPos = { x: spawn.x, y: spawn.y };
-      this.playerTarget = { x: spawn.x, y: spawn.y };
-      this.playerDir = spawn.dir;
+      let spawnX = 22;
+      let spawnY = 28;
+      let spawnDir: Dir = 'down';
+
+      const exitSpawn = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('town:respawn') : null;
+      if (exitSpawn) {
+        sessionStorage.removeItem('town:respawn');
+        const [sx, sy] = exitSpawn.split(',').map(Number);
+        if (!isNaN(sx) && !isNaN(sy)) {
+          spawnX = sx;
+          spawnY = sy;
+        }
+      } else {
+        const spawn = this.map.spawns[initialSpawn] || this.map.spawns.town;
+        spawnX = spawn?.x ?? 22;
+        spawnY = spawn?.y ?? 28;
+        spawnDir = spawn?.dir ?? 'down';
+      }
+
+      this.playerPos = { x: spawnX, y: spawnY };
+      this.playerTarget = { x: spawnX, y: spawnY };
+      this.playerDir = spawnDir;
       this.cameraX = (this.map.w * TILE_SIZE) / 2;
       this.cameraY = (this.map.h * TILE_SIZE) / 2;
     }
 
     this.editor = new TownEditor(this);
     if (typeof Image !== 'undefined') {
-      this.blastoiseImg = new Image();
-      this.blastoiseImg.src = BLASTOISE_IMAGE_SRC;
+      this.tyranitarImg = new Image();
+      this.tyranitarImg.src = TYRANITAR_IMAGE_SRC;
+      this.blastoiseImg = this.tyranitarImg;
       this.arceusImg = new Image();
       this.arceusImg.src = ARCEUS_IMAGE_SRC;
       this.mewtwoImg = new Image();
@@ -345,6 +337,12 @@ export class TownEngine {
       this.lunalaImg.src = LUNALA_IMAGE_SRC;
       this.solgaleoImg = new Image();
       this.solgaleoImg.src = SOLGALEO_IMAGE_SRC;
+      this.charizardImg = new Image();
+      this.charizardImg.src = CHARIZARD_IMAGE_SRC;
+      this.garchompImg = new Image();
+      this.garchompImg.src = GARCHOMP_IMAGE_SRC;
+      this.urshifuImg = new Image();
+      this.urshifuImg.src = URSHIFU_IMAGE_SRC;
     }
     townConfig.subscribe(() => {
       this.invalidateBackgroundCanvas();
@@ -474,6 +472,516 @@ export class TownEngine {
 
   public isWalkable(x: number, y: number): boolean {
     return this.canWalk(x, y);
+  }
+
+  // --- X-Ray Collision & Hidden Obstacle Inspector Mode ---
+  public isXray(): boolean {
+    return this.xrayMode;
+  }
+
+  public setXray(enabled: boolean): void {
+    if (this.xrayMode === enabled) return;
+    this.xrayMode = enabled;
+    if (this.canvas) {
+      this.canvas.style.cursor = this.xrayMode ? 'crosshair' : '';
+    }
+    const xrayBtn = document.getElementById('btn-toggle-xray');
+    if (xrayBtn) xrayBtn.classList.toggle('is-active', this.xrayMode);
+    const burgerXray = document.getElementById('burger-item-xray');
+    if (burgerXray) burgerXray.classList.toggle('is-active', this.xrayMode);
+    const xrayBar = document.getElementById('town-xray-bar');
+    if (xrayBar) {
+      xrayBar.style.display = this.xrayMode ? 'flex' : 'none';
+      xrayBar.classList.toggle('hidden', !this.xrayMode);
+    }
+    sfx.select();
+    window.dispatchEvent(
+      new CustomEvent('town:editor-toast', {
+        detail: this.xrayMode
+          ? '🔬 Mode X-Ray Aktif! Klik rintangan atau tembok untuk menghapus / membuka jalan.'
+          : '🔬 Mode X-Ray Nonaktif.',
+      })
+    );
+    this.wake();
+  }
+
+  public toggleXray(): boolean {
+    this.setXray(!this.xrayMode);
+    return this.xrayMode;
+  }
+
+  public getTileCollisionInfo(x: number, y: number): {
+    walkable: boolean;
+    reason: string;
+    entityId?: string;
+    entityName?: string;
+    override?: string;
+    isBaseBlocked?: boolean;
+    isHidden?: boolean;
+  } {
+    if (x < 0 || x >= this.map.w || y < 0 || y >= this.map.h) {
+      return { walkable: false, reason: 'Batas Peta (Out of Bounds)' };
+    }
+
+    // 0. Check if a hidden entity is located at this tile
+    for (const b of townConfig.getBuildings(true)) {
+      if (b.hidden && x >= b.x && x < b.x + b.w && y >= b.y && y < b.y + b.h) {
+        return {
+          walkable: true,
+          reason: `Objek Tersembunyi: ${b.name || b.id}`,
+          entityId: b.id,
+          entityName: b.name || b.id,
+          isHidden: true,
+        };
+      }
+    }
+
+    // 1. Explicit tile override
+    const override = townConfig.getTileOverride(x, y);
+    if (override === 'walkable_override') {
+      return { walkable: true, reason: 'Jalan Dibuka (Walkable Override)', override };
+    }
+    if (
+      override === 'solid_override' ||
+      override === 'water' ||
+      override === 'hedge' ||
+      override === 'fence' ||
+      override === 'fence_water'
+    ) {
+      const label =
+        override === 'solid_override'
+          ? 'Tembok Kustom (Solid Override)'
+          : override === 'water'
+          ? 'Air / Kolam'
+          : override === 'hedge'
+          ? 'Semak Pagar'
+          : override === 'fence'
+          ? 'Pagar Kayu'
+          : 'Pagar Air';
+      return { walkable: false, reason: label, override };
+    }
+
+    // 2. Dynamic entities from townConfig
+    for (const b of townConfig.getBuildings(true)) {
+      if (b.hidden) continue;
+
+      if (b.id === 'arena' || b.id === 'garden' || b.id === 'contest') continue;
+
+      if (b.kind === 'tree') {
+        const trunkY = b.y + b.h - 1;
+        if (x >= b.x && x < b.x + b.w && y >= trunkY && y < b.y + b.h) {
+          return {
+            walkable: false,
+            reason: `Batang Pohon (${b.name || b.id})`,
+            entityId: b.id,
+            entityName: b.name || b.id,
+          };
+        }
+        continue;
+      }
+
+      if (x >= b.x && x < b.x + b.w && y >= b.y && y < b.y + b.h) {
+        if (b.kind === 'building') {
+          const doorX = b.doorX !== undefined ? b.doorX : b.x + Math.floor(b.w / 2);
+          const doorY = b.doorY !== undefined ? b.doorY : b.y + b.h - 1;
+          const isDoor =
+            ((x === doorX || (b.w >= 6 && (x === doorX - 1 || x === doorX + 1))) &&
+             (y === doorY || y === b.y + b.h - 1));
+          if (isDoor) {
+            return {
+              walkable: true,
+              reason: `Pintu Masuk (${b.name || b.id})`,
+              entityId: b.id,
+              entityName: b.name || b.id,
+            };
+          }
+          return {
+            walkable: false,
+            reason: `Dinding Bangunan (${b.name || b.id})`,
+            entityId: b.id,
+            entityName: b.name || b.id,
+          };
+        }
+
+        return {
+          walkable: false,
+          reason: `Objek / Rintangan (${b.name || b.id})`,
+          entityId: b.id,
+          entityName: b.name || b.id,
+        };
+      }
+    }
+
+    // 3. Tile override clearing base fence
+    if (
+      override === 'grass' ||
+      override === 'cobble' ||
+      override === 'lab_paver' ||
+      override === 'dev_paver' ||
+      override === 'tall_grass'
+    ) {
+      const baseGround = this.map.ground[y * this.map.w + x];
+      if (baseGround === Tile.FENCE || ((x === 38 || x === 39) && y === 30)) {
+        return { walkable: true, reason: 'Pagar Dibuka Menjadi Jalan', override };
+      }
+    }
+
+    // 4. Base map terrain collision
+    const isBaseBlocked = this.map.collision[y * this.map.w + x] !== 0;
+    if (isBaseBlocked) {
+      const tileType = this.map.ground[y * this.map.w + x];
+      const groundDesc =
+        tileType === Tile.WATER
+          ? 'Air / Sungai'
+          : tileType === Tile.FENCE
+          ? 'Pagar Pembatas'
+          : tileType === Tile.CLIFF
+          ? 'Tebing'
+          : 'Tembok / Batas Medan Asli';
+      return { walkable: false, reason: groundDesc, isBaseBlocked: true };
+    }
+
+    return { walkable: true, reason: 'Bisa Dilewati (Lantai / Jalan Bersih)' };
+  }
+
+  public handleXrayClick(tileX: number, tileY: number, forceDelete = false): void {
+    if (tileX < 0 || tileX >= this.map.w || tileY < 0 || tileY >= this.map.h) return;
+
+    // 1. Check if user clicked on a hidden entity -> permanently delete it!
+    for (const b of townConfig.getBuildings(true)) {
+      if (b.hidden && tileX >= b.x && tileX < b.x + b.w && tileY >= b.y && tileY < b.y + b.h) {
+        townConfig.purgeBuilding(b.id);
+        this.townBackgroundCanvas = null;
+        sfx.confirm();
+        window.dispatchEvent(
+          new CustomEvent('town:editor-toast', {
+            detail: `🗑️ Objek tersembunyi "${b.name || b.id}" berhasil dihapus permanen!`,
+          })
+        );
+        this.wake();
+        return;
+      }
+    }
+
+    // 2. Check if an active obstacle entity covers this tile
+    let obstacleEntity: any = null;
+    for (const b of townConfig.getBuildings(true)) {
+      if (b.hidden) continue;
+      if (b.id === 'arena' || b.id === 'garden' || b.id === 'contest') continue;
+      if (tileX >= b.x && tileX < b.x + b.w && tileY >= b.y && tileY < b.y + b.h) {
+        obstacleEntity = b;
+        break;
+      }
+    }
+
+    // If obstacle entity found
+    if (obstacleEntity) {
+      const isLandmark = obstacleEntity.kind === 'building';
+      if (!isLandmark || forceDelete) {
+        obstacleEntity.locked = false;
+        // Purge permanently so it doesn't leave a ghost hidden box!
+        townConfig.purgeBuilding(obstacleEntity.id);
+        townConfig.setTileOverride(tileX, tileY, 'walkable_override');
+        this.map.collision[tileY * this.map.w + tileX] = 0;
+        this.townBackgroundCanvas = null;
+        sfx.confirm();
+        window.dispatchEvent(
+          new CustomEvent('town:editor-toast', {
+            detail: `🗑️ Rintangan "${obstacleEntity.name || obstacleEntity.id}" berhasil dihapus & jalan dibuka!`,
+          })
+        );
+        this.wake();
+        return;
+      } else {
+        // For landmark building wall, open passage on this tile
+        townConfig.setTileOverride(tileX, tileY, 'walkable_override');
+        this.map.collision[tileY * this.map.w + tileX] = 0;
+        this.townBackgroundCanvas = null;
+        sfx.confirm();
+        window.dispatchEvent(
+          new CustomEvent('town:editor-toast', {
+            detail: `🟢 Dinding "${obstacleEntity.name || obstacleEntity.id}" di (${tileX}, ${tileY}) dibuka! Sekarang dapat dilewati.`,
+          })
+        );
+        this.wake();
+        return;
+      }
+    }
+
+    // If no obstacle entity, check current collision override
+    const curOverride = townConfig.getTileOverride(tileX, tileY);
+    if (curOverride === 'walkable_override') {
+      townConfig.removeTileOverride(tileX, tileY);
+      this.townBackgroundCanvas = null;
+      sfx.select();
+      window.dispatchEvent(
+        new CustomEvent('town:editor-toast', {
+          detail: `🔄 Koordinat (${tileX}, ${tileY}) dikembalikan ke kondisi awal.`,
+        })
+      );
+      this.wake();
+      return;
+    }
+
+    // If tile is blocked by terrain / fence / water / solid override
+    if (!this.isTileWalkable(tileX, tileY)) {
+      townConfig.setTileOverride(tileX, tileY, 'walkable_override');
+      this.map.collision[tileY * this.map.w + tileX] = 0;
+      this.townBackgroundCanvas = null;
+      sfx.confirm();
+      window.dispatchEvent(
+        new CustomEvent('town:editor-toast', {
+          detail: `🟢 Koordinat (${tileX}, ${tileY}) dibuka! Sekarang dapat dilewati.`,
+        })
+      );
+      this.wake();
+      return;
+    }
+
+    // If tile is clean, user can ensure it stays permanently walkable
+    townConfig.setTileOverride(tileX, tileY, 'walkable_override');
+    sfx.select();
+    window.dispatchEvent(
+      new CustomEvent('town:editor-toast', {
+        detail: `✅ Koordinat (${tileX}, ${tileY}) ditandai selalu bisa dilewati (Walkable Override).`,
+      })
+    );
+    this.wake();
+  }
+
+  public renderXrayOverlay(ctx: CanvasRenderingContext2D): void {
+    if (this.currentScene !== 'town') return;
+
+    // Viewport bounds calculation in world tiles
+    const viewW = this.canvas.width / this.zoom;
+    const viewH = this.canvas.height / this.zoom;
+    const left = this.cameraX - viewW / 2;
+    const right = this.cameraX + viewW / 2;
+    const top = this.cameraY - viewH / 2;
+    const bottom = this.cameraY + viewH / 2;
+
+    const minX = Math.max(0, Math.floor(left / TILE_SIZE) - 1);
+    const maxX = Math.min(this.map.w - 1, Math.ceil(right / TILE_SIZE) + 1);
+    const minY = Math.max(0, Math.floor(top / TILE_SIZE) - 1);
+    const maxY = Math.min(this.map.h - 1, Math.ceil(bottom / TILE_SIZE) + 1);
+
+    ctx.save();
+
+    // 1. Subtle cyber grid lines across visible viewport
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.16)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (let x = minX; x <= maxX + 1; x++) {
+      ctx.moveTo(x * TILE_SIZE, minY * TILE_SIZE);
+      ctx.lineTo(x * TILE_SIZE, (maxY + 1) * TILE_SIZE);
+    }
+    for (let y = minY; y <= maxY + 1; y++) {
+      ctx.moveTo(minX * TILE_SIZE, y * TILE_SIZE);
+      ctx.lineTo((maxX + 1) * TILE_SIZE, y * TILE_SIZE);
+    }
+    ctx.stroke();
+
+    // 2. Collision tiles overlay (Solid = Red, Walkable Override = Green)
+    for (let y = minY; y <= maxY; y++) {
+      for (let x = minX; x <= maxX; x++) {
+        const override = townConfig.getTileOverride(x, y);
+        const walkable = this.isTileWalkable(x, y);
+        const tx = x * TILE_SIZE;
+        const ty = y * TILE_SIZE;
+
+        if (override === 'walkable_override') {
+          // Explicitly unblocked / opened path
+          ctx.fillStyle = 'rgba(16, 185, 129, 0.38)';
+          ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
+          ctx.strokeStyle = '#10b981';
+          ctx.lineWidth = 1;
+          ctx.strokeRect(tx + 0.5, ty + 0.5, TILE_SIZE - 1, TILE_SIZE - 1);
+
+          // Small checkmark
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 1.2;
+          ctx.beginPath();
+          ctx.moveTo(tx + 4, ty + 8);
+          ctx.lineTo(tx + 7, ty + 12);
+          ctx.lineTo(tx + 12, ty + 4);
+          ctx.stroke();
+        } else if (!walkable) {
+          // Blocked obstacle or solid collision
+          ctx.fillStyle = 'rgba(239, 68, 68, 0.32)';
+          ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
+          ctx.strokeStyle = 'rgba(239, 68, 68, 0.65)';
+          ctx.lineWidth = 0.8;
+          ctx.strokeRect(tx + 0.5, ty + 0.5, TILE_SIZE - 1, TILE_SIZE - 1);
+
+          // Diagonal hatch mark
+          ctx.beginPath();
+          ctx.moveTo(tx + 3, ty + 3);
+          ctx.lineTo(tx + TILE_SIZE - 3, ty + TILE_SIZE - 3);
+          ctx.stroke();
+        }
+      }
+    }
+
+    // 3. Entity wireframes & hidden object highlights
+    const allEntities = townConfig.getBuildings(true);
+    for (const b of allEntities) {
+      if (b.x + b.w < minX || b.x > maxX || b.y + b.h < minY || b.y > maxY) continue;
+
+      const bx = b.x * TILE_SIZE;
+      const by = b.y * TILE_SIZE;
+      const bw = b.w * TILE_SIZE;
+      const bh = b.h * TILE_SIZE;
+
+      if (b.hidden) {
+        // Invisible / Hidden Object revealed by X-Ray!
+        ctx.fillStyle = 'rgba(168, 85, 247, 0.3)';
+        ctx.fillRect(bx, by, bw, bh);
+        ctx.strokeStyle = '#c084fc';
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([3, 3]);
+        ctx.strokeRect(bx, by, bw, bh);
+        ctx.setLineDash([]);
+
+        ctx.fillStyle = '#f3e8ff';
+        ctx.font = 'bold 7px sans-serif';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'top';
+        ctx.fillText(`👻 [HIDDEN] ${b.name || b.id}`, bx + 2, by + 2);
+      } else {
+        // Normal entity footprint
+        ctx.strokeStyle = b.kind === 'building' ? 'rgba(56, 189, 248, 0.75)' : 'rgba(251, 146, 60, 0.75)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([2, 2]);
+        ctx.strokeRect(bx + 1, by + 1, bw - 2, bh - 2);
+        ctx.setLineDash([]);
+
+        // Highlight doors if building
+        if (b.kind === 'building') {
+          const doorX = b.doorX !== undefined ? b.doorX : b.x + Math.floor(b.w / 2);
+          const doorY = b.doorY !== undefined ? b.doorY : b.y + b.h - 1;
+          ctx.fillStyle = 'rgba(34, 197, 94, 0.65)';
+          ctx.fillRect(doorX * TILE_SIZE + 2, doorY * TILE_SIZE + 2, TILE_SIZE - 4, TILE_SIZE - 4);
+          ctx.strokeStyle = '#22c55e';
+          ctx.lineWidth = 1;
+          ctx.strokeRect(doorX * TILE_SIZE + 2, doorY * TILE_SIZE + 2, TILE_SIZE - 4, TILE_SIZE - 4);
+        }
+      }
+    }
+
+    // 4. Hover tile indicator & floating inspector tooltip card
+    if (
+      this.xrayHoverTile &&
+      this.xrayHoverTile.x >= 0 &&
+      this.xrayHoverTile.x < this.map.w &&
+      this.xrayHoverTile.y >= 0 &&
+      this.xrayHoverTile.y < this.map.h
+    ) {
+      const hx = this.xrayHoverTile.x;
+      const hy = this.xrayHoverTile.y;
+      const info = this.getTileCollisionInfo(hx, hy);
+
+      const hxWorld = hx * TILE_SIZE;
+      const hyWorld = hy * TILE_SIZE;
+
+      // Pulsing cursor frame in world coords
+      const pulse = 0.5 + 0.5 * Math.sin(performance.now() * 0.008);
+      ctx.strokeStyle = info.walkable
+        ? `rgba(52, 211, 153, ${0.7 + pulse * 0.3})`
+        : `rgba(248, 113, 113, ${0.7 + pulse * 0.3})`;
+      ctx.lineWidth = 2.5;
+      ctx.strokeRect(hxWorld, hyWorld, TILE_SIZE, TILE_SIZE);
+
+      // Reset transform to screen/canvas physical coordinates for crystal-clear tooltip rendering
+      ctx.restore();
+      ctx.save();
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const canvasX = this.canvas.width / 2 + ((hx + 0.5) * TILE_SIZE - this.cameraX) * this.zoom;
+      const canvasY = this.canvas.height / 2 + (hy * TILE_SIZE - this.cameraY) * this.zoom;
+
+      const cardW = Math.round(240 * dpr);
+      const cardH = Math.round(76 * dpr);
+      let cardX = canvasX + 16 * dpr;
+      let cardY = canvasY - cardH - 12 * dpr;
+
+      if (cardX + cardW > this.canvas.width - 12 * dpr) {
+        cardX = canvasX - cardW - 16 * dpr;
+      }
+      if (cardX < 12 * dpr) {
+        cardX = 12 * dpr;
+      }
+      if (cardY < 12 * dpr) {
+        cardY = canvasY + 28 * dpr;
+      }
+      if (cardY + cardH > this.canvas.height - 12 * dpr) {
+        cardY = this.canvas.height - cardH - 12 * dpr;
+      }
+
+      // Rounded tooltip background
+      const radius = 8 * dpr;
+      ctx.fillStyle = 'rgba(10, 15, 30, 0.94)';
+      ctx.strokeStyle = info.isHidden
+        ? 'rgba(192, 132, 252, 0.9)'
+        : info.walkable
+        ? 'rgba(52, 211, 153, 0.8)'
+        : 'rgba(248, 113, 113, 0.8)';
+      ctx.lineWidth = 1.5 * dpr;
+
+      ctx.beginPath();
+      ctx.moveTo(cardX + radius, cardY);
+      ctx.lineTo(cardX + cardW - radius, cardY);
+      ctx.arcTo(cardX + cardW, cardY, cardX + cardW, cardY + radius, radius);
+      ctx.lineTo(cardX + cardW, cardY + cardH - radius);
+      ctx.arcTo(cardX + cardW, cardY + cardH, cardX + cardW - radius, cardY + cardH, radius);
+      ctx.lineTo(cardX + radius, cardY + cardH);
+      ctx.arcTo(cardX, cardY + cardH, cardX, cardY + cardH - radius, radius);
+      ctx.lineTo(cardX, cardY + radius);
+      ctx.arcTo(cardX, cardY, cardX + radius, cardY, radius);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Tooltip Text Lines
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'top';
+
+      // Line 1: Header / Coordinate
+      ctx.fillStyle = '#38bdf8';
+      ctx.font = `bold ${Math.round(11 * dpr)}px monospace`;
+      ctx.fillText(`🔬 X-RAY [${hx}, ${hy}]`, cardX + 10 * dpr, cardY + 8 * dpr);
+
+      // Line 1 Right: Status
+      ctx.textAlign = 'right';
+      ctx.fillStyle = info.isHidden ? '#c084fc' : info.walkable ? '#34d399' : '#f87171';
+      ctx.font = `bold ${Math.round(10 * dpr)}px sans-serif`;
+      ctx.fillText(
+        info.isHidden ? '👻 TERSEMBUNYI' : info.walkable ? '🟢 BISA DILEWATI' : '⛔ TERHALANG',
+        cardX + cardW - 10 * dpr,
+        cardY + 9 * dpr
+      );
+
+      // Line 2: Reason / Object detail
+      ctx.textAlign = 'left';
+      ctx.fillStyle = '#f1f5f9';
+      ctx.font = `${Math.round(10.5 * dpr)}px sans-serif`;
+      const truncatedReason = info.reason.length > 28 ? info.reason.slice(0, 26) + '...' : info.reason;
+      ctx.fillText(`Objek: ${truncatedReason}`, cardX + 10 * dpr, cardY + 28 * dpr);
+
+      // Line 3: Action hint
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = `${Math.round(9.5 * dpr)}px sans-serif`;
+      const hint = info.isHidden
+        ? '👉 Klik untuk HAPUS PERMANEN objek ini'
+        : !info.walkable
+        ? '👉 Klik untuk HAPUS / BUKA JALAN'
+        : info.override === 'walkable_override'
+        ? '👉 Klik untuk reset kondisi asli'
+        : '👉 Koordinat bebas halangan';
+      ctx.fillText(hint, cardX + 10 * dpr, cardY + 48 * dpr);
+    }
+
+    ctx.restore();
   }
 
   public setPlayerTile(x: number, y: number): void {
@@ -663,6 +1171,7 @@ export class TownEngine {
 
     // Dev, lab, reception, mart, and tower scenes continue loop for animated lights, screen scanlines, and idle states
     if (
+      !this.xrayMode &&
       this.currentScene !== 'dev' &&
       this.currentScene !== 'lab' &&
       this.currentScene !== 'reception' &&
@@ -749,6 +1258,11 @@ export class TownEngine {
       const targetTileX = Math.floor(worldX / TILE_SIZE);
       const targetTileY = Math.floor(worldY / TILE_SIZE);
 
+      if (this.xrayMode) {
+        this.handleXrayClick(targetTileX, targetTileY, e.shiftKey);
+        return;
+      }
+
       // If clicking inside a building footprint, redirect target to its door
       for (const b of this.map.buildings) {
         const cfg = townConfig.getBuilding(b.id) || b;
@@ -781,6 +1295,26 @@ export class TownEngine {
     const onMouseMove = (e: MouseEvent) => {
       if (this.currentScene === 'town' && this.editor.isEnabled()) {
         this.editor.handleMouseMove(e);
+        this.wake();
+      } else if (this.xrayMode) {
+        const rect = this.canvas.getBoundingClientRect();
+        const mouseScreenX = (e.clientX - rect.left) * (this.canvas.width / rect.width);
+        const mouseScreenY = (e.clientY - rect.top) * (this.canvas.height / rect.height);
+        const worldX = (mouseScreenX - this.canvas.width / 2) / this.zoom + this.cameraX;
+        const worldY = (mouseScreenY - this.canvas.height / 2) / this.zoom + this.cameraY;
+        const tx = Math.floor(worldX / TILE_SIZE);
+        const ty = Math.floor(worldY / TILE_SIZE);
+
+        if (!this.xrayHoverTile || this.xrayHoverTile.x !== tx || this.xrayHoverTile.y !== ty) {
+          this.xrayHoverTile = { x: tx, y: ty };
+          this.wake();
+        }
+      }
+    };
+
+    const onMouseLeave = () => {
+      if (this.xrayHoverTile) {
+        this.xrayHoverTile = null;
         this.wake();
       }
     };
@@ -882,6 +1416,7 @@ export class TownEngine {
     this.canvas.addEventListener('touchmove', onTouchMove, { passive: false });
     this.canvas.addEventListener('touchend', onTouchEnd, { passive: true });
     this.canvas.addEventListener('contextmenu', onContextMenu);
+    this.canvas.addEventListener('mouseleave', onMouseLeave);
     window.addEventListener('resize', this.handleResize);
 
     this.unbindEvents.push(
@@ -897,6 +1432,7 @@ export class TownEngine {
       () => this.canvas.removeEventListener('touchmove', onTouchMove),
       () => this.canvas.removeEventListener('touchend', onTouchEnd),
       () => this.canvas.removeEventListener('contextmenu', onContextMenu),
+      () => this.canvas.removeEventListener('mouseleave', onMouseLeave),
       () => window.removeEventListener('resize', this.handleResize)
     );
   }
@@ -1552,6 +2088,8 @@ export class TownEngine {
         break;
       }
       case 'ranger':
+      case 'tyranitar':
+      case 'blastoise':
         this.pendingTarget = 'ranger';
         this.walkTo(37, 43);
         break;
@@ -1858,6 +2396,8 @@ export class TownEngine {
         this.interactFacing('contest');
         break;
       case 'ranger':
+      case 'tyranitar':
+      case 'blastoise':
         this.playerDir = 'up';
         this.interactFacing('ranger');
         break;
@@ -2012,6 +2552,7 @@ export class TownEngine {
     if (this.currentScene === 'tower') {
       if (this.playerPos.x === 7 && this.playerPos.y === 11) {
         sfx.door();
+        if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('town:respawn', '22,28');
         this.callbacks.onNavigate('/');
         return;
       }
@@ -2021,6 +2562,7 @@ export class TownEngine {
     if (this.currentScene === 'mart') {
       if (this.playerPos.x === 7 && this.playerPos.y === 11) {
         sfx.door();
+        if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('town:respawn', '22,28');
         this.callbacks.onNavigate('/');
         return;
       }
@@ -2030,6 +2572,7 @@ export class TownEngine {
     if (this.currentScene === 'reception') {
       if (this.playerPos.x === 7 && this.playerPos.y === 11) {
         sfx.door();
+        if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('town:respawn', '22,28');
         this.callbacks.onNavigate('/');
         return;
       }
@@ -2039,6 +2582,7 @@ export class TownEngine {
     if (this.currentScene === 'arcade') {
       if (this.playerPos.x === 9 && this.playerPos.y === 13) {
         sfx.door();
+        if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('town:respawn', '22,28');
         this.callbacks.onNavigate('/');
         return;
       }
@@ -2048,6 +2592,7 @@ export class TownEngine {
     if (this.currentScene === 'lab') {
       if (this.playerPos.x === 6 && this.playerPos.y === 14) {
         sfx.door();
+        if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('town:respawn', '22,28');
         this.callbacks.onNavigate('/');
         return;
       }
@@ -2057,6 +2602,7 @@ export class TownEngine {
     if (this.currentScene === 'dev') {
       if (this.playerPos.x === 7 && this.playerPos.y === 18) {
         sfx.door();
+        if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('town:respawn', '22,28');
         this.callbacks.onNavigate('/');
         return;
       }
@@ -2067,6 +2613,7 @@ export class TownEngine {
       if (this.homeFloor === '1F') {
         if (this.playerPos.x === 7 && this.playerPos.y === 14) {
           sfx.door();
+          if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('town:respawn', '22,28');
           this.callbacks.onNavigate('/');
           return;
         }
@@ -3276,6 +3823,26 @@ export class TownEngine {
             label: '🐉 Deru Angin Delta Stream',
             onClick: () => sfx.encounter(),
           };
+        } else if (customPlaced.subType === 'charizard') {
+          action = {
+            label: '🔥 Semburan Api Flamethrower',
+            onClick: () => sfx.encounter(),
+          };
+        } else if (customPlaced.subType === 'tyranitar' || customPlaced.subType === 'blastoise') {
+          action = {
+            label: '🪨 Badai Pasir Sandstorm',
+            onClick: () => sfx.encounter(),
+          };
+        } else if (customPlaced.subType === 'garchomp') {
+          action = {
+            label: '🦈 Tebasan Naga Dragon Claw',
+            onClick: () => sfx.encounter(),
+          };
+        } else if (customPlaced.subType === 'urshifu' || customPlaced.subType === 'urshifu_gmax') {
+          action = {
+            label: '🌊 Serbuan Beruntun G-Max Rapid Flow',
+            onClick: () => sfx.encounter(),
+          };
         }
 
         if (this.callbacks.onBubble) {
@@ -3731,6 +4298,11 @@ export class TownEngine {
       'solgaleo',
       'arceus',
       'ranger',
+      'tyranitar',
+      'garchomp',
+      'urshifu',
+      'urshifu_gmax',
+      'blastoise',
       'ace',
       'mewtwo',
     ]);
@@ -4330,25 +4902,52 @@ export class TownEngine {
         }
         drawLucario(ctx, curTileX * TILE_SIZE, curTileY * TILE_SIZE, this.tick, 1);
         if (isFlipped) ctx.restore();
-      } else if (npc.id === 'charizard' || npc.id === 'lebron') {
+      } else if (npc.id === 'charizard' || npc.id === 'lebron' || (npc as any).subType === 'charizard') {
+        const drawX = curTileX * TILE_SIZE;
+        const drawY = curTileY * TILE_SIZE;
+        const breath = Math.sin(this.tick * 0.05) * 0.8;
+
+        // Ground contact shadow
+        ctx.fillStyle = 'rgba(20, 25, 30, 0.35)';
+        ctx.beginPath();
+        ctx.ellipse(drawX + 8, drawY + 15, 12, 4.5, 0, 0, Math.PI * 2);
+        ctx.fill();
+
         const isFlipped = cfg?.orientation === 'W';
         if (isFlipped) {
           ctx.save();
-          ctx.translate(curTileX * TILE_SIZE + 8, 0);
+          ctx.translate(drawX + 8, 0);
           ctx.scale(-1, 1);
-          ctx.translate(-(curTileX * TILE_SIZE + 8), 0);
+          ctx.translate(-(drawX + 8), 0);
         }
-        // Authentic Charizard pixel sprite on overworld
-        ctx.fillStyle = 'rgba(40, 60, 20, 0.25)';
-        ctx.fillRect(curTileX * TILE_SIZE - 4, curTileY * TILE_SIZE + 13, 24, 4);
-        drawPixelMatrix(
-          ctx,
-          CHARIZARD_OVERWORLD_SPRITE,
-          CHARIZARD_OVERWORLD_COLORS,
-          curTileX * TILE_SIZE - 7,
-          curTileY * TILE_SIZE - 10,
-          1
-        );
+
+        // Fire Dragon tail flame ember glow & heat radiance
+        const flamePulse = 0.45 + Math.sin(this.tick * 0.15) * 0.2;
+        const flameX = drawX + 5;
+        const flameY = drawY - 11 + breath;
+
+        const flameGrad = ctx.createRadialGradient(flameX, flameY, 1, flameX, flameY, 8);
+        flameGrad.addColorStop(0, `rgba(255, 245, 150, ${flamePulse + 0.3})`);
+        flameGrad.addColorStop(0.4, `rgba(249, 115, 22, ${flamePulse})`);
+        flameGrad.addColorStop(1, 'rgba(239, 68, 68, 0)');
+        ctx.fillStyle = flameGrad;
+        ctx.beginPath();
+        ctx.arc(flameX, flameY, 8, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Fiery ember sparks rising into the air
+        if (this.tick % 16 < 10) {
+          ctx.fillStyle = '#fef08a';
+          ctx.fillRect(flameX + Math.sin(this.tick * 0.3) * 3, flameY - 2 - (this.tick % 8), 1.5, 1.5);
+          ctx.fillStyle = '#f97316';
+          ctx.fillRect(flameX - 1 + Math.cos(this.tick * 0.25) * 4, flameY - 1 - (this.tick % 6), 1.5, 1.5);
+        }
+
+        // Authentic Pokémon Black & White Charizard Sprite
+        if (this.charizardImg && this.charizardImg.complete && this.charizardImg.naturalWidth > 0) {
+          ctx.drawImage(this.charizardImg, drawX - 13, drawY - 20 + breath, 42, 42);
+        }
+
         if (isFlipped) ctx.restore();
       } else if (npc.id === 'dialga' || (npc as any).subType === 'dialga') {
         // Authentic Dialga Temporal Steel/Dragon Overworld Sprite with Roar of Time Diamond Aura
@@ -4665,39 +5264,124 @@ export class TownEngine {
           ctx.drawImage(this.arceusImg, drawX - 12, drawY - 18 + levitate, 40, 40);
           if (isFlipped) ctx.restore();
         }
-      } else if (npc.id === 'ranger' || npc.id === 'blastoise') {
-        // Authentic Blastoise Pokémon Overworld Sprite
+      } else if (npc.id === 'ranger' || npc.id === 'blastoise' || npc.id === 'tyranitar' || (npc as any).subType === 'tyranitar') {
+        // Authentic Tyranitar Rock/Dark Armor Pokémon Overworld Sprite with Sand Stream Aura
         const drawX = curTileX * TILE_SIZE;
         const drawY = curTileY * TILE_SIZE;
-        const bob = Math.sin(this.tick * 0.05) * 1.2;
+        const stomp = Math.sin(this.tick * 0.04) * 0.8;
 
-        // Ground shadow
-        ctx.fillStyle = 'rgba(15, 30, 45, 0.4)';
+        // Ground shadow beneath heavy armor body
+        ctx.fillStyle = 'rgba(25, 20, 15, 0.45)';
         ctx.beginPath();
-        ctx.ellipse(drawX + 8, drawY + 14, 14, 5, 0, 0, Math.PI * 2);
+        ctx.ellipse(drawX + 8, drawY + 16, 13, 5, 0, 0, Math.PI * 2);
         ctx.fill();
 
-        // Water Cannon Ambient Mist/Vapor
-        if (this.tick % 40 < 20) {
-          ctx.fillStyle = 'rgba(56, 189, 248, 0.55)';
-          ctx.fillRect(drawX - 2, drawY - 6 + bob, 3, 3);
-          ctx.fillRect(drawX + 15, drawY - 6 + bob, 3, 3);
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-          ctx.fillRect(drawX - 1, drawY - 7 + bob, 2, 2);
-          ctx.fillRect(drawX + 16, drawY - 7 + bob, 2, 2);
+        const isFlipped = (cfg?.orientation || 'E') === 'W';
+        if (isFlipped) {
+          ctx.save();
+          ctx.translate(drawX + 8, 0);
+          ctx.scale(-1, 1);
+          ctx.translate(-(drawX + 8), 0);
         }
 
-        if (this.blastoiseImg && this.blastoiseImg.complete && this.blastoiseImg.naturalWidth > 0) {
-          const isFlipped = (cfg?.orientation || 'E') === 'W';
-          if (isFlipped) {
-            ctx.save();
-            ctx.translate(drawX + 8, 0);
-            ctx.scale(-1, 1);
-            ctx.translate(-(drawX + 8), 0);
+        // Sand Stream & Earth particles swirling around Tyranitar
+        if (this.tick % 18 < 12) {
+          const sandAngle = (this.tick * 0.08) % (Math.PI * 2);
+          const sandRadius = 11 + Math.sin(this.tick * 0.1) * 3;
+          const sandX = drawX + 8 + Math.cos(sandAngle) * sandRadius;
+          const sandY = drawY + 11 + Math.sin(sandAngle) * 3 + stomp;
+          ctx.fillStyle = '#d4b182'; // Desert sand grain
+          ctx.fillRect(sandX, sandY, 1.5, 1.5);
+
+          // Rocky dark armor dust
+          if (this.tick % 24 < 8) {
+            ctx.fillStyle = '#4b5563';
+            ctx.fillRect(drawX + 4 + Math.sin(this.tick * 0.2) * 8, drawY + 12 - (this.tick % 8), 1.5, 1.5);
           }
-          ctx.drawImage(this.blastoiseImg, drawX - 11, drawY - 14 + bob, 38, 38);
-          if (isFlipped) ctx.restore();
         }
+
+        // Authentic Pokémon Black & White Tyranitar Sprite
+        const img = this.tyranitarImg || this.blastoiseImg;
+        if (img && img.complete && img.naturalWidth > 0) {
+          ctx.drawImage(img, drawX - 13, drawY - 20 + stomp, 42, 42);
+        }
+        if (isFlipped) ctx.restore();
+      } else if (npc.id === 'garchomp' || (npc as any).subType === 'garchomp') {
+        // Authentic Garchomp Dragon/Ground Mach Pokémon Overworld Sprite
+        const drawX = curTileX * TILE_SIZE;
+        const drawY = curTileY * TILE_SIZE;
+        const machBob = Math.sin(this.tick * 0.05) * 0.9;
+
+        // Ground contact shadow
+        ctx.fillStyle = 'rgba(20, 20, 30, 0.4)';
+        ctx.beginPath();
+        ctx.ellipse(drawX + 8, drawY + 16, 13, 4.5, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        const isFlipped = (cfg?.orientation || 'E') === 'W';
+        if (isFlipped) {
+          ctx.save();
+          ctx.translate(drawX + 8, 0);
+          ctx.scale(-1, 1);
+          ctx.translate(-(drawX + 8), 0);
+        }
+
+        // Dragon Claw & Supersonic Mach Slipstream particles
+        if (this.tick % 16 < 11) {
+          ctx.fillStyle = '#38bdf8'; // Sky blue dragon aura
+          ctx.fillRect(drawX + 8 + Math.cos(this.tick * 0.15) * 12, drawY + 6 - (this.tick % 10) + machBob, 2, 1);
+          ctx.fillStyle = '#fde047'; // Sand dune speed spark
+          ctx.fillRect(drawX + 3 + Math.sin(this.tick * 0.2) * 10, drawY + 14 - (this.tick % 8), 1.5, 1.5);
+          ctx.fillStyle = '#f43f5e'; // Crimson star chest spark
+          ctx.fillRect(drawX + 6 + Math.cos(this.tick * 0.25) * 8, drawY - 2 + machBob, 1.5, 1.5);
+        }
+
+        // Authentic Pokémon Black & White Garchomp Sprite
+        if (this.garchompImg && this.garchompImg.complete && this.garchompImg.naturalWidth > 0) {
+          ctx.drawImage(this.garchompImg, drawX - 13, drawY - 20 + machBob, 42, 42);
+        }
+        if (isFlipped) ctx.restore();
+      } else if (npc.id === 'urshifu' || (npc as any).subType === 'urshifu' || (npc as any).subType === 'urshifu_gmax') {
+        // Authentic Urshifu Gigantamax Rapid Strike Overworld Sprite with G-Max Torrent Aura
+        const drawX = curTileX * TILE_SIZE;
+        const drawY = curTileY * TILE_SIZE;
+        const stanceBob = Math.sin(this.tick * 0.04) * 0.8;
+
+        // Ground shadow beneath colossal Gigantamax stance
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.45)';
+        ctx.beginPath();
+        ctx.ellipse(drawX + 8, drawY + 16, 16, 5.5, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        const isFlipped = (cfg?.orientation || 'E') === 'W';
+        if (isFlipped) {
+          ctx.save();
+          ctx.translate(drawX + 8, 0);
+          ctx.scale(-1, 1);
+          ctx.translate(-(drawX + 8), 0);
+        }
+
+        // Gigantamax Crimson Dynamax clouds & Rapid Strike water torrent swirls
+        const dynPhase = (this.tick * 0.05) % (Math.PI * 2);
+        const cloudX = drawX + 8 + Math.cos(dynPhase) * 14;
+        const cloudY = drawY - 14 + Math.sin(dynPhase) * 4;
+        ctx.fillStyle = 'rgba(239, 68, 68, 0.75)'; // G-Max red
+        ctx.fillRect(cloudX, cloudY, 2.5, 2);
+        ctx.fillStyle = 'rgba(244, 63, 94, 0.65)';
+        ctx.fillRect(cloudX - 2, cloudY + 1, 2, 1.5);
+
+        if (this.tick % 16 < 11) {
+          ctx.fillStyle = '#38bdf8'; // Rapid Strike hydro blue
+          ctx.fillRect(drawX + 8 + Math.sin(this.tick * 0.1) * 13, drawY + 8 + Math.cos(this.tick * 0.1) * 4, 2, 2);
+          ctx.fillStyle = '#bae6fd'; // Water mist splash
+          ctx.fillRect(drawX + 4 + Math.cos(this.tick * 0.15) * 10, drawY + 12 - (this.tick % 8), 1.5, 1.5);
+        }
+
+        // Authentic Pokémon Urshifu Gigantamax Rapid Strike Sprite
+        if (this.urshifuImg && this.urshifuImg.complete && this.urshifuImg.naturalWidth > 0) {
+          ctx.drawImage(this.urshifuImg, drawX - 16, drawY - 24 + stanceBob, 48, 45);
+        }
+        if (isFlipped) ctx.restore();
       } else if (npc.id === 'ace' || npc.id === 'mewtwo' || (npc as any).subType === 'mewtwo') {
         // Authentic Mewtwo Pokémon Overworld Sprite with Psychic Aura & Telekinesis
         const drawX = curTileX * TILE_SIZE;
@@ -5229,7 +5913,62 @@ export class TownEngine {
           ctx.scale(-1, 1);
           ctx.translate(-centerX, 0);
         }
-        if ((b.subType === 'dialga' || b.id === 'dialga') && this.dialgaImg && this.dialgaImg.complete) {
+        if ((b.subType === 'charizard' || b.id === 'charizard') && this.charizardImg && this.charizardImg.complete) {
+          const breath = Math.sin(this.tick * 0.05) * 0.8;
+          ctx.drawImage(this.charizardImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + breath, 42, 42);
+        } else if ((b.subType === 'tyranitar' || b.id === 'tyranitar' || b.subType === 'blastoise' || b.id === 'blastoise') && (this.tyranitarImg || this.blastoiseImg)) {
+          const stomp = Math.sin(this.tick * 0.04) * 0.8;
+          const img = this.tyranitarImg || this.blastoiseImg;
+          if (img && img.complete) {
+            ctx.drawImage(img, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + stomp, 42, 42);
+          }
+        } else if ((b.subType === 'garchomp' || b.id === 'garchomp') && this.garchompImg && this.garchompImg.complete) {
+          const machBob = Math.sin(this.tick * 0.05) * 0.9;
+          const drawX = b.x * TILE_SIZE;
+          const drawY = b.y * TILE_SIZE;
+
+          // Ground shadow
+          ctx.fillStyle = 'rgba(20, 20, 30, 0.4)';
+          ctx.beginPath();
+          ctx.ellipse(drawX + 8, drawY + 16, 13, 4.5, 0, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Dragon Claw & Mach slipstream particles
+          if (this.tick % 16 < 11) {
+            ctx.fillStyle = '#38bdf8';
+            ctx.fillRect(drawX + 8 + Math.cos(this.tick * 0.15) * 12, drawY + 6 - (this.tick % 10) + machBob, 2, 1);
+            ctx.fillStyle = '#fde047';
+            ctx.fillRect(drawX + 3 + Math.sin(this.tick * 0.2) * 10, drawY + 14 - (this.tick % 8), 1.5, 1.5);
+          }
+
+          ctx.drawImage(this.garchompImg, drawX - 13, drawY - 20 + machBob, 42, 42);
+        } else if ((b.subType === 'urshifu' || b.id === 'urshifu' || b.subType === 'urshifu_gmax') && this.urshifuImg && this.urshifuImg.complete) {
+          const stanceBob = Math.sin(this.tick * 0.04) * 0.8;
+          const drawX = b.x * TILE_SIZE;
+          const drawY = b.y * TILE_SIZE;
+
+          // Ground shadow
+          ctx.fillStyle = 'rgba(15, 23, 42, 0.45)';
+          ctx.beginPath();
+          ctx.ellipse(drawX + 8, drawY + 16, 16, 5.5, 0, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Gigantamax Crimson Dynamax clouds & Rapid Strike water torrent
+          const dynPhase = (this.tick * 0.05) % (Math.PI * 2);
+          const cloudX = drawX + 8 + Math.cos(dynPhase) * 14;
+          const cloudY = drawY - 14 + Math.sin(dynPhase) * 4;
+          ctx.fillStyle = 'rgba(239, 68, 68, 0.75)';
+          ctx.fillRect(cloudX, cloudY, 2.5, 2);
+
+          if (this.tick % 16 < 11) {
+            ctx.fillStyle = '#38bdf8';
+            ctx.fillRect(drawX + 8 + Math.sin(this.tick * 0.1) * 13, drawY + 8 + Math.cos(this.tick * 0.1) * 4, 2, 2);
+            ctx.fillStyle = '#bae6fd';
+            ctx.fillRect(drawX + 4 + Math.cos(this.tick * 0.15) * 10, drawY + 12 - (this.tick % 8), 1.5, 1.5);
+          }
+
+          ctx.drawImage(this.urshifuImg, drawX - 16, drawY - 24 + stanceBob, 48, 45);
+        } else if ((b.subType === 'dialga' || b.id === 'dialga') && this.dialgaImg && this.dialgaImg.complete) {
           const lev = Math.sin(this.tick * 0.04) * 1.5;
           ctx.drawImage(this.dialgaImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + lev, 42, 42);
         } else if ((b.subType === 'palkia' || b.id === 'palkia') && this.palkiaImg && this.palkiaImg.complete) {
@@ -5607,6 +6346,11 @@ export class TownEngine {
     // 12. Town Editor Overlay (Grid, Building Dragging, Coordinates Tooltip)
     if (this.currentScene === 'town' && this.editor.isEnabled()) {
       this.editor.renderOverlay(ctx);
+    }
+
+    // 13. X-Ray Collision & Hidden Obstacle Inspector Overlay
+    if (this.xrayMode) {
+      this.renderXrayOverlay(ctx);
     }
 
     ctx.restore();

@@ -68,7 +68,7 @@ const {
 
           <div class="panel__bar">
             {place !== 'town' && (
-              <a class="btn btn--small panel__back" href="/" aria-label="Back to the town map">← Town</a>
+              <a class="btn btn--small panel__back" href="/" onclick="sessionStorage.setItem('town:respawn', '22,28')" aria-label="Back to the town map">← Town</a>
             )}
             <span class="panel__where pixel" aria-hidden="true">
               {place === 'dev' ? '💻 Dev Center' : place === 'lab' ? '🔬 Research Lab' : place === 'arcade' ? '🕹️ Arcade' : place === 'about' ? '🏠 Home' : place === 'reception' ? '🏥 Poké Center' : place === 'mart' ? '🏪 Poké Mart' : place === 'tower' ? '🏢 Tech Tower' : '🏡 Town Square'}
