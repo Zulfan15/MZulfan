@@ -567,19 +567,24 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
 
     <!-- Interactive Project Inquiry Bag -->
     <section
-      class="window p-4 md:p-5 bg-gradient-to-r from-blue-900 via-slate-900 to-blue-950 text-paper border-2 space-y-4"
+      class="window p-4 md:p-5 bg-gradient-to-r from-blue-900 via-slate-900 to-blue-950 text-paper border-2 space-y-4 shadow-lg"
       id="inquiry-bag-section"
       data-contact-email={profile.person.email}
     >
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/20 pb-3">
         <div class="flex items-center gap-2.5">
-          <span class="text-2xl">🎒</span>
+          <span class="text-2xl p-1.5 rounded-lg bg-blue-800/60 border border-blue-400">🎒</span>
           <div>
-            <h2 class="font-pixel text-xs text-white uppercase tracking-wide">
-              Project Inquiry Bag
-            </h2>
+            <div class="flex items-center gap-2">
+              <h2 class="font-pixel text-xs text-white uppercase tracking-wide">
+                Project Inquiry Bag
+              </h2>
+              <span class="chip bg-blue-500 text-white border-white/40 font-mono font-bold text-[9px] px-1.5 py-0.2">
+                SMART BRIEF
+              </span>
+            </div>
             <p class="font-sans text-[11px] text-blue-200">
-              Assemble the technical services and expertise you need, then forward your inquiry directly to Zulfan's email
+              Assemble the technical services and expertise you need, then copy your formatted brief or draft an inquiry
             </p>
           </div>
         </div>
@@ -593,6 +598,57 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
         </div>
       </div>
 
+      <!-- Collaboration Track Selector -->
+      <div class="p-3.5 rounded-xl bg-white/5 border border-white/10 space-y-2.5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
+          <span class="font-mono text-[10px] text-blue-300 uppercase font-bold flex items-center gap-1.5">
+            <span>🎯</span>
+            <span>Choose Engagement / Collaboration Model:</span>
+          </span>
+          <span id="track-indicator" class="font-mono text-[10px] text-amber-300 font-semibold">
+            Track: Full-Time / Hybrid Role
+          </span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2" id="collab-track-selector">
+          <button
+            type="button"
+            class="collab-track-btn p-2.5 rounded-lg border-2 text-left transition-all cursor-pointer border-amber-400 bg-amber-500/20 text-white shadow-sm"
+            data-track="fulltime"
+          >
+            <div class="font-pixel text-[11px] flex items-center gap-1.5 text-amber-300">
+              <span>💼</span>
+              <span>Full-Time Role</span>
+            </div>
+            <div class="font-sans text-[10px] text-blue-200 mt-0.5">Software / AI Engineer hire</div>
+          </button>
+
+          <button
+            type="button"
+            class="collab-track-btn p-2.5 rounded-lg border text-left transition-all cursor-pointer border-white/15 bg-white/5 text-slate-300 hover:border-white/40"
+            data-track="sprint"
+          >
+            <div class="font-pixel text-[11px] flex items-center gap-1.5 text-white">
+              <span>🚀</span>
+              <span>Fixed MVP Sprint</span>
+            </div>
+            <div class="font-sans text-[10px] text-blue-200 mt-0.5">2–4 week scoped build</div>
+          </button>
+
+          <button
+            type="button"
+            class="collab-track-btn p-2.5 rounded-lg border text-left transition-all cursor-pointer border-white/15 bg-white/5 text-slate-300 hover:border-white/40"
+            data-track="advisory"
+          >
+            <div class="font-pixel text-[11px] flex items-center gap-1.5 text-white">
+              <span>🛡️</span>
+              <span>Security &amp; Audit</span>
+            </div>
+            <div class="font-sans text-[10px] text-blue-200 mt-0.5">HCIA Security &amp; code review</div>
+          </button>
+        </div>
+      </div>
+
       <!-- Bag Items List -->
       <div id="bag-items-list" class="space-y-2 text-xs">
         <p class="text-blue-300 italic py-2 text-center" id="empty-bag-message">
@@ -600,19 +656,36 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
         </p>
       </div>
 
-      <!-- Action Buttons -->
-      <div class="pt-2 flex flex-wrap items-center justify-between gap-3 border-t border-white/10">
-        <div class="text-[11px] text-blue-200 font-mono">
-          📧 Inquiries sent directly to: <strong class="text-white underline">{profile.person.email}</strong>
+      <!-- Total & Action Toolbar -->
+      <div class="pt-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-white/10">
+        <div class="space-y-0.5">
+          <div class="text-[11px] text-blue-200 font-mono">
+            Estimated Sprint Budget: <strong id="bag-estimated-total" class="text-amber-300 font-bold text-xs">Free / Open Discussion</strong>
+          </div>
+          <div class="text-[10px] text-blue-300/80 font-sans">
+            Recipient: <strong class="text-white underline">{profile.person.email}</strong>
+          </div>
         </div>
-        <a
-          href={emailUrl}
-          id="send-inquiry-email-btn"
-          class="btn btn-sm btn-gold font-pixel text-xs flex items-center gap-2 shadow-md cursor-pointer"
-        >
-          <span>📨</span>
-          <span>Draft Project Inquiry Email</span>
-        </a>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            id="copy-brief-btn"
+            class="btn btn-sm btn-paper text-ink font-pixel text-xs flex items-center gap-1.5 shadow-sm active:scale-95 transition-all"
+            title="Copy project brief formatted in Markdown to clipboard"
+          >
+            <span>📋</span>
+            <span id="copy-brief-label">Copy Project Brief</span>
+          </button>
+          <a
+            href={emailUrl}
+            id="send-inquiry-email-btn"
+            class="btn btn-sm btn-gold font-pixel text-xs flex items-center gap-1.5 shadow-md cursor-pointer hover:scale-[1.02] active:scale-95 transition-all"
+          >
+            <span>📨</span>
+            <span>Draft Inquiry Email</span>
+          </a>
+        </div>
       </div>
     </section>
 
@@ -671,6 +744,71 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
     <!-- Navigation WhereTo -->
     <WhereTo currentPath="/mart" />
   </div>
+
+  <!-- Interactive Live Poké-Dollar Wallet Modal -->
+  <dialog id="wallet-modal" class="backdrop:bg-slate-950/70 backdrop:backdrop-blur-sm">
+    <div class="window p-0 overflow-hidden bg-slate-900 border-2 border-amber-400 shadow-2xl text-slate-100 max-w-md w-[92vw]">
+      <!-- Header -->
+      <div class="bg-slate-950 px-4 py-3 border-b border-amber-400/40 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">💰</span>
+          <div>
+            <span class="chip bg-amber-950 text-amber-300 border border-amber-600 font-mono text-[9px] px-1.5 py-0.2 font-bold uppercase">
+              POKÉ MART DIGITAL WALLET
+            </span>
+            <h3 class="font-pixel text-xs text-white mt-0.5">Trainer Poké-Dollar Ledger</h3>
+          </div>
+        </div>
+        <button
+          type="button"
+          id="btn-close-wallet-modal"
+          class="btn btn-sm bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-600 text-xs font-pixel px-2 py-0.5"
+        >
+          ✕
+        </button>
+      </div>
+
+      <!-- Balance Display -->
+      <div class="p-5 text-center space-y-3 bg-gradient-to-b from-slate-900 to-slate-950">
+        <div class="font-mono text-xs text-slate-400 uppercase tracking-widest">Available Balance</div>
+        <div class="font-pixel text-3xl text-amber-400 tracking-wider flex items-center justify-center gap-2">
+          <span>₽</span>
+          <span id="wallet-modal-balance">9,999</span>
+        </div>
+        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-950 border border-emerald-500 text-emerald-300 font-mono text-[10px] font-bold">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          100% SOLVENT · FREE TRIAL FUND
+        </div>
+
+        <p class="font-sans text-xs text-slate-300 leading-relaxed max-w-sm mx-auto text-left bg-slate-950/80 p-3 rounded-lg border border-slate-800">
+          💡 <strong>Good to know:</strong> All of Muhammad Zulfan's Technical TMs and official CV downloads are <strong>100% free</strong>! You can spend your Poké-Dollars on developer potions or simulate MVP project sprint budgets.
+        </p>
+
+        <!-- Pay Day Refill Action -->
+        <div class="pt-2 flex flex-col sm:flex-row items-center justify-center gap-2">
+          <button
+            type="button"
+            id="btn-meowth-payday"
+            class="btn btn-sm bg-amber-500 hover:bg-amber-400 text-slate-950 border border-amber-300 font-pixel text-xs px-4 py-2 flex items-center gap-2 font-bold w-full sm:w-auto justify-center shadow-md active:scale-95 transition-all"
+          >
+            <span>🪙</span>
+            <span>Meowth's Pay Day (+₽ 1,000)</span>
+          </button>
+          <button
+            type="button"
+            id="btn-reset-wallet"
+            class="btn btn-sm bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-600 font-mono text-xs px-3 py-2 w-full sm:w-auto"
+          >
+            Reset to ₽ 9,999
+          </button>
+        </div>
+
+        <div id="wallet-feedback-toast" class="hidden font-mono text-xs text-emerald-400 pt-1">
+          ✨ Pay Day triggered! Meowth showered the register with golden coins!
+        </div>
+      </div>
+    </div>
+  </dialog>
 </TownLayout>
 
 <script>
@@ -699,12 +837,27 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
       });
     });
 
-    // 2. Interactive Project Inquiry Bag
+    // 2. Interactive Project Inquiry Bag & Collaboration Tracks
     interface BagItem {
       id: string;
       name: string;
       price: string;
     }
+
+    type CollabTrack = 'fulltime' | 'sprint' | 'advisory';
+    let currentTrack: CollabTrack = 'fulltime';
+
+    const trackDescriptions: Record<CollabTrack, string> = {
+      fulltime: 'Track: Full-Time / Hybrid Role (Software & AI Engineer)',
+      sprint: 'Track: Fixed MVP Sprint (2–4 Week Scoped Build)',
+      advisory: 'Track: Security & Architecture Audit (HCIA Security)',
+    };
+
+    const trackLabels: Record<CollabTrack, string> = {
+      fulltime: 'Full-Time Role',
+      sprint: 'Fixed MVP Sprint',
+      advisory: 'Security & Architecture Audit',
+    };
 
     let bag: BagItem[] = [];
 
@@ -712,6 +865,10 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
     try {
       const stored = sessionStorage.getItem('mart_inquiry_bag');
       if (stored) bag = JSON.parse(stored);
+      const savedTrack = sessionStorage.getItem('mart_collab_track') as CollabTrack | null;
+      if (savedTrack && (savedTrack === 'fulltime' || savedTrack === 'sprint' || savedTrack === 'advisory')) {
+        currentTrack = savedTrack;
+      }
     } catch {}
 
     const bagSection = document.getElementById('inquiry-bag-section');
@@ -721,11 +878,32 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
     const clearBtn = document.getElementById('clear-bag-btn');
     const emailBtn = document.getElementById('send-inquiry-email-btn') as HTMLAnchorElement | null;
     const emptyMsg = document.getElementById('empty-bag-message');
+    const trackIndicator = document.getElementById('track-indicator');
+    const trackButtons = document.querySelectorAll<HTMLButtonElement>('.collab-track-btn');
+    const totalDisplay = document.getElementById('bag-estimated-total');
+    const copyBriefBtn = document.getElementById('copy-brief-btn');
+    const copyBriefLabel = document.getElementById('copy-brief-label');
+
+    function computeBagTotal(): number {
+      return bag.reduce((sum, item) => {
+        const num = parseInt(item.price.replace(/[^0-9]/g, ''), 10);
+        return isNaN(num) ? sum : sum + num;
+      }, 0);
+    }
 
     function renderBag() {
       if (!bagCountBadge || !bagList) return;
 
       bagCountBadge.textContent = `${bag.length} ${bag.length === 1 ? 'Item' : 'Items'} Selected`;
+
+      const totalBudget = computeBagTotal();
+      if (totalDisplay) {
+        if (totalBudget > 0) {
+          totalDisplay.textContent = `₽ ${totalBudget.toLocaleString()} (Estimated)`;
+        } else {
+          totalDisplay.textContent = 'Free / Open Discussion';
+        }
+      }
 
       if (bag.length === 0) {
         if (emptyMsg) emptyMsg.style.display = '';
@@ -733,7 +911,10 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
         bagList.innerHTML = '';
         if (emptyMsg) bagList.appendChild(emptyMsg);
         if (emailBtn) {
-          emailBtn.href = `mailto:${contactEmail}?subject=Project Inquiry via Poké Mart&body=Hi Zulfan,%0D%0A%0D%0AI visited your Poké Mart and would like to discuss an engineering project with you.`;
+          const trackTitle = trackLabels[currentTrack];
+          const subject = `[${trackTitle}] Collaboration Inquiry — Muhammad Zulfan`;
+          const body = `Hi Muhammad Zulfan,%0D%0A%0D%0AI visited your Poké Mart catalog and would like to connect regarding a ${trackTitle}.%0D%0A%0D%0APlease let me know your availability for an introductory discussion.%0D%0A%0D%0ABest regards,`;
+          emailBtn.href = `mailto:${contactEmail}?subject=${encodeURIComponent(subject)}&body=${body}`;
         }
         return;
       }
@@ -744,14 +925,14 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
 
       bag.forEach((item, index) => {
         const row = document.createElement('div');
-        row.className = 'flex items-center justify-between p-2 rounded bg-white/10 border border-white/10 text-white';
+        row.className = 'flex items-center justify-between p-2.5 rounded-lg bg-white/10 border border-white/15 text-white transition-colors hover:bg-white/15';
         row.innerHTML = `
-          <div class="flex items-center gap-2">
-            <span class="text-blue-300 font-mono font-bold">#${index + 1}</span>
-            <span class="font-medium">${item.name}</span>
-            <span class="text-amber-300 font-mono text-[11px]">(${item.price})</span>
+          <div class="flex items-center gap-2.5">
+            <span class="text-blue-300 font-mono font-bold text-xs">#${index + 1}</span>
+            <span class="font-medium text-xs text-white">${item.name}</span>
+            <span class="text-amber-300 font-mono text-[11px] font-bold">(${item.price})</span>
           </div>
-          <button type="button" class="text-red-400 hover:text-red-300 px-2 py-0.5 rounded font-mono font-bold text-xs remove-item-btn" data-index="${index}">
+          <button type="button" class="text-red-400 hover:text-red-300 px-2 py-0.5 rounded font-mono font-bold text-xs remove-item-btn transition-colors" data-index="${index}" title="Remove this item">
             ✕ Remove
           </button>
         `;
@@ -768,20 +949,102 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
         });
       });
 
-      // Update mailto link
+      // Update mailto link based on track & items
       if (emailBtn) {
-        const itemsText = bag.map((it, idx) => `${idx + 1}. ${it.name} (${it.price})`).join('%0D%0A');
-        const body = `Hi Muhammad Zulfan,%0D%0A%0D%0AI visited your portfolio Poké Mart and would like to inquire about the following services / technical topics:%0D%0A%0D%0A${itemsText}%0D%0A%0D%0APlease let me know your availability and timeline for a discussion.%0D%0A%0D%0ABest regards,`;
-        emailBtn.href = `mailto:${contactEmail}?subject=Project Inquiry via Poké Mart (${bag.length} items)&body=${body}`;
+        const trackTitle = trackLabels[currentTrack];
+        const subject = `[${trackTitle}] Muhammad Zulfan Portfolio Inquiry (${bag.length} items)`;
+        const itemsListText = bag.map((it, idx) => `  ${idx + 1}. ${it.name} (${it.price})`).join('%0D%0A');
+        const budgetText = totalBudget > 0 ? `₽ ${totalBudget.toLocaleString()}` : 'Free / Open Discussion';
+
+        const body = `Hi Muhammad Zulfan,%0D%0A%0D%0AI visited your Poké Mart catalog and assembled the following technical brief:%0D%0A%0D%0A• Collaboration Track: ${trackTitle}%0D%0A• Estimated Budget: ${budgetText}%0D%0A• Selected Technical Services & Items:%0D%0A${itemsListText}%0D%0A%0D%0ACould we schedule a call or discussion regarding timeline and scope?%0D%0A%0D%0ABest regards,`;
+
+        emailBtn.href = `mailto:${contactEmail}?subject=${encodeURIComponent(subject)}&body=${body}`;
       }
     }
 
     function saveAndRenderBag() {
       try {
         sessionStorage.setItem('mart_inquiry_bag', JSON.stringify(bag));
+        sessionStorage.setItem('mart_collab_track', currentTrack);
       } catch {}
       renderBag();
     }
+
+    // Collaboration Track Switcher
+    function setTrack(track: CollabTrack) {
+      currentTrack = track;
+      if (trackIndicator) {
+        trackIndicator.textContent = trackDescriptions[track];
+      }
+
+      trackButtons.forEach((btn) => {
+        const t = btn.getAttribute('data-track');
+        const headingDiv = btn.querySelector('.font-pixel');
+        if (t === track) {
+          btn.className = 'collab-track-btn p-2.5 rounded-lg border-2 text-left transition-all cursor-pointer border-amber-400 bg-amber-500/20 text-white shadow-sm';
+          if (headingDiv) headingDiv.className = 'font-pixel text-[11px] flex items-center gap-1.5 text-amber-300 font-bold';
+        } else {
+          btn.className = 'collab-track-btn p-2.5 rounded-lg border text-left transition-all cursor-pointer border-white/15 bg-white/5 text-slate-300 hover:border-white/40';
+          if (headingDiv) headingDiv.className = 'font-pixel text-[11px] flex items-center gap-1.5 text-white';
+        }
+      });
+
+      saveAndRenderBag();
+    }
+
+    trackButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const track = btn.getAttribute('data-track') as CollabTrack;
+        if (track && track !== currentTrack) {
+          sfx.select();
+          setTrack(track);
+        }
+      });
+    });
+
+    // Copy Project Brief Button
+    copyBriefBtn?.addEventListener('click', async () => {
+      const trackTitle = trackDescriptions[currentTrack];
+      const totalBudget = computeBagTotal();
+      const budgetText = totalBudget > 0 ? `₽ ${totalBudget.toLocaleString()} (Estimated)` : 'Free / Open Discussion';
+
+      let briefText = `# Muhammad Zulfan — Project Inquiry & Engineering Brief\n\n`;
+      briefText += `**Collaboration Track:** ${trackTitle}\n`;
+      briefText += `**Recipient:** ${contactEmail}\n`;
+      briefText += `**Estimated Sprint Budget:** ${budgetText}\n\n`;
+      briefText += `### Selected Technical Services & Items:\n`;
+
+      if (bag.length === 0) {
+        briefText += `_No specific items selected — general collaboration inquiry for ${trackTitle}._\n`;
+      } else {
+        bag.forEach((it, idx) => {
+          briefText += `${idx + 1}. **${it.name}** — ${it.price}\n`;
+        });
+      }
+
+      briefText += `\n---\n*Generated from Poké Mart at Muhammad Zulfan's 2D Portfolio*\n*Profile & Official CV: /cv/CV_Zulfan.pdf | GPA 3.49 ITENAS*`;
+
+      try {
+        await navigator.clipboard.writeText(briefText);
+        sfx.confirm();
+        window.dispatchEvent(
+          new CustomEvent('town:mart-cash-anim', {
+            detail: { text: 'BRIEF COPIED! 📋' },
+          })
+        );
+        if (copyBriefLabel) {
+          const orig = copyBriefLabel.textContent;
+          copyBriefLabel.textContent = '✨ Brief Copied!';
+          copyBriefBtn.classList.add('bg-emerald-600', 'text-white');
+          setTimeout(() => {
+            copyBriefLabel.textContent = orig;
+            copyBriefBtn.classList.remove('bg-emerald-600', 'text-white');
+          }, 2000);
+        }
+      } catch (err) {
+        console.error('Clipboard copy failed:', err);
+      }
+    });
 
     // Add buttons
     document.querySelectorAll<HTMLButtonElement>('.add-to-bag-btn').forEach((btn) => {
@@ -826,14 +1089,113 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
       });
     }
 
-    // Potion interactions
+    // 3. Live Poké-Dollar Wallet Ledger & Potions
+    const WALLET_KEY = 'pokemart_wallet_balance';
+    const DEFAULT_BALANCE = 9999;
+
+    function getWalletBalance(): number {
+      try {
+        const raw = localStorage.getItem(WALLET_KEY);
+        if (raw !== null) {
+          const val = parseInt(raw, 10);
+          if (!isNaN(val)) return val;
+        }
+      } catch {}
+      return DEFAULT_BALANCE;
+    }
+
+    function setWalletBalance(balance: number): void {
+      try {
+        localStorage.setItem(WALLET_KEY, balance.toString());
+      } catch {}
+      updateWalletUI(balance);
+    }
+
+    function updateWalletUI(balance: number) {
+      const badgeBtn = document.getElementById('wallet-badge-btn');
+      const modalBalance = document.getElementById('wallet-modal-balance');
+      const formatted = balance.toLocaleString();
+
+      if (badgeBtn) {
+        badgeBtn.textContent = `💰 ₽ ${formatted}`;
+      }
+      if (modalBalance) {
+        modalBalance.textContent = formatted;
+      }
+    }
+
+    // Wallet Modal Controls
+    const walletModal = document.getElementById('wallet-modal') as HTMLDialogElement | null;
+    const walletBadgeBtn = document.getElementById('wallet-badge-btn');
+    const closeWalletBtn = document.getElementById('btn-close-wallet-modal');
+    const meowthPaydayBtn = document.getElementById('btn-meowth-payday');
+    const resetWalletBtn = document.getElementById('btn-reset-wallet');
+    const walletFeedbackToast = document.getElementById('wallet-feedback-toast');
+
+    walletBadgeBtn?.addEventListener('click', () => {
+      sfx.select();
+      walletModal?.showModal();
+    });
+
+    closeWalletBtn?.addEventListener('click', () => {
+      sfx.select();
+      walletModal?.close();
+    });
+
+    // Close on backdrop click
+    walletModal?.addEventListener('click', (e) => {
+      const rect = walletModal.getBoundingClientRect();
+      const isInDialog = (
+        rect.top <= e.clientY &&
+        e.clientY <= rect.top + rect.height &&
+        rect.left <= e.clientX &&
+        e.clientX <= rect.left + rect.width
+      );
+      if (!isInDialog) {
+        walletModal.close();
+      }
+    });
+
+    meowthPaydayBtn?.addEventListener('click', () => {
+      const current = getWalletBalance();
+      const newBal = current + 1000;
+      setWalletBalance(newBal);
+      sfx.confirm();
+
+      window.dispatchEvent(
+        new CustomEvent('town:mart-cash-anim', {
+          detail: { text: 'PAY DAY! +₽1,000' },
+        })
+      );
+
+      if (walletFeedbackToast) {
+        walletFeedbackToast.classList.remove('hidden');
+        setTimeout(() => {
+          walletFeedbackToast.classList.add('hidden');
+        }, 2800);
+      }
+    });
+
+    resetWalletBtn?.addEventListener('click', () => {
+      setWalletBalance(DEFAULT_BALANCE);
+      sfx.select();
+    });
+
+    // Potion interactions with Wallet deductions
     const coffeeBtn = document.getElementById('drink-coffee-btn');
     if (coffeeBtn) {
       coffeeBtn.addEventListener('click', () => {
+        const bal = getWalletBalance();
+        if (bal < 50) {
+          sfx.buzzer();
+          alert('⚠️ Not enough Poké-Dollars! Click Meowth\'s Pay Day in the wallet modal to refill funds! 🪙');
+          return;
+        }
+        setWalletBalance(bal - 50);
         sfx.heal();
         window.dispatchEvent(
           new CustomEvent('town:mart-cash-anim', {
-            detail: { text: 'SIP! +100% FOCUS' },
+            detail: { text: 'SIP! -₽50 (+100% FOCUS)' },
           })
         );
         const orig = coffeeBtn.textContent;
@@ -849,10 +1211,17 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
     const etherBtn = document.getElementById('drink-ether-btn');
     if (etherBtn) {
       etherBtn.addEventListener('click', () => {
+        const bal = getWalletBalance();
+        if (bal < 100) {
+          sfx.buzzer();
+          alert('⚠️ Not enough Poké-Dollars! Click Meowth\'s Pay Day in the wallet modal to refill funds! 🪙');
+          return;
+        }
+        setWalletBalance(bal - 100);
         sfx.heal();
         window.dispatchEvent(
           new CustomEvent('town:mart-cash-anim', {
-            detail: { text: 'ETHER! CLEAN ARCH' },
+            detail: { text: 'ETHER! -₽100 (CLEAN ARCH)' },
           })
         );
         const orig = etherBtn.textContent;
@@ -862,20 +1231,6 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
           etherBtn.textContent = orig;
           etherBtn.classList.remove('bg-teal-500', 'text-white');
         }, 2000);
-      });
-    }
-
-    // Wallet click interaction
-    const walletBtn = document.getElementById('wallet-badge-btn');
-    if (walletBtn) {
-      walletBtn.addEventListener('click', () => {
-        sfx.select();
-        window.dispatchEvent(
-          new CustomEvent('town:mart-cash-anim', {
-            detail: { text: 'WALLET: ₽9,999' },
-          })
-        );
-        alert('💰 Your Balance: ₽ 9,999 Poké Dollars!\nAll Technical TMs and Zulfan\'s CV are free to download!');
       });
     }
 
@@ -924,7 +1279,9 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
       }
     });
 
-    // Initial render
+    // Initialize state
+    updateWalletUI(getWalletBalance());
+    setTrack(currentTrack);
     renderBag();
   }
 
