@@ -803,8 +803,8 @@ export class TownEngine {
           ? 'Air / Sungai'
           : tileType === Tile.FENCE
           ? 'Pagar Pembatas'
-          : tileType === Tile.CLIFF
-          ? 'Tebing'
+          : tileType === Tile.TREE
+          ? 'Pohon Rindang'
           : 'Tembok / Batas Medan Asli';
       return { walkable: false, reason: groundDesc, isBaseBlocked: true };
     }
@@ -7714,29 +7714,30 @@ export class TownEngine {
       const bw = b.w * TILE_SIZE;
 
       // Render soft glowing warm windows on major buildings
-      if (['house', 'dev', 'lab', 'reception', 'mart', 'tower', 'arcade'].includes(b.kind)) {
+      const bType = b.subType || b.id;
+      if (['house', 'home', 'villa', 'dev', 'lab', 'reception', 'shop', 'mart', 'tower', 'office', 'arcade'].includes(bType)) {
         ctx.fillStyle = 'rgba(253, 230, 138, 0.72)';
         ctx.shadowColor = 'rgba(251, 191, 36, 0.85)';
         ctx.shadowBlur = 6;
 
-        if (b.kind === 'house') {
+        if (bType === 'house' || bType === 'home' || bType === 'villa') {
           ctx.fillRect(bx + 8, by + 18, 10, 8);
           ctx.fillRect(bx + bw - 18, by + 18, 10, 8);
-        } else if (b.kind === 'dev' || b.kind === 'lab') {
+        } else if (bType === 'dev' || bType === 'lab') {
           ctx.fillRect(bx + 10, by + 16, 12, 10);
           ctx.fillRect(bx + bw - 22, by + 16, 12, 10);
           ctx.fillRect(bx + Math.floor(bw / 2) - 6, by + 16, 12, 10);
-        } else if (b.kind === 'reception') {
+        } else if (bType === 'reception') {
           ctx.fillRect(bx + 12, by + 20, 14, 12);
           ctx.fillRect(bx + bw - 26, by + 20, 14, 12);
-        } else if (b.kind === 'mart') {
+        } else if (bType === 'shop' || bType === 'mart') {
           ctx.fillRect(bx + 10, by + 20, 16, 10);
-        } else if (b.kind === 'arcade') {
+        } else if (bType === 'arcade') {
           ctx.fillStyle = 'rgba(167, 139, 250, 0.75)';
           ctx.shadowColor = 'rgba(192, 132, 252, 0.9)';
           ctx.fillRect(bx + 10, by + 18, 12, 10);
           ctx.fillRect(bx + bw - 22, by + 18, 12, 10);
-        } else if (b.kind === 'tower') {
+        } else if (bType === 'tower' || bType === 'office') {
           ctx.fillStyle = 'rgba(56, 189, 248, 0.75)';
           ctx.shadowColor = 'rgba(14, 165, 233, 0.9)';
           ctx.fillRect(bx + 12, by + 14, 10, 8);
