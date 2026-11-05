@@ -173,3 +173,4 @@ export const COMPANIONS: CompanionInfo[] = [
 export const COMPANIONS_MAP: Record<string, CompanionInfo> = Object.fromEntries(
   COMPANIONS.map((c) => [c.id, c])
 );
+

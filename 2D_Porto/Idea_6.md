@@ -237,4 +237,5 @@ Namun, dari sisi **kenyamanan pengguna (User Experience)** dan **daya tarik inte
 - [x] Setiap Pokémon memiliki tombol aksi visual jurus ikonik (*Signature Move Visual Burst*) dengan getaran kamera dan semburan 35–50 partikel khas elemen.
 - [x] Narasi Pokémon koridor kota terhubung dengan pilar keahlian rekayasa teknologi Zulfan (*Tech Guardian Lore*).
 - [x] Pengunjung santai maupun recruiter mendapatkan pengalaman eksplorasi ala game Pokémon yang responsif, visual dinamis, dan intuitif.
+- [x] Antarmuka (HUD) disederhanakan secara menyeluruh: top bar dirampingkan dari 13 tombol menjadi 3 tombol ringkas (`🔍 Cari`, `🐾 Partner`, `☰ Menu`), floating partner bar bawah dihapus agar tidak menutupi legenda kontrol, landmark badges disembunyikan secara default (dapat dinyalakan kapan saja lewat tombol `L` / Menu), dan badge mengambang pada Lucario dihilangkan agar tampilan visual peta bersih, luas, dan imersif.
 

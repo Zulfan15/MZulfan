@@ -5553,6 +5553,7 @@ export class TownEngine {
       'blastoise',
       'ace',
       'mewtwo',
+      'twin',
     ]);
 
     const labelDefs: Record<string, { x: number; y: number; w: number; h: number; kind: string; lift?: number }> = {
