@@ -45,20 +45,85 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
         </div>
       </div>
 
-      <!-- Clerk Kevin Dialogue Box -->
+      <!-- Clerk Kevin & Meowth Dialogue Box -->
       <div class="flex flex-col md:flex-row gap-4 items-start">
-        <div class="p-3.5 rounded-lg bg-paper border border-ink/20 flex-1 text-xs leading-relaxed text-ink-soft">
-          <p class="font-medium text-ink mb-1.5 flex items-center gap-1.5">
-            <span>👨‍💼</span>
-            <strong>Clerk Kevin:</strong>
-            <span class="text-[11px] font-mono text-blue-600 font-semibold">"Welcome to Zulfan's Poké Mart!"</span>
-          </p>
+        <div class="p-3.5 rounded-lg bg-paper border border-ink/20 flex-1 text-xs leading-relaxed text-ink-soft space-y-2.5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-ink/10 pb-2">
+            <p class="font-medium text-ink flex items-center gap-1.5">
+              <span>👨‍💼</span>
+              <strong>Clerk Kevin:</strong>
+              <span class="text-[11px] font-mono text-blue-600 font-semibold">"Welcome to Zulfan's Poké Mart!"</span>
+            </p>
+            <div class="flex items-center gap-1.5">
+              <button
+                type="button"
+                class="btn btn-sm btn-paper text-[10px] font-pixel btn-inspect-2d"
+                data-prop="clerk"
+                title="Navigate character to Clerk Kevin on 2D canvas"
+              >
+                📍 Kevin
+              </button>
+              <button
+                type="button"
+                class="btn btn-sm btn-paper text-[10px] font-pixel text-amber-700 font-bold border-amber-400 btn-inspect-2d"
+                data-prop="meowth"
+                title="Navigate character to Meowth on 2D canvas"
+              >
+                🪙 Meowth
+              </button>
+            </div>
+          </div>
           <p>
             Looking to commission a high-speed Edge AI system? Need full-stack web engineering, custom IoT integrations, or want to pick up Zulfan's official credentials? Browse the catalog below, add items to your <strong>Project Inquiry Bag</strong>, or download Zulfan's official CV right from the Key Items shelf!
           </p>
+          <div class="p-2 rounded bg-amber-50/90 border border-amber-300 text-amber-900 text-[11px] flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <span class="text-base">🪙</span>
+              <span><strong>Meowth's Amulet Coin:</strong> Adding services or sipping dev potions triggers the cashier register!</span>
+            </div>
+            <button
+              type="button"
+              id="btn-toss-coin-2d"
+              class="btn btn-sm btn-gold text-[10px] font-pixel shrink-0 shadow-sm"
+              title="Trigger Cash Register Cha-Ching Animation on 2D Canvas"
+            >
+              Cha-Ching FX ✨
+            </button>
+          </div>
         </div>
       </div>
     </header>
+
+    <!-- Interactive Mart Quick Action Bar -->
+    <nav class="window p-2.5 md:p-3 bg-slate-900/90 border-2 border-blue-500/50 flex flex-wrap items-center justify-between gap-2.5 shadow-md text-white" aria-label="Poké Mart Quick Actions">
+      <div class="flex items-center gap-2 text-xs font-mono text-blue-300 font-bold">
+        <span class="text-base">🏪</span>
+        <span>QUICK ACTIONS:</span>
+      </div>
+      <div class="flex flex-wrap items-center gap-1.5" id="mart-quick-bar">
+        <button type="button" class="mart-quick-btn btn btn-sm btn-paper font-pixel text-[10px]" data-quick="clerk" title="Talk to Clerk Kevin at Cashier Counter">
+          👨‍💼 1. Clerk Kevin
+        </button>
+        <button type="button" class="mart-quick-btn btn btn-sm btn-paper font-pixel text-[10px] text-amber-700 font-bold border-amber-400" data-quick="meowth" title="Say hello to Meowth &amp; Amulet Coin">
+          🪙 2. Meowth
+        </button>
+        <button type="button" class="mart-quick-btn btn btn-sm btn-paper font-pixel text-[10px]" data-quick="services-shelf" title="Inspect Engineering Services Shelf">
+          🎒 3. Services
+        </button>
+        <button type="button" class="mart-quick-btn btn btn-sm btn-paper font-pixel text-[10px]" data-quick="tech-tms" title="Browse Technical TMs Shelf">
+          💿 4. Tech TMs
+        </button>
+        <button type="button" class="mart-quick-btn btn btn-sm btn-paper font-pixel text-[10px]" data-quick="potions-shelf" title="Check Dev Potions &amp; Caffeine Fuel">
+          🧪 5. Dev Potions
+        </button>
+        <button type="button" class="mart-quick-btn btn btn-sm btn-paper font-pixel text-[10px]" data-quick="key-showcase" title="Inspect Key Items &amp; Verified CV">
+          🔑 6. Key Items &amp; CV
+        </button>
+        <button type="button" class="mart-quick-btn btn btn-sm btn-paper font-pixel text-[10px]" data-quick="drink-cooler" title="Inspect Drink Cooler">
+          🥤 7. Drink Cooler
+        </button>
+      </div>
+    </nav>
 
     <!-- Catalog Section with Category Filter Tabs -->
     <section class="window p-4 md:p-5 bg-paper border-2 space-y-5" id="mart-catalog">
@@ -501,7 +566,11 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
     </section>
 
     <!-- Interactive Project Inquiry Bag -->
-    <section class="window p-4 md:p-5 bg-gradient-to-r from-blue-900 via-slate-900 to-blue-950 text-paper border-2 space-y-4" id="inquiry-bag-section">
+    <section
+      class="window p-4 md:p-5 bg-gradient-to-r from-blue-900 via-slate-900 to-blue-950 text-paper border-2 space-y-4"
+      id="inquiry-bag-section"
+      data-contact-email={profile.person.email}
+    >
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/20 pb-3">
         <div class="flex items-center gap-2.5">
           <span class="text-2xl">🎒</span>
@@ -645,6 +714,8 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
       if (stored) bag = JSON.parse(stored);
     } catch {}
 
+    const bagSection = document.getElementById('inquiry-bag-section');
+    const contactEmail = bagSection?.getAttribute('data-contact-email') || 'zulfanangga2908@gmail.com';
     const bagCountBadge = document.getElementById('bag-count-badge');
     const bagList = document.getElementById('bag-items-list');
     const clearBtn = document.getElementById('clear-bag-btn');
@@ -662,7 +733,7 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
         bagList.innerHTML = '';
         if (emptyMsg) bagList.appendChild(emptyMsg);
         if (emailBtn) {
-          emailBtn.href = `mailto:zulfanangga2908@gmail.com?subject=Project Inquiry via Poké Mart&body=Hi Zulfan,%0D%0A%0D%0AI visited your Poké Mart and would like to discuss an engineering project with you.`;
+          emailBtn.href = `mailto:${contactEmail}?subject=Project Inquiry via Poké Mart&body=Hi Zulfan,%0D%0A%0D%0AI visited your Poké Mart and would like to discuss an engineering project with you.`;
         }
         return;
       }
@@ -701,7 +772,7 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
       if (emailBtn) {
         const itemsText = bag.map((it, idx) => `${idx + 1}. ${it.name} (${it.price})`).join('%0D%0A');
         const body = `Hi Muhammad Zulfan,%0D%0A%0D%0AI visited your portfolio Poké Mart and would like to inquire about the following services / technical topics:%0D%0A%0D%0A${itemsText}%0D%0A%0D%0APlease let me know your availability and timeline for a discussion.%0D%0A%0D%0ABest regards,`;
-        emailBtn.href = `mailto:zulfanangga2908@gmail.com?subject=Project Inquiry via Poké Mart (${bag.length} items)&body=${body}`;
+        emailBtn.href = `mailto:${contactEmail}?subject=Project Inquiry via Poké Mart (${bag.length} items)&body=${body}`;
       }
     }
 
@@ -722,6 +793,13 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
         bag.push({ id, name, price });
         saveAndRenderBag();
         sfx.select();
+
+        // Trigger 2D Cash Register FX
+        window.dispatchEvent(
+          new CustomEvent('town:mart-cash-anim', {
+            detail: { text: `CHA-CHING! +1 BRIEF` },
+          })
+        );
 
         // Button feedback
         const orig = btn.textContent;
@@ -753,6 +831,11 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
     if (coffeeBtn) {
       coffeeBtn.addEventListener('click', () => {
         sfx.heal();
+        window.dispatchEvent(
+          new CustomEvent('town:mart-cash-anim', {
+            detail: { text: 'SIP! +100% FOCUS' },
+          })
+        );
         const orig = coffeeBtn.textContent;
         coffeeBtn.textContent = '✨ Max Stamina!';
         coffeeBtn.classList.add('bg-emerald-500', 'text-white');
@@ -767,6 +850,11 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
     if (etherBtn) {
       etherBtn.addEventListener('click', () => {
         sfx.heal();
+        window.dispatchEvent(
+          new CustomEvent('town:mart-cash-anim', {
+            detail: { text: 'ETHER! CLEAN ARCH' },
+          })
+        );
         const orig = etherBtn.textContent;
         etherBtn.textContent = '⚡ Code Refactored!';
         etherBtn.classList.add('bg-teal-500', 'text-white');
@@ -782,14 +870,65 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
     if (walletBtn) {
       walletBtn.addEventListener('click', () => {
         sfx.select();
+        window.dispatchEvent(
+          new CustomEvent('town:mart-cash-anim', {
+            detail: { text: 'WALLET: ₽9,999' },
+          })
+        );
         alert('💰 Your Balance: ₽ 9,999 Poké Dollars!\nAll Technical TMs and Zulfan\'s CV are free to download!');
       });
     }
+
+    // Quick Action Bar click listeners
+    const quickButtons = document.querySelectorAll<HTMLButtonElement>('.mart-quick-btn');
+    quickButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const action = btn.getAttribute('data-quick');
+        if (!action) return;
+
+        window.dispatchEvent(new CustomEvent('town:locate', { detail: { propId: action } }));
+        const townCanvas = document.querySelector('.town');
+        if (townCanvas && window.innerWidth < 768) {
+          townCanvas.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+
+    // 📍 Inspect in 2D buttons
+    const inspectButtons = document.querySelectorAll<HTMLButtonElement>('.btn-inspect-2d');
+    inspectButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const propId = btn.getAttribute('data-prop');
+        if (!propId) return;
+
+        window.dispatchEvent(new CustomEvent('town:locate', { detail: { propId } }));
+        const townCanvas = document.querySelector('.town');
+        if (townCanvas) {
+          townCanvas.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      });
+    });
+
+    // 🪙 Toss coin test button
+    const btnTossCoin = document.getElementById('btn-toss-coin-2d');
+    btnTossCoin?.addEventListener('click', () => {
+      sfx.confirm();
+      window.dispatchEvent(
+        new CustomEvent('town:mart-cash-anim', {
+          detail: { text: 'PAY DAY! +₽999' },
+        })
+      );
+      const townCanvas = document.querySelector('.town');
+      if (townCanvas && window.innerWidth < 768) {
+        townCanvas.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
 
     // Initial render
     renderBag();
   }
 
+  document.addEventListener('astro:page-load', initMartPage);
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initMartPage);
   } else {

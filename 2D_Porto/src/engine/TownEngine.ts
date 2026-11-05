@@ -71,6 +71,7 @@ import {
   MART_PROPS,
   createMartBackgroundCanvas,
   renderMartAnimations,
+  triggerCashRegisterAnimation,
 } from './martScene';
 import {
   TOWER_COLS,
@@ -1955,6 +1956,13 @@ export class TownEngine {
     };
     window.addEventListener('town:claim-lucky-egg', onLuckyEgg);
 
+    const onMartCashAnim = (e: Event) => {
+      const ce = e as CustomEvent<{ text?: string }>;
+      triggerCashRegisterAnimation(ce.detail?.text || 'CHA-CHING! +1 BRIEF');
+      this.wake();
+    };
+    window.addEventListener('town:mart-cash-anim', onMartCashAnim);
+
     this.unbindEvents.push(
       () => window.removeEventListener('keydown', onKeyDown),
       () => window.removeEventListener('keyup', onKeyUp),
@@ -1980,7 +1988,8 @@ export class TownEngine {
       () => window.removeEventListener('town:coffee-boost', onCoffeeBoost),
       () => window.removeEventListener('town:tower-floor', onTowerFloor),
       () => window.removeEventListener('town:reception-heal-anim', onReceptionHeal),
-      () => window.removeEventListener('town:claim-lucky-egg', onLuckyEgg)
+      () => window.removeEventListener('town:claim-lucky-egg', onLuckyEgg),
+      () => window.removeEventListener('town:mart-cash-anim', onMartCashAnim)
     );
   }
 
@@ -2264,6 +2273,9 @@ export class TownEngine {
       switch (id) {
         case 'clerk':
           this.walkTo(6, 6);
+          break;
+        case 'meowth':
+          this.walkTo(7, 6);
           break;
         case 'services-shelf':
           this.walkTo(2, 5);
@@ -3569,6 +3581,10 @@ export class TownEngine {
         this.playerDir = 'up';
         this.interactFacing('clerk');
         break;
+      case 'meowth':
+        this.playerDir = 'up';
+        this.interactFacing('meowth');
+        break;
       case 'services-shelf':
         this.playerDir = 'up';
         this.interactFacing('services-shelf');
@@ -4115,32 +4131,102 @@ export class TownEngine {
             if (this.callbacks.onBubble) {
               this.callbacks.onBubble(
                 'Clerk Kevin · Poké Mart',
-                "Welcome to Zulfan's Poké Mart! We supply full-stack web platforms, low-latency TensorRT AI models, and technical consultations. What would you like to inspect?",
-                {
-                  label: 'Browse Catalog',
-                  onClick: () => {
-                    const el = document.getElementById('mart-catalog');
-                    el?.scrollIntoView({ behavior: 'smooth' });
+                "Welcome to Zulfan's Poké Mart! We supply full-stack web platforms, edge TensorRT AI models, and custom software consultations. What would you like to inspect?",
+                [
+                  {
+                    label: '📦 Browse Store Catalog',
+                    onClick: () => {
+                      const el = document.getElementById('mart-catalog');
+                      el?.scrollIntoView({ behavior: 'smooth' });
+                    },
                   },
-                }
+                  {
+                    label: '🪙 Talk to Meowth (Cashier Mascot)',
+                    onClick: () => {
+                      this.walkToObject('meowth');
+                    },
+                  },
+                  {
+                    label: '🎒 Inspect Engineering Services',
+                    onClick: () => {
+                      const tab = document.querySelector<HTMLButtonElement>('[data-mart-tab="services"]');
+                      tab?.click();
+                      const el = document.getElementById('mart-catalog');
+                      el?.scrollIntoView({ behavior: 'smooth' });
+                    },
+                  },
+                  {
+                    label: '🔑 Key Items & CV (PDF)',
+                    onClick: () => {
+                      window.open('/cv/CV_Zulfan.pdf', '_blank');
+                    },
+                  },
+                ]
               );
             } else {
               this.callbacks.onDialogue('Clerk Kevin', [
                 "Welcome to Zulfan's Poké Mart! Browse our software services, developer potions, or pick up Zulfan's official CV below!",
               ]);
             }
+          } else if (prop.target.name === 'meowth') {
+            sfx.confirm();
+            triggerCashRegisterAnimation('CHA-CHING! +1 BRIEF');
+            if (this.callbacks.onBubble) {
+              this.callbacks.onBubble(
+                'Meowth 🪙 (Cashier Mascot & Amulet Coin)',
+                "Meowth! 🪙 Meowth sits proudly by the cash register, polishing its glittering Amulet Coin! 'Pay Day is in full effect! Every engineering sprint commissioned at Zulfan's Poké Mart yields 100% clean architecture and maximum business value!'",
+                [
+                  {
+                    label: '🪙 Toss Coin into Register (Cha-Ching FX)',
+                    onClick: () => {
+                      sfx.confirm();
+                      triggerCashRegisterAnimation('PAY DAY! +₽999');
+                      this.wake();
+                    },
+                  },
+                  {
+                    label: '👨‍💼 Talk to Clerk Kevin',
+                    onClick: () => {
+                      this.walkToObject('clerk');
+                    },
+                  },
+                  {
+                    label: '🎒 Browse Services Shelf',
+                    onClick: () => {
+                      this.walkToObject('services-shelf');
+                    },
+                  },
+                  {
+                    label: '🔑 View Key Items & CV',
+                    onClick: () => {
+                      this.walkToObject('key-showcase');
+                    },
+                  },
+                ]
+              );
+            }
           } else if (prop.target.name === 'services-shelf') {
             if (this.callbacks.onBubble) {
               this.callbacks.onBubble(
                 'Engineering Services Shelf 🎒',
                 'Custom software solutions ready for commission: Full-Stack Web Development (Laravel 12 / Next.js) and Edge AI Computer Vision (YOLOv11 + TensorRT ~1.8ms/frame).',
-                {
-                  label: 'Commission Services',
-                  onClick: () => {
-                    const el = document.getElementById('item-service-fullstack');
-                    el?.scrollIntoView({ behavior: 'smooth' });
+                [
+                  {
+                    label: '🎒 View Services (Scroll Panel)',
+                    onClick: () => {
+                      const tab = document.querySelector<HTMLButtonElement>('[data-mart-tab="services"]');
+                      tab?.click();
+                      const el = document.getElementById('mart-catalog');
+                      el?.scrollIntoView({ behavior: 'smooth' });
+                    },
                   },
-                }
+                  {
+                    label: '👨‍💼 Ask Clerk Kevin',
+                    onClick: () => {
+                      this.walkToObject('clerk');
+                    },
+                  },
+                ]
               );
             }
           } else if (prop.target.name === 'tech-tms') {
@@ -4148,42 +4234,71 @@ export class TownEngine {
               this.callbacks.onBubble(
                 'Technical TMs & Stack Discs 💿',
                 'Inscribe cutting-edge technologies into your codebase: Python & PyTorch, TypeScript & Astro, Laravel 12 & PHP, Docker & Kubernetes, and TensorRT & CUDA.',
-                {
-                  label: 'Explore Tech TMs',
-                  onClick: () => {
-                    const tab = document.querySelector<HTMLButtonElement>('[data-tab="tech"]');
-                    tab?.click();
-                    const el = document.getElementById('mart-catalog');
-                    el?.scrollIntoView({ behavior: 'smooth' });
+                [
+                  {
+                    label: '💿 Explore Tech TMs (Scroll Panel)',
+                    onClick: () => {
+                      const tab = document.querySelector<HTMLButtonElement>('[data-mart-tab="tms"]');
+                      tab?.click();
+                      const el = document.getElementById('mart-catalog');
+                      el?.scrollIntoView({ behavior: 'smooth' });
+                    },
                   },
-                }
+                  {
+                    label: '🔬 Open Research Lab (/lab)',
+                    onClick: () => {
+                      this.callbacks.onNavigate('/lab');
+                    },
+                  },
+                ]
               );
             }
           } else if (prop.target.name === 'potions-shelf') {
             if (this.callbacks.onBubble) {
               this.callbacks.onBubble(
                 'Dev Potions & Productivity Boosters 🧪',
-                'Essential engineer supplies: Bandung Specialty Espresso (+50% Focus), Clean Architecture Ether (100% Code Quality), and Git Full Restore.',
-                {
-                  label: 'Inspect Potions',
-                  onClick: () => {
-                    const tab = document.querySelector<HTMLButtonElement>('[data-tab="potions"]');
-                    tab?.click();
-                    const el = document.getElementById('mart-catalog');
-                    el?.scrollIntoView({ behavior: 'smooth' });
+                'Essential engineer supplies: Bandung Specialty Espresso (+100% Focus), Clean Architecture Ether (100% Code Quality), and Git Full Restore.',
+                [
+                  {
+                    label: '🧪 Inspect Potions (Scroll Panel)',
+                    onClick: () => {
+                      const tab = document.querySelector<HTMLButtonElement>('[data-mart-tab="potions"]');
+                      tab?.click();
+                      const el = document.getElementById('mart-catalog');
+                      el?.scrollIntoView({ behavior: 'smooth' });
+                    },
                   },
-                }
+                  {
+                    label: '☕ Grab Cold Brew at Cooler',
+                    onClick: () => {
+                      this.walkToObject('drink-cooler');
+                    },
+                  },
+                ]
               );
             }
           } else if (prop.target.name === 'key-showcase') {
             if (this.callbacks.onBubble) {
               this.callbacks.onBubble(
                 'Key Items Pedestal & CV 🔑',
-                "Pedestal showcasing Muhammad Zulfan's ITENAS Informatics Diploma (GPA 3.49), AeroScan AI Weights, and Official CV / Résumé.",
-                {
-                  label: 'Download CV (PDF)',
-                  href: '/cv/CV_Zulfan.pdf',
-                }
+                "Pedestal showcasing Muhammad Zulfan's ITENAS Informatics Diploma (GPA 3.49/4.00), AeroScan AI Weights, and Official CV / Résumé.",
+                [
+                  {
+                    label: '📄 Download Official CV (PDF)',
+                    onClick: () => {
+                      window.open('/cv/CV_Zulfan.pdf', '_blank');
+                    },
+                  },
+                  {
+                    label: '🔑 Inspect Key Shelf (Scroll Panel)',
+                    onClick: () => {
+                      const tab = document.querySelector<HTMLButtonElement>('[data-mart-tab="key"]');
+                      tab?.click();
+                      const el = document.getElementById('mart-catalog');
+                      el?.scrollIntoView({ behavior: 'smooth' });
+                    },
+                  },
+                ]
               );
             }
           } else {
@@ -6011,6 +6126,7 @@ export class TownEngine {
     if (this.currentScene === 'mart') {
       const martLabels: Record<string, { x: number; y: number; w: number; h: number; lift?: number }> = {
         clerk: { x: 6, y: 3, w: 1, h: 1, lift: 1.1 },
+        meowth: { x: 7, y: 3, w: 1, h: 1, lift: 1.1 },
         'services-shelf': { x: 1, y: 3, w: 3, h: 2, lift: 0.75 },
         'tech-tms': { x: 10, y: 3, w: 3, h: 2, lift: 0.75 },
         'potions-shelf': { x: 1, y: 7, w: 3, h: 2, lift: 0.75 },

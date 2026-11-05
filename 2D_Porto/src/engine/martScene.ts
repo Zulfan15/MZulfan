@@ -55,6 +55,19 @@ export const MART_PROPS: MartProp[] = [
     hint: 'Talk to Clerk Kevin 🏪',
   },
   {
+    id: 'meowth',
+    kind: 'npc',
+    x: 7,
+    y: 3,
+    w: 1,
+    h: 1,
+    target: { type: 'event', name: 'meowth' },
+    label: 'Meowth · Cashier Mascot',
+    style: 'meowth',
+    labelLift: 18,
+    hint: 'Say hello to Meowth 🪙',
+  },
+  {
     id: 'services-shelf',
     kind: 'prop',
     x: 1,
@@ -487,8 +500,53 @@ function drawCashierCounter(
   ctx.fillRect(x + w - 18, y + 3, 4, 1);
 }
 
+interface CashParticle {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  alpha: number;
+  life: number;
+  maxLife: number;
+  size: number;
+  color: string;
+}
+
+let cashParticles: CashParticle[] = [];
+let floatingCashText: { text: string; alpha: number; y: number } | null = null;
+let registerFlashTimer = 0;
+
+export function triggerCashRegisterAnimation(text = 'CHA-CHING! +1 BRIEF') {
+  registerFlashTimer = 35;
+  floatingCashText = {
+    text: `[${text}]`,
+    alpha: 1,
+    y: 4 * TILE_SIZE - 6,
+  };
+
+  const regCenterX = 4 * TILE_SIZE + 18;
+  const regCenterY = 4 * TILE_SIZE - 2;
+
+  // Spawn 18 golden coin & sparkle particles
+  for (let i = 0; i < 18; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 0.8 + Math.random() * 1.6;
+    cashParticles.push({
+      x: regCenterX,
+      y: regCenterY,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed - 1.2,
+      alpha: 1,
+      life: 0,
+      maxLife: 0.6 + Math.random() * 0.4,
+      size: Math.random() > 0.4 ? 3 : 2,
+      color: Math.random() > 0.5 ? '#f59e0b' : '#fef08a',
+    });
+  }
+}
+
 /**
- * Animated dynamic layer (Clerk Kevin idle animation, blinking lights)
+ * Animated dynamic layer (Clerk Kevin & Meowth idle animation, cash register, blinking lights)
  */
 export function renderMartAnimations(ctx: CanvasRenderingContext2D, tick: number) {
   ctx.save();
@@ -532,7 +590,82 @@ export function renderMartAnimations(ctx: CanvasRenderingContext2D, tick: number
   ctx.fillStyle = '#f59e0b'; // Name badge
   ctx.fillRect(clerkX + 8, clerkY + 11 + bob, 2, 2);
 
-  // 2. Glowing Pedestal Spotlight Animation
+  // 2. Meowth Sprite at (7, 3) behind the counter
+  const meowthX = 7 * TILE_SIZE;
+  const meowthY = 3 * TILE_SIZE;
+  const meowthBob = Math.floor(Math.sin((tick + 8) / 14) * 1.2);
+
+  // Meowth Shadow
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.3)';
+  ctx.beginPath();
+  ctx.ellipse(meowthX + 8, meowthY + 15, 5, 2, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Curled Tail on right side with brown tip
+  ctx.strokeStyle = '#fef3c7';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.arc(meowthX + 13, meowthY + 10 + meowthBob, 4, Math.PI * 0.5, Math.PI * 1.8);
+  ctx.stroke();
+  ctx.fillStyle = '#78350f'; // Brown tail tip
+  ctx.fillRect(meowthX + 13, meowthY + 6 + meowthBob, 2, 2);
+
+  // Meowth Feet / Paws (Brown)
+  ctx.fillStyle = '#78350f';
+  ctx.fillRect(meowthX + 4, meowthY + 13, 3, 2);
+  ctx.fillRect(meowthX + 9, meowthY + 13, 3, 2);
+
+  // Body (Cream / Tan)
+  ctx.fillStyle = '#fef3c7';
+  ctx.fillRect(meowthX + 4, meowthY + 8 + meowthBob, 8, 6);
+
+  // Ears (Pointed brown with pink interior)
+  ctx.fillStyle = '#78350f'; // Dark brown outer
+  ctx.fillRect(meowthX + 3, meowthY + 1 + meowthBob, 3, 4);
+  ctx.fillRect(meowthX + 10, meowthY + 1 + meowthBob, 3, 4);
+  ctx.fillStyle = '#f472b6'; // Pink inner
+  ctx.fillRect(meowthX + 4, meowthY + 2 + meowthBob, 1, 2);
+  ctx.fillRect(meowthX + 11, meowthY + 2 + meowthBob, 1, 2);
+
+  // Head (Cream / Tan)
+  ctx.fillStyle = '#fef3c7';
+  ctx.fillRect(meowthX + 4, meowthY + 3 + meowthBob, 8, 6);
+
+  // Whiskers (Black lines on cheeks)
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(meowthX + 2, meowthY + 5 + meowthBob, 2, 1);
+  ctx.fillRect(meowthX + 2, meowthY + 7 + meowthBob, 2, 1);
+  ctx.fillRect(meowthX + 12, meowthY + 5 + meowthBob, 2, 1);
+  ctx.fillRect(meowthX + 12, meowthY + 7 + meowthBob, 2, 1);
+
+  // Eyes (Big playful anime eyes)
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(meowthX + 5, meowthY + 5 + meowthBob, 2, 2);
+  ctx.fillRect(meowthX + 9, meowthY + 5 + meowthBob, 2, 2);
+  ctx.fillStyle = '#ffffff'; // White glint
+  ctx.fillRect(meowthX + 5, meowthY + 5 + meowthBob, 1, 1);
+  ctx.fillRect(meowthX + 9, meowthY + 5 + meowthBob, 1, 1);
+
+  // Pink cute nose & smile
+  ctx.fillStyle = '#f43f5e';
+  ctx.fillRect(meowthX + 7, meowthY + 7 + meowthBob, 2, 1);
+
+  // Golden Koban Amulet Coin on forehead
+  ctx.fillStyle = '#d97706'; // Coin outer rim
+  ctx.fillRect(meowthX + 6, meowthY + 1 + meowthBob, 4, 4);
+  ctx.fillStyle = '#f59e0b'; // Gold coin body
+  ctx.fillRect(meowthX + 7, meowthY + 1 + meowthBob, 2, 4);
+  ctx.fillStyle = '#fef08a'; // Golden gleam
+  ctx.fillRect(meowthX + 7, meowthY + 2 + meowthBob, 2, 1);
+
+  // Sparkling gleam every 45 ticks
+  if (tick % 45 < 12) {
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(meowthX + 8, meowthY + 1 + meowthBob, 1, 1);
+    ctx.fillRect(meowthX + 6, meowthY + 3 + meowthBob, 1, 1);
+  }
+
+  // 3. Glowing Pedestal Spotlight Animation
   const glowAlpha = 0.15 + Math.sin(tick / 20) * 0.08;
   const pedCenterX = 11.5 * TILE_SIZE;
   const pedCenterY = 7.5 * TILE_SIZE;
@@ -544,10 +677,66 @@ export function renderMartAnimations(ctx: CanvasRenderingContext2D, tick: number
   ctx.arc(pedCenterX, pedCenterY, 28, 0, Math.PI * 2);
   ctx.fill();
 
-  // 3. Cash Register LED Blinking
+  // 4. Cash Register LED Blinking & Flash
   const blink = (Math.floor(tick / 24) % 2 === 0);
   ctx.fillStyle = blink ? '#34d399' : '#059669';
   ctx.fillRect(4 * TILE_SIZE + 15, 4 * TILE_SIZE - 2, 4, 1);
+
+  // Cash Register Flash & Cha-Ching Particles
+  if (registerFlashTimer > 0) {
+    registerFlashTimer--;
+
+    // Flash register screen gold
+    ctx.fillStyle = (registerFlashTimer % 6 < 3) ? '#fef08a' : '#f59e0b';
+    ctx.fillRect(4 * TILE_SIZE + 12, 4 * TILE_SIZE - 4, 14, 10);
+    ctx.fillStyle = '#10b981';
+    ctx.fillRect(4 * TILE_SIZE + 14, 4 * TILE_SIZE - 2, 10, 4);
+
+    // Glowing aura over register
+    ctx.fillStyle = 'rgba(245, 158, 11, 0.25)';
+    ctx.beginPath();
+    ctx.arc(4 * TILE_SIZE + 18, 4 * TILE_SIZE + 2, 20, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Draw floating cash text
+  if (floatingCashText) {
+    floatingCashText.y -= 0.35;
+    floatingCashText.alpha -= 0.018;
+
+    if (floatingCashText.alpha <= 0) {
+      floatingCashText = null;
+    } else {
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, floatingCashText.alpha);
+      drawPixelText(ctx, floatingCashText.text, 4 * TILE_SIZE - 6, Math.floor(floatingCashText.y), '#fef08a');
+      ctx.restore();
+    }
+  }
+
+  // Draw & update cash particles
+  for (let i = cashParticles.length - 1; i >= 0; i--) {
+    const p = cashParticles[i];
+    p.life += 0.02;
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vy += 0.06; // gravity
+    p.alpha = 1 - p.life / p.maxLife;
+
+    if (p.life >= p.maxLife || p.alpha <= 0) {
+      cashParticles.splice(i, 1);
+      continue;
+    }
+
+    ctx.save();
+    ctx.globalAlpha = Math.max(0, p.alpha);
+    ctx.fillStyle = p.color;
+    ctx.fillRect(Math.floor(p.x), Math.floor(p.y), p.size, p.size);
+    // Extra coin shine
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(Math.floor(p.x), Math.floor(p.y), 1, 1);
+    ctx.restore();
+  }
 
   ctx.restore();
 }
