@@ -1165,7 +1165,9 @@ const dataPlaceRooms = {
     const showBubble = (
       title: string,
       text: string,
-      action?: { label: string; href?: string; onClick?: () => void }
+      action?:
+        | { label: string; href?: string; onClick?: () => void }
+        | { label: string; href?: string; onClick?: () => void }[]
     ) => {
       if (!bubble) return;
       bubble.innerHTML = '';
@@ -1179,28 +1181,35 @@ const dataPlaceRooms = {
       span.textContent = text;
       bubble.appendChild(span);
 
-      if (action) {
-        if (action.href) {
-          const a = document.createElement('a');
-          a.className = 'town-bubble__action';
-          a.href = action.href;
-          a.target = action.href.startsWith('http') ? '_blank' : '_self';
-          if (a.target === '_blank') a.rel = 'noopener noreferrer';
-          a.textContent = `${action.label} ➜`;
-          bubble.appendChild(a);
-          bubbleActionLink = a;
-        } else if (action.onClick) {
-          const btn = document.createElement('button');
-          btn.type = 'button';
-          btn.className = 'town-bubble__action';
-          btn.textContent = `${action.label} ➜`;
-          btn.onclick = () => {
-            hideBubble();
-            action.onClick?.();
-          };
-          bubble.appendChild(btn);
-          bubbleActionLink = btn;
+      const actionsList = Array.isArray(action) ? action : action ? [action] : [];
+      if (actionsList.length > 0) {
+        const actionWrap = document.createElement('div');
+        actionWrap.className = 'town-bubble__actions flex flex-wrap items-center gap-1.5 mt-2';
+        for (let idx = 0; idx < actionsList.length; idx++) {
+          const act = actionsList[idx];
+          if (act.href) {
+            const a = document.createElement('a');
+            a.className = 'town-bubble__action';
+            a.href = act.href;
+            a.target = act.href.startsWith('http') ? '_blank' : '_self';
+            if (a.target === '_blank') a.rel = 'noopener noreferrer';
+            a.textContent = `${act.label} ➜`;
+            actionWrap.appendChild(a);
+            if (idx === 0) bubbleActionLink = a;
+          } else if (act.onClick) {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'town-bubble__action';
+            btn.textContent = `${act.label} ➜`;
+            btn.onclick = () => {
+              hideBubble();
+              act.onClick?.();
+            };
+            actionWrap.appendChild(btn);
+            if (idx === 0) bubbleActionLink = btn;
+          }
         }
+        bubble.appendChild(actionWrap);
       }
 
       const hint = document.createElement('span');

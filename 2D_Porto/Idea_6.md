@@ -134,21 +134,43 @@ Namun, dari sisi **kenyamanan pengguna (User Experience)** dan **daya tarik inte
 
 ---
 
-### FASE 4: Interaksi Pokémon Lebih Hidup ("Follower System & Hall of Legends")
-**Target File**: `src/engine/TownEngine.ts`, `src/engine/map.ts`, `src/components/TownCanvas.astro`
+### FASE 4: Interaksi Pokémon Lebih Hidup ("Follower System & Hall of Legends") - ✅ [SELESAI]
+**Target File**: `src/engine/TownEngine.ts`, `src/engine/map.ts`, `src/components/TownCanvas.astro`, `src/components/CommandPalette.astro`
 
 1. **🐾 Sistem "Choose Your Walking Partner" (Follower Pokémon)**:
-   - Saat ini Pikachu selalu mengikuti pemain di belakang.
-   - Tambahkan tombol **`🤝 Ajak Jalan Bersama`** pada balon dialog ketika pemain menyapa Pokémon di kota (seperti **Lucario, Charizard, Tyranitar, Garchomp, Urshifu, Rayquaza, Mewtwo**, dll.).
-   - Pokémon yang dipilih akan menjadi *Follower* aktif yang berjalan mengikuti 1 tile di belakang pemain ke mana pun pemain pergi!
+   - Pemain dapat memilih Pokémon kota favorit (**Lucario, Charizard, Tyranitar, Garchomp, Urshifu, Rayquaza, Mewtwo, Arceus, Dialga, Palkia, Pikachu**) sebagai partner jalan aktif melalui tombol dialog **`🤝 Ajak Jalan Bersama`** maupun via Pokénav Command Palette (`Ctrl+K`).
+   - Pokémon pendamping berjalan mulus tepat 1 petak di belakang pemain dengan animasi melangkah (*step bob*), napas santai (*idle bob*), balik arah horizontal otomatis saat melangkah ke kiri/kanan, bayangan kontak tanah, serta gelembung ekspresi hati (`❤️`) saat dipilih.
+   - Mengikuti pemain dalam semua mode mobilitas (jalan normal, *Running Shoes*, melaju kencang di atas *Mach Bike*, maupun teleportasi instan *HM02 Fly*).
+   - Posisi rendering diurutkan secara dinamis (*depth sorting*): jika posisi target follower berada di utara pemain, follower digambar di belakang pemain; jika di selatan pemain, follower digambar di depan pemain.
+   - Pilihan partner tersimpan permanen di `localStorage['town:active_follower']` sehingga partner tetap setia mendampingi saat halaman direfresh atau berpindah rute.
+   - Pilihan "Istirahatkan Walking Partner" tersedia untuk kembali bereksplorasi secara solo.
+
 2. **⚡ Efek Jurus Ikonik (Signature Move Visual Burst)**:
-   - Saat menekan tombol aksi pada dialog Pokémon (seperti *Flamethrower* pada Charizard, *Sandstorm* pada Tyranitar, *Dragon Claw* pada Garchomp, *G-Max Rapid Flow* pada Urshifu), tampilkan animasi kanvas spesial selama 1.5 detik (getaran kamera halus + semburan partikel warna jurus di sekitar Pokémon tersebut).
+   - Menekan tombol aksi jurus pada dialog Pokémon memicu getaran kamera halus (*screen shake*) selama ~1.5 detik disertai semburan 35–50 partikel tematik berkecepatan tinggi:
+     - **🔥 Charizard**: *Flamethrower* (semburan api menyala oranye, merah, kuning membakar ke atas).
+     - **🪨 Tyranitar**: *Sandstorm* (badai pusaran pasir gurun berputar tebal cokelat keemasan).
+     - **🦈 Garchomp**: *Dragon Claw* (tebasan cakar naga cyan supersonik tajam).
+     - **🌊 Urshifu**: *G-Max Rapid Flow* (aliran deras semburan air wushu biru samudra beruntun).
+     - **🌀 Lucario**: *Aura Sphere* (pancaran bola aura biru nila berpendar).
+     - **🔮 Mewtwo**: *Psystrike* (gelombang energi psikis ungu/magenta berdenyut).
+     - **✨ Arceus**: *Judgment* (hujan berkas cahaya kosmik keemasan dari langit).
+     - **⏳ Dialga**: *Roar of Time* (distorsi waktu gelombang biru kristal temporal).
+     - **🌌 Palkia**: *Spacial Rend* (riak pemecah ruang merah muda mutiara kosmik).
+     - **🐉 Rayquaza**: *Delta Stream* (hembusan angin badai hijau zamrud ozon).
+
 3. **🏛️ Koneksi Pokémon dengan Keahlian Portofolio ("Tech Guardian Lore")**:
-   - Setiap Pokémon di koridor tengah dapat merepresentasikan satu pilar keahlian Zulfan di kartu dialognya:
-     - **Mewtwo**: *AI Agents, LLM & Deep Learning*
-     - **Dialga & Palkia**: *High-Performance Backend, Rust/WASM & Spatial Computing*
-     - **Charizard & Garchomp**: *Full-Stack Web Engineering & Competitive Problem Solving*
-     - **Arceus**: *System Architecture & End-to-End Product Delivery*
+   - Setiap Pokémon di koridor kota dan penempatan custom merepresentasikan pilar keahlian rekayasa perangkat lunak Zulfan:
+     - **Mewtwo**: *Tech Guardian: AI Agents, LLM Orchestration & Deep Learning* (penalaran multi-agent cerdas dan otomatisasi AI).
+     - **Dialga**: *Tech Guardian: Time-Critical Backend, Rust/WASM & Microservices* (latensi real-time rendah dan sinkronisasi data presisi).
+     - **Palkia**: *Tech Guardian: Spatial Computing & Distributed Cloud Infrastructure* (arsitektur awan tanpa batas dimensi).
+     - **Charizard**: *Tech Guardian: Full-Stack Web Engineering & Scalable Cloud Apps* (aplikasi web modern performa kilat).
+     - **Garchomp**: *Tech Guardian: High-Speed Algorithms, Optimization & Clean Code* (eksekusi logika secepat jet supersonik).
+     - **Tyranitar**: *Tech Guardian: Bulletproof Security, Resilient Database & Infrastructure* (tahan banting menghadapi lonjakan traffic).
+     - **Urshifu**: *Tech Guardian: Agile Execution, Rapid Prototyping & Flow State UI/UX* (solusi kilat dan tangguh).
+     - **Arceus**: *Tech Guardian: Enterprise System Architecture & End-to-End Product Vision* (merancang fondasi menyeluruh dari nol hingga tahap produksi).
+     - **Rayquaza**: *Tech Guardian: DevOps, CI/CD Cloud Pipelines & High-Availability* (menjaga stabilitas operasional 99.99%).
+     - **Lucario / Digital Twin**: *Tech Guardian: Intuitive UI/UX Design & Human-Centric Frontend* (merasakan kebutuhan pengguna secara empatik).
+   - Dialog bubble kini mendukung aksi ganda/multipel (*flexible button pill tags*) sehingga pemain bisa menikmati jurus signature, mengajak jalan bersama, maupun membuka encounter mini-game secara bersamaan.
 
 ---
 
@@ -189,21 +211,24 @@ Namun, dari sisi **kenyamanan pengguna (User Experience)** dan **daya tarik inte
 | **1** | **Fase 1** (Run/Bike, Path Preview, HM Fly Map, Live Radar) | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ✅ **SELESAI (Completed)** |
 | **2** | **Fase 2** (`Ctrl+K` Search, Panel Mode, Clean HUD) | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ✅ **SELESAI (Completed)** |
 | **3** | **Fase 3** (HUD Time/Weather Toggle & 8-Bit BGM) | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ✅ **SELESAI (Completed)** |
-| **4** | **Fase 4** (Switchable Follower Pokémon & Move FX) | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⏳ *Menunggu Instruksi User* |
+| **4** | **Fase 4** (Switchable Follower Pokémon & Move FX) | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ✅ **SELESAI (Completed)** |
 | **5** | **Fase 5** (Trainer Stamp Rally / Quest Guide) | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⏳ *Menunggu Instruksi User* |
 | **6** | **Fase 6** (Mobile Virtual GameBoy Controls) | ⭐⭐⭐⭐⭐ (Mobile) | ⭐⭐⭐⭐ | ⏳ *Menunggu Instruksi User* |
 
 ---
 
 ## ✅ Checklist Verifikasi
-- [x] `npm --prefix 2D_Porto run build` berjalan dengan **0 error** (11 halaman static terkompilasi).
+- [x] `npm --prefix 2D_Porto run build` berjalan dengan **0 error** (11 halaman static terkompilasi dalam ~2.3 detik).
 - [x] Semua fitur mobilitas & navigasi Fase 1 tetap super ringan (< 2.5s build time), menggunakan *vanilla TypeScript*, *HTML5 Canvas* & *Web Audio API* tanpa dependency eksternal.
 - [x] Navigasi cepat HM02 Fly di Town Map modal menjangkau 15 lokasi lengkap dengan teleportasi instan dan feedback audio chiptune.
-- [x] Pokénav Command Palette (`Ctrl+K`) memungkinkan pencarian instan skill, download CV, salin email, dan teleportasi dalam **< 2 detik**.
+- [x] Pokénav Command Palette (`Ctrl+K`) memungkinkan pencarian instan skill, download CV, salin email, pemilihan partner Pokémon, dan teleportasi dalam **< 2 detik**.
 - [x] Panel bacaan konten memiliki 3 preset fleksibel (`Peta` 70:30, `50:50` Seimbang, `Baca` Reader Mode) yang responsif dan tersimpan di `localStorage`.
 - [x] Bar atas HUD publik terlihat bersih, profesional, dan rapi dengan pengelompokan alat teknis ke tombol popover **`⚙️ Dev`**.
 - [x] Kontrol waktu instan di HUD (`☀️ Siang`, `🌅 Senja`, `🌙 Malam`) menghadirkan pencahayaan kota dinamis, jendela gedung menyala hangat di malam hari, dan kunang-kunang bioluminescent.
 - [x] Sistem cuaca dinamis 3-mode (`🌸 Sakura`, `🌧️ Hujan Lo-Fi`, `✨ Hujan Meteor`) memperkaya atmosfer interaktif kanvas dengan riak air dan debu bintang.
 - [x] Generator musik latar 8-bit Lo-Fi Web Audio API (0 KB file audio) mengiringi penjelajahan dengan 3 variasi tema nostalgik yang selaras dengan suasana waktu.
+- [x] Pemain dapat memilih Partner Pokémon jalan (Lucario, Charizard, Tyranitar, Garchomp, Urshifu, Rayquaza, Mewtwo, Arceus, Dialga, Palkia, Pikachu) yang berjalan 1 petak di belakang pemain dengan animasi mulus dan depth sorting.
+- [x] Setiap Pokémon memiliki tombol aksi visual jurus ikonik (*Signature Move Visual Burst*) dengan getaran kamera dan semburan 35–50 partikel khas elemen.
+- [x] Narasi Pokémon koridor kota terhubung dengan pilar keahlian rekayasa teknologi Zulfan (*Tech Guardian Lore*).
 - [x] Pengunjung santai maupun recruiter mendapatkan pengalaman eksplorasi ala game Pokémon yang responsif, visual dinamis, dan intuitif.
 
