@@ -3955,6 +3955,12 @@ export class TownEngine {
                 'Hardware & IoT Research Facility: Track record as ITENAS Robotics Laboratory Coordinator (kinematics curriculum, multimodal sensors, microcontrollers) and the ESP32 Remote Control Tank prototype with live web telemetry.',
                 [
                   {
+                    label: '🎮 Launch ESP32 RC Tank Testbench',
+                    onClick: () => {
+                      window.dispatchEvent(new CustomEvent('tower:open-tank-sandbox'));
+                    },
+                  },
+                  {
                     label: '📜 View 2F Robotics & RC Tank Details',
                     onClick: () => {
                       window.dispatchEvent(new CustomEvent('town:focus-department', { detail: { floor: '2F', propId: 'robotics-bay' } }));

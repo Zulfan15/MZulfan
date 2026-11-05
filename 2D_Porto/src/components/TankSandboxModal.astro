@@ -1,0 +1,1035 @@
+---
+// TankSandboxModal.astro — Interactive ESP32 RC Tank Kinematics & Robotics Telemetry Testbench
+// Showcases Muhammad Zulfan's ITENAS Robotics Lab Coordinator leadership & IoT hardware engineering
+---
+
+<dialog
+  id="tank-sandbox-modal"
+  class="tank-modal backdrop:bg-slate-950/80 backdrop:backdrop-blur-sm"
+  aria-labelledby="tank-modal-title"
+>
+  <div class="tank-card window p-0 overflow-hidden bg-slate-900 border-2 border-emerald-500/60 shadow-2xl text-slate-100 flex flex-col max-h-[92vh] w-[95vw] max-w-4xl">
+    <!-- Top Header Bar -->
+    <header class="bg-slate-950 px-4 py-2.5 border-b-2 border-emerald-500/40 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-2.5 flex-wrap">
+        <span class="text-xl">🤖</span>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="chip bg-emerald-950 text-emerald-400 border border-emerald-700/60 font-mono text-[9px] px-1.5 py-0.5 font-bold uppercase tracking-wider">
+              ESP32-WROOM-32D · Dual-Core 240MHz
+            </span>
+            <span class="chip bg-sky-950 text-sky-400 border border-sky-700/60 font-mono text-[9px] px-1.5 py-0.5 font-bold uppercase tracking-wider">
+              FreeRTOS v10.4
+            </span>
+          </div>
+          <h2 id="tank-modal-title" class="font-pixel text-xs text-white tracking-wide mt-0.5">
+            ESP32 RC Tank Kinematics & Telemetry Testbench
+          </h2>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button
+          type="button"
+          id="btn-close-tank-modal"
+          class="btn btn-sm bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-600 font-pixel text-xs px-2.5 py-1 transition-colors"
+          aria-label="Close Testbench"
+        >
+          ✕ CLOSE
+        </button>
+      </div>
+    </header>
+
+    <!-- Telemetry Real-time Metric Bar -->
+    <div class="bg-slate-950/90 px-4 py-2 border-b border-slate-800 grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-mono">
+      <div class="flex items-center gap-2">
+        <span class="text-emerald-400">🔋</span>
+        <div>
+          <span class="text-slate-400 text-[10px] block">BATTERY (3S Li-Po)</span>
+          <span class="text-emerald-300 font-bold" id="telemetry-battery">12.38 V (94%)</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-sky-400">📶</span>
+        <div>
+          <span class="text-slate-400 text-[10px] block">WIFI 802.11 b/g/n</span>
+          <span class="text-sky-300 font-bold" id="telemetry-wifi">-46 dBm (98%)</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-amber-400">⏱️</span>
+        <div>
+          <span class="text-slate-400 text-[10px] block">WEBSOCKET PING</span>
+          <span class="text-amber-300 font-bold" id="telemetry-ping">12 ms</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-rose-400">🛡️</span>
+        <div>
+          <span class="text-slate-400 text-[10px] block">ULTRASONIC FAILSAFE</span>
+          <span class="text-emerald-400 font-bold" id="telemetry-status">ARMED (&lt;15cm HALT)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Sandbox Content (Scrollable) -->
+    <div class="p-4 overflow-y-auto space-y-4 flex-1 bg-slate-900/95">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        <!-- Left: Kinematics 2D Arena Canvas (7 Cols) -->
+        <div class="lg:col-span-7 flex flex-col space-y-2">
+          <div class="flex items-center justify-between text-xs font-mono">
+            <span class="text-slate-300 font-bold flex items-center gap-1.5">
+              <span>🎯</span>
+              <span>TEST ARENA (Click to place obstacle / WASD to drive)</span>
+            </span>
+            <span class="text-emerald-400 text-[11px]" id="tank-obstacle-counter">Obstacles: 4</span>
+          </div>
+
+          <!-- Simulation Canvas Wrapper -->
+          <div class="relative rounded-lg overflow-hidden border-2 border-slate-700 bg-slate-950 shadow-inner flex items-center justify-center">
+            <canvas
+              id="tank-arena-canvas"
+              width="440"
+              height="300"
+              class="w-full h-auto block cursor-crosshair select-none"
+              title="Click arena to deploy obstacle cone"
+            ></canvas>
+
+            <!-- Overlay Ultrasonic Distance HUD -->
+            <div class="absolute top-2.5 left-2.5 bg-slate-900/85 backdrop-blur-sm border border-slate-700 rounded px-2.5 py-1 font-mono text-[11px] shadow">
+              <span class="text-slate-400">SONAR RANGE:</span>
+              <span id="canvas-sonar-hud" class="font-bold text-emerald-400 ml-1">42.8 cm</span>
+            </div>
+
+            <!-- Overlay Mode Badge -->
+            <div class="absolute top-2.5 right-2.5 bg-slate-900/85 backdrop-blur-sm border border-slate-700 rounded px-2.5 py-1 font-mono text-[11px] shadow">
+              <span class="text-slate-400">MODE:</span>
+              <span id="canvas-mode-hud" class="font-bold text-sky-400 ml-1">MANUAL RC</span>
+            </div>
+
+            <!-- Collision Alert Banner (Flashes when obstacle is close) -->
+            <div
+              id="canvas-collision-alert"
+              class="absolute bottom-2.5 left-1/2 -translate-x-1/2 bg-rose-950/90 border border-rose-500 text-rose-300 text-[10px] font-mono px-3 py-1 rounded shadow hidden animate-pulse"
+            >
+              ⚠️ PROXIMITY ALERT: DISTANCE &lt; 20 CM!
+            </div>
+          </div>
+
+          <!-- Arena Toolbar Quick Buttons -->
+          <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
+            <div class="flex items-center gap-2">
+              <button
+                type="button"
+                id="btn-tank-ping"
+                class="btn btn-sm bg-slate-800 hover:bg-slate-700 text-sky-300 border border-sky-500/50 font-mono text-[10px] px-2 py-1"
+                title="Send active ultrasonic sonar sweep"
+              >
+                📡 Radar Ping
+              </button>
+              <button
+                type="button"
+                id="btn-tank-spawn-obstacles"
+                class="btn btn-sm bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/50 font-mono text-[10px] px-2 py-1"
+                title="Scatter random obstacle cones"
+              >
+                🧱 Scatter Cones
+              </button>
+              <button
+                type="button"
+                id="btn-tank-clear-obstacles"
+                class="btn btn-sm bg-slate-800 hover:bg-slate-700 text-slate-400 border border-slate-600 font-mono text-[10px] px-2 py-1"
+                title="Reset arena obstacles"
+              >
+                🔄 Reset Arena
+              </button>
+            </div>
+            <span class="text-slate-500 text-[10px] font-mono">Controls: W/A/S/D or Click D-Pad</span>
+          </div>
+        </div>
+
+        <!-- Right: Hardware Controls & Live Telemetry Console (5 Cols) -->
+        <div class="lg:col-span-5 flex flex-col space-y-3">
+          <!-- Mode Switcher -->
+          <div class="p-2.5 rounded-lg bg-slate-950 border border-slate-800 space-y-2">
+            <span class="text-slate-400 text-[11px] font-mono uppercase block font-bold">
+              Operating Controller Mode
+            </span>
+            <div class="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                id="btn-mode-manual"
+                class="btn btn-sm bg-sky-600 text-white border border-sky-400 font-mono text-[11px] py-1.5 font-bold"
+              >
+                🕹️ Manual RC
+              </button>
+              <button
+                type="button"
+                id="btn-mode-auto"
+                class="btn btn-sm bg-slate-800 text-slate-300 border border-slate-700 hover:border-emerald-500 font-mono text-[11px] py-1.5"
+              >
+                🤖 Autonomous
+              </button>
+            </div>
+          </div>
+
+          <!-- Tactile D-Pad & Throttle Controls -->
+          <div class="p-3 rounded-lg bg-slate-950 border border-slate-800 space-y-2.5">
+            <div class="flex items-center justify-between text-[11px] font-mono text-slate-400">
+              <span>DIFFERENTIAL STEERING</span>
+              <span id="label-motor-pwm" class="text-emerald-400 font-bold">PWM: 180 / 255 (70%)</span>
+            </div>
+
+            <!-- D-Pad Center Alignment -->
+            <div class="flex items-center justify-center py-1">
+              <div class="grid grid-cols-3 gap-1.5 w-44">
+                <div></div>
+                <button
+                  type="button"
+                  id="btn-tank-up"
+                  class="tank-ctrl-btn btn bg-slate-800 hover:bg-emerald-600 text-white border border-slate-600 font-pixel text-xs py-2 active:scale-95 transition-transform"
+                  data-dir="forward"
+                  title="Forward (W / Up)"
+                >
+                  ▲
+                </button>
+                <div></div>
+                <button
+                  type="button"
+                  id="btn-tank-left"
+                  class="tank-ctrl-btn btn bg-slate-800 hover:bg-emerald-600 text-white border border-slate-600 font-pixel text-xs py-2 active:scale-95 transition-transform"
+                  data-dir="left"
+                  title="Rotate Left (A / Left)"
+                >
+                  ◀
+                </button>
+                <button
+                  type="button"
+                  id="btn-tank-stop"
+                  class="tank-ctrl-btn btn bg-rose-900/80 hover:bg-rose-700 text-white border border-rose-600 font-mono text-[10px] py-2 active:scale-95 transition-transform font-bold"
+                  data-dir="stop"
+                  title="Brake / Halt (Space)"
+                >
+                  STOP
+                </button>
+                <button
+                  type="button"
+                  id="btn-tank-right"
+                  class="tank-ctrl-btn btn bg-slate-800 hover:bg-emerald-600 text-white border border-slate-600 font-pixel text-xs py-2 active:scale-95 transition-transform"
+                  data-dir="right"
+                  title="Rotate Right (D / Right)"
+                >
+                  ▶
+                </button>
+                <div></div>
+                <button
+                  type="button"
+                  id="btn-tank-down"
+                  class="tank-ctrl-btn btn bg-slate-800 hover:bg-emerald-600 text-white border border-slate-600 font-pixel text-xs py-2 active:scale-95 transition-transform"
+                  data-dir="backward"
+                  title="Reverse (S / Down)"
+                >
+                  ▼
+                </button>
+                <div></div>
+              </div>
+            </div>
+
+            <!-- PWM Speed Slider -->
+            <div class="space-y-1 pt-1">
+              <div class="flex items-center justify-between text-[10px] font-mono text-slate-400">
+                <span>Motor Throttle Limit:</span>
+                <span id="slider-pwm-val" class="text-sky-300">180 PWM</span>
+              </div>
+              <input
+                type="range"
+                id="tank-pwm-slider"
+                min="60"
+                max="255"
+                value="180"
+                step="5"
+                class="w-full accent-emerald-500 cursor-pointer h-1.5 bg-slate-800 rounded-lg"
+              />
+            </div>
+          </div>
+
+          <!-- Dual Motor & Telemetry Gauge Readout -->
+          <div class="p-2.5 rounded-lg bg-slate-950 border border-slate-800 space-y-1.5 text-xs font-mono">
+            <div class="flex justify-between text-[11px]">
+              <span class="text-slate-400">LEFT TREAD MOTOR (L298N OUT1-2):</span>
+              <span id="readout-motor-l" class="text-emerald-400 font-bold">180 PWM · 8.4V</span>
+            </div>
+            <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+              <div id="bar-motor-l" class="bg-emerald-500 h-full transition-all duration-75" style="width: 70%"></div>
+            </div>
+
+            <div class="flex justify-between text-[11px] pt-1">
+              <span class="text-slate-400">RIGHT TREAD MOTOR (L298N OUT3-4):</span>
+              <span id="readout-motor-r" class="text-emerald-400 font-bold">180 PWM · 8.4V</span>
+            </div>
+            <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+              <div id="bar-motor-r" class="bg-emerald-500 h-full transition-all duration-75" style="width: 70%"></div>
+            </div>
+
+            <div class="flex justify-between text-[11px] pt-1">
+              <span class="text-slate-400">IMU GYROSCOPE (MPU-6050):</span>
+              <span id="readout-imu" class="text-sky-400 font-bold">Yaw: 0.0° · Pitch: 0.2°</span>
+            </div>
+          </div>
+
+          <!-- Live ESP32 Serial Monitor Console -->
+          <div class="p-2.5 rounded-lg bg-slate-950 border border-slate-800 flex flex-col space-y-1">
+            <div class="flex items-center justify-between text-[10px] font-mono text-slate-400 border-b border-slate-800/80 pb-1">
+              <span class="text-emerald-400 font-bold">UART0 SERIAL LOG (@ 115200 BAUD)</span>
+              <span class="text-slate-500">FreeRTOS Stream</span>
+            </div>
+            <div
+              id="tank-serial-output"
+              class="h-28 overflow-y-auto font-mono text-[10px] leading-relaxed text-slate-300 space-y-0.5 select-text bg-black/40 p-1.5 rounded border border-slate-800/50"
+            >
+              <div class="text-slate-500">[00:00:01] ESP32 dual-core Xtensa LX6 initialized at 240MHz.</div>
+              <div class="text-emerald-400">[00:00:02] Dual L298N H-Bridge PWM Driver active (freq: 20kHz).</div>
+              <div class="text-sky-400">[00:00:02] WiFi AP "Robot_AP_5G" online. IP: 192.168.4.1.</div>
+              <div class="text-amber-400">[00:00:03] HC-SR04 ultrasonic sensor interrupt armed on GPIO18/19.</div>
+              <div class="text-slate-400">[00:00:04] WebSocket server ready for Flutter controller telemetry.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Engineering & Curriculum Background Banner -->
+      <footer class="p-3 bg-slate-950 rounded-lg border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
+        <div>
+          <span class="text-emerald-400 font-bold font-mono block">
+            🎓 ITENAS Robotics Laboratory Assistant Coordinator &amp; Hardware Prototype
+          </span>
+          <p class="text-slate-400 text-[11px] mt-0.5 leading-relaxed">
+            Designed and supervised the robotics kinematics and microcontroller syllabus at ITENAS (differential drive equations, motor PWM tuning, ultrasonic telemetry). Engineered this dual-core ESP32 RC Tank rover with wireless Flutter mobile telemetry.
+          </p>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+          <a
+            href="/cv/CV_Zulfan.pdf"
+            target="_blank"
+            class="btn btn-sm bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 font-pixel text-[10px] px-3 py-1.5"
+          >
+            📄 Download CV
+          </a>
+          <button
+            type="button"
+            id="btn-footer-close-tank"
+            class="btn btn-sm bg-emerald-600 hover:bg-emerald-500 text-white border border-emerald-400 font-pixel text-[10px] px-3 py-1.5"
+          >
+            ✓ Done Testing
+          </button>
+        </div>
+      </footer>
+    </div>
+  </div>
+</dialog>
+
+<style>
+  .tank-modal::backdrop {
+    background-color: rgba(2, 6, 23, 0.85);
+    backdrop-filter: blur(4px);
+  }
+  .tank-modal {
+    border: none;
+    background: transparent;
+    padding: 0;
+    max-width: 100vw;
+  }
+  .tank-modal[open] {
+    animation: modal-pop 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  @keyframes modal-pop {
+    from {
+      opacity: 0;
+      transform: scale(0.96) translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+</style>
+
+<script>
+  import { sfx } from '../game/sfx';
+
+  interface Obstacle {
+    x: number;
+    y: number;
+    r: number;
+    type: 'cone' | 'block';
+  }
+
+  function initTankSandbox() {
+    const dialog = document.getElementById('tank-sandbox-modal') as HTMLDialogElement | null;
+    const closeBtn = document.getElementById('btn-close-tank-modal');
+    const footerCloseBtn = document.getElementById('btn-footer-close-tank');
+    const canvas = document.getElementById('tank-arena-canvas') as HTMLCanvasElement | null;
+    if (!dialog || !canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Telemetry DOM elements
+    const sonarHud = document.getElementById('canvas-sonar-hud');
+    const modeHud = document.getElementById('canvas-mode-hud');
+    const collisionAlert = document.getElementById('canvas-collision-alert');
+    const serialOutput = document.getElementById('tank-serial-output');
+    const motorLText = document.getElementById('readout-motor-l');
+    const motorRText = document.getElementById('readout-motor-r');
+    const motorLBar = document.getElementById('bar-motor-l');
+    const motorRBar = document.getElementById('bar-motor-r');
+    const imuText = document.getElementById('readout-imu');
+    const pwmLabel = document.getElementById('label-motor-pwm');
+    const pwmSlider = document.getElementById('tank-pwm-slider') as HTMLInputElement | null;
+    const pwmSliderVal = document.getElementById('slider-pwm-val');
+    const obstacleCountText = document.getElementById('tank-obstacle-counter');
+
+    const btnModeManual = document.getElementById('btn-mode-manual');
+    const btnModeAuto = document.getElementById('btn-mode-auto');
+    const btnPing = document.getElementById('btn-tank-ping');
+    const btnSpawnObs = document.getElementById('btn-tank-spawn-obstacles');
+    const btnClearObs = document.getElementById('btn-tank-clear-obstacles');
+
+    // D-Pad buttons
+    const btnUp = document.getElementById('btn-tank-up');
+    const btnDown = document.getElementById('btn-tank-down');
+    const btnLeft = document.getElementById('btn-tank-left');
+    const btnRight = document.getElementById('btn-tank-right');
+    const btnStop = document.getElementById('btn-tank-stop');
+
+    // Simulation State
+    let isRunning = false;
+    let animFrameId: number | null = null;
+    let mode: 'manual' | 'auto' = 'manual';
+    let basePWM = 180;
+
+    // Tank Physics & Kinematics
+    const tank = {
+      x: 220,
+      y: 150,
+      angle: -Math.PI / 2, // Facing North initially
+      speed: 0,
+      turnSpeed: 0,
+      maxSpeed: 2.2,
+      maxTurn: 0.055,
+      treadPhase: 0,
+      sonarDistanceCm: 50,
+      isColliding: false,
+      pwmL: 0,
+      pwmR: 0,
+      pingRadius: 0,
+      pingActive: false,
+    };
+
+    // Autonomous State Machine
+    let autoState: 'FORWARD' | 'AVOID_REVERSE' | 'AVOID_TURN' = 'FORWARD';
+    let autoTimer = 0;
+    let autoTurnDir = 1;
+
+    // Test Arena Obstacles
+    let obstacles: Obstacle[] = [
+      { x: 90, y: 70, r: 16, type: 'cone' },
+      { x: 340, y: 80, r: 18, type: 'block' },
+      { x: 120, y: 220, r: 18, type: 'block' },
+      { x: 320, y: 230, r: 16, type: 'cone' },
+    ];
+
+    // Logging helper
+    function appendSerial(msg: string, colorClass: string = 'text-slate-300') {
+      if (!serialOutput) return;
+      const row = document.createElement('div');
+      const now = new Date();
+      const timeStr = `[${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}.${String(Math.floor(now.getMilliseconds() / 100))}]`;
+      row.className = colorClass;
+      row.textContent = `${timeStr} ${msg}`;
+      serialOutput.appendChild(row);
+      if (serialOutput.children.length > 40) {
+        serialOutput.removeChild(serialOutput.children[0]);
+      }
+      serialOutput.scrollTop = serialOutput.scrollHeight;
+    }
+
+    function updateObstacleCounter() {
+      if (obstacleCountText) {
+        obstacleCountText.textContent = `Obstacles: ${obstacles.length}`;
+      }
+    }
+
+    // Modal Lifecycle
+    function openModal() {
+      dialog?.showModal();
+      isRunning = true;
+      appendSerial('Connected to ESP32 RC Tank Telemetry Socket.', 'text-emerald-400');
+      sfx.door();
+      startLoop();
+    }
+
+    function closeModal() {
+      dialog?.close();
+      isRunning = false;
+      if (animFrameId) {
+        cancelAnimationFrame(animFrameId);
+        animFrameId = null;
+      }
+    }
+
+    closeBtn?.addEventListener('click', closeModal);
+    footerCloseBtn?.addEventListener('click', closeModal);
+    dialog.addEventListener('close', () => {
+      isRunning = false;
+      if (animFrameId) cancelAnimationFrame(animFrameId);
+    });
+
+    // Listen for custom trigger from 2D room or page cards
+    window.addEventListener('tower:open-tank-sandbox', openModal);
+
+    // PWM Slider handling
+    pwmSlider?.addEventListener('input', () => {
+      basePWM = parseInt(pwmSlider.value, 10) || 180;
+      const pct = Math.round((basePWM / 255) * 100);
+      if (pwmLabel) pwmLabel.textContent = `PWM: ${basePWM} / 255 (${pct}%)`;
+      if (pwmSliderVal) pwmSliderVal.textContent = `${basePWM} PWM`;
+      tank.maxSpeed = 1.0 + (basePWM / 255) * 1.8;
+      appendSerial(`[CONFIG] Throttle PWM limit tuned to ${basePWM} (${pct}%).`, 'text-sky-400');
+    });
+
+    // Mode Switching
+    btnModeManual?.addEventListener('click', () => {
+      if (mode === 'manual') return;
+      mode = 'manual';
+      btnModeManual.className = 'btn btn-sm bg-sky-600 text-white border border-sky-400 font-mono text-[11px] py-1.5 font-bold';
+      btnModeAuto?.setAttribute('class', 'btn btn-sm bg-slate-800 text-slate-300 border border-slate-700 hover:border-emerald-500 font-mono text-[11px] py-1.5');
+      if (modeHud) {
+        modeHud.textContent = 'MANUAL RC';
+        modeHud.className = 'font-bold text-sky-400 ml-1';
+      }
+      tank.speed = 0;
+      tank.turnSpeed = 0;
+      appendSerial('[MODE] Switched to Manual RC Joystick Mode.', 'text-sky-300');
+      sfx.select();
+    });
+
+    btnModeAuto?.addEventListener('click', () => {
+      if (mode === 'auto') return;
+      mode = 'auto';
+      btnModeAuto.className = 'btn btn-sm bg-emerald-600 text-white border border-emerald-400 font-mono text-[11px] py-1.5 font-bold';
+      btnModeManual?.setAttribute('class', 'btn btn-sm bg-slate-800 text-slate-300 border border-slate-700 hover:border-sky-500 font-mono text-[11px] py-1.5');
+      if (modeHud) {
+        modeHud.textContent = 'AUTONOMOUS';
+        modeHud.className = 'font-bold text-emerald-400 ml-1';
+      }
+      autoState = 'FORWARD';
+      autoTimer = 0;
+      appendSerial('[MODE] Switched to Autonomous Obstacle Avoidance.', 'text-emerald-300');
+      sfx.confirm();
+    });
+
+    // Active Ping
+    btnPing?.addEventListener('click', () => {
+      tank.pingActive = true;
+      tank.pingRadius = 5;
+      sfx.blip();
+      appendSerial(`[HC-SR04] Sonar pulse broadcast: Echo detected at ${tank.sonarDistanceCm.toFixed(1)} cm.`, 'text-sky-300');
+    });
+
+    // Spawn / Clear Obstacles
+    btnSpawnObs?.addEventListener('click', () => {
+      for (let i = 0; i < 3; i++) {
+        const ox = 40 + Math.random() * (canvas.width - 80);
+        const oy = 40 + Math.random() * (canvas.height - 80);
+        // Avoid spawning directly on tank
+        const distToTank = Math.hypot(ox - tank.x, oy - tank.y);
+        if (distToTank > 45) {
+          obstacles.push({
+            x: ox,
+            y: oy,
+            r: 14 + Math.random() * 6,
+            type: Math.random() > 0.5 ? 'cone' : 'block',
+          });
+        }
+      }
+      updateObstacleCounter();
+      appendSerial(`[ARENA] 3 test obstacle cones placed. Total: ${obstacles.length}.`, 'text-amber-300');
+      sfx.select();
+    });
+
+    btnClearObs?.addEventListener('click', () => {
+      obstacles = [
+        { x: 90, y: 70, r: 16, type: 'cone' },
+        { x: 340, y: 80, r: 18, type: 'block' },
+        { x: 120, y: 220, r: 18, type: 'block' },
+        { x: 320, y: 230, r: 16, type: 'cone' },
+      ];
+      tank.x = 220;
+      tank.y = 150;
+      tank.angle = -Math.PI / 2;
+      tank.speed = 0;
+      tank.turnSpeed = 0;
+      updateObstacleCounter();
+      appendSerial('[ARENA] Obstacle course reset to default configuration.', 'text-slate-400');
+      sfx.bump();
+    });
+
+    // Click canvas to place an obstacle
+    canvas.addEventListener('click', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      const clickX = (e.clientX - rect.x) * scaleX;
+      const clickY = (e.clientY - rect.y) * scaleY;
+
+      // Don't place on top of tank
+      if (Math.hypot(clickX - tank.x, clickY - tank.y) < 35) return;
+
+      obstacles.push({
+        x: clickX,
+        y: clickY,
+        r: 16,
+        type: obstacles.length % 2 === 0 ? 'cone' : 'block',
+      });
+      updateObstacleCounter();
+      appendSerial(`[ARENA] Deploy obstacle at (${Math.round(clickX)}, ${Math.round(clickY)}).`, 'text-amber-300');
+      sfx.blip();
+    });
+
+    // D-Pad and Keyboard Controls
+    const keysPressed: Record<string, boolean> = {};
+
+    function applyManualDrive(action: 'forward' | 'backward' | 'left' | 'right' | 'stop') {
+      if (mode !== 'manual') return;
+      if (action === 'forward') {
+        tank.speed = tank.maxSpeed;
+        tank.turnSpeed = 0;
+        appendSerial(`[DRIVE] FORWARD @ ${basePWM} PWM`, 'text-emerald-400');
+      } else if (action === 'backward') {
+        tank.speed = -tank.maxSpeed * 0.75;
+        tank.turnSpeed = 0;
+        appendSerial(`[DRIVE] REVERSE @ ${Math.round(basePWM * 0.75)} PWM`, 'text-amber-400');
+      } else if (action === 'left') {
+        tank.turnSpeed = -tank.maxTurn;
+        appendSerial('[DRIVE] ROTATE LEFT (Differential)', 'text-sky-400');
+      } else if (action === 'right') {
+        tank.turnSpeed = tank.maxTurn;
+        appendSerial('[DRIVE] ROTATE RIGHT (Differential)', 'text-sky-400');
+      } else if (action === 'stop') {
+        tank.speed = 0;
+        tank.turnSpeed = 0;
+        appendSerial('[DRIVE] EMERGENCY BRAKE / STOP', 'text-rose-400');
+        sfx.bump();
+      }
+    }
+
+    btnUp?.addEventListener('click', () => applyManualDrive('forward'));
+    btnDown?.addEventListener('click', () => applyManualDrive('backward'));
+    btnLeft?.addEventListener('click', () => applyManualDrive('left'));
+    btnRight?.addEventListener('click', () => applyManualDrive('right'));
+    btnStop?.addEventListener('click', () => applyManualDrive('stop'));
+
+    window.addEventListener('keydown', (e) => {
+      if (!dialog.open) return;
+      if (['ArrowUp', 'KeyW', 'ArrowDown', 'KeyS', 'ArrowLeft', 'KeyA', 'ArrowRight', 'KeyD', 'Space'].includes(e.code)) {
+        e.preventDefault();
+      }
+      keysPressed[e.code] = true;
+    });
+
+    window.addEventListener('keyup', (e) => {
+      if (!dialog.open) return;
+      keysPressed[e.code] = false;
+      if (mode === 'manual') {
+        // If no movement keys pressed, coast to stop
+        if (!keysPressed['ArrowUp'] && !keysPressed['KeyW'] && !keysPressed['ArrowDown'] && !keysPressed['KeyS']) {
+          tank.speed = 0;
+        }
+        if (!keysPressed['ArrowLeft'] && !keysPressed['KeyA'] && !keysPressed['ArrowRight'] && !keysPressed['KeyD']) {
+          tank.turnSpeed = 0;
+        }
+      }
+    });
+
+    // Raycast Ultrasonic Sonar to calculate distance
+    function calculateSonarDistance(): number {
+      const rayLen = 140; // Max sonar range in arena pixels
+      const stepSize = 4;
+      const noseX = tank.x + Math.cos(tank.angle) * 16;
+      const noseY = tank.y + Math.sin(tank.angle) * 16;
+
+      for (let dist = 6; dist <= rayLen; dist += stepSize) {
+        const checkX = noseX + Math.cos(tank.angle) * dist;
+        const checkY = noseY + Math.sin(tank.angle) * dist;
+
+        // Arena boundary collision
+        if (checkX <= 12 || checkX >= canvas.width - 12 || checkY <= 12 || checkY >= canvas.height - 12) {
+          return dist * 0.45; // Convert pixels to cm
+        }
+
+        // Obstacles collision
+        for (const obs of obstacles) {
+          const d = Math.hypot(checkX - obs.x, checkY - obs.y);
+          if (d <= obs.r + 4) {
+            return dist * 0.45;
+          }
+        }
+      }
+      return 60.0; // Max clear distance
+    }
+
+    // Kinematic Physics Update
+    function updatePhysics() {
+      // Manual Keyboard Input Handling
+      if (mode === 'manual') {
+        if (keysPressed['ArrowUp'] || keysPressed['KeyW']) {
+          tank.speed = tank.maxSpeed;
+        } else if (keysPressed['ArrowDown'] || keysPressed['KeyS']) {
+          tank.speed = -tank.maxSpeed * 0.75;
+        }
+
+        if (keysPressed['ArrowLeft'] || keysPressed['KeyA']) {
+          tank.turnSpeed = -tank.maxTurn;
+        } else if (keysPressed['ArrowRight'] || keysPressed['KeyD']) {
+          tank.turnSpeed = tank.maxTurn;
+        } else if (!keysPressed['ArrowLeft'] && !keysPressed['ArrowRight'] && !keysPressed['KeyA'] && !keysPressed['KeyD']) {
+          // Keep button turn or reset
+        }
+
+        if (keysPressed['Space']) {
+          tank.speed = 0;
+          tank.turnSpeed = 0;
+        }
+      }
+
+      // Autonomous State Machine Logic
+      if (mode === 'auto') {
+        if (autoState === 'FORWARD') {
+          tank.speed = tank.maxSpeed * 0.85;
+          tank.turnSpeed = 0;
+          if (tank.sonarDistanceCm < 22) {
+            autoState = 'AVOID_REVERSE';
+            autoTimer = 25; // 25 frames reverse
+            autoTurnDir = Math.random() > 0.5 ? 1 : -1;
+            appendSerial(`[AUTO-AI] Obstacle detected at ${tank.sonarDistanceCm.toFixed(1)}cm! Halting & Reversing.`, 'text-rose-400');
+            sfx.blip();
+          }
+        } else if (autoState === 'AVOID_REVERSE') {
+          tank.speed = -tank.maxSpeed * 0.65;
+          tank.turnSpeed = 0;
+          autoTimer--;
+          if (autoTimer <= 0) {
+            autoState = 'AVOID_TURN';
+            autoTimer = 35 + Math.floor(Math.random() * 20); // Turn 35-55 frames
+            appendSerial(`[AUTO-AI] Scanning clear heading (Rotating ${autoTurnDir > 0 ? 'Right' : 'Left'}).`, 'text-amber-300');
+          }
+        } else if (autoState === 'AVOID_TURN') {
+          tank.speed = 0;
+          tank.turnSpeed = tank.maxTurn * autoTurnDir;
+          autoTimer--;
+          if (autoTimer <= 0 || tank.sonarDistanceCm > 38) {
+            autoState = 'FORWARD';
+            appendSerial('[AUTO-AI] Clear corridor detected. Resuming forward drive.', 'text-emerald-400');
+          }
+        }
+      }
+
+      // Apply Differential Drive Kinematics
+      tank.angle += tank.turnSpeed;
+      // Normalize angle
+      if (tank.angle > Math.PI) tank.angle -= 2 * Math.PI;
+      if (tank.angle < -Math.PI) tank.angle += 2 * Math.PI;
+
+      const nextX = tank.x + Math.cos(tank.angle) * tank.speed;
+      const nextY = tank.y + Math.sin(tank.angle) * tank.speed;
+
+      // Arena boundary collision
+      const margin = 16;
+      let blocked = false;
+      if (nextX < margin || nextX > canvas.width - margin || nextY < margin || nextY > canvas.height - margin) {
+        blocked = true;
+      }
+
+      // Obstacle collision
+      for (const obs of obstacles) {
+        const dist = Math.hypot(nextX - obs.x, nextY - obs.y);
+        if (dist < obs.r + 12) {
+          blocked = true;
+          break;
+        }
+      }
+
+      if (!blocked) {
+        tank.x = nextX;
+        tank.y = nextY;
+      } else {
+        tank.speed = 0;
+      }
+
+      // Calculate tread animation
+      if (Math.abs(tank.speed) > 0.1 || Math.abs(tank.turnSpeed) > 0.01) {
+        tank.treadPhase = (tank.treadPhase + 1) % 8;
+      }
+
+      // Calculate Sonar Reading
+      tank.sonarDistanceCm = calculateSonarDistance();
+      tank.isColliding = tank.sonarDistanceCm < 18;
+
+      // Update Motor PWM outputs
+      if (tank.speed > 0) {
+        tank.pwmL = basePWM - (tank.turnSpeed < 0 ? 50 : 0);
+        tank.pwmR = basePWM - (tank.turnSpeed > 0 ? 50 : 0);
+      } else if (tank.speed < 0) {
+        tank.pwmL = Math.round(basePWM * 0.7);
+        tank.pwmR = Math.round(basePWM * 0.7);
+      } else if (tank.turnSpeed !== 0) {
+        tank.pwmL = Math.round(basePWM * 0.7);
+        tank.pwmR = Math.round(basePWM * 0.7);
+      } else {
+        tank.pwmL = 0;
+        tank.pwmR = 0;
+      }
+
+      // Active Sonar Ping Propagation
+      if (tank.pingActive) {
+        tank.pingRadius += 4;
+        if (tank.pingRadius > 140) {
+          tank.pingActive = false;
+        }
+      }
+
+      // Update HUD & Telemetry text
+      if (sonarHud) {
+        sonarHud.textContent = `${tank.sonarDistanceCm.toFixed(1)} cm`;
+        sonarHud.className = tank.sonarDistanceCm < 18 ? 'font-bold text-rose-400 ml-1' : tank.sonarDistanceCm < 30 ? 'font-bold text-amber-400 ml-1' : 'font-bold text-emerald-400 ml-1';
+      }
+      if (collisionAlert) {
+        collisionAlert.classList.toggle('hidden', !tank.isColliding);
+      }
+
+      const lPct = Math.round((tank.pwmL / 255) * 100);
+      const rPct = Math.round((tank.pwmR / 255) * 100);
+      if (motorLText) motorLText.textContent = `${tank.pwmL} PWM · ${(tank.pwmL * 0.047).toFixed(1)}V`;
+      if (motorRText) motorRText.textContent = `${tank.pwmR} PWM · ${(tank.pwmR * 0.047).toFixed(1)}V`;
+      if (motorLBar) motorLBar.style.width = `${lPct}%`;
+      if (motorRBar) motorRBar.style.width = `${rPct}%`;
+
+      const deg = Math.round((tank.angle * 180) / Math.PI);
+      if (imuText) imuText.textContent = `Yaw: ${deg}° · Pitch: 0.1°`;
+    }
+
+    // Canvas Rendering Loop
+    function render() {
+      // 1. Clear background & draw retro grid
+      ctx.fillStyle = '#090d16';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Cyber Grid
+      ctx.strokeStyle = '#1e293b';
+      ctx.lineWidth = 1;
+      const grid = 24;
+      for (let x = grid; x < canvas.width; x += grid) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvas.height);
+        ctx.stroke();
+      }
+      for (let y = grid; y < canvas.height; y += grid) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+        ctx.stroke();
+      }
+
+      // Outer Arena Boundary Border
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(6, 6, canvas.width - 12, canvas.height - 12);
+
+      // Arena Corner Accents
+      ctx.fillStyle = '#38bdf8';
+      ctx.fillRect(6, 6, 8, 2);
+      ctx.fillRect(6, 6, 2, 8);
+      ctx.fillRect(canvas.width - 14, 6, 8, 2);
+      ctx.fillRect(canvas.width - 8, 6, 2, 8);
+      ctx.fillRect(6, canvas.height - 8, 8, 2);
+      ctx.fillRect(6, canvas.height - 14, 2, 8);
+      ctx.fillRect(canvas.width - 14, canvas.height - 8, 8, 2);
+      ctx.fillRect(canvas.width - 8, canvas.height - 14, 2, 8);
+
+      // 2. Render Obstacles
+      for (const obs of obstacles) {
+        if (obs.type === 'cone') {
+          // Traffic Cone (Orange with white stripes)
+          ctx.beginPath();
+          ctx.arc(obs.x, obs.y, obs.r, 0, Math.PI * 2);
+          ctx.fillStyle = '#ea580c';
+          ctx.fill();
+          ctx.strokeStyle = '#f97316';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+
+          // Inner white ring
+          ctx.beginPath();
+          ctx.arc(obs.x, obs.y, obs.r * 0.5, 0, Math.PI * 2);
+          ctx.fillStyle = '#f8fafc';
+          ctx.fill();
+
+          // Black center dot
+          ctx.beginPath();
+          ctx.arc(obs.x, obs.y, 2, 0, Math.PI * 2);
+          ctx.fillStyle = '#0f172a';
+          ctx.fill();
+        } else {
+          // Metal Crate / Block
+          const s = obs.r * 1.6;
+          ctx.fillStyle = '#334155';
+          ctx.fillRect(obs.x - s / 2, obs.y - s / 2, s, s);
+          ctx.strokeStyle = '#64748b';
+          ctx.lineWidth = 2;
+          ctx.strokeRect(obs.x - s / 2, obs.y - s / 2, s, s);
+          // X pattern on crate
+          ctx.strokeStyle = '#475569';
+          ctx.beginPath();
+          ctx.moveTo(obs.x - s / 2, obs.y - s / 2);
+          ctx.lineTo(obs.x + s / 2, obs.y + s / 2);
+          ctx.moveTo(obs.x + s / 2, obs.y - s / 2);
+          ctx.lineTo(obs.x - s / 2, obs.y + s / 2);
+          ctx.stroke();
+        }
+      }
+
+      // 3. Render Sonar Field-of-View Cone & Ray
+      const noseX = tank.x + Math.cos(tank.angle) * 16;
+      const noseY = tank.y + Math.sin(tank.angle) * 16;
+      const rayLen = (tank.sonarDistanceCm / 0.45);
+
+      // FOV Cone
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(noseX, noseY);
+      ctx.arc(noseX, noseY, Math.min(rayLen, 120), tank.angle - 0.28, tank.angle + 0.28);
+      ctx.closePath();
+      ctx.fillStyle = tank.isColliding ? 'rgba(239, 68, 68, 0.2)' : 'rgba(56, 189, 248, 0.12)';
+      ctx.fill();
+
+      // Direct Sonar Ray Line
+      ctx.beginPath();
+      ctx.moveTo(noseX, noseY);
+      const hitX = noseX + Math.cos(tank.angle) * rayLen;
+      const hitY = noseY + Math.sin(tank.angle) * rayLen;
+      ctx.lineTo(hitX, hitY);
+      ctx.strokeStyle = tank.isColliding ? '#ef4444' : '#38bdf8';
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([4, 3]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Sonar Target Hit Spot
+      ctx.beginPath();
+      ctx.arc(hitX, hitY, 3, 0, Math.PI * 2);
+      ctx.fillStyle = tank.isColliding ? '#ef4444' : '#38bdf8';
+      ctx.fill();
+      ctx.restore();
+
+      // Active Radar Ping Animation
+      if (tank.pingActive) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(noseX, noseY, tank.pingRadius, tank.angle - 0.4, tank.angle + 0.4);
+        ctx.strokeStyle = `rgba(56, 189, 248, ${1 - tank.pingRadius / 140})`;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // 4. Render Top-Down ESP32 RC Tank
+      ctx.save();
+      ctx.translate(tank.x, tank.y);
+      ctx.rotate(tank.angle);
+
+      // Shadow
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+      ctx.fillRect(-15, -12, 34, 28);
+
+      // Dual Caterpillar Treads (Left & Right)
+      const treadW = 30;
+      const treadH = 7;
+      // Top/Left Tread
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(-15, -14, treadW, treadH);
+      // Bottom/Right Tread
+      ctx.fillRect(-15, 7, treadW, treadH);
+
+      // Tread Grooves (rolling animation)
+      ctx.fillStyle = '#475569';
+      for (let i = 0; i < 5; i++) {
+        const gx = -13 + ((i * 6 + tank.treadPhase) % treadW);
+        if (gx < 14) {
+          ctx.fillRect(gx, -14, 2, treadH);
+          ctx.fillRect(gx, 7, 2, treadH);
+        }
+      }
+
+      // Main Tank Chassis Body
+      ctx.fillStyle = '#166534'; // Military olive green
+      ctx.fillRect(-13, -8, 26, 16);
+      ctx.strokeStyle = '#22c55e';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(-13, -8, 26, 16);
+
+      // Battery Compartment & Electronics
+      ctx.fillStyle = '#052e16';
+      ctx.fillRect(-10, -5, 14, 10);
+
+      // ESP32 Microcontroller Shield
+      ctx.fillStyle = '#94a3b8';
+      ctx.fillRect(-8, -4, 8, 8);
+      // ESP32 Blue LED
+      ctx.fillStyle = '#38bdf8';
+      ctx.fillRect(-2, -3, 2, 2);
+
+      // HC-SR04 Dual Ultrasonic Cylinders (Eyes) on front bumper
+      ctx.fillStyle = '#e2e8f0';
+      ctx.fillRect(11, -6, 4, 4);
+      ctx.fillRect(11, 2, 4, 4);
+      ctx.fillStyle = '#0284c7';
+      ctx.fillRect(13, -5, 2, 2);
+      ctx.fillRect(13, 3, 2, 2);
+
+      // Antenna with blinking LED
+      ctx.strokeStyle = '#94a3b8';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(-9, -7);
+      ctx.lineTo(-14, -13);
+      ctx.stroke();
+
+      // Antenna beacon LED
+      ctx.fillStyle = (Date.now() % 400 < 200) ? '#38bdf8' : '#0369a1';
+      ctx.beginPath();
+      ctx.arc(-14, -13, 2, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.restore();
+    }
+
+    // Animation Loop
+    function loop() {
+      if (!isRunning || !dialog.open) return;
+      updatePhysics();
+      render();
+      animFrameId = requestAnimationFrame(loop);
+    }
+
+    function startLoop() {
+      if (!animFrameId) {
+        animFrameId = requestAnimationFrame(loop);
+      }
+    }
+  }
+
+  document.addEventListener('astro:page-load', initTankSandbox);
+  document.addEventListener('DOMContentLoaded', initTankSandbox);
+</script>

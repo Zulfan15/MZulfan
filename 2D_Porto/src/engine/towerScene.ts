@@ -603,6 +603,41 @@ export function renderTowerAnimations(
     ctx.strokeStyle = `rgba(245, 158, 11, ${0.45 + 0.3 * Math.sin(tick / 10)})`;
     ctx.lineWidth = 1;
     ctx.strokeRect(rx + 1.5, ry + 1.5, 3 * TILE_SIZE - 3, 2 * TILE_SIZE - 3);
+
+    // Active ESP32 RC Tank Animated Prototype on 2F Workbench
+    const tx = rx + 27;
+    const ty = ry + 17;
+    // Treads
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(tx - 7, ty - 5, 14, 3);
+    ctx.fillRect(tx - 7, ty + 2, 14, 3);
+    // Chassis
+    ctx.fillStyle = '#166534';
+    ctx.fillRect(tx - 6, ty - 3, 12, 6);
+    // Ultrasonic sonar eyes on front
+    ctx.fillStyle = '#38bdf8';
+    ctx.fillRect(tx + 5, ty - 2, 2, 2);
+    ctx.fillRect(tx + 5, ty + 1, 2, 2);
+    // Blinking ESP32 LED
+    ctx.fillStyle = (tick % 20 < 10) ? '#22c55e' : '#15803d';
+    ctx.fillRect(tx - 2, ty - 1, 2, 2);
+    // Antenna beacon
+    ctx.fillStyle = (tick % 30 < 15) ? '#38bdf8' : '#0369a1';
+    ctx.fillRect(tx - 6, ty - 6, 2, 2);
+
+    // Sonar sweep wave pinging out
+    const pingProgress = (tick % 36) / 36;
+    const pingRadius = 4 + pingProgress * 15;
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(tx + 6, ty, pingRadius, -0.65, 0.65);
+    ctx.strokeStyle = `rgba(56, 189, 248, ${1 - pingProgress})`;
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.restore();
+
+    // 2F Active hardware badge
+    drawPixelText(ctx, 'ESP32 TANK ACTIVE', rx + 6, ry + 24, '#22c55e');
   } else if (activeFloor === '3F') {
     // Server Rack at (11, 3, 3, 3)
     const sx = 11 * TILE_SIZE;

@@ -1,6 +1,7 @@
 ---
 import TownLayout from '../layouts/TownLayout.astro';
 import WhereTo from '../components/WhereTo.astro';
+import TankSandboxModal from '../components/TankSandboxModal.astro';
 import { profile } from '../lib/profile';
 
 const githubUrl = profile.socials.find((s) => s.label === 'GitHub')?.url || 'https://github.com/Zulfan15';
@@ -238,10 +239,12 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
           <div class="pt-3 border-t border-ink/10 flex items-center justify-between gap-2">
             <span class="font-mono text-[11px] text-ink-soft">Firmware & Hardware</span>
             <div class="flex items-center gap-1.5">
+              <button type="button" class="btn btn-sm btn-paper text-[10px] font-pixel text-emerald-800 border-emerald-500 font-bold btn-launch-tank" title="Launch interactive ESP32 RC Tank simulator and kinematics testbench">
+                🎮 Launch Simulator
+              </button>
               <button type="button" class="btn btn-sm btn-paper text-[10px] font-pixel btn-inspect-2d" data-prop="robotics-bay" title="Navigate character to Robotics Bay on 2D canvas">
                 📍 Inspect 2D
               </button>
-              <span class="chip bg-emerald-100 text-emerald-900 border-emerald-300 font-mono text-[10px]">Hardware Demo</span>
             </div>
           </div>
         </article>
@@ -387,6 +390,9 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
     <WhereTo currentPath="/tower" />
   </div>
 
+  <!-- Interactive ESP32 RC Tank Kinematics & Robotics Telemetry Testbench -->
+  <TankSandboxModal />
+
   <style>
     .tower-card {
       transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
@@ -486,6 +492,14 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
           if (townCanvas) {
             townCanvas.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
           }
+        });
+      });
+
+      // 🎮 Launch ESP32 Tank Simulator modal trigger
+      const tankLaunchButtons = document.querySelectorAll<HTMLButtonElement>('.btn-launch-tank');
+      tankLaunchButtons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          window.dispatchEvent(new CustomEvent('tower:open-tank-sandbox'));
         });
       });
 
