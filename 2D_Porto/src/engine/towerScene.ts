@@ -410,10 +410,9 @@ function drawElevator(ctx: CanvasRenderingContext2D, x: number, y: number, w: nu
   ctx.fillStyle = '#1e293b';
   ctx.fillRect(x + 2, y + 2, w - 4, h - 4);
 
-  // Elevator Indicator Display
-  ctx.fillStyle = '#0f172a';
+  // Elevator Indicator Display (rendered dynamically with active floor in renderTowerAnimations)
+  ctx.fillStyle = '#020617';
   ctx.fillRect(x + 4, y + 3, w - 8, 7);
-  drawPixelText(ctx, 'ELEVATOR 1F-4F', x + 6, y + 4, '#38bdf8');
 
   // Double Sliding Steel Doors
   const doorMid = x + Math.floor(w / 2);

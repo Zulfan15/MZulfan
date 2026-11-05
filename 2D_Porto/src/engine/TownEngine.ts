@@ -3832,32 +3832,32 @@ export class TownEngine {
     sfx.select();
     if (this.callbacks.onBubble) {
       this.callbacks.onBubble(
-        `Executive Elevator 🛗 (Lantai Aktif: ${this.activeTowerFloor})`,
-        'Lift eksekutif berkecepatan tinggi Tech Tower. Silakan pilih lantai tujuan Anda:',
+        `Executive Elevator 🛗 (Active Floor: ${this.activeTowerFloor})`,
+        'High-speed Tech Tower executive elevator. Please select your destination floor:',
         [
           {
-            label: '1️⃣ Lantai 1F: Lobby & AI Reception (Xurkitree)',
+            label: '1️⃣ Floor 1F: Lobby & AI Reception (Xurkitree)',
             onClick: () => {
               this.setTowerFloor('1F');
               this.walkToObject('xurkitree');
             },
           },
           {
-            label: '2️⃣ Lantai 2F: Robotics & IoT Bay (ITENAS & ESP32)',
+            label: '2️⃣ Floor 2F: Robotics & IoT Bay (ITENAS & ESP32)',
             onClick: () => {
               this.setTowerFloor('2F');
               this.walkToObject('robotics-bay');
             },
           },
           {
-            label: '3️⃣ Lantai 3F: Cloud NOC & Security (Huawei HCIA)',
+            label: '3️⃣ Floor 3F: Cloud NOC & Security (Huawei HCIA)',
             onClick: () => {
               this.setTowerFloor('3F');
               this.walkToObject('server-rack');
             },
           },
           {
-            label: '4️⃣ Lantai 4F: Enterprise & Mentorship (6x Lab Assistant)',
+            label: '4️⃣ Floor 4F: Enterprise & Mentorship (6x Lab Assistant)',
             onClick: () => {
               this.setTowerFloor('4F');
               this.walkToObject('career-terminal');
@@ -3891,9 +3891,9 @@ export class TownEngine {
           if (this.callbacks.onBubble) {
             this.callbacks.onBubble(
               'Executive Sky Lounge ☕',
-              'Tempat santai para engineer & asisten lab untuk menikmati Cold Brew Coffee sambil mendiskusikan arsitektur sistem dan code review.',
+              'A cozy lounge where engineers and lab assistants enjoy fresh Cold Brew Coffee while discussing system architecture, reviewing pull requests, and planning sprints.',
               {
-                label: '☕ Minum Cold Brew Coffee (High-Voltage Turbo +50%)',
+                label: '☕ Drink Cold Brew Coffee (High-Voltage Turbo +50% Speed)',
                 onClick: () => {
                   this.activateCoffeeBoost();
                 },
@@ -3909,30 +3909,30 @@ export class TownEngine {
             if (this.callbacks.onBubble) {
               this.callbacks.onBubble(
                 'Xurkitree AI Host ⚡ (UB-03 Lighting)',
-                '⚡ BZZZZT-KZZT! Selamat datang di Tech Tower HQ! Saya Xurkitree, AI Host pengelola riset robotika ITENAS, cloud NOC berkeamanan tinggi, dan rekam jejak enterprise Muhammad Zulfan. Mau menuju ke lantai mana?',
+                '⚡ BZZZZT-KZZT! Welcome to Tech Tower HQ! I am Xurkitree, the high-voltage AI Host managing Muhammad Zulfan\'s robotics research, high-security cloud NOC, and enterprise engineering track record. Which floor would you like to visit?',
                 [
                   {
-                    label: '🛗 Panggil Lift Antar-Lantai',
+                    label: '🛗 Call Executive Elevator',
                     onClick: () => {
                       this.openElevatorMenu();
                     },
                   },
                   {
-                    label: '🤖 Kunjungi Lab Robotika (2F)',
+                    label: '🤖 Visit Robotics Bay (2F)',
                     onClick: () => {
                       this.setTowerFloor('2F');
                       this.walkToObject('robotics-bay');
                     },
                   },
                   {
-                    label: '🔒 Cek Cloud & Security NOC (3F)',
+                    label: '🔒 Check Cloud & Security NOC (3F)',
                     onClick: () => {
                       this.setTowerFloor('3F');
                       this.walkToObject('server-rack');
                     },
                   },
                   {
-                    label: '💼 Terminal Pengalaman & Mentorship (4F)',
+                    label: '💼 Experience & Mentorship Kiosk (4F)',
                     onClick: () => {
                       this.setTowerFloor('4F');
                       this.walkToObject('career-terminal');
@@ -3943,7 +3943,7 @@ export class TownEngine {
             } else {
               this.callbacks.onDialogue('Xurkitree AI Host ⚡', [
                 '⚡ BZZZT-KZZT! Welcome to Tech Tower! This 4-story facility is Muhammad Zulfan\'s research hub for robotics, cloud infrastructure, and distributed AI.',
-                'Use the Executive Elevator to the right to explore floors 1F through 4F!',
+                'Use the Executive Elevator to explore floors 1F through 4F!',
               ]);
             }
           } else if (prop.target.name === 'robotics-bay') {
@@ -3952,16 +3952,16 @@ export class TownEngine {
             if (this.callbacks.onBubble) {
               this.callbacks.onBubble(
                 'Robotics & IoT Lab Bay 🤖 (2F)',
-                'Fasilitas Riset Hardware & IoT: Rekam jejak Koordinator Asisten Lab Robotika ITENAS (kurikulum kinematika, sensor multimodal, mikrokontroler) dan purwarupa Remote Control Tank ESP32 + Web Telemetri.',
+                'Hardware & IoT Research Facility: Track record as ITENAS Robotics Laboratory Coordinator (kinematics curriculum, multimodal sensors, microcontrollers) and the ESP32 Remote Control Tank prototype with live web telemetry.',
                 [
                   {
-                    label: '📜 Lihat Detail Kurikulum & Tank 2F',
+                    label: '📜 View 2F Robotics & RC Tank Details',
                     onClick: () => {
                       window.dispatchEvent(new CustomEvent('town:focus-department', { detail: { floor: '2F', propId: 'robotics-bay' } }));
                     },
                   },
                   {
-                    label: '🛗 Pindah Lantai',
+                    label: '🛗 Switch Floor',
                     onClick: () => {
                       this.openElevatorMenu();
                     },
@@ -3975,16 +3975,16 @@ export class TownEngine {
             if (this.callbacks.onBubble) {
               this.callbacks.onBubble(
                 'Cloud & Network NOC 🖧 (3F)',
-                'Network Operations Center & Security: Sertifikasi internasional Huawei HCIA-Security V4.0 (Firewall, IPSec VPN, NAT) & arsitektur sistem terdistribusi (Apache Kafka, Redis Lua Mutex, Kubernetes).',
+                'Network Operations Center & Security: Internationally certified in Huawei HCIA-Security V4.0 (Firewall policies, IPSec VPN, NAT traversal) & high-concurrency cloud architecture (Apache Kafka, Redis Lua Mutexes, Kubernetes).',
                 [
                   {
-                    label: '🔒 Lihat Sertifikasi & Topologi 3F',
+                    label: '🔒 View 3F Security & Topology Details',
                     onClick: () => {
                       window.dispatchEvent(new CustomEvent('town:focus-department', { detail: { floor: '3F', propId: 'server-rack' } }));
                     },
                   },
                   {
-                    label: '🛗 Pindah Lantai',
+                    label: '🛗 Switch Floor',
                     onClick: () => {
                       this.openElevatorMenu();
                     },
@@ -3998,16 +3998,16 @@ export class TownEngine {
             if (this.callbacks.onBubble) {
               this.callbacks.onBubble(
                 'Experience & Mentorship Terminal 💼 (4F)',
-                'Kios Rekam Jejak Profesional: 6x Asisten Laboratorium ITENAS (Robotika, IoT, Jaringan Komputer, OOP Java, Basis Data SQL), Magang Software Developer di PT Dwi Purwa Teknologi, dan Juara 3 IDEA FEST.',
+                'Professional Career Kiosk: 6x ITENAS Laboratory Assistant (Robotics, IoT, Computer Networks, OOP Java, SQL Database), Software Development Intern at PT Dwi Purwa Teknologi, and Bronze Medalist at IDEA FEST 3.',
                 [
                   {
-                    label: '🎓 Buka Rekam Jejak & CV 4F',
+                    label: '🎓 Open 4F Career Track Record & CV',
                     onClick: () => {
                       window.dispatchEvent(new CustomEvent('town:focus-department', { detail: { floor: '4F', propId: 'career-terminal' } }));
                     },
                   },
                   {
-                    label: '🛗 Pindah Lantai',
+                    label: '🛗 Switch Floor',
                     onClick: () => {
                       this.openElevatorMenu();
                     },
@@ -4351,7 +4351,7 @@ export class TownEngine {
               'Architecture Whiteboard 📋',
               'End-to-End System Blueprint: profile.yaml ➔ Static Pages + 2D Engine + AI Digital Twin & Knowledge Base.',
               {
-                label: 'Buka Debrief Skripsi 🚀',
+                label: 'Open Thesis Debrief 🚀',
                 onClick: () => {
                   document.dispatchEvent(new CustomEvent('town:debrief', { detail: { id: 'thesis' } }));
                 },
@@ -4367,7 +4367,7 @@ export class TownEngine {
               'High-Performance Compute Rack 🗄️',
               'Active Server Rack: Compute cluster for model training, TensorRT FP16 quantization, and continuous deployment pipeline.',
               {
-                label: 'Buka Telemetry Wall 📈',
+                label: 'Open Telemetry Wall 📈',
                 onClick: () => {
                   document.dispatchEvent(new CustomEvent('town:telemetry'));
                 },
@@ -4381,10 +4381,10 @@ export class TownEngine {
           if (this.callbacks.onBubble) {
             this.callbacks.onBubble(
               'Eternatus ⚡ (Server Assistant & Dynamo Core)',
-              'Asisten Server Mission Control aktif! Eternatus mengalirkan daya tak terbatas ke cluster komputasi AI, TensorRT inference pipeline, dan distributed backend. Siap untuk overclock!',
+              'Mission Control Server Assistant online! Eternatus channels infinite power to the AI compute clusters, TensorRT inference pipelines, and distributed backends. Ready to overclock!',
               [
                 {
-                  label: '📈 Buka Telemetry Wall',
+                  label: '📈 Open Telemetry Wall',
                   onClick: () => {
                     document.dispatchEvent(new CustomEvent('town:telemetry'));
                   },
@@ -4399,7 +4399,7 @@ export class TownEngine {
             );
           } else {
             this.callbacks.onDialogue(prop.label, [
-              'Asisten Server Eternatus aktif! Daya tak terbatas mengalir ke cluster komputasi AI.',
+              'Server Assistant Eternatus active! Infinite power flowing to AI clusters.',
             ]);
           }
         } else if (prop.id === 'snorlax' || prop.id === 'lebronette') {
@@ -4407,22 +4407,22 @@ export class TownEngine {
           if (this.callbacks.onBubble) {
             this.callbacks.onBubble(
               'Snorlax 💤 (Head of Comfort)',
-              'Zzz... Snorlax tidur lelap menjaga meja komando Mission Control. Nafasnya teratur dan tenang. Apakah kamu ingin memainkan Poké Flute untuk menyapanya?',
+              'Zzz... Snorlax is sleeping peacefully guarding the Mission Control command desk. Slow and steady breathing. Would you like to play the Poké Flute to greet him?',
               [
                 {
-                  label: '🎶 Mainkan Poké Flute',
+                  label: '🎶 Play Poké Flute',
                   onClick: () => {
                     sfx.heal();
                     if (this.callbacks.onBubble) {
                       this.callbacks.onBubble(
-                        'Snorlax 💤 (Snorlax Tersenyum)',
-                        '♪~♫~ Lagu merdu dari Poké Flute mengalun lembut! Snorlax menggeliat gembira, membuka sebelah matanya, lalu tersenyum hangat dan kembali mendengkur dengan nyaman... 💤'
+                        'Snorlax 💤 (Snorlax Smiles)',
+                        '♪~♫~ A melodious tune from the Poké Flute echoes softly! Snorlax stirs happily, opens one eye, gives a warm smile, and comfortably resumes dozing... 💤'
                       );
                     }
                   },
                 },
                 {
-                  label: '🏥 Kunjungi Poké Center',
+                  label: '🏥 Visit Poké Center',
                   onClick: () => {
                     this.callbacks.onNavigate('/reception');
                   },
@@ -4430,16 +4430,16 @@ export class TownEngine {
               ]
             );
           } else {
-            this.callbacks.onDialogue(prop.label, ['Zzz... Snorlax sedang tidur lelap.']);
+            this.callbacks.onDialogue(prop.label, ['Zzz... Snorlax is fast asleep.']);
           }
         } else if (prop.id === 'coffee') {
           sfx.select();
           if (this.callbacks.onBubble) {
             this.callbacks.onBubble(
               'Coffee Machine ☕ (Robusta Overclock)',
-              'Mesin kopi otomatis Mission Control siap menyeduh kopi robusta murni Jawa Barat. Memberikan suntikan kafein ekstra untuk turbo speed!',
+              'Mission Control automatic espresso machine is ready to brew pure West Java robusta coffee. Delivers an instant caffeine boost for turbo speed!',
               {
-                label: '☕ Minum Kopi (Turbo Speed +50%)',
+                label: '☕ Drink Coffee (Turbo Speed +50%)',
                 onClick: () => {
                   this.activateCoffeeBoost();
                 },
