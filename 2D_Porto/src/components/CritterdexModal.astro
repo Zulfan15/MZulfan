@@ -1,13 +1,14 @@
 ---
 import { profile } from '../lib/profile';
+import { STAMP_MISSIONS } from '../game/store';
 const critters = profile.critters;
 ---
 
-<dialog id="dex-modal" class="sheet">
-  <div class="sheet-head bg-ball text-paper border-ink">
+<dialog id="dex-modal" class="sheet max-w-2xl w-[min(94vw,40rem)]">
+  <div class="sheet-head bg-ball text-paper border-ink flex items-center justify-between">
     <div class="flex items-center gap-2">
       <span class="text-xl">●</span>
-      <h2 class="font-pixel text-xs text-paper uppercase tracking-wide">CRITTERDEX & TRAINER CARD</h2>
+      <h2 class="font-pixel text-xs text-paper uppercase tracking-wide">TRAINER PASSPORT & CRITTERDEX</h2>
     </div>
     <button id="dex-modal-close" type="button" class="btn btn-sm btn-ghost p-1 text-paper/80 hover:text-paper" aria-label="Close Dex">
       ✕
@@ -15,60 +16,177 @@ const critters = profile.critters;
   </div>
 
   <div class="sheet-body space-y-4">
-    <!-- Dex Stats Banner -->
-    <div class="flex items-center justify-between p-3 rounded-md border-2 border-ink bg-cream font-pixel text-[10px]">
-      <div>
-        CAUGHT: <span id="dex-caught-count" class="text-ball font-bold">0</span> / 12
-      </div>
-      <div>
-        BALLS: <span id="dex-balls-count" class="text-gold font-bold">5</span>
-      </div>
+    <!-- Top Nav Tabs -->
+    <div class="flex items-center gap-1.5 border-b-2 border-ink pb-2 font-pixel text-[10px]">
+      <button
+        id="tab-btn-passport"
+        type="button"
+        class="px-3 py-1.5 rounded-lg border-2 border-ink bg-ball text-white shadow-[0_2px_0_0_#1c1726] active:translate-y-0.5 transition-all cursor-pointer flex items-center gap-1.5"
+      >
+        <span>🎫</span> <span>Misi Stempel (Passport)</span>
+      </button>
+      <button
+        id="tab-btn-dex"
+        type="button"
+        class="px-3 py-1.5 rounded-lg border-2 border-ink bg-paper text-ink hover:bg-cream active:translate-y-0.5 transition-all cursor-pointer flex items-center gap-1.5"
+      >
+        <span>📖</span> <span>Critterdex (12)</span>
+      </button>
+      <button
+        id="tab-btn-card"
+        type="button"
+        class="px-3 py-1.5 rounded-lg border-2 border-ink bg-paper text-ink hover:bg-cream active:translate-y-0.5 transition-all cursor-pointer flex items-center gap-1.5"
+      >
+        <span>🪪</span> <span>Trainer Card</span>
+      </button>
     </div>
 
-    <!-- 12 Critters Grid -->
-    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-      {critters.map((c, i) => (
-        <div id={`dex-item-${c.id}`} class="card p-2 text-center opacity-40 transition-all border-2">
-          <canvas id={`dex-canvas-${c.id}`} class="w-14 h-14 mx-auto mb-1"></canvas>
-          <div class="font-pixel text-[9px] text-ink truncate">
-            No.{String(i + 1).padStart(2, '0')} {c.name}
+    <!-- TAB 1: TRAINER PASSPORT (STAMP RALLY) -->
+    <div id="tab-pane-passport" class="space-y-3.5">
+      <!-- Passport Progress Header -->
+      <div class="p-3.5 rounded-xl border-2 border-ink bg-gradient-to-r from-amber-50 to-orange-50 space-y-2">
+        <div class="flex items-center justify-between flex-wrap gap-2">
+          <div>
+            <h3 class="font-pixel text-xs text-ink uppercase flex items-center gap-1.5">
+              <span>🎫</span> Zulfan's Town Stamp Rally
+            </h3>
+            <p class="font-sans text-[11px] text-ink-soft mt-0.5">
+              Kumpulkan stempel wisata penjelajahan. Raih minimal 3 stempel untuk membuka Bingkai Emas VIP Recruiter!
+            </p>
           </div>
-          <div class="font-mono text-[9px] text-ink-soft">
-            {c.type} · {c.rarity}
-          </div>
-          <div class="font-sans text-[10px] text-ink-soft mt-1 leading-tight hidden dex-blurb">
-            {c.blurb}
+          <div class="px-2.5 py-1 rounded-md bg-white border-2 border-ink font-pixel text-[11px] text-ink font-bold shadow-xs">
+            STEMPEL: <span id="passport-stamp-count" class="text-ball">0</span> / 5
           </div>
         </div>
-      ))}
-    </div>
 
-    <!-- Trainer Card Generator -->
-    <div class="border-t-[3px] border-ink pt-4 mt-6">
-      <div class="flex items-center justify-between mb-2">
-        <h3 class="font-pixel text-[11px] text-ink uppercase">TRAINER CARD</h3>
-        <span class="text-[9px] font-mono text-ink-soft">Saved locally in browser</span>
+        <!-- VIP Recruiter Status Pill -->
+        <div id="passport-vip-banner" class="p-2 rounded-lg border border-amber-300 bg-amber-100/70 font-sans text-[11px] text-amber-900 flex items-center gap-2">
+          <span class="text-base" id="passport-vip-icon">🔒</span>
+          <span id="passport-vip-text" class="font-medium">
+            Kumpulkan 3 stempel untuk membuka Bingkai Emas VIP Recruiter & Gelar Champion di Trainer Card!
+          </span>
+        </div>
       </div>
 
-      <div class="flex flex-col sm:flex-row gap-4 items-start">
-        <div class="flex-1 w-full space-y-2">
-          <label for="trainer-name-input" class="block font-pixel text-[9px] text-ink">
-            NAME ON YOUR CARD:
-          </label>
-          <input
-            id="trainer-name-input"
-            type="text"
-            maxlength="12"
-            placeholder="TRAINER"
-            class="w-full px-3 py-2 border-2 border-ink rounded bg-paper font-pixel text-xs text-ink uppercase focus:outline-none focus:border-ball"
-          />
-          <button id="btn-save-card" type="button" class="btn btn-primary w-full mt-2">
-            📥 Save Card as PNG
+      <!-- 5 Stamp Mission Cards -->
+      <div class="space-y-2">
+        {STAMP_MISSIONS.map((m) => (
+          <div
+            id={`stamp-card-${m.id}`}
+            class="p-2.5 sm:p-3 rounded-xl border-2 border-ink bg-paper flex items-center justify-between gap-3 transition-all hover:bg-cream"
+          >
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-lg border-2 border-ink bg-cream flex items-center justify-center text-xl shrink-0 shadow-xs">
+                {m.icon}
+              </div>
+              <div>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <h4 class="font-pixel text-[11px] text-ink">{m.name}</h4>
+                  <span
+                    id={`stamp-badge-${m.id}`}
+                    class="font-pixel text-[8px] px-1.5 py-0.5 rounded border border-ink/40 bg-ink/5 text-ink-soft"
+                  >
+                    ⏳ BELUM
+                  </span>
+                </div>
+                <p class="font-sans text-xs text-ink leading-tight mt-0.5">{m.desc}</p>
+                <p class="font-mono text-[10px] text-ink-soft mt-0.5 flex items-center gap-1">
+                  <span>📍</span> <span>{m.hint}</span>
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              class="btn-stamp-jump shrink-0 px-2.5 py-1.5 rounded-lg border-2 border-ink bg-white hover:bg-emerald-50 text-ink font-pixel text-[9px] shadow-[0_2px_0_0_#1c1726] active:translate-y-0.5 transition-all cursor-pointer flex items-center gap-1"
+              data-route={m.targetRoute || ''}
+              data-x={m.targetCoords?.x ?? ''}
+              data-y={m.targetCoords?.y ?? ''}
+              data-name={m.name}
+            >
+              <span>🦅</span> <span class="hidden sm:inline">Menuju</span> Lokasi
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <!-- TAB 2: CRITTERDEX (12 POKEMON) -->
+    <div id="tab-pane-dex" class="space-y-4 hidden">
+      <!-- Dex Stats Banner -->
+      <div class="flex items-center justify-between p-3 rounded-md border-2 border-ink bg-cream font-pixel text-[10px]">
+        <div>
+          CAUGHT: <span id="dex-caught-count" class="text-ball font-bold">0</span> / 12
+        </div>
+        <div>
+          BALLS: <span id="dex-balls-count" class="text-gold font-bold">5</span>
+        </div>
+      </div>
+
+      <!-- 12 Critters Grid -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 max-h-[50vh] overflow-y-auto pr-1">
+        {critters.map((c, i) => (
+          <div id={`dex-item-${c.id}`} class="card p-2 text-center opacity-40 transition-all border-2">
+            <canvas id={`dex-canvas-${c.id}`} class="w-14 h-14 mx-auto mb-1"></canvas>
+            <div class="font-pixel text-[9px] text-ink truncate">
+              No.{String(i + 1).padStart(2, '0')} {c.name}
+            </div>
+            <div class="font-mono text-[9px] text-ink-soft">
+              {c.type} · {c.rarity}
+            </div>
+            <div class="font-sans text-[10px] text-ink-soft mt-1 leading-tight hidden dex-blurb">
+              {c.blurb}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <!-- TAB 3: TRAINER CARD GENERATOR -->
+    <div id="tab-pane-card" class="space-y-4 hidden">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="font-pixel text-[11px] text-ink uppercase">OFFICIAL TRAINER CARD</h3>
+          <p class="text-[10px] font-sans text-ink-soft">
+            Kartu identitas resmi pengunjung kota. Buka 3 stempel untuk bingkai emas VIP!
+          </p>
+        </div>
+        <span class="text-[9px] font-mono text-ink-soft">Saved locally</span>
+      </div>
+
+      <div class="flex flex-col sm:flex-row gap-4 items-center sm:items-start justify-center">
+        <div class="flex-1 w-full space-y-3">
+          <div>
+            <label for="trainer-name-input" class="block font-pixel text-[9px] text-ink mb-1">
+              NAMA PADA KARTU:
+            </label>
+            <input
+              id="trainer-name-input"
+              type="text"
+              maxlength="12"
+              placeholder="TRAINER"
+              class="w-full px-3 py-2 border-2 border-ink rounded-lg bg-paper font-pixel text-xs text-ink uppercase focus:outline-none focus:border-ball"
+            />
+          </div>
+
+          <div class="p-2.5 rounded-lg border-2 border-ink bg-cream font-mono text-[10px] text-ink space-y-1">
+            <div class="flex justify-between">
+              <span>Misi Stempel:</span>
+              <strong id="card-stamp-status">0 / 5 Stempel</strong>
+            </div>
+            <div class="flex justify-between">
+              <span>Status Lisensi:</span>
+              <strong id="card-tier-status" class="text-ink">Explorer Reguler</strong>
+            </div>
+          </div>
+
+          <button id="btn-save-card" type="button" class="btn btn-primary w-full py-2.5 flex items-center justify-center gap-2 cursor-pointer shadow-[0_2px_0_0_#1c1726]">
+            <span>📥</span> <span>Unduh Trainer Card (PNG)</span>
           </button>
         </div>
 
-        <div class="w-full sm:w-auto flex justify-center">
-          <canvas id="trainer-card-canvas" width="280" height="160" class="border-[3px] border-ink rounded-lg shadow-md bg-paper"></canvas>
+        <div class="shrink-0 flex justify-center">
+          <canvas id="trainer-card-canvas" width="290" height="170" class="border-[3px] border-ink rounded-xl shadow-lg bg-paper"></canvas>
         </div>
       </div>
     </div>
@@ -80,7 +198,7 @@ const critters = profile.critters;
 </script>
 
 <script>
-  import { gameStore } from '../game/store';
+  import { gameStore, STAMP_MISSIONS } from '../game/store';
   import { renderCritterOnCanvas } from '../game/critterArt';
   import { sfx } from '../game/sfx';
 
@@ -89,9 +207,55 @@ const critters = profile.critters;
     const closeBtn = document.getElementById('dex-modal-close');
     const caughtSpan = document.getElementById('dex-caught-count');
     const ballsSpan = document.getElementById('dex-balls-count');
+    const passportStampSpan = document.getElementById('passport-stamp-count');
+    const passportVipBanner = document.getElementById('passport-vip-banner');
+    const passportVipIcon = document.getElementById('passport-vip-icon');
+    const passportVipText = document.getElementById('passport-vip-text');
+    const cardStampStatus = document.getElementById('card-stamp-status');
+    const cardTierStatus = document.getElementById('card-tier-status');
     const nameInput = document.getElementById('trainer-name-input') as HTMLInputElement;
     const saveBtn = document.getElementById('btn-save-card');
     const cardCanvas = document.getElementById('trainer-card-canvas') as HTMLCanvasElement;
+
+    // Tabs
+    const tabBtnPassport = document.getElementById('tab-btn-passport');
+    const tabBtnDex = document.getElementById('tab-btn-dex');
+    const tabBtnCard = document.getElementById('tab-btn-card');
+    const tabPanePassport = document.getElementById('tab-pane-passport');
+    const tabPaneDex = document.getElementById('tab-pane-dex');
+    const tabPaneCard = document.getElementById('tab-pane-card');
+
+    const switchTab = (tab: 'passport' | 'dex' | 'card') => {
+      sfx.select();
+      const isP = tab === 'passport';
+      const isD = tab === 'dex';
+      const isC = tab === 'card';
+
+      tabPanePassport?.classList.toggle('hidden', !isP);
+      tabPaneDex?.classList.toggle('hidden', !isD);
+      tabPaneCard?.classList.toggle('hidden', !isC);
+
+      const activeClasses = ['bg-ball', 'text-white'];
+      const inactiveClasses = ['bg-paper', 'text-ink'];
+
+      tabBtnPassport?.classList.remove(...(isP ? inactiveClasses : activeClasses));
+      tabBtnPassport?.classList.add(...(isP ? activeClasses : inactiveClasses));
+
+      tabBtnDex?.classList.remove(...(isD ? inactiveClasses : activeClasses));
+      tabBtnDex?.classList.add(...(isD ? activeClasses : inactiveClasses));
+
+      tabBtnCard?.classList.remove(...(isC ? inactiveClasses : activeClasses));
+      tabBtnCard?.classList.add(...(isC ? activeClasses : inactiveClasses));
+
+      if (isC) {
+        const state = gameStore.getState();
+        drawTrainerCard(cardCanvas, state.trainerName, state.caught.length, state.stamps);
+      }
+    };
+
+    tabBtnPassport?.addEventListener('click', () => switchTab('passport'));
+    tabBtnDex?.addEventListener('click', () => switchTab('dex'));
+    tabBtnCard?.addEventListener('click', () => switchTab('card'));
 
     const critters = (window as unknown as { __CRITTERS__: any[] }).__CRITTERS__;
 
@@ -103,8 +267,65 @@ const critters = profile.critters;
 
     const updateUI = () => {
       const state = gameStore.getState();
+      const stampCount = state.stamps.length;
+      const isVip = stampCount >= 3;
+
       if (caughtSpan) caughtSpan.textContent = String(state.caught.length);
       if (ballsSpan) ballsSpan.textContent = String(state.balls);
+      if (passportStampSpan) passportStampSpan.textContent = String(stampCount);
+
+      if (cardStampStatus) cardStampStatus.textContent = `${stampCount} / 5 Stempel`;
+      if (cardTierStatus) {
+        if (stampCount >= 5) {
+          cardTierStatus.textContent = '👑 Grand Champion';
+          cardTierStatus.className = 'text-amber-600 font-bold';
+        } else if (isVip) {
+          cardTierStatus.textContent = '⭐ VIP Recruiter';
+          cardTierStatus.className = 'text-amber-600 font-bold';
+        } else {
+          cardTierStatus.textContent = 'Explorer Reguler';
+          cardTierStatus.className = 'text-ink';
+        }
+      }
+
+      if (passportVipBanner) {
+        if (stampCount >= 5) {
+          passportVipBanner.className = 'p-2 rounded-lg border border-amber-400 bg-amber-200/90 font-sans text-[11px] text-amber-950 flex items-center gap-2 shadow-xs';
+          if (passportVipIcon) passportVipIcon.textContent = '👑';
+          if (passportVipText) passportVipText.textContent = 'SEMPURNA! Kamu telah mengumpulkan seluruh 5 stempel penjelajah. Bingkai Grand Champion disematkan di Trainer Card-mu!';
+        } else if (isVip) {
+          passportVipBanner.className = 'p-2 rounded-lg border border-amber-400 bg-amber-100 font-sans text-[11px] text-amber-950 flex items-center gap-2 shadow-xs';
+          if (passportVipIcon) passportVipIcon.textContent = '⭐';
+          if (passportVipText) passportVipText.textContent = 'STATUS VIP RECRUITER AKTIF! Bingkai Emas Kehormatan telah terbuka pada Trainer Card.';
+        } else {
+          passportVipBanner.className = 'p-2 rounded-lg border border-amber-300 bg-amber-100/70 font-sans text-[11px] text-amber-900 flex items-center gap-2';
+          if (passportVipIcon) passportVipIcon.textContent = '🔒';
+          if (passportVipText) passportVipText.textContent = `Kumpulkan minimal 3 stempel (${3 - stampCount} lagi) untuk membuka Bingkai Emas VIP Recruiter di Trainer Card!`;
+        }
+      }
+
+      // Update Stamp Badges
+      STAMP_MISSIONS.forEach((m) => {
+        const has = state.stamps.includes(m.id);
+        const card = document.getElementById(`stamp-card-${m.id}`);
+        const badge = document.getElementById(`stamp-badge-${m.id}`);
+        if (has) {
+          card?.classList.add('bg-amber-50/70', 'border-amber-500');
+          card?.classList.remove('bg-paper');
+          if (badge) {
+            badge.textContent = '✔ TERSTEMPEL';
+            badge.className = 'font-pixel text-[8px] px-1.5 py-0.5 rounded border border-emerald-600 bg-emerald-100 text-emerald-800 font-bold';
+          }
+        } else {
+          card?.classList.remove('bg-amber-50/70', 'border-amber-500');
+          card?.classList.add('bg-paper');
+          if (badge) {
+            badge.textContent = '⏳ BELUM';
+            badge.className = 'font-pixel text-[8px] px-1.5 py-0.5 rounded border border-ink/40 bg-ink/5 text-ink-soft';
+          }
+        }
+      });
+
       if (nameInput && !nameInput.value) nameInput.value = state.trainerName;
 
       // Update critter slots
@@ -123,29 +344,63 @@ const critters = profile.critters;
         }
       });
 
-      drawTrainerCard(cardCanvas, state.trainerName, state.caught.length);
+      drawTrainerCard(cardCanvas, state.trainerName, state.caught.length, state.stamps);
     };
 
     gameStore.subscribe(updateUI);
 
+    // Jump to mission location buttons
+    document.querySelectorAll<HTMLButtonElement>('.btn-stamp-jump').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const route = btn.dataset.route;
+        const x = btn.dataset.x ? Number(btn.dataset.x) : null;
+        const y = btn.dataset.y ? Number(btn.dataset.y) : null;
+        const name = btn.dataset.name || 'Misi Wisata';
+
+        modal.close();
+        sfx.fly();
+
+        if (route && window.location.pathname !== route) {
+          window.location.href = route;
+        } else if (x !== null && y !== null) {
+          if (window.location.pathname !== '/') {
+            sessionStorage.setItem('town:respawn', `${x},${y}`);
+            window.location.href = '/';
+          } else {
+            window.dispatchEvent(
+              new CustomEvent('town:fly-to', {
+                detail: { x, y, name },
+              })
+            );
+          }
+        }
+      });
+    });
+
     nameInput?.addEventListener('input', (e) => {
       const val = (e.target as HTMLInputElement).value;
       gameStore.setTrainerName(val);
-      drawTrainerCard(cardCanvas, val || 'TRAINER', gameStore.getState().caught.length);
+      drawTrainerCard(cardCanvas, val || 'TRAINER', gameStore.getState().caught.length, gameStore.getState().stamps);
     });
 
     saveBtn?.addEventListener('click', () => {
       sfx.select();
+      const state = gameStore.getState();
+      const isVip = state.stamps.length >= 3;
+      const tierTag = isVip ? 'vip' : 'explorer';
       const link = document.createElement('a');
-      link.download = `trainer-card-${gameStore.getState().trainerName.toLowerCase()}.png`;
+      link.download = `trainer-card-${tierTag}-${state.trainerName.toLowerCase()}.png`;
       link.href = cardCanvas.toDataURL('image/png');
       link.click();
     });
 
     document.addEventListener('town:open-modal', (e: Event) => {
       const detail = (e as CustomEvent).detail;
-      if (detail?.target === 'dex') {
+      if (detail?.target === 'dex' || detail?.target === 'passport') {
         modal.showModal();
+        if (detail?.target === 'passport') {
+          switchTab('passport');
+        }
         updateUI();
       }
     });
@@ -156,69 +411,147 @@ const critters = profile.critters;
     });
   }
 
-  function drawTrainerCard(canvas: HTMLCanvasElement, name: string, caughtCount: number) {
+  function drawTrainerCard(canvas: HTMLCanvasElement, name: string, caughtCount: number, stamps: string[] = []) {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    const w = canvas.width;
+    const h = canvas.height;
+    const stampCount = stamps.length;
+    const isVip = stampCount >= 3;
+    const isMaster = stampCount >= 5;
+
     ctx.imageSmoothingEnabled = false;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, w, h);
 
-    // Card background
-    ctx.fillStyle = '#f6ecd2';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // Background Card Body
+    ctx.fillStyle = isVip ? '#fefce8' : '#f6ecd2';
+    ctx.fillRect(0, 0, w, h);
 
-    // Header strip
-    ctx.fillStyle = '#e8473f';
-    ctx.fillRect(0, 0, canvas.width, 32);
+    // Golden Sheen Pattern for VIP / Champion
+    if (isVip) {
+      ctx.fillStyle = 'rgba(251, 191, 36, 0.08)';
+      for (let i = -w; i < w * 2; i += 18) {
+        ctx.fillRect(i, 0, 8, h);
+      }
+    }
+
+    // Top Header Banner
+    const bannerH = 34;
+    if (isMaster) {
+      const grad = ctx.createLinearGradient(0, 0, w, 0);
+      grad.addColorStop(0, '#78350f');
+      grad.addColorStop(0.5, '#d97706');
+      grad.addColorStop(1, '#78350f');
+      ctx.fillStyle = grad;
+    } else if (isVip) {
+      const grad = ctx.createLinearGradient(0, 0, w, 0);
+      grad.addColorStop(0, '#b45309');
+      grad.addColorStop(0.5, '#f59e0b');
+      grad.addColorStop(1, '#b45309');
+      ctx.fillStyle = grad;
+    } else {
+      ctx.fillStyle = '#e8473f';
+    }
+    ctx.fillRect(0, 0, w, bannerH);
+
+    // Header Text
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 11px monospace';
-    ctx.fillText('TRAINER CARD', 14, 20);
-    ctx.font = '9px monospace';
-    ctx.fillText('ZULFAN REGION', canvas.width - 94, 20);
+    if (isMaster) {
+      ctx.fillText('👑 GRAND CHAMPION', 14, 21);
+    } else if (isVip) {
+      ctx.fillText('⭐ VIP RECRUITER', 14, 21);
+    } else {
+      ctx.fillText('TRAINER CARD', 14, 21);
+    }
 
-    // Border
-    ctx.strokeStyle = '#1c1726';
-    ctx.lineWidth = 3;
-    ctx.strokeRect(0, 0, canvas.width, canvas.height);
+    ctx.font = 'bold 9px monospace';
+    ctx.fillStyle = isVip ? '#fef08a' : '#ffffff';
+    ctx.fillText('ZULFAN REGION', w - 92, 21);
+
+    // Card Borders
+    if (isVip) {
+      // Outer Gold Border
+      ctx.strokeStyle = '#b45309';
+      ctx.lineWidth = 4;
+      ctx.strokeRect(0, 0, w, h);
+
+      // Inner Shiny Border
+      ctx.strokeStyle = '#f59e0b';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(3, 3, w - 6, h - 6);
+
+      // Sparkle Corner Stars
+      ctx.fillStyle = '#f59e0b';
+      ctx.font = 'bold 10px sans-serif';
+      ctx.fillText('✦', 6, 14);
+      ctx.fillText('✦', w - 14, 14);
+      ctx.fillText('✦', 6, h - 6);
+      ctx.fillText('✦', w - 14, h - 6);
+    } else {
+      ctx.strokeStyle = '#1c1726';
+      ctx.lineWidth = 3;
+      ctx.strokeRect(0, 0, w, h);
+    }
 
     // Photo Box
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(16, 44, 60, 68);
+    ctx.strokeStyle = isVip ? '#b45309' : '#1c1726';
+    ctx.lineWidth = 2;
     ctx.strokeRect(16, 44, 60, 68);
 
-    // Simple pixel avatar inside photo box
+    // Pixel Avatar
     ctx.fillStyle = '#1c1726';
     ctx.fillRect(36, 54, 20, 20); // hair
     ctx.fillStyle = '#e0b48a';
     ctx.fillRect(38, 62, 16, 14); // face
-    ctx.fillStyle = '#e8473f';
+    ctx.fillStyle = isVip ? '#d97706' : '#e8473f';
     ctx.fillRect(32, 78, 28, 24); // shirt
 
-    // Info details
+    // Info Details
     ctx.fillStyle = '#1c1726';
     ctx.font = 'bold 10px monospace';
-    ctx.fillText(`NAME: ${name.toUpperCase()}`, 88, 58);
-    ctx.fillText(`IDNo. 290826`, 88, 76);
-    ctx.fillText(`CRITTERS: ${caughtCount} / 12`, 88, 94);
+    ctx.fillText(`NAME: ${(name || 'TRAINER').toUpperCase()}`, 88, 58);
+    ctx.fillText(`IDNo. 290826`, 88, 74);
+    ctx.fillText(`CRITTERS: ${caughtCount} / 12`, 88, 90);
 
-    // Badges strip
-    ctx.fillStyle = '#e5d7bd';
-    ctx.fillRect(16, 122, canvas.width - 32, 26);
-    ctx.strokeRect(16, 122, canvas.width - 32, 26);
+    // Passport Stamps Count on Card
+    ctx.fillStyle = isVip ? '#b45309' : '#6b7280';
+    ctx.font = 'bold 9px monospace';
+    ctx.fillText(`PASSPORT: ${stampCount}/5 STEMPEL ${isVip ? '⭐ VIP' : ''}`, 88, 106);
 
-    // Draw small badges based on caught critters & Arena Frontier Gym Challenge
-    let hasFrontier = false;
-    try {
-      hasFrontier = !!localStorage.getItem('town:badge:frontier');
-    } catch {}
-    const badges = ['⚡', '🌿', '💧', '🔥', '🔮', hasFrontier ? '🏆' : '⭐'];
-    badges.forEach((b, i) => {
-      const earned = (i === 5 && hasFrontier) || caughtCount >= (i + 1) * 2;
-      ctx.fillStyle = earned ? '#1c1726' : '#cbbb9e';
-      ctx.font = '14px sans-serif';
-      ctx.fillText(earned ? b : '○', 28 + i * 40, 140);
+    // Badges & Stamp Strip
+    ctx.fillStyle = isVip ? '#fef3c7' : '#e5d7bd';
+    ctx.fillRect(16, 126, w - 32, 30);
+    ctx.strokeStyle = isVip ? '#d97706' : '#1c1726';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(16, 126, w - 32, 30);
+
+    // Stamp seals icons: Dev (🏢), Twin (🤖), Arena (🔥), Critter (🌿), Arcade (🕹️)
+    const stampMissionsList = ['dev', 'twin', 'battle', 'critter', 'arcade'];
+    const stampIcons = ['🏢', '🤖', '🔥', '🌿', '🕹️'];
+
+    stampMissionsList.forEach((id, i) => {
+      const earned = stamps.includes(id);
+      const bx = 26 + i * 50;
+
+      // Draw subtle stamp seal circle
+      ctx.beginPath();
+      ctx.arc(bx + 10, 141, 10, 0, Math.PI * 2);
+      ctx.fillStyle = earned ? (isVip ? 'rgba(245, 158, 11, 0.25)' : 'rgba(34, 197, 94, 0.2)') : 'rgba(0, 0, 0, 0.05)';
+      ctx.fill();
+      ctx.strokeStyle = earned ? (isVip ? '#d97706' : '#16a34a') : '#cbd5e1';
+      ctx.stroke();
+
+      ctx.fillStyle = earned ? '#1c1726' : '#94a3b8';
+      ctx.font = earned ? '12px sans-serif' : '10px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(earned ? stampIcons[i] : '○', bx + 10, 145);
     });
+    ctx.textAlign = 'start';
   }
 
   document.addEventListener('DOMContentLoaded', initCritterdex);

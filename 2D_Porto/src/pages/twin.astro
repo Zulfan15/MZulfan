@@ -22,3 +22,10 @@ import { profile } from '../lib/profile';
     <WhereTo currentPath="/twin" />
   </div>
 </TownLayout>
+
+<script>
+  import { gameStore } from '../game/store';
+  if (typeof window !== 'undefined') {
+    gameStore.addStamp('twin');
+  }
+</script>

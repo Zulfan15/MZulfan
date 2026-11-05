@@ -141,6 +141,7 @@ import '../styles/arcade.css';
 </div>
 
 <script>
+  import { gameStore } from '../game/store';
   // Chiptune Audio Synthesizer via Web Audio API oscillators
   const SFX_PITCHES: Record<string, [number, number][]> = {
     blip: [[880, 18]],
@@ -917,6 +918,7 @@ import '../styles/arcade.css';
 
     pickPit(pit: number) {
       if (!this.pitChoice || !this.pitChoice.legal.includes(pit)) return;
+      gameStore.addStamp('arcade');
       const resolver = this.pitChoice.resolve;
       this.pitChoice = null;
       this.waiter = null;

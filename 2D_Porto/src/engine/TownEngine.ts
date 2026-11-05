@@ -5,6 +5,7 @@ import { TILE_SIZE, drawCharacter, drawLucario, drawPixelMatrix } from './sprite
 import { renderLighting } from './tiles';
 import { findPath } from './pathfinding';
 import { sfx } from '../game/sfx';
+import { gameStore } from '../game/store';
 import { townConfig, SPAWNABLE_TEMPLATES } from './townConfig';
 import { TownEditor } from './townEditor';
 import {
@@ -313,6 +314,7 @@ export class TownEngine {
       this.cameraY = ((is2F ? HOME2F_ROWS : HOME_ROWS) * TILE_SIZE) / 2;
     } else if (initialSpawn === 'dev') {
       this.currentScene = 'dev';
+      gameStore.addStamp('dev');
       this.playerPos = { x: DEV_SPAWN.x, y: DEV_SPAWN.y };
       this.playerTarget = { x: DEV_SPAWN.x, y: DEV_SPAWN.y };
       this.playerDir = DEV_SPAWN.dir;
@@ -4440,6 +4442,7 @@ export class TownEngine {
       }
       if (npc.id === 'twin') {
         sfx.select();
+        gameStore.addStamp('twin');
         const twinActions: BubbleAction[] = [
           {
             label: '⚡ Bola Aura (Aura Sphere)',

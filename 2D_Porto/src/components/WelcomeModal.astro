@@ -45,9 +45,33 @@ import { profile } from '../lib/profile';
 
       <li class="flex items-start gap-3">
         <span class="text-base shrink-0 select-none pt-0.5">🌿</span>
-        <span>Wild critters live in the tall grass south of Garden Lane. Get Poké Balls from Charizard at Central Plaza, then catch them all for your <strong class="font-bold text-[#1c1726]">Dex</strong></span>
+        <span>Wild critters live in the tall grass south of Garden Lane. Catch them all for your <strong class="font-bold text-[#1c1726]">Dex</strong></span>
       </li>
     </ul>
+
+    <!-- Stamp Rally Mission Preview Box -->
+    <div class="p-3 rounded-xl border-2 border-[#1c1726] bg-[#fff8eb] space-y-1.5 shadow-[0_2px_0_0_#1c1726]">
+      <div class="flex items-center justify-between">
+        <span class="font-pixel text-[10px] uppercase font-bold text-[#b45309] flex items-center gap-1.5">
+          <span>🎫</span> Zulfan's Town Stamp Rally
+        </span>
+        <span class="font-mono text-[9px] px-2 py-0.5 rounded-full bg-[#fef3c7] text-[#92400e] font-bold border border-[#f59e0b]">
+          5 Misi Wisata
+        </span>
+      </div>
+      <p class="font-sans text-[11px] text-[#451a03] leading-snug">
+        Kumpulkan stempel wisata (Dev Center, AI Twin, Arena Quiz, Tangkap Pokémon, dan Arcade) untuk membuka <strong>Bingkai Emas VIP Recruiter</strong> pada Trainer Card!
+      </p>
+      <div class="pt-1 flex items-center gap-2">
+        <button
+          id="welcome-open-passport-btn"
+          type="button"
+          class="px-2.5 py-1 rounded-lg border-2 border-[#1c1726] bg-white hover:bg-[#fef3c7] font-pixel text-[9px] text-[#1c1726] font-bold shadow-[0_1.5px_0_0_#1c1726] hover:translate-y-0.5 transition-all cursor-pointer flex items-center gap-1"
+        >
+          <span>🎫</span> Buka Passport
+        </button>
+      </div>
+    </div>
 
     <!-- CTA Button -->
     <div class="pt-2">
@@ -68,8 +92,16 @@ import { profile } from '../lib/profile';
   function initWelcomeModal() {
     const modal = document.getElementById('welcome-modal') as HTMLDialogElement | null;
     const exploreBtn = document.getElementById('welcome-explore-btn');
+    const openPassportBtn = document.getElementById('welcome-open-passport-btn');
 
     if (!modal) return;
+
+    openPassportBtn?.addEventListener('click', () => {
+      sfx.select();
+      localStorage.setItem(STORAGE_KEY, 'true');
+      modal.close();
+      document.dispatchEvent(new CustomEvent('town:open-modal', { detail: { target: 'passport' } }));
+    });
 
     // First time visitor check
     const STORAGE_KEY = 'zulfan_town_welcomed';

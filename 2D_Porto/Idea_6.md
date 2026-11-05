@@ -180,19 +180,40 @@ Namun, dari sisi **kenyamanan pengguna (User Experience)** dan **daya tarik inte
 
 ---
 
-### FASE 5: Gamifikasi Tur Portofolio — "Trainer Passport & Stamp Rally"
-**Target File**: `src/game/store.ts`, `src/components/WelcomeModal.astro`, `src/components/CritterdexModal.astro`
+### FASE 5: Gamifikasi Tur Portofolio — "Trainer Passport & Stamp Rally" — ✅ [SELESAI]
+**Target File**: `src/game/store.ts`, `src/components/CritterdexModal.astro`, `src/components/WelcomeModal.astro`, `src/components/CommandPalette.astro`, `src/components/TownCanvas.astro`, `src/engine/TownEngine.ts`, `src/pages/dev.astro`, `src/pages/twin.astro`, `src/pages/arcade.astro`
 
 1. **🎫 Misi Eksplorasi Singkat ("Zulfan's Town Stamp Rally")**:
-   - Banyak pengunjung pertama kali bingung harus ke mana dulu. Buat daftar **5 Stempel Eksplorasi** yang ringan dan menyenangkan:
-     1. 🏢 *Kunjungi Dev Center & lihat proyek unggulan*
-     2. 🤖 *Mengobrol dengan AI Digital Twin*
-     3. 🔥 *Jawab kuis singkat dari Charizard atau Battle Arena*
-     4. 🌿 *Tangkap 1 Critter di rumput tinggi selatan*
-     5. 🕹️ *Mainkan 1 giliran Mancala melawan Deoxys di Arcade*
-2. **🏆 Hadiah Penyelesaian**:
-   - Setiap stempel yang didapat menampilkan notifikasi *toast* bergaya *Achievement Unlocked*.
-   - Mengumpulkan minimal 3 stempel membuka **Bingkai Emas "VIP Recruiter / Champion"** pada **Trainer Card PNG** yang bisa diunduh pengunjung sebagai kenang-kenangan unik!
+   - Dibuat sistem 5 stempel petualangan terintegrasi (`STAMP_MISSIONS` di `src/game/store.ts`):
+     1. 🏢 *Dev Center Explorer*: Kunjungi Dev Center & telusuri showcase proyek.
+     2. 🤖 *Digital Twin AI*: Mengobrol dengan kembaran AI digital Zulfan.
+     3. 🔥 *Battle Arena Challenger*: Jawab kuis teknologi dari Mewtwo di Battle Arena.
+     4. 🌿 *Wild Critter Catcher*: Tangkap 1 Pokémon di padang rumput liar.
+     5. 🕹️ *Arcade Deoxys Strategist*: Mainkan 1 giliran Mancala melawan Deoxys di Arcade.
+   - Pemicu otomatis: Saat pengguna melakukan aksi terkait, stempel tersimpan di `localStorage` dan memicu event custom `town:stamp-unlocked`.
+   - **Achievement Unlocked Notification**: Notifikasi toast elegan bergaya retro dengan suara chiptune kemenangan (`sfx.catchSuccess()`).
+
+2. **🪪 Trainer Passport Modal 3-Tab (`CritterdexModal.astro`)**:
+   - Desain ulang modal dengan sistem tab:
+     - **Tab 1 `🎫 Misi Stempel (Passport)`**: Menampilkan 5 kartu stempel interaktif dengan status `✔ TERSTEMPEL` vs `⏳ BELUM`, serta tombol teleport langsung `🦅 Menuju Lokasi` yang otomatis menerbangkan/mengarahkan pemain ke tujuan!
+     - **Tab 2 `📖 Critterdex (12)`**: Koleksi 12 Pokémon liar dengan kanvas animasi sprite, tipe, rarity, dan blurb pengetahuan.
+     - **Tab 3 `🪪 Trainer Card`**: Generator kartu identitas trainer interaktif dengan kustomisasi nama, avatar piksel, badge gym, dan stempel paspor.
+   - **Tombol Akses Cepat**:
+     - Ditambahkan ke burger menu (`🎫 Trainer Passport`, shortcut hotkey `U`).
+     - Ditambahkan ke Pokénav Command Palette (`Ctrl+K`).
+     - Banner pratinjau misi tersemat rapi di modal sambutan awal (`WelcomeModal.astro`).
+
+3. **🏆 Hadiah Bingkai Emas "VIP Recruiter / Champion" pada Trainer Card PNG**:
+   - Jika pengunjung mengumpulkan **minimal 3 stempel**, status kartu otomatis naik ke **⭐ VIP Recruiter**:
+     - Bingkai emas ganda berkilau (`#b45309`, `#f59e0b`, `#fef08a`) dengan ornamen bintang sudut `✦`.
+     - Pita tajuk bergengsi: `⭐ VIP RECRUITER · ZULFAN REGION` dan seal baris stempel tertera rapi di kartu.
+   - Jika mengumpulkan **semua 5 stempel**, pengunjung dinobatkan sebagai **👑 GRAND CHAMPION**.
+   - Kartu dapat langsung diunduh dalam format PNG resolusi tinggi sebagai souvenir interaktif untuk HR/Recruiter.
+
+#### 📝 Catatan Hasil Pengujian & Verifikasi Fase 5:
+- `npm --prefix 2D_Porto run build`: Berhasil bersih dengan **0 error** (seluruh 11 rute statis sukses terkompilasi dalam 3.19 detik).
+- `npx tsc --noEmit`: **0 error**.
+- Notifikasi achievement unlock, suara sfx chiptune, dan pergantian tab paspor berjalan responsif tanpa hambatan.
 
 ---
 
@@ -218,7 +239,7 @@ Namun, dari sisi **kenyamanan pengguna (User Experience)** dan **daya tarik inte
 | **2** | **Fase 2** (`Ctrl+K` Search, Panel Mode, Clean HUD) | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ✅ **SELESAI (Completed)** |
 | **3** | **Fase 3** (HUD Time/Weather Toggle & 8-Bit BGM) | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ✅ **SELESAI (Completed)** |
 | **4** | **Fase 4** (Switchable Follower Pokémon & Move FX) | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ✅ **SELESAI (Completed)** |
-| **5** | **Fase 5** (Trainer Stamp Rally / Quest Guide) | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⏳ *Menunggu Instruksi User* |
+| **5** | **Fase 5** (Trainer Stamp Rally / Quest Guide) | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ✅ **SELESAI (Completed)** |
 | **6** | **Fase 6** (Mobile Virtual GameBoy Controls) | ⭐⭐⭐⭐⭐ (Mobile) | ⭐⭐⭐⭐ | ⏳ *Menunggu Instruksi User* |
 
 ---

@@ -184,6 +184,15 @@ const dataPlaceRooms = {
             <kbd class="town-burger-dropdown__kbd">P</kbd>
           </button>
 
+          <button type="button" class="town-burger-dropdown__item" id="burger-item-passport" role="menuitem">
+            <span class="town-burger-dropdown__item-icon">🎫</span>
+            <div class="town-burger-dropdown__item-info">
+              <span class="town-burger-dropdown__item-title">Trainer Passport</span>
+              <span class="town-burger-dropdown__item-sub">Misi stempel tur kota & Trainer Card VIP</span>
+            </div>
+            <kbd class="town-burger-dropdown__kbd">U</kbd>
+          </button>
+
           <button type="button" class="town-burger-dropdown__item" id="burger-item-skill" role="menuitem">
             <span class="town-burger-dropdown__item-icon" id="burger-skill-icon">⚡</span>
             <div class="town-burger-dropdown__item-info">
@@ -1002,6 +1011,7 @@ const dataPlaceRooms = {
   import { sfx } from '../game/sfx';
   import { townConfig, type TileTypeKey, SPAWNABLE_TEMPLATES } from '../engine/townConfig';
   import { COMPANIONS_MAP } from '../engine/pokemonCompanions';
+  import { gameStore } from '../game/store';
 
   let engine: TownEngine | null = null;
 
@@ -1115,6 +1125,9 @@ const dataPlaceRooms = {
       },
       onBubble: showBubble,
       onNavigate: (route) => {
+        if (route === '/dev') gameStore.addStamp('dev');
+        if (route === '/twin') gameStore.addStamp('twin');
+        if (route === '/arcade') gameStore.addStamp('arcade');
         window.location.href = route;
       },
       onEncounter: () => {
@@ -1829,6 +1842,14 @@ const dataPlaceRooms = {
 
     btnOpenPartnerHub?.addEventListener('click', openPartnerHub);
     burgerItemPartner?.addEventListener('click', openPartnerHub);
+
+    const burgerItemPassport = document.getElementById('burger-item-passport');
+    const openPassport = () => {
+      sfx.select();
+      document.dispatchEvent(new CustomEvent('town:open-modal', { detail: { target: 'passport' } }));
+      toggleBurger(false);
+    };
+    burgerItemPassport?.addEventListener('click', openPassport);
 
     btnCastPartnerSkill?.addEventListener('click', castPartnerSkill);
     burgerItemSkill?.addEventListener('click', castPartnerSkill);
@@ -2820,6 +2841,8 @@ const dataPlaceRooms = {
           }
         } else if (e.key === 'p' || e.key === 'P') {
           openPartnerHub();
+        } else if (e.key === 'u' || e.key === 'U') {
+          openPassport();
         } else if (e.key === 'l' || e.key === 'L') {
           toggleLabels();
         } else if (e.key === 'c' || e.key === 'C') {
@@ -2897,13 +2920,30 @@ const dataPlaceRooms = {
         try {
           localStorage.setItem('town:badge:frontier', 'true');
         } catch {}
+        gameStore.addStamp('battle');
         sfx.heal();
         showBubble(
           'VICTORY! 🏆 Arena Frontier Badge',
-          'MEWTWO: "Pikiranmu terbukti tangguh. Aku mengakui kemampuan teknologi dan logikamu." Kamu berhasil merebut ARENA FRONTIER BADGE!'
+          'MEWTWO: "Pikiranmu terbukti tangguh. Aku mengakui kemampuan teknologi dan logikamu." Kamu berhasil merebut ARENA FRONTIER BADGE & Stempel Battle Arena!'
         );
       };
       q1();
+    });
+
+    // Achievement Unlocked Celebration Toast
+    window.addEventListener('town:stamp-unlocked', (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (!detail) return;
+      sfx.catchSuccess();
+      const m = detail.mission;
+      const count = detail.totalStamps;
+      if (count === 3) {
+        showToast('⭐ VIP RECRUITER UNLOCKED! Bingkai Emas terbuka di Trainer Card (Buka Passport / Dex)');
+      } else if (count === 5) {
+        showToast('👑 GRAND CHAMPION! Semua 5 Stempel Wisata Zulfan Town berhasil diraih!');
+      } else {
+        showToast(`🏆 Achievement Unlocked: ${m ? m.icon + ' ' + m.name : 'Stempel Baru'}! (${count}/5 Stempel)`);
+      }
     });
 
     // Poké-Café Barista Stand Event

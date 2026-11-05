@@ -278,6 +278,7 @@ const feedJson = "{\"timeline\":[{\"label\":\"ITENAS ENROLLMENT\",\"kind\":\"sch
 </TownLayout>
 
 <script>
+  import { gameStore } from '../game/store';
   // Dev Center Client Script matching si-dan.com
   const DIALOGS: Record<string, string> = {
     timeline: 'timeline',
@@ -387,6 +388,9 @@ const feedJson = "{\"timeline\":[{\"label\":\"ITENAS ENROLLMENT\",\"kind\":\"sch
       pendingOpen = null;
       openMcDialog(name);
     }
+
+    // Unlock Dev Center stamp
+    gameStore.addStamp('dev');
   }
 
   if (document.readyState === 'loading') {
