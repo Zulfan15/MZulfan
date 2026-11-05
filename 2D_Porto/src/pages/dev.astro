@@ -190,6 +190,10 @@ const feedJson = "{\"timeline\":[{\"label\":\"ITENAS ENROLLMENT\",\"kind\":\"sch
           <span class="mcp-subnav__icon">💬</span>
           <span>Comms</span>
         </a>
+        <a href="#sec-terminal" class="mcp-subnav__link" data-nav-target="sec-terminal">
+          <span class="mcp-subnav__icon">💻</span>
+          <span>CLI</span>
+        </a>
       </div>
     </nav>
 <!-- // TL;DR -->
@@ -330,6 +334,44 @@ const feedJson = "{\"timeline\":[{\"label\":\"ITENAS ENROLLMENT\",\"kind\":\"sch
             </a>
           </li>
         </ul>
+      </div>
+    </section>
+
+    <!-- // ZULFANKERNEL / ZULFANGOS DEVELOPER TERMINAL -->
+    <section class="mcp-card terminal-card" id="sec-terminal" aria-labelledby="terminal-title">
+      <div class="terminal-card__header">
+        <div class="terminal-dots">
+          <span class="dot dot--red"></span>
+          <span class="dot dot--yellow"></span>
+          <span class="dot dot--green"></span>
+        </div>
+        <div class="terminal-title" id="terminal-title">zulfan@mission-control:~ (ZulfanOS v2.4-rt)</div>
+        <div class="terminal-status"><span class="pulse-indicator"></span>ONLINE</div>
+      </div>
+
+      <div class="terminal-chips">
+        <span class="terminal-chips__label">Quick Commands:</span>
+        <button type="button" class="term-chip" data-cmd="help">help</button>
+        <button type="button" class="term-chip" data-cmd="aeroscan">aeroscan</button>
+        <button type="button" class="term-chip" data-cmd="foodlink">foodlink</button>
+        <button type="button" class="term-chip" data-cmd="skills">skills</button>
+        <button type="button" class="term-chip" data-cmd="eternatus">eternatus</button>
+        <button type="button" class="term-chip" data-cmd="coffee">coffee</button>
+        <button type="button" class="term-chip" data-cmd="status">status</button>
+        <button type="button" class="term-chip" data-cmd="clear">clear</button>
+      </div>
+
+      <div class="terminal-window" id="terminal-window" tabindex="0" role="region" aria-label="Interactive Terminal Log">
+        <div class="terminal-output" id="terminal-output">
+          <div class="term-line term-line--system">=== ZulfanOS Mission Control Kernel v2.4.0 (x86_64-rt) ===</div>
+          <div class="term-line term-line--system">Server Assistant: ETERNATUS DYNAMO ENGINE [ACTIVE] | Load: 0.14 | Latency: 1.8ms</div>
+          <div class="term-line term-line--system">Ketik <span class="term-hl">help</span> atau klik tombol chip di atas untuk melihat perintah yang tersedia.</div>
+        </div>
+        <form class="terminal-input-row" id="terminal-form" autocomplete="off">
+          <span class="term-prompt">guest@mission-control:~$</span>
+          <input type="text" class="terminal-input" id="terminal-input" placeholder="ketik perintah (e.g. help, aeroscan, coffee)..." spellcheck="false" autocomplete="off" />
+          <button type="submit" class="terminal-submit-btn">RUN ↵</button>
+        </form>
       </div>
     </section>
 
@@ -476,7 +518,7 @@ const feedJson = "{\"timeline\":[{\"label\":\"ITENAS ENROLLMENT\",\"kind\":\"sch
 
     // ScrollSpy within panel body
     const panelBody = document.querySelector<HTMLElement>('.panel__body');
-    const sections = ['sec-tldr', 'sec-launches', 'sec-stack', 'sec-honors', 'sec-comms']
+    const sections = ['sec-tldr', 'sec-launches', 'sec-stack', 'sec-honors', 'sec-comms', 'sec-terminal']
       .map(id => document.getElementById(id))
       .filter((el): el is HTMLElement => el !== null);
 
@@ -754,6 +796,189 @@ const feedJson = "{\"timeline\":[{\"label\":\"ITENAS ENROLLMENT\",\"kind\":\"sch
           : '🔽 Tampilkan 6 Pengalaman Asisten Lab &amp; Magang Lainnya';
       });
     }
+
+    // 6. Interactive ZulfanOS Developer Terminal (CLI)
+    const terminalForm = document.getElementById('terminal-form') as HTMLFormElement | null;
+    const terminalInput = document.getElementById('terminal-input') as HTMLInputElement | null;
+    const terminalOutput = document.getElementById('terminal-output');
+    const terminalChips = Array.from(document.querySelectorAll<HTMLButtonElement>('.term-chip'));
+
+    function appendTermLine(text: string, type: 'input' | 'output' | 'system' | 'error' | 'success' = 'output') {
+      if (!terminalOutput) return;
+      const line = document.createElement('div');
+      line.className = `term-line term-line--${type}`;
+      line.innerHTML = text;
+      terminalOutput.appendChild(line);
+      terminalOutput.scrollTop = terminalOutput.scrollHeight;
+    }
+
+    function executeCommand(rawCmd: string) {
+      const trimmed = rawCmd.trim();
+      if (!trimmed) return;
+
+      appendTermLine(`<span class="term-prompt-echo">guest@mission-control:~$</span> ${trimmed}`, 'input');
+      const parts = trimmed.split(' ');
+      const cmd = parts[0].toLowerCase();
+      const arg = parts.slice(1).join(' ').toLowerCase();
+
+      switch (cmd) {
+        case 'help':
+          appendTermLine(
+            `Daftar Perintah ZulfanOS CLI:
+<span class="term-hl">help</span>         : Tampilkan panduan ini
+<span class="term-hl">aeroscan</span>     : Spesifikasi Tactical Edge AI AeroScan
+<span class="term-hl">foodlink</span>     : Arsitektur Cloud-Native Distributed FoodLink
+<span class="term-hl">thesis</span>       : Info penelitian klasifikasi spam email
+<span class="term-hl">skills</span> / <span class="term-hl">stack</span>: Daftar teknologi utama
+<span class="term-hl">eternatus</span>    : Status Server Assistant & Dynamo Core
+<span class="term-hl">coffee</span> / <span class="term-hl">turbo</span> : Aktifkan Robusta Overclock (+50% Speed)
+<span class="term-hl">snorlax</span>      : Sapa Snorlax di meja komando
+<span class="term-hl">status</span>       : Metrik operasional Mission Control
+<span class="term-hl">locate &lt;id&gt;</span>  : Cari &amp; arahkan karakter ke prop (rack, snorlax, coffee, eternatus)
+<span class="term-hl">clear</span>        : Bersihkan log terminal`,
+            'system'
+          );
+          break;
+
+        case 'aeroscan':
+          appendTermLine(
+            `🚀 <span class="term-hl">AeroScan Tactical Edge AI</span>:
+• YOLOv11s model trained for military aircraft & tactical object classification.
+• TensorRT 10 FP16 quantization: ~1.8 ms/frame (&gt;500 FPS) on RTX 4060.
+• FastAPI backend with WebRTC low-latency streaming.
+[<a href="#" class="term-link" data-open-debrief="aeroscan">Buka Debrief AeroScan ↗</a>]`,
+            'output'
+          );
+          openDebrief('aeroscan');
+          break;
+
+        case 'foodlink':
+          appendTermLine(
+            `🌐 <span class="term-hl">FoodLink Distributed Cloud Platform</span>:
+• High-concurrency surplus food redistribution API.
+• Laravel 12 API Gateway, PostgreSQL 16 row-level locks, PostGIS spatial queries.
+• Apache Kafka transactional outbox + Redis 7 distributed mutexes.
+[<a href="#" class="term-link" data-open-debrief="foodlink">Buka Debrief FoodLink ↗</a>]`,
+            'output'
+          );
+          openDebrief('foodlink');
+          break;
+
+        case 'thesis':
+          appendTermLine(
+            `📚 <span class="term-hl">Skripsi / Thesis Machine Learning</span>:
+• Indonesian Email Spam Classifier using SVM (Support Vector Machine) &amp; TF-IDF.
+• Evaluated across linear, RBF, and polynomial kernels; achieved 98.4% F1-score.
+[<a href="#" class="term-link" data-open-debrief="thesis">Buka Debrief Skripsi ↗</a>]`,
+            'output'
+          );
+          openDebrief('thesis');
+          break;
+
+        case 'skills':
+        case 'stack':
+          appendTermLine(
+            `🛠️ <span class="term-hl">Core Tech Stack</span>:
+• Languages  : Python, TypeScript, PHP, SQL, Bash
+• AI / ML    : PyTorch, TensorRT 10, YOLOv11s, OpenCV, Scikit-learn
+• Backend    : FastAPI, Laravel 12, PostgreSQL 16, PostGIS, Redis 7
+• Infra / Ops: Docker, Kubernetes, Apache Kafka, Linux, Cloudflare Pages
+• Frontend   : Astro 5, Responsive Canvas 2D Engine, Tailwind`,
+            'output'
+          );
+          break;
+
+        case 'eternatus':
+          appendTermLine(
+            `⚡ <span class="term-hl">Server Assistant: ETERNATUS</span>:
+• Status     : DYNAMO CORE 100% ONLINE
+• Role       : Compute Cluster High-Voltage Power &amp; Inference Pipeline
+• Temp       : 38.4°C | Frequency: 4.8 GHz
+• Overclock  : READY
+Mengalirkan daya ke cluster komputasi AI! Mengarahkan karakter ke Eternatus...`,
+            'success'
+          );
+          window.dispatchEvent(new CustomEvent('town:locate', { detail: { propId: 'eternatus' } }));
+          break;
+
+        case 'coffee':
+        case 'turbo':
+        case 'overclock':
+          appendTermLine(
+            `☕ <span class="term-hl">ROBUSTA OVERCLOCK ACTIVATED!</span>
+Kafein robusta murni disuntikkan ke sistem!
+Kecepatan karakter meningkat <span class="term-hl">+50%</span> selama 30 detik. Lari cepat aktif!`,
+            'success'
+          );
+          window.dispatchEvent(new CustomEvent('town:coffee-boost'));
+          break;
+
+        case 'snorlax':
+          appendTermLine(
+            `💤 <span class="term-hl">Snorlax (Head of Comfort)</span>:
+Zzz... Snorlax tertidur pulas di meja depan menjaga log sistem. Tekan tombol bicara atau gunakan Poké Flute untuk menyapa.`,
+            'output'
+          );
+          window.dispatchEvent(new CustomEvent('town:locate', { detail: { propId: 'snorlax' } }));
+          break;
+
+        case 'status':
+          appendTermLine(
+            `📊 <span class="term-hl">Mission Control Operational Status</span>:
+• System Uptime : 99.98%
+• Active Nodes  : Edge-RTX4060 [ONLINE], Cloud-Postgres [HEALTHY], Kafka-Broker [READY]
+• 2D Engine FPS : 60 FPS (V-Sync)
+• Server Core   : Eternatus Dynamo [PEAK 100%]
+• Coffee Supply : Fresh Robusta [READY]`,
+            'output'
+          );
+          break;
+
+        case 'locate':
+          if (!arg) {
+            appendTermLine('Penggunaan: locate &lt;id&gt; (contoh: locate rack, locate snorlax, locate coffee, locate eternatus)', 'error');
+          } else {
+            appendTermLine(`Mengarahkan karakter menuju prop "${arg}"...`, 'system');
+            window.dispatchEvent(new CustomEvent('town:locate', { detail: { propId: arg } }));
+          }
+          break;
+
+        case 'clear':
+          if (terminalOutput) {
+            terminalOutput.innerHTML = '';
+          }
+          break;
+
+        default:
+          appendTermLine(`Perintah tidak dikenal: "${cmd}". Ketik <span class="term-hl">help</span> untuk daftar perintah.`, 'error');
+          break;
+      }
+    }
+
+    terminalForm?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (!terminalInput) return;
+      const val = terminalInput.value;
+      terminalInput.value = '';
+      executeCommand(val);
+    });
+
+    for (const chip of terminalChips) {
+      chip.addEventListener('click', () => {
+        const cmd = chip.dataset.cmd;
+        if (cmd) executeCommand(cmd);
+      });
+    }
+
+    // Delegate clicks on dynamically printed term links
+    terminalOutput?.addEventListener('click', (e) => {
+      const target = (e.target as HTMLElement).closest('[data-open-debrief]');
+      if (target) {
+        e.preventDefault();
+        const id = target.getAttribute('data-open-debrief');
+        if (id) openDebrief(id);
+      }
+    });
 
     // Open any pending dialog if navigated
     if (pendingOpen) {

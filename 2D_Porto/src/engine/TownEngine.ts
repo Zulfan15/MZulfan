@@ -245,6 +245,7 @@ export class TownEngine {
   private bufferedDir: Dir | null = null;
   private isShiftHeld = false;
   private isBikeActive = false;
+  private coffeeBoostTimer = 0;
   private dustPuffs: DustPuff[] = [];
   private flyBurstParticles: FlyParticle[] = [];
   private lastBumpTime = 0;
@@ -1805,9 +1806,14 @@ export class TownEngine {
       }
     };
 
+    const onCoffeeBoost = () => {
+      this.activateCoffeeBoost();
+    };
+
     window.addEventListener('town:set-follower', onSetFollower);
     window.addEventListener('town:trigger-move', onTriggerMove);
     window.addEventListener('town:locate', onLocate);
+    window.addEventListener('town:coffee-boost', onCoffeeBoost);
 
     this.unbindEvents.push(
       () => window.removeEventListener('keydown', onKeyDown),
@@ -1830,7 +1836,8 @@ export class TownEngine {
       () => window.removeEventListener('town:cycle-weather', onCycleWeather),
       () => window.removeEventListener('town:set-follower', onSetFollower),
       () => window.removeEventListener('town:trigger-move', onTriggerMove),
-      () => window.removeEventListener('town:locate', onLocate)
+      () => window.removeEventListener('town:locate', onLocate),
+      () => window.removeEventListener('town:coffee-boost', onCoffeeBoost)
     );
   }
 
@@ -2244,7 +2251,11 @@ export class TownEngine {
           this.walkTo(12, 6);
           break;
         case 'lebronette':
+        case 'snorlax':
           this.walkTo(7, 15);
+          break;
+        case 'eternatus':
+          this.walkTo(10, 11);
           break;
         case 'console-wasm':
           this.walkTo(3, 9);
@@ -2757,11 +2768,12 @@ export class TownEngine {
     }
 
     if (this.isMoving) {
-      const speed = this.isBikeActive ? 12.1 : this.isShiftHeld ? 8.8 : 5.5; // tiles per second (Shift = running shoes, Bike = Mach bike!)
+      const baseSpeed = this.isBikeActive ? 12.1 : this.isShiftHeld ? 8.8 : 5.5; // tiles per second (Shift = running shoes, Bike = Mach bike!)
+      const speed = this.coffeeBoostTimer > 0 ? baseSpeed * 1.5 : baseSpeed;
       this.moveProgress += dt * speed;
 
-      // Emit footstep / tire dust puffs when running or biking
-      if ((this.isShiftHeld || this.isBikeActive) && this.tick % (this.isBikeActive ? 3 : 5) === 0) {
+      // Emit footstep / tire dust puffs when running or biking or coffee overclocked
+      if ((this.isShiftHeld || this.isBikeActive || this.coffeeBoostTimer > 0) && this.tick % (this.isBikeActive ? 3 : 5) === 0) {
         const curDrawX = (this.playerPos.x + (this.playerTarget.x - this.playerPos.x) * this.moveProgress) * TILE_SIZE;
         const curDrawY = (this.playerPos.y + (this.playerTarget.y - this.playerPos.y) * this.moveProgress) * TILE_SIZE;
         this.spawnDustPuff(curDrawX, curDrawY);
@@ -2862,6 +2874,10 @@ export class TownEngine {
       }
     }
 
+    if (this.coffeeBoostTimer > 0) {
+      this.coffeeBoostTimer = Math.max(0, this.coffeeBoostTimer - dt);
+    }
+
     // Update dust puff particles
     for (let i = this.dustPuffs.length - 1; i >= 0; i--) {
       const p = this.dustPuffs[i];
@@ -2940,6 +2956,22 @@ export class TownEngine {
         life: 0,
         maxLife: 0.55 + Math.random() * 0.25,
       });
+    }
+  }
+
+  public activateCoffeeBoost(durationSec = 30) {
+    this.coffeeBoostTimer = durationSec;
+    sfx.confirm();
+    const curDrawX = this.playerPos.x * TILE_SIZE;
+    const curDrawY = this.playerPos.y * TILE_SIZE;
+    for (let i = 0; i < 8; i++) {
+      this.spawnDustPuff(curDrawX, curDrawY);
+    }
+    if (this.callbacks.onBubble) {
+      this.callbacks.onBubble(
+        '☕ Robusta Overclock Active!',
+        `Kafein robusta murni meresap ke sistem! Kecepatan gerak karakter meningkat +50% selama ${durationSec} detik. Gas poll eksplorasi Mission Control & Portofolio!`
+      );
     }
   }
 
@@ -4068,6 +4100,78 @@ export class TownEngine {
             );
           } else {
             this.callbacks.onDialogue(prop.label, [prop.target.text || '']);
+          }
+        } else if (prop.id === 'eternatus') {
+          sfx.select();
+          if (this.callbacks.onBubble) {
+            this.callbacks.onBubble(
+              'Eternatus ⚡ (Server Assistant & Dynamo Core)',
+              'Asisten Server Mission Control aktif! Eternatus mengalirkan daya tak terbatas ke cluster komputasi AI, TensorRT inference pipeline, dan distributed backend. Siap untuk overclock!',
+              [
+                {
+                  label: '📈 Buka Telemetry Wall',
+                  onClick: () => {
+                    document.dispatchEvent(new CustomEvent('town:telemetry'));
+                  },
+                },
+                {
+                  label: '⚡ Overclock Core (+50% Speed)',
+                  onClick: () => {
+                    this.activateCoffeeBoost();
+                  },
+                },
+              ]
+            );
+          } else {
+            this.callbacks.onDialogue(prop.label, [
+              'Asisten Server Eternatus aktif! Daya tak terbatas mengalir ke cluster komputasi AI.',
+            ]);
+          }
+        } else if (prop.id === 'snorlax' || prop.id === 'lebronette') {
+          sfx.select();
+          if (this.callbacks.onBubble) {
+            this.callbacks.onBubble(
+              'Snorlax 💤 (Head of Comfort)',
+              'Zzz... Snorlax tidur lelap menjaga meja komando Mission Control. Nafasnya teratur dan tenang. Apakah kamu ingin memainkan Poké Flute untuk menyapanya?',
+              [
+                {
+                  label: '🎶 Mainkan Poké Flute',
+                  onClick: () => {
+                    sfx.heal();
+                    if (this.callbacks.onBubble) {
+                      this.callbacks.onBubble(
+                        'Snorlax 💤 (Snorlax Tersenyum)',
+                        '♪~♫~ Lagu merdu dari Poké Flute mengalun lembut! Snorlax menggeliat gembira, membuka sebelah matanya, lalu tersenyum hangat dan kembali mendengkur dengan nyaman... 💤'
+                      );
+                    }
+                  },
+                },
+                {
+                  label: '🏥 Kunjungi Poké Center',
+                  onClick: () => {
+                    this.callbacks.onNavigate('/reception');
+                  },
+                },
+              ]
+            );
+          } else {
+            this.callbacks.onDialogue(prop.label, ['Zzz... Snorlax sedang tidur lelap.']);
+          }
+        } else if (prop.id === 'coffee') {
+          sfx.select();
+          if (this.callbacks.onBubble) {
+            this.callbacks.onBubble(
+              'Coffee Machine ☕ (Robusta Overclock)',
+              'Mesin kopi otomatis Mission Control siap menyeduh kopi robusta murni Jawa Barat. Memberikan suntikan kafein ekstra untuk turbo speed!',
+              {
+                label: '☕ Minum Kopi (Turbo Speed +50%)',
+                onClick: () => {
+                  this.activateCoffeeBoost();
+                },
+              }
+            );
+          } else {
+            this.activateCoffeeBoost();
           }
         } else if (prop.target.type === 'event' && prop.target.name) {
           document.dispatchEvent(new CustomEvent(`town:${prop.target.name}`));

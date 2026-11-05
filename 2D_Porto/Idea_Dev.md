@@ -60,15 +60,16 @@ Tujuan utama pengembangan ini:
 
 ---
 
-### 🎮 Fase 4: Menghidupkan Ruangan 2D & Fitur Developer Comfort
-- [ ] **Coffee Machine "Robusta Overclock"**:
-  - Berinteraksi dengan mesin kopi di kanvas memberikan buff `⚡ Overclock Speed (+50% kecepatan jalan)` selama 30 detik di dalam Dev Center.
-- [ ] **Snorlax Mission Control Interaktif + Poké Flute**:
+### 🎮 Fase 4: Menghidupkan Ruangan 2D & Fitur Developer Comfort (SELESAI ✅)
+- [x] **Coffee Machine "Robusta Overclock"**:
+  - Berinteraksi dengan mesin kopi di kanvas memberikan buff `⚡ Overclock Speed (+50% kecepatan jalan)` selama 30 detik di dalam Dev Center dengan partikel uap kopi dan langkah kaki cepat.
+- [x] **Snorlax Mission Control Interaktif + Poké Flute**:
   - Mengganti aksi teleport langsung dengan dialog interaktif:
-    - `🎵 Mainkan Poké Flute`: Snorlax bangun sesaat, menguap dengan animasi pixel, dan memberikan easter egg stamp.
-    - `📊 Cek Uptime Server`: Menampilkan log sistem (99.9% uptime).
-    - `🏥 Ke Poké Center`: Opsi sukarela untuk teleport ke `/reception`.
-- [ ] **Pokémon Server Assistant (Porygon / Rotom)**:
-  - Sprite Porygon / Rotom melayang dengan efek animasi di dekat Server Rack untuk menjaga stabilitas suhu data center.
-- [ ] **ZulfanOS Mini-Terminal**:
-  - Terminal mini opsional di panel kanan untuk mengetik perintah cepat (`help`, `projects`, `skills`, `coffee`, `contact`).
+    - `🎵 Mainkan Poké Flute`: Memainkan melodi fanfare kemenangan/easter egg, Snorlax bangun sejenak menguap senang dan tersenyum nyaman di meja komando.
+    - `🏥 Ke Poké Center`: Opsi sukarela untuk berkunjung ke `/reception`.
+- [x] **Pokémon Server Assistant (Eternatus Dynamo Engine)**:
+  - Sprite Eternatus (`/assets/eternatus.png`) melayang di samping server rack (`x: 11, y: 11`) dengan animasi floating sine-wave, radial draconic plasma aura glow, partikel energi melayang, dan status tag `CORE 100%`.
+  - Berinteraksi dengan Eternatus membuka opsi Telemetry Wall dan Overclock Turbo Speed.
+- [x] **ZulfanOS Mini-Terminal (CLI)**:
+  - Widget terminal developer retro interaktif (`#sec-terminal`) di panel kanan dengan baris perintah dan tombol chip cepat (`help`, `aeroscan`, `foodlink`, `skills`, `eternatus`, `coffee`, `status`, `clear`).
+  - Mendukung eksekusi perintah instan, membuka debrief proyek, dan memicu buff kafein overclock ke kanvas 2D.

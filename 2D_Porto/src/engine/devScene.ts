@@ -274,6 +274,19 @@ export const DEV_PROPS: DevProp[] = [
     hideLabel: true,
   },
   {
+    id: 'eternatus',
+    kind: 'npc',
+    x: 11,
+    y: 11,
+    w: 2,
+    h: 2,
+    target: { type: 'event', name: 'eternatus' },
+    label: 'Eternatus (Server Assistant)',
+    style: 'eternatus',
+    labelLift: -4,
+    hint: 'Server Assistant · Eternatus ⚡',
+  },
+  {
     id: 'coffee',
     kind: 'prop',
     x: 13,
@@ -281,12 +294,13 @@ export const DEV_PROPS: DevProp[] = [
     w: 1,
     h: 1,
     target: {
-      type: 'note',
-      text: 'Launch fuel: Hot Indonesian robusta coffee to fuel late-night model training and algorithm optimization.',
+      type: 'event',
+      name: 'coffee',
     },
     label: 'Coffee machine',
     style: 'coffee',
-    hideLabel: true,
+    labelLift: -2,
+    hint: 'Drink Robusta Coffee ☕',
   },
   {
     id: 'plant',
@@ -310,7 +324,7 @@ export const DEV_PROPS: DevProp[] = [
     y: 13,
     w: 3,
     h: 2,
-    target: { type: 'place', id: 'reception' },
+    target: { type: 'event', name: 'snorlax' },
     label: 'Snorlax',
     style: 'snorlax',
     labelLift: -2,
@@ -365,6 +379,7 @@ markDevSolid(6, 8, 3, 1);   // Console Edge
 markDevSolid(10, 8, 3, 1);  // Console Static
 markDevSolid(1, 11, 1, 2);  // Whiteboard
 markDevSolid(13, 11, 1, 2); // Server rack
+markDevSolid(11, 11, 2, 2); // Eternatus server assistant
 markDevSolid(13, 14, 1, 1); // Coffee machine
 markDevSolid(1, 16, 1, 1);  // Plant
 markDevSolid(6, 13, 3, 2);  // Snorlax desk
@@ -427,6 +442,15 @@ let snorlaxImg: HTMLImageElement | null = null;
 if (typeof Image !== 'undefined') {
   snorlaxImg = new Image();
   snorlaxImg.src = SNORLAX_IMAGE_SRC;
+}
+
+// Eternatus Server Assistant Sprite
+export const ETERNATUS_IMAGE_SRC = '/assets/eternatus.png';
+
+let eternatusImg: HTMLImageElement | null = null;
+if (typeof Image !== 'undefined') {
+  eternatusImg = new Image();
+  eternatusImg.src = ETERNATUS_IMAGE_SRC;
 }
 
 // Static Prop Drawers
@@ -683,6 +707,30 @@ function drawExitMat(ctx: CanvasRenderingContext2D, p: DevProp) {
   }
 }
 
+function drawEternatusContainment(ctx: CanvasRenderingContext2D, p: DevProp) {
+  const cx = (p.x + p.w / 2) * 16;
+  const cy = (p.y + p.h / 2) * 16 + 4;
+
+  // Cybernetic floor containment pad (dark octagonal base with magenta trim)
+  ctx.fillStyle = '#0f051d';
+  ctx.fillRect(cx - 16, cy - 8, 32, 16);
+  ctx.fillStyle = '#2d0f47';
+  ctx.fillRect(cx - 14, cy - 7, 28, 14);
+
+  // Glowing magenta power lines / conduits connecting to server rack on the right
+  ctx.fillStyle = '#be123c';
+  ctx.fillRect(cx + 12, cy - 1, 16, 2);
+  ctx.fillStyle = '#fb7185';
+  ctx.fillRect(cx + 14, cy, 14, 1);
+
+  // Power node nodes
+  ctx.fillStyle = '#e11d48';
+  ctx.fillRect(cx - 15, cy - 6, 2, 2);
+  ctx.fillRect(cx - 15, cy + 4, 2, 2);
+  ctx.fillRect(cx + 13, cy - 6, 2, 2);
+  ctx.fillRect(cx + 13, cy + 4, 2, 2);
+}
+
 /**
  * Creates the static pre-rendered background canvas for Dev Center interior.
  */
@@ -786,6 +834,9 @@ export function createDevBackgroundCanvas(): HTMLCanvasElement {
         break;
       case 'rack':
         drawServerRack(ctx, prop);
+        break;
+      case 'eternatus':
+        drawEternatusContainment(ctx, prop);
         break;
       case 'coffee':
         drawCoffeeMachine(ctx, prop);
@@ -1096,6 +1147,87 @@ function renderSnorlax(ctx: CanvasRenderingContext2D, now: number) {
   }
 }
 
+// 7. Eternatus Server Assistant Floating & Plasma Aura Animation
+function renderEternatus(ctx: CanvasRenderingContext2D, now: number) {
+  const prop = DEV_PROPS.find((p) => p.id === 'eternatus');
+  if (!prop) return;
+
+  const cx = (prop.x + prop.w / 2) * 16;
+  const cy = (prop.y + prop.h / 2) * 16 + 2;
+
+  // Floating hovering sine wave
+  const floatY = Math.sin(now * 0.0028) * 3;
+
+  // 1. Pulsing floor containment field
+  const pulse = Math.sin(now * 0.004) * 0.25 + 0.75;
+  ctx.fillStyle = `rgba(225, 29, 72, ${0.18 * pulse})`;
+  ctx.beginPath();
+  ctx.ellipse(cx, cy + 6, 18, 9, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // 2. Draconic plasma aura glow behind sprite
+  const auraGlow = ctx.createRadialGradient(cx, cy - 6 + floatY, 2, cx, cy - 6 + floatY, 26);
+  auraGlow.addColorStop(0, `rgba(244, 63, 94, ${0.35 * pulse})`);
+  auraGlow.addColorStop(0.5, `rgba(168, 85, 247, ${0.2 * pulse})`);
+  auraGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+  ctx.fillStyle = auraGlow;
+  ctx.beginPath();
+  ctx.arc(cx, cy - 6 + floatY, 26, 0, Math.PI * 2);
+  ctx.fill();
+
+  // 3. Render Eternatus Sprite
+  // Sprite aspect ratio is 120x112 (~1.071), draw at 44x41 px centered
+  if (eternatusImg && eternatusImg.complete && eternatusImg.naturalWidth > 0) {
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(eternatusImg, cx - 22, cy - 23 + floatY, 44, 41);
+  }
+
+  // 4. Floating digital status badge above Eternatus
+  const badgeText = 'CORE 100%';
+  const bw = textPixelWidth(badgeText);
+  const badgeY = cy - 29 + floatY;
+  ctx.fillStyle = 'rgba(7, 10, 20, 0.85)';
+  ctx.fillRect(cx - bw / 2 - 2, badgeY - 1, bw + 4, 7);
+  ctx.fillStyle = '#e11d48';
+  ctx.fillRect(cx - bw / 2 - 3, badgeY - 1, 1, 7);
+  ctx.fillRect(cx + bw / 2 + 2, badgeY - 1, 1, 7);
+  drawPixelText(ctx, badgeText, Math.round(cx - bw / 2), badgeY, '#fb7185');
+
+  // 5. Drifting plasma particles rising up
+  for (let i = 0; i < 4; i++) {
+    const cycle = (now * 0.0012 + i * 0.65) % 2.6;
+    const progress = cycle / 2.6;
+    if (progress > 0.05 && progress < 0.95) {
+      const alpha = progress < 0.3 ? progress / 0.3 : progress > 0.7 ? (0.95 - progress) / 0.25 : 1;
+      const px = cx + Math.sin(cycle * 4 + i) * 14;
+      const py = cy - 4 + floatY - progress * 24;
+      ctx.fillStyle = i % 2 === 0 ? `rgba(244, 63, 94, ${alpha * 0.8})` : `rgba(192, 132, 252, ${alpha * 0.8})`;
+      ctx.fillRect(Math.round(px), Math.round(py), 1, 1);
+    }
+  }
+}
+
+// 8. Coffee Machine Steam Particle Animation
+function renderCoffeeSteam(ctx: CanvasRenderingContext2D, now: number) {
+  const coffee = DEV_PROPS.find((p) => p.id === 'coffee');
+  if (!coffee) return;
+  const cx = coffee.x * 16 + 8;
+  const cy = coffee.y * 16 - 2;
+
+  // 2 wisps of coffee steam drifting up
+  for (let i = 0; i < 2; i++) {
+    const cycle = (now * 0.001 + i * 0.7) % 1.8;
+    const progress = cycle / 1.8;
+    if (progress > 0.1 && progress < 0.9) {
+      const alpha = (1 - progress) * 0.6;
+      const sx = cx + Math.sin(cycle * 5) * 2;
+      const sy = cy - progress * 10;
+      ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+      ctx.fillRect(Math.round(sx), Math.round(sy), 1, 2);
+    }
+  }
+}
+
 /**
  * Call in requestAnimationFrame to render all live dynamic instrumentation in Mission Control.
  */
@@ -1106,4 +1238,6 @@ export function renderDevAnimations(ctx: CanvasRenderingContext2D, now: number) 
   renderRackLights(ctx, now);
   renderClock(ctx);
   renderSnorlax(ctx, now);
+  renderEternatus(ctx, now);
+  renderCoffeeSteam(ctx, now);
 }
