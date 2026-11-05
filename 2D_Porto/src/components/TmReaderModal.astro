@@ -1,0 +1,653 @@
+---
+// TmReaderModal.astro — Interactive Technical TM Optical Disc Reader & Tech Stack Matrix
+// Allows visitors to inspect the 4 Technical TMs in a retro cybernetic optical drive,
+// inspect battle move metrics (Power, Accuracy, PP), view production code blueprints,
+// and teach/add the TM directly into their Project Inquiry Bag.
+---
+
+<dialog
+  id="tm-reader-modal"
+  class="backdrop:bg-slate-950/80 backdrop:backdrop-blur-md p-0 m-auto rounded-2xl border-0 bg-transparent"
+  aria-labelledby="tm-reader-title"
+>
+  <div class="window p-0 overflow-hidden bg-slate-900 border-2 border-cyan-400/80 shadow-[0_0_35px_rgba(6,182,212,0.35)] text-slate-100 flex flex-col max-h-[92vh] w-[95vw] max-w-4xl">
+    
+    <!-- Top System Header Bar -->
+    <header class="bg-slate-950 px-4 py-3 border-b-2 border-cyan-500/40 flex items-center justify-between gap-3 flex-wrap">
+      <div class="flex items-center gap-2.5">
+        <span class="text-2xl p-1.5 rounded-lg bg-cyan-950 border border-cyan-400/60 shadow-inner">💿</span>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="chip bg-cyan-950 text-cyan-300 border border-cyan-700 font-mono text-[9px] px-1.5 py-0.5 font-bold uppercase tracking-wider">
+              SILPH CO. OPTICAL DRIVE
+            </span>
+            <span class="chip bg-emerald-950 text-emerald-300 border border-emerald-700 font-mono text-[9px] px-1.5 py-0.5 font-bold uppercase tracking-wider hidden sm:inline-block">
+              READ SPEED: 32X ULTRA-HIGH
+            </span>
+            <span class="chip bg-blue-950 text-blue-300 border border-blue-700 font-mono text-[9px] px-1.5 py-0.5 font-bold uppercase tracking-wider">
+              CRC: 100% VERIFIED
+            </span>
+          </div>
+          <h2 id="tm-reader-title" class="font-pixel text-xs text-white tracking-wide mt-0.5">
+            Technical TM Disc Decoder · Silph-9000 Optical Matrix
+          </h2>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button
+          type="button"
+          id="btn-close-tm-reader"
+          class="btn btn-sm bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-600 font-pixel text-xs px-2.5 py-1 transition-all active:scale-95"
+          aria-label="Eject Disc & Close Reader"
+        >
+          ⏏️ EJECT DISC
+        </button>
+      </div>
+    </header>
+
+    <!-- TM Disc Selection Tabs -->
+    <nav class="bg-slate-950/90 px-3 py-2 border-b border-slate-800 flex items-center gap-1.5 overflow-x-auto text-xs font-mono scrollbar-thin">
+      <button
+        type="button"
+        class="tm-tab-btn btn btn-sm px-3 py-1 font-bold flex items-center gap-1.5 transition-all bg-orange-600 text-white border border-orange-400 shadow-sm"
+        data-tm="tm-01"
+      >
+        <span>💿</span>
+        <span>TM 01: PyTorch</span>
+      </button>
+
+      <button
+        type="button"
+        class="tm-tab-btn btn btn-sm px-3 py-1 flex items-center gap-1.5 transition-all bg-slate-800 text-slate-300 border border-slate-700 hover:border-cyan-400"
+        data-tm="tm-02"
+      >
+        <span>💿</span>
+        <span>TM 02: Astro Islands</span>
+      </button>
+
+      <button
+        type="button"
+        class="tm-tab-btn btn btn-sm px-3 py-1 flex items-center gap-1.5 transition-all bg-slate-800 text-slate-300 border border-slate-700 hover:border-red-400"
+        data-tm="tm-03"
+      >
+        <span>💿</span>
+        <span>TM 03: Laravel 12</span>
+      </button>
+
+      <button
+        type="button"
+        class="tm-tab-btn btn btn-sm px-3 py-1 flex items-center gap-1.5 transition-all bg-slate-800 text-slate-300 border border-slate-700 hover:border-emerald-400"
+        data-tm="tm-04"
+      >
+        <span>💿</span>
+        <span>TM 04: TensorRT CUDA</span>
+      </button>
+    </nav>
+
+    <!-- Main Content Area: Split Two-Column Layout -->
+    <div class="p-4 sm:p-5 overflow-y-auto flex-1 space-y-4">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        
+        <!-- Left Column: Holographic Optical Disc Player & LCD Deck (5 Cols) -->
+        <div class="lg:col-span-5 flex flex-col items-center justify-between p-4 rounded-xl bg-slate-950/70 border border-cyan-500/30 space-y-4">
+          <div class="w-full flex items-center justify-between text-[10px] font-mono text-cyan-400 border-b border-cyan-900/60 pb-2">
+            <span class="flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+              <strong id="disc-drive-status">LASER PICKUP ACTIVE</strong>
+            </span>
+            <span id="disc-rpm" class="text-slate-400">RPM: 7,200 (CAV)</span>
+          </div>
+
+          <!-- Animated Optical Disc Wrapper -->
+          <div class="relative w-48 h-48 sm:w-56 sm:h-56 flex items-center justify-center my-2">
+            <!-- Laser Reader Sweep Beam -->
+            <div class="absolute inset-x-2 top-0 h-1 bg-cyan-400/80 shadow-[0_0_12px_#22d3ee] pointer-events-none z-20 animate-laser-sweep rounded-full"></div>
+
+            <!-- Spinning Optical Disc -->
+            <div
+              id="optical-disc"
+              class="relative w-44 h-44 sm:w-52 sm:h-52 rounded-full shadow-[0_0_25px_rgba(6,182,212,0.4)] flex items-center justify-center animate-spin-disc transition-all duration-500 border-4 border-slate-700/80"
+              style="background: radial-gradient(circle at center, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 65%), conic-gradient(from 45deg, #f97316, #eab308, #06b6d4, #3b82f6, #a855f7, #f97316);"
+            >
+              <!-- Disc Reflective Microgroove Lines -->
+              <div class="absolute inset-2 rounded-full border border-white/20 pointer-events-none"></div>
+              <div class="absolute inset-5 rounded-full border border-white/15 pointer-events-none"></div>
+              <div class="absolute inset-8 rounded-full border border-white/10 pointer-events-none"></div>
+
+              <!-- Colored Accent Ring for Active TM -->
+              <div
+                id="disc-accent-ring"
+                class="absolute inset-11 rounded-full border-4 border-orange-500/80 shadow-[0_0_15px_#f97316] transition-all duration-300"
+              ></div>
+
+              <!-- Center Metallic Hub & Spindle Hole -->
+              <div class="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-slate-900 border-4 border-slate-500 flex items-center justify-center shadow-inner">
+                <div class="w-8 h-8 rounded-full bg-slate-950 border-2 border-slate-700 flex items-center justify-center">
+                  <div class="w-2.5 h-2.5 rounded-full bg-slate-800"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- LCD Player Telemetry Display -->
+          <div class="w-full p-2.5 rounded-lg bg-slate-900/90 border border-slate-800 font-mono text-[11px] space-y-1">
+            <div class="flex items-center justify-between text-cyan-300 font-bold">
+              <span id="lcd-track-id">TRACK 01: SILPH-TM01</span>
+              <span id="lcd-time-code">00:04:18 / 60 FPS</span>
+            </div>
+            <div class="flex items-center justify-between text-slate-400 text-[10px]">
+              <span>FORMAT: OPTICAL MATRIX V3</span>
+              <span class="text-emerald-400">NO BIT ROT · LOSSLESS</span>
+            </div>
+            <div class="text-[10px] text-amber-300 truncate" id="lcd-signature">
+              SHA256: 9e88b...verified_by_zulfan
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Move Specification, Stats & Code Matrix (7 Cols) -->
+        <div class="lg:col-span-7 space-y-4">
+          <!-- Move Banner Header -->
+          <div class="p-3.5 rounded-xl bg-slate-950/70 border border-slate-800 space-y-2">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div class="flex items-center gap-2">
+                <span id="tm-badge" class="chip bg-orange-600 text-white font-mono font-bold text-xs px-2 py-0.5 border border-orange-400">
+                  TM 01
+                </span>
+                <span id="tm-category-chip" class="chip bg-orange-950 text-orange-300 font-mono text-[10px] px-2 py-0.5 border border-orange-700 font-bold uppercase">
+                  AI / COMPUTER VISION
+                </span>
+              </div>
+              <span id="tm-class-chip" class="chip bg-slate-800 text-cyan-300 font-mono text-[10px] px-2 py-0.5 border border-cyan-800">
+                SPECIAL TECH MOVE
+              </span>
+            </div>
+
+            <div>
+              <h3 id="tm-move-title" class="font-pixel text-base md:text-lg text-white text-shadow-sm tracking-wide">
+                EDGE-VISION BLAST
+              </h3>
+              <p id="tm-subtitle" class="font-mono text-xs text-orange-400 font-bold mt-0.5">
+                PyTorch &amp; Deep Convolutional Neural Networks
+              </p>
+            </div>
+
+            <!-- Battle Stats Matrix Gauges -->
+            <div class="grid grid-cols-3 gap-2 pt-2 border-t border-slate-800/80">
+              <div class="p-2 rounded bg-slate-900 border border-slate-800">
+                <div class="text-[10px] font-mono text-slate-400 uppercase">Power Output</div>
+                <div class="flex items-center gap-1.5 mt-0.5">
+                  <span id="stat-power" class="font-pixel text-xs text-amber-400">125</span>
+                  <div class="flex-1 bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                    <div id="bar-power" class="bg-amber-400 h-full rounded-full transition-all duration-500" style="width: 83%;"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="p-2 rounded bg-slate-900 border border-slate-800">
+                <div class="text-[10px] font-mono text-slate-400 uppercase">Accuracy</div>
+                <div class="flex items-center gap-1.5 mt-0.5">
+                  <span id="stat-accuracy" class="font-pixel text-xs text-emerald-400">99%</span>
+                  <div class="flex-1 bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                    <div id="bar-accuracy" class="bg-emerald-400 h-full rounded-full transition-all duration-500" style="width: 99%;"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="p-2 rounded bg-slate-900 border border-slate-800">
+                <div class="text-[10px] font-mono text-slate-400 uppercase">PP (Capacity)</div>
+                <div class="font-pixel text-xs text-cyan-400 mt-0.5" id="stat-pp">
+                  15 / 15
+                </div>
+              </div>
+            </div>
+
+            <!-- Production Benchmark Badge -->
+            <div class="p-2 rounded-lg bg-emerald-950/60 border border-emerald-500/50 flex items-center justify-between text-xs font-mono">
+              <span class="text-emerald-300 font-bold flex items-center gap-1.5">
+                <span>⚡</span>
+                <span id="stat-benchmark">120+ FPS Edge Inference · 4.8x Speedup</span>
+              </span>
+              <span class="text-[10px] text-emerald-400/80 uppercase">VERIFIED BENCHMARK</span>
+            </div>
+          </div>
+
+          <!-- Move Technical Description -->
+          <div class="space-y-1.5">
+            <h4 class="font-mono text-[11px] font-bold text-slate-400 uppercase flex items-center gap-1.5">
+              <span>📖</span>
+              <span>Technical Move Effect &amp; Implementation:</span>
+            </h4>
+            <p id="tm-description" class="text-xs text-slate-200 leading-relaxed bg-slate-950/50 p-3 rounded-lg border border-slate-800">
+              Compiles customized PyTorch deep neural networks (CNNs, Vision Transformers) into quantized inference engines for embedded edge hardware and robotics cameras with low latency and real-time tracking.
+            </p>
+          </div>
+
+          <!-- Battle Tech Stack Tags -->
+          <div class="space-y-1.5">
+            <h4 class="font-mono text-[11px] font-bold text-slate-400 uppercase flex items-center gap-1.5">
+              <span>🛠️</span>
+              <span>Integrated Tech Stack &amp; Libraries:</span>
+            </h4>
+            <div id="tm-tags-container" class="flex flex-wrap gap-1.5">
+              <span class="chip bg-slate-800 text-slate-200 border-slate-700 text-[10px]">PyTorch 2.5</span>
+              <span class="chip bg-slate-800 text-slate-200 border-slate-700 text-[10px]">Torchvision</span>
+              <span class="chip bg-slate-800 text-slate-200 border-slate-700 text-[10px]">OpenCV 4</span>
+              <span class="chip bg-slate-800 text-slate-200 border-slate-700 text-[10px]">Weights &amp; Biases</span>
+              <span class="chip bg-slate-800 text-slate-200 border-slate-700 text-[10px]">Edge AI</span>
+            </div>
+          </div>
+
+          <!-- Code Blueprint Terminal -->
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between">
+              <h4 class="font-mono text-[11px] font-bold text-slate-400 uppercase flex items-center gap-1.5">
+                <span>💻</span>
+                <span>Production Architecture Blueprint:</span>
+              </h4>
+              <span id="tm-code-lang" class="font-mono text-[10px] text-amber-300">python</span>
+            </div>
+            <pre class="p-3 rounded-lg bg-slate-950 border border-slate-800 font-mono text-[11px] text-emerald-400 overflow-x-auto leading-relaxed shadow-inner"><code id="tm-code-snippet">import torch
+import torchvision.models as models
+
+# Initialize pretrained vision backbone
+model = models.yolo_custom(pretrained=True).eval()
+torch.onnx.export(model, dummy_input, "edge_vision.onnx", opset_version=17)
+print("✨ TM 01: Edge Vision Engine Exported Successfully!")</code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Action Controls Footer -->
+    <footer class="bg-slate-950 px-4 py-3 border-t-2 border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div class="text-[11px] font-mono text-slate-400 flex items-center gap-2">
+        <span class="text-emerald-400 font-bold">100% FREE TM</span>
+        <span>•</span>
+        <span>No Poké-Dollars required to teach this move to your team!</span>
+      </div>
+
+      <div class="flex items-center gap-2 w-full sm:w-auto justify-end flex-wrap">
+        <button
+          type="button"
+          id="btn-teach-tm"
+          class="btn btn-sm bg-cyan-600 hover:bg-cyan-500 text-white border border-cyan-400 font-pixel text-xs px-3.5 py-1.5 flex items-center gap-1.5 shadow-md active:scale-95 transition-all"
+        >
+          <span>➕</span>
+          <span id="btn-teach-label">Teach to Project (Add TM to Brief)</span>
+        </button>
+
+        <a
+          id="btn-deep-dive-tm"
+          href="/lab"
+          class="btn btn-sm btn-paper text-ink font-pixel text-xs px-3 py-1.5 flex items-center gap-1.5 shadow-sm hover:scale-[1.02] active:scale-95 transition-all"
+        >
+          <span>🔬</span>
+          <span id="btn-deep-dive-label">Open in Research Lab</span>
+        </a>
+
+        <button
+          type="button"
+          id="btn-eject-modal"
+          class="btn btn-sm bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-600 font-pixel text-xs px-2.5 py-1.5"
+        >
+          ✕ Close
+        </button>
+      </div>
+    </footer>
+  </div>
+</dialog>
+
+<style>
+  @keyframes spin-disc {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .animate-spin-disc {
+    animation: spin-disc 6s linear infinite;
+  }
+
+  @keyframes laser-sweep {
+    0%, 100% {
+      top: 10%;
+      opacity: 0.9;
+    }
+    50% {
+      top: 85%;
+      opacity: 0.3;
+    }
+  }
+
+  .animate-laser-sweep {
+    animation: laser-sweep 2.4s ease-in-out infinite;
+  }
+</style>
+
+<script>
+  import { sfx } from '../game/sfx';
+
+  interface TmData {
+    id: string;
+    tmNum: string;
+    name: string;
+    subtitle: string;
+    categoryChip: string;
+    categoryClass: string;
+    power: number;
+    accuracy: number;
+    pp: string;
+    benchmark: string;
+    description: string;
+    tags: string[];
+    codeLang: string;
+    codeSnippet: string;
+    linkHref: string;
+    linkLabel: string;
+    colorRing: string;
+    discGradient: string;
+    tabClass: string;
+    badgeBg: string;
+  }
+
+  const TM_REGISTRY: Record<string, TmData> = {
+    'tm-01': {
+      id: 'tm-01',
+      tmNum: 'TM 01',
+      name: 'EDGE-VISION BLAST',
+      subtitle: 'PyTorch & Deep Convolutional Neural Networks',
+      categoryChip: 'AI / COMPUTER VISION',
+      categoryClass: 'bg-orange-950 text-orange-300 border-orange-700',
+      power: 125,
+      accuracy: 99,
+      pp: '15 / 15',
+      benchmark: '120+ FPS Edge Inference · 4.8x Speedup',
+      description: 'Compiles customized PyTorch deep neural networks (CNNs, Vision Transformers) into quantized inference engines for embedded edge hardware and robotics cameras with low latency and real-time tracking.',
+      tags: ['PyTorch 2.5', 'Torchvision', 'OpenCV 4', 'Weights & Biases', 'Edge AI', 'Model Pruning'],
+      codeLang: 'python',
+      codeSnippet: `import torch\nimport torchvision.models as models\n\n# Initialize custom deep learning architecture\nmodel = models.yolo_custom(pretrained=True).eval()\ntorch.onnx.export(model, dummy_input, "edge_vision.onnx", opset_version=17)\nprint("✨ TM 01: Edge Vision Engine Exported Successfully!")`,
+      linkHref: '/lab',
+      linkLabel: 'Open in Research Lab',
+      colorRing: '#f97316',
+      discGradient: 'radial-gradient(circle at center, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 65%), conic-gradient(from 45deg, #f97316, #eab308, #06b6d4, #3b82f6, #a855f7, #f97316)',
+      tabClass: 'bg-orange-600 text-white border-orange-400 shadow-sm',
+      badgeBg: 'bg-orange-600 border-orange-400 text-white',
+    },
+    'tm-02': {
+      id: 'tm-02',
+      tmNum: 'TM 02',
+      name: 'ASTRO-ISLAND SURGE',
+      subtitle: 'TypeScript & Modern Astro Component Islands',
+      categoryChip: 'FRONTEND / ISLANDS',
+      categoryClass: 'bg-cyan-950 text-cyan-300 border-cyan-700',
+      power: 110,
+      accuracy: 100,
+      pp: '20 / 20',
+      benchmark: '0kb JS Baseline Payload · 100 Lighthouse Score',
+      description: 'Ships ultra-fast static HTML with zero JavaScript by default, dynamically hydrating interactive islands (HTML5 Canvas 2D game loops, reactive widgets, and Tailwind styling) only when visible in the viewport.',
+      tags: ['TypeScript 5', 'Astro 5', 'HTML5 Canvas', 'Tailwind CSS', 'Component Islands', 'Vite'],
+      codeLang: 'astro',
+      codeSnippet: `--- \n// Astro Server-Side Component Island\nimport TownEngine from '../game/TownEngine';\n---\n<canvas id="town-canvas" class="pixel-crisp"></canvas>\n<script>\n  const engine = new TownEngine(document.getElementById('town-canvas'));\n  engine.start(); // 60 FPS deterministic game loop\n<\/script>`,
+      linkHref: '/dev',
+      linkLabel: 'Open in Dev Center',
+      colorRing: '#06b6d4',
+      discGradient: 'radial-gradient(circle at center, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 65%), conic-gradient(from 45deg, #06b6d4, #3b82f6, #8b5cf6, #ec4899, #06b6d4)',
+      tabClass: 'bg-cyan-600 text-white border-cyan-400 shadow-sm',
+      badgeBg: 'bg-cyan-600 border-cyan-400 text-white',
+    },
+    'tm-03': {
+      id: 'tm-03',
+      tmNum: 'TM 03',
+      name: 'KAFKA-STREAM BURST',
+      subtitle: 'Laravel 12 & Event-Driven Microservices',
+      categoryChip: 'BACKEND / STREAMING',
+      categoryClass: 'bg-red-950 text-red-300 border-red-700',
+      power: 115,
+      accuracy: 100,
+      pp: '15 / 15',
+      benchmark: 'Sub-10ms Queue Latency · 98% Test Coverage',
+      description: 'Enterprise-grade backend architecture powered by Laravel 12, Apache Kafka event streaming, Redis caching, PostGIS spatial geospatial indexing, and robust domain-driven design verified via Pest PHP unit testing.',
+      tags: ['Laravel 12', 'Apache Kafka', 'PostGIS', 'Redis', 'Pest PHP', 'Docker', 'MySQL'],
+      codeLang: 'php',
+      codeSnippet: `class TelemetryStreamProducer {\n    public function dispatch(FoodLinkSurplusEvent $event): void {\n        Kafka::publish('foodlink.surplus.created')\n            ->withBody($event->toPayload())\n            ->withHeaders(['geo' => $event->postgis_point])\n            ->send();\n    }\n}`,
+      linkHref: '/dev',
+      linkLabel: 'Open in Dev Center',
+      colorRing: '#ef4444',
+      discGradient: 'radial-gradient(circle at center, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 65%), conic-gradient(from 45deg, #ef4444, #f97316, #eab308, #ec4899, #ef4444)',
+      tabClass: 'bg-red-600 text-white border-red-400 shadow-sm',
+      badgeBg: 'bg-red-600 border-red-400 text-white',
+    },
+    'tm-04': {
+      id: 'tm-04',
+      tmNum: 'TM 04',
+      name: 'CUDA-TENSOR BEAM',
+      subtitle: 'NVIDIA TensorRT & High-Throughput CUDA Engines',
+      categoryChip: 'GPU / HPC ACCELERATION',
+      categoryClass: 'bg-emerald-950 text-emerald-300 border-emerald-700',
+      power: 135,
+      accuracy: 95,
+      pp: '10 / 10',
+      benchmark: 'FP16 Calibration · Multi-Stream Parallel Execution',
+      description: 'High-performance computing kernel acceleration utilizing NVIDIA TensorRT, CUDA 12 streams, memory coalescing, and INT8/FP16 quantization for mission-critical video analysis pipelines.',
+      tags: ['NVIDIA TensorRT', 'CUDA 12', 'C++20', 'ONNX Runtime', 'GPU Cores', 'Tensor Cores'],
+      codeLang: 'cpp',
+      codeSnippet: `cudaStream_t stream;\ncudaStreamCreate(&stream);\nIExecutionContext* context = engine->createExecutionContext();\ncontext->enqueueV3(stream);\ncudaStreamSynchronize(stream);\n// High-Throughput Parallel Inference Complete`,
+      linkHref: '/lab',
+      linkLabel: 'Open in Research Lab',
+      colorRing: '#10b981',
+      discGradient: 'radial-gradient(circle at center, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 65%), conic-gradient(from 45deg, #10b981, #06b6d4, #3b82f6, #a855f7, #10b981)',
+      tabClass: 'bg-emerald-600 text-white border-emerald-400 shadow-sm',
+      badgeBg: 'bg-emerald-600 border-emerald-400 text-white',
+    },
+  };
+
+  function initTmReaderModal() {
+    const modal = document.getElementById('tm-reader-modal') as HTMLDialogElement | null;
+    if (!modal) return;
+
+    let currentTmId = 'tm-01';
+
+    // UI Elements
+    const discEl = document.getElementById('optical-disc');
+    const accentRing = document.getElementById('disc-accent-ring');
+    const driveStatus = document.getElementById('disc-drive-status');
+    const lcdTrackId = document.getElementById('lcd-track-id');
+    const lcdSignature = document.getElementById('lcd-signature');
+    const tmBadge = document.getElementById('tm-badge');
+    const tmCategoryChip = document.getElementById('tm-category-chip');
+    const tmMoveTitle = document.getElementById('tm-move-title');
+    const tmSubtitle = document.getElementById('tm-subtitle');
+    const statPower = document.getElementById('stat-power');
+    const barPower = document.getElementById('bar-power') as HTMLElement | null;
+    const statAccuracy = document.getElementById('stat-accuracy');
+    const barAccuracy = document.getElementById('bar-accuracy') as HTMLElement | null;
+    const statPp = document.getElementById('stat-pp');
+    const statBenchmark = document.getElementById('stat-benchmark');
+    const tmDescription = document.getElementById('tm-description');
+    const tmTagsContainer = document.getElementById('tm-tags-container');
+    const tmCodeLang = document.getElementById('tm-code-lang');
+    const tmCodeSnippet = document.getElementById('tm-code-snippet');
+    const btnTeach = document.getElementById('btn-teach-tm');
+    const btnTeachLabel = document.getElementById('btn-teach-label');
+    const btnDeepDive = document.getElementById('btn-deep-dive-tm') as HTMLAnchorElement | null;
+    const btnDeepDiveLabel = document.getElementById('btn-deep-dive-label');
+    const btnClose = document.getElementById('btn-close-tm-reader');
+    const btnEject = document.getElementById('btn-eject-modal');
+    const tabButtons = document.querySelectorAll<HTMLButtonElement>('.tm-tab-btn');
+
+    function renderTm(tmId: string) {
+      const data = TM_REGISTRY[tmId] || TM_REGISTRY['tm-01'];
+      currentTmId = data.id;
+
+      // Update optical disc
+      if (discEl) {
+        discEl.style.background = data.discGradient;
+      }
+      if (accentRing) {
+        accentRing.style.borderColor = data.colorRing;
+        accentRing.style.boxShadow = `0 0 20px ${data.colorRing}`;
+      }
+
+      // Update LCD Deck
+      if (driveStatus) driveStatus.textContent = `READING: ${data.tmNum} [OK]`;
+      if (lcdTrackId) lcdTrackId.textContent = `TRACK: ${data.tmNum} · ${data.name}`;
+      if (lcdSignature) lcdSignature.textContent = `SHA256: ${data.id}_matrix_zulfan_verified`;
+
+      // Update Header & Badge
+      if (tmBadge) {
+        tmBadge.className = `chip font-mono font-bold text-xs px-2 py-0.5 border ${data.badgeBg}`;
+        tmBadge.textContent = data.tmNum;
+      }
+      if (tmCategoryChip) {
+        tmCategoryChip.className = `chip font-mono text-[10px] px-2 py-0.5 border font-bold uppercase ${data.categoryClass}`;
+        tmCategoryChip.textContent = data.categoryChip;
+      }
+
+      // Update Titles & Subtitles
+      if (tmMoveTitle) tmMoveTitle.textContent = data.name;
+      if (tmSubtitle) tmSubtitle.textContent = data.subtitle;
+
+      // Update Stats
+      if (statPower) statPower.textContent = data.power.toString();
+      if (barPower) barPower.style.width = `${Math.min(100, Math.round((data.power / 150) * 100))}%`;
+      if (statAccuracy) statAccuracy.textContent = `${data.accuracy}%`;
+      if (barAccuracy) barAccuracy.style.width = `${data.accuracy}%`;
+      if (statPp) statPp.textContent = data.pp;
+      if (statBenchmark) statBenchmark.textContent = data.benchmark;
+
+      // Update Description
+      if (tmDescription) tmDescription.textContent = data.description;
+
+      // Update Tags
+      if (tmTagsContainer) {
+        tmTagsContainer.innerHTML = '';
+        data.tags.forEach((tag) => {
+          const chip = document.createElement('span');
+          chip.className = 'chip bg-slate-800 text-slate-200 border-slate-700 text-[10px] font-mono';
+          chip.textContent = tag;
+          tmTagsContainer.appendChild(chip);
+        });
+      }
+
+      // Update Code Blueprint
+      if (tmCodeLang) tmCodeLang.textContent = data.codeLang;
+      if (tmCodeSnippet) tmCodeSnippet.textContent = data.codeSnippet;
+
+      // Update Links
+      if (btnDeepDive) {
+        btnDeepDive.href = data.linkHref;
+      }
+      if (btnDeepDiveLabel) {
+        btnDeepDiveLabel.textContent = data.linkLabel;
+      }
+
+      // Reset teach button label
+      if (btnTeachLabel) {
+        btnTeachLabel.textContent = 'Teach to Project (Add TM to Brief)';
+        btnTeach?.classList.remove('bg-emerald-600', 'border-emerald-400');
+        btnTeach?.classList.add('bg-cyan-600', 'border-cyan-400');
+      }
+
+      // Update Tab Buttons
+      tabButtons.forEach((tab) => {
+        const id = tab.getAttribute('data-tm');
+        if (id === data.id) {
+          tab.className = `tm-tab-btn btn btn-sm px-3 py-1 font-bold flex items-center gap-1.5 transition-all ${data.tabClass}`;
+        } else {
+          tab.className = 'tm-tab-btn btn btn-sm px-3 py-1 flex items-center gap-1.5 transition-all bg-slate-800 text-slate-300 border border-slate-700 hover:border-slate-500';
+        }
+      });
+    }
+
+    // Tab Listeners
+    tabButtons.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        const tmId = tab.getAttribute('data-tm');
+        if (tmId) {
+          sfx.select();
+          renderTm(tmId);
+        }
+      });
+    });
+
+    // Close actions
+    const closeReader = () => {
+      sfx.select();
+      modal.close();
+    };
+
+    btnClose?.addEventListener('click', closeReader);
+    btnEject?.addEventListener('click', closeReader);
+
+    // Close on backdrop click
+    modal.addEventListener('click', (e) => {
+      const rect = modal.getBoundingClientRect();
+      const inDialog = (
+        rect.top <= e.clientY &&
+        e.clientY <= rect.top + rect.height &&
+        rect.left <= e.clientX &&
+        e.clientX <= rect.left + rect.width
+      );
+      if (!inDialog) {
+        modal.close();
+      }
+    });
+
+    // Teach / Add to Bag Action
+    btnTeach?.addEventListener('click', () => {
+      const data = TM_REGISTRY[currentTmId];
+      if (!data) return;
+
+      sfx.confirm();
+
+      // Dispatch event to mart.astro to add to inquiry bag
+      window.dispatchEvent(
+        new CustomEvent('town:add-tm-to-bag', {
+          detail: {
+            id: data.id,
+            name: `${data.tmNum}: ${data.name} (${data.subtitle})`,
+            price: 'FREE · OPEN',
+          },
+        })
+      );
+
+      // Trigger 2D Cash Register FX
+      window.dispatchEvent(
+        new CustomEvent('town:mart-cash-anim', {
+          detail: { text: `TEACH ${data.tmNum}! 💿` },
+        })
+      );
+
+      // Feedback state
+      if (btnTeachLabel) {
+        btnTeachLabel.textContent = `✓ ${data.tmNum} Taught to Project!`;
+        btnTeach.classList.remove('bg-cyan-600', 'border-cyan-400');
+        btnTeach.classList.add('bg-emerald-600', 'border-emerald-400');
+      }
+    });
+
+    // Global event listener to open TM Reader with specific disc
+    window.addEventListener('town:open-tm-reader', (e: Event) => {
+      const customEvt = e as CustomEvent<{ tmId?: string }>;
+      const tmId = customEvt.detail?.tmId || 'tm-01';
+      renderTm(tmId);
+      sfx.confirm();
+      modal.showModal();
+    });
+
+    // Initial render
+    renderTm('tm-01');
+  }
+
+  document.addEventListener('astro:page-load', initTmReaderModal);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initTmReaderModal);
+  } else {
+    initTmReaderModal();
+  }
+</script>

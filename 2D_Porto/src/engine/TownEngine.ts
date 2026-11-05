@@ -4236,7 +4236,17 @@ export class TownEngine {
                 'Inscribe cutting-edge technologies into your codebase: Python & PyTorch, TypeScript & Astro, Laravel 12 & PHP, Docker & Kubernetes, and TensorRT & CUDA.',
                 [
                   {
-                    label: '💿 Explore Tech TMs (Scroll Panel)',
+                    label: '💿 Insert TM into Disc Reader',
+                    onClick: () => {
+                      window.dispatchEvent(
+                        new CustomEvent('town:open-tm-reader', {
+                          detail: { tmId: 'tm-01' },
+                        })
+                      );
+                    },
+                  },
+                  {
+                    label: '📦 Filter Catalog (Tech TMs Tab)',
                     onClick: () => {
                       const tab = document.querySelector<HTMLButtonElement>('[data-mart-tab="tms"]');
                       tab?.click();

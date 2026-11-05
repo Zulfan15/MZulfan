@@ -1,6 +1,7 @@
 ---
 import TownLayout from '../layouts/TownLayout.astro';
 import WhereTo from '../components/WhereTo.astro';
+import TmReaderModal from '../components/TmReaderModal.astro';
 import { profile } from '../lib/profile';
 
 const githubUrl = profile.socials.find((s) => s.label === 'GitHub')?.url || 'https://github.com/Zulfan15';
@@ -347,9 +348,20 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
           </div>
           <div class="pt-3 border-t border-ink/10 flex items-center justify-between gap-2">
             <span class="font-pixel text-xs text-emerald-700 font-bold">FREE · OPEN</span>
-            <a href="/lab" class="btn btn-sm btn-paper text-[10px] font-pixel">
-              🔬 Lab R&D
-            </a>
+            <div class="flex items-center gap-1.5">
+              <button
+                type="button"
+                class="btn btn-sm btn-paper text-[10px] font-pixel text-blue-700 border-blue-400 inspect-tm-btn flex items-center gap-1 shadow-sm active:scale-95 transition-all"
+                data-tm-id="tm-01"
+                title="Inspect TM 01 Disc in Optical Reader"
+              >
+                <span>💿</span>
+                <span>Inspect Disc</span>
+              </button>
+              <a href="/lab" class="btn btn-sm btn-paper text-[10px] font-pixel">
+                🔬 Lab R&D
+              </a>
+            </div>
           </div>
         </article>
 
@@ -375,9 +387,20 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
           </div>
           <div class="pt-3 border-t border-ink/10 flex items-center justify-between gap-2">
             <span class="font-pixel text-xs text-emerald-700 font-bold">FREE · OPEN</span>
-            <a href={githubUrl} target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-paper text-[10px] font-pixel">
-              💻 GitHub
-            </a>
+            <div class="flex items-center gap-1.5">
+              <button
+                type="button"
+                class="btn btn-sm btn-paper text-[10px] font-pixel text-blue-700 border-blue-400 inspect-tm-btn flex items-center gap-1 shadow-sm active:scale-95 transition-all"
+                data-tm-id="tm-02"
+                title="Inspect TM 02 Disc in Optical Reader"
+              >
+                <span>💿</span>
+                <span>Inspect Disc</span>
+              </button>
+              <a href={githubUrl} target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-paper text-[10px] font-pixel">
+                💻 GitHub
+              </a>
+            </div>
           </div>
         </article>
 
@@ -404,9 +427,20 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
           </div>
           <div class="pt-3 border-t border-ink/10 flex items-center justify-between gap-2">
             <span class="font-pixel text-xs text-emerald-700 font-bold">FREE · OPEN</span>
-            <a href="/dev" class="btn btn-sm btn-paper text-[10px] font-pixel">
-              🚀 Dev Center
-            </a>
+            <div class="flex items-center gap-1.5">
+              <button
+                type="button"
+                class="btn btn-sm btn-paper text-[10px] font-pixel text-blue-700 border-blue-400 inspect-tm-btn flex items-center gap-1 shadow-sm active:scale-95 transition-all"
+                data-tm-id="tm-03"
+                title="Inspect TM 03 Disc in Optical Reader"
+              >
+                <span>💿</span>
+                <span>Inspect Disc</span>
+              </button>
+              <a href="/dev" class="btn btn-sm btn-paper text-[10px] font-pixel">
+                🚀 Dev Center
+              </a>
+            </div>
           </div>
         </article>
 
@@ -432,9 +466,20 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
           </div>
           <div class="pt-3 border-t border-ink/10 flex items-center justify-between gap-2">
             <span class="font-pixel text-xs text-emerald-700 font-bold">FREE · OPEN</span>
-            <a href="/lab" class="btn btn-sm btn-paper text-[10px] font-pixel">
-              🔬 Model Specs
-            </a>
+            <div class="flex items-center gap-1.5">
+              <button
+                type="button"
+                class="btn btn-sm btn-paper text-[10px] font-pixel text-blue-700 border-blue-400 inspect-tm-btn flex items-center gap-1 shadow-sm active:scale-95 transition-all"
+                data-tm-id="tm-04"
+                title="Inspect TM 04 Disc in Optical Reader"
+              >
+                <span>💿</span>
+                <span>Inspect Disc</span>
+              </button>
+              <a href="/lab" class="btn btn-sm btn-paper text-[10px] font-pixel">
+                🔬 Model Specs
+              </a>
+            </div>
           </div>
         </article>
 
@@ -809,6 +854,9 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
       </div>
     </div>
   </dialog>
+
+  <!-- Interactive Optical TM Disc Reader Modal -->
+  <TmReaderModal />
 </TownLayout>
 
 <script>
@@ -1276,6 +1324,37 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
       const townCanvas = document.querySelector('.town');
       if (townCanvas && window.innerWidth < 768) {
         townCanvas.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+
+    // 💿 Inspect TM Disc buttons (Opens Silph-9000 Optical Reader)
+    document.querySelectorAll<HTMLButtonElement>('.inspect-tm-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const tmId = btn.getAttribute('data-tm-id') || 'tm-01';
+        window.dispatchEvent(
+          new CustomEvent('town:open-tm-reader', {
+            detail: { tmId },
+          })
+        );
+      });
+    });
+
+    // 💿 Listen for TM taught/added from reader modal into Project Inquiry Bag
+    window.addEventListener('town:add-tm-to-bag', (e: Event) => {
+      const customEvt = e as CustomEvent<{ id: string; name: string; price: string }>;
+      if (customEvt.detail) {
+        bag.push({
+          id: customEvt.detail.id,
+          name: customEvt.detail.name,
+          price: customEvt.detail.price,
+        });
+        saveAndRenderBag();
+
+        // Scroll to inquiry bag smoothly
+        const bagSec = document.getElementById('inquiry-bag-section');
+        if (bagSec) {
+          bagSec.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
       }
     });
 
