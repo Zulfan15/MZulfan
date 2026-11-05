@@ -77,19 +77,46 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
           <p>
             Looking to commission a high-speed Edge AI system? Need full-stack web engineering, custom IoT integrations, or want to pick up Zulfan's official credentials? Browse the catalog below, add items to your <strong>Project Inquiry Bag</strong>, or download Zulfan's official CV right from the Key Items shelf!
           </p>
-          <div class="p-2 rounded bg-amber-50/90 border border-amber-300 text-amber-900 text-[11px] flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <div class="flex items-center gap-2">
-              <span class="text-base">🪙</span>
-              <span><strong>Meowth's Amulet Coin:</strong> Adding services or sipping dev potions triggers the cashier register!</span>
+          <!-- Meowth Mascot Voice Box & Easter Egg Deck -->
+          <div class="p-3 rounded-xl bg-gradient-to-r from-amber-50 via-cream to-amber-100/90 border-2 border-amber-400/80 text-amber-950 text-xs space-y-2 shadow-xs">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+              <div class="flex items-start gap-2.5">
+                <span class="text-2xl p-1 bg-amber-200 rounded-lg border border-amber-400 shadow-inner shrink-0">🪙</span>
+                <div>
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="chip bg-amber-800 text-paper border-amber-950 font-mono text-[9px] px-1.5 py-0.2 font-bold uppercase">
+                      CASHIER MASCOT
+                    </span>
+                    <strong class="font-pixel text-[11px] text-amber-900">Meowth's Recruiter Intel</strong>
+                    <span id="meowth-pat-counter" class="chip bg-amber-200 text-amber-900 font-mono text-[9px] px-1.5 py-0.2 border border-amber-400 font-bold hidden">
+                      🪙 Luck x1
+                    </span>
+                  </div>
+                  <p id="meowth-speech-bubble" class="font-sans text-xs italic text-amber-900 mt-1 transition-all">
+                    "That's right! Zulfan's edge AI vision pipelines run at 120 FPS on Jetson hardware without breaking a sweat!"
+                  </p>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-1.5 shrink-0">
+                <button
+                  type="button"
+                  id="btn-meowth-quote"
+                  class="btn btn-sm btn-paper text-[10px] font-pixel text-amber-900 border-amber-400 shadow-sm hover:scale-[1.02] active:scale-95 transition-all"
+                  title="Ask Meowth for another tip or recruiter quote"
+                >
+                  💬 Another Quote
+                </button>
+                <button
+                  type="button"
+                  id="btn-toss-coin-2d"
+                  class="btn btn-sm btn-gold text-[10px] font-pixel shrink-0 shadow-sm hover:scale-[1.02] active:scale-95 transition-all"
+                  title="Trigger Cash Register Cha-Ching Animation on 2D Canvas"
+                >
+                  Pay Day FX ✨
+                </button>
+              </div>
             </div>
-            <button
-              type="button"
-              id="btn-toss-coin-2d"
-              class="btn btn-sm btn-gold text-[10px] font-pixel shrink-0 shadow-sm"
-              title="Trigger Cash Register Cha-Ching Animation on 2D Canvas"
-            >
-              Cha-Ching FX ✨
-            </button>
           </div>
         </div>
       </div>
@@ -125,6 +152,25 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
         </button>
       </div>
     </nav>
+
+    <!-- Mart Hotkeys Quick Reference Bar -->
+    <div class="flex flex-wrap items-center justify-between gap-2 px-3.5 py-2 rounded-xl bg-paper border-2 border-ink/15 text-[10px] font-mono text-ink-soft shadow-xs">
+      <div class="flex items-center gap-2">
+        <span class="text-sm">⌨️</span>
+        <span class="font-bold uppercase tracking-wider text-ink font-pixel text-[10px]">Mart Hotkeys:</span>
+      </div>
+      <div class="flex flex-wrap items-center gap-2 font-mono">
+        <span><kbd class="px-1.5 py-0.5 rounded bg-cream border border-ink/20 font-bold text-ink">[M]</kbd> Wallet Ledger</span>
+        <span class="text-ink/30">•</span>
+        <span><kbd class="px-1.5 py-0.5 rounded bg-cream border border-ink/20 font-bold text-ink">[T]</kbd> TM Disc Reader</span>
+        <span class="text-ink/30">•</span>
+        <span><kbd class="px-1.5 py-0.5 rounded bg-cream border border-ink/20 font-bold text-ink">[B]</kbd> Inquiry Bag</span>
+        <span class="text-ink/30">•</span>
+        <span><kbd class="px-1.5 py-0.5 rounded bg-cream border border-ink/20 font-bold text-ink">[P]</kbd> Pay Day 🪙</span>
+        <span class="text-ink/30">•</span>
+        <span><kbd class="px-1.5 py-0.5 rounded bg-cream border border-ink/20 font-bold text-ink">[Esc]</kbd> Close Modal</span>
+      </div>
+    </div>
 
     <!-- Catalog Section with Category Filter Tabs -->
     <section class="window p-4 md:p-5 bg-paper border-2 space-y-5" id="mart-catalog">
@@ -1240,7 +1286,8 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
           return;
         }
         setWalletBalance(bal - 50);
-        sfx.heal();
+        sfx.espressoBrew();
+        setTimeout(() => sfx.heal(), 180);
         window.dispatchEvent(
           new CustomEvent('town:mart-cash-anim', {
             detail: { text: 'SIP! -₽50 (+100% FOCUS)' },
@@ -1266,7 +1313,8 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
           return;
         }
         setWalletBalance(bal - 100);
-        sfx.heal();
+        sfx.confirm();
+        setTimeout(() => sfx.heal(), 140);
         window.dispatchEvent(
           new CustomEvent('town:mart-cash-anim', {
             detail: { text: 'ETHER! -₽100 (CLEAN ARCH)' },
@@ -1315,7 +1363,7 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
     // 🪙 Toss coin test button
     const btnTossCoin = document.getElementById('btn-toss-coin-2d');
     btnTossCoin?.addEventListener('click', () => {
-      sfx.confirm();
+      sfx.cashRegister();
       window.dispatchEvent(
         new CustomEvent('town:mart-cash-anim', {
           detail: { text: 'PAY DAY! +₽999' },
@@ -1356,6 +1404,111 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
           bagSec.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
       }
+    });
+
+    // 🪙 4. Meowth Recruiter Intel Quotes & Amulet Luck Counter
+    const meowthQuotes = [
+      "That's right! Zulfan's edge AI vision pipelines run at 120 FPS on Jetson hardware without breaking a sweat!",
+      "Recruiters who hire Zulfan get double sprint velocity and 100% clean git commits!",
+      "Looking for a verified full-stack engineer? Zulfan graduated from ITENAS with a 3.49 GPA and coordinated 6 lab semesters!",
+      "Psst! All Technical TMs and official CVs here are 100% free! Keep your Poké-Dollars for coffee!",
+      "IDEA FEST Bronze Medalist and HCIA-Security Certified... this engineer is ready for high-impact production roles!",
+    ];
+    let meowthQuoteIndex = 0;
+    let meowthPats = 0;
+
+    const meowthQuoteBtn = document.getElementById('btn-meowth-quote');
+    const meowthSpeechBubble = document.getElementById('meowth-speech-bubble');
+    const meowthPatCounter = document.getElementById('meowth-pat-counter');
+
+    function advanceMeowthQuote() {
+      meowthQuoteIndex = (meowthQuoteIndex + 1) % meowthQuotes.length;
+      meowthPats++;
+      sfx.cashRegister();
+
+      window.dispatchEvent(
+        new CustomEvent('town:mart-cash-anim', {
+          detail: { text: `LUCK +${meowthPats}! 🪙` },
+        })
+      );
+
+      if (meowthSpeechBubble) {
+        meowthSpeechBubble.style.opacity = '0';
+        setTimeout(() => {
+          meowthSpeechBubble.textContent = `"${meowthQuotes[meowthQuoteIndex]}"`;
+          meowthSpeechBubble.style.opacity = '1';
+        }, 150);
+      }
+
+      if (meowthPatCounter) {
+        meowthPatCounter.classList.remove('hidden');
+        meowthPatCounter.textContent = `🪙 Luck x${meowthPats}`;
+        if (meowthPats >= 3) {
+          meowthPatCounter.textContent = `✨ AMULET VIP (${meowthPats}x Luck)`;
+          meowthPatCounter.className = 'chip bg-amber-400 text-slate-950 font-mono text-[9px] px-2 py-0.5 border border-amber-600 font-bold animate-pulse';
+        }
+      }
+    }
+
+    meowthQuoteBtn?.addEventListener('click', advanceMeowthQuote);
+
+    // ⌨️ 5. Global Keyboard Shortcuts for Poké Mart
+    window.addEventListener('keydown', (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement)?.tagName?.toLowerCase();
+      if (tag === 'input' || tag === 'textarea' || (e.target as HTMLElement)?.isContentEditable) {
+        return;
+      }
+
+      if (e.key === 'm' || e.key === 'M') {
+        e.preventDefault();
+        sfx.select();
+        const modal = document.getElementById('wallet-modal') as HTMLDialogElement | null;
+        if (modal?.open) {
+          modal.close();
+        } else {
+          modal?.showModal();
+        }
+      } else if (e.key === 't' || e.key === 'T') {
+        e.preventDefault();
+        const tmModal = document.getElementById('tm-reader-modal') as HTMLDialogElement | null;
+        if (tmModal?.open) {
+          tmModal.close();
+          sfx.select();
+        } else {
+          window.dispatchEvent(
+            new CustomEvent('town:open-tm-reader', {
+              detail: { tmId: 'tm-01' },
+            })
+          );
+        }
+      } else if (e.key === 'b' || e.key === 'B') {
+        e.preventDefault();
+        sfx.select();
+        const bagSec = document.getElementById('inquiry-bag-section');
+        bagSec?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      } else if (e.key === 'p' || e.key === 'P') {
+        e.preventDefault();
+        const paydayBtn = document.getElementById('btn-meowth-payday');
+        paydayBtn?.click();
+      }
+    });
+
+    // 🔊 6. Ambient Department Soundscapes on Card Hover
+    let lastHoverSound = 0;
+    const hoverCards = document.querySelectorAll<HTMLElement>('.mart-card');
+    hoverCards.forEach((card) => {
+      card.addEventListener('mouseenter', () => {
+        const now = Date.now();
+        if (now - lastHoverSound < 500) return;
+        lastHoverSound = now;
+
+        const cat = card.getAttribute('data-category');
+        if (cat === 'potions') {
+          sfx.espressoBrew();
+        } else if (cat === 'tms') {
+          sfx.discSpin();
+        }
+      });
     });
 
     // Initialize state

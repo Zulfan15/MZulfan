@@ -4128,6 +4128,7 @@ export class TownEngine {
         sfx.select();
         if (prop.target.type === 'event' && prop.target.name) {
           if (prop.target.name === 'clerk') {
+            sfx.martChime();
             if (this.callbacks.onBubble) {
               this.callbacks.onBubble(
                 'Clerk Kevin · Poké Mart',
@@ -4169,37 +4170,52 @@ export class TownEngine {
               ]);
             }
           } else if (prop.target.name === 'meowth') {
-            sfx.confirm();
-            triggerCashRegisterAnimation('CHA-CHING! +1 BRIEF');
+            sfx.cashRegister();
+            triggerCashRegisterAnimation('CHA-CHING! 🪙');
             if (this.callbacks.onBubble) {
+              const meowthQuotes = [
+                "Meowth! 🪙 'That\\'s right! Zulfan\\'s edge AI vision pipelines run at 120 FPS on Jetson hardware without breaking a sweat!'",
+                "Meowth jingled his Amulet Coin! 🪙 'Recruiters who hire Zulfan get double sprint velocity and 100% clean git commits!'",
+                "Meowth whispers knowingly! 🪙 'Looking for a verified full-stack engineer? Zulfan graduated from ITENAS with a 3.49 GPA and coordinated 6 lab semesters!'",
+                "Meowth purrs! 🪙 'Psst! All Technical TMs and official CVs here are 100% free! Keep your Poké-Dollars for coffee!'",
+                "Meowth grins! 🪙 'IDEA FEST Bronze Medalist and HCIA-Security Certified... this engineer is ready for high-impact production roles!'"
+              ];
+              const randomQuote = meowthQuotes[Math.floor(Math.random() * meowthQuotes.length)];
+
               this.callbacks.onBubble(
                 'Meowth 🪙 (Cashier Mascot & Amulet Coin)',
-                "Meowth! 🪙 Meowth sits proudly by the cash register, polishing its glittering Amulet Coin! 'Pay Day is in full effect! Every engineering sprint commissioned at Zulfan's Poké Mart yields 100% clean architecture and maximum business value!'",
+                randomQuote,
                 [
                   {
-                    label: '🪙 Toss Coin into Register (Cha-Ching FX)',
+                    label: '🪙 Meowth Pay Day (+₽ 1,000)',
                     onClick: () => {
                       sfx.confirm();
-                      triggerCashRegisterAnimation('PAY DAY! +₽999');
-                      this.wake();
+                      triggerCashRegisterAnimation('PAY DAY! +₽1,000');
+                      const btn = document.getElementById('btn-meowth-payday');
+                      btn?.click();
+                    },
+                  },
+                  {
+                    label: '💰 Open Trainer Wallet Ledger',
+                    onClick: () => {
+                      const badge = document.getElementById('wallet-badge-btn');
+                      badge?.click();
+                    },
+                  },
+                  {
+                    label: '💿 Insert TM into Disc Reader',
+                    onClick: () => {
+                      window.dispatchEvent(
+                        new CustomEvent('town:open-tm-reader', {
+                          detail: { tmId: 'tm-01' },
+                        })
+                      );
                     },
                   },
                   {
                     label: '👨‍💼 Talk to Clerk Kevin',
                     onClick: () => {
                       this.walkToObject('clerk');
-                    },
-                  },
-                  {
-                    label: '🎒 Browse Services Shelf',
-                    onClick: () => {
-                      this.walkToObject('services-shelf');
-                    },
-                  },
-                  {
-                    label: '🔑 View Key Items & CV',
-                    onClick: () => {
-                      this.walkToObject('key-showcase');
                     },
                   },
                 ]

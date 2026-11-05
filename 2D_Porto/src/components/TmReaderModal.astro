@@ -569,7 +569,7 @@ print("✨ TM 01: Edge Vision Engine Exported Successfully!")</code></pre>
       tab.addEventListener('click', () => {
         const tmId = tab.getAttribute('data-tm');
         if (tmId) {
-          sfx.select();
+          sfx.discSpin();
           renderTm(tmId);
         }
       });
@@ -636,7 +636,7 @@ print("✨ TM 01: Edge Vision Engine Exported Successfully!")</code></pre>
       const customEvt = e as CustomEvent<{ tmId?: string }>;
       const tmId = customEvt.detail?.tmId || 'tm-01';
       renderTm(tmId);
-      sfx.confirm();
+      sfx.discSpin();
       modal.showModal();
     });
 
@@ -651,3 +651,4 @@ print("✨ TM 01: Edge Vision Engine Exported Successfully!")</code></pre>
     initTmReaderModal();
   }
 </script>
+

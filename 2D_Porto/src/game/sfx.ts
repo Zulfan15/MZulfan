@@ -392,6 +392,39 @@ class SoundFX {
     });
   }
 
+  public martChime() {
+    // Classic Pokémon Mart entrance chime: G5 -> C6 -> E6
+    const notes = [784, 1046, 1319];
+    notes.forEach((f, i) => {
+      setTimeout(() => this.playTone(f, 'sine', 0.18, 0.07), i * 110);
+    });
+  }
+
+  public cashRegister() {
+    // Mechanical cash drawer slide followed by golden bell chime
+    this.playTone(320, 'square', 0.05, 0.04);
+    setTimeout(() => this.playTone(480, 'square', 0.04, 0.04), 40);
+    setTimeout(() => this.playTone(1568, 'sine', 0.22, 0.08), 90);
+    setTimeout(() => this.playTone(2093, 'sine', 0.28, 0.06), 140);
+  }
+
+  public espressoBrew() {
+    // Soft bubbling percolator sound
+    for (let i = 0; i < 5; i++) {
+      setTimeout(() => {
+        this.playTone(400 + Math.random() * 300, 'triangle', 0.05, 0.03);
+      }, i * 60);
+    }
+  }
+
+  public discSpin() {
+    // Ascending optical drive spin frequency
+    const freqs = [350, 480, 680, 920, 1280];
+    freqs.forEach((f, i) => {
+      setTimeout(() => this.playTone(f, 'sine', 0.06, 0.04), i * 35);
+    });
+  }
+
   public get on(): boolean {
     return this.enabled;
   }
