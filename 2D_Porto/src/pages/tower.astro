@@ -55,6 +55,34 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
       </div>
     </header>
 
+    <!-- Interactive Quick Action & Floor Bar -->
+    <nav class="window p-2.5 md:p-3 bg-slate-900/90 border-2 border-sky-500/50 flex flex-wrap items-center justify-between gap-2.5 shadow-md" aria-label="Tech Tower Quick Navigation">
+      <div class="flex items-center gap-2 text-xs font-mono text-sky-300 font-bold">
+        <span class="text-base">🛗</span>
+        <span>QUICK ACTIONS:</span>
+      </div>
+      <div class="flex flex-wrap items-center gap-1.5" id="tower-quick-bar">
+        <button type="button" class="tower-quick-btn btn btn-sm btn-paper font-pixel text-[10px]" data-quick="xurkitree" title="Bicara dengan AI Host Xurkitree">
+          ⚡ 1. Xurkitree AI
+        </button>
+        <button type="button" class="tower-quick-btn btn btn-sm btn-paper font-pixel text-[10px]" data-quick="robotics-bay" title="Periksa Lab Robotika & ESP32 Tank">
+          🤖 2. Robotics Bay (2F)
+        </button>
+        <button type="button" class="tower-quick-btn btn btn-sm btn-paper font-pixel text-[10px]" data-quick="server-rack" title="Pantau Huawei HCIA & Cloud NOC">
+          🔒 3. Cloud NOC (3F)
+        </button>
+        <button type="button" class="tower-quick-btn btn btn-sm btn-paper font-pixel text-[10px]" data-quick="career-terminal" title="Kios Pengalaman 6x Asisten Lab">
+          💼 4. Career Kiosk (4F)
+        </button>
+        <button type="button" class="tower-quick-btn btn btn-sm btn-paper font-pixel text-[10px]" data-quick="elevator" title="Panggil Lift Eksekutif Antar-Lantai">
+          🛗 5. Elevator Call
+        </button>
+        <button type="button" class="tower-quick-btn btn btn-sm btn-paper font-pixel text-[10px]" data-quick="lounge" title="Nikmati Cold Brew Coffee (+50% Turbo Speed)">
+          ☕ 6. Cold Brew (+50% Speed)
+        </button>
+      </div>
+    </nav>
+
     <!-- Interactive Floor Directory Tabs -->
     <section class="window p-4 md:p-5 bg-paper border-2 space-y-5" id="tower-directory">
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b-2 border-ink/15 pb-4">
@@ -111,7 +139,7 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
       <!-- Department Cards Grid -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="tower-grid">
         <!-- 1F: Executive Lobby & Xurkitree AI Host -->
-        <article class="tower-card p-4 rounded-xl bg-cream/50 border-2 border-ink/20 flex flex-col justify-between hover:border-sky-500 transition-all shadow-sm" data-floor="floor-1">
+        <article class="tower-card p-4 rounded-xl bg-cream/50 border-2 border-ink/20 flex flex-col justify-between hover:border-sky-500 transition-all shadow-sm" data-floor="floor-1" data-prop="xurkitree">
           <div>
             <div class="flex items-start justify-between gap-2 mb-2">
               <span class="text-2xl p-1.5 rounded-lg bg-yellow-100 border border-yellow-300">⚡</span>
@@ -141,14 +169,19 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
           </div>
           <div class="pt-3 border-t border-ink/10 flex items-center justify-between gap-2">
             <span class="font-mono text-[11px] text-ink-soft">UB-03 Lighting Host</span>
-            <a href={cvUrl} target="_blank" class="btn btn-sm btn-paper text-[10px] font-pixel">
-              📄 Download CV
-            </a>
+            <div class="flex items-center gap-1.5">
+              <button type="button" class="btn btn-sm btn-paper text-[10px] font-pixel btn-inspect-2d" data-prop="xurkitree" title="Arahkan karakter ke Xurkitree di canvas 2D">
+                📍 Inspect 2D
+              </button>
+              <a href={cvUrl} target="_blank" class="btn btn-sm btn-paper text-[10px] font-pixel">
+                📄 Download CV
+              </a>
+            </div>
           </div>
         </article>
 
         <!-- 2F: Robotics Coordinator & Curriculum -->
-        <article class="tower-card p-4 rounded-xl bg-cream/50 border-2 border-ink/20 flex flex-col justify-between hover:border-sky-500 transition-all shadow-sm" data-floor="floor-2">
+        <article class="tower-card p-4 rounded-xl bg-cream/50 border-2 border-ink/20 flex flex-col justify-between hover:border-sky-500 transition-all shadow-sm" data-floor="floor-2" data-prop="robotics-bay">
           <div>
             <div class="flex items-start justify-between gap-2 mb-2">
               <span class="text-2xl p-1.5 rounded-lg bg-amber-100 border border-amber-300">🤖</span>
@@ -171,12 +204,17 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
           </div>
           <div class="pt-3 border-t border-ink/10 flex items-center justify-between gap-2">
             <span class="font-mono text-[11px] text-ink-soft">Lab Team Coordinator</span>
-            <span class="chip bg-amber-100 text-amber-900 border-amber-300 font-mono text-[10px]">Lab Coordinator</span>
+            <div class="flex items-center gap-1.5">
+              <button type="button" class="btn btn-sm btn-paper text-[10px] font-pixel btn-inspect-2d" data-prop="robotics-bay" title="Arahkan karakter ke Meja Robotika di canvas 2D">
+                📍 Inspect 2D
+              </button>
+              <span class="chip bg-amber-100 text-amber-900 border-amber-300 font-mono text-[10px]">Lab Coordinator</span>
+            </div>
           </div>
         </article>
 
         <!-- 2F: Remote Control Tank IoT Prototype -->
-        <article class="tower-card p-4 rounded-xl bg-cream/50 border-2 border-ink/20 flex flex-col justify-between hover:border-sky-500 transition-all shadow-sm" data-floor="floor-2">
+        <article class="tower-card p-4 rounded-xl bg-cream/50 border-2 border-ink/20 flex flex-col justify-between hover:border-sky-500 transition-all shadow-sm" data-floor="floor-2" data-prop="robotics-bay">
           <div>
             <div class="flex items-start justify-between gap-2 mb-2">
               <span class="text-2xl p-1.5 rounded-lg bg-emerald-100 border border-emerald-300">🛡️</span>
@@ -199,12 +237,17 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
           </div>
           <div class="pt-3 border-t border-ink/10 flex items-center justify-between gap-2">
             <span class="font-mono text-[11px] text-ink-soft">Firmware & Hardware</span>
-            <span class="chip bg-emerald-100 text-emerald-900 border-emerald-300 font-mono text-[10px]">Hardware Demo</span>
+            <div class="flex items-center gap-1.5">
+              <button type="button" class="btn btn-sm btn-paper text-[10px] font-pixel btn-inspect-2d" data-prop="robotics-bay" title="Arahkan karakter ke Meja Robotika di canvas 2D">
+                📍 Inspect 2D
+              </button>
+              <span class="chip bg-emerald-100 text-emerald-900 border-emerald-300 font-mono text-[10px]">Hardware Demo</span>
+            </div>
           </div>
         </article>
 
         <!-- 3F: Huawei HCIA-Security Certified & Network Lab -->
-        <article class="tower-card p-4 rounded-xl bg-cream/50 border-2 border-ink/20 flex flex-col justify-between hover:border-sky-500 transition-all shadow-sm" data-floor="floor-3">
+        <article class="tower-card p-4 rounded-xl bg-cream/50 border-2 border-ink/20 flex flex-col justify-between hover:border-sky-500 transition-all shadow-sm" data-floor="floor-3" data-prop="server-rack">
           <div>
             <div class="flex items-start justify-between gap-2 mb-2">
               <span class="text-2xl p-1.5 rounded-lg bg-indigo-100 border border-indigo-300">🔒</span>
@@ -227,12 +270,17 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
           </div>
           <div class="pt-3 border-t border-ink/10 flex items-center justify-between gap-2">
             <span class="font-mono text-[11px] text-ink-soft">Huawei Certified 2025</span>
-            <span class="chip bg-indigo-100 text-indigo-900 border-indigo-300 font-mono text-[10px]">Certified</span>
+            <div class="flex items-center gap-1.5">
+              <button type="button" class="btn btn-sm btn-paper text-[10px] font-pixel btn-inspect-2d" data-prop="server-rack" title="Arahkan karakter ke Server Rack NOC di canvas 2D">
+                📍 Inspect 2D
+              </button>
+              <span class="chip bg-indigo-100 text-indigo-900 border-indigo-300 font-mono text-[10px]">Certified</span>
+            </div>
           </div>
         </article>
 
         <!-- 3F: Cloud-Native & Distributed Microservices -->
-        <article class="tower-card p-4 rounded-xl bg-cream/50 border-2 border-ink/20 flex flex-col justify-between hover:border-sky-500 transition-all shadow-sm" data-floor="floor-3">
+        <article class="tower-card p-4 rounded-xl bg-cream/50 border-2 border-ink/20 flex flex-col justify-between hover:border-sky-500 transition-all shadow-sm" data-floor="floor-3" data-prop="server-rack">
           <div>
             <div class="flex items-start justify-between gap-2 mb-2">
               <span class="text-2xl p-1.5 rounded-lg bg-purple-100 border border-purple-300">☁️</span>
@@ -255,14 +303,19 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
           </div>
           <div class="pt-3 border-t border-ink/10 flex items-center justify-between gap-2">
             <span class="font-mono text-[11px] text-ink-soft">High-Concurrency Cloud</span>
-            <a href="/dev#foodlink" class="btn btn-sm btn-paper text-[10px] font-pixel">
-              🔍 Architecture Details
-            </a>
+            <div class="flex items-center gap-1.5">
+              <button type="button" class="btn btn-sm btn-paper text-[10px] font-pixel btn-inspect-2d" data-prop="server-rack" title="Arahkan karakter ke Server Rack NOC di canvas 2D">
+                📍 Inspect 2D
+              </button>
+              <a href="/dev#foodlink" class="btn btn-sm btn-paper text-[10px] font-pixel">
+                🔍 Architecture Details
+              </a>
+            </div>
           </div>
         </article>
 
         <!-- 4F: Software Development Intern at PT Dwi Purwa Teknologi -->
-        <article class="tower-card p-4 rounded-xl bg-cream/50 border-2 border-ink/20 flex flex-col justify-between hover:border-sky-500 transition-all shadow-sm" data-floor="floor-4">
+        <article class="tower-card p-4 rounded-xl bg-cream/50 border-2 border-ink/20 flex flex-col justify-between hover:border-sky-500 transition-all shadow-sm" data-floor="floor-4" data-prop="career-terminal">
           <div>
             <div class="flex items-start justify-between gap-2 mb-2">
               <span class="text-2xl p-1.5 rounded-lg bg-blue-100 border border-blue-300">💼</span>
@@ -284,12 +337,17 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
           </div>
           <div class="pt-3 border-t border-ink/10 flex items-center justify-between gap-2">
             <span class="font-mono text-[11px] text-ink-soft">Industry Experience</span>
-            <span class="chip bg-blue-100 text-blue-900 border-blue-300 font-mono text-[10px]">Internship</span>
+            <div class="flex items-center gap-1.5">
+              <button type="button" class="btn btn-sm btn-paper text-[10px] font-pixel btn-inspect-2d" data-prop="career-terminal" title="Arahkan karakter ke Kios Pengalaman di canvas 2D">
+                📍 Inspect 2D
+              </button>
+              <span class="chip bg-blue-100 text-blue-900 border-blue-300 font-mono text-[10px]">Internship</span>
+            </div>
           </div>
         </article>
 
         <!-- 4F: 6x ITENAS Laboratory Assistantship -->
-        <article class="tower-card p-4 rounded-xl bg-cream/50 border-2 border-ink/20 flex flex-col justify-between hover:border-sky-500 transition-all shadow-sm" data-floor="floor-4">
+        <article class="tower-card p-4 rounded-xl bg-cream/50 border-2 border-ink/20 flex flex-col justify-between hover:border-sky-500 transition-all shadow-sm" data-floor="floor-4" data-prop="career-terminal">
           <div>
             <div class="flex items-start justify-between gap-2 mb-2">
               <span class="text-2xl p-1.5 rounded-lg bg-rose-100 border border-rose-300">🎓</span>
@@ -312,9 +370,14 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
           </div>
           <div class="pt-3 border-t border-ink/10 flex items-center justify-between gap-2">
             <span class="font-mono text-[11px] text-ink-soft">Academic Mentorship</span>
-            <a href="/dev#timeline" class="btn btn-sm btn-paper text-[10px] font-pixel">
-              📜 Full Timeline
-            </a>
+            <div class="flex items-center gap-1.5">
+              <button type="button" class="btn btn-sm btn-paper text-[10px] font-pixel btn-inspect-2d" data-prop="career-terminal" title="Arahkan karakter ke Kios Pengalaman di canvas 2D">
+                📍 Inspect 2D
+              </button>
+              <a href="/dev#timeline" class="btn btn-sm btn-paper text-[10px] font-pixel">
+                📜 Full Timeline
+              </a>
+            </div>
           </div>
         </article>
       </div>
@@ -324,28 +387,148 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
     <WhereTo currentPath="/tower" />
   </div>
 
-  <!-- Interactive Client Script for Floor Tab Filtering -->
+  <style>
+    .tower-card {
+      transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+    }
+    .tower-card--highlighted {
+      border-color: #38bdf8 !important;
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.4), 0 8px 24px rgba(56, 189, 248, 0.25) !important;
+      transform: translateY(-2px);
+    }
+    .tower-quick-btn {
+      transition: all 0.15s ease;
+    }
+    .tower-quick-btn:hover {
+      border-color: #38bdf8;
+      color: #0284c7;
+      transform: translateY(-1px);
+    }
+  </style>
+
+  <!-- Interactive Client Script for Floor Tab Filtering & 2D Bi-Directional Sync -->
   <script>
     function initTowerTabs() {
       const tabButtons = document.querySelectorAll<HTMLButtonElement>('.tower-tab-btn');
       const cards = document.querySelectorAll<HTMLElement>('.tower-card');
 
+      function switchFloor(floor: string, notifyEngine: boolean = true) {
+        tabButtons.forEach((b) => {
+          const bFloor = b.getAttribute('data-tower-floor');
+          b.classList.toggle('active', bFloor === floor);
+        });
+
+        cards.forEach((card) => {
+          const cardFloor = card.getAttribute('data-floor');
+          if (floor === 'all' || cardFloor === floor) {
+            card.style.display = '';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+
+        if (notifyEngine && floor !== 'all') {
+          const fMap: Record<string, '1F' | '2F' | '3F' | '4F'> = {
+            'floor-1': '1F',
+            'floor-2': '2F',
+            'floor-3': '3F',
+            'floor-4': '4F',
+          };
+          const targetF = fMap[floor];
+          if (targetF) {
+            window.dispatchEvent(new CustomEvent('town:tower-floor', { detail: { floor: targetF } }));
+          }
+        }
+      }
+
       tabButtons.forEach((btn) => {
         btn.addEventListener('click', () => {
-          const floor = btn.getAttribute('data-tower-floor');
-          tabButtons.forEach((b) => b.classList.remove('active'));
-          btn.classList.add('active');
-
-          cards.forEach((card) => {
-            const cardFloor = card.getAttribute('data-floor');
-            if (floor === 'all' || cardFloor === floor) {
-              card.style.display = '';
-            } else {
-              card.style.display = 'none';
-            }
-          });
+          const floor = btn.getAttribute('data-tower-floor') || 'all';
+          switchFloor(floor, true);
         });
       });
+
+      // Quick Action Bar click listeners
+      const quickButtons = document.querySelectorAll<HTMLButtonElement>('.tower-quick-btn');
+      quickButtons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const action = btn.getAttribute('data-quick');
+          if (!action) return;
+
+          if (action === 'lounge') {
+            window.dispatchEvent(new CustomEvent('town:locate', { detail: { propId: 'lounge' } }));
+            window.dispatchEvent(new CustomEvent('town:coffee-boost'));
+            return;
+          }
+
+          if (action === 'elevator') {
+            window.dispatchEvent(new CustomEvent('town:locate', { detail: { propId: 'elevator' } }));
+            return;
+          }
+
+          window.dispatchEvent(new CustomEvent('town:locate', { detail: { propId: action } }));
+          const townCanvas = document.querySelector('.town');
+          if (townCanvas && window.innerWidth < 768) {
+            townCanvas.scrollIntoView({ behavior: 'smooth' });
+          }
+        });
+      });
+
+      // 📍 Inspect in 2D buttons on cards
+      const inspectButtons = document.querySelectorAll<HTMLButtonElement>('.btn-inspect-2d');
+      inspectButtons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const propId = btn.getAttribute('data-prop');
+          if (!propId) return;
+
+          window.dispatchEvent(new CustomEvent('town:locate', { detail: { propId } }));
+          const townCanvas = document.querySelector('.town');
+          if (townCanvas) {
+            townCanvas.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          }
+        });
+      });
+
+      // Listen for floor changed event from 2D engine (e.g. elevator)
+      window.addEventListener('town:tower-floor-changed', ((e: CustomEvent<{ floor: string; tabId: string }>) => {
+        if (e.detail?.tabId) {
+          switchFloor(e.detail.tabId, false);
+        }
+      }) as EventListener);
+
+      // Listen for highlight department event from 2D engine
+      window.addEventListener('town:highlight-department', ((e: CustomEvent<{ id: string; floor?: string }>) => {
+        const propId = e.detail?.id;
+        if (!propId) return;
+
+        const matchingCards = document.querySelectorAll<HTMLElement>(`.tower-card[data-prop="${propId}"]`);
+        matchingCards.forEach((card) => {
+          card.style.display = '';
+          card.classList.add('tower-card--highlighted');
+          card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          setTimeout(() => {
+            card.classList.remove('tower-card--highlighted');
+          }, 3200);
+        });
+      }) as EventListener);
+
+      // Listen for focus department event from bubble actions
+      window.addEventListener('town:focus-department', ((e: CustomEvent<{ floor: string; propId: string }>) => {
+        const fMap: Record<string, string> = {
+          '1F': 'floor-1',
+          '2F': 'floor-2',
+          '3F': 'floor-3',
+          '4F': 'floor-4',
+        };
+        const tab = fMap[e.detail?.floor];
+        if (tab) {
+          switchFloor(tab, false);
+        }
+        const dir = document.getElementById('tower-directory');
+        if (dir) {
+          dir.scrollIntoView({ behavior: 'smooth' });
+        }
+      }) as EventListener);
     }
 
     document.addEventListener('astro:page-load', initTowerTabs);

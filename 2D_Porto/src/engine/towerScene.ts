@@ -483,10 +483,41 @@ function drawReceptionDesk(ctx: CanvasRenderingContext2D, x: number, y: number, 
 }
 
 /**
- * Animated dynamic layer (Xurkitree AI floating animation, electric aura, lightning sparks, blinking server LEDs)
+ * Animated dynamic layer (Xurkitree AI floating animation, multi-floor neon bus lines, elevator display, server LEDs)
  */
-export function renderTowerAnimations(ctx: CanvasRenderingContext2D, tick: number) {
+export function renderTowerAnimations(
+  ctx: CanvasRenderingContext2D,
+  tick: number,
+  activeFloor: '1F' | '2F' | '3F' | '4F' = '1F'
+) {
   ctx.save();
+
+  // Floor themes with specific neon accents and display names
+  const floorThemes = {
+    '1F': { color: '#38bdf8', glow: 'rgba(56, 189, 248,', name: 'LOBBY' },
+    '2F': { color: '#f59e0b', glow: 'rgba(245, 158, 11,', name: 'ROBOT' },
+    '3F': { color: '#818cf8', glow: 'rgba(129, 140, 248,', name: 'CLOUD' },
+    '4F': { color: '#10b981', glow: 'rgba(16, 185, 129,', name: 'EXEC' },
+  };
+  const theme = floorThemes[activeFloor] || floorThemes['1F'];
+  const pulseAlpha = 0.35 + 0.22 * Math.sin(tick / 12);
+
+  // 0. Dynamic Neon Floor Circuit Bus Lines based on active floor
+  ctx.fillStyle = `${theme.glow} ${pulseAlpha})`;
+  // Main spine: from reception counter to exit
+  ctx.fillRect(7 * TILE_SIZE + 7, 5 * TILE_SIZE, 2, 6 * TILE_SIZE);
+  // Cross-floor corridor bus: (3, 6) to (12, 6)
+  ctx.fillRect(3 * TILE_SIZE, 6 * TILE_SIZE, 9 * TILE_SIZE, 1);
+  // Elevator branch: from spine to elevator at (8..9, 7)
+  ctx.fillRect(8 * TILE_SIZE, 6 * TILE_SIZE, 2 * TILE_SIZE, 1);
+  ctx.fillRect(9 * TILE_SIZE + 7, 6 * TILE_SIZE, 2, TILE_SIZE + 4);
+
+  // Traveling data packet pulse along floor circuit
+  const packetPos = (tick * 1.6) % (6 * TILE_SIZE);
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(7 * TILE_SIZE + 7, 5 * TILE_SIZE + packetPos, 2, 3);
+  ctx.fillStyle = theme.color;
+  ctx.fillRect(7 * TILE_SIZE + 7, 5 * TILE_SIZE + ((packetPos + 24) % (6 * TILE_SIZE)), 2, 2);
 
   // 1. Xurkitree Ultra Beast (UB-03 Lighting) AI Mascot at (7, 3) behind the counter
   const cx = 7 * TILE_SIZE + 8;
@@ -546,10 +577,48 @@ export function renderTowerAnimations(ctx: CanvasRenderingContext2D, tick: numbe
   ctx.fillStyle = ledBlink3 ? '#38bdf8' : '#1e293b';
   ctx.fillRect(11 * TILE_SIZE + 40, 3 * TILE_SIZE + 37, 2, 2);
 
-  // 3. Elevator Call Panel Indicator (Shifted to x = 8)
-  const arrowLit = Math.floor(tick / 20) % 2 === 0;
-  ctx.fillStyle = arrowLit ? '#38bdf8' : '#0284c7';
-  ctx.fillRect(8 * TILE_SIZE + 44, 7 * TILE_SIZE + 15, 2, 2);
+  // 3. Dynamic Elevator Floor Indicator Display (x: 8..10, y: 7..8)
+  const elX = 8 * TILE_SIZE;
+  const elY = 7 * TILE_SIZE;
+  ctx.fillStyle = '#020617';
+  ctx.fillRect(elX + 4, elY + 3, 40, 7);
+
+  // Pulsing elevator floor indicator arrow
+  const arrowLit = Math.floor(tick / 15) % 2 === 0;
+  ctx.fillStyle = arrowLit ? theme.color : '#334155';
+  ctx.fillRect(elX + 6, elY + 5, 3, 4);
+  ctx.fillRect(elX + 7, elY + 4, 1, 1);
+
+  // Draw floor and short department label
+  drawPixelText(ctx, `${activeFloor} ${theme.name}`, elX + 11, elY + 4, theme.color);
+
+  // Elevator Call Panel Indicator illuminated with active floor color
+  ctx.fillStyle = theme.color;
+  ctx.fillRect(elX + 43, elY + 18, 2, 4);
+
+  // 4. Subtle Perimeter Pulse on Currently Active Station
+  if (activeFloor === '2F') {
+    // Robotics Bay at (1, 3, 3, 2)
+    const rx = 1 * TILE_SIZE;
+    const ry = 3 * TILE_SIZE;
+    ctx.strokeStyle = `rgba(245, 158, 11, ${0.45 + 0.3 * Math.sin(tick / 10)})`;
+    ctx.lineWidth = 1;
+    ctx.strokeRect(rx + 1.5, ry + 1.5, 3 * TILE_SIZE - 3, 2 * TILE_SIZE - 3);
+  } else if (activeFloor === '3F') {
+    // Server Rack at (11, 3, 3, 3)
+    const sx = 11 * TILE_SIZE;
+    const sy = 3 * TILE_SIZE;
+    ctx.strokeStyle = `rgba(129, 140, 248, ${0.45 + 0.3 * Math.sin(tick / 10)})`;
+    ctx.lineWidth = 1;
+    ctx.strokeRect(sx + 1.5, sy + 1.5, 3 * TILE_SIZE - 3, 3 * TILE_SIZE - 3);
+  } else if (activeFloor === '4F') {
+    // Career Terminal at (1, 7, 3, 2)
+    const cx = 1 * TILE_SIZE;
+    const cy = 7 * TILE_SIZE;
+    ctx.strokeStyle = `rgba(16, 185, 129, ${0.45 + 0.3 * Math.sin(tick / 10)})`;
+    ctx.lineWidth = 1;
+    ctx.strokeRect(cx + 1.5, cy + 1.5, 3 * TILE_SIZE - 3, 2 * TILE_SIZE - 3);
+  }
 
   ctx.restore();
 }

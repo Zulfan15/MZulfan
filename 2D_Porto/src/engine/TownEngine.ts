@@ -193,6 +193,7 @@ export class TownEngine {
   private callbacks: EngineCallbacks;
   private currentScene: 'town' | 'home' | 'dev' | 'lab' | 'arcade' | 'reception' | 'mart' | 'tower' = 'town';
   private homeFloor: '1F' | '2F' = '1F';
+  public activeTowerFloor: '1F' | '2F' | '3F' | '4F' = '1F';
   private devBackgroundCanvas: HTMLCanvasElement | null = null;
   private labBackgroundCanvas: HTMLCanvasElement | null = null;
   private arcadeBackgroundCanvas: HTMLCanvasElement | null = null;
@@ -1584,6 +1585,47 @@ export class TownEngine {
         return;
       }
 
+      // In Tech Tower: clicking on any prop or NPC walks to and interacts with it!
+      if (this.currentScene === 'tower') {
+        const isXurkitreeHit = (
+          (targetTileX >= 5 && targetTileX <= 9 && targetTileY >= 3 && targetTileY <= 5) ||
+          Math.hypot(worldX - 120, worldY - 56) <= 24
+        );
+
+        const hitProp = isXurkitreeHit
+          ? TOWER_PROPS.find((p) => p.id === 'xurkitree')
+          : TOWER_PROPS.find(
+              (p) => targetTileX >= p.x && targetTileX < p.x + p.w && targetTileY >= p.y && targetTileY < p.y + p.h
+            );
+
+        if (hitProp) {
+          const isAdjacent = (
+            this.playerPos.x >= hitProp.x - 1 &&
+            this.playerPos.x <= hitProp.x + hitProp.w &&
+            this.playerPos.y >= hitProp.y - 1 &&
+            this.playerPos.y <= hitProp.y + hitProp.h
+          );
+
+          if (isAdjacent) {
+            if (this.playerPos.x < hitProp.x) this.playerDir = 'right';
+            else if (this.playerPos.x >= hitProp.x + hitProp.w) this.playerDir = 'left';
+            else if (this.playerPos.y < hitProp.y) this.playerDir = 'down';
+            else if (this.playerPos.y >= hitProp.y + hitProp.h) this.playerDir = 'up';
+            this.interactFacing(hitProp.id);
+            this.wake();
+            return;
+          }
+
+          this.walkToObject(hitProp.id);
+          this.wake();
+          return;
+        }
+
+        this.pendingTarget = null;
+        this.walkTo(targetTileX, targetTileY);
+        return;
+      }
+
       // If clicking inside a building footprint, redirect target to its door
       for (const b of this.map.buildings) {
         const cfg = townConfig.getBuilding(b.id) || b;
@@ -1712,6 +1754,23 @@ export class TownEngine {
           Math.hypot(worldX - 192, worldY - 194) <= 28
         );
         const hitProp = isEternatusHover || DEV_PROPS.some(
+          (p) => tx >= p.x && tx < p.x + p.w && ty >= p.y && ty < p.y + p.h
+        );
+        this.canvas.style.cursor = hitProp ? 'pointer' : '';
+      } else if (this.currentScene === 'tower') {
+        const rect = this.canvas.getBoundingClientRect();
+        const mouseScreenX = (e.clientX - rect.left) * (this.canvas.width / rect.width);
+        const mouseScreenY = (e.clientY - rect.top) * (this.canvas.height / rect.height);
+        const worldX = (mouseScreenX - this.canvas.width / 2) / this.zoom + this.cameraX;
+        const worldY = (mouseScreenY - this.canvas.height / 2) / this.zoom + this.cameraY;
+        const tx = Math.floor(worldX / TILE_SIZE);
+        const ty = Math.floor(worldY / TILE_SIZE);
+
+        const isXurkitreeHover = (
+          (tx >= 5 && tx <= 9 && ty >= 3 && ty <= 5) ||
+          Math.hypot(worldX - 120, worldY - 56) <= 24
+        );
+        const hitProp = isXurkitreeHover || TOWER_PROPS.some(
           (p) => tx >= p.x && tx < p.x + p.w && ty >= p.y && ty < p.y + p.h
         );
         this.canvas.style.cursor = hitProp ? 'pointer' : '';
@@ -1870,11 +1929,18 @@ export class TownEngine {
     const onCoffeeBoost = () => {
       this.activateCoffeeBoost();
     };
+    const onTowerFloor = (e: Event) => {
+      const custom = e as CustomEvent<{ floor: '1F' | '2F' | '3F' | '4F' }>;
+      if (custom.detail?.floor) {
+        this.setTowerFloor(custom.detail.floor, false);
+      }
+    };
 
     window.addEventListener('town:set-follower', onSetFollower);
     window.addEventListener('town:trigger-move', onTriggerMove);
     window.addEventListener('town:locate', onLocate);
     window.addEventListener('town:coffee-boost', onCoffeeBoost);
+    window.addEventListener('town:tower-floor', onTowerFloor);
 
     this.unbindEvents.push(
       () => window.removeEventListener('keydown', onKeyDown),
@@ -1898,7 +1964,8 @@ export class TownEngine {
       () => window.removeEventListener('town:set-follower', onSetFollower),
       () => window.removeEventListener('town:trigger-move', onTriggerMove),
       () => window.removeEventListener('town:locate', onLocate),
-      () => window.removeEventListener('town:coffee-boost', onCoffeeBoost)
+      () => window.removeEventListener('town:coffee-boost', onCoffeeBoost),
+      () => window.removeEventListener('town:tower-floor', onTowerFloor)
     );
   }
 
@@ -2149,7 +2216,7 @@ export class TownEngine {
       switch (id) {
         case 'xurkitree':
         case 'porygon':
-          this.walkTo(7, 4);
+          this.walkTo(7, 6);
           break;
         case 'robotics-bay':
           this.walkTo(2, 5);
@@ -3456,7 +3523,7 @@ export class TownEngine {
       case 'xurkitree':
       case 'porygon':
         this.playerDir = 'up';
-        this.interactFacing('porygon');
+        this.interactFacing('xurkitree');
         break;
       case 'robotics-bay':
         this.playerDir = 'up';
@@ -3740,6 +3807,67 @@ export class TownEngine {
     }
   }
 
+  public setTowerFloor(floor: '1F' | '2F' | '3F' | '4F', notify: boolean = true) {
+    this.activeTowerFloor = floor;
+    sfx.door();
+    this.wake();
+    if (notify) {
+      const tabId =
+        floor === '1F'
+          ? 'floor-1'
+          : floor === '2F'
+          ? 'floor-2'
+          : floor === '3F'
+          ? 'floor-3'
+          : 'floor-4';
+      window.dispatchEvent(
+        new CustomEvent('town:tower-floor-changed', {
+          detail: { floor, tabId },
+        })
+      );
+    }
+  }
+
+  public openElevatorMenu() {
+    sfx.select();
+    if (this.callbacks.onBubble) {
+      this.callbacks.onBubble(
+        `Executive Elevator 🛗 (Lantai Aktif: ${this.activeTowerFloor})`,
+        'Lift eksekutif berkecepatan tinggi Tech Tower. Silakan pilih lantai tujuan Anda:',
+        [
+          {
+            label: '1️⃣ Lantai 1F: Lobby & AI Reception (Xurkitree)',
+            onClick: () => {
+              this.setTowerFloor('1F');
+              this.walkToObject('xurkitree');
+            },
+          },
+          {
+            label: '2️⃣ Lantai 2F: Robotics & IoT Bay (ITENAS & ESP32)',
+            onClick: () => {
+              this.setTowerFloor('2F');
+              this.walkToObject('robotics-bay');
+            },
+          },
+          {
+            label: '3️⃣ Lantai 3F: Cloud NOC & Security (Huawei HCIA)',
+            onClick: () => {
+              this.setTowerFloor('3F');
+              this.walkToObject('server-rack');
+            },
+          },
+          {
+            label: '4️⃣ Lantai 4F: Enterprise & Mentorship (6x Lab Assistant)',
+            onClick: () => {
+              this.setTowerFloor('4F');
+              this.walkToObject('career-terminal');
+            },
+          },
+        ]
+      );
+    }
+  }
+
   public interactFacing(targetId?: string) {
     const activeTarget = targetId || this.pendingTarget;
     if (this.currentScene === 'tower') {
@@ -3758,19 +3886,59 @@ export class TownEngine {
 
       if (prop) {
         sfx.select();
-        if (prop.target.type === 'event' && prop.target.name) {
+        if (prop.id === 'lounge') {
+          window.dispatchEvent(new CustomEvent('town:highlight-department', { detail: { id: 'lounge', floor: '4F' } }));
+          if (this.callbacks.onBubble) {
+            this.callbacks.onBubble(
+              'Executive Sky Lounge ☕',
+              'Tempat santai para engineer & asisten lab untuk menikmati Cold Brew Coffee sambil mendiskusikan arsitektur sistem dan code review.',
+              {
+                label: '☕ Minum Cold Brew Coffee (High-Voltage Turbo +50%)',
+                onClick: () => {
+                  this.activateCoffeeBoost();
+                },
+              }
+            );
+          } else {
+            this.activateCoffeeBoost();
+          }
+        } else if (prop.target.type === 'event' && prop.target.name) {
           if (prop.target.name === 'xurkitree' || prop.target.name === 'porygon') {
+            this.setTowerFloor('1F');
+            window.dispatchEvent(new CustomEvent('town:highlight-department', { detail: { id: 'xurkitree', floor: '1F' } }));
             if (this.callbacks.onBubble) {
               this.callbacks.onBubble(
-                'Xurkitree AI Host · Tech Tower ⚡',
-                '⚡ BZZZZT-KZZT! Welcome to Tech Tower! I am Xurkitree (UB-03 Lighting), the high-voltage AI Host managing Muhammad Zulfan\'s cloud architecture, IoT robotics, and AI research.',
-                {
-                  label: 'Floor Directory',
-                  onClick: () => {
-                    const el = document.getElementById('tower-directory');
-                    el?.scrollIntoView({ behavior: 'smooth' });
+                'Xurkitree AI Host ⚡ (UB-03 Lighting)',
+                '⚡ BZZZZT-KZZT! Selamat datang di Tech Tower HQ! Saya Xurkitree, AI Host pengelola riset robotika ITENAS, cloud NOC berkeamanan tinggi, dan rekam jejak enterprise Muhammad Zulfan. Mau menuju ke lantai mana?',
+                [
+                  {
+                    label: '🛗 Panggil Lift Antar-Lantai',
+                    onClick: () => {
+                      this.openElevatorMenu();
+                    },
                   },
-                }
+                  {
+                    label: '🤖 Kunjungi Lab Robotika (2F)',
+                    onClick: () => {
+                      this.setTowerFloor('2F');
+                      this.walkToObject('robotics-bay');
+                    },
+                  },
+                  {
+                    label: '🔒 Cek Cloud & Security NOC (3F)',
+                    onClick: () => {
+                      this.setTowerFloor('3F');
+                      this.walkToObject('server-rack');
+                    },
+                  },
+                  {
+                    label: '💼 Terminal Pengalaman & Mentorship (4F)',
+                    onClick: () => {
+                      this.setTowerFloor('4F');
+                      this.walkToObject('career-terminal');
+                    },
+                  },
+                ]
               );
             } else {
               this.callbacks.onDialogue('Xurkitree AI Host ⚡', [
@@ -3779,67 +3947,76 @@ export class TownEngine {
               ]);
             }
           } else if (prop.target.name === 'robotics-bay') {
+            this.setTowerFloor('2F');
+            window.dispatchEvent(new CustomEvent('town:highlight-department', { detail: { id: 'robotics-bay', floor: '2F' } }));
             if (this.callbacks.onBubble) {
               this.callbacks.onBubble(
-                'Robotics & IoT Bay (2F) 🤖',
-                'Robotics workshop & IoT prototypes: ESP32 RC Tank with dual motor drive, ultrasonic sensor telemetry, and ITENAS Robotics Lab Coordinator documentation.',
-                {
-                  label: 'View 2F Details',
-                  onClick: () => {
-                    const tab = document.querySelector<HTMLButtonElement>('[data-tower-floor="floor-2"]');
-                    tab?.click();
-                    const el = document.getElementById('tower-directory');
-                    el?.scrollIntoView({ behavior: 'smooth' });
+                'Robotics & IoT Lab Bay 🤖 (2F)',
+                'Fasilitas Riset Hardware & IoT: Rekam jejak Koordinator Asisten Lab Robotika ITENAS (kurikulum kinematika, sensor multimodal, mikrokontroler) dan purwarupa Remote Control Tank ESP32 + Web Telemetri.',
+                [
+                  {
+                    label: '📜 Lihat Detail Kurikulum & Tank 2F',
+                    onClick: () => {
+                      window.dispatchEvent(new CustomEvent('town:focus-department', { detail: { floor: '2F', propId: 'robotics-bay' } }));
+                    },
                   },
-                }
+                  {
+                    label: '🛗 Pindah Lantai',
+                    onClick: () => {
+                      this.openElevatorMenu();
+                    },
+                  },
+                ]
               );
             }
           } else if (prop.target.name === 'server-rack') {
+            this.setTowerFloor('3F');
+            window.dispatchEvent(new CustomEvent('town:highlight-department', { detail: { id: 'server-rack', floor: '3F' } }));
             if (this.callbacks.onBubble) {
               this.callbacks.onBubble(
-                'Cloud & Network NOC (3F) 🖧',
-                'High-security cloud infrastructure: Huawei HCIA-Security V4.0 certification, Docker & Kubernetes container orchestration, plus Kafka & Redis architecture.',
-                {
-                  label: 'View 3F Details',
-                  onClick: () => {
-                    const tab = document.querySelector<HTMLButtonElement>('[data-tower-floor="floor-3"]');
-                    tab?.click();
-                    const el = document.getElementById('tower-directory');
-                    el?.scrollIntoView({ behavior: 'smooth' });
+                'Cloud & Network NOC 🖧 (3F)',
+                'Network Operations Center & Security: Sertifikasi internasional Huawei HCIA-Security V4.0 (Firewall, IPSec VPN, NAT) & arsitektur sistem terdistribusi (Apache Kafka, Redis Lua Mutex, Kubernetes).',
+                [
+                  {
+                    label: '🔒 Lihat Sertifikasi & Topologi 3F',
+                    onClick: () => {
+                      window.dispatchEvent(new CustomEvent('town:focus-department', { detail: { floor: '3F', propId: 'server-rack' } }));
+                    },
                   },
-                }
+                  {
+                    label: '🛗 Pindah Lantai',
+                    onClick: () => {
+                      this.openElevatorMenu();
+                    },
+                  },
+                ]
               );
             }
           } else if (prop.target.name === 'career-terminal') {
+            this.setTowerFloor('4F');
+            window.dispatchEvent(new CustomEvent('town:highlight-department', { detail: { id: 'career-terminal', floor: '4F' } }));
             if (this.callbacks.onBubble) {
               this.callbacks.onBubble(
-                'Experience Terminal (4F) 💼',
-                'Professional career kiosk: 6x ITENAS Laboratory Assistant, Software Development Internship at PT Dwi Purwa Teknologi, and 3rd Place IDEA FEST.',
-                {
-                  label: 'View 4F Details',
-                  onClick: () => {
-                    const tab = document.querySelector<HTMLButtonElement>('[data-tower-floor="floor-4"]');
-                    tab?.click();
-                    const el = document.getElementById('tower-directory');
-                    el?.scrollIntoView({ behavior: 'smooth' });
+                'Experience & Mentorship Terminal 💼 (4F)',
+                'Kios Rekam Jejak Profesional: 6x Asisten Laboratorium ITENAS (Robotika, IoT, Jaringan Komputer, OOP Java, Basis Data SQL), Magang Software Developer di PT Dwi Purwa Teknologi, dan Juara 3 IDEA FEST.',
+                [
+                  {
+                    label: '🎓 Buka Rekam Jejak & CV 4F',
+                    onClick: () => {
+                      window.dispatchEvent(new CustomEvent('town:focus-department', { detail: { floor: '4F', propId: 'career-terminal' } }));
+                    },
                   },
-                }
+                  {
+                    label: '🛗 Pindah Lantai',
+                    onClick: () => {
+                      this.openElevatorMenu();
+                    },
+                  },
+                ]
               );
             }
           } else if (prop.target.name === 'elevator') {
-            if (this.callbacks.onBubble) {
-              this.callbacks.onBubble(
-                'Executive Elevator 🛗',
-                'Tech Tower inter-floor elevator: 1F Lobby & AI Receptionist, 2F Robotics & IoT Bay, 3F Cloud & NOC, 4F Enterprise Mentorship.',
-                {
-                  label: 'Open Floor Directory',
-                  onClick: () => {
-                    const el = document.getElementById('tower-directory');
-                    el?.scrollIntoView({ behavior: 'smooth' });
-                  },
-                }
-              );
-            }
+            this.openElevatorMenu();
           } else {
             document.dispatchEvent(new CustomEvent(`town:${prop.target.name}`));
           }
@@ -3850,7 +4027,9 @@ export class TownEngine {
             this.callbacks.onDialogue(prop.label, [prop.target.text]);
           }
         } else if (prop.target.type === 'place' && prop.target.id) {
-          this.callbacks.onNavigate(`/${prop.target.id === 'town' ? '' : prop.target.id}`);
+          sfx.door();
+          if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('town:respawn', '22,28');
+          this.callbacks.onNavigate(prop.target.id === 'town' ? '/' : `/${prop.target.id}`);
         }
         this.wake();
       }
@@ -5599,6 +5778,7 @@ export class TownEngine {
         'server-rack': { x: 11, y: 3, w: 3, h: 3, lift: 0.75 },
         'career-terminal': { x: 1, y: 7, w: 3, h: 2, lift: 0.75 },
         elevator: { x: 8, y: 7, w: 3, h: 2, lift: 0.75 },
+        lounge: { x: 13, y: 7, w: 1, h: 3, lift: 0.75 },
       };
 
       const buttons = container.querySelectorAll<HTMLButtonElement>('.town-label');
@@ -6167,7 +6347,7 @@ export class TownEngine {
       }
       ctx.drawImage(this.towerBackgroundCanvas, 0, 0);
 
-      renderTowerAnimations(ctx, this.tick);
+      renderTowerAnimations(ctx, this.tick, this.activeTowerFloor);
 
       this.renderPathAndMarker(ctx);
 
