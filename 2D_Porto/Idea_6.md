@@ -172,6 +172,12 @@ Namun, dari sisi **kenyamanan pengguna (User Experience)** dan **daya tarik inte
      - **Lucario / Digital Twin**: *Tech Guardian: Intuitive UI/UX Design & Human-Centric Frontend* (merasakan kebutuhan pengguna secara empatik).
    - Dialog bubble kini mendukung aksi ganda/multipel (*flexible button pill tags*) sehingga pemain bisa menikmati jurus signature, mengajak jalan bersama, maupun membuka encounter mini-game secara bersamaan.
 
+4. **🐾 Poké-Partner & Skill Hub Modal (`PartnerModal.astro`) + Floating Quick-Bar**:
+   - **Poké-Partner & Skill Hub**: Modal komprehensif yang menampilkan 11 Pokémon (Lucario, Charizard, Tyranitar, Garchomp, Urshifu, Rayquaza, Mewtwo, Arceus, Dialga, Palkia, Pikachu) dengan visual sprite resmi, rincian keahlian rekayasa teknologi (*Tech Guardian Lore*), signature move burst, dan tombol langsung `🤝 Ajak Jalan` serta `⚡ Skill Burst`.
+   - **Akses Instan Top HUD & Burger Menu**: Tombol `🐾 Partner` (Hotkey `P`) dan `⚡ Skill` (Hotkey `X`) tersedia langsung di bar atas desktop dan menu navigasi ringkas mobile/burger.
+   - **Floating Companion Quick-Bar Widget (`#town-partner-float`)**: Widget melayang *glassmorphism retro pill* di sudut bawah layar menampilkan avatar Pokémon aktif, live status dot, nama pendamping, tombol pemicu skill `⚡ [Skill] (X)` dan tombol ganti `🔄 (P)`.
+   - **Interaksi Klik Langsung Seluruh Pokémon Kanvas**: Mengklik langsung sprite Pokémon mana pun di koridor kota (Charizard, Rayquaza, Giratina, Dialga, Palkia, Arceus, dll.) kini secara otomatis mengarahkan langkah pemain mendekat, menghadap ke Pokémon, dan membuka dialog interaktif lengkap beserta floating speech bubble `💬` di atas kepala mereka.
+
 ---
 
 ### FASE 5: Gamifikasi Tur Portofolio — "Trainer Passport & Stamp Rally"

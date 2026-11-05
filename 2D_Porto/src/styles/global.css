@@ -2681,6 +2681,218 @@ ul.clean, ol.clean {
   border-color: #a5b4fc !important;
 }
 
+/* ─── 🐾 Poké-Partner & ⚡ Skill HUD Buttons ─── */
+.town-hud-btn--partner {
+  background: rgba(30, 41, 59, 0.9);
+  border-color: #38bdf8;
+  color: #bae6fd;
+}
+.town-hud-btn--partner:hover {
+  background: #0284c7;
+  color: #ffffff;
+  border-color: #7dd3fc;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+}
+
+.town-hud-btn--skill {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: #f59e0b;
+  color: #fbbf24;
+}
+.town-hud-btn--skill:hover {
+  background: #f59e0b;
+  color: #1c1726;
+  border-color: #fde047;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.6);
+}
+
+.town-burger-dropdown__item#burger-item-partner:hover {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: #38bdf8;
+}
+
+.town-burger-dropdown__item#burger-item-skill:hover {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: #f59e0b;
+}
+
+/* ─── 🐾 Floating Companion Quick-Bar Widget ─── */
+.town-partner-float {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  z-index: 35;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 9999px;
+  background: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(56, 189, 248, 0.35);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), 0 0 10px rgba(56, 189, 248, 0.15);
+  transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  user-select: none;
+}
+
+.town-partner-float:hover {
+  border-color: rgba(56, 189, 248, 0.7);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 16px rgba(56, 189, 248, 0.3);
+  transform: translateY(-2px);
+}
+
+.town-partner-float__profile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+}
+
+.town-partner-float__avatar-wrap {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(30, 58, 138, 0.7), rgba(15, 23, 42, 0.9));
+  border: 1.5px solid rgba(125, 211, 252, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 0 8px rgba(56, 189, 248, 0.3);
+}
+
+.town-partner-float__icon {
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+.town-partner-float__live-dot {
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  border: 1.5px solid #0f172a;
+  box-shadow: 0 0 6px #10b981;
+  animation: townLivePulse 2s infinite;
+}
+
+.town-partner-float__info {
+  display: flex;
+  flex-direction: column;
+}
+
+.town-partner-float__badge {
+  font-size: 0.55rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #38bdf8;
+  text-transform: uppercase;
+}
+
+.town-partner-float__name {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.1;
+}
+
+.town-partner-float__actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 4px;
+}
+
+.town-partner-float__skill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: linear-gradient(135deg, #d97706, #b45309);
+  color: #ffffff;
+  border: 1px solid #fde047;
+  border-radius: 9999px;
+  padding: 4px 10px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(217, 119, 6, 0.4);
+  transition: all 0.15s ease;
+}
+
+.town-partner-float__skill-btn:hover {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  box-shadow: 0 0 14px rgba(245, 158, 11, 0.7);
+  transform: scale(1.04);
+}
+
+.town-partner-float__skill-btn:active {
+  transform: scale(0.96);
+}
+
+.town-partner-float__skill-btn .skill-kbd {
+  background: rgba(0, 0, 0, 0.35);
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 0.6rem;
+  font-family: monospace;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.town-partner-float__hub-btn {
+  background: rgba(255, 255, 255, 0.1);
+  color: #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.town-partner-float__hub-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  transform: rotate(45deg);
+}
+
+/* Solo state */
+.town-partner-float.is-solo {
+  border-color: rgba(148, 163, 184, 0.3);
+}
+.town-partner-float.is-solo .town-partner-float__avatar-wrap {
+  border-color: rgba(148, 163, 184, 0.4);
+}
+.town-partner-float.is-solo .town-partner-float__live-dot {
+  background: #94a3b8;
+  box-shadow: none;
+  animation: none;
+}
+.town-partner-float.is-solo .town-partner-float__badge {
+  color: #94a3b8;
+}
+
+@media (max-width: 768px) {
+  .town-partner-float {
+    bottom: 84px;
+    left: 10px;
+    padding: 4px 8px;
+    transform-origin: bottom left;
+    transform: scale(0.88);
+  }
+}
+
 /* ─── 🔍 Pokénav Search & ⚙️ Dev Tools Popover ─── */
 .town-hud-btn--search {
   background: rgba(6, 78, 59, 0.85);

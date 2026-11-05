@@ -1558,6 +1558,74 @@ export class TownEngine {
         }
       }
 
+      // Check if clicking directly on an NPC or Pokémon
+      const arenaCfg = townConfig.getBuilding('arena');
+      const aceX = arenaCfg ? arenaCfg.x + Math.floor(arenaCfg.w / 2) - 1 : 28;
+      const aceY = arenaCfg ? arenaCfg.y + 1 : 17;
+      const hitNpc =
+        this.map.npcs.find((n) => {
+          const cfg = townConfig.getBuilding(n.id);
+          const nx = cfg ? cfg.x : (n.id === 'ace' ? aceX : n.x);
+          const ny = cfg ? cfg.y : (n.id === 'ace' ? aceY : n.y);
+          const nw = cfg?.w ?? (['charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar', 'garchomp', 'urshifu', 'groudon', 'kyogre', 'reshiram', 'zekrom'].includes(n.id) ? 2 : 1);
+          const nh = cfg?.h ?? (['charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar', 'garchomp', 'urshifu', 'groudon', 'kyogre', 'reshiram', 'zekrom'].includes(n.id) ? 2 : 1);
+          return targetTileX >= nx && targetTileX < nx + nw && targetTileY >= ny && targetTileY < ny + nh;
+        }) ||
+        townConfig.getBuildings().find((b) => {
+          if (b.hidden || b.kind !== 'npc') return false;
+          return targetTileX >= b.x && targetTileX < b.x + b.w && targetTileY >= b.y && targetTileY < b.y + b.h;
+        });
+
+      if (hitNpc) {
+        const cfg = townConfig.getBuilding(hitNpc.id);
+        const nx = cfg ? cfg.x : (hitNpc.id === 'ace' ? aceX : hitNpc.x);
+        const ny = cfg ? cfg.y : (hitNpc.id === 'ace' ? aceY : hitNpc.y);
+        const nw = (hitNpc as any).w ?? cfg?.w ?? (['charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar', 'garchomp', 'urshifu', 'groudon', 'kyogre', 'reshiram', 'zekrom'].includes(hitNpc.id) ? 2 : 1);
+        const nh = (hitNpc as any).h ?? cfg?.h ?? (['charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar', 'garchomp', 'urshifu', 'groudon', 'kyogre', 'reshiram', 'zekrom'].includes(hitNpc.id) ? 2 : 1);
+
+        // If player is already adjacent to this NPC, interact immediately!
+        const isAdjacent = (
+          this.playerPos.x >= nx - 1 &&
+          this.playerPos.x <= nx + nw &&
+          this.playerPos.y >= ny - 1 &&
+          this.playerPos.y <= ny + nh
+        );
+
+        if (isAdjacent) {
+          if (this.playerPos.x < nx) this.playerDir = 'right';
+          else if (this.playerPos.x >= nx + nw) this.playerDir = 'left';
+          else if (this.playerPos.y < ny) this.playerDir = 'down';
+          else if (this.playerPos.y >= ny + nh) this.playerDir = 'up';
+          this.interactFacing(hitNpc.id);
+          this.wake();
+          return;
+        }
+
+        // Find nearest walkable adjacent tile
+        let bestTile: Vec | null = null;
+        let bestDist = Infinity;
+        for (let dx = -1; dx <= nw; dx++) {
+          for (let dy = -1; dy <= nh; dy++) {
+            if (dx >= 0 && dx < nw && dy >= 0 && dy < nh) continue;
+            const tx = nx + dx;
+            const ty = ny + dy;
+            if (this.canWalk(tx, ty)) {
+              const d = Math.hypot(tx - this.playerPos.x, ty - this.playerPos.y);
+              if (d < bestDist) {
+                bestDist = d;
+                bestTile = { x: tx, y: ty };
+              }
+            }
+          }
+        }
+
+        if (bestTile) {
+          this.pendingTarget = hitNpc.id;
+          this.walkTo(bestTile.x, bestTile.y);
+          return;
+        }
+      }
+
       this.pendingTarget = null;
       this.walkTo(targetTileX, targetTileY);
     };
@@ -3117,6 +3185,27 @@ export class TownEngine {
         this.playerDir = 'down';
         this.interactFacing('charizard');
         break;
+      case 'rayquaza':
+        this.playerDir = 'left';
+        this.interactFacing('rayquaza');
+        break;
+      case 'arceus':
+        this.playerDir = 'up';
+        this.interactFacing('arceus');
+        break;
+      case 'garchomp':
+        this.playerDir = 'up';
+        this.interactFacing('garchomp');
+        break;
+      case 'urshifu':
+      case 'urshifu_gmax':
+        this.playerDir = 'up';
+        this.interactFacing('urshifu');
+        break;
+      case 'mewtwo':
+        this.playerDir = 'up';
+        this.interactFacing('mewtwo');
+        break;
       case 'kiosk':
       case 'cafe':
       case 'bar':
@@ -3989,15 +4078,113 @@ export class TownEngine {
 
     // 1. Check NPC
     const npc =
-      (activeTarget ? this.map.npcs.find((n) => n.id === activeTarget) : undefined) ||
+      (activeTarget ? this.map.npcs.find((n) => n.id === activeTarget || (n as any).subType === activeTarget) : undefined) ||
       this.map.npcs.find((n) => {
         const cfg = townConfig.getBuilding(n.id);
         const nx = cfg ? cfg.x : (n.id === 'ace' ? aceX : n.x);
         const ny = cfg ? cfg.y : (n.id === 'ace' ? aceY : n.y);
-        return nx === fx && ny === fy;
+        const nw = cfg?.w ?? (['charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar', 'garchomp', 'urshifu', 'groudon', 'kyogre', 'reshiram', 'zekrom'].includes(n.id) ? 2 : 1);
+        const nh = cfg?.h ?? (['charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar', 'garchomp', 'urshifu', 'groudon', 'kyogre', 'reshiram', 'zekrom'].includes(n.id) ? 2 : 1);
+        const inFacing = fx >= nx && fx < nx + nw && fy >= ny && fy < ny + nh;
+        const isAdjacent = (
+          this.playerPos.x >= nx - 1 &&
+          this.playerPos.x <= nx + nw &&
+          this.playerPos.y >= ny - 1 &&
+          this.playerPos.y <= ny + nh
+        );
+        return inFacing || isAdjacent;
       });
     if (npc) {
       sfx.select();
+      if (npc.id === 'rayquaza' || (npc as any).subType === 'rayquaza') {
+        sfx.select();
+        const rayquazaActions: BubbleAction[] = [
+          {
+            label: '⚡ Deru Badai (Delta Stream)',
+            onClick: () => this.triggerSignatureMove('rayquaza', (npc as any).x, (npc as any).y),
+          },
+          {
+            label: '🤝 Ajak Jalan Bersama',
+            onClick: () => this.setActiveFollower('rayquaza'),
+          },
+        ];
+        if (this.callbacks.onBubble) {
+          this.callbacks.onBubble(
+            'Rayquaza Sang Naga Langit 🐉',
+            'Kyyyaaaarrrr-shooo...! 🐉 Aura zamrud naga langit berputar megah di angkasa. [Tech Guardian: DevOps, CI/CD Cloud Pipelines & High-Availability] Mengarungi stratosfer awan menjaga stabilitas uptime sistem 99.99%!',
+            rayquazaActions
+          );
+        } else {
+          this.callbacks.onDialogue('Rayquaza Sang Naga Langit 🐉', [
+            'RAYQUAZA: "Kyyyaaaarrrr-shooo...!" 🐉',
+            'Tech Guardian: DevOps, CI/CD Cloud Pipelines & High-Availability.',
+          ]);
+        }
+        document.dispatchEvent(new CustomEvent('town:rayquaza'));
+        this.wake();
+        return;
+      }
+      if (npc.id === 'garchomp' || (npc as any).subType === 'garchomp') {
+        sfx.select();
+        const garchompActions: BubbleAction[] = [
+          {
+            label: '⚡ Tebasan Naga (Dragon Claw)',
+            onClick: () => this.triggerSignatureMove('garchomp', (npc as any).x, (npc as any).y),
+          },
+          {
+            label: '🤝 Ajak Jalan Bersama',
+            onClick: () => this.setActiveFollower('garchomp'),
+          },
+        ];
+        if (this.callbacks.onBubble) {
+          this.callbacks.onBubble(
+            'Garchomp Sang Predator Darat 🦈',
+            'Gyaaa-shhh...! 🦈 Sayap sirip tajam Garchomp berdesir membelah angin. [Tech Guardian: High-Speed Algorithms, Optimization & Clean Code] Bergerak secepat jet tempur supersonik mengeksekusi logika komputasi!',
+            garchompActions
+          );
+        } else {
+          this.callbacks.onDialogue('Garchomp Sang Predator Darat 🦈', [
+            'GARCHOMP: "Gyaaa-shhh...!" 🦈',
+            'Tech Guardian: High-Speed Algorithms, Optimization & Clean Code.',
+          ]);
+        }
+        document.dispatchEvent(new CustomEvent('town:garchomp'));
+        this.wake();
+        return;
+      }
+      if (
+        npc.id === 'urshifu' ||
+        (npc as any).subType === 'urshifu' ||
+        npc.id === 'urshifu_gmax' ||
+        (npc as any).subType === 'urshifu_gmax'
+      ) {
+        sfx.select();
+        const urshifuActions: BubbleAction[] = [
+          {
+            label: '⚡ Serbuan Beruntun (G-Max Rapid Flow)',
+            onClick: () => this.triggerSignatureMove('urshifu', (npc as any).x, (npc as any).y),
+          },
+          {
+            label: '🤝 Ajak Jalan Bersama',
+            onClick: () => this.setActiveFollower('urshifu'),
+          },
+        ];
+        if (this.callbacks.onBubble) {
+          this.callbacks.onBubble(
+            'Urshifu G-Max Rapid Strike 🌊',
+            'Hssshaaarrr-kwooo...! 🌊 Aliran deras jurus Rapid Strike bergemuruh di sekitar sang Master Wushu. [Tech Guardian: Agile Execution, Rapid Prototyping & Flow State UI/UX] Menghadirkan solusi kilat yang kokoh dan tepat sasaran.',
+            urshifuActions
+          );
+        } else {
+          this.callbacks.onDialogue('Urshifu G-Max Rapid Strike 🌊', [
+            'URSHIFU: "Hssshaaarrr-kwooo...!" 🌊',
+            'Tech Guardian: Agile Execution, Rapid Prototyping & Flow State UI/UX.',
+          ]);
+        }
+        document.dispatchEvent(new CustomEvent('town:urshifu'));
+        this.wake();
+        return;
+      }
       if (npc.id === 'dialga' || (npc as any).subType === 'dialga') {
         sfx.select();
         const dialgaActions: BubbleAction[] = [
@@ -4587,19 +4774,23 @@ export class TownEngine {
     }
 
     // 2b. Check Custom Placed Objects, NPCs, Signs, Props from townConfig
-    const customPlaced = townConfig.getBuildings().find((b) => {
-      if (b.hidden) return false;
-      // Skip major indoor buildings which have their own doors
-      if (['dev', 'lab', 'home', 'shop', 'arcade', 'reception', 'office', 'tower'].includes(b.id)) return false;
-      const inFacing = fx >= b.x && fx < b.x + b.w && fy >= b.y && fy < b.y + b.h;
-      const isAdjacent = (
-        this.playerPos.x >= b.x - 1 &&
-        this.playerPos.x <= b.x + b.w &&
-        this.playerPos.y >= b.y - 1 &&
-        this.playerPos.y <= b.y + b.h
-      );
-      return inFacing || isAdjacent;
-    });
+    const customPlaced =
+      (activeTarget
+        ? townConfig.getBuildings().find((b) => !b.hidden && (b.id === activeTarget || b.subType === activeTarget))
+        : undefined) ||
+      townConfig.getBuildings().find((b) => {
+        if (b.hidden) return false;
+        // Skip major indoor buildings which have their own doors
+        if (['dev', 'lab', 'home', 'shop', 'arcade', 'reception', 'office', 'tower'].includes(b.id)) return false;
+        const inFacing = fx >= b.x && fx < b.x + b.w && fy >= b.y && fy < b.y + b.h;
+        const isAdjacent = (
+          this.playerPos.x >= b.x - 1 &&
+          this.playerPos.x <= b.x + b.w &&
+          this.playerPos.y >= b.y - 1 &&
+          this.playerPos.y <= b.y + b.h
+        );
+        return inFacing || isAdjacent;
+      });
 
     if (activeTarget === 'kiosk' || activeTarget === 'cafe' || activeTarget === 'bar' || customPlaced?.id === 'kiosk') {
       sfx.select();
@@ -6939,10 +7130,45 @@ export class TownEngine {
         );
       }
 
-      // Floating speech bubble if twin
-      if (npc.id === 'twin') {
-        const bx = curTileX * TILE_SIZE + 22;
-        const by = curTileY * TILE_SIZE - 8 + Math.sin(this.tick * 0.08) * 1.5;
+      // Floating speech bubble for interactive Pokémon & NPCs
+      const isTalkable = [
+        'twin',
+        'charizard',
+        'ranger',
+        'tyranitar',
+        'dialga',
+        'palkia',
+        'giratina',
+        'rayquaza',
+        'arceus',
+        'ace',
+        'mewtwo',
+        'reshiram',
+        'zekrom',
+        'groudon',
+        'kyogre',
+        'garchomp',
+        'urshifu',
+      ].includes(npc.id) || (npc as any).subType;
+
+      if (isTalkable) {
+        const isBig = [
+          'charizard',
+          'dialga',
+          'palkia',
+          'giratina',
+          'rayquaza',
+          'arceus',
+          'tyranitar',
+          'garchomp',
+          'urshifu',
+          'groudon',
+          'kyogre',
+          'reshiram',
+          'zekrom',
+        ].includes(npc.id);
+        const bx = curTileX * TILE_SIZE + (isBig ? 24 : 18);
+        const by = curTileY * TILE_SIZE - 10 + Math.sin(this.tick * 0.08 + curTileX * 0.5) * 1.5;
         ctx.fillStyle = '#ffffff';
         ctx.beginPath();
         ctx.roundRect(bx, by, 13, 9, 3);
@@ -7353,6 +7579,22 @@ export class TownEngine {
         if (isFlipped) {
           ctx.restore();
         }
+
+        // Draw speech bubble for custom placed Pokémon & NPCs
+        const bx = b.x * TILE_SIZE + ((b.w || 1) >= 2 ? 24 : 18);
+        const by = b.y * TILE_SIZE - 10 + Math.sin(this.tick * 0.08 + b.x * 0.5) * 1.5;
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.roundRect(bx, by, 13, 9, 3);
+        ctx.fill();
+        ctx.strokeStyle = '#1c1726';
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+
+        ctx.fillStyle = '#1c1726';
+        ctx.fillRect(bx + 2.5, by + 3.5, 1.5, 1.5);
+        ctx.fillRect(bx + 5.5, by + 3.5, 1.5, 1.5);
+        ctx.fillRect(bx + 8.5, by + 3.5, 1.5, 1.5);
       }
     }
 

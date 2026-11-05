@@ -132,6 +132,28 @@ const dataPlaceRooms = {
 
       <button
         type="button"
+        class="town-hud-btn town-hud-btn--partner"
+        id="btn-open-partner-hub"
+        aria-label="Poké-Partner Hub (Tekan P)"
+        title="Poké-Partner Hub (Pilih Pokémon Pendamping & Skill / Tekan P)"
+      >
+        <span class="town-hud-btn__icon" id="hud-partner-icon" aria-hidden="true">🐾</span>
+        <span class="town-hud-btn__label" id="hud-partner-label">Partner</span>
+      </button>
+
+      <button
+        type="button"
+        class="town-hud-btn town-hud-btn--skill"
+        id="btn-cast-partner-skill"
+        aria-label="Gunakan Skill Partner (Tekan X)"
+        title="Gunakan Skill Pokémon Pendamping (Tekan X)"
+      >
+        <span class="town-hud-btn__icon" id="hud-skill-icon" aria-hidden="true">⚡</span>
+        <span class="town-hud-btn__label" id="hud-skill-label">Skill</span>
+      </button>
+
+      <button
+        type="button"
         class="town-hud-btn town-hud-btn--time"
         id="btn-toggle-time"
         aria-label="Ganti Waktu Kota"
@@ -326,6 +348,24 @@ const dataPlaceRooms = {
               <span class="town-burger-dropdown__item-sub">Peta navigasi & klik teleport</span>
             </div>
             <kbd class="town-burger-dropdown__kbd">M</kbd>
+          </button>
+
+          <button type="button" class="town-burger-dropdown__item" id="burger-item-partner" role="menuitem">
+            <span class="town-burger-dropdown__item-icon" id="burger-partner-icon">🐾</span>
+            <div class="town-burger-dropdown__item-info">
+              <span class="town-burger-dropdown__item-title">Poké-Partner Hub</span>
+              <span class="town-burger-dropdown__item-sub" id="burger-partner-sub">Pilih pendamping & skill (11 Pokémon)</span>
+            </div>
+            <kbd class="town-burger-dropdown__kbd">P</kbd>
+          </button>
+
+          <button type="button" class="town-burger-dropdown__item" id="burger-item-skill" role="menuitem">
+            <span class="town-burger-dropdown__item-icon" id="burger-skill-icon">⚡</span>
+            <div class="town-burger-dropdown__item-info">
+              <span class="town-burger-dropdown__item-title">Skill Pendamping</span>
+              <span class="town-burger-dropdown__item-sub" id="burger-skill-sub">Visual Burst Pokémon aktif</span>
+            </div>
+            <kbd class="town-burger-dropdown__kbd">X</kbd>
           </button>
 
           <button type="button" class="town-burger-dropdown__item" id="burger-item-time" role="menuitem">
@@ -724,7 +764,9 @@ const dataPlaceRooms = {
     <span class="town-legend-sep">•</span>
     <span class="town-legend-item"><kbd class="town-kbd">Scroll</kbd> Zoom</span>
     <span class="town-legend-sep">•</span>
-    <span class="town-legend-item"><kbd class="town-kbd">X</kbd> X-Ray</span>
+    <span class="town-legend-item"><kbd class="town-kbd">P</kbd> Partner</span>
+    <span class="town-legend-sep">•</span>
+    <span class="town-legend-item"><kbd class="town-kbd">X</kbd> Skill</span>
     <span class="town-legend-sep">•</span>
     <span class="town-legend-item"><kbd class="town-kbd">L</kbd> Badges</span>
     <span class="town-legend-sep">•</span>
@@ -1136,6 +1178,46 @@ const dataPlaceRooms = {
     </div>
   </div>
 
+  <!-- Floating Companion Quick-Bar (Retro Glass Pill) -->
+  <aside id="town-partner-float" class="town-partner-float" aria-label="Poké-Partner Aktif">
+    <button
+      type="button"
+      id="partner-float-open"
+      class="town-partner-float__profile"
+      title="Buka Poké-Partner & Skill Hub (Tekan P)"
+    >
+      <span class="town-partner-float__avatar-wrap">
+        <span id="partner-float-icon" class="town-partner-float__icon">🐾</span>
+        <span class="town-partner-float__live-dot" aria-hidden="true"></span>
+      </span>
+      <div class="town-partner-float__info">
+        <span class="town-partner-float__badge">PARTNER</span>
+        <span id="partner-float-name" class="town-partner-float__name">Lucario</span>
+      </div>
+    </button>
+    <div class="town-partner-float__actions">
+      <button
+        type="button"
+        id="partner-float-skill-btn"
+        class="town-partner-float__skill-btn"
+        title="Gunakan Skill Visual Burst (Tekan X)"
+      >
+        <span class="skill-bolt">⚡</span>
+        <span id="partner-float-skill-name" class="skill-name">Aura Sphere</span>
+        <kbd class="skill-kbd">X</kbd>
+      </button>
+      <button
+        type="button"
+        id="partner-float-hub-btn"
+        class="town-partner-float__hub-btn"
+        title="Ganti Pokémon Pendamping (Tekan P)"
+        aria-label="Ganti Pokémon Pendamping"
+      >
+        🔄
+      </button>
+    </div>
+  </aside>
+
   <noscript>
     <p class="town-noscript">The town needs JavaScript, but every page works without it. Use the menu above.</p>
   </noscript>
@@ -1150,6 +1232,7 @@ const dataPlaceRooms = {
   import { TownEngine } from '../engine/TownEngine';
   import { sfx } from '../game/sfx';
   import { townConfig, type TileTypeKey, SPAWNABLE_TEMPLATES } from '../engine/townConfig';
+  import { COMPANIONS_MAP } from '../engine/pokemonCompanions';
 
   let engine: TownEngine | null = null;
 
@@ -1905,6 +1988,107 @@ const dataPlaceRooms = {
         engine.flyTo(detail.x, detail.y, detail.name);
         showToast(`🦅 Mendarat di ${detail.name}! (${detail.x}, ${detail.y})`);
       }
+    });
+
+    // ─── 🐾 Poké-Partner & Skill Controls ───
+    const btnOpenPartnerHub = document.getElementById('btn-open-partner-hub');
+    const btnCastPartnerSkill = document.getElementById('btn-cast-partner-skill');
+    const burgerItemPartner = document.getElementById('burger-item-partner');
+    const burgerItemSkill = document.getElementById('burger-item-skill');
+    const partnerFloat = document.getElementById('town-partner-float');
+    const partnerFloatOpen = document.getElementById('partner-float-open');
+    const partnerFloatHubBtn = document.getElementById('partner-float-hub-btn');
+    const partnerFloatSkillBtn = document.getElementById('partner-float-skill-btn');
+    const partnerFloatIcon = document.getElementById('partner-float-icon');
+    const partnerFloatName = document.getElementById('partner-float-name');
+    const partnerFloatSkillName = document.getElementById('partner-float-skill-name');
+    const hudPartnerIcon = document.getElementById('hud-partner-icon');
+    const hudPartnerLabel = document.getElementById('hud-partner-label');
+    const burgerPartnerSub = document.getElementById('burger-partner-sub');
+    const burgerSkillSub = document.getElementById('burger-skill-sub');
+
+    const updatePartnerUI = (followerId: string | null) => {
+      const isDismissed = !followerId || followerId === 'dismiss';
+      const companion = !isDismissed ? COMPANIONS_MAP[followerId] : null;
+
+      if (companion) {
+        if (hudPartnerIcon) hudPartnerIcon.textContent = companion.icon;
+        if (hudPartnerLabel) hudPartnerLabel.textContent = companion.name;
+        if (partnerFloatIcon) partnerFloatIcon.textContent = companion.icon;
+        if (partnerFloatName) partnerFloatName.textContent = companion.name;
+        if (partnerFloatSkillName) partnerFloatSkillName.textContent = companion.skillName;
+        if (partnerFloat) {
+          partnerFloat.classList.remove('is-solo');
+          partnerFloat.classList.remove('hidden');
+          partnerFloat.style.display = 'flex';
+        }
+        if (burgerPartnerSub) burgerPartnerSub.textContent = `Pendamping: ${companion.name} (${companion.icon})`;
+        if (burgerSkillSub) burgerSkillSub.textContent = `${companion.skillName} (Tekan X)`;
+        if (btnCastPartnerSkill) {
+          btnCastPartnerSkill.title = `Gunakan ${companion.skillName} (${companion.name} / Tekan X)`;
+        }
+      } else {
+        if (hudPartnerIcon) hudPartnerIcon.textContent = '🐾';
+        if (hudPartnerLabel) hudPartnerLabel.textContent = 'Partner';
+        if (partnerFloatIcon) partnerFloatIcon.textContent = '👟';
+        if (partnerFloatName) partnerFloatName.textContent = 'Solo Explorer';
+        if (partnerFloatSkillName) partnerFloatSkillName.textContent = 'Pilih Partner (P)';
+        if (partnerFloat) {
+          partnerFloat.classList.add('is-solo');
+          partnerFloat.classList.remove('hidden');
+          partnerFloat.style.display = 'flex';
+        }
+        if (burgerPartnerSub) burgerPartnerSub.textContent = 'Pilih pendamping & skill (11 Pokémon)';
+        if (burgerSkillSub) burgerSkillSub.textContent = 'Pilih Pokémon terlebih dahulu';
+        if (btnCastPartnerSkill) {
+          btnCastPartnerSkill.title = 'Pilih Pokémon pendamping terlebih dahulu (Tekan P)';
+        }
+      }
+    };
+
+    const getActivePartnerId = (): string | null => {
+      if (typeof localStorage !== 'undefined') {
+        const stored = localStorage.getItem('town:activeFollower');
+        if (stored) return stored;
+      }
+      return engine?.getActiveFollower() ?? 'twin';
+    };
+
+    updatePartnerUI(getActivePartnerId());
+
+    const openPartnerHub = () => {
+      sfx.select();
+      window.dispatchEvent(new CustomEvent('town:open-partner-hub'));
+      toggleBurger(false);
+    };
+
+    const castPartnerSkill = () => {
+      const cur = getActivePartnerId();
+      if (cur && cur !== 'dismiss') {
+        sfx.confirm();
+        window.dispatchEvent(new CustomEvent('town:trigger-move', { detail: { pokemonId: cur } }));
+        const companion = COMPANIONS_MAP[cur];
+        showToast(`⚡ ${companion ? companion.name : 'Pokémon'} melancarkan ${companion ? companion.skillName : 'Skill Visual Burst'}!`);
+      } else {
+        sfx.select();
+        showToast('🐾 Kamu sedang berjalan solo. Buka Poké-Partner Hub (P) untuk mengajak teman!');
+        openPartnerHub();
+      }
+      toggleBurger(false);
+    };
+
+    btnOpenPartnerHub?.addEventListener('click', openPartnerHub);
+    burgerItemPartner?.addEventListener('click', openPartnerHub);
+    partnerFloatOpen?.addEventListener('click', openPartnerHub);
+    partnerFloatHubBtn?.addEventListener('click', openPartnerHub);
+
+    btnCastPartnerSkill?.addEventListener('click', castPartnerSkill);
+    burgerItemSkill?.addEventListener('click', castPartnerSkill);
+    partnerFloatSkillBtn?.addEventListener('click', castPartnerSkill);
+
+    window.addEventListener('town:follower-changed', (e: Event) => {
+      const fid = (e as CustomEvent).detail?.followerId ?? null;
+      updatePartnerUI(fid);
     });
 
     // ─── 🌤️ Atmosphere (Day / Sunset / Night), 🌸 Cuaca & 🎵 BGM Controls ───
@@ -2882,7 +3066,13 @@ const dataPlaceRooms = {
 
       if (!editorActive) {
         if (e.key === 'x' || e.key === 'X') {
-          btnToggleXray?.click();
+          if (e.shiftKey) {
+            btnToggleXray?.click();
+          } else {
+            castPartnerSkill();
+          }
+        } else if (e.key === 'p' || e.key === 'P') {
+          openPartnerHub();
         } else if (e.key === 'l' || e.key === 'L') {
           toggleLabelsBtn?.click();
         } else if (e.key === 'c' || e.key === 'C') {
