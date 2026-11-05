@@ -1,0 +1,607 @@
+---
+// CareerTerminalModal.astro — Interactive 6x ITENAS Lab Assistantship & Enterprise Career Kiosk
+// Showcases Muhammad Zulfan's academic mentorship, industry internship, and engineering leadership
+---
+
+<dialog
+  id="career-terminal-modal"
+  class="career-modal backdrop:bg-slate-950/80 backdrop:backdrop-blur-sm"
+  aria-labelledby="career-modal-title"
+>
+  <div class="career-card window p-0 overflow-hidden bg-slate-900 border-2 border-emerald-500/60 shadow-2xl text-slate-100 flex flex-col max-h-[92vh] w-[95vw] max-w-4xl">
+    <!-- Top Header Bar -->
+    <header class="bg-slate-950 px-4 py-2.5 border-b-2 border-emerald-500/40 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-2.5 flex-wrap">
+        <span class="text-xl">💼</span>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="chip bg-emerald-950 text-emerald-400 border border-emerald-700/60 font-mono text-[9px] px-1.5 py-0.5 font-bold uppercase tracking-wider">
+              6x ITENAS Lab Assistant
+            </span>
+            <span class="chip bg-blue-950 text-blue-400 border border-blue-700/60 font-mono text-[9px] px-1.5 py-0.5 font-bold uppercase tracking-wider">
+              PT Dwi Purwa Teknologi Intern
+            </span>
+            <span class="chip bg-amber-950 text-amber-400 border border-amber-700/60 font-mono text-[9px] px-1.5 py-0.5 font-bold uppercase tracking-wider">
+              IDEA FEST 3 Bronze Medalist
+            </span>
+          </div>
+          <h2 id="career-modal-title" class="font-pixel text-xs text-white tracking-wide mt-0.5">
+            Executive Career &amp; Academic Mentorship Kiosk (4F)
+          </h2>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button
+          type="button"
+          id="btn-close-career-modal"
+          class="btn btn-sm bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-600 font-pixel text-xs px-2.5 py-1 transition-colors"
+          aria-label="Close Career Kiosk"
+        >
+          ✕ CLOSE
+        </button>
+      </div>
+    </header>
+
+    <!-- Key Metrics Highlight Bar -->
+    <div class="bg-slate-950/90 px-4 py-2 border-b border-slate-800 grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-mono">
+      <div class="flex items-center gap-2">
+        <span class="text-emerald-400">🎓</span>
+        <div>
+          <span class="text-slate-400 text-[10px] block">ACADEMIC RECORD</span>
+          <span class="text-emerald-300 font-bold">GPA 3.49 / 4.00</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-sky-400">👥</span>
+        <div>
+          <span class="text-slate-400 text-[10px] block">STUDENTS MENTORED</span>
+          <span class="text-sky-300 font-bold">240+ Undergraduates</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-blue-400">🏛️</span>
+        <div>
+          <span class="text-slate-400 text-[10px] block">LAB ASSISTANTSHIPS</span>
+          <span class="text-blue-300 font-bold">6x Labs (2024–2026)</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-amber-400">🏆</span>
+        <div>
+          <span class="text-slate-400 text-[10px] block">NATIONAL COMPETITION</span>
+          <span class="text-amber-300 font-bold">3rd Place IDEA FEST 3</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <nav class="bg-slate-950 px-4 py-1.5 border-b border-slate-800 flex flex-wrap gap-2 text-xs font-mono">
+      <button
+        type="button"
+        class="career-tab-btn btn btn-sm bg-emerald-600 text-white border border-emerald-400 px-3 py-1 font-bold"
+        data-career-tab="labs"
+      >
+        🔬 6x Lab Assistantships
+      </button>
+      <button
+        type="button"
+        class="career-tab-btn btn btn-sm bg-slate-800 text-slate-300 border border-slate-700 hover:border-emerald-500 px-3 py-1"
+        data-career-tab="internship"
+      >
+        💼 Industry Internship
+      </button>
+      <button
+        type="button"
+        class="career-tab-btn btn btn-sm bg-slate-800 text-slate-300 border border-slate-700 hover:border-emerald-500 px-3 py-1"
+        data-career-tab="passport"
+      >
+        🛂 Tech Tower Passport
+      </button>
+    </nav>
+
+    <!-- Main Content Area -->
+    <div class="p-4 overflow-y-auto space-y-4 flex-1 bg-slate-900/95">
+      <!-- Tab 1: 6x Lab Assistantships Matrix -->
+      <section id="career-panel-labs" class="career-panel space-y-3">
+        <div class="flex items-center justify-between text-xs font-mono">
+          <span class="text-slate-300 font-bold flex items-center gap-1.5">
+            <span>🏛️</span>
+            <span>INSTITUT TEKNOLOGI NASIONAL (ITENAS) — LABORATORY TRACK RECORD</span>
+          </span>
+          <span class="text-slate-400 text-[11px]">Click a laboratory to inspect syllabus &amp; metrics</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+          <!-- Lab Selector List (5 Cols) -->
+          <div class="md:col-span-5 space-y-1.5" id="lab-list">
+            <button
+              type="button"
+              class="lab-item-btn w-full text-left p-2.5 rounded-lg bg-emerald-950/60 border-2 border-emerald-500 text-white font-mono transition-all flex items-start gap-2.5"
+              data-lab-idx="0"
+            >
+              <span class="text-base">🤖</span>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between">
+                  <span class="font-bold text-[11px] text-emerald-300 truncate">Robotics Laboratory</span>
+                  <span class="chip text-[9px] bg-emerald-900 text-emerald-300 border border-emerald-600 px-1 py-0.2">Coordinator</span>
+                </div>
+                <span class="text-[10px] text-slate-400 block">Feb – Jun 2026 · Kinematics &amp; Sensors</span>
+              </div>
+            </button>
+
+            <button
+              type="button"
+              class="lab-item-btn w-full text-left p-2.5 rounded-lg bg-slate-950 border border-slate-800 hover:border-slate-600 text-slate-300 font-mono transition-all flex items-start gap-2.5"
+              data-lab-idx="1"
+            >
+              <span class="text-base">📡</span>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between">
+                  <span class="font-bold text-[11px] truncate">Internet of Things (IoT)</span>
+                  <span class="chip text-[9px] bg-slate-800 text-slate-300 px-1 py-0.2">Lab Asst</span>
+                </div>
+                <span class="text-[10px] text-slate-400 block">Oct 2025 – Jan 2026 · ESP32 &amp; MQTT</span>
+              </div>
+            </button>
+
+            <button
+              type="button"
+              class="lab-item-btn w-full text-left p-2.5 rounded-lg bg-slate-950 border border-slate-800 hover:border-slate-600 text-slate-300 font-mono transition-all flex items-start gap-2.5"
+              data-lab-idx="2"
+            >
+              <span class="text-base">🖧</span>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between">
+                  <span class="font-bold text-[11px] truncate">Computer Networks</span>
+                  <span class="chip text-[9px] bg-slate-800 text-slate-300 px-1 py-0.2">Lab Asst</span>
+                </div>
+                <span class="text-[10px] text-slate-400 block">Mar – Jul 2025 · MikroTik &amp; TCP/IP</span>
+              </div>
+            </button>
+
+            <button
+              type="button"
+              class="lab-item-btn w-full text-left p-2.5 rounded-lg bg-slate-950 border border-slate-800 hover:border-slate-600 text-slate-300 font-mono transition-all flex items-start gap-2.5"
+              data-lab-idx="3"
+            >
+              <span class="text-base">☕</span>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between">
+                  <span class="font-bold text-[11px] truncate">OOP (Java)</span>
+                  <span class="chip text-[9px] bg-slate-800 text-slate-300 px-1 py-0.2">Lab Asst</span>
+                </div>
+                <span class="text-[10px] text-slate-400 block">Oct 2024 – Jan 2025 · OOP &amp; GUI</span>
+              </div>
+            </button>
+
+            <button
+              type="button"
+              class="lab-item-btn w-full text-left p-2.5 rounded-lg bg-slate-950 border border-slate-800 hover:border-slate-600 text-slate-300 font-mono transition-all flex items-start gap-2.5"
+              data-lab-idx="4"
+            >
+              <span class="text-base">💻</span>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between">
+                  <span class="font-bold text-[11px] truncate">Basic Programming</span>
+                  <span class="chip text-[9px] bg-slate-800 text-slate-300 px-1 py-0.2">Lab Asst</span>
+                </div>
+                <span class="text-[10px] text-slate-400 block">Oct 2024 – Jan 2025 · Algorithms &amp; C</span>
+              </div>
+            </button>
+
+            <button
+              type="button"
+              class="lab-item-btn w-full text-left p-2.5 rounded-lg bg-slate-950 border border-slate-800 hover:border-slate-600 text-slate-300 font-mono transition-all flex items-start gap-2.5"
+              data-lab-idx="5"
+            >
+              <span class="text-base">🗄️</span>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between">
+                  <span class="font-bold text-[11px] truncate">Database Programming</span>
+                  <span class="chip text-[9px] bg-slate-800 text-slate-300 px-1 py-0.2">Lab Asst</span>
+                </div>
+                <span class="text-[10px] text-slate-400 block">Mar – Jul 2024 · Delphi &amp; MySQL</span>
+              </div>
+            </button>
+          </div>
+
+          <!-- Lab Detail Showcase Card (7 Cols) -->
+          <div class="md:col-span-7 p-4 rounded-xl bg-slate-950 border-2 border-emerald-500/50 flex flex-col justify-between space-y-3 shadow-inner">
+            <div>
+              <div class="flex items-start justify-between gap-2 border-b border-slate-800 pb-2 mb-3">
+                <div>
+                  <span class="chip bg-emerald-950 text-emerald-400 border border-emerald-700/60 font-mono text-[9px] px-1.5 py-0.5 font-bold uppercase" id="lab-detail-badge">
+                    COORDINATOR OF ASSISTANTS
+                  </span>
+                  <h3 class="font-pixel text-sm text-white mt-1" id="lab-detail-title">
+                    Robotics Laboratory Assistant Coordinator
+                  </h3>
+                  <span class="font-mono text-[11px] text-emerald-400" id="lab-detail-period">
+                    Feb – Jun 2026 · ITENAS Robotics Lab
+                  </span>
+                </div>
+                <span class="text-3xl" id="lab-detail-icon">🤖</span>
+              </div>
+
+              <div class="space-y-2 text-xs text-slate-300">
+                <p class="leading-relaxed" id="lab-detail-desc">
+                  Selected to lead and coordinate the assistant team in authoring the laboratory syllabus, overseeing robot kinematics coursework, multimodal sensor integration, and establishing final project evaluation standards.
+                </p>
+
+                <div class="p-2.5 bg-slate-900 rounded border border-slate-800 font-mono text-[11px] space-y-1">
+                  <div class="flex justify-between">
+                    <span class="text-slate-400">Core Curriculum:</span>
+                    <span class="text-sky-300 font-bold" id="lab-detail-curriculum">Differential Drive, Kinematics, Sensors</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-slate-400">Hardware &amp; Tools:</span>
+                    <span class="text-emerald-300 font-bold" id="lab-detail-tools">ESP32, Arduino, L298N, MPU6050, Sonar</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-slate-400">Students Guided:</span>
+                    <span class="text-amber-300 font-bold" id="lab-detail-students">45+ Undergraduate Engineers</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Lab Skills Tags -->
+            <div class="flex flex-wrap gap-1 pt-2 border-t border-slate-800/80" id="lab-detail-tags">
+              <span class="chip bg-slate-900 border border-slate-700 text-[10px]">Leadership</span>
+              <span class="chip bg-slate-900 border border-slate-700 text-[10px]">Robotics</span>
+              <span class="chip bg-slate-900 border border-slate-700 text-[10px]">Kinematics</span>
+              <span class="chip bg-slate-900 border border-slate-700 text-[10px]">Syllabus Design</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Tab 2: Industry Internship at PT Dwi Purwa Teknologi -->
+      <section id="career-panel-internship" class="career-panel space-y-3 hidden">
+        <div class="flex items-center justify-between text-xs font-mono">
+          <span class="text-slate-300 font-bold flex items-center gap-1.5">
+            <span>💼</span>
+            <span>INDUSTRY EXPERIENCE — PT DWI PURWA TEKNOLOGI</span>
+          </span>
+          <span class="text-blue-400 text-[11px]">Bandung, Indonesia · Jul – Sep 2025</span>
+        </div>
+
+        <div class="p-4 rounded-xl bg-slate-950 border-2 border-blue-500/50 space-y-3">
+          <div class="flex items-start justify-between gap-3 border-b border-slate-800 pb-3">
+            <div>
+              <span class="chip bg-blue-950 text-blue-400 border border-blue-700/60 font-mono text-[9px] px-1.5 py-0.5 font-bold uppercase">
+                Software Development Intern
+              </span>
+              <h3 class="font-pixel text-sm text-white mt-1">
+                Full-Stack Application &amp; Client Solution Engineering
+              </h3>
+              <p class="font-mono text-[11px] text-blue-300 mt-0.5">
+                PT Dwi Purwa Teknologi · Information Technology Consulting
+              </p>
+            </div>
+            <span class="text-3xl">🏢</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs font-mono">
+            <div class="p-3 bg-slate-900 rounded-lg border border-slate-800 space-y-1">
+              <span class="text-blue-400 font-bold block">🚀 Agile Feature Delivery</span>
+              <p class="text-slate-300 text-[11px] leading-relaxed">
+                Actively contributed to sprints, implementing responsive web components, REST APIs, and database query optimization.
+              </p>
+            </div>
+            <div class="p-3 bg-slate-900 rounded-lg border border-slate-800 space-y-1">
+              <span class="text-sky-400 font-bold block">🧪 Quality Assurance</span>
+              <p class="text-slate-300 text-[11px] leading-relaxed">
+                Authored end-to-end and functional test plans, diagnosing regression bugs and validating client requirements.
+              </p>
+            </div>
+            <div class="p-3 bg-slate-900 rounded-lg border border-slate-800 space-y-1">
+              <span class="text-emerald-400 font-bold block">🤝 Cross-Team Alignment</span>
+              <p class="text-slate-300 text-[11px] leading-relaxed">
+                Collaborated directly with senior systems architects, UI/UX designers, and business analysts under strict deadlines.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Tab 3: Tech Tower Passport (4-Floor Quest Tracker) -->
+      <section id="career-panel-passport" class="career-panel space-y-3 hidden">
+        <div class="flex items-center justify-between text-xs font-mono">
+          <span class="text-slate-300 font-bold flex items-center gap-1.5">
+            <span>🛂</span>
+            <span>TECH TOWER EXPLORER PASSPORT (4-FLOOR AUDIT)</span>
+          </span>
+          <span class="text-amber-400 text-[11px]" id="passport-status-text">Status: 4 of 4 Floors Verified</span>
+        </div>
+
+        <div class="p-4 rounded-xl bg-slate-950 border-2 border-amber-500/50 space-y-3">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+            <!-- Floor 1 Stamp -->
+            <div class="p-3 rounded-lg bg-slate-900 border-2 border-sky-500/70 text-center space-y-1">
+              <span class="text-2xl block">⚡</span>
+              <span class="chip bg-sky-950 text-sky-400 border border-sky-700/60 font-mono text-[9px] px-1 py-0.5 font-bold uppercase block">
+                1F · LOBBY STAMP
+              </span>
+              <span class="font-pixel text-[11px] text-white block">Xurkitree AI Host</span>
+              <span class="text-emerald-400 font-mono text-[10px]">✓ VERIFIED VISITED</span>
+            </div>
+
+            <!-- Floor 2 Stamp -->
+            <div class="p-3 rounded-lg bg-slate-900 border-2 border-emerald-500/70 text-center space-y-1">
+              <span class="text-2xl block">🤖</span>
+              <span class="chip bg-emerald-950 text-emerald-400 border border-emerald-700/60 font-mono text-[9px] px-1 py-0.5 font-bold uppercase block">
+                2F · ROBOTICS STAMP
+              </span>
+              <span class="font-pixel text-[11px] text-white block">ESP32 RC Tank Bay</span>
+              <span class="text-emerald-400 font-mono text-[10px]">✓ VERIFIED VISITED</span>
+            </div>
+
+            <!-- Floor 3 Stamp -->
+            <div class="p-3 rounded-lg bg-slate-900 border-2 border-indigo-500/70 text-center space-y-1">
+              <span class="text-2xl block">🔒</span>
+              <span class="chip bg-indigo-950 text-indigo-400 border border-indigo-700/60 font-mono text-[9px] px-1 py-0.5 font-bold uppercase block">
+                3F · CLOUD NOC STAMP
+              </span>
+              <span class="font-pixel text-[11px] text-white block">Huawei HCIA Security</span>
+              <span class="text-emerald-400 font-mono text-[10px]">✓ VERIFIED VISITED</span>
+            </div>
+
+            <!-- Floor 4 Stamp -->
+            <div class="p-3 rounded-lg bg-slate-900 border-2 border-amber-500/70 text-center space-y-1">
+              <span class="text-2xl block">🎓</span>
+              <span class="chip bg-amber-950 text-amber-400 border border-amber-700/60 font-mono text-[9px] px-1 py-0.5 font-bold uppercase block">
+                4F · CAREER STAMP
+              </span>
+              <span class="font-pixel text-[11px] text-white block">6x Lab Assistant Kiosk</span>
+              <span class="text-emerald-400 font-mono text-[10px]">✓ VERIFIED VISITED</span>
+            </div>
+          </div>
+
+          <div class="p-2.5 bg-emerald-950/40 rounded border border-emerald-500/40 font-mono text-center text-xs text-emerald-300">
+            🏆 <strong>TECH TOWER SENIOR FELLOW STATUS UNLOCKED!</strong> You have fully audited all 4 floors of Zulfan's robotics, cybersecurity, cloud architecture, and academic mentorship facilities.
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Footer Bar -->
+    <footer class="p-3 bg-slate-950 border-t border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
+      <span class="text-slate-400 font-mono text-[11px]">
+        Institut Teknologi Nasional (ITENAS) Bandung · Informatics Engineering (S1)
+      </span>
+      <div class="flex items-center gap-2 shrink-0">
+        <a
+          href="/cv/CV_Zulfan.pdf"
+          target="_blank"
+          class="btn btn-sm bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 font-pixel text-[10px] px-3 py-1.5"
+        >
+          📄 Download CV
+        </a>
+        <a
+          href="/dev#timeline"
+          class="btn btn-sm bg-slate-800 hover:bg-slate-700 text-sky-300 border border-sky-500/50 font-pixel text-[10px] px-3 py-1.5"
+        >
+          📜 Full Timeline
+        </a>
+        <button
+          type="button"
+          id="btn-footer-close-career"
+          class="btn btn-sm bg-emerald-600 hover:bg-emerald-500 text-white border border-emerald-400 font-pixel text-[10px] px-3 py-1.5"
+        >
+          ✓ Done Reviewing
+        </button>
+      </div>
+    </footer>
+  </div>
+</dialog>
+
+<style>
+  .career-modal::backdrop {
+    background-color: rgba(2, 6, 23, 0.85);
+    backdrop-filter: blur(4px);
+  }
+  .career-modal {
+    border: none;
+    background: transparent;
+    padding: 0;
+    max-width: 100vw;
+  }
+  .career-modal[open] {
+    animation: modal-pop 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  @keyframes modal-pop {
+    from {
+      opacity: 0;
+      transform: scale(0.96) translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+</style>
+
+<script>
+  import { sfx } from '../game/sfx';
+
+  interface LabData {
+    title: string;
+    badge: string;
+    period: string;
+    icon: string;
+    desc: string;
+    curriculum: string;
+    tools: string;
+    students: string;
+    tags: string[];
+  }
+
+  const LABS_DATA: LabData[] = [
+    {
+      title: 'Robotics Laboratory Assistant Coordinator',
+      badge: 'COORDINATOR OF ASSISTANTS',
+      period: 'Feb – Jun 2026 · ITENAS Robotics Lab',
+      icon: '🤖',
+      desc: 'Selected to lead and coordinate the assistant team in authoring the laboratory syllabus, overseeing robot kinematics coursework, multimodal sensor integration, and establishing final project evaluation standards.',
+      curriculum: 'Differential Drive, Kinematics, Sensors',
+      tools: 'ESP32, Arduino, L298N, MPU6050, Sonar',
+      students: '45+ Undergraduate Engineers',
+      tags: ['Leadership', 'Robotics', 'Kinematics', 'Syllabus Design', 'Sensors'],
+    },
+    {
+      title: 'Internet of Things (IoT) Laboratory Assistant',
+      badge: 'LAB TEACHING ASSISTANT',
+      period: 'Oct 2025 – Jan 2026 · ITENAS IoT Lab',
+      icon: '📡',
+      desc: 'Instructed students in embedded microcontroller programming, wireless network protocols, MQTT publish/subscribe architectures, and connecting hardware prototypes to live cloud monitoring dashboards.',
+      curriculum: 'Microcontrollers, MQTT, Cloud Dashboards',
+      tools: 'ESP32, Node-RED, MQTT, ThingSpeak, C++',
+      students: '50+ Undergraduate Engineers',
+      tags: ['IoT', 'ESP32', 'MQTT', 'Cloud Telemetry', 'Embedded Systems'],
+    },
+    {
+      title: 'Computer Networks Laboratory Assistant',
+      badge: 'LAB TEACHING ASSISTANT',
+      period: 'Mar – Jul 2025 · ITENAS Network Lab',
+      icon: '🖧',
+      desc: 'Supervised laboratory sessions covering OSI layers, IP subnetting, MikroTik RouterOS routing configurations, VLAN isolation, NAT traversal, and network traffic packet inspection via Wireshark.',
+      curriculum: 'TCP/IP, Subnetting, MikroTik RouterOS',
+      tools: 'MikroTik, Wireshark, Cisco Packet Tracer',
+      students: '60+ Undergraduate Engineers',
+      tags: ['Computer Networks', 'MikroTik', 'TCP/IP', 'Wireshark', 'Routing'],
+    },
+    {
+      title: 'Object-Oriented Programming (Java) Assistant',
+      badge: 'LAB TEACHING ASSISTANT',
+      period: 'Oct 2024 – Jan 2025 · ITENAS Software Lab',
+      icon: '☕',
+      desc: 'Guided students through OOP paradigms (encapsulation, inheritance, polymorphism, abstraction), design patterns, exception handling mechanisms, and building desktop GUIs with Java Swing.',
+      curriculum: 'Java SE, Design Patterns, OOP Architecture',
+      tools: 'Java SE, IntelliJ IDEA, NetBeans, Git',
+      students: '40+ Undergraduate Engineers',
+      tags: ['Java', 'OOP', 'Software Architecture', 'Design Patterns'],
+    },
+    {
+      title: 'Basic Programming Laboratory Assistant',
+      badge: 'LAB TEACHING ASSISTANT',
+      period: 'Oct 2024 – Jan 2025 · ITENAS Informatics Lab',
+      icon: '💻',
+      desc: 'Mentored first-year engineering students in algorithmic thinking, flowcharts, control structures, pointers, arrays, and standard computational problem-solving principles using C/C++.',
+      curriculum: 'Algorithms, Data Structures, Problem Solving',
+      tools: 'C / C++, GCC, Code::Blocks, Flowcharts',
+      students: '80+ Freshman Engineers',
+      tags: ['Algorithms', 'C / C++', 'Data Structures', 'Foundations'],
+    },
+    {
+      title: 'Database Programming Laboratory Assistant',
+      badge: 'LAB TEACHING ASSISTANT',
+      period: 'Mar – Jul 2024 · ITENAS Database Lab',
+      icon: '🗄️',
+      desc: 'Instructed students in relational database modeling, Boyce-Codd normalization, complex SQL joins and stored procedures, and database connectivity with Delphi desktop client applications.',
+      curriculum: 'Relational Schema, SQL Optimization, Delphi',
+      tools: 'MySQL, Embarcadero Delphi, HeidiSQL',
+      students: '55+ Undergraduate Engineers',
+      tags: ['Database', 'MySQL', 'Relational Schema', 'Delphi', 'SQL'],
+    },
+  ];
+
+  function initCareerTerminal() {
+    const dialog = document.getElementById('career-terminal-modal') as HTMLDialogElement | null;
+    const closeBtn = document.getElementById('btn-close-career-modal');
+    const footerCloseBtn = document.getElementById('btn-footer-close-career');
+    if (!dialog) return;
+
+    // Tabs
+    const tabButtons = document.querySelectorAll<HTMLButtonElement>('.career-tab-btn');
+    const panels = {
+      labs: document.getElementById('career-panel-labs'),
+      internship: document.getElementById('career-panel-internship'),
+      passport: document.getElementById('career-panel-passport'),
+    };
+
+    tabButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const tab = btn.getAttribute('data-career-tab') as 'labs' | 'internship' | 'passport';
+        if (!tab) return;
+
+        tabButtons.forEach((b) => {
+          const isAct = b === btn;
+          b.className = isAct
+            ? 'career-tab-btn btn btn-sm bg-emerald-600 text-white border border-emerald-400 px-3 py-1 font-bold'
+            : 'career-tab-btn btn btn-sm bg-slate-800 text-slate-300 border border-slate-700 hover:border-emerald-500 px-3 py-1';
+        });
+
+        Object.entries(panels).forEach(([key, panel]) => {
+          if (panel) {
+            panel.classList.toggle('hidden', key !== tab);
+          }
+        });
+
+        sfx.select();
+      });
+    });
+
+    // Lab item selection
+    const labItemButtons = document.querySelectorAll<HTMLButtonElement>('.lab-item-btn');
+    const badgeEl = document.getElementById('lab-detail-badge');
+    const titleEl = document.getElementById('lab-detail-title');
+    const periodEl = document.getElementById('lab-detail-period');
+    const iconEl = document.getElementById('lab-detail-icon');
+    const descEl = document.getElementById('lab-detail-desc');
+    const currEl = document.getElementById('lab-detail-curriculum');
+    const toolsEl = document.getElementById('lab-detail-tools');
+    const studentsEl = document.getElementById('lab-detail-students');
+    const tagsEl = document.getElementById('lab-detail-tags');
+
+    labItemButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.getAttribute('data-lab-idx') || '0', 10);
+        const data = LABS_DATA[idx];
+        if (!data) return;
+
+        labItemButtons.forEach((b) => {
+          const isSelected = b === btn;
+          b.className = isSelected
+            ? 'lab-item-btn w-full text-left p-2.5 rounded-lg bg-emerald-950/60 border-2 border-emerald-500 text-white font-mono transition-all flex items-start gap-2.5'
+            : 'lab-item-btn w-full text-left p-2.5 rounded-lg bg-slate-950 border border-slate-800 hover:border-slate-600 text-slate-300 font-mono transition-all flex items-start gap-2.5';
+        });
+
+        if (badgeEl) badgeEl.textContent = data.badge;
+        if (titleEl) titleEl.textContent = data.title;
+        if (periodEl) periodEl.textContent = data.period;
+        if (iconEl) iconEl.textContent = data.icon;
+        if (descEl) descEl.textContent = data.desc;
+        if (currEl) currEl.textContent = data.curriculum;
+        if (toolsEl) toolsEl.textContent = data.tools;
+        if (studentsEl) studentsEl.textContent = data.students;
+
+        if (tagsEl) {
+          tagsEl.innerHTML = data.tags
+            .map((t) => `<span class="chip bg-slate-900 border border-slate-700 text-[10px]">${t}</span>`)
+            .join('');
+        }
+
+        sfx.blip();
+      });
+    });
+
+    function openModal() {
+      dialog?.showModal();
+      sfx.door();
+    }
+
+    function closeModal() {
+      dialog?.close();
+    }
+
+    closeBtn?.addEventListener('click', closeModal);
+    footerCloseBtn?.addEventListener('click', closeModal);
+
+    window.addEventListener('tower:open-career-kiosk', openModal);
+  }
+
+  document.addEventListener('astro:page-load', initCareerTerminal);
+  document.addEventListener('DOMContentLoaded', initCareerTerminal);
+</script>

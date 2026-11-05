@@ -3890,14 +3890,35 @@ export class TownEngine {
           window.dispatchEvent(new CustomEvent('town:highlight-department', { detail: { id: 'lounge', floor: '4F' } }));
           if (this.callbacks.onBubble) {
             this.callbacks.onBubble(
-              'Executive Sky Lounge ☕',
-              'A cozy lounge where engineers and lab assistants enjoy fresh Cold Brew Coffee while discussing system architecture, reviewing pull requests, and planning sprints.',
-              {
-                label: '☕ Drink Cold Brew Coffee (High-Voltage Turbo +50% Speed)',
-                onClick: () => {
-                  this.activateCoffeeBoost();
+              'Executive Sky Lounge Barista ☕',
+              'A cozy artisan coffee lounge where engineers and lab assistants recharge! Select your handcrafted beverage:',
+              [
+                {
+                  label: '☕ West Java Arabica Pour-Over (+50% Speed)',
+                  onClick: () => {
+                    this.activateCoffeeBoost();
+                  },
                 },
-              }
+                {
+                  label: '⚡ ITENAS Nitro Cold Brew (+80% Turbo Speed)',
+                  onClick: () => {
+                    this.activateCoffeeBoost(15000);
+                    sfx.confirm();
+                  },
+                },
+                {
+                  label: '🍵 Uji Matcha Focus (Engineering Trivia)',
+                  onClick: () => {
+                    sfx.heal();
+                    if (this.callbacks.onBubble) {
+                      this.callbacks.onBubble(
+                        'Matcha Focus · Engineering Milestone 🍵',
+                        'Muhammad Zulfan graduated with a 3.49/4.00 GPA from ITENAS Bandung, coordinated the Robotics Laboratory, and earned Bronze at the National IDEA FEST 3 for smart embedded system design!'
+                      );
+                    }
+                  },
+                },
+              ]
             );
           } else {
             this.activateCoffeeBoost();
@@ -4012,6 +4033,12 @@ export class TownEngine {
                 'Experience & Mentorship Terminal 💼 (4F)',
                 'Professional Career Kiosk: 6x ITENAS Laboratory Assistant (Robotics, IoT, Computer Networks, OOP Java, SQL Database), Software Development Intern at PT Dwi Purwa Teknologi, and Bronze Medalist at IDEA FEST 3.',
                 [
+                  {
+                    label: '🎓 Launch 6x Lab Assistant & Career Kiosk',
+                    onClick: () => {
+                      window.dispatchEvent(new CustomEvent('tower:open-career-kiosk'));
+                    },
+                  },
                   {
                     label: '🎓 Open 4F Career Track Record & CV',
                     onClick: () => {

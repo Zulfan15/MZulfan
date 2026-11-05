@@ -3,6 +3,7 @@ import TownLayout from '../layouts/TownLayout.astro';
 import WhereTo from '../components/WhereTo.astro';
 import TankSandboxModal from '../components/TankSandboxModal.astro';
 import NocFirewallModal from '../components/NocFirewallModal.astro';
+import CareerTerminalModal from '../components/CareerTerminalModal.astro';
 import { profile } from '../lib/profile';
 
 const githubUrl = profile.socials.find((s) => s.label === 'GitHub')?.url || 'https://github.com/Zulfan15';
@@ -53,6 +54,28 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
           <p>
             Tech Tower is Muhammad Zulfan's innovation hub for enterprise systems, robotics, and distributed cloud architecture. In this 4-story facility, you can explore his track record coordinating the <strong>ITENAS Robotics Laboratory</strong>, IoT hardware prototypes, <strong>Huawei HCIA-Security</strong> network engineering certification, and industrial software development at <strong>PT Dwi Purwa Teknologi</strong>.
           </p>
+
+          <!-- Tech Tower 4-Floor Passport Badge Tracker -->
+          <div class="mt-3 pt-2.5 border-t border-sky-500/20 flex flex-wrap items-center justify-between gap-2 text-xs font-mono">
+            <div class="flex items-center gap-1.5 text-slate-300 font-bold">
+              <span>🛂</span>
+              <span>TOWER PASSPORT AUDIT:</span>
+            </div>
+            <div class="flex flex-wrap items-center gap-1.5" id="tower-passport-stamps">
+              <button type="button" class="passport-stamp-btn chip bg-sky-950 text-sky-300 border border-sky-600/60 text-[10px] px-2 py-0.5" data-stamp="1F" title="Floor 1F: Xurkitree AI Reception">
+                ⚡ 1F: Lobby &amp; AI
+              </button>
+              <button type="button" class="passport-stamp-btn chip bg-amber-950 text-amber-300 border border-amber-600/60 text-[10px] px-2 py-0.5" data-stamp="2F" title="Floor 2F: Robotics Bay &amp; ESP32 Tank">
+                🤖 2F: Robotics Bay
+              </button>
+              <button type="button" class="passport-stamp-btn chip bg-indigo-950 text-indigo-300 border border-indigo-600/60 text-[10px] px-2 py-0.5" data-stamp="3F" title="Floor 3F: Huawei HCIA Cloud NOC">
+                🔒 3F: Cloud NOC
+              </button>
+              <button type="button" class="passport-stamp-btn chip bg-emerald-950 text-emerald-300 border border-emerald-600/60 text-[10px] px-2 py-0.5" data-stamp="4F" title="Floor 4F: 6x Lab Assistant Kiosk">
+                💼 4F: Career Kiosk
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </header>
@@ -344,10 +367,12 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
           <div class="pt-3 border-t border-ink/10 flex items-center justify-between gap-2">
             <span class="font-mono text-[11px] text-ink-soft">Industry Experience</span>
             <div class="flex items-center gap-1.5">
+              <button type="button" class="btn btn-sm btn-paper text-[10px] font-pixel text-blue-700 border-blue-500 font-bold btn-launch-career" title="Open 6x ITENAS Lab Assistantship & Career Kiosk">
+                🎓 Career Kiosk
+              </button>
               <button type="button" class="btn btn-sm btn-paper text-[10px] font-pixel btn-inspect-2d" data-prop="career-terminal" title="Navigate character to Experience Kiosk on 2D canvas">
                 📍 Inspect 2D
               </button>
-              <span class="chip bg-blue-100 text-blue-900 border-blue-300 font-mono text-[10px]">Internship</span>
             </div>
           </div>
         </article>
@@ -377,6 +402,9 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
           <div class="pt-3 border-t border-ink/10 flex items-center justify-between gap-2">
             <span class="font-mono text-[11px] text-ink-soft">Academic Mentorship</span>
             <div class="flex items-center gap-1.5">
+              <button type="button" class="btn btn-sm btn-paper text-[10px] font-pixel text-rose-700 border-rose-500 font-bold btn-launch-career" title="Open 6x ITENAS Lab Assistantship & Career Kiosk">
+                🎓 Career Kiosk
+              </button>
               <button type="button" class="btn btn-sm btn-paper text-[10px] font-pixel btn-inspect-2d" data-prop="career-terminal" title="Navigate character to Experience Kiosk on 2D canvas">
                 📍 Inspect 2D
               </button>
@@ -398,6 +426,9 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
 
   <!-- Interactive Huawei HCIA-Security Firewall & Network NOC Monitor -->
   <NocFirewallModal />
+
+  <!-- Interactive 6x ITENAS Lab Assistantship & Career Kiosk -->
+  <CareerTerminalModal />
 
   <style>
     .tower-card {
@@ -514,6 +545,36 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
       nocLaunchButtons.forEach((btn) => {
         btn.addEventListener('click', () => {
           window.dispatchEvent(new CustomEvent('tower:open-noc-sandbox'));
+        });
+      });
+
+      // 🎓 Launch 6x Lab Assistant & Career Kiosk modal trigger
+      const careerLaunchButtons = document.querySelectorAll<HTMLButtonElement>('.btn-launch-career');
+      careerLaunchButtons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          window.dispatchEvent(new CustomEvent('tower:open-career-kiosk'));
+        });
+      });
+
+      // 🛂 Passport Stamp quick buttons
+      const passportStampButtons = document.querySelectorAll<HTMLButtonElement>('.passport-stamp-btn');
+      passportStampButtons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const stamp = btn.getAttribute('data-stamp');
+          if (!stamp) return;
+          if (stamp === '1F') {
+            window.dispatchEvent(new CustomEvent('town:tower-floor', { detail: { floor: '1F' } }));
+            window.dispatchEvent(new CustomEvent('town:locate', { detail: { propId: 'xurkitree' } }));
+          } else if (stamp === '2F') {
+            window.dispatchEvent(new CustomEvent('town:tower-floor', { detail: { floor: '2F' } }));
+            window.dispatchEvent(new CustomEvent('tower:open-tank-sandbox'));
+          } else if (stamp === '3F') {
+            window.dispatchEvent(new CustomEvent('town:tower-floor', { detail: { floor: '3F' } }));
+            window.dispatchEvent(new CustomEvent('tower:open-noc-sandbox'));
+          } else if (stamp === '4F') {
+            window.dispatchEvent(new CustomEvent('town:tower-floor', { detail: { floor: '4F' } }));
+            window.dispatchEvent(new CustomEvent('tower:open-career-kiosk'));
+          }
         });
       });
 

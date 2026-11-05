@@ -675,6 +675,33 @@ export function renderTowerAnimations(
     ctx.strokeStyle = `rgba(16, 185, 129, ${0.45 + 0.3 * Math.sin(tick / 10)})`;
     ctx.lineWidth = 1;
     ctx.strokeRect(cx + 1.5, cy + 1.5, 3 * TILE_SIZE - 3, 2 * TILE_SIZE - 3);
+
+    // Dynamic bar charts dancing on the Career Terminal display
+    const barH1 = 4 + Math.round(Math.sin((tick + 5) / 8) * 3);
+    const barH2 = 6 + Math.round(Math.cos((tick + 10) / 7) * 3);
+    const barH3 = 5 + Math.round(Math.sin((tick + 15) / 6) * 3);
+    const barH4 = 7 + Math.round(Math.cos((tick + 20) / 9) * 2);
+    ctx.fillStyle = '#10b981';
+    ctx.fillRect(cx + 10, cy + 23 - barH1, 3, barH1);
+    ctx.fillRect(cx + 16, cy + 23 - barH2, 3, barH2);
+    ctx.fillRect(cx + 22, cy + 23 - barH3, 3, barH3);
+    ctx.fillRect(cx + 28, cy + 23 - barH4, 3, barH4);
+
+    // Glowing 4F Academic Kiosk Badge in pixel text
+    drawPixelText(ctx, '6X LAB ASST KIOSK', cx + 4, cy + 25, '#10b981');
+
+    // Rising aromatic steam from the Executive Sky Lounge coffee cup
+    const lx = 13 * TILE_SIZE;
+    const ly = 7 * TILE_SIZE;
+    const steamY1 = ly + 25 - ((tick * 0.7) % 16);
+    const steamX1 = lx + 5 + Math.sin(tick * 0.12) * 2;
+    ctx.fillStyle = `rgba(255, 255, 255, ${Math.max(0, 0.75 - ((tick * 0.7) % 16) / 16)})`;
+    ctx.fillRect(steamX1, steamY1, 2, 2);
+
+    const steamY2 = ly + 25 - (((tick + 8) * 0.7) % 16);
+    const steamX2 = lx + 10 + Math.cos(tick * 0.12) * 2;
+    ctx.fillStyle = `rgba(255, 255, 255, ${Math.max(0, 0.75 - (((tick + 8) * 0.7) % 16) / 16)})`;
+    ctx.fillRect(steamX2, steamY2, 2, 2);
   }
 
   ctx.restore();
