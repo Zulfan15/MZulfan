@@ -108,6 +108,18 @@ class SoundFX {
     });
   }
 
+  public bikeBell() {
+    this.playTone(1320, 'sine', 0.08, 0.08);
+    setTimeout(() => this.playTone(1760, 'sine', 0.12, 0.08), 70);
+  }
+
+  public fly() {
+    const tones = [330, 440, 660, 880, 1320];
+    tones.forEach((f, i) => {
+      setTimeout(() => this.playTone(f, 'sine', 0.09, 0.07), i * 40);
+    });
+  }
+
   public get on(): boolean {
     return this.enabled;
   }

@@ -982,6 +982,53 @@ export class TownEditor {
     ctx.strokeRect(vpLeft, vpTop, vpW, vpH);
     ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
     ctx.fillRect(vpLeft, vpTop, vpW, vpH);
+
+    // Destination marker on minimap
+    const marker = this.engine.getMarker();
+    if (marker) {
+      const mx = marker.x * scale;
+      const my = marker.y * scale;
+      ctx.fillStyle = '#38bdf8';
+      ctx.fillRect(mx - 1, my - 1, scale + 2, scale + 2);
+    }
+
+    // Player position dot on minimap
+    const playerPos = this.engine.getPlayerPos();
+    const px = (playerPos.x + 0.5) * scale;
+    const py = (playerPos.y + 0.5) * scale;
+
+    // Outer pulse ring
+    const pulse = (Math.sin(Date.now() * 0.008) + 1) * 0.5;
+    ctx.strokeStyle = '#38bdf8';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.arc(px, py, 3 + pulse * 2.5, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Red & white Pokéball dot
+    ctx.fillStyle = '#ef4444';
+    ctx.beginPath();
+    ctx.arc(px, py, 2.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.arc(px, py, 1.2, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Direction indicator pip
+    const dir = this.engine.getPlayerDir();
+    let dx = 0;
+    let dy = 0;
+    if (dir === 'up') dy = -4;
+    else if (dir === 'down') dy = 4;
+    else if (dir === 'left') dx = -4;
+    else if (dir === 'right') dx = 4;
+
+    ctx.fillStyle = '#facc15';
+    ctx.beginPath();
+    ctx.arc(px + dx, py + dy, 1, 0, Math.PI * 2);
+    ctx.fill();
   }
 
   public panFromMinimap(

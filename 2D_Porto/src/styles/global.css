@@ -2624,6 +2624,41 @@ ul.clean, ol.clean {
   border-color: #38bdf8 !important;
 }
 
+/* ─── 🚲 Mach Bike & 🧭 Radar HUD Buttons ─── */
+.town-hud-btn--bike.is-active {
+  background: #e11d48 !important;
+  color: #ffffff !important;
+  border-color: #fda4af !important;
+  box-shadow: 0 0 12px rgba(225, 29, 72, 0.7) !important;
+}
+
+.town-hud-btn--bike.is-active .town-hud-btn__label {
+  color: #ffffff !important;
+  font-weight: 700;
+}
+
+.town-burger-dropdown__item.is-active#burger-item-bike {
+  background: rgba(225, 29, 72, 0.22) !important;
+  border-color: #fda4af !important;
+}
+
+.town-hud-btn--minimap.is-active {
+  background: #0d9488 !important;
+  color: #ffffff !important;
+  border-color: #5eead4 !important;
+  box-shadow: 0 0 12px rgba(13, 148, 136, 0.7) !important;
+}
+
+.town-hud-btn--minimap.is-active .town-hud-btn__label {
+  color: #ffffff !important;
+  font-weight: 700;
+}
+
+.town-burger-dropdown__item.is-active#burger-item-minimap {
+  background: rgba(13, 148, 136, 0.22) !important;
+  border-color: #5eead4 !important;
+}
+
 .town-xray-bar {
   position: absolute;
   top: 56px;

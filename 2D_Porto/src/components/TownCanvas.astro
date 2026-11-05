@@ -99,6 +99,28 @@ const dataPlaceRooms = {
     <div class="town-hud-actions town-hud-actions--desktop">
       <button
         type="button"
+        class="town-hud-btn town-hud-btn--bike"
+        id="btn-toggle-bike"
+        aria-label="Toggle Mach Bike"
+        title="Mach Bike (Kecepatan 2.2× / Tekan B)"
+      >
+        <span class="town-hud-btn__icon" aria-hidden="true">🚲</span>
+        <span class="town-hud-btn__label">Bike</span>
+      </button>
+
+      <button
+        type="button"
+        class="town-hud-btn town-hud-btn--minimap"
+        id="btn-toggle-minimap"
+        aria-label="Toggle Mini-Map Radar"
+        title="Radar Kota 2D (Tekan M)"
+      >
+        <span class="town-hud-btn__icon" aria-hidden="true">🧭</span>
+        <span class="town-hud-btn__label">Radar</span>
+      </button>
+
+      <button
+        type="button"
         class="town-hud-btn town-hud-btn--xray"
         id="btn-toggle-xray"
         aria-label="Toggle X-Ray Collision Inspector"
@@ -227,6 +249,24 @@ const dataPlaceRooms = {
         </div>
 
         <div class="town-burger-dropdown__list">
+          <button type="button" class="town-burger-dropdown__item" id="burger-item-bike" role="menuitem">
+            <span class="town-burger-dropdown__item-icon">🚲</span>
+            <div class="town-burger-dropdown__item-info">
+              <span class="town-burger-dropdown__item-title">Mach Bike</span>
+              <span class="town-burger-dropdown__item-sub">Kecepatan 2.2× & bel sepeda</span>
+            </div>
+            <kbd class="town-burger-dropdown__kbd">B</kbd>
+          </button>
+
+          <button type="button" class="town-burger-dropdown__item" id="burger-item-minimap" role="menuitem">
+            <span class="town-burger-dropdown__item-icon">🧭</span>
+            <div class="town-burger-dropdown__item-info">
+              <span class="town-burger-dropdown__item-title">Radar Kota</span>
+              <span class="town-burger-dropdown__item-sub">Peta navigasi & klik teleport</span>
+            </div>
+            <kbd class="town-burger-dropdown__kbd">M</kbd>
+          </button>
+
           <button type="button" class="town-burger-dropdown__item" id="burger-item-xray" role="menuitem">
             <span class="town-burger-dropdown__item-icon" id="burger-xray-icon">🔬</span>
             <div class="town-burger-dropdown__item-info">
@@ -583,6 +623,12 @@ const dataPlaceRooms = {
   <!-- Desktop Keyboard Controls Legend -->
   <div class="town-desktop-legend hidden md:flex" aria-hidden="true">
     <span class="town-legend-item"><kbd class="town-kbd">W</kbd><kbd class="town-kbd">A</kbd><kbd class="town-kbd">S</kbd><kbd class="town-kbd">D</kbd> / <kbd class="town-kbd">▲▼◀▶</kbd> Walk</span>
+    <span class="town-legend-sep">•</span>
+    <span class="town-legend-item"><kbd class="town-kbd">Shift</kbd> Run</span>
+    <span class="town-legend-sep">•</span>
+    <span class="town-legend-item"><kbd class="town-kbd">B</kbd> Bike</span>
+    <span class="town-legend-sep">•</span>
+    <span class="town-legend-item"><kbd class="town-kbd">M</kbd> Radar</span>
     <span class="town-legend-sep">•</span>
     <span class="town-legend-item"><kbd class="town-kbd">Enter</kbd> / <kbd class="town-kbd">Click</kbd> Interact</span>
     <span class="town-legend-sep">•</span>
@@ -986,11 +1032,17 @@ const dataPlaceRooms = {
   <!-- Floating Mini-Map Radar Widget -->
   <div id="town-editor-minimap" class="town-editor-minimap hidden" style="display: none;" role="region" aria-label="Radar Kota 2D">
     <div class="town-editor-minimap__header">
-      <span class="town-editor-minimap__title">🗺️ RADAR KOTA</span>
-      <button type="button" id="btn-minimap-toggle" class="town-editor-minimap__toggle" title="Minimalkan / Munculkan Radar">🔽</button>
+      <span class="town-editor-minimap__title" id="town-minimap-title">🧭 RADAR KOTA</span>
+      <div class="flex items-center gap-1">
+        <button type="button" id="btn-minimap-toggle" class="town-editor-minimap__toggle" title="Minimalkan / Munculkan Radar">🔽</button>
+        <button type="button" id="btn-minimap-close" class="town-editor-minimap__toggle hover:text-rose-400" title="Tutup Radar">✕</button>
+      </div>
     </div>
     <div id="town-minimap-body" class="town-editor-minimap__body">
-      <canvas id="town-minimap-canvas" width="90" height="128" class="town-minimap-canvas" title="Klik atau seret untuk memindahkan kamera kota"></canvas>
+      <canvas id="town-minimap-canvas" width="90" height="128" class="town-minimap-canvas cursor-pointer" title="Klik untuk jalan • Shift+Klik untuk terbang"></canvas>
+    </div>
+    <div id="town-minimap-hint" class="px-2 pb-1.5 text-[9px] font-mono text-cyan-200/70 text-center tracking-tight">
+      Klik: Jalan • Shift: Terbang
     </div>
   </div>
 
@@ -1591,6 +1643,143 @@ const dataPlaceRooms = {
       }, 3000);
     };
 
+    const minimapWidget = document.getElementById('town-editor-minimap');
+    const minimapCanvas = document.getElementById('town-minimap-canvas') as HTMLCanvasElement | null;
+    const btnMinimapToggle = document.getElementById('btn-minimap-toggle');
+    const btnMinimapClose = document.getElementById('btn-minimap-close');
+    const minimapBody = document.getElementById('town-minimap-body');
+    let isMinimapCollapsed = false;
+    let isVisitorRadarOpen = false;
+
+    // ─── 🚲 Mach Bike & 🧭 Radar Mini-Map Controls ───
+    const btnToggleBike = document.getElementById('btn-toggle-bike');
+    const burgerItemBike = document.getElementById('burger-item-bike');
+
+    const updateBikeUI = (active: boolean) => {
+      if (btnToggleBike) {
+        btnToggleBike.classList.toggle('is-active', active);
+        btnToggleBike.title = active
+          ? 'Mach Bike AKTIF (Kecepatan 2.2× / Tekan B untuk jalan kaki)'
+          : 'Mach Bike (Kecepatan 2.2× / Tekan B)';
+      }
+      if (burgerItemBike) {
+        burgerItemBike.classList.toggle('is-active', active);
+      }
+    };
+
+    btnToggleBike?.addEventListener('click', () => {
+      if (engine) {
+        const active = engine.toggleBike();
+        updateBikeUI(active);
+        showToast(
+          active
+            ? '🚲 Mach Bike aktif! Kecepatan 2.2× (Tekan B untuk jalan kaki)'
+            : '👟 Berjalan kaki normal (Tahan Shift untuk lari)'
+        );
+      }
+    });
+
+    burgerItemBike?.addEventListener('click', () => {
+      if (engine) {
+        const active = engine.toggleBike();
+        updateBikeUI(active);
+        showToast(
+          active
+            ? '🚲 Mach Bike aktif! Kecepatan 2.2×'
+            : '👟 Berjalan kaki normal'
+        );
+        toggleBurger(false);
+      }
+    });
+
+    window.addEventListener('town:bike-changed', (e: Event) => {
+      const active = (e as CustomEvent).detail?.active ?? false;
+      updateBikeUI(active);
+    });
+
+    // ─── 🧭 Radar Mini-Map Visitor Controls ───
+    const btnToggleMinimap = document.getElementById('btn-toggle-minimap');
+    const burgerItemMinimap = document.getElementById('burger-item-minimap');
+
+    const updateRadarUI = (open: boolean) => {
+      isVisitorRadarOpen = open;
+      if (btnToggleMinimap) btnToggleMinimap.classList.toggle('is-active', open);
+      if (burgerItemMinimap) burgerItemMinimap.classList.toggle('is-active', open);
+      if (minimapWidget) {
+        if (open) {
+          minimapWidget.classList.remove('hidden');
+          minimapWidget.style.display = 'flex';
+          if (minimapCanvas && engine) {
+            engine.renderVisitorMinimap(minimapCanvas);
+          }
+        } else if (!engine?.getEditor()?.isEnabled()) {
+          minimapWidget.classList.add('hidden');
+          minimapWidget.style.display = 'none';
+        }
+      }
+    };
+
+    btnToggleMinimap?.addEventListener('click', () => {
+      updateRadarUI(!isVisitorRadarOpen);
+      sfx.select();
+      showToast(
+        isVisitorRadarOpen
+          ? '🧭 Radar Kota dibuka! Klik kanvas mini untuk navigasi atau Shift+Klik untuk terbang.'
+          : '🧭 Radar Kota ditutup.'
+      );
+    });
+
+    burgerItemMinimap?.addEventListener('click', () => {
+      updateRadarUI(!isVisitorRadarOpen);
+      sfx.select();
+      toggleBurger(false);
+    });
+
+    btnMinimapClose?.addEventListener('click', () => {
+      updateRadarUI(false);
+      sfx.select();
+    });
+
+    window.addEventListener('town:toggle-minimap', () => {
+      updateRadarUI(!isVisitorRadarOpen);
+    });
+
+    // Radar click-to-walk / Shift+click-to-fly
+    minimapCanvas?.addEventListener('click', (e) => {
+      if (engine?.getEditor()?.isEnabled()) return;
+      if (!minimapCanvas || !engine) return;
+      const rect = minimapCanvas.getBoundingClientRect();
+      const clickX = (e.clientX - rect.left) * (minimapCanvas.width / rect.width);
+      const clickY = (e.clientY - rect.top) * (minimapCanvas.height / rect.height);
+      const scale = 2; // 45x64 tiles => 90x128 px
+      const tileX = Math.max(0, Math.min(44, Math.floor(clickX / scale)));
+      const tileY = Math.max(0, Math.min(63, Math.floor(clickY / scale)));
+
+      if (e.shiftKey) {
+        engine.flyTo(tileX, tileY, 'Radar Mini-Map');
+        showToast(`🦅 Terbang ke (${tileX}, ${tileY}) lewat radar!`);
+      } else {
+        engine.walkTo(tileX, tileY);
+        showToast(`📍 Berjalan menuju (${tileX}, ${tileY})...`);
+      }
+    });
+
+    // Continuous smooth radar refresh
+    setInterval(() => {
+      if (isVisitorRadarOpen && minimapCanvas && engine && !engine.getEditor()?.isEnabled()) {
+        engine.renderVisitorMinimap(minimapCanvas);
+      }
+    }, 60);
+
+    // ─── 🦅 HM02 Fly Listener ───
+    window.addEventListener('town:fly-to', (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (engine && detail) {
+        engine.flyTo(detail.x, detail.y, detail.name);
+        showToast(`🦅 Mendarat di ${detail.name}! (${detail.x}, ${detail.y})`);
+      }
+    });
+
     if (engine) {
       const editor = engine.getEditor();
 
@@ -1612,11 +1801,6 @@ const dataPlaceRooms = {
       const spawnModal = document.getElementById('town-editor-spawn-modal') as HTMLDialogElement | null;
       const btnCloseSpawnModal = document.getElementById('btn-close-spawn-modal');
       const spawnCatalog = document.getElementById('town-spawn-catalog');
-      const minimapWidget = document.getElementById('town-editor-minimap');
-      const minimapCanvas = document.getElementById('town-minimap-canvas') as HTMLCanvasElement | null;
-      const btnMinimapToggle = document.getElementById('btn-minimap-toggle');
-      const minimapBody = document.getElementById('town-minimap-body');
-      let isMinimapCollapsed = false;
       let isMinimized = false;
 
       let lastPickerSignature = '';
@@ -2035,7 +2219,7 @@ const dataPlaceRooms = {
 
         // Update Mini-Map Radar widget
         if (minimapWidget) {
-          if (isEnabled && !editor.isPlaytesting()) {
+          if ((isEnabled && !editor.isPlaytesting()) || isVisitorRadarOpen) {
             minimapWidget.classList.remove('hidden');
             minimapWidget.style.display = 'flex';
             if (minimapCanvas) {
@@ -2232,6 +2416,7 @@ const dataPlaceRooms = {
       };
 
       minimapCanvas?.addEventListener('mousedown', (e) => {
+        if (!editor.isEnabled()) return;
         isMinimapDragging = true;
         handleMinimapPan(e);
       });

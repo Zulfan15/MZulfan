@@ -122,6 +122,29 @@ interface BreezeParticle {
   alpha: number;
 }
 
+interface DustPuff {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  size: number;
+  alpha: number;
+  life: number;
+  maxLife: number;
+}
+
+interface FlyParticle {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  size: number;
+  alpha: number;
+  color: string;
+  life: number;
+  maxLife: number;
+}
+
 export class TownEngine {
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
@@ -178,6 +201,9 @@ export class TownEngine {
   private heldDirs: Dir[] = [];
   private bufferedDir: Dir | null = null;
   private isShiftHeld = false;
+  private isBikeActive = false;
+  private dustPuffs: DustPuff[] = [];
+  private flyBurstParticles: FlyParticle[] = [];
   private lastBumpTime = 0;
 
   private playerPalette: CharacterPalette = {
@@ -298,6 +324,13 @@ export class TownEngine {
       this.playerDir = spawnDir;
       this.cameraX = (this.map.w * TILE_SIZE) / 2;
       this.cameraY = (this.map.h * TILE_SIZE) / 2;
+
+      const flyAnim = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('town:fly_anim') : null;
+      if (flyAnim) {
+        sessionStorage.removeItem('town:fly_anim');
+        sfx.fly();
+        this.spawnFlyBurst(spawnX, spawnY);
+      }
     }
 
     this.editor = new TownEditor(this);
@@ -1001,6 +1034,91 @@ export class TownEngine {
     return { ...this.playerPos };
   }
 
+  public getPlayerDir(): Dir {
+    return this.playerDir;
+  }
+
+  public getMarker(): Vec | null {
+    return this.marker ? { ...this.marker } : null;
+  }
+
+  public getPath(): Vec[] {
+    return [...this.path];
+  }
+
+  public isBike(): boolean {
+    return this.isBikeActive;
+  }
+
+  public toggleBike(): boolean {
+    this.isBikeActive = !this.isBikeActive;
+    if (this.isBikeActive) {
+      sfx.bikeBell();
+    }
+    window.dispatchEvent(
+      new CustomEvent('town:bike-changed', {
+        detail: { active: this.isBikeActive },
+      })
+    );
+    this.wake();
+    return this.isBikeActive;
+  }
+
+  public setBike(active: boolean) {
+    if (this.isBikeActive !== active) {
+      this.isBikeActive = active;
+      if (this.isBikeActive) {
+        sfx.bikeBell();
+      }
+      window.dispatchEvent(
+        new CustomEvent('town:bike-changed', {
+          detail: { active: this.isBikeActive },
+        })
+      );
+      this.wake();
+    }
+  }
+
+  public flyTo(tileX: number, tileY: number, locationName?: string) {
+    sfx.fly();
+    if (this.currentScene !== 'town') {
+      if (typeof sessionStorage !== 'undefined') {
+        sessionStorage.setItem('town:respawn', `${tileX},${tileY}`);
+        sessionStorage.setItem('town:fly_anim', '1');
+      }
+      this.callbacks.onNavigate('/');
+      return;
+    }
+
+    this.heldDirs = [];
+    this.bufferedDir = null;
+    this.path = [];
+    this.marker = null;
+    this.isMoving = false;
+    this.moveProgress = 0;
+
+    const clampedX = Math.max(0, Math.min(this.map.w - 1, Math.round(tileX)));
+    const clampedY = Math.max(0, Math.min(this.map.h - 1, Math.round(tileY)));
+    this.playerPos = { x: clampedX, y: clampedY };
+    this.playerTarget = { x: clampedX, y: clampedY };
+    this.cameraX = (clampedX + 0.5) * TILE_SIZE;
+    this.cameraY = (clampedY + 0.5) * TILE_SIZE;
+
+    this.spawnFlyBurst(clampedX, clampedY);
+    this.updateDomLabels();
+    this.wake();
+
+    window.dispatchEvent(
+      new CustomEvent('town:fly-complete', {
+        detail: { x: clampedX, y: clampedY, name: locationName },
+      })
+    );
+  }
+
+  public renderVisitorMinimap(canvas: HTMLCanvasElement): void {
+    this.editor.renderMinimap(canvas);
+  }
+
   public getMap(): TownMap {
     return this.map;
   }
@@ -1180,7 +1298,9 @@ export class TownEngine {
       !this.isMoving &&
       this.path.length === 0 &&
       !this.marker &&
-      this.heldDirs.length === 0
+      this.heldDirs.length === 0 &&
+      this.dustPuffs.length === 0 &&
+      this.flyBurstParticles.length === 0
     ) {
       this.sleep();
       return;
@@ -1209,6 +1329,21 @@ export class TownEngine {
 
       if (e.shiftKey !== this.isShiftHeld) {
         this.isShiftHeld = e.shiftKey;
+        this.wake();
+      }
+
+      // Mach Bike toggle
+      if (e.code === 'KeyB') {
+        e.preventDefault();
+        this.toggleBike();
+        return;
+      }
+
+      // Radar mini-map toggle
+      if (e.code === 'KeyM') {
+        e.preventDefault();
+        window.dispatchEvent(new CustomEvent('town:toggle-minimap'));
+        return;
       }
 
       // If town editor is enabled and NOT in playtest mode, editor handles keys
@@ -1229,6 +1364,7 @@ export class TownEngine {
     const onKeyUp = (e: KeyboardEvent) => {
       if (e.shiftKey !== this.isShiftHeld) {
         this.isShiftHeld = e.shiftKey;
+        this.wake();
       }
       const dir = codeToDir[e.code];
       if (dir) {
@@ -2222,8 +2358,15 @@ export class TownEngine {
     }
 
     if (this.isMoving) {
-      const speed = this.isShiftHeld ? 8.5 : 5.5; // tiles per second (Shift = running shoes!)
+      const speed = this.isBikeActive ? 12.1 : this.isShiftHeld ? 8.8 : 5.5; // tiles per second (Shift = running shoes, Bike = Mach bike!)
       this.moveProgress += dt * speed;
+
+      // Emit footstep / tire dust puffs when running or biking
+      if ((this.isShiftHeld || this.isBikeActive) && this.tick % (this.isBikeActive ? 3 : 5) === 0) {
+        const curDrawX = (this.playerPos.x + (this.playerTarget.x - this.playerPos.x) * this.moveProgress) * TILE_SIZE;
+        const curDrawY = (this.playerPos.y + (this.playerTarget.y - this.playerPos.y) * this.moveProgress) * TILE_SIZE;
+        this.spawnDustPuff(curDrawX, curDrawY);
+      }
 
       if (this.moveProgress >= 1) {
         this.playerPos = { ...this.playerTarget };
@@ -2312,6 +2455,305 @@ export class TownEngine {
       if (activeDir) {
         this.stepTowards(activeDir);
       }
+    }
+
+    // Update dust puff particles
+    for (let i = this.dustPuffs.length - 1; i >= 0; i--) {
+      const p = this.dustPuffs[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      p.life += dt;
+      p.alpha = Math.max(0, 1 - p.life / p.maxLife);
+      if (p.life >= p.maxLife) {
+        this.dustPuffs.splice(i, 1);
+      }
+    }
+
+    // Update fly burst particles
+    for (let i = this.flyBurstParticles.length - 1; i >= 0; i--) {
+      const p = this.flyBurstParticles[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vx *= 0.94;
+      p.vy *= 0.94;
+      p.life += dt;
+      p.alpha = Math.max(0, 1 - p.life / p.maxLife);
+      if (p.life >= p.maxLife) {
+        this.flyBurstParticles.splice(i, 1);
+      }
+    }
+  }
+
+  private spawnDustPuff(x: number, y: number) {
+    const count = this.isBikeActive ? 2 : 1;
+    for (let i = 0; i < count; i++) {
+      let ox = 8;
+      let oy = 14;
+      let vx = (Math.random() - 0.5) * 0.4;
+      let vy = -0.2 - Math.random() * 0.3;
+      if (this.playerDir === 'left') {
+        ox = 14 + Math.random() * 2;
+        vx = 0.5 + Math.random() * 0.5;
+      } else if (this.playerDir === 'right') {
+        ox = 2 - Math.random() * 2;
+        vx = -0.5 - Math.random() * 0.5;
+      } else if (this.playerDir === 'up') {
+        oy = 15;
+        vy = 0.3 + Math.random() * 0.4;
+      } else if (this.playerDir === 'down') {
+        oy = 12;
+        vy = -0.3 - Math.random() * 0.4;
+      }
+      this.dustPuffs.push({
+        x: x + ox,
+        y: y + oy,
+        vx,
+        vy,
+        size: 2 + Math.random() * 2,
+        alpha: 0.8,
+        life: 0,
+        maxLife: 0.35 + Math.random() * 0.15,
+      });
+    }
+  }
+
+  public spawnFlyBurst(tileX: number, tileY: number) {
+    const cx = (tileX + 0.5) * TILE_SIZE;
+    const cy = (tileY + 0.5) * TILE_SIZE;
+    const colors = ['#38bdf8', '#7dd3fc', '#ffffff', '#bae6fd', '#0284c7'];
+    for (let i = 0; i < 30; i++) {
+      const angle = (i / 30) * Math.PI * 2 + (Math.random() - 0.5) * 0.3;
+      const speed = 1.2 + Math.random() * 2.8;
+      this.flyBurstParticles.push({
+        x: cx + Math.cos(angle) * 3,
+        y: cy + Math.sin(angle) * 3,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        size: 1.5 + Math.random() * 2,
+        alpha: 1,
+        color: colors[i % colors.length],
+        life: 0,
+        maxLife: 0.55 + Math.random() * 0.25,
+      });
+    }
+  }
+
+  private drawMachBike(
+    ctx: CanvasRenderingContext2D,
+    dir: Dir,
+    x: number,
+    y: number,
+    tick: number,
+    isMoving: boolean
+  ) {
+    ctx.save();
+    const frameColor = '#e11d48';
+    const frameHighlight = '#fda4af';
+    const chromeColor = '#cbd5e1';
+    const tireColor = '#0f172a';
+    const rimColor = '#64748b';
+    const pedalColor = '#facc15';
+
+    if (dir === 'left' || dir === 'right') {
+      const isLeft = dir === 'left';
+      const frontWheelX = isLeft ? x + 1 : x + 12;
+      const rearWheelX = isLeft ? x + 12 : x + 1;
+      const wheelY = y + 11;
+
+      // 1. Wheels
+      ctx.fillStyle = tireColor;
+      ctx.fillRect(rearWheelX, wheelY, 4, 4);
+      ctx.fillRect(frontWheelX, wheelY, 4, 4);
+
+      ctx.fillStyle = rimColor;
+      ctx.fillRect(rearWheelX + 1, wheelY + 1, 2, 2);
+      ctx.fillRect(frontWheelX + 1, wheelY + 1, 2, 2);
+
+      // Rotating spokes
+      if (isMoving) {
+        ctx.fillStyle = chromeColor;
+        const spokeTick = Math.floor(tick / 2) % 2;
+        if (spokeTick === 0) {
+          ctx.fillRect(rearWheelX + 1, wheelY + 1, 1, 2);
+          ctx.fillRect(frontWheelX + 1, wheelY + 1, 1, 2);
+        } else {
+          ctx.fillRect(rearWheelX + 1, wheelY + 2, 2, 1);
+          ctx.fillRect(frontWheelX + 1, wheelY + 2, 2, 1);
+        }
+      }
+
+      // 2. Bike Frame
+      ctx.fillStyle = frameColor;
+      const midX = isLeft ? x + 7 : x + 6;
+      ctx.fillRect(midX, y + 12, 3, 2);
+      if (isLeft) {
+        ctx.fillRect(x + 9, y + 12, 3, 1);
+        ctx.fillRect(x + 5, y + 9, 3, 3);
+        ctx.fillRect(x + 8, y + 8, 2, 4);
+        ctx.fillRect(x + 4, y + 8, 4, 2);
+        ctx.fillRect(x + 2, y + 9, 2, 3);
+      } else {
+        ctx.fillRect(x + 4, y + 12, 3, 1);
+        ctx.fillRect(x + 8, y + 9, 3, 3);
+        ctx.fillRect(x + 6, y + 8, 2, 4);
+        ctx.fillRect(x + 8, y + 8, 4, 2);
+        ctx.fillRect(x + 12, y + 9, 2, 3);
+      }
+
+      // Frame highlight
+      ctx.fillStyle = frameHighlight;
+      ctx.fillRect(isLeft ? x + 5 : x + 9, y + 8, 2, 1);
+
+      // 3. Handlebars
+      ctx.fillStyle = chromeColor;
+      const hbX = isLeft ? x + 3 : x + 11;
+      ctx.fillRect(hbX, y + 6, 2, 2);
+      ctx.fillStyle = '#334155';
+      ctx.fillRect(isLeft ? x + 2 : x + 12, y + 6, 1, 2);
+
+      // 4. Saddle / Seat
+      ctx.fillStyle = '#1e293b';
+      const saddleX = isLeft ? x + 8 : x + 5;
+      ctx.fillRect(saddleX, y + 7, 3, 2);
+
+      // 5. Pedals
+      ctx.fillStyle = pedalColor;
+      const pedalAngle = isMoving ? tick * 0.4 : 0;
+      const pedX = Math.round(midX + 1 + Math.cos(pedalAngle) * 2);
+      const pedY = Math.round(y + 12 + Math.sin(pedalAngle) * 2);
+      ctx.fillRect(pedX, pedY, 2, 1.5);
+    } else if (dir === 'down') {
+      // Facing Down
+      ctx.fillStyle = chromeColor;
+      ctx.fillRect(x + 4, y + 7, 8, 2);
+      ctx.fillStyle = '#334155';
+      ctx.fillRect(x + 3, y + 7, 1, 2);
+      ctx.fillRect(x + 12, y + 7, 1, 2);
+
+      ctx.fillStyle = frameColor;
+      ctx.fillRect(x + 7, y + 8, 2, 4);
+
+      ctx.fillStyle = tireColor;
+      ctx.fillRect(x + 7, y + 11, 2, 5);
+      ctx.fillStyle = rimColor;
+      ctx.fillRect(x + 7.5, y + 12, 1, 3);
+
+      ctx.fillStyle = pedalColor;
+      const pedTick = tick % 8 < 4;
+      ctx.fillRect(x + 4, y + 13 + (pedTick ? 0 : 1), 2, 1);
+      ctx.fillRect(x + 10, y + 13 + (pedTick ? 1 : 0), 2, 1);
+    } else {
+      // Facing Up
+      ctx.fillStyle = tireColor;
+      ctx.fillRect(x + 7, y + 11, 2, 5);
+      ctx.fillStyle = rimColor;
+      ctx.fillRect(x + 7.5, y + 12, 1, 3);
+
+      ctx.fillStyle = frameColor;
+      ctx.fillRect(x + 7, y + 8, 2, 4);
+
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(x + 6, y + 7, 4, 2);
+
+      ctx.fillStyle = chromeColor;
+      ctx.fillRect(x + 5, y + 5, 6, 1.5);
+    }
+
+    ctx.restore();
+  }
+
+  private renderPathAndMarker(ctx: CanvasRenderingContext2D) {
+    // 1. Breadcrumbs along remaining steps in this.path
+    if (this.path.length > 0) {
+      ctx.save();
+      // Connective dashed guide line
+      ctx.beginPath();
+      const startX = (this.playerPos.x + (this.playerTarget.x - this.playerPos.x) * this.moveProgress + 0.5) * TILE_SIZE;
+      const startY = (this.playerPos.y + (this.playerTarget.y - this.playerPos.y) * this.moveProgress + 0.5) * TILE_SIZE;
+      ctx.moveTo(startX, startY);
+      for (const step of this.path) {
+        ctx.lineTo((step.x + 0.5) * TILE_SIZE, (step.y + 0.5) * TILE_SIZE);
+      }
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.45)';
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([3, 3]);
+      ctx.stroke();
+      ctx.restore();
+
+      // Glowing breadcrumb dots at each waypoint
+      for (let i = 0; i < this.path.length; i++) {
+        const step = this.path[i];
+        const px = (step.x + 0.5) * TILE_SIZE;
+        const py = (step.y + 0.5) * TILE_SIZE;
+        const pulse = 0.6 + 0.4 * Math.sin(this.tick * 0.15 + i * 0.4);
+
+        ctx.save();
+        ctx.fillStyle = `rgba(56, 189, 248, ${0.35 * pulse})`;
+        ctx.beginPath();
+        ctx.arc(px, py, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = `rgba(224, 242, 254, ${0.9 * pulse})`;
+        ctx.beginPath();
+        ctx.arc(px, py, 1.8, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    // 2. Animated Pulsing Destination Target Ring at this.marker
+    if (this.marker) {
+      ctx.save();
+      const mx = (this.marker.x + 0.5) * TILE_SIZE;
+      const my = (this.marker.y + 0.5) * TILE_SIZE;
+
+      // Expanding ripple ring
+      const rippleProgress = (this.tick % 36) / 36;
+      const rippleRadius = 4 + rippleProgress * 12;
+      const rippleAlpha = (1 - rippleProgress) * 0.85;
+
+      ctx.strokeStyle = `rgba(56, 189, 248, ${rippleAlpha})`;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(mx, my, rippleRadius, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Inner glowing ring
+      ctx.strokeStyle = '#facc15';
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      ctx.arc(mx, my, 5, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Center focal point
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(mx, my, 2, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Floating bobbing target pin above the tile
+      const bounce = Math.sin(this.tick * 0.18) * 3;
+      const pinY = my - 12 + bounce;
+
+      ctx.fillStyle = '#38bdf8';
+      ctx.beginPath();
+      ctx.moveTo(mx, pinY + 5);
+      ctx.lineTo(mx - 3.5, pinY);
+      ctx.lineTo(mx + 3.5, pinY);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = '#facc15';
+      ctx.beginPath();
+      ctx.arc(mx, pinY - 1, 3.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(mx - 0.8, pinY - 1.8, 1.2, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.restore();
     }
   }
 
@@ -4520,13 +4962,7 @@ export class TownEngine {
       }
 
       // 4. Click marker
-      if (this.marker) {
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
-        const mx = this.marker.x * TILE_SIZE;
-        const my = this.marker.y * TILE_SIZE;
-        ctx.fillRect(mx + 4, my + 12, 8, 2);
-        ctx.fillRect(mx + 6, my + 11, 4, 4);
-      }
+      this.renderPathAndMarker(ctx);
 
       // 5. Player character inside the room
       const drawX =
@@ -4567,14 +5003,8 @@ export class TownEngine {
       // 2. Dynamic live instrumentation (viewscreen ticker, sweeping radar, telemetry, rack lights, clock, lebronette)
       renderDevAnimations(ctx, performance.now());
 
-      // 3. Click marker
-      if (this.marker) {
-        ctx.fillStyle = 'rgba(62, 230, 255, 0.75)';
-        const mx = this.marker.x * TILE_SIZE;
-        const my = this.marker.y * TILE_SIZE;
-        ctx.fillRect(mx + 4, my + 12, 8, 2);
-        ctx.fillRect(mx + 6, my + 11, 4, 4);
-      }
+      // 3. Click marker & path preview
+      this.renderPathAndMarker(ctx);
 
       // 4. Player character
       const drawX =
@@ -4612,13 +5042,7 @@ export class TownEngine {
 
       renderTowerAnimations(ctx, this.tick);
 
-      if (this.marker) {
-        ctx.fillStyle = 'rgba(56, 189, 248, 0.75)';
-        const mx = this.marker.x * TILE_SIZE;
-        const my = this.marker.y * TILE_SIZE;
-        ctx.fillRect(mx + 4, my + 12, 8, 2);
-        ctx.fillRect(mx + 6, my + 11, 4, 4);
-      }
+      this.renderPathAndMarker(ctx);
 
       const drawX =
         (this.playerPos.x + (this.playerTarget.x - this.playerPos.x) * this.moveProgress) * TILE_SIZE;
@@ -4655,13 +5079,7 @@ export class TownEngine {
 
       renderMartAnimations(ctx, this.tick);
 
-      if (this.marker) {
-        ctx.fillStyle = 'rgba(56, 189, 248, 0.75)';
-        const mx = this.marker.x * TILE_SIZE;
-        const my = this.marker.y * TILE_SIZE;
-        ctx.fillRect(mx + 4, my + 12, 8, 2);
-        ctx.fillRect(mx + 6, my + 11, 4, 4);
-      }
+      this.renderPathAndMarker(ctx);
 
       const drawX =
         (this.playerPos.x + (this.playerTarget.x - this.playerPos.x) * this.moveProgress) * TILE_SIZE;
@@ -4698,13 +5116,7 @@ export class TownEngine {
 
       renderReceptionAnimations(ctx, this.tick);
 
-      if (this.marker) {
-        ctx.fillStyle = 'rgba(239, 68, 68, 0.75)';
-        const mx = this.marker.x * TILE_SIZE;
-        const my = this.marker.y * TILE_SIZE;
-        ctx.fillRect(mx + 4, my + 12, 8, 2);
-        ctx.fillRect(mx + 6, my + 11, 4, 4);
-      }
+      this.renderPathAndMarker(ctx);
 
       const drawX =
         (this.playerPos.x + (this.playerTarget.x - this.playerPos.x) * this.moveProgress) * TILE_SIZE;
@@ -4739,13 +5151,7 @@ export class TownEngine {
       }
       ctx.drawImage(this.arcadeBackgroundCanvas, 0, 0);
 
-      if (this.marker) {
-        ctx.fillStyle = 'rgba(255, 209, 102, 0.75)';
-        const mx = this.marker.x * TILE_SIZE;
-        const my = this.marker.y * TILE_SIZE;
-        ctx.fillRect(mx + 4, my + 12, 8, 2);
-        ctx.fillRect(mx + 6, my + 11, 4, 4);
-      }
+      this.renderPathAndMarker(ctx);
 
       const drawX =
         (this.playerPos.x + (this.playerTarget.x - this.playerPos.x) * this.moveProgress) * TILE_SIZE;
@@ -4782,13 +5188,7 @@ export class TownEngine {
 
       renderLabAnimations(ctx, performance.now());
 
-      if (this.marker) {
-        ctx.fillStyle = 'rgba(56, 201, 138, 0.75)';
-        const mx = this.marker.x * TILE_SIZE;
-        const my = this.marker.y * TILE_SIZE;
-        ctx.fillRect(mx + 4, my + 12, 8, 2);
-        ctx.fillRect(mx + 6, my + 11, 4, 4);
-      }
+      this.renderPathAndMarker(ctx);
 
       const drawX =
         (this.playerPos.x + (this.playerTarget.x - this.playerPos.x) * this.moveProgress) * TILE_SIZE;
@@ -4875,14 +5275,8 @@ export class TownEngine {
     // 4. Warm street lamp lighting pools on the ground (Dynamic from townConfig)
     renderLighting(ctx, this.getActiveLamps());
 
-    // 7. Click target pulse marker
-    if (this.marker) {
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
-      const mx = this.marker.x * TILE_SIZE;
-      const my = this.marker.y * TILE_SIZE;
-      ctx.fillRect(mx + 4, my + 12, 8, 2);
-      ctx.fillRect(mx + 6, my + 11, 4, 4);
-    }
+    // 7. Click target pulse marker & pathfinding breadcrumbs
+    this.renderPathAndMarker(ctx);
 
     // 8. NPCs (Reading dynamic positions from townConfig)
     for (const npc of this.map.npcs) {
@@ -6299,6 +6693,12 @@ export class TownEngine {
       }
     }
 
+    // 9. Dust puffs beneath player
+    for (const p of this.dustPuffs) {
+      ctx.fillStyle = `rgba(226, 232, 240, ${p.alpha * 0.75})`;
+      ctx.fillRect(Math.floor(p.x), Math.floor(p.y), Math.floor(p.size), Math.floor(p.size));
+    }
+
     // 9. Player
     const drawX =
       (this.playerPos.x + (this.playerTarget.x - this.playerPos.x) * this.moveProgress) * TILE_SIZE;
@@ -6306,7 +6706,23 @@ export class TownEngine {
       (this.playerPos.y + (this.playerTarget.y - this.playerPos.y) * this.moveProgress) * TILE_SIZE;
     const stepFrame = this.isMoving ? Math.floor(this.moveProgress * 4) : 0;
 
-    drawCharacter(ctx, this.playerPalette, this.playerDir, stepFrame, drawX, drawY, 1);
+    if (this.isBikeActive) {
+      // Sitting on Mach Bike: render Ash slightly raised
+      const bikeYOffset = -2;
+      drawCharacter(ctx, this.playerPalette, this.playerDir, 0, drawX, drawY + bikeYOffset, 1);
+      this.drawMachBike(ctx, this.playerDir, drawX, drawY, this.tick, this.isMoving);
+    } else {
+      drawCharacter(ctx, this.playerPalette, this.playerDir, stepFrame, drawX, drawY, 1);
+    }
+
+    // Fly burst particles
+    for (const p of this.flyBurstParticles) {
+      ctx.save();
+      ctx.globalAlpha = p.alpha;
+      ctx.fillStyle = p.color;
+      ctx.fillRect(Math.floor(p.x), Math.floor(p.y), p.size, p.size);
+      ctx.restore();
+    }
 
     // Authentic Pokémon tall grass immersion (grass blades rustle over trainer's feet)
     if (this.currentScene === 'town') {

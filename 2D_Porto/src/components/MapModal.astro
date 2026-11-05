@@ -1,12 +1,189 @@
 ---
-import { places } from '../lib/profile';
+interface TownDestination {
+  id: string;
+  name: string;
+  category: 'building' | 'landmark';
+  icon: string;
+  badge: string;
+  blurb: string;
+  tileX: number;
+  tileY: number;
+  route?: string;
+}
+
+const destinations: TownDestination[] = [
+  // ─── Gedung & Fasilitas ───
+  {
+    id: 'dev',
+    name: 'Dev Center',
+    category: 'building',
+    icon: '💻',
+    badge: 'Showcase Proyek',
+    blurb: 'Timeline misi rekayasa perangkat lunak, stack radar keahlian, dan telemetri langsung.',
+    tileX: 16,
+    tileY: 12,
+    route: '/dev',
+  },
+  {
+    id: 'lab',
+    name: 'Research Lab',
+    category: 'building',
+    icon: '🔬',
+    badge: 'Lab Riset AI',
+    blurb: 'Publikasi tesis, riset computer vision & deep learning, serta roadmap inovasi AI.',
+    tileX: 27,
+    tileY: 9,
+    route: '/lab',
+  },
+  {
+    id: 'tower',
+    name: 'Tech Tower',
+    category: 'building',
+    icon: '🏢',
+    badge: 'IoT & Robotik',
+    blurb: 'Prototipe robotika cerdas, perangkat IoT mikrokontroler, dan arsitektur cloud microservices.',
+    tileX: 38,
+    tileY: 14,
+    route: '/tower',
+  },
+  {
+    id: 'arcade',
+    name: 'Retro Arcade',
+    category: 'building',
+    icon: '🕹️',
+    badge: 'Game Kalah Bot',
+    blurb: 'Mainkan papan strategi Mancala/Kalah melawan AI bot Alpha-Beta minimax buatan Zulfan.',
+    tileX: 28,
+    tileY: 43,
+    route: '/arcade',
+  },
+  {
+    id: 'reception',
+    name: 'Poké Center',
+    category: 'building',
+    icon: '🏥',
+    badge: 'Front Desk',
+    blurb: 'Sambutan hangat dari resepsionis Mira dengan panduan tur portofolio dan informasi kontak.',
+    tileX: 15,
+    tileY: 35,
+    route: '/reception',
+  },
+  {
+    id: 'mart',
+    name: 'Poké Mart',
+    category: 'building',
+    icon: '🏪',
+    badge: 'CV & Layanan',
+    blurb: 'Katalog layanan rekayasa perangkat lunak, developer gear, dan unduhan dokumen Résumé / CV.',
+    tileX: 15,
+    tileY: 42,
+    route: '/mart',
+  },
+  {
+    id: 'about',
+    name: 'Home & Studio',
+    category: 'building',
+    icon: '🏠',
+    badge: 'Studio Pribadi',
+    blurb: 'Perjalanan hidup, latar belakang pendidikan, sertifikasi kehormatan, dan meja kerja kreatif.',
+    tileX: 15,
+    tileY: 27,
+    route: '/about',
+  },
+  {
+    id: 'twin',
+    name: 'Digital Twin AI',
+    category: 'building',
+    icon: '🤖',
+    badge: 'AI Persona',
+    blurb: 'Tanya jawab interaktif secara cerdas dengan klon AI yang terlatih atas profil profesional Zulfan.',
+    tileX: 25,
+    tileY: 27,
+    route: '/twin',
+  },
+
+  // ─── Landmark & Area Terbuka ───
+  {
+    id: 'fountain',
+    name: 'Fountain Plaza',
+    category: 'landmark',
+    icon: '⛲',
+    badge: 'Pusat Kota',
+    blurb: 'Plaza melingkar ikonik dengan air mancur pegunungan yang jernih di tengah kota.',
+    tileX: 28,
+    tileY: 33,
+  },
+  {
+    id: 'arena',
+    name: 'Battle Arena',
+    category: 'landmark',
+    icon: '⚔️',
+    badge: 'Arena Kuis',
+    blurb: 'Mewtwo menanti di tengah arena! Jawab tantangan kuis teknologi untuk meraih Frontier Badge.',
+    tileX: 28,
+    tileY: 24,
+  },
+  {
+    id: 'berry',
+    name: 'Berry Garden',
+    category: 'landmark',
+    icon: '🍓',
+    badge: 'Taman Alami',
+    blurb: 'Area budidaya buah beri organik yang tenang dengan tanah subur dan bunga-bunga mekar.',
+    tileX: 36,
+    tileY: 21,
+  },
+  {
+    id: 'lookout',
+    name: 'Lookout Telescope',
+    category: 'landmark',
+    icon: '🔭',
+    badge: 'Observatorium',
+    blurb: 'Teleskop observasi di pesisir utara untuk menikmati pemandangan laut samudra terbuka.',
+    tileX: 39,
+    tileY: 4,
+  },
+  {
+    id: 'contest',
+    name: 'Contest Stage',
+    category: 'landmark',
+    icon: '🎭',
+    badge: 'Panggung Show',
+    blurb: 'Panggung karpet merah megah untuk kontes desain, penghargaan, dan perayaan karya.',
+    tileX: 39,
+    tileY: 31,
+  },
+  {
+    id: 'legends',
+    name: 'Hall of Legends',
+    category: 'landmark',
+    icon: '👑',
+    badge: 'Koridor Legenda',
+    blurb: 'Deretan Pokémon Legendaris pelindung: Arceus, Rayquaza, Dialga, Palkia, dan Giratina.',
+    tileX: 28,
+    tileY: 18,
+  },
+  {
+    id: 'cafe',
+    name: 'Outdoor Café Bar',
+    category: 'landmark',
+    icon: '☕',
+    badge: 'Kanal Sosial',
+    blurb: 'Meja santai berkanopi parasol untuk akses langsung ke LinkedIn, GitHub, CV, dan email.',
+    tileX: 38,
+    tileY: 50,
+  },
+];
 ---
 
-<dialog id="map-modal" class="sheet">
+<dialog id="map-modal" class="sheet max-w-2xl">
   <div class="sheet-head">
     <div class="flex items-center gap-2">
       <span class="text-xl">🗺️</span>
-      <h2 class="font-pixel text-xs text-ink uppercase tracking-wide">Town Map & Quick Jump</h2>
+      <div>
+        <h2 class="font-pixel text-xs text-ink uppercase tracking-wide">Town Map & Fast Travel</h2>
+        <span class="font-mono text-[10px] text-ink-soft">HM02 Fly • Teleportasi Instan ke Titik Kota</span>
+      </div>
     </div>
     <button id="map-modal-close" type="button" class="btn btn-sm btn-ghost p-1 text-ink/70 hover:text-ink" aria-label="Close Map">
       ✕
@@ -14,31 +191,87 @@ import { places } from '../lib/profile';
   </div>
 
   <div class="sheet-body space-y-3">
-    <p class="font-mono text-xs text-ink-soft">
-      Jump directly to any building in town without walking around:
-    </p>
+    <!-- Category Filter Tabs -->
+    <div class="flex items-center gap-2 border-b border-ink/10 pb-2">
+      <button type="button" class="map-tab-btn btn btn-xs btn-primary" data-tab="all">
+        Semua ({destinations.length})
+      </button>
+      <button type="button" class="map-tab-btn btn btn-xs btn-ghost" data-tab="building">
+        🏢 Gedung & Ruangan (8)
+      </button>
+      <button type="button" class="map-tab-btn btn btn-xs btn-ghost" data-tab="landmark">
+        🌿 Landmark Terbuka (7)
+      </button>
+    </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-      {places.map((place) => (
-        <a href={place.route} class="card card-hover flex items-start gap-3 p-3 no-underline text-ink group">
-          <span class="text-2xl p-2 rounded bg-cream border border-ink/20 group-hover:scale-110 transition-transform">
-            {place.icon}
-          </span>
-          <div class="flex-1">
-            <div class="font-pixel text-[11px] text-ball group-hover:text-berry">
-              {place.name}
-            </div>
-            <div class="font-sans text-xs text-ink-soft mt-1 line-clamp-2">
-              {place.blurb}
+    <!-- Destination Cards Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[62vh] overflow-y-auto pr-1">
+      {destinations.map((dest) => (
+        <div
+          class="card p-3 flex flex-col justify-between gap-2.5 border border-ink/15 hover:border-ball/40 transition-colors bg-paper/60 rounded-lg group"
+          data-dest-card
+          data-dest-category={dest.category}
+        >
+          <div class="flex items-start gap-2.5">
+            <span class="text-2xl p-2 rounded bg-cream/90 border border-ink/20 group-hover:scale-105 transition-transform flex-shrink-0">
+              {dest.icon}
+            </span>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between gap-1">
+                <span class="font-pixel text-[11px] text-ball truncate font-semibold">
+                  {dest.name}
+                </span>
+                <span class="font-mono text-[9px] px-1.5 py-0.5 rounded bg-ink/5 border border-ink/10 text-ink-soft">
+                  [{dest.tileX}, {dest.tileY}]
+                </span>
+              </div>
+              <div class="flex items-center gap-1.5 mt-0.5">
+                <span class="text-[9px] font-mono px-1 py-0.2 rounded bg-berry/10 text-berry font-medium">
+                  {dest.badge}
+                </span>
+              </div>
+              <p class="font-sans text-[11px] text-ink-soft mt-1 leading-snug line-clamp-2">
+                {dest.blurb}
+              </p>
             </div>
           </div>
-        </a>
+
+          <!-- Dual Action Buttons: Fly & Open Page -->
+          <div class="flex items-center gap-1.5 pt-1 border-t border-ink/10 mt-auto">
+            <button
+              type="button"
+              class="map-fly-btn btn btn-xs btn-primary flex-1 flex items-center justify-center gap-1 bg-ball text-white hover:bg-ball/90 shadow-sm"
+              data-fly-btn
+              data-fly-x={dest.tileX}
+              data-fly-y={dest.tileY}
+              data-fly-name={dest.name}
+              title={`Teleportasi instan ke depan ${dest.name}`}
+            >
+              <span class="text-xs">🦅</span>
+              <span class="font-pixel text-[10px] tracking-wide">Fly Here</span>
+            </button>
+
+            {dest.route && (
+              <a
+                href={dest.route}
+                class="btn btn-xs btn-ghost text-[10px] font-mono text-ink-soft hover:text-ink border border-ink/15 hover:bg-ink/5 px-2 no-underline flex items-center gap-0.5"
+                title={`Buka halaman bacaan ${dest.name}`}
+              >
+                <span>🚪</span>
+                <span>Buka</span>
+              </a>
+            )}
+          </div>
+        </div>
       ))}
     </div>
 
-    <div class="mt-4 pt-3 border-t border-ink/15 flex justify-between items-center text-[10px] font-mono text-ink-soft">
-      <span>Press <kbd class="kbd">ESC</kbd> to close</span>
-      <span>Zulfan's Town v1.0</span>
+    <!-- Footer Controls & Hints -->
+    <div class="pt-2.5 border-t border-ink/15 flex flex-wrap justify-between items-center text-[10px] font-mono text-ink-soft gap-2">
+      <div class="flex items-center gap-1 text-ink/70">
+        <span>💡 Klik <b>🦅 Fly Here</b> untuk berpindah instan ke koordinat kanvas</span>
+      </div>
+      <span>Tekan <kbd class="kbd text-[9px] px-1">ESC</kbd> untuk tutup</span>
     </div>
   </div>
 </dialog>
@@ -50,6 +283,7 @@ import { places } from '../lib/profile';
 
     if (!modal) return;
 
+    // Open listener from HUD button or menu
     document.addEventListener('town:open-modal', (e: Event) => {
       const detail = (e as CustomEvent).detail;
       if (detail?.target === 'map') {
@@ -61,6 +295,56 @@ import { places } from '../lib/profile';
 
     modal.addEventListener('click', (e) => {
       if (e.target === modal) modal.close();
+    });
+
+    // Category Tabs filter
+    const tabButtons = modal.querySelectorAll<HTMLButtonElement>('.map-tab-btn');
+    const cards = modal.querySelectorAll<HTMLElement>('[data-dest-card]');
+
+    tabButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const selectedTab = btn.getAttribute('data-tab');
+        tabButtons.forEach((b) => {
+          b.classList.remove('btn-primary');
+          b.classList.add('btn-ghost');
+        });
+        btn.classList.add('btn-primary');
+        btn.classList.remove('btn-ghost');
+
+        cards.forEach((card) => {
+          const category = card.getAttribute('data-dest-category');
+          if (selectedTab === 'all' || category === selectedTab) {
+            card.style.display = 'flex';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      });
+    });
+
+    // Fast travel "Fly Here" button click handler
+    const flyButtons = modal.querySelectorAll<HTMLButtonElement>('[data-fly-btn]');
+    flyButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const x = Number(btn.getAttribute('data-fly-x'));
+        const y = Number(btn.getAttribute('data-fly-y'));
+        const name = btn.getAttribute('data-fly-name') || 'Lokasi';
+
+        modal.close();
+
+        const isTown = window.location.pathname === '/' || window.location.pathname === '';
+        if (isTown) {
+          window.dispatchEvent(
+            new CustomEvent('town:fly-to', {
+              detail: { x, y, name },
+            })
+          );
+        } else {
+          sessionStorage.setItem('town:respawn', `${x},${y}`);
+          sessionStorage.setItem('town:fly_anim', '1');
+          window.location.href = '/';
+        }
+      });
     });
   }
 
