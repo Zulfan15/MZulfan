@@ -2,6 +2,7 @@
 import TownLayout from '../layouts/TownLayout.astro';
 import WhereTo from '../components/WhereTo.astro';
 import ChatBox from '../components/ChatBox.astro';
+import NetworkPcModal from '../components/NetworkPcModal.astro';
 import { profile } from '../lib/profile';
 
 const githubUrl = profile.socials.find((s) => s.label === 'GitHub')?.url || 'https://github.com/Zulfan15';
@@ -137,6 +138,75 @@ const emailUrl = `mailto:${profile.person.email}`;
       <div id="heal-feedback" class="hidden p-2.5 rounded-lg bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs font-sans flex items-center gap-2">
         <span>✨</span>
         <span id="heal-feedback-text">Your party is full of energy and your bag has been refilled to 10 Poké Balls!</span>
+      </div>
+    </section>
+
+    <!-- Poké Center Network Storage Terminal (Bill's PC V4.2) -->
+    <section class="window p-4 md:p-5 bg-paper border-2 space-y-4" id="network-pc-section">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b-2 border-ink/15 pb-3">
+        <div class="flex items-center gap-2.5">
+          <span class="text-2xl p-1.5 rounded-lg bg-emerald-100 border border-emerald-300">💻</span>
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="font-pixel text-xs text-ink uppercase tracking-wide">
+                Network PC Terminal · Bill's PC V4.2
+              </h2>
+              <span class="chip bg-emerald-100 text-emerald-800 border-emerald-400 font-mono text-[9px] font-bold px-1.5 py-0.5">
+                ENCRYPTED
+              </span>
+            </div>
+            <p class="font-sans text-[11px] text-ink-soft">
+              Access Zulfan's verified Trainer Card, live Safari Dex telemetry, and visitor guestbook
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button
+            type="button"
+            id="btn-trigger-open-pc"
+            class="btn btn-primary text-xs font-pixel px-3.5 py-2 flex items-center gap-2 shadow-sm hover:scale-[1.02] active:scale-95 transition-all"
+            title="Open Poké Center Network PC Terminal"
+          >
+            <span>💻</span>
+            <span>Launch PC Terminal</span>
+          </button>
+          <button
+            type="button"
+            class="btn btn-sm btn-paper text-[10px] font-pixel btn-inspect-2d"
+            data-prop="pc-terminal"
+            title="Navigate character to Network PC on 2D canvas"
+          >
+            📍 Inspect 2D
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Snapshot Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div class="p-3 rounded-lg bg-cream/70 border border-ink/15 flex items-start gap-2.5">
+          <span class="text-xl">🪪</span>
+          <div class="min-w-0">
+            <span class="font-pixel text-[11px] text-ink block">Trainer Card</span>
+            <span class="font-mono text-[10px] text-ink-soft block">IDNo. 349400 · 8 Master Badges</span>
+          </div>
+        </div>
+
+        <div class="p-3 rounded-lg bg-cream/70 border border-ink/15 flex items-start gap-2.5">
+          <span class="text-xl">🐾</span>
+          <div class="min-w-0">
+            <span class="font-pixel text-[11px] text-ink block">Critter Safari Sync</span>
+            <span class="font-mono text-[10px] text-ink-soft block">12 Wild Critters · Live Inventory</span>
+          </div>
+        </div>
+
+        <div class="p-3 rounded-lg bg-cream/70 border border-ink/15 flex items-start gap-2.5">
+          <span class="text-xl">📝</span>
+          <div class="min-w-0">
+            <span class="font-pixel text-[11px] text-ink block">Visitor Guestbook</span>
+            <span class="font-mono text-[10px] text-ink-soft block">Reaction Stamps &amp; Recruiter Notes</span>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -795,6 +865,9 @@ const emailUrl = `mailto:${profile.person.email}`;
     <!-- Navigation WhereTo -->
     <WhereTo currentPath="/reception" />
   </div>
+
+  <!-- Interactive Network PC System Modal -->
+  <NetworkPcModal />
 </TownLayout>
 
 <script>
@@ -898,12 +971,24 @@ const emailUrl = `mailto:${profile.person.email}`;
           return;
         }
 
+        if (action === 'pc-terminal') {
+          window.dispatchEvent(new CustomEvent('town:locate', { detail: { propId: 'pc-terminal' } }));
+          window.dispatchEvent(new CustomEvent('reception:open-pc'));
+          return;
+        }
+
         window.dispatchEvent(new CustomEvent('town:locate', { detail: { propId: action } }));
         const townCanvas = document.querySelector('.town');
         if (townCanvas && window.innerWidth < 768) {
           townCanvas.scrollIntoView({ behavior: 'smooth' });
         }
       });
+    });
+
+    // 💻 Launch Network PC button
+    const btnOpenPc = document.getElementById('btn-trigger-open-pc');
+    btnOpenPc?.addEventListener('click', () => {
+      window.dispatchEvent(new CustomEvent('reception:open-pc'));
     });
 
     // 📍 Inspect in 2D buttons

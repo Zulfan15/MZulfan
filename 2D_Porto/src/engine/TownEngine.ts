@@ -4314,7 +4314,8 @@ export class TownEngine {
               );
             }
           } else if (prop.target.name === 'pc-terminal') {
-            this.callbacks.onOpenModal('dex');
+            sfx.select();
+            window.dispatchEvent(new CustomEvent('reception:open-pc'));
           } else if (prop.target.name === 'directory-board') {
             sfx.select();
             if (this.callbacks.onBubble) {
