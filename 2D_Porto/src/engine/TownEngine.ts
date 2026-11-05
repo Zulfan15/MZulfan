@@ -1797,8 +1797,17 @@ export class TownEngine {
       }
     };
 
+    const onLocate = (e: Event) => {
+      const custom = e as CustomEvent<{ propId: string; targetId?: string }>;
+      const id = custom.detail?.propId || custom.detail?.targetId;
+      if (id) {
+        this.walkToObject(id);
+      }
+    };
+
     window.addEventListener('town:set-follower', onSetFollower);
     window.addEventListener('town:trigger-move', onTriggerMove);
+    window.addEventListener('town:locate', onLocate);
 
     this.unbindEvents.push(
       () => window.removeEventListener('keydown', onKeyDown),
@@ -1820,7 +1829,8 @@ export class TownEngine {
       () => window.removeEventListener('town:set-weather', onSetWeather),
       () => window.removeEventListener('town:cycle-weather', onCycleWeather),
       () => window.removeEventListener('town:set-follower', onSetFollower),
-      () => window.removeEventListener('town:trigger-move', onTriggerMove)
+      () => window.removeEventListener('town:trigger-move', onTriggerMove),
+      () => window.removeEventListener('town:locate', onLocate)
     );
   }
 
@@ -3975,7 +3985,91 @@ export class TownEngine {
 
       if (prop) {
         sfx.select();
-        if (prop.target.type === 'event' && prop.target.name) {
+
+        // Bi-Directional Sync for Dev Center Consoles & Props
+        if (prop.id === 'console-wasm') {
+          document.dispatchEvent(new CustomEvent('town:highlight-project', { detail: { id: 'aeroscan' } }));
+          if (this.callbacks.onBubble) {
+            this.callbacks.onBubble(
+              'AI Inference Console 🖥️',
+              "Edge AI & TensorRT. Zulfan's YOLOv11s model, optimized with TensorRT 10: ~1.8 ms/frame (>500 FPS) on an RTX 4060.",
+              {
+                label: 'Buka Debrief AeroScan 🚀',
+                onClick: () => {
+                  document.dispatchEvent(new CustomEvent('town:debrief', { detail: { id: 'aeroscan' } }));
+                },
+              }
+            );
+          } else {
+            this.callbacks.onDialogue(prop.label, [prop.target.text || '']);
+          }
+        } else if (prop.id === 'console-edge') {
+          document.dispatchEvent(new CustomEvent('town:highlight-project', { detail: { id: 'foodlink' } }));
+          if (this.callbacks.onBubble) {
+            this.callbacks.onBubble(
+              'Distributed Systems Console 🌐',
+              'FoodLink Cloud-Native Platform. Laravel 12 API Gateway, Redis Queue, PostGIS spatial matchmaking, and Docker orchestration.',
+              {
+                label: 'Buka Debrief FoodLink 🚀',
+                onClick: () => {
+                  document.dispatchEvent(new CustomEvent('town:debrief', { detail: { id: 'foodlink' } }));
+                },
+              }
+            );
+          } else {
+            this.callbacks.onDialogue(prop.label, [prop.target.text || '']);
+          }
+        } else if (prop.id === 'console-static') {
+          document.dispatchEvent(new CustomEvent('town:highlight-project', { detail: { id: 'omr-grader' } }));
+          if (this.callbacks.onBubble) {
+            this.callbacks.onBubble(
+              'Static Architecture Console ⚡',
+              'Static-first Astro framework. Compiled HTML at build time; 60 FPS lightweight canvas engine with zero bloat.',
+              {
+                label: 'Lihat Arsitektur Kota 📜',
+                onClick: () => {
+                  const el = document.getElementById('sec-build');
+                  el?.scrollIntoView({ behavior: 'smooth' });
+                  (el as any)?.setAttribute('open', '');
+                },
+              }
+            );
+          } else {
+            this.callbacks.onDialogue(prop.label, [prop.target.text || '']);
+          }
+        } else if (prop.id === 'whiteboard') {
+          document.dispatchEvent(new CustomEvent('town:highlight-project', { detail: { id: 'thesis' } }));
+          if (this.callbacks.onBubble) {
+            this.callbacks.onBubble(
+              'Architecture Whiteboard 📋',
+              'End-to-End System Blueprint: profile.yaml ➔ Static Pages + 2D Engine + AI Digital Twin & Knowledge Base.',
+              {
+                label: 'Buka Debrief Skripsi 🚀',
+                onClick: () => {
+                  document.dispatchEvent(new CustomEvent('town:debrief', { detail: { id: 'thesis' } }));
+                },
+              }
+            );
+          } else {
+            this.callbacks.onDialogue(prop.label, [prop.target.text || '']);
+          }
+        } else if (prop.id === 'rack') {
+          document.dispatchEvent(new CustomEvent('town:telemetry'));
+          if (this.callbacks.onBubble) {
+            this.callbacks.onBubble(
+              'High-Performance Compute Rack 🗄️',
+              'Active Server Rack: Compute cluster for model training, TensorRT FP16 quantization, and continuous deployment pipeline.',
+              {
+                label: 'Buka Telemetry Wall 📈',
+                onClick: () => {
+                  document.dispatchEvent(new CustomEvent('town:telemetry'));
+                },
+              }
+            );
+          } else {
+            this.callbacks.onDialogue(prop.label, [prop.target.text || '']);
+          }
+        } else if (prop.target.type === 'event' && prop.target.name) {
           document.dispatchEvent(new CustomEvent(`town:${prop.target.name}`));
         } else if (prop.target.type === 'note' && prop.target.text) {
           if (this.callbacks.onBubble) {

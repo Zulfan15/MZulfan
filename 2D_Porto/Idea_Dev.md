@@ -47,14 +47,16 @@ Tujuan utama pengembangan ini:
 
 ---
 
-### 🔄 Fase 3: Sinkronisasi Dua Arah (Bi-Directional Sync) Kanvas 2D ↔ Panel Kanan
-- [ ] **Interaksi Objek 2D Menyorot Kartu di Panel Kanan**:
-  - 🖥️ `console-wasm` (AI Inference Console) → Menyorot kartu proyek **AeroScan** & membuka brief AI.
-  - 🌐 `console-edge` (Distributed Edge Console) → Menyorot proyek **FoodLink**.
-  - 🗄️ `rack` (Server Rack) → Membuka Telemetry Modal dan live ping logs.
-  - 📋 `whiteboard` (Architecture Whiteboard) → Membuka skema arsitektur sistem.
-- [ ] **Fitur "📍 Sorot di Ruangan 2D" di Panel Kanan**:
-  - Tiap kartu proyek di panel kanan memiliki tombol kecil untuk memfokuskan kamera/karakter 2D ke meja konsol yang relevan di kanvas interior.
+### 🔄 Fase 3: Sinkronisasi Dua Arah (Bi-Directional Sync) Kanvas 2D ↔ Panel Kanan (SELESAI ✅)
+- [x] **Interaksi Objek 2D Menyorot Kartu di Panel Kanan**:
+  - 🖥️ `console-wasm` (AI Inference Console) → Menyorot kartu proyek **AeroScan** & membuka bubble dengan tombol langsung ke Debrief Modal.
+  - 🌐 `console-edge` (Distributed Edge Console) → Menyorot proyek **FoodLink** & tombol Debrief Modal.
+  - ⚡ `console-static` (Static Architecture Console) → Menyorot proyek **OMR Grader** & membuka section Arsitektur Kota.
+  - 🗄️ `rack` (Server Rack) → Membuka Telemetry Modal dan status server compute.
+  - 📋 `whiteboard` (Architecture Whiteboard) → Menyorot skripsi/arsitektur sistem & membuka brief debrief.
+- [x] **Fitur "📍 Sorot di Ruangan 2D" di Panel Kanan**:
+  - Tiap kartu proyek di panel kanan dan tiap slide di modal debrief memiliki tombol `📍 2D Room` / `📍 Locate Console in 2D Room`.
+  - Karakter di kanvas 2D secara otomatis berjalan (*pathfinding walkTo*) ke depan meja konsol yang relevan dan menghadap ke konsol.
 
 ---
 
