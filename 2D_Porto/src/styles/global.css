@@ -2659,6 +2659,97 @@ ul.clean, ol.clean {
   border-color: #5eead4 !important;
 }
 
+/* ─── 🔍 Pokénav Search & ⚙️ Dev Tools Popover ─── */
+.town-hud-btn--search {
+  background: rgba(6, 78, 59, 0.85);
+  border-color: #10b981;
+  color: #a7f3d0;
+}
+.town-hud-btn--search:hover {
+  background: #059669;
+  color: #ffffff;
+}
+
+.town-dev-wrap {
+  position: relative;
+  display: inline-block;
+}
+
+.town-dev-popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 175px;
+  background: rgba(15, 23, 42, 0.96);
+  border: 1.5px solid #334155;
+  border-radius: 8px;
+  padding: 4px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.7), 0 0 12px rgba(51, 65, 85, 0.5);
+  z-index: 55;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  backdrop-filter: blur(8px);
+}
+
+.town-dev-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: transparent;
+  border: none;
+  color: #cbd5e1;
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  width: 100%;
+}
+
+.town-dev-item:hover {
+  background: rgba(51, 65, 85, 0.8);
+  color: #ffffff;
+}
+
+.town-dev-kbd {
+  font-size: 0.62rem;
+  font-family: monospace;
+  padding: 1px 4px;
+  background: #1e293b;
+  border: 1px solid #475569;
+  border-radius: 3px;
+  color: #94a3b8;
+}
+
+/* ─── ↔️ Reading Panel Layout Presets ─── */
+.panel__layout-presets {
+  user-select: none;
+}
+
+.panel__preset-btn {
+  border-radius: 6px;
+  border: 1px solid transparent;
+  color: inherit;
+  opacity: 0.65;
+  transition: all 0.15s ease;
+}
+
+.panel__preset-btn:hover {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.panel__preset-btn.is-active {
+  opacity: 1;
+  background: rgba(225, 29, 72, 0.12);
+  border-color: rgba(225, 29, 72, 0.4);
+  color: #be123c;
+  font-weight: 700;
+}
+
 .town-xray-bar {
   position: absolute;
   top: 56px;

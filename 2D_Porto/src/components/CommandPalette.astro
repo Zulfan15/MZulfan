@@ -1,0 +1,641 @@
+---
+import { profile, skills, missions } from '../lib/profile';
+
+interface PaletteItem {
+  id: string;
+  title: string;
+  category: 'action' | 'skill' | 'project' | 'place' | 'pokemon';
+  categoryLabel: string;
+  icon: string;
+  desc: string;
+  keywords: string;
+  actionType: 'navigate' | 'download' | 'copy' | 'fly' | 'modal' | 'toggle-bike' | 'toggle-minimap';
+  target?: string;
+  flyCoords?: { x: number; y: number };
+}
+
+// 1. Quick Actions for Recruiter & Visitors
+const actionItems: PaletteItem[] = [
+  {
+    id: 'act-cv',
+    title: 'Unduh CV / Résumé Zulfan (PDF)',
+    category: 'action',
+    categoryLabel: 'Aksi Cepat',
+    icon: '📄',
+    desc: 'Buka dan unduh dokumen Curriculum Vitae lengkap terbaru.',
+    keywords: 'cv resume resume pdf download unduh berkas lamaran biodata',
+    actionType: 'download',
+    target: profile.person.cv,
+  },
+  {
+    id: 'act-email',
+    title: `Salin Email (${profile.person.email})`,
+    category: 'action',
+    categoryLabel: 'Aksi Cepat',
+    icon: '📋',
+    desc: 'Salin alamat email langsung ke clipboard Anda.',
+    keywords: 'email mail kontak contact pesan kirim hubungi',
+    actionType: 'copy',
+    target: profile.person.email,
+  },
+  {
+    id: 'act-twin',
+    title: 'Chat dengan Digital Twin AI',
+    category: 'action',
+    categoryLabel: 'Aksi Cepat',
+    icon: '💬',
+    desc: 'Tanya jawab interaktif dengan AI persona berbasis rekayasa Zulfan.',
+    keywords: 'twin ai bot chatbot tanya chat clone digital',
+    actionType: 'navigate',
+    target: '/twin',
+  },
+  {
+    id: 'act-map',
+    title: 'Buka Town Map & Quick Travel (HM02 Fly)',
+    category: 'action',
+    categoryLabel: 'Aksi Cepat',
+    icon: '🗺️',
+    desc: 'Lihat denah lengkap kota dan lompat instan ke lokasi mana pun.',
+    keywords: 'map peta fly hm02 jalan travel teleport lokasi denah',
+    actionType: 'modal',
+    target: 'map',
+  },
+  {
+    id: 'act-bike',
+    title: 'Toggle Mach Bike (Kecepatan 2.2×)',
+    category: 'action',
+    categoryLabel: 'Aksi Cepat',
+    icon: '🚲',
+    desc: 'Aktifkan / matikan sepeda cepat dengan suara bel chiptune (Key: B).',
+    keywords: 'bike sepeda mach bike bell lari cepat speed run',
+    actionType: 'toggle-bike',
+  },
+  {
+    id: 'act-radar',
+    title: 'Toggle Radar Kota Mini-Map',
+    category: 'action',
+    categoryLabel: 'Aksi Cepat',
+    icon: '🧭',
+    desc: 'Buka / tutup radar mini-map di pojok kanan atas (Key: M).',
+    keywords: 'radar minimap map peta kompas posisi live',
+    actionType: 'toggle-minimap',
+  },
+];
+
+// 2. Skill Items (Top & Featured Skills from profile)
+const skillItems: PaletteItem[] = skills.slice(0, 20).map((s) => ({
+  id: `skill-${s.name.toLowerCase().replace(/[^a-z0-9]/g, '-')}`,
+  title: `Keahlian: ${s.name}`,
+  category: 'skill',
+  categoryLabel: s.category || 'Skill',
+  icon: '⚡',
+  desc: `Digunakan dalam ${s.count} proyek/misi portofolio (${s.ring.toUpperCase()}).`,
+  keywords: `skill tech keahlian ${s.name} ${s.category || ''} stack coding`,
+  actionType: 'navigate',
+  target: `/dev#skills`,
+}));
+
+// 3. Featured Project & Research Items
+const projectItems: PaletteItem[] = missions.map((m) => ({
+  id: `proj-${m.id}`,
+  title: m.title,
+  category: 'project',
+  categoryLabel: m.type === 'launch' ? 'Proyek Unggulan' : 'Penugasan Tim',
+  icon: m.type === 'launch' ? '🚀' : '👥',
+  desc: m.blurb,
+  keywords: `proyek project ${m.title} ${m.tags?.join(' ') || ''} ${m.role} ${m.blurb}`,
+  actionType: 'navigate',
+  target: m.research ? '/lab' : '/dev',
+}));
+
+// 4. Town Navigation Items (Buildings & Landmarks)
+const placeItems: PaletteItem[] = [
+  {
+    id: 'place-dev',
+    title: 'Dev Center (Pusat Rekayasa Perangkat Lunak)',
+    category: 'place',
+    categoryLabel: 'Gedung',
+    icon: '💻',
+    desc: 'Timeline proyek, telemetri, dan radar keahlian Zulfan.',
+    keywords: 'dev center software engineering projects showcase',
+    actionType: 'fly',
+    target: '/dev',
+    flyCoords: { x: 16, y: 12 },
+  },
+  {
+    id: 'place-lab',
+    title: 'Research Lab (AI & Computer Vision)',
+    category: 'place',
+    categoryLabel: 'Gedung',
+    icon: '🔬',
+    desc: 'Publikasi tesis, riset YOLOv11 & deep learning.',
+    keywords: 'lab research riset ai computer vision tesis thesis',
+    actionType: 'fly',
+    target: '/lab',
+    flyCoords: { x: 27, y: 9 },
+  },
+  {
+    id: 'place-tower',
+    title: 'Tech Tower (IoT & Robotika R&D)',
+    category: 'place',
+    categoryLabel: 'Gedung',
+    icon: '🏢',
+    desc: 'Prototipe perangkat keras IoT, robotika, dan cloud backend.',
+    keywords: 'tower tech robotik iot hardware jaringan huawei',
+    actionType: 'fly',
+    target: '/tower',
+    flyCoords: { x: 38, y: 14 },
+  },
+  {
+    id: 'place-arcade',
+    title: 'Retro Arcade (Kalah Minimax Game)',
+    category: 'place',
+    categoryLabel: 'Gedung',
+    icon: '🕹️',
+    desc: 'Bermain game strategi papan Mancala melawan bot Alpha-Beta.',
+    keywords: 'arcade game kalah mancala deoxys bot minimax main',
+    actionType: 'fly',
+    target: '/arcade',
+    flyCoords: { x: 28, y: 43 },
+  },
+  {
+    id: 'place-mart',
+    title: 'Poké Mart (Katalog Layanan & Gear)',
+    category: 'place',
+    categoryLabel: 'Gedung',
+    icon: '🏪',
+    desc: 'Layanan konsultasi rekayasa sistem, tech gear, dan CV.',
+    keywords: 'mart poke mart toko services cv beli belanja download',
+    actionType: 'fly',
+    target: '/mart',
+    flyCoords: { x: 15, y: 42 },
+  },
+  {
+    id: 'place-reception',
+    title: 'Poké Center (Front Desk Sambutan)',
+    category: 'place',
+    categoryLabel: 'Gedung',
+    icon: '🏥',
+    desc: 'Mira di meja depan menyambut Anda dan memberi arahan kota.',
+    keywords: 'reception center front desk mira panduan halo',
+    actionType: 'fly',
+    target: '/reception',
+    flyCoords: { x: 15, y: 35 },
+  },
+  {
+    id: 'place-arena',
+    title: 'Battle Arena (Frontier Tech Quiz)',
+    category: 'place',
+    categoryLabel: 'Landmark',
+    icon: '⚔️',
+    desc: 'Tantang Mewtwo dalam kuis logika dan arsitektur teknologi.',
+    keywords: 'arena battle mewtwo quiz kuis tanding duel tantangan',
+    actionType: 'fly',
+    flyCoords: { x: 28, y: 24 },
+  },
+  {
+    id: 'place-fountain',
+    title: 'Fountain Plaza (Air Mancur Pusat Kota)',
+    category: 'place',
+    categoryLabel: 'Landmark',
+    icon: '⛲',
+    desc: 'Plaza melingkar air mancur pegunungan yang jernih.',
+    keywords: 'fountain plaza air mancur tengah square santai',
+    actionType: 'fly',
+    flyCoords: { x: 28, y: 33 },
+  },
+];
+
+// 5. Pokémon Guardians
+const pokemonItems: PaletteItem[] = [
+  {
+    id: 'pkmn-charizard',
+    title: 'Charizard (Sang Naga Api & Problem Solver)',
+    category: 'pokemon',
+    categoryLabel: 'Pokémon',
+    icon: '🔥',
+    desc: 'Melambangkan keuletan problem solving full-stack engineering.',
+    keywords: 'charizard naga api fire flying dragon pokemon',
+    actionType: 'fly',
+    flyCoords: { x: 26, y: 33 },
+  },
+  {
+    id: 'pkmn-tyranitar',
+    title: 'Tyranitar (Armor Rock & Backend Resilient)',
+    category: 'pokemon',
+    categoryLabel: 'Pokémon',
+    icon: '🪨',
+    desc: 'Ketahanan arsitektur backend andal tahan uji beban tinggi.',
+    keywords: 'tyranitar batu rock dark pasir sandstorm blastoise',
+    actionType: 'fly',
+    flyCoords: { x: 37, y: 43 },
+  },
+  {
+    id: 'pkmn-mewtwo',
+    title: 'Mewtwo (Guardian of Battle Arena)',
+    category: 'pokemon',
+    categoryLabel: 'Pokémon',
+    icon: '🔮',
+    desc: 'Penguasa arena teknologi Sinnoh menantang kecerdasan Anda.',
+    keywords: 'mewtwo psychic psikis arena kuis master',
+    actionType: 'fly',
+    flyCoords: { x: 28, y: 22 },
+  },
+  {
+    id: 'pkmn-arceus',
+    title: 'Arceus (The Alpha System Architect)',
+    category: 'pokemon',
+    categoryLabel: 'Pokémon',
+    icon: '✨',
+    desc: 'Simbol arsitektur sistem holistik end-to-end Zulfan.',
+    keywords: 'arceus tuhan dewa alpha pelindung arsitek system',
+    actionType: 'fly',
+    flyCoords: { x: 16, y: 17 },
+  },
+];
+
+const allPaletteItems: PaletteItem[] = [
+  ...actionItems,
+  ...placeItems,
+  ...skillItems,
+  ...projectItems,
+  ...pokemonItems,
+];
+---
+
+<dialog id="command-palette-modal" class="sheet pokenav-palette-dialog max-w-xl">
+  <!-- Pokénav Header -->
+  <div class="sheet-head bg-[#064e3b] text-emerald-100 flex items-center justify-between border-b-2 border-emerald-500/40 px-4 py-2.5">
+    <div class="flex items-center gap-2">
+      <span class="relative flex h-2.5 w-2.5">
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+      </span>
+      <span class="font-pixel text-xs tracking-wider text-emerald-300 uppercase">
+        Pokénav Navi-Search
+      </span>
+      <span class="font-mono text-[9px] px-1.5 py-0.2 rounded bg-emerald-950/80 border border-emerald-500/30 text-emerald-400">
+        v3.0
+      </span>
+    </div>
+    <div class="flex items-center gap-2">
+      <kbd class="kbd text-[9px] bg-emerald-900/60 border-emerald-700/60 text-emerald-200">ESC</kbd>
+      <button id="pokenav-close-btn" type="button" class="text-emerald-300 hover:text-white text-sm p-1 leading-none" aria-label="Close search">
+        ✕
+      </button>
+    </div>
+  </div>
+
+  <div class="p-3 bg-[#0a1120] text-slate-100">
+    <!-- Search Input Bar -->
+    <div class="relative flex items-center mb-2.5">
+      <span class="absolute left-3 text-sm text-emerald-400 pointer-events-none select-none">
+        🔍
+      </span>
+      <input
+        id="pokenav-search-input"
+        type="search"
+        placeholder="Ketik keahlian (Rust, Vision), proyek, aksi cepat (CV, Email), atau lokasi..."
+        class="w-full pl-9 pr-16 py-2.5 bg-slate-900/90 border border-emerald-500/50 rounded-lg font-mono text-xs text-emerald-200 placeholder-slate-500 focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400/50 transition-all"
+        autocomplete="off"
+        spellcheck="false"
+      />
+      <span class="absolute right-3 text-[10px] font-mono text-slate-400 bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700 pointer-events-none">
+        Ctrl+K
+      </span>
+    </div>
+
+    <!-- Category Filter Chips -->
+    <div class="flex items-center gap-1.5 overflow-x-auto pb-2 text-[10px] font-mono scrollbar-none">
+      <button type="button" class="pokenav-chip active" data-filter="all">Semua</button>
+      <button type="button" class="pokenav-chip" data-filter="action">⚡ Aksi</button>
+      <button type="button" class="pokenav-chip" data-filter="skill">💻 Skill</button>
+      <button type="button" class="pokenav-chip" data-filter="project">🚀 Proyek</button>
+      <button type="button" class="pokenav-chip" data-filter="place">📍 Navigasi</button>
+      <button type="button" class="pokenav-chip" data-filter="pokemon">🐾 Pokémon</button>
+    </div>
+
+    <!-- Results List View -->
+    <div id="pokenav-results-container" class="max-h-[50vh] overflow-y-auto space-y-1.5 pr-1 mt-1 font-sans">
+      {allPaletteItems.map((item, idx) => (
+        <div
+          class="pokenav-item group"
+          data-palette-item
+          data-id={item.id}
+          data-category={item.category}
+          data-keywords={item.keywords.toLowerCase()}
+          data-action-type={item.actionType}
+          data-target={item.target || ''}
+          data-fly-x={item.flyCoords?.x ?? ''}
+          data-fly-y={item.flyCoords?.y ?? ''}
+          data-index={idx}
+          tabindex="0"
+          role="option"
+        >
+          <div class="flex items-center gap-2.5 min-w-0">
+            <span class="pokenav-item-icon text-lg flex-shrink-0 w-8 h-8 rounded flex items-center justify-center bg-slate-800/80 border border-slate-700/60 group-hover:scale-110 transition-transform">
+              {item.icon}
+            </span>
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-2">
+                <span class="pokenav-item-title font-pixel text-[11px] text-slate-100 group-hover:text-emerald-300 truncate font-semibold">
+                  {item.title}
+                </span>
+                <span class="pokenav-item-badge text-[9px] font-mono px-1 py-0.2 rounded bg-slate-800 text-emerald-400/90 border border-emerald-900/50 flex-shrink-0">
+                  {item.categoryLabel}
+                </span>
+              </div>
+              <p class="font-sans text-[10.5px] text-slate-400 group-hover:text-slate-300 truncate mt-0.5 leading-tight">
+                {item.desc}
+              </p>
+            </div>
+          </div>
+          <span class="pokenav-item-action text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800/60 border border-slate-700/50 text-slate-400 group-hover:bg-emerald-600 group-hover:text-white group-hover:border-emerald-500 transition-all flex-shrink-0 ml-2">
+            {item.actionType === 'download'
+              ? 'Unduh ↗'
+              : item.actionType === 'copy'
+              ? 'Salin 📋'
+              : item.actionType === 'fly'
+              ? 'Terbang 🦅'
+              : item.actionType === 'toggle-bike'
+              ? 'Toggle 🚲'
+              : item.actionType === 'toggle-minimap'
+              ? 'Radar 🧭'
+              : 'Buka ↵'}
+          </span>
+        </div>
+      ))}
+    </div>
+
+    <!-- Empty State -->
+    <div id="pokenav-empty-state" class="hidden py-8 text-center text-slate-400 font-mono text-xs">
+      <span class="text-2xl block mb-2">📡</span>
+      Tidak ada hasil yang cocok dengan kata kunci Anda.
+    </div>
+
+    <!-- Palette Keyboard Footer Hints -->
+    <div class="mt-2.5 pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px] font-mono text-slate-500">
+      <div class="flex items-center gap-2">
+        <span><kbd class="pokenav-kbd">↑</kbd><kbd class="pokenav-kbd">↓</kbd> Pilih</span>
+        <span><kbd class="pokenav-kbd">↵</kbd> Buka</span>
+        <span><kbd class="pokenav-kbd">ESC</kbd> Tutup</span>
+      </div>
+      <span class="text-emerald-500/80">⚡ Instan Recruiter Access</span>
+    </div>
+  </div>
+</dialog>
+
+<style>
+  .pokenav-palette-dialog {
+    background: #0a1120;
+    border: 2px solid #059669;
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.8), 0 0 25px rgba(16, 185, 129, 0.25);
+    overflow: hidden;
+  }
+  .pokenav-chip {
+    padding: 3px 8px;
+    border-radius: 9999px;
+    background: rgba(30, 41, 59, 0.8);
+    border: 1px solid rgba(51, 65, 85, 0.8);
+    color: #94a3b8;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s ease;
+  }
+  .pokenav-chip:hover {
+    color: #e2e8f0;
+    border-color: #059669;
+  }
+  .pokenav-chip.active {
+    background: #059669;
+    border-color: #10b981;
+    color: #ffffff;
+    font-weight: 600;
+  }
+  .pokenav-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 7px 10px;
+    border-radius: 8px;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.12s ease;
+    outline: none;
+  }
+  .pokenav-item:hover,
+  .pokenav-item.is-selected {
+    background: rgba(16, 185, 129, 0.14);
+    border-color: rgba(16, 185, 129, 0.6);
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.2);
+  }
+  .pokenav-kbd {
+    display: inline-block;
+    padding: 1px 4px;
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 4px;
+    color: #cbd5e1;
+    font-size: 9px;
+  }
+</style>
+
+<script>
+  function initCommandPalette() {
+    const modal = document.getElementById('command-palette-modal') as HTMLDialogElement | null;
+    const input = document.getElementById('pokenav-search-input') as HTMLInputElement | null;
+    const closeBtn = document.getElementById('pokenav-close-btn');
+    const container = document.getElementById('pokenav-results-container');
+    const emptyState = document.getElementById('pokenav-empty-state');
+    const chips = document.querySelectorAll<HTMLButtonElement>('.pokenav-chip');
+
+    if (!modal || !input || !container) return;
+
+    let activeFilter = 'all';
+    let selectedIndex = 0;
+
+    const getVisibleItems = (): HTMLElement[] => {
+      return Array.from(container.querySelectorAll<HTMLElement>('[data-palette-item]')).filter(
+        (el) => el.style.display !== 'none'
+      );
+    };
+
+    const updateSelection = (index: number) => {
+      const visible = getVisibleItems();
+      visible.forEach((el, i) => {
+        if (i === index) {
+          el.classList.add('is-selected');
+          el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        } else {
+          el.classList.remove('is-selected');
+        }
+      });
+      selectedIndex = Math.max(0, Math.min(index, visible.length - 1));
+    };
+
+    const applyFilterAndSearch = () => {
+      const query = input.value.trim().toLowerCase();
+      const allItems = container.querySelectorAll<HTMLElement>('[data-palette-item]');
+      let matchCount = 0;
+
+      allItems.forEach((item) => {
+        const cat = item.getAttribute('data-category') || '';
+        const keywords = item.getAttribute('data-keywords') || '';
+        const title = (item.querySelector('.pokenav-item-title')?.textContent || '').toLowerCase();
+        const desc = (item.querySelector('p')?.textContent || '').toLowerCase();
+
+        const matchCategory = activeFilter === 'all' || cat === activeFilter;
+        const matchQuery =
+          query === '' ||
+          title.includes(query) ||
+          desc.includes(query) ||
+          keywords.includes(query);
+
+        if (matchCategory && matchQuery) {
+          item.style.display = 'flex';
+          matchCount++;
+        } else {
+          item.style.display = 'none';
+        }
+      });
+
+      if (emptyState) {
+        emptyState.classList.toggle('hidden', matchCount > 0);
+      }
+
+      updateSelection(0);
+    };
+
+    // Filter Chips click
+    chips.forEach((chip) => {
+      chip.addEventListener('click', () => {
+        chips.forEach((c) => c.classList.remove('active'));
+        chip.classList.add('active');
+        activeFilter = chip.getAttribute('data-filter') || 'all';
+        applyFilterAndSearch();
+      });
+    });
+
+    // Input Search listener
+    input.addEventListener('input', applyFilterAndSearch);
+
+    // Keyboard navigation inside input & modal
+    modal.addEventListener('keydown', (e) => {
+      const visible = getVisibleItems();
+      if (visible.length === 0) return;
+
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        selectedIndex = (selectedIndex + 1) % visible.length;
+        updateSelection(selectedIndex);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        selectedIndex = (selectedIndex - 1 + visible.length) % visible.length;
+        updateSelection(selectedIndex);
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (visible[selectedIndex]) {
+          executePaletteItem(visible[selectedIndex]);
+        }
+      }
+    });
+
+    // Execute palette action
+    const executePaletteItem = (item: HTMLElement) => {
+      const actionType = item.getAttribute('data-action-type');
+      const target = item.getAttribute('data-target') || '';
+      const flyX = item.getAttribute('data-fly-x');
+      const flyY = item.getAttribute('data-fly-y');
+
+      modal.close();
+
+      if (actionType === 'download') {
+        if (target) {
+          window.open(target, '_blank');
+        }
+      } else if (actionType === 'copy') {
+        if (target) {
+          navigator.clipboard?.writeText(target).then(() => {
+            window.dispatchEvent(
+              new CustomEvent('town:editor-toast', {
+                detail: `📋 Berhasil menyalin ke clipboard: ${target}`,
+              })
+            );
+          });
+        }
+      } else if (actionType === 'fly') {
+        if (flyX !== '' && flyY !== '') {
+          const x = Number(flyX);
+          const y = Number(flyY);
+          const isTown = window.location.pathname === '/' || window.location.pathname === '';
+          if (isTown) {
+            window.dispatchEvent(
+              new CustomEvent('town:fly-to', {
+                detail: { x, y, name: item.querySelector('.pokenav-item-title')?.textContent?.trim() },
+              })
+            );
+          } else {
+            sessionStorage.setItem('town:respawn', `${x},${y}`);
+            sessionStorage.setItem('town:fly_anim', '1');
+            window.location.href = '/';
+          }
+        } else if (target) {
+          window.location.href = target;
+        }
+      } else if (actionType === 'navigate') {
+        if (target) {
+          window.location.href = target;
+        }
+      } else if (actionType === 'modal') {
+        if (target) {
+          document.dispatchEvent(new CustomEvent('town:open-modal', { detail: { target } }));
+        }
+      } else if (actionType === 'toggle-bike') {
+        window.dispatchEvent(new CustomEvent('town:toggle-bike-request'));
+      } else if (actionType === 'toggle-minimap') {
+        window.dispatchEvent(new CustomEvent('town:toggle-minimap'));
+      }
+    };
+
+    // Item click
+    container.addEventListener('click', (e) => {
+      const item = (e.target as HTMLElement).closest<HTMLElement>('[data-palette-item]');
+      if (item) {
+        executePaletteItem(item);
+      }
+    });
+
+    // Open & Close
+    const openModal = () => {
+      modal.showModal();
+      input.value = '';
+      activeFilter = 'all';
+      chips.forEach((c) => c.classList.toggle('active', c.getAttribute('data-filter') === 'all'));
+      applyFilterAndSearch();
+      setTimeout(() => input.focus(), 50);
+    };
+
+    closeBtn?.addEventListener('click', () => modal.close());
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) modal.close();
+    });
+
+    // Global Hotkey: Ctrl+K or Cmd+K
+    window.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        if (modal.open) {
+          modal.close();
+        } else {
+          openModal();
+        }
+      }
+    });
+
+    // Event listener from HUD button
+    window.addEventListener('town:open-command-palette', openModal);
+  }
+
+  document.addEventListener('DOMContentLoaded', initCommandPalette);
+</script>

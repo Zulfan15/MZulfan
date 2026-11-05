@@ -99,6 +99,17 @@ const dataPlaceRooms = {
     <div class="town-hud-actions town-hud-actions--desktop">
       <button
         type="button"
+        class="town-hud-btn town-hud-btn--search"
+        id="btn-open-palette"
+        aria-label="Cari Pokénav (Ctrl+K)"
+        title="Pokénav Navi-Search (Tekan Ctrl+K)"
+      >
+        <span class="town-hud-btn__icon" aria-hidden="true">🔍</span>
+        <span class="town-hud-btn__label">Cari</span>
+      </button>
+
+      <button
+        type="button"
         class="town-hud-btn town-hud-btn--bike"
         id="btn-toggle-bike"
         aria-label="Toggle Mach Bike"
@@ -117,17 +128,6 @@ const dataPlaceRooms = {
       >
         <span class="town-hud-btn__icon" aria-hidden="true">🧭</span>
         <span class="town-hud-btn__label">Radar</span>
-      </button>
-
-      <button
-        type="button"
-        class="town-hud-btn town-hud-btn--xray"
-        id="btn-toggle-xray"
-        aria-label="Toggle X-Ray Collision Inspector"
-        title="Mode X-Ray (Lihat & Hapus Rintangan / Tekan X)"
-      >
-        <span class="town-hud-btn__icon" aria-hidden="true">🔬</span>
-        <span class="town-hud-btn__label">X-Ray</span>
       </button>
 
       <button
@@ -163,16 +163,46 @@ const dataPlaceRooms = {
         <span class="town-hud-btn__label">Guide</span>
       </button>
 
-      <button
-        type="button"
-        class="town-hud-btn town-hud-btn--editor"
-        id="btn-toggle-editor"
-        aria-label="Town Map Editor"
-        title="Town Map Editor (Press E)"
-      >
-        <span class="town-hud-btn__icon" aria-hidden="true">🛠️</span>
-        <span class="town-hud-btn__label">Editor</span>
-      </button>
+      <!-- Clean Developer Tools Popover -->
+      <div class="relative town-dev-wrap">
+        <button
+          type="button"
+          class="town-hud-btn town-hud-btn--dev"
+          id="btn-toggle-dev-menu"
+          aria-label="Developer & Editor Tools"
+          title="Alat Pengembang & Editor (Tekan X / E)"
+          aria-expanded="false"
+        >
+          <span class="town-hud-btn__icon" aria-hidden="true">⚙️</span>
+          <span class="town-hud-btn__label">Dev</span>
+        </button>
+
+        <div id="town-dev-popover" class="town-dev-popover hidden" style="display: none;" role="menu">
+          <button
+            type="button"
+            class="town-dev-item"
+            id="btn-toggle-xray"
+            role="menuitem"
+            title="Lihat tabrakan & hapus rintangan"
+          >
+            <span>🔬</span>
+            <span class="flex-1 text-left">Mode X-Ray</span>
+            <kbd class="town-dev-kbd">X</kbd>
+          </button>
+
+          <button
+            type="button"
+            class="town-dev-item"
+            id="btn-toggle-editor"
+            role="menuitem"
+            title="Buka Town Map Editor 3.0"
+          >
+            <span>🛠️</span>
+            <span class="flex-1 text-left">Town Editor</span>
+            <kbd class="town-dev-kbd">E</kbd>
+          </button>
+        </div>
+      </div>
 
       <button
         type="button"
@@ -249,6 +279,15 @@ const dataPlaceRooms = {
         </div>
 
         <div class="town-burger-dropdown__list">
+          <button type="button" class="town-burger-dropdown__item" id="burger-item-search" role="menuitem">
+            <span class="town-burger-dropdown__item-icon">🔍</span>
+            <div class="town-burger-dropdown__item-info">
+              <span class="town-burger-dropdown__item-title">Pokénav Search</span>
+              <span class="town-burger-dropdown__item-sub">Cari skill, proyek & aksi cepat</span>
+            </div>
+            <kbd class="town-burger-dropdown__kbd">Ctrl+K</kbd>
+          </button>
+
           <button type="button" class="town-burger-dropdown__item" id="burger-item-bike" role="menuitem">
             <span class="town-burger-dropdown__item-icon">🚲</span>
             <div class="town-burger-dropdown__item-info">
@@ -265,15 +304,6 @@ const dataPlaceRooms = {
               <span class="town-burger-dropdown__item-sub">Peta navigasi & klik teleport</span>
             </div>
             <kbd class="town-burger-dropdown__kbd">M</kbd>
-          </button>
-
-          <button type="button" class="town-burger-dropdown__item" id="burger-item-xray" role="menuitem">
-            <span class="town-burger-dropdown__item-icon" id="burger-xray-icon">🔬</span>
-            <div class="town-burger-dropdown__item-info">
-              <span class="town-burger-dropdown__item-title">Mode X-Ray</span>
-              <span class="town-burger-dropdown__item-sub">Lihat tabrakan & hapus rintangan</span>
-            </div>
-            <kbd class="town-burger-dropdown__kbd">X</kbd>
           </button>
 
           <button type="button" class="town-burger-dropdown__item" id="burger-item-labels" role="menuitem">
@@ -303,15 +333,6 @@ const dataPlaceRooms = {
             <kbd class="town-burger-dropdown__kbd">I</kbd>
           </button>
 
-          <button type="button" class="town-burger-dropdown__item town-burger-dropdown__item--editor" id="burger-item-editor" role="menuitem">
-            <span class="town-burger-dropdown__item-icon">🛠️</span>
-            <div class="town-burger-dropdown__item-info">
-              <span class="town-burger-dropdown__item-title">Town Editor 2.0</span>
-              <span class="town-burger-dropdown__item-sub">Kustomisasi tata letak kota</span>
-            </div>
-            <kbd class="town-burger-dropdown__kbd">E</kbd>
-          </button>
-
           <button type="button" class="town-burger-dropdown__item" id="burger-item-fullscreen" role="menuitem">
             <span class="town-burger-dropdown__item-icon">⛶</span>
             <div class="town-burger-dropdown__item-info">
@@ -328,6 +349,29 @@ const dataPlaceRooms = {
               <span class="town-burger-dropdown__item-sub" id="burger-hud-sub">Sembunyikan bar tombol atas</span>
             </div>
             <kbd class="town-burger-dropdown__kbd">H</kbd>
+          </button>
+
+          <!-- Separator for Developer Tools in Burger Menu -->
+          <div class="px-3 py-1.5 text-[9px] font-mono text-emerald-400/80 uppercase tracking-wider border-t border-slate-700/60 mt-1">
+            Alat Pengembang & Editor
+          </div>
+
+          <button type="button" class="town-burger-dropdown__item" id="burger-item-xray" role="menuitem">
+            <span class="town-burger-dropdown__item-icon" id="burger-xray-icon">🔬</span>
+            <div class="town-burger-dropdown__item-info">
+              <span class="town-burger-dropdown__item-title">Mode X-Ray</span>
+              <span class="town-burger-dropdown__item-sub">Lihat tabrakan & hapus rintangan</span>
+            </div>
+            <kbd class="town-burger-dropdown__kbd">X</kbd>
+          </button>
+
+          <button type="button" class="town-burger-dropdown__item town-burger-dropdown__item--editor" id="burger-item-editor" role="menuitem">
+            <span class="town-burger-dropdown__item-icon">🛠️</span>
+            <div class="town-burger-dropdown__item-info">
+              <span class="town-burger-dropdown__item-title">Town Editor 3.0</span>
+              <span class="town-burger-dropdown__item-sub">Kustomisasi tata letak kota</span>
+            </div>
+            <kbd class="town-burger-dropdown__kbd">E</kbd>
           </button>
 
           <button type="button" class="town-burger-dropdown__item" id="burger-item-toggle-mode" role="menuitem">
@@ -1242,6 +1286,44 @@ const dataPlaceRooms = {
     }
 
     // Town HUD Action Buttons
+    const btnOpenPalette = document.getElementById('btn-open-palette');
+    const burgerItemSearch = document.getElementById('burger-item-search');
+
+    btnOpenPalette?.addEventListener('click', () => {
+      sfx.select();
+      window.dispatchEvent(new CustomEvent('town:open-command-palette'));
+    });
+
+    burgerItemSearch?.addEventListener('click', () => {
+      sfx.select();
+      toggleBurger(false);
+      window.dispatchEvent(new CustomEvent('town:open-command-palette'));
+    });
+
+    // Dev Tools Popover
+    const btnToggleDevMenu = document.getElementById('btn-toggle-dev-menu');
+    const townDevPopover = document.getElementById('town-dev-popover');
+
+    btnToggleDevMenu?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isHidden = townDevPopover?.classList.toggle('hidden');
+      if (townDevPopover) {
+        townDevPopover.style.display = isHidden ? 'none' : 'flex';
+      }
+      btnToggleDevMenu.classList.toggle('is-active', !isHidden);
+    });
+
+    document.addEventListener('click', (e) => {
+      if (townDevPopover && !townDevPopover.classList.contains('hidden')) {
+        const target = e.target as HTMLElement;
+        if (!target.closest('.town-dev-wrap')) {
+          townDevPopover.classList.add('hidden');
+          townDevPopover.style.display = 'none';
+          btnToggleDevMenu?.classList.remove('is-active');
+        }
+      }
+    });
+
     const btnToggleXray = document.getElementById('btn-toggle-xray');
     const burgerItemXray = document.getElementById('burger-item-xray');
     const townXrayBar = document.getElementById('town-xray-bar');
@@ -1250,6 +1332,9 @@ const dataPlaceRooms = {
     const btnXrayPurgeHidden = document.getElementById('btn-xray-purge-hidden');
 
     btnToggleXray?.addEventListener('click', () => {
+      townDevPopover?.classList.add('hidden');
+      if (townDevPopover) townDevPopover.style.display = 'none';
+      btnToggleDevMenu?.classList.remove('is-active');
       engine?.toggleXray();
     });
 
@@ -1384,22 +1469,9 @@ const dataPlaceRooms = {
     document.addEventListener('webkitfullscreenchange', updateFullscreenUI);
 
     // Town Editor Controls
-    const isDev = import.meta.env.DEV;
-    const urlHasEditor = typeof window !== 'undefined' && window.location.search.includes('editor=1');
-    const canAccessEditor = isDev || urlHasEditor;
-
     const btnToggleEditor = document.getElementById('btn-toggle-editor');
     const burgerItemEditor = document.getElementById('burger-item-editor');
-    if (!canAccessEditor) {
-      if (btnToggleEditor) {
-        btnToggleEditor.style.display = 'none';
-        btnToggleEditor.remove();
-      }
-      if (burgerItemEditor) {
-        burgerItemEditor.style.display = 'none';
-        burgerItemEditor.remove();
-      }
-    }
+    const canAccessEditor = true;
 
     // ─── Retro Hamburger Navigation Menu (Menu Burger) ───
     const btnTownBurger = document.getElementById('btn-town-burger');
@@ -2042,6 +2114,7 @@ const dataPlaceRooms = {
       const updateEditorUI = () => {
         const isEnabled = editor.isEnabled();
         btnToggleEditor?.classList.toggle('is-active', isEnabled);
+        btnToggleDevMenu?.classList.toggle('is-active', isEnabled || (engine?.isXray() ?? false));
         burgerItemEditor?.classList.toggle('is-active', isEnabled);
         if (editorToolbar) {
           if (isEnabled) {
@@ -2474,6 +2547,9 @@ const dataPlaceRooms = {
       btnEditorClose?.addEventListener('click', closeEditor);
 
       btnToggleEditor?.addEventListener('click', () => {
+        townDevPopover?.classList.add('hidden');
+        if (townDevPopover) townDevPopover.style.display = 'none';
+        btnToggleDevMenu?.classList.remove('is-active');
         editor.toggleEnabled();
         sfx.select();
       });

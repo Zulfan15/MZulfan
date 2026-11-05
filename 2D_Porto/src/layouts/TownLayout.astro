@@ -9,6 +9,7 @@ import CritterdexModal from '../components/CritterdexModal.astro';
 import EncounterModal from '../components/EncounterModal.astro';
 import FridgeModal from '../components/FridgeModal.astro';
 import DeskModal from '../components/DeskModal.astro';
+import CommandPalette from '../components/CommandPalette.astro';
 import { profile } from '../lib/profile';
 
 interface Props {
@@ -78,6 +79,38 @@ const {
             ) : (
               <span class="panel__floor pixel" data-floor-chip="" aria-hidden="true" hidden=""></span>
             )}
+
+            <!-- Panel Layout Presets Switcher (70:30 Kanvas, 50:50 Seimbang, 85:15 Reader Mode) -->
+            <div class="panel__layout-presets flex items-center gap-1 ml-auto" role="group" aria-label="Pilihan Ukuran Panel Bacaan">
+              <span class="text-[9px] font-mono text-ink-soft hidden xl:inline select-none">Tampilan:</span>
+              <button
+                type="button"
+                class="panel__preset-btn btn btn-xs btn-ghost p-1 text-[11px]"
+                data-panel-mode="canvas"
+                title="Fokus Kanvas (Peta 70% : Panel 30%)"
+                aria-label="Fokus Kanvas (Peta 70% : Panel 30%)"
+              >
+                🎮 <span class="hidden sm:inline text-[9px] font-pixel">Peta</span>
+              </button>
+              <button
+                type="button"
+                class="panel__preset-btn btn btn-xs btn-ghost p-1 text-[11px] is-active"
+                data-panel-mode="split"
+                title="Tampilan Seimbang (Peta 50% : Panel 50%)"
+                aria-label="Tampilan Seimbang (Peta 50% : Panel 50%)"
+              >
+                ⚖️ <span class="hidden sm:inline text-[9px] font-pixel">50:50</span>
+              </button>
+              <button
+                type="button"
+                class="panel__preset-btn btn btn-xs btn-ghost p-1 text-[11px]"
+                data-panel-mode="reader"
+                title="Fokus Baca (Mode Reader / Lebar Penuh)"
+                aria-label="Fokus Baca (Mode Reader / Lebar Penuh)"
+              >
+                📖 <span class="hidden sm:inline text-[9px] font-pixel">Baca</span>
+              </button>
+            </div>
           </div>
 
           <div class="panel__body">
@@ -102,6 +135,7 @@ const {
     <EncounterModal />
     <FridgeModal />
     <DeskModal />
+    <CommandPalette />
 
     <script>
       function initPanelTab() {
@@ -137,12 +171,61 @@ const {
         });
       }
 
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initPanelTab);
-      } else {
-        initPanelTab();
+      function initPanelLayout() {
+        const stage = document.querySelector<HTMLElement>('.stage');
+        const presetButtons = document.querySelectorAll<HTMLButtonElement>('[data-panel-mode]');
+        if (!stage) return;
+
+        const applyLayoutMode = (mode: string) => {
+          let panelWidth = '50vw';
+          if (mode === 'canvas') {
+            panelWidth = '32vw';
+          } else if (mode === 'reader') {
+            panelWidth = '85vw';
+          } else {
+            panelWidth = '50vw';
+            mode = 'split';
+          }
+
+          document.documentElement.style.setProperty('--panel-w', panelWidth);
+          stage.setAttribute('data-panel-layout', mode);
+          try {
+            localStorage.setItem('town:panel_layout', mode);
+          } catch {}
+
+          presetButtons.forEach((btn) => {
+            const btnMode = btn.getAttribute('data-panel-mode');
+            btn.classList.toggle('is-active', btnMode === mode);
+          });
+
+          // Trigger resize for TownEngine smoothly
+          window.dispatchEvent(new Event('resize'));
+          setTimeout(() => window.dispatchEvent(new Event('resize')), 150);
+          setTimeout(() => window.dispatchEvent(new Event('resize')), 300);
+        };
+
+        const savedMode = (typeof localStorage !== 'undefined' ? localStorage.getItem('town:panel_layout') : null) || 'split';
+        applyLayoutMode(savedMode);
+
+        presetButtons.forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const mode = btn.getAttribute('data-panel-mode') || 'split';
+            applyLayoutMode(mode);
+          });
+        });
       }
-      document.addEventListener('astro:page-load', initPanelTab);
+
+      function initLayoutAll() {
+        initPanelTab();
+        initPanelLayout();
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initLayoutAll);
+      } else {
+        initLayoutAll();
+      }
+      document.addEventListener('astro:page-load', initLayoutAll);
     </script>
   </body>
 </html>

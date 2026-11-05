@@ -76,22 +76,32 @@ Namun, dari sisi **kenyamanan pengguna (User Experience)** dan **daya tarik inte
 
 ---
 
-### FASE 2: Kenyamanan Recruiter & Ergonomi Panel Bacaan ("Recruiter-First UX")
-**Target File**: `src/layouts/TownLayout.astro`, `src/components/Hud.astro`, `src/styles/global.css`
+### FASE 2: Kenyamanan Recruiter & Ergonomi Panel Bacaan ("Recruiter-First UX") — ✅ [SELESAI]
+**Target File**: `src/layouts/TownLayout.astro`, `src/components/Hud.astro`, `src/components/CommandPalette.astro`, `src/components/TownCanvas.astro`, `src/styles/global.css`
 
 1. **🔍 Pokénav Command Palette (`Ctrl+K` / Tombol `Search`)**:
-   - Modal pencarian instan bergaya *Command Palette* (seperti VS Code / Raycast) dengan tema Pokénav.
-   - Pengunjung dapat mengetik kata kunci apa pun:
-     - **Skill / Tech**: *"Rust"*, *"React"*, *"PyTorch"* → langsung melompat ke proyek terkait di Dev Center.
-     - **Aksi Cepat**: *"Download CV"*, *"Copy Email"*, *"Chat AI Twin"*, *"Switch Night Mode"*.
-     - **Navigasi**: *"Teleport ke Charizard"*, *"Buka Poké Mart"*.
-2. **↔️ Mode Tampilan Fleksibel (Split / Full Map / Reader Mode)**:
-   - Tambahkan pengatur ukuran panel (*Resizable Split Pane*) atau 3 tombol preset di bar panel:
-     - `🎮 Fokus Kanvas (70% Peta : 30% Panel)`
-     - `⚖️ Seimbang (50% : 50%)`
-     - `📖 Fokus Baca (Mode Website Klasik / Lebar Penuh)` — sangat nyaman bagi HR yang ingin fokus membaca detail proyek dan pengalaman kerja.
+   - Modal pencarian instan Pokénav Navi-Search v3.0 berbasis *Command Palette* terpadu (`CommandPalette.astro`):
+     - Shortcut global `Ctrl+K` (atau `Cmd+K` di Mac) serta tombol `🔍 Search` di navigasi atas (`Hud.astro`) dan menu kanvas.
+     - Pencarian instan live-filtering untuk:
+       - **Skill & Teknologi**: *Python, PyTorch, YOLOv11, Computer Vision, OpenCV, FastAPI, Next.js, React, TypeScript, Rust, Tailwind CSS, Docker*, dll.
+       - **Aksi Cepat**: *Unduh CV / Résumé Zulfan (PDF)*, *Salin Email*, *Chat Digital Twin AI*, *Toggle Mach Bike*, *Toggle Radar Kota*, *Buka Town Map*.
+       - **Navigasi Kota & Landmark**: Teleportasi langsung ke Dev Center, Lab, Tower, Arcade, Poké Mart, Poké Center, Arena, Fountain, dan deretan Pokémon.
+     - Dukungan navigasi keyboard penuh (`ArrowDown`, `ArrowUp`, `Enter`, `ESC`) dengan filter chip kategori (*Aksi*, *Skill*, *Proyek*, *Navigasi*, *Pokémon*).
+2. **↔️ Mode Tampilan Fleksibel (Split / Canvas / Reader Mode)**:
+   - Dilengkapi 3 tombol preset ukuran panel bacaan di bar atas panel konten (`TownLayout.astro`):
+     - `🎮 Peta`: Fokus Kanvas 2D (Peta 68% : Panel 32%).
+     - `⚖️ 50:50`: Tampilan Seimbang default (Peta 50% : Panel 50%).
+     - `📖 Baca`: Mode Baca Lebar / Reader Mode (Panel 85% : Peta 15%) — sangat ergonomis bagi Recruiter/HR untuk membaca proyek, publikasi tesis, dan CV tanpa terpotong.
+   - Pilihan layout otomatis tersimpan di `localStorage` (`town:panel_layout`) dan memicu kalkulasi ulang viewport canvas (`resize`) secara mulus.
 3. **🧹 Merapikan HUD Publik vs Mode Developer**:
-   - Sembunyikan tombol teknis **`🔬 X-Ray`** dan **`🛠️ Editor`** dari tampilan pengunjung biasa secara default, atau satukan ke dalam tombol kecil **`⚙️ Dev`** di pojok sehingga bar atas terlihat jauh lebih bersih, elegan, dan tidak membingungkan pengunjung baru.
+   - Memindahkan tombol teknis `🔬 X-Ray` dan `🛠️ Editor` ke dalam menu dropdown popover ringkas **`⚙️ Dev`** di pojok bar atas, serta menatanya di burger menu.
+   - Bar atas kini bersih, elegan, dan ramah pengunjung: `[Lokasi]`, `🔍 Cari (Ctrl+K)`, `🚲 Bike`, `🧭 Radar`, `🏷️ Badges`, `🎯 Recenter`, `ℹ️ Guide`, `⚙️ Dev`, dan `⛶ Fullscreen`.
+   - Shortcut keyboard `X` (X-Ray) dan `E` (Editor) tetap berfungsi penuh bagi developer.
+
+#### 📝 Catatan Hasil Pengujian & Verifikasi Fase 2:
+- `npm --prefix 2D_Porto run build`: Berhasil bersih dengan **0 error** (seluruh 11 rute statis sukses terkompilasi dalam 2.37 detik).
+- Pencarian `Ctrl+K` membuka modal instan, navigasi keyboard lancar, aksi copy email memunculkan toast, dan download CV membuka PDF di tab baru.
+- Mode preset tampilan (`Peta`, `50:50`, `Baca`) menyesuaikan grid CSS dan memicu resize canvas engine secara reaktif.
 
 ---
 
@@ -167,7 +177,7 @@ Namun, dari sisi **kenyamanan pengguna (User Experience)** dan **daya tarik inte
 | Urutan | Fase | Dampak Kenyamanan (UX) | Dampak Daya Tarik (Wow-Factor) | Status |
 |:------:|------|:----------------------:|:------------------------------:|:------:|
 | **1** | **Fase 1** (Run/Bike, Path Preview, HM Fly Map, Live Radar) | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ✅ **SELESAI (Completed)** |
-| **2** | **Fase 2** (`Ctrl+K` Search, Panel Mode, Clean HUD) | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⏳ *Menunggu Instruksi User* |
+| **2** | **Fase 2** (`Ctrl+K` Search, Panel Mode, Clean HUD) | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ✅ **SELESAI (Completed)** |
 | **3** | **Fase 3** (HUD Time/Weather Toggle & 8-Bit BGM) | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⏳ *Menunggu Instruksi User* |
 | **4** | **Fase 4** (Switchable Follower Pokémon & Move FX) | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⏳ *Menunggu Instruksi User* |
 | **5** | **Fase 5** (Trainer Stamp Rally / Quest Guide) | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⏳ *Menunggu Instruksi User* |
@@ -179,5 +189,8 @@ Namun, dari sisi **kenyamanan pengguna (User Experience)** dan **daya tarik inte
 - [x] `npm --prefix 2D_Porto run build` berjalan dengan **0 error** (11 halaman static terkompilasi).
 - [x] Semua fitur mobilitas & navigasi Fase 1 tetap super ringan (< 2.5s build time), menggunakan *vanilla TypeScript*, *HTML5 Canvas* & *Web Audio API* tanpa dependency eksternal.
 - [x] Navigasi cepat HM02 Fly di Town Map modal menjangkau 15 lokasi lengkap dengan teleportasi instan dan feedback audio chiptune.
+- [x] Pokénav Command Palette (`Ctrl+K`) memungkinkan pencarian instan skill, download CV, salin email, dan teleportasi dalam **< 2 detik**.
+- [x] Panel bacaan konten memiliki 3 preset fleksibel (`Peta` 70:30, `50:50` Seimbang, `Baca` Reader Mode) yang responsif dan tersimpan di `localStorage`.
+- [x] Bar atas HUD publik terlihat bersih, profesional, dan rapi dengan pengelompokan alat teknis ke tombol popover **`⚙️ Dev`**.
 - [x] Pengunjung santai maupun recruiter mendapatkan pengalaman eksplorasi ala game Pokémon yang responsif, visual dinamis, dan intuitif.
 

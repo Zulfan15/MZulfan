@@ -14,6 +14,12 @@ import { profile } from '../lib/profile';
   </div>
 
   <nav class="flex items-center gap-2">
+    <button id="hud-search-btn" type="button" class="flex items-center gap-1.5 px-3 py-1 rounded-full border-2 border-emerald-700 bg-emerald-50 hover:bg-emerald-100 font-pixel text-xs text-emerald-900 shadow-sm cursor-pointer transition-all" title="Buka Pokénav Search (Tekan Ctrl+K)" aria-label="Open Search">
+      <span>🔍</span>
+      <span class="font-bold hidden sm:inline">Search</span>
+      <kbd class="hidden md:inline font-mono text-[9px] bg-emerald-800 text-white px-1.5 py-0.2 rounded">Ctrl+K</kbd>
+    </button>
+
     <button id="hud-sound-toggle" type="button" class="w-8 h-8 rounded-full border-2 border-ink bg-white text-xs flex items-center justify-center text-ink hover:bg-cream shadow-sm cursor-pointer transition-all" title="Toggle 8-bit Sound Effects" aria-label="Toggle Sound">
       <span id="sound-icon">🔊</span>
     </button>
@@ -44,8 +50,16 @@ import { profile } from '../lib/profile';
     const soundIcon = document.getElementById('sound-icon');
     const dexBtn = document.getElementById('hud-dex-btn');
     const mapBtn = document.getElementById('hud-map-btn');
+    const searchBtn = document.getElementById('hud-search-btn');
     const dexCounter = document.getElementById('dex-counter');
     const helpBtn = document.getElementById('hud-help-btn');
+
+    if (searchBtn) {
+      searchBtn.onclick = () => {
+        sfx.select();
+        window.dispatchEvent(new CustomEvent('town:open-command-palette'));
+      };
+    }
 
     if (helpBtn) {
       helpBtn.onclick = () => {

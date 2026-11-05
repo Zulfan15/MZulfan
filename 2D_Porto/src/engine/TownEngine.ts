@@ -520,6 +520,8 @@ export class TownEngine {
     }
     const xrayBtn = document.getElementById('btn-toggle-xray');
     if (xrayBtn) xrayBtn.classList.toggle('is-active', this.xrayMode);
+    const devMenuBtn = document.getElementById('btn-toggle-dev-menu');
+    if (devMenuBtn) devMenuBtn.classList.toggle('is-active', this.xrayMode || this.editor.isEnabled());
     const burgerXray = document.getElementById('burger-item-xray');
     if (burgerXray) burgerXray.classList.toggle('is-active', this.xrayMode);
     const xrayBar = document.getElementById('town-xray-bar');
