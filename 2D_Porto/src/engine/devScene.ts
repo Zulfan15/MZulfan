@@ -285,6 +285,7 @@ export const DEV_PROPS: DevProp[] = [
     style: 'eternatus',
     labelLift: -4,
     hint: 'Server Assistant · Eternatus ⚡',
+    hideLabel: true,
   },
   {
     id: 'coffee',

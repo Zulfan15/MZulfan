@@ -1545,9 +1545,16 @@ export class TownEngine {
 
       // In Dev Center: clicking on any prop or NPC walks to and interacts with it!
       if (this.currentScene === 'dev') {
-        const hitProp = DEV_PROPS.find(
-          (p) => targetTileX >= p.x && targetTileX < p.x + p.w && targetTileY >= p.y && targetTileY < p.y + p.h
+        const isEternatusHit = (
+          (targetTileX >= 11 && targetTileX <= 12 && targetTileY >= 10 && targetTileY <= 12) ||
+          Math.hypot(worldX - 192, worldY - 194) <= 28
         );
+
+        const hitProp = isEternatusHit
+          ? DEV_PROPS.find((p) => p.id === 'eternatus')
+          : DEV_PROPS.find(
+              (p) => targetTileX >= p.x && targetTileX < p.x + p.w && targetTileY >= p.y && targetTileY < p.y + p.h
+            );
 
         if (hitProp) {
           const isAdjacent = (
@@ -1691,6 +1698,23 @@ export class TownEngine {
           this.xrayHoverTile = { x: tx, y: ty };
           this.wake();
         }
+      } else if (this.currentScene === 'dev') {
+        const rect = this.canvas.getBoundingClientRect();
+        const mouseScreenX = (e.clientX - rect.left) * (this.canvas.width / rect.width);
+        const mouseScreenY = (e.clientY - rect.top) * (this.canvas.height / rect.height);
+        const worldX = (mouseScreenX - this.canvas.width / 2) / this.zoom + this.cameraX;
+        const worldY = (mouseScreenY - this.canvas.height / 2) / this.zoom + this.cameraY;
+        const tx = Math.floor(worldX / TILE_SIZE);
+        const ty = Math.floor(worldY / TILE_SIZE);
+
+        const isEternatusHover = (
+          (tx >= 11 && tx <= 12 && ty >= 10 && ty <= 12) ||
+          Math.hypot(worldX - 192, worldY - 194) <= 28
+        );
+        const hitProp = isEternatusHover || DEV_PROPS.some(
+          (p) => tx >= p.x && tx < p.x + p.w && ty >= p.y && ty < p.y + p.h
+        );
+        this.canvas.style.cursor = hitProp ? 'pointer' : '';
       }
     };
 
@@ -1698,6 +1722,9 @@ export class TownEngine {
       if (this.xrayHoverTile) {
         this.xrayHoverTile = null;
         this.wake();
+      }
+      if (this.canvas) {
+        this.canvas.style.cursor = '';
       }
     };
 
@@ -5750,7 +5777,6 @@ export class TownEngine {
         telemetry: { x: 12, y: 3, w: 2, h: 3, lift: -0.3 },
         snorlax: { x: 6, y: 13, w: 3, h: 2, lift: -1.45 },
         lebronette: { x: 6, y: 13, w: 3, h: 2, lift: -1.45 },
-        eternatus: { x: 11, y: 11, w: 2, h: 2, lift: 0.6 },
         coffee: { x: 13, y: 14, w: 1, h: 1, lift: 0.7 },
         rack: { x: 13, y: 11, w: 1, h: 2, lift: 0.6 },
       };
