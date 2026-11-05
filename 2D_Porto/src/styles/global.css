@@ -693,12 +693,6 @@
     gap: 6px;
     pointer-events: auto;
   }
-  .town-hud-actions--desktop {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    pointer-events: auto;
-  }
   .town-hud-burger-wrap {
     display: block;
     position: relative;
@@ -908,9 +902,6 @@
 
   /* Responsive breakpoints for HUD */
   @container town (max-width: 540px) {
-    .town-hud-actions--desktop .town-hud-btn__label {
-      display: none;
-    }
     .town-hud-pill {
       padding: 4px 8px;
       font-size: 0.7rem;
@@ -923,11 +914,6 @@
       gap: 4px;
     }
     .town-hud-badge {
-      display: none;
-    }
-  }
-  @media (max-width: 540px) {
-    .town-hud-actions--desktop .town-hud-btn__label {
       display: none;
     }
   }
