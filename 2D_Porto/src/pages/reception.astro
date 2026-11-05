@@ -169,18 +169,350 @@ const emailUrl = `mailto:${profile.person.email}`;
       <ChatBox persona="reception" />
     </section>
 
-    <!-- Campus Quick Directory Cards -->
-    <section class="space-y-3">
-      <h2 class="section-title">
-        <span>Town & Campus Directory</span>
-      </h2>
-      <p class="font-sans text-xs text-ink-soft">
-        Select a building below to view details or click anywhere on the 2D map on the left to walk there directly.
-      </p>
+    <!-- Recruiter Concierge & Fast-Track Role-Fit Matcher -->
+    <section class="window p-4 md:p-5 bg-paper border-2 space-y-4" id="recruiter-concierge">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b-2 border-ink/15 pb-3">
+        <div class="flex items-center gap-2.5">
+          <span class="text-2xl p-1.5 rounded-lg bg-amber-100 border border-amber-300">🎯</span>
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="font-pixel text-xs text-ink uppercase tracking-wide">
+                Recruiter Concierge · Role-Fit Matcher
+              </h2>
+              <span class="chip bg-amber-400 text-slate-900 border-ink font-mono font-bold text-[9px] px-1.5 py-0.5">
+                FAST-TRACK KIT
+              </span>
+            </div>
+            <p class="font-sans text-[11px] text-ink-soft">
+              Select your organization's hiring track to inspect Zulfan's verified alignment, stack depth, and proof-of-work
+            </p>
+          </div>
+        </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-        <!-- Dev Center Card -->
-        <a href="/dev" class="card card-hover flex flex-col justify-between group p-3.5 no-underline">
+        <!-- 1-Click Recruiter Tools -->
+        <div class="flex items-center gap-2">
+          <button
+            type="button"
+            id="btn-copy-recruiter-email"
+            class="btn btn-sm btn-paper text-[10px] font-pixel flex items-center gap-1.5 hover:bg-slate-100 active:scale-95 transition-all"
+            data-email={profile.person.email}
+            title="Copy Zulfan's email address to clipboard"
+          >
+            <span>📬</span>
+            <span id="btn-copy-email-label">Copy Email</span>
+          </button>
+          <a
+            href={profile.person.cv || '/cv/CV_Zulfan.pdf'}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn btn-sm btn-gold text-[10px] font-pixel flex items-center gap-1 hover:scale-[1.02] active:scale-95 transition-all"
+            title="Download verified Curriculum Vitae (PDF)"
+          >
+            <span>📄</span>
+            <span>CV (PDF)</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Role Selector Tabs -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5" id="role-selector-tabs">
+        <!-- Tab 1: AI & Vision -->
+        <button
+          type="button"
+          class="role-tab card p-3 text-left transition-all cursor-pointer border-2 border-ball bg-ball/5 ring-1 ring-ball shadow-sm"
+          data-role="ai"
+        >
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-xl">🤖</span>
+            <span class="chip bg-emerald-100 border-emerald-400 text-emerald-800 font-mono text-[9px] font-bold">
+              99% Fit
+            </span>
+          </div>
+          <div class="font-pixel text-xs text-ink">AI &amp; Computer Vision</div>
+          <div class="font-mono text-[10px] text-ink-soft mt-0.5">YOLOv8 · SAHI · IndoSpam NLP</div>
+        </button>
+
+        <!-- Tab 2: Full-Stack & Cloud Security -->
+        <button
+          type="button"
+          class="role-tab card p-3 text-left transition-all cursor-pointer border-2 border-ink/20 hover:border-ink/50 bg-paper"
+          data-role="fullstack"
+        >
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-xl">🌐</span>
+            <span class="chip bg-blue-100 border-blue-400 text-blue-800 font-mono text-[9px] font-bold">
+              98% Fit
+            </span>
+          </div>
+          <div class="font-pixel text-xs text-ink">Full-Stack &amp; Cloud Security</div>
+          <div class="font-mono text-[10px] text-ink-soft mt-0.5">FastAPI · Kafka · Huawei HCIA</div>
+        </button>
+
+        <!-- Tab 3: Embedded IoT & Robotics -->
+        <button
+          type="button"
+          class="role-tab card p-3 text-left transition-all cursor-pointer border-2 border-ink/20 hover:border-ink/50 bg-paper"
+          data-role="robotics"
+        >
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-xl">📡</span>
+            <span class="chip bg-amber-100 border-amber-400 text-amber-800 font-mono text-[9px] font-bold">
+              97% Fit
+            </span>
+          </div>
+          <div class="font-pixel text-xs text-ink">Embedded IoT &amp; Robotics</div>
+          <div class="font-mono text-[10px] text-ink-soft mt-0.5">ESP32 · FreeRTOS · 6x TA Lead</div>
+        </button>
+      </div>
+
+      <!-- Dynamic Role Detail Panels -->
+      <div id="role-detail-container" class="p-4 rounded-xl bg-cream/70 border border-ink/20 space-y-4">
+        <!-- Panel 1: AI & Computer Vision (Default Active) -->
+        <div id="role-panel-ai" class="role-panel space-y-3.5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-ink/10 pb-2.5">
+            <div>
+              <div class="font-pixel text-xs text-ink flex items-center gap-2">
+                <span>🤖 AI &amp; Computer Vision Research Engineer</span>
+                <span class="chip bg-emerald-100 text-emerald-800 border-emerald-300 font-mono text-[9px] font-bold">99% Fit</span>
+              </div>
+              <p class="font-sans text-[11px] text-ink-soft mt-0.5">
+                Core Bachelor's Thesis Specialization · SINTA 2 Journal Publication · Aerial Slicing Inference
+              </p>
+            </div>
+            <a href="/lab" class="btn btn-sm btn-primary text-[10px] font-pixel flex items-center gap-1.5 self-start sm:self-auto">
+              <span>🔬</span>
+              <span>Inspect Lab (/lab) →</span>
+            </a>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5 font-sans text-xs">
+            <div class="p-3 rounded-lg bg-paper border border-ink/15 space-y-1">
+              <div class="font-bold text-ink flex items-center gap-1.5 text-[11px]">
+                <span>🎯</span>
+                <span>AeroScan UAV Detection</span>
+              </div>
+              <p class="text-[11px] text-ink-soft leading-relaxed">
+                Applied YOLOv8 + SAHI high-resolution sliced inference over drone orthomosaics, achieving a <strong>+18.4% mAP50 improvement</strong> on small aerial targets.
+              </p>
+            </div>
+
+            <div class="p-3 rounded-lg bg-paper border border-ink/15 space-y-1">
+              <div class="font-bold text-ink flex items-center gap-1.5 text-[11px]">
+                <span>🧠</span>
+                <span>IndoSpam RoBERTa / IndoBERT</span>
+              </div>
+              <p class="text-[11px] text-ink-soft leading-relaxed">
+                Fine-tuned transformer models for Indonesian SMS spam classification, reaching <strong>99.56% F1-score</strong> with ONNX runtime quantization for edge deployment.
+              </p>
+            </div>
+
+            <div class="p-3 rounded-lg bg-paper border border-ink/15 space-y-1">
+              <div class="font-bold text-ink flex items-center gap-1.5 text-[11px]">
+                <span>🎓</span>
+                <span>Verified Credentials</span>
+              </div>
+              <p class="text-[11px] text-ink-soft leading-relaxed">
+                B.S. in Computer Science from ITENAS Bandung (GPA <strong>3.49 / 4.00</strong>), author of SINTA 2 Pre-print on aerial drone CV, and Head of Lab Assistant team.
+              </p>
+            </div>
+          </div>
+
+          <div class="pt-1 flex flex-wrap items-center gap-1.5">
+            <span class="font-mono text-[10px] text-ink-soft uppercase font-bold mr-1">Core Tech:</span>
+            <span class="chip bg-paper border border-ink/20 font-mono text-[10px]">Python</span>
+            <span class="chip bg-paper border border-ink/20 font-mono text-[10px]">PyTorch</span>
+            <span class="chip bg-paper border border-ink/20 font-mono text-[10px]">YOLOv8</span>
+            <span class="chip bg-paper border border-ink/20 font-mono text-[10px]">SAHI</span>
+            <span class="chip bg-paper border border-ink/20 font-mono text-[10px]">OpenCV</span>
+            <span class="chip bg-paper border border-ink/20 font-mono text-[10px]">IndoBERT</span>
+            <span class="chip bg-paper border border-ink/20 font-mono text-[10px]">CUDA / TensorRT</span>
+            <span class="chip bg-paper border border-ink/20 font-mono text-[10px]">Roboflow</span>
+            <span class="chip bg-paper border border-ink/20 font-mono text-[10px]">FastAPI</span>
+          </div>
+        </div>
+
+        <!-- Panel 2: Full-Stack & Cloud Security (Hidden Initially) -->
+        <div id="role-panel-fullstack" class="role-panel hidden space-y-3.5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-ink/10 pb-2.5">
+            <div>
+              <div class="font-pixel text-xs text-ink flex items-center gap-2">
+                <span>🌐 Full-Stack &amp; Cloud Security Engineer</span>
+                <span class="chip bg-blue-100 text-blue-800 border-blue-300 font-mono text-[9px] font-bold">98% Fit</span>
+              </div>
+              <p class="font-sans text-[11px] text-ink-soft mt-0.5">
+                Distributed Microservices · Huawei HCIA-Security Certified · High-Performance Web
+              </p>
+            </div>
+            <a href="/dev" class="btn btn-sm btn-primary text-[10px] font-pixel flex items-center gap-1.5 self-start sm:self-auto">
+              <span>💻</span>
+              <span>Inspect Dev Center (/dev) →</span>
+            </a>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5 font-sans text-xs">
+            <div class="p-3 rounded-lg bg-paper border border-ink/15 space-y-1">
+              <div class="font-bold text-ink flex items-center gap-1.5 text-[11px]">
+                <span>⚡</span>
+                <span>FoodLink Distributed Hub</span>
+              </div>
+              <p class="text-[11px] text-ink-soft leading-relaxed">
+                Architected event-driven microservices using <strong>Apache Kafka</strong>, <strong>Redis</strong> pub/sub, <strong>FastAPI</strong>, and PostgreSQL with sub-50ms message delivery.
+              </p>
+            </div>
+
+            <div class="p-3 rounded-lg bg-paper border border-ink/15 space-y-1">
+              <div class="font-bold text-ink flex items-center gap-1.5 text-[11px]">
+                <span>🛡️</span>
+                <span>Huawei HCIA-Security V4.0</span>
+              </div>
+              <p class="text-[11px] text-ink-soft leading-relaxed">
+                Certified in enterprise <strong>Next-Generation Firewalls (NGFW)</strong>, stateful inspection, ACL filtering, IPsec / SSL VPN tunnels, and perimeter defense.
+              </p>
+            </div>
+
+            <div class="p-3 rounded-lg bg-paper border border-ink/15 space-y-1">
+              <div class="font-bold text-ink flex items-center gap-1.5 text-[11px]">
+                <span>🕹️</span>
+                <span>Web Simulation & 60fps Canvas</span>
+              </div>
+              <p class="text-[11px] text-ink-soft leading-relaxed">
+                Engineered custom 60fps retro canvas engine with Astro 4, TypeScript, Next.js 14, and WebSockets for real-time interactive multi-user spaces.
+              </p>
+            </div>
+          </div>
+
+          <div class="pt-1 flex flex-wrap items-center gap-1.5">
+            <span class="font-mono text-[10px] text-ink-soft uppercase font-bold mr-1">Core Tech:</span>
+            <span class="chip bg-paper border border-ink/20 font-mono text-[10px]">TypeScript</span>
+            <span class="chip bg-paper border border-ink/20 font-mono text-[10px]">Next.js</span>
+            <span class="chip bg-paper border border-ink/20 font-mono text-[10px]">Astro</span>
+            <span class="chip bg-paper border border-ink/20 font-mono text-[10px]">FastAPI</span>
+            <span class="chip bg-paper border border-ink/20 font-mono text-[10px]">PostgreSQL</span>
+            <span class="chip bg-paper border border-ink/20 font-mono text-[10px]">Redis</span>
+            <span class="chip bg-paper border border-ink/20 font-mono text-[10px]">Apache Kafka</span>
+            <span class="chip bg-paper border border-ink/20 font-mono text-[10px]">Docker</span>
+            <span class="chip bg-paper border border-ink/20 font-mono text-[10px]">Huawei NGFW</span>
+          </div>
+        </div>
+
+        <!-- Panel 3: Embedded IoT & Robotics (Hidden Initially) -->
+        <div id="role-panel-robotics" class="role-panel hidden space-y-3.5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-ink/10 pb-2.5">
+            <div>
+              <div class="font-pixel text-xs text-ink flex items-center gap-2">
+                <span>📡 Embedded IoT &amp; Robotics Engineer</span>
+                <span class="chip bg-amber-100 text-amber-800 border-amber-300 font-mono text-[9px] font-bold">97% Fit</span>
+              </div>
+              <p class="font-sans text-[11px] text-ink-soft mt-0.5">
+                ESP32 Dual-Core Firmware · Kinematics &amp; Telemetry · ITENAS Robotics Lab Coordinator
+              </p>
+            </div>
+            <a href="/tower" class="btn btn-sm btn-primary text-[10px] font-pixel flex items-center gap-1.5 self-start sm:self-auto">
+              <span>🏢</span>
+              <span>Inspect Tech Tower (/tower) →</span>
+            </a>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5 font-sans text-xs">
+            <div class="p-3 rounded-lg bg-paper border border-ink/15 space-y-1">
+              <div class="font-bold text-ink flex items-center gap-1.5 text-[11px]">
+                <span>🤖</span>
+                <span>ESP32 RC Tank Kinematics</span>
+              </div>
+              <p class="text-[11px] text-ink-soft leading-relaxed">
+                Programmed FreeRTOS multi-core firmware in C/C++, differential drive kinematics, ultrasonic collision safety, and PWM motor driver stabilization.
+              </p>
+            </div>
+
+            <div class="p-3 rounded-lg bg-paper border border-ink/15 space-y-1">
+              <div class="font-bold text-ink flex items-center gap-1.5 text-[11px]">
+                <span>📱</span>
+                <span>Flutter & WebSockets Telemetry</span>
+              </div>
+              <p class="text-[11px] text-ink-soft leading-relaxed">
+                Created responsive mobile controller with real-time bidirectional telemetry streaming voltage, obstacle distance, and directional joystick commands.
+              </p>
+            </div>
+
+            <div class="p-3 rounded-lg bg-paper border border-ink/15 space-y-1">
+              <div class="font-bold text-ink flex items-center gap-1.5 text-[11px]">
+                <span>🏆</span>
+                <span>National Bronze & 6x TA Leadership</span>
+              </div>
+              <p class="text-[11px] text-ink-soft leading-relaxed">
+                <strong>3rd Place Bronze Medalist</strong> at National IDEA FEST 3 (Smart Devices); 2-year Coordinator of ITENAS Robotics Lab; 6-time Academic Assistant.
+              </p>
+            </div>
+          </div>
+
+          <div class="pt-1 flex flex-wrap items-center gap-1.5">
+            <span class="font-mono text-[10px] text-ink-soft uppercase font-bold mr-1">Core Tech:</span>
+            <span class="chip bg-paper border border-ink/20 font-mono text-[10px]">C / C++</span>
+            <span class="chip bg-paper border border-ink/20 font-mono text-[10px]">ESP32</span>
+            <span class="chip bg-paper border border-ink/20 font-mono text-[10px]">FreeRTOS</span>
+            <span class="chip bg-paper border border-ink/20 font-mono text-[10px]">Arduino</span>
+            <span class="chip bg-paper border border-ink/20 font-mono text-[10px]">Flutter</span>
+            <span class="chip bg-paper border border-ink/20 font-mono text-[10px]">WebSockets</span>
+            <span class="chip bg-paper border border-ink/20 font-mono text-[10px]">Kinematics</span>
+            <span class="chip bg-paper border border-ink/20 font-mono text-[10px]">Sensor Fusion</span>
+            <span class="chip bg-paper border border-ink/20 font-mono text-[10px]">IoT Protocols</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Campus Quick Directory Cards (Complete 8-Building Network) -->
+    <section class="space-y-4" id="campus-directory">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+        <div>
+          <h2 class="section-title">
+            <span>Town & Campus Directory · 8 Facilities</span>
+          </h2>
+          <p class="font-sans text-xs text-ink-soft mt-0.5">
+            Select a specialized department below or explore directly via the 2D canvas on the left.
+          </p>
+        </div>
+
+        <!-- Directory Filter Pills -->
+        <div class="flex flex-wrap items-center gap-1" id="directory-filters">
+          <button
+            type="button"
+            class="directory-filter-btn chip bg-ball text-paper border-ink font-mono text-[10px] font-bold px-2 py-0.5 cursor-pointer"
+            data-filter="all"
+          >
+            All (8)
+          </button>
+          <button
+            type="button"
+            class="directory-filter-btn chip bg-paper text-ink border-ink/20 hover:border-ink/50 font-mono text-[10px] px-2 py-0.5 cursor-pointer"
+            data-filter="engineering"
+          >
+            Engineering (3)
+          </button>
+          <button
+            type="button"
+            class="directory-filter-btn chip bg-paper text-ink border-ink/20 hover:border-ink/50 font-mono text-[10px] px-2 py-0.5 cursor-pointer"
+            data-filter="ai"
+          >
+            AI &amp; R&D (2)
+          </button>
+          <button
+            type="button"
+            class="directory-filter-btn chip bg-paper text-ink border-ink/20 hover:border-ink/50 font-mono text-[10px] px-2 py-0.5 cursor-pointer"
+            data-filter="interactive"
+          >
+            Interactive &amp; Life (3)
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="directory-cards-container">
+        <!-- 1. Dev Center Card -->
+        <a
+          href="/dev"
+          class="directory-card card card-hover flex flex-col justify-between group p-3.5 no-underline transition-all"
+          data-category="engineering"
+        >
           <div>
             <div class="flex items-center justify-between mb-2">
               <span class="text-2xl p-1.5 rounded-lg bg-blue-100 border border-blue-300">💻</span>
@@ -190,17 +522,26 @@ const emailUrl = `mailto:${profile.person.email}`;
               Dev Center · Mission Control
             </h3>
             <p class="font-sans text-xs text-ink-soft mt-1 leading-relaxed">
-              Production full-stack projects, telemetry wall, radar scanner, and Snorlax at Mission Control.
+              Production full-stack engineering hub, telemetry radar wall, distributed microservices, and Snorlax at Mission Control.
             </p>
+            <div class="mt-2.5 flex flex-wrap gap-1 font-mono text-[9px] text-ink-soft">
+              <span class="px-1.5 py-0.5 rounded bg-cream border border-ink/10">FastAPI</span>
+              <span class="px-1.5 py-0.5 rounded bg-cream border border-ink/10">Kafka</span>
+              <span class="px-1.5 py-0.5 rounded bg-cream border border-ink/10">Redis</span>
+            </div>
           </div>
           <div class="mt-3 pt-2 border-t border-ink/10 flex items-center justify-between font-mono text-[10px] text-ink-soft">
             <span>Route: /dev</span>
-            <span class="text-ball font-bold group-hover:translate-x-1 transition-transform">Enter →</span>
+            <span class="text-ball font-bold group-hover:translate-x-1 transition-transform">Enter Route →</span>
           </div>
         </a>
 
-        <!-- Research Lab Card -->
-        <a href="/lab" class="card card-hover flex flex-col justify-between group p-3.5 no-underline">
+        <!-- 2. Research Lab Card -->
+        <a
+          href="/lab"
+          class="directory-card card card-hover flex flex-col justify-between group p-3.5 no-underline transition-all"
+          data-category="ai"
+        >
           <div>
             <div class="flex items-center justify-between mb-2">
               <span class="text-2xl p-1.5 rounded-lg bg-emerald-100 border border-emerald-300">🔬</span>
@@ -210,17 +551,84 @@ const emailUrl = `mailto:${profile.person.email}`;
               Research Lab · AI & Vision
             </h3>
             <p class="font-sans text-xs text-ink-soft mt-1 leading-relaxed">
-              AeroScan UAV detection, IndoSpam classifier, ITENAS thesis papers, and research posters.
+              AeroScan UAV detection testbed, IndoSpam transformer classifier, ITENAS thesis papers, and research posters.
             </p>
+            <div class="mt-2.5 flex flex-wrap gap-1 font-mono text-[9px] text-ink-soft">
+              <span class="px-1.5 py-0.5 rounded bg-cream border border-ink/10">YOLOv8</span>
+              <span class="px-1.5 py-0.5 rounded bg-cream border border-ink/10">SAHI</span>
+              <span class="px-1.5 py-0.5 rounded bg-cream border border-ink/10">PyTorch</span>
+            </div>
           </div>
           <div class="mt-3 pt-2 border-t border-ink/10 flex items-center justify-between font-mono text-[10px] text-ink-soft">
             <span>Route: /lab</span>
-            <span class="text-ball font-bold group-hover:translate-x-1 transition-transform">Enter →</span>
+            <span class="text-ball font-bold group-hover:translate-x-1 transition-transform">Enter Route →</span>
           </div>
         </a>
 
-        <!-- Arcade Card -->
-        <a href="/arcade" class="card card-hover flex flex-col justify-between group p-3.5 no-underline">
+        <!-- 3. Tech Tower HQ Card -->
+        <a
+          href="/tower"
+          class="directory-card card card-hover flex flex-col justify-between group p-3.5 no-underline transition-all"
+          data-category="engineering"
+        >
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-2xl p-1.5 rounded-lg bg-cyan-100 border border-cyan-300">🏢</span>
+              <span class="chip font-mono text-[9px] uppercase">North-West Zone</span>
+            </div>
+            <h3 class="font-pixel text-xs text-ink group-hover:text-ball transition-colors">
+              Tech Tower · Innovation HQ
+            </h3>
+            <p class="font-sans text-xs text-ink-soft mt-1 leading-relaxed">
+              4-floor executive facility featuring the ESP32 Robotics workshop, Huawei NOC cloud firewall, and 6x lab assistant terminal.
+            </p>
+            <div class="mt-2.5 flex flex-wrap gap-1 font-mono text-[9px] text-ink-soft">
+              <span class="px-1.5 py-0.5 rounded bg-cream border border-ink/10">ESP32</span>
+              <span class="px-1.5 py-0.5 rounded bg-cream border border-ink/10">Huawei HCIA</span>
+              <span class="px-1.5 py-0.5 rounded bg-cream border border-ink/10">Robotics</span>
+            </div>
+          </div>
+          <div class="mt-3 pt-2 border-t border-ink/10 flex items-center justify-between font-mono text-[10px] text-ink-soft">
+            <span>Route: /tower</span>
+            <span class="text-ball font-bold group-hover:translate-x-1 transition-transform">Enter Route →</span>
+          </div>
+        </a>
+
+        <!-- 4. Poké Mart Card -->
+        <a
+          href="/mart"
+          class="directory-card card card-hover flex flex-col justify-between group p-3.5 no-underline transition-all"
+          data-category="interactive"
+        >
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-2xl p-1.5 rounded-lg bg-rose-100 border border-rose-300">🏪</span>
+              <span class="chip font-mono text-[9px] uppercase">South-East Zone</span>
+            </div>
+            <h3 class="font-pixel text-xs text-ink group-hover:text-ball transition-colors">
+              Poké Mart · Stacks &amp; Gear
+            </h3>
+            <p class="font-sans text-xs text-ink-soft mt-1 leading-relaxed">
+              Curated tech stack showcases, dev tools, libraries, and an interactive inventory shopping cart with checkout simulator.
+            </p>
+            <div class="mt-2.5 flex flex-wrap gap-1 font-mono text-[9px] text-ink-soft">
+              <span class="px-1.5 py-0.5 rounded bg-cream border border-ink/10">Tech Stacks</span>
+              <span class="px-1.5 py-0.5 rounded bg-cream border border-ink/10">Dev Gear</span>
+              <span class="px-1.5 py-0.5 rounded bg-cream border border-ink/10">Cart Demo</span>
+            </div>
+          </div>
+          <div class="mt-3 pt-2 border-t border-ink/10 flex items-center justify-between font-mono text-[10px] text-ink-soft">
+            <span>Route: /mart</span>
+            <span class="text-ball font-bold group-hover:translate-x-1 transition-transform">Enter Route →</span>
+          </div>
+        </a>
+
+        <!-- 5. Retro Arcade Card -->
+        <a
+          href="/arcade"
+          class="directory-card card card-hover flex flex-col justify-between group p-3.5 no-underline transition-all"
+          data-category="interactive"
+        >
           <div>
             <div class="flex items-center justify-between mb-2">
               <span class="text-2xl p-1.5 rounded-lg bg-amber-100 border border-amber-300">🕹️</span>
@@ -230,17 +638,55 @@ const emailUrl = `mailto:${profile.person.email}`;
               Retro Arcade · Kalah AI
             </h3>
             <p class="font-sans text-xs text-ink-soft mt-1 leading-relaxed">
-              Challenge the Mancala minimax robot, test your board tactics, and check the high score hall.
+              Challenge the Mancala minimax robot, test your board tactics with adjustable depths, and check the high score hall.
             </p>
+            <div class="mt-2.5 flex flex-wrap gap-1 font-mono text-[9px] text-ink-soft">
+              <span class="px-1.5 py-0.5 rounded bg-cream border border-ink/10">Minimax</span>
+              <span class="px-1.5 py-0.5 rounded bg-cream border border-ink/10">Game AI</span>
+              <span class="px-1.5 py-0.5 rounded bg-cream border border-ink/10">WASM</span>
+            </div>
           </div>
           <div class="mt-3 pt-2 border-t border-ink/10 flex items-center justify-between font-mono text-[10px] text-ink-soft">
             <span>Route: /arcade</span>
-            <span class="text-ball font-bold group-hover:translate-x-1 transition-transform">Play →</span>
+            <span class="text-ball font-bold group-hover:translate-x-1 transition-transform">Play Game →</span>
           </div>
         </a>
 
-        <!-- Home & Studio Card -->
-        <a href="/about" class="card card-hover flex flex-col justify-between group p-3.5 no-underline">
+        <!-- 6. Digital Twin Card -->
+        <a
+          href="/twin"
+          class="directory-card card card-hover flex flex-col justify-between group p-3.5 no-underline transition-all"
+          data-category="ai"
+        >
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-2xl p-1.5 rounded-lg bg-violet-100 border border-violet-300">🧬</span>
+              <span class="chip font-mono text-[9px] uppercase">Innovation Hub</span>
+            </div>
+            <h3 class="font-pixel text-xs text-ink group-hover:text-ball transition-colors">
+              Digital Twin · Neural Zulfan AI
+            </h3>
+            <p class="font-sans text-xs text-ink-soft mt-1 leading-relaxed">
+              Conversational neural persona modeled on Zulfan's real-world engineering background, system design choices, and career journey.
+            </p>
+            <div class="mt-2.5 flex flex-wrap gap-1 font-mono text-[9px] text-ink-soft">
+              <span class="px-1.5 py-0.5 rounded bg-cream border border-ink/10">LLM Persona</span>
+              <span class="px-1.5 py-0.5 rounded bg-cream border border-ink/10">RAG</span>
+              <span class="px-1.5 py-0.5 rounded bg-cream border border-ink/10">AI Twin</span>
+            </div>
+          </div>
+          <div class="mt-3 pt-2 border-t border-ink/10 flex items-center justify-between font-mono text-[10px] text-ink-soft">
+            <span>Route: /twin</span>
+            <span class="text-ball font-bold group-hover:translate-x-1 transition-transform">Chat with Twin →</span>
+          </div>
+        </a>
+
+        <!-- 7. Home & Studio Card -->
+        <a
+          href="/about"
+          class="directory-card card card-hover flex flex-col justify-between group p-3.5 no-underline transition-all"
+          data-category="interactive"
+        >
           <div>
             <div class="flex items-center justify-between mb-2">
               <span class="text-2xl p-1.5 rounded-lg bg-purple-100 border border-purple-300">🏠</span>
@@ -250,19 +696,53 @@ const emailUrl = `mailto:${profile.person.email}`;
               Home & Studio · Crate & Closet
             </h3>
             <p class="font-sans text-xs text-ink-soft mt-1 leading-relaxed">
-              Zulfan's biography, music jukebox, vinyl crates, 2F chill lounge, and fridge notes.
+              Zulfan's personal biography, interactive vinyl jukebox, 2F chill lounge, wardrobe gear, and fridge notes.
             </p>
+            <div class="mt-2.5 flex flex-wrap gap-1 font-mono text-[9px] text-ink-soft">
+              <span class="px-1.5 py-0.5 rounded bg-cream border border-ink/10">Biography</span>
+              <span class="px-1.5 py-0.5 rounded bg-cream border border-ink/10">Jukebox</span>
+              <span class="px-1.5 py-0.5 rounded bg-cream border border-ink/10">Vinyl</span>
+            </div>
           </div>
           <div class="mt-3 pt-2 border-t border-ink/10 flex items-center justify-between font-mono text-[10px] text-ink-soft">
             <span>Route: /about</span>
-            <span class="text-ball font-bold group-hover:translate-x-1 transition-transform">Visit →</span>
+            <span class="text-ball font-bold group-hover:translate-x-1 transition-transform">Visit Studio →</span>
+          </div>
+        </a>
+
+        <!-- 8. Town Square Card -->
+        <a
+          href="/"
+          class="directory-card card card-hover flex flex-col justify-between group p-3.5 no-underline transition-all"
+          data-category="engineering"
+        >
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-2xl p-1.5 rounded-lg bg-emerald-100 border border-emerald-300">🏆</span>
+              <span class="chip font-mono text-[9px] uppercase">Central Plaza</span>
+            </div>
+            <h3 class="font-pixel text-xs text-ink group-hover:text-ball transition-colors">
+              Town Square · Open-World Map
+            </h3>
+            <p class="font-sans text-xs text-ink-soft mt-1 leading-relaxed">
+              The full 45x64 tile open-world Pokémon canvas, wild critter encounters, safari grass, and live day/night weather cycles.
+            </p>
+            <div class="mt-2.5 flex flex-wrap gap-1 font-mono text-[9px] text-ink-soft">
+              <span class="px-1.5 py-0.5 rounded bg-cream border border-ink/10">2D Canvas</span>
+              <span class="px-1.5 py-0.5 rounded bg-cream border border-ink/10">Game Loop</span>
+              <span class="px-1.5 py-0.5 rounded bg-cream border border-ink/10">Safari Dex</span>
+            </div>
+          </div>
+          <div class="mt-3 pt-2 border-t border-ink/10 flex items-center justify-between font-mono text-[10px] text-ink-soft">
+            <span>Route: /</span>
+            <span class="text-ball font-bold group-hover:translate-x-1 transition-transform">Explore Map →</span>
           </div>
         </a>
       </div>
     </section>
 
     <!-- Front Desk FAQ & Quick Logistics -->
-    <section class="window p-4 md:p-5 bg-paper border-2 space-y-4">
+    <section class="window p-4 md:p-5 bg-paper border-2 space-y-4" id="visitor-inquiries">
       <h2 class="font-pixel text-xs text-ink uppercase tracking-wide flex items-center gap-2 border-b-2 border-ink/15 pb-2.5">
         <span>📋</span>
         <span>Visitor Inquiries & Information</span>
@@ -440,6 +920,84 @@ const emailUrl = `mailto:${profile.person.email}`;
         }
       });
     });
+
+    // 🎯 Recruiter Concierge Role-Fit Matcher Tabs
+    const roleTabs = document.querySelectorAll<HTMLButtonElement>('.role-tab');
+    const rolePanels = document.querySelectorAll<HTMLElement>('.role-panel');
+    roleTabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        const role = tab.getAttribute('data-role');
+        if (!role) return;
+
+        sfx.select();
+
+        // Reset all tabs
+        roleTabs.forEach((t) => {
+          t.className = 'role-tab card p-3 text-left transition-all cursor-pointer border-2 border-ink/20 hover:border-ink/50 bg-paper';
+        });
+        // Activate current tab
+        tab.className = 'role-tab card p-3 text-left transition-all cursor-pointer border-2 border-ball bg-ball/5 ring-1 ring-ball shadow-sm';
+
+        // Toggle role panels
+        rolePanels.forEach((panel) => {
+          panel.classList.add('hidden');
+        });
+        const targetPanel = document.getElementById(`role-panel-${role}`);
+        if (targetPanel) {
+          targetPanel.classList.remove('hidden');
+        }
+      });
+    });
+
+    // 📋 Campus Directory Category Filtering
+    const filterButtons = document.querySelectorAll<HTMLButtonElement>('.directory-filter-btn');
+    const directoryCards = document.querySelectorAll<HTMLElement>('.directory-card');
+    filterButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const filter = btn.getAttribute('data-filter') || 'all';
+        sfx.select();
+
+        // Update active filter styling
+        filterButtons.forEach((b) => {
+          b.className = 'directory-filter-btn chip bg-paper text-ink border-ink/20 hover:border-ink/50 font-mono text-[10px] px-2 py-0.5 cursor-pointer';
+        });
+        btn.className = 'directory-filter-btn chip bg-ball text-paper border-ink font-mono text-[10px] font-bold px-2 py-0.5 cursor-pointer';
+
+        // Filter cards
+        directoryCards.forEach((card) => {
+          const category = card.getAttribute('data-category');
+          if (filter === 'all' || category === filter) {
+            card.classList.remove('hidden');
+          } else {
+            card.classList.add('hidden');
+          }
+        });
+      });
+    });
+
+    // 📬 1-Click Copy Recruiter Email
+    const btnCopyEmail = document.getElementById('btn-copy-recruiter-email') as HTMLButtonElement | null;
+    const copyEmailLabel = document.getElementById('btn-copy-email-label');
+    if (btnCopyEmail && copyEmailLabel) {
+      btnCopyEmail.addEventListener('click', async () => {
+        const email = btnCopyEmail.getAttribute('data-email') || 'zulfan.work@example.com';
+        try {
+          await navigator.clipboard.writeText(email);
+          sfx.confirm();
+          const originalText = copyEmailLabel.textContent || 'Copy Email';
+          copyEmailLabel.textContent = '✨ Copied!';
+          btnCopyEmail.classList.add('bg-emerald-100', 'text-emerald-800', 'border-emerald-400');
+
+          setTimeout(() => {
+            copyEmailLabel.textContent = originalText;
+            btnCopyEmail.classList.remove('bg-emerald-100', 'text-emerald-800', 'border-emerald-400');
+          }, 2500);
+        } catch {
+          // Fallback if clipboard API is blocked
+          window.location.href = `mailto:${email}`;
+        }
+      });
+    }
   }
 
   document.addEventListener('astro:page-load', initHealingStation);

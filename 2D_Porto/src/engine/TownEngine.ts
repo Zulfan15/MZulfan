@@ -4227,6 +4227,13 @@ export class TownEngine {
                     },
                   },
                   {
+                    label: '🎯 Recruiter Concierge & Role Matcher',
+                    onClick: () => {
+                      const rc = document.querySelector('#recruiter-concierge');
+                      rc?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    },
+                  },
+                  {
                     label: '💖 Ask Chansey to Heal & Refill Balls',
                     onClick: () => {
                       this.walkToObject('chansey');
@@ -4308,6 +4315,59 @@ export class TownEngine {
             }
           } else if (prop.target.name === 'pc-terminal') {
             this.callbacks.onOpenModal('dex');
+          } else if (prop.target.name === 'directory-board') {
+            sfx.select();
+            if (this.callbacks.onBubble) {
+              this.callbacks.onBubble(
+                'Campus Directory Board 📋',
+                "Official Directory of Muhammad Zulfan's Portfolio Town. Discover 8 specialized research facilities, engineering labs, and interactive showcases across the campus.",
+                [
+                  {
+                    label: '📋 View All 8 Facilities (Scroll Panel)',
+                    onClick: () => {
+                      const dir = document.querySelector('#campus-directory');
+                      dir?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    },
+                  },
+                  {
+                    label: '🎯 Recruiter Concierge & Role Matcher',
+                    onClick: () => {
+                      const rc = document.querySelector('#recruiter-concierge');
+                      rc?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    },
+                  },
+                  {
+                    label: '🗺️ Exit to Town Square (Open Map)',
+                    onClick: () => {
+                      this.callbacks.onNavigate('/');
+                    },
+                  },
+                ]
+              );
+            }
+          } else if (prop.target.name === 'waiting-couch') {
+            sfx.select();
+            if (this.callbacks.onBubble) {
+              this.callbacks.onBubble(
+                'VIP Visitor Lounge 🛋️',
+                "A plush executive lounge. On the mahogany coffee table rests Muhammad Zulfan's official résumé, ITENAS Computer Science academic records (GPA 3.49/4.00), and recent research pre-prints.",
+                [
+                  {
+                    label: '📄 Download Official CV (PDF)',
+                    onClick: () => {
+                      window.open('/cv/CV_Zulfan.pdf', '_blank');
+                    },
+                  },
+                  {
+                    label: '📋 Read Visitor FAQ & Credentials',
+                    onClick: () => {
+                      const faq = document.querySelector('#visitor-inquiries');
+                      faq?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    },
+                  },
+                ]
+              );
+            }
           } else {
             document.dispatchEvent(new CustomEvent(`town:${prop.target.name}`));
           }
