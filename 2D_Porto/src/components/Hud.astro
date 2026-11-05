@@ -24,6 +24,11 @@ import { profile } from '../lib/profile';
       <span id="sound-icon">🔊</span>
     </button>
 
+    <button id="hud-bgm-toggle" type="button" class="flex items-center gap-1 px-2.5 py-1 rounded-full border-2 border-indigo-700 bg-indigo-50 hover:bg-indigo-100 font-pixel text-xs text-indigo-950 shadow-sm cursor-pointer transition-all" title="Toggle 8-Bit Lo-Fi Chiptune Music (BGM)" aria-label="Toggle BGM">
+      <span id="hud-bgm-icon">🎵</span>
+      <span class="font-bold hidden sm:inline" id="hud-bgm-label">BGM</span>
+    </button>
+
     <button id="hud-map-btn" type="button" class="flex items-center gap-1.5 px-3 py-1 rounded-full border-2 border-ink bg-white font-pixel text-xs text-ink hover:bg-cream shadow-sm cursor-pointer transition-all" title="Quick Travel Map" aria-haspopup="dialog">
       <span>🗺️</span>
       <span class="font-bold">Map</span>
@@ -48,11 +53,50 @@ import { profile } from '../lib/profile';
   function initHud() {
     const soundBtn = document.getElementById('hud-sound-toggle');
     const soundIcon = document.getElementById('sound-icon');
+    const bgmBtn = document.getElementById('hud-bgm-toggle');
+    const bgmIcon = document.getElementById('hud-bgm-icon');
+    const bgmLabel = document.getElementById('hud-bgm-label');
     const dexBtn = document.getElementById('hud-dex-btn');
     const mapBtn = document.getElementById('hud-map-btn');
     const searchBtn = document.getElementById('hud-search-btn');
     const dexCounter = document.getElementById('dex-counter');
     const helpBtn = document.getElementById('hud-help-btn');
+
+    const updateBgmUi = () => {
+      const active = sfx.isBgmEnabled();
+      if (bgmIcon) bgmIcon.textContent = active ? '🎵' : '🔇';
+      if (bgmLabel) bgmLabel.textContent = active ? 'BGM' : 'Mute';
+      if (bgmBtn) {
+        if (active) {
+          bgmBtn.classList.remove('border-slate-400', 'bg-slate-100', 'text-slate-500');
+          bgmBtn.classList.add('border-indigo-700', 'bg-indigo-50', 'text-indigo-950');
+        } else {
+          bgmBtn.classList.add('border-slate-400', 'bg-slate-100', 'text-slate-500');
+          bgmBtn.classList.remove('border-indigo-700', 'bg-indigo-50', 'text-indigo-950');
+        }
+      }
+    };
+
+    if (bgmBtn) {
+      updateBgmUi();
+      bgmBtn.onclick = () => {
+        const on = sfx.toggleBgm();
+        updateBgmUi();
+        if (on) sfx.select();
+        window.dispatchEvent(new CustomEvent('town:bgm-toggled', { detail: { enabled: on } }));
+      };
+    }
+
+    window.addEventListener('town:bgm-toggled', () => {
+      updateBgmUi();
+    });
+
+    window.addEventListener('town:toggle-bgm-request', () => {
+      const on = sfx.toggleBgm();
+      updateBgmUi();
+      if (on) sfx.select();
+      window.dispatchEvent(new CustomEvent('town:bgm-toggled', { detail: { enabled: on } }));
+    });
 
     if (searchBtn) {
       searchBtn.onclick = () => {

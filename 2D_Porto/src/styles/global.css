@@ -2659,6 +2659,28 @@ ul.clean, ol.clean {
   border-color: #5eead4 !important;
 }
 
+/* ─── 🌤️ Time of Day & 🌸 Dynamic Weather HUD Buttons ─── */
+.town-hud-btn--time {
+  border-color: rgba(251, 191, 36, 0.45);
+}
+.town-hud-btn--time:hover {
+  border-color: #fbbf24;
+  background: rgba(251, 191, 36, 0.15);
+}
+
+.town-hud-btn--weather {
+  border-color: rgba(244, 114, 182, 0.45);
+}
+.town-hud-btn--weather:hover {
+  border-color: #f472b6;
+  background: rgba(244, 114, 182, 0.15);
+}
+
+.town-burger-dropdown__item.is-active#burger-item-bgm {
+  background: rgba(99, 102, 241, 0.22) !important;
+  border-color: #a5b4fc !important;
+}
+
 /* ─── 🔍 Pokénav Search & ⚙️ Dev Tools Popover ─── */
 .town-hud-btn--search {
   background: rgba(6, 78, 59, 0.85);

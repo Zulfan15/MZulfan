@@ -113,14 +113,26 @@ const ARCEUS_IMAGE_SRC = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQ
 
 const BLASTOISE_IMAGE_SRC = TYRANITAR_IMAGE_SRC;
 
-interface BreezeParticle {
+export type TownAtmosphere = 'day' | 'sunset' | 'night';
+export type TownWeather = 'petals' | 'rain' | 'stars';
+
+export interface WeatherParticle {
   x: number;
   y: number;
   vx: number;
   vy: number;
   size: number;
   alpha: number;
+  color: string;
+  type: 'petal' | 'leaf' | 'raindrop' | 'ripple' | 'star' | 'meteor' | 'firefly';
+  sway?: number;
+  swaySpeed?: number;
+  life?: number;
+  maxLife?: number;
+  len?: number;
 }
+
+type BreezeParticle = WeatherParticle;
 
 interface DustPuff {
   x: number;
@@ -180,7 +192,8 @@ export class TownEngine {
   private martBackgroundCanvas: HTMLCanvasElement | null = null;
   private towerBackgroundCanvas: HTMLCanvasElement | null = null;
   private townBackgroundCanvas: HTMLCanvasElement | null = null;
-  public townAtmosphere: 'day' | 'sunset' | 'night' = 'day';
+  public townAtmosphere: TownAtmosphere = 'day';
+  public weather: TownWeather = 'petals';
   private editor: TownEditor;
 
   // X-Ray Collision Inspector Mode
@@ -197,7 +210,8 @@ export class TownEngine {
   private path: Vec[] = [];
   private pendingTarget: string | null = null;
   private marker: Vec | null = null;
-  private particles: BreezeParticle[] = [];
+  private particles: WeatherParticle[] = [];
+  private fireflies: WeatherParticle[] = [];
   private heldDirs: Dir[] = [];
   private bufferedDir: Dir | null = null;
   private isShiftHeld = false;
@@ -383,6 +397,18 @@ export class TownEngine {
       this.wake();
     });
 
+    if (typeof window !== 'undefined') {
+      const savedAtmo = localStorage.getItem('town:atmosphere') as TownAtmosphere | null;
+      if (savedAtmo === 'day' || savedAtmo === 'sunset' || savedAtmo === 'night') {
+        this.townAtmosphere = savedAtmo;
+      }
+      const savedWeather = localStorage.getItem('town:weather') as TownWeather | null;
+      if (savedWeather === 'petals' || savedWeather === 'rain' || savedWeather === 'stars') {
+        this.weather = savedWeather;
+      }
+      sfx.setBgmTheme(this.townAtmosphere);
+    }
+
     this.initParticles();
     this.bindControls();
     this.handleResize();
@@ -393,19 +419,80 @@ export class TownEngine {
     this.wake();
   }
 
-  private initParticles() {
+  public initParticles() {
     const totalW = this.map.w * TILE_SIZE;
     const totalH = this.map.h * TILE_SIZE;
     this.particles = [];
-    for (let i = 0; i < 28; i++) {
-      this.particles.push({
-        x: Math.random() * totalW,
-        y: Math.random() * totalH,
-        vx: 0.35 + Math.random() * 0.45,
-        vy: 0.2 + Math.random() * 0.25,
-        size: Math.random() > 0.4 ? 2 : 1,
-        alpha: 0.35 + Math.random() * 0.45,
-      });
+    this.fireflies = [];
+
+    // Weather Particles
+    if (this.weather === 'petals') {
+      // 45 Sakura petals & gentle leaves
+      for (let i = 0; i < 45; i++) {
+        const isPetal = Math.random() < 0.65;
+        this.particles.push({
+          x: Math.random() * totalW,
+          y: Math.random() * totalH,
+          vx: 0.35 + Math.random() * 0.45,
+          vy: 0.25 + Math.random() * 0.35,
+          size: isPetal ? (Math.random() > 0.5 ? 2.5 : 2) : 2,
+          alpha: 0.4 + Math.random() * 0.45,
+          color: isPetal ? (Math.random() > 0.5 ? '#ffb7c5' : '#ffccd5') : '#a8e063',
+          type: isPetal ? 'petal' : 'leaf',
+          sway: Math.random() * Math.PI * 2,
+          swaySpeed: 0.02 + Math.random() * 0.03,
+        });
+      }
+    } else if (this.weather === 'rain') {
+      // 65 Lo-Fi Raindrops
+      for (let i = 0; i < 65; i++) {
+        this.particles.push({
+          x: Math.random() * totalW,
+          y: Math.random() * totalH,
+          vx: -1.4 - Math.random() * 0.8,
+          vy: 8.5 + Math.random() * 3.5,
+          size: 1,
+          len: 7 + Math.random() * 6,
+          alpha: 0.35 + Math.random() * 0.45,
+          color: 'rgba(180, 220, 255, 0.75)',
+          type: 'raindrop',
+        });
+      }
+    } else if (this.weather === 'stars') {
+      // 45 Twinkling Stars
+      const starColors = ['#fff9db', '#d0ebff', '#eebefa', '#ffec99'];
+      for (let i = 0; i < 45; i++) {
+        this.particles.push({
+          x: Math.random() * totalW,
+          y: Math.random() * totalH,
+          vx: (Math.random() - 0.5) * 0.15,
+          vy: -0.15 - Math.random() * 0.2,
+          size: Math.random() > 0.6 ? 2.5 : 1.5,
+          alpha: 0.3 + Math.random() * 0.5,
+          color: starColors[Math.floor(Math.random() * starColors.length)],
+          type: 'star',
+          sway: Math.random() * Math.PI * 2,
+          swaySpeed: 0.04 + Math.random() * 0.04,
+        });
+      }
+    }
+
+    // Night Time Fireflies (Kunang-Kunang)
+    if (this.townAtmosphere === 'night') {
+      for (let i = 0; i < 22; i++) {
+        this.fireflies.push({
+          x: Math.random() * totalW,
+          y: Math.random() * totalH,
+          vx: (Math.random() - 0.5) * 0.3,
+          vy: (Math.random() - 0.5) * 0.3,
+          size: 2,
+          alpha: 0.4 + Math.random() * 0.5,
+          color: '#d4ff59',
+          type: 'firefly',
+          sway: Math.random() * Math.PI * 2,
+          swaySpeed: 0.03 + Math.random() * 0.04,
+        });
+      }
     }
   }
 
@@ -1557,6 +1644,26 @@ export class TownEngine {
     this.canvas.addEventListener('mouseleave', onMouseLeave);
     window.addEventListener('resize', this.handleResize);
 
+    const onSetAtmo = (e: Event) => {
+      const custom = e as CustomEvent<{ atmosphere: TownAtmosphere }>;
+      if (custom.detail?.atmosphere) this.setAtmosphere(custom.detail.atmosphere);
+    };
+    const onCycleAtmo = () => {
+      this.cycleAtmosphere();
+    };
+    const onSetWeather = (e: Event) => {
+      const custom = e as CustomEvent<{ weather: TownWeather }>;
+      if (custom.detail?.weather) this.setWeather(custom.detail.weather);
+    };
+    const onCycleWeather = () => {
+      this.cycleWeather();
+    };
+
+    window.addEventListener('town:set-atmosphere', onSetAtmo);
+    window.addEventListener('town:cycle-atmosphere', onCycleAtmo);
+    window.addEventListener('town:set-weather', onSetWeather);
+    window.addEventListener('town:cycle-weather', onCycleWeather);
+
     this.unbindEvents.push(
       () => window.removeEventListener('keydown', onKeyDown),
       () => window.removeEventListener('keyup', onKeyUp),
@@ -1571,7 +1678,11 @@ export class TownEngine {
       () => this.canvas.removeEventListener('touchend', onTouchEnd),
       () => this.canvas.removeEventListener('contextmenu', onContextMenu),
       () => this.canvas.removeEventListener('mouseleave', onMouseLeave),
-      () => window.removeEventListener('resize', this.handleResize)
+      () => window.removeEventListener('resize', this.handleResize),
+      () => window.removeEventListener('town:set-atmosphere', onSetAtmo),
+      () => window.removeEventListener('town:cycle-atmosphere', onCycleAtmo),
+      () => window.removeEventListener('town:set-weather', onSetWeather),
+      () => window.removeEventListener('town:cycle-weather', onCycleWeather)
     );
   }
 
@@ -1742,17 +1853,53 @@ export class TownEngine {
     return coll;
   }
 
-  public cycleAtmosphere(): 'day' | 'sunset' | 'night' {
-    if (this.townAtmosphere === 'day') {
-      this.townAtmosphere = 'sunset';
-    } else if (this.townAtmosphere === 'sunset') {
-      this.townAtmosphere = 'night';
-    } else {
-      this.townAtmosphere = 'day';
+  public setAtmosphere(mode: TownAtmosphere) {
+    this.townAtmosphere = mode;
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('town:atmosphere', mode);
+    }
+    sfx.setBgmTheme(mode);
+    this.initParticles();
+    this.wake();
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(
+        new CustomEvent('town:atmosphere-changed', {
+          detail: { atmosphere: this.townAtmosphere, weather: this.weather },
+        })
+      );
+    }
+  }
+
+  public cycleAtmosphere(): TownAtmosphere {
+    const next: TownAtmosphere =
+      this.townAtmosphere === 'day' ? 'sunset' : this.townAtmosphere === 'sunset' ? 'night' : 'day';
+    sfx.select();
+    this.setAtmosphere(next);
+    return this.townAtmosphere;
+  }
+
+  public setWeather(w: TownWeather) {
+    this.weather = w;
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('town:weather', w);
     }
     sfx.select();
+    this.initParticles();
     this.wake();
-    return this.townAtmosphere;
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(
+        new CustomEvent('town:weather-changed', {
+          detail: { weather: this.weather, atmosphere: this.townAtmosphere },
+        })
+      );
+    }
+  }
+
+  public cycleWeather(): TownWeather {
+    const next: TownWeather =
+      this.weather === 'petals' ? 'rain' : this.weather === 'rain' ? 'stars' : 'petals';
+    this.setWeather(next);
+    return this.weather;
   }
 
   public harvestBerries() {
@@ -2349,14 +2496,99 @@ export class TownEngine {
   private update(dt: number) {
     this.tick++;
 
-    // Update ambient breeze particles
+    // Update dynamic weather particles
     const totalW = this.map.w * TILE_SIZE;
     const totalH = this.map.h * TILE_SIZE;
-    for (const p of this.particles) {
-      p.x += p.vx;
-      p.y += p.vy;
-      if (p.x > totalW) p.x = 0;
-      if (p.y > totalH) p.y = 0;
+
+    // Periodic shooting meteor in starfall weather
+    if (this.weather === 'stars' && this.tick % 170 === 0 && Math.random() < 0.85) {
+      this.particles.push({
+        x: Math.random() * totalW * 0.8 + totalW * 0.2,
+        y: Math.random() * (totalH * 0.4),
+        vx: -6.5,
+        vy: 4.2,
+        size: 2,
+        len: 26,
+        alpha: 0.95,
+        color: '#ffffff',
+        type: 'meteor',
+        life: 0,
+        maxLife: 35,
+      });
+    }
+
+    for (let i = this.particles.length - 1; i >= 0; i--) {
+      const p = this.particles[i];
+      if (p.type === 'meteor') {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life = (p.life || 0) + 1;
+        p.alpha = Math.max(0, 0.95 * (1 - p.life / (p.maxLife || 35)));
+        if (p.life >= (p.maxLife || 35)) {
+          this.particles.splice(i, 1);
+        }
+        continue;
+      }
+
+      if (p.type === 'ripple') {
+        p.life = (p.life || 0) + 1;
+        p.size += 0.35;
+        p.alpha = Math.max(0, 0.5 * (1 - p.life / (p.maxLife || 14)));
+        if (p.life >= (p.maxLife || 14)) {
+          this.particles.splice(i, 1);
+        }
+        continue;
+      }
+
+      if (p.type === 'petal' || p.type === 'leaf') {
+        p.x += p.vx + Math.sin(this.tick * (p.swaySpeed || 0.03) + (p.sway || 0)) * 0.55;
+        p.y += p.vy;
+        if (p.x > totalW) p.x = 0;
+        if (p.y > totalH) p.y = 0;
+      } else if (p.type === 'raindrop') {
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.y > totalH || p.x < 0) {
+          // 8% chance to spawn water ripple on landing
+          if (Math.random() < 0.08 && this.particles.length < 85) {
+            this.particles.push({
+              x: p.x,
+              y: p.y > totalH ? totalH - 4 : p.y,
+              vx: 0,
+              vy: 0,
+              size: 1.5,
+              alpha: 0.5,
+              color: 'rgba(180, 220, 255, 0.6)',
+              type: 'ripple',
+              life: 0,
+              maxLife: 14,
+            });
+          }
+          p.y = -10;
+          p.x = Math.random() * (totalW + 60);
+        }
+      } else if (p.type === 'star') {
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.x < 0) p.x = totalW;
+        if (p.y < 0) p.y = totalH;
+      }
+    }
+
+    // Update fireflies (night only)
+    if (this.townAtmosphere === 'night') {
+      for (const f of this.fireflies) {
+        f.vx += (Math.random() - 0.5) * 0.08;
+        f.vy += (Math.random() - 0.5) * 0.08;
+        f.vx = Math.max(-0.4, Math.min(0.4, f.vx));
+        f.vy = Math.max(-0.4, Math.min(0.4, f.vy));
+        f.x += f.vx;
+        f.y += f.vy;
+        if (f.x < 0) f.x = totalW;
+        if (f.x > totalW) f.x = 0;
+        if (f.y < 0) f.y = totalH;
+        if (f.y > totalH) f.y = 0;
+      }
     }
 
     if (this.isMoving) {
@@ -6742,24 +6974,33 @@ export class TownEngine {
       }
     }
 
-    // 10. Ambient breeze leaves
-    for (const p of this.particles) {
-      ctx.fillStyle = `rgba(180, 230, 140, ${p.alpha})`;
-      ctx.fillRect(Math.floor(p.x), Math.floor(p.y), p.size, p.size);
-    }
-
-    // 11. Day / Sunset / Night Atmosphere Overlay & Dynamic Lighting
+    // 10. Day / Sunset / Night Atmosphere Overlay, Building Windows & Dynamic Lighting
     if (this.currentScene === 'town') {
       if (this.townAtmosphere === 'sunset') {
-        ctx.fillStyle = 'rgba(255, 140, 60, 0.14)';
+        ctx.fillStyle = 'rgba(255, 135, 45, 0.16)';
         ctx.fillRect(0, 0, this.map.w * TILE_SIZE, this.map.h * TILE_SIZE);
         renderLighting(ctx, this.getActiveLamps());
       } else if (this.townAtmosphere === 'night') {
-        ctx.fillStyle = 'rgba(15, 25, 65, 0.36)';
+        // Deep indigo night atmosphere
+        ctx.fillStyle = 'rgba(12, 18, 50, 0.44)';
         ctx.fillRect(0, 0, this.map.w * TILE_SIZE, this.map.h * TILE_SIZE);
+
+        // Warm illuminated building windows at night
+        this.renderNightBuildingWindows(ctx);
+
+        // Street lantern glowing pools
         renderLighting(ctx, this.getActiveLamps());
       }
+
+      // Rainy weather cool ambient wash
+      if (this.weather === 'rain') {
+        ctx.fillStyle = 'rgba(20, 45, 80, 0.12)';
+        ctx.fillRect(0, 0, this.map.w * TILE_SIZE, this.map.h * TILE_SIZE);
+      }
     }
+
+    // 11. Dynamic Weather Particles & Fireflies
+    this.renderWeatherParticles(ctx);
 
     // 12. Town Editor Overlay (Grid, Building Dragging, Coordinates Tooltip)
     if (this.currentScene === 'town' && this.editor.isEnabled()) {
@@ -6775,5 +7016,128 @@ export class TownEngine {
 
     // Position HTML DOM labels
     this.updateDomLabels();
+  }
+
+  private renderNightBuildingWindows(ctx: CanvasRenderingContext2D) {
+    const buildings = townConfig.getBuildings();
+    ctx.save();
+    for (const b of buildings) {
+      if (b.hidden) continue;
+      const bx = b.x * TILE_SIZE;
+      const by = b.y * TILE_SIZE;
+      const bw = b.w * TILE_SIZE;
+
+      // Render soft glowing warm windows on major buildings
+      if (['house', 'dev', 'lab', 'reception', 'mart', 'tower', 'arcade'].includes(b.kind)) {
+        ctx.fillStyle = 'rgba(253, 230, 138, 0.72)';
+        ctx.shadowColor = 'rgba(251, 191, 36, 0.85)';
+        ctx.shadowBlur = 6;
+
+        if (b.kind === 'house') {
+          ctx.fillRect(bx + 8, by + 18, 10, 8);
+          ctx.fillRect(bx + bw - 18, by + 18, 10, 8);
+        } else if (b.kind === 'dev' || b.kind === 'lab') {
+          ctx.fillRect(bx + 10, by + 16, 12, 10);
+          ctx.fillRect(bx + bw - 22, by + 16, 12, 10);
+          ctx.fillRect(bx + Math.floor(bw / 2) - 6, by + 16, 12, 10);
+        } else if (b.kind === 'reception') {
+          ctx.fillRect(bx + 12, by + 20, 14, 12);
+          ctx.fillRect(bx + bw - 26, by + 20, 14, 12);
+        } else if (b.kind === 'mart') {
+          ctx.fillRect(bx + 10, by + 20, 16, 10);
+        } else if (b.kind === 'arcade') {
+          ctx.fillStyle = 'rgba(167, 139, 250, 0.75)';
+          ctx.shadowColor = 'rgba(192, 132, 252, 0.9)';
+          ctx.fillRect(bx + 10, by + 18, 12, 10);
+          ctx.fillRect(bx + bw - 22, by + 18, 12, 10);
+        } else if (b.kind === 'tower') {
+          ctx.fillStyle = 'rgba(56, 189, 248, 0.75)';
+          ctx.shadowColor = 'rgba(14, 165, 233, 0.9)';
+          ctx.fillRect(bx + 12, by + 14, 10, 8);
+          ctx.fillRect(bx + bw - 22, by + 14, 10, 8);
+          ctx.fillRect(bx + 12, by + 30, 10, 8);
+          ctx.fillRect(bx + bw - 22, by + 30, 10, 8);
+        }
+      }
+    }
+    ctx.restore();
+  }
+
+  private renderWeatherParticles(ctx: CanvasRenderingContext2D) {
+    ctx.save();
+    for (const p of this.particles) {
+      if (p.type === 'petal') {
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = p.alpha;
+        const px = Math.floor(p.x);
+        const py = Math.floor(p.y);
+        ctx.fillRect(px, py, p.size, p.size);
+        ctx.fillRect(px + 1, py + 1, Math.max(1, p.size - 0.5), Math.max(1, p.size - 0.5));
+      } else if (p.type === 'leaf') {
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = p.alpha;
+        ctx.fillRect(Math.floor(p.x), Math.floor(p.y), p.size, p.size);
+      } else if (p.type === 'raindrop') {
+        ctx.strokeStyle = p.color;
+        ctx.globalAlpha = p.alpha;
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.moveTo(p.x, p.y);
+        ctx.lineTo(p.x + (p.vx * (p.len || 8)) / 10, p.y + (p.vy * (p.len || 8)) / 10);
+        ctx.stroke();
+      } else if (p.type === 'ripple') {
+        ctx.strokeStyle = p.color;
+        ctx.globalAlpha = p.alpha;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.ellipse(p.x, p.y, p.size * 1.5, p.size * 0.7, 0, 0, Math.PI * 2);
+        ctx.stroke();
+      } else if (p.type === 'star') {
+        const pulse = 0.3 + 0.7 * Math.abs(Math.sin(this.tick * (p.swaySpeed || 0.04) + (p.sway || 0)));
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = p.alpha * pulse;
+        const px = Math.floor(p.x);
+        const py = Math.floor(p.y);
+        ctx.fillRect(px, py, p.size, p.size);
+        // Twinkling sparkle cross
+        ctx.fillRect(px - 1, py, 1, 1);
+        ctx.fillRect(px + p.size, py, 1, 1);
+        ctx.fillRect(px, py - 1, 1, 1);
+        ctx.fillRect(px, py + p.size, 1, 1);
+      } else if (p.type === 'meteor') {
+        ctx.save();
+        ctx.globalAlpha = p.alpha;
+        const grad = ctx.createLinearGradient(p.x, p.y, p.x - p.vx * 3.5, p.y - p.vy * 3.5);
+        grad.addColorStop(0, '#ffffff');
+        grad.addColorStop(0.3, '#fef08a');
+        grad.addColorStop(1, 'rgba(56, 189, 248, 0)');
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = 2.2;
+        ctx.beginPath();
+        ctx.moveTo(p.x, p.y);
+        ctx.lineTo(p.x - p.vx * 3.5, p.y - p.vy * 3.5);
+        ctx.stroke();
+        ctx.restore();
+      }
+    }
+
+    // Fireflies at night
+    if (this.townAtmosphere === 'night') {
+      for (const f of this.fireflies) {
+        const pulse = 0.25 + 0.75 * Math.abs(Math.sin(this.tick * (f.swaySpeed || 0.03) + (f.sway || 0)));
+        ctx.save();
+        ctx.globalAlpha = f.alpha * pulse;
+        ctx.fillStyle = f.color;
+        ctx.shadowColor = '#d4ff59';
+        ctx.shadowBlur = 8;
+        const fx = Math.floor(f.x);
+        const fy = Math.floor(f.y);
+        ctx.beginPath();
+        ctx.arc(fx, fy, 2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+    ctx.restore();
   }
 }

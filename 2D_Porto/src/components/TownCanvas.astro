@@ -132,6 +132,28 @@ const dataPlaceRooms = {
 
       <button
         type="button"
+        class="town-hud-btn town-hud-btn--time"
+        id="btn-toggle-time"
+        aria-label="Ganti Waktu Kota"
+        title="Ganti Waktu (Siang / Senja / Malam)"
+      >
+        <span class="town-hud-btn__icon" id="hud-time-icon" aria-hidden="true">☀️</span>
+        <span class="town-hud-btn__label" id="hud-time-label">Siang</span>
+      </button>
+
+      <button
+        type="button"
+        class="town-hud-btn town-hud-btn--weather"
+        id="btn-toggle-weather"
+        aria-label="Ganti Cuaca Dinamis"
+        title="Ganti Cuaca (Sakura / Hujan / Bintang)"
+      >
+        <span class="town-hud-btn__icon" id="hud-weather-icon" aria-hidden="true">🌸</span>
+        <span class="town-hud-btn__label" id="hud-weather-label">Sakura</span>
+      </button>
+
+      <button
+        type="button"
         class="town-hud-btn"
         id="btn-toggle-labels"
         aria-label="Toggle landmark badges"
@@ -304,6 +326,30 @@ const dataPlaceRooms = {
               <span class="town-burger-dropdown__item-sub">Peta navigasi & klik teleport</span>
             </div>
             <kbd class="town-burger-dropdown__kbd">M</kbd>
+          </button>
+
+          <button type="button" class="town-burger-dropdown__item" id="burger-item-time" role="menuitem">
+            <span class="town-burger-dropdown__item-icon" id="burger-time-icon">☀️</span>
+            <div class="town-burger-dropdown__item-info">
+              <span class="town-burger-dropdown__item-title" id="burger-time-title">Waktu Kota</span>
+              <span class="town-burger-dropdown__item-sub" id="burger-time-sub">Siang (☀️)</span>
+            </div>
+          </button>
+
+          <button type="button" class="town-burger-dropdown__item" id="burger-item-weather" role="menuitem">
+            <span class="town-burger-dropdown__item-icon" id="burger-weather-icon">🌸</span>
+            <div class="town-burger-dropdown__item-info">
+              <span class="town-burger-dropdown__item-title" id="burger-weather-title">Cuaca Dinamis</span>
+              <span class="town-burger-dropdown__item-sub" id="burger-weather-sub">Sakura (🌸)</span>
+            </div>
+          </button>
+
+          <button type="button" class="town-burger-dropdown__item" id="burger-item-bgm" role="menuitem">
+            <span class="town-burger-dropdown__item-icon" id="burger-bgm-icon">🎵</span>
+            <div class="town-burger-dropdown__item-info">
+              <span class="town-burger-dropdown__item-title">Musik Latar 8-Bit</span>
+              <span class="town-burger-dropdown__item-sub" id="burger-bgm-sub">Lo-Fi Nostalgik</span>
+            </div>
           </button>
 
           <button type="button" class="town-burger-dropdown__item" id="burger-item-labels" role="menuitem">
@@ -1850,6 +1896,125 @@ const dataPlaceRooms = {
         engine.flyTo(detail.x, detail.y, detail.name);
         showToast(`🦅 Mendarat di ${detail.name}! (${detail.x}, ${detail.y})`);
       }
+    });
+
+    // ─── 🌤️ Atmosphere (Day / Sunset / Night), 🌸 Cuaca & 🎵 BGM Controls ───
+    const btnToggleTime = document.getElementById('btn-toggle-time');
+    const hudTimeIcon = document.getElementById('hud-time-icon');
+    const hudTimeLabel = document.getElementById('hud-time-label');
+    const burgerItemTime = document.getElementById('burger-item-time');
+    const burgerTimeIcon = document.getElementById('burger-time-icon');
+    const burgerTimeSub = document.getElementById('burger-time-sub');
+
+    const btnToggleWeather = document.getElementById('btn-toggle-weather');
+    const hudWeatherIcon = document.getElementById('hud-weather-icon');
+    const hudWeatherLabel = document.getElementById('hud-weather-label');
+    const burgerItemWeather = document.getElementById('burger-item-weather');
+    const burgerWeatherIcon = document.getElementById('burger-weather-icon');
+    const burgerWeatherSub = document.getElementById('burger-weather-sub');
+
+    const burgerItemBgm = document.getElementById('burger-item-bgm');
+    const burgerBgmIcon = document.getElementById('burger-bgm-icon');
+    const burgerBgmSub = document.getElementById('burger-bgm-sub');
+
+    const updateTimeUI = (atmo: 'day' | 'sunset' | 'night') => {
+      const icon = atmo === 'day' ? '☀️' : atmo === 'sunset' ? '🌅' : '🌙';
+      const label = atmo === 'day' ? 'Siang' : atmo === 'sunset' ? 'Senja' : 'Malam';
+      if (hudTimeIcon) hudTimeIcon.textContent = icon;
+      if (hudTimeLabel) hudTimeLabel.textContent = label;
+      if (burgerTimeIcon) burgerTimeIcon.textContent = icon;
+      if (burgerTimeSub) burgerTimeSub.textContent = `${label} (${icon})`;
+      if (btnToggleTime) {
+        btnToggleTime.title = `Waktu Kota: ${label} (Klik untuk berganti)`;
+      }
+    };
+
+    const updateWeatherUI = (weather: 'petals' | 'rain' | 'stars') => {
+      const icon = weather === 'petals' ? '🌸' : weather === 'rain' ? '🌧️' : '✨';
+      const label = weather === 'petals' ? 'Sakura' : weather === 'rain' ? 'Hujan' : 'Bintang';
+      if (hudWeatherIcon) hudWeatherIcon.textContent = icon;
+      if (hudWeatherLabel) hudWeatherLabel.textContent = label;
+      if (burgerWeatherIcon) burgerWeatherIcon.textContent = icon;
+      if (burgerWeatherSub) burgerWeatherSub.textContent = `${label} (${icon})`;
+      if (btnToggleWeather) {
+        btnToggleWeather.title = `Cuaca: ${label} (Klik untuk berganti)`;
+      }
+    };
+
+    const updateBgmBurgerUI = (active: boolean) => {
+      if (burgerBgmIcon) burgerBgmIcon.textContent = active ? '🎵' : '🔇';
+      if (burgerBgmSub) burgerBgmSub.textContent = active ? 'Aktif (Lo-Fi 8-Bit)' : 'Mute / Hening';
+      if (burgerItemBgm) {
+        burgerItemBgm.classList.toggle('is-active', active);
+      }
+    };
+
+    // Initial sync
+    if (engine) {
+      updateTimeUI(engine.townAtmosphere);
+      updateWeatherUI(engine.weather);
+    }
+    updateBgmBurgerUI(sfx.isBgmEnabled());
+
+    btnToggleTime?.addEventListener('click', () => {
+      if (engine) {
+        const atmo = engine.cycleAtmosphere();
+        updateTimeUI(atmo);
+        const name = atmo === 'day' ? 'Siang Cerah ☀️' : atmo === 'sunset' ? 'Senja Keemasan 🌅' : 'Malam Bintang 🌙';
+        showToast(`🌤️ Waktu berganti ke mode ${name}!`);
+      }
+    });
+
+    burgerItemTime?.addEventListener('click', () => {
+      if (engine) {
+        const atmo = engine.cycleAtmosphere();
+        updateTimeUI(atmo);
+        const name = atmo === 'day' ? 'Siang Cerah ☀️' : atmo === 'sunset' ? 'Senja Keemasan 🌅' : 'Malam Bintang 🌙';
+        showToast(`🌤️ Waktu berganti ke mode ${name}!`);
+        toggleBurger(false);
+      }
+    });
+
+    btnToggleWeather?.addEventListener('click', () => {
+      if (engine) {
+        const w = engine.cycleWeather();
+        updateWeatherUI(w);
+        const name = w === 'petals' ? 'Kelopak Sakura & Daun 🌸' : w === 'rain' ? 'Hujan Rintik Lo-Fi 🌧️' : 'Hujan Meteor & Bintang ✨';
+        showToast(`🌦️ Cuaca berganti: ${name}!`);
+      }
+    });
+
+    burgerItemWeather?.addEventListener('click', () => {
+      if (engine) {
+        const w = engine.cycleWeather();
+        updateWeatherUI(w);
+        const name = w === 'petals' ? 'Kelopak Sakura & Daun 🌸' : w === 'rain' ? 'Hujan Rintik Lo-Fi 🌧️' : 'Hujan Meteor & Bintang ✨';
+        showToast(`🌦️ Cuaca berganti: ${name}!`);
+        toggleBurger(false);
+      }
+    });
+
+    burgerItemBgm?.addEventListener('click', () => {
+      const on = sfx.toggleBgm();
+      updateBgmBurgerUI(on);
+      if (on) sfx.select();
+      window.dispatchEvent(new CustomEvent('town:bgm-toggled', { detail: { enabled: on } }));
+      showToast(on ? '🎵 Musik latar 8-Bit Lo-Fi diaktifkan!' : '🔇 Musik latar diheningkan.');
+      toggleBurger(false);
+    });
+
+    window.addEventListener('town:atmosphere-changed', (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail?.atmosphere) updateTimeUI(detail.atmosphere);
+    });
+
+    window.addEventListener('town:weather-changed', (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail?.weather) updateWeatherUI(detail.weather);
+    });
+
+    window.addEventListener('town:bgm-toggled', () => {
+      updateBgmBurgerUI(sfx.isBgmEnabled());
     });
 
     if (engine) {

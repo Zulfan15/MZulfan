@@ -9,7 +9,7 @@ interface PaletteItem {
   icon: string;
   desc: string;
   keywords: string;
-  actionType: 'navigate' | 'download' | 'copy' | 'fly' | 'modal' | 'toggle-bike' | 'toggle-minimap';
+  actionType: 'navigate' | 'download' | 'copy' | 'fly' | 'modal' | 'toggle-bike' | 'toggle-minimap' | 'set-atmosphere' | 'set-weather' | 'toggle-bgm';
   target?: string;
   flyCoords?: { x: number; y: number };
 }
@@ -79,6 +79,82 @@ const actionItems: PaletteItem[] = [
     desc: 'Buka / tutup radar mini-map di pojok kanan atas (Key: M).',
     keywords: 'radar minimap map peta kompas posisi live',
     actionType: 'toggle-minimap',
+  },
+  {
+    id: 'act-bgm',
+    title: 'Toggle Musik Latar 8-Bit (Lo-Fi BGM)',
+    category: 'action',
+    categoryLabel: 'Aksi Cepat',
+    icon: '🎵',
+    desc: 'Nyalakan / heningkan melodi procedural chiptune 0 KB berbasis Web Audio.',
+    keywords: 'bgm musik music lofi lagu sound audio chiptune lagu hening',
+    actionType: 'toggle-bgm',
+  },
+  {
+    id: 'act-time-day',
+    title: 'Atur Waktu: Siang Hari (Day Mode)',
+    category: 'action',
+    categoryLabel: 'Aksi Cepat',
+    icon: '☀️',
+    desc: 'Ubah suasana pencahayaan kota ke mode Siang yang cerah dan hangat.',
+    keywords: 'siang day waktu time matahari cerah terang',
+    actionType: 'set-atmosphere',
+    target: 'day',
+  },
+  {
+    id: 'act-time-sunset',
+    title: 'Atur Waktu: Senja Keemasan (Sunset Mode)',
+    category: 'action',
+    categoryLabel: 'Aksi Cepat',
+    icon: '🌅',
+    desc: 'Ubah suasana kota ke nuansa sore keemasan dengan lentera mulai berpendar.',
+    keywords: 'senja sore sunset golden waktu time oranye merah',
+    actionType: 'set-atmosphere',
+    target: 'sunset',
+  },
+  {
+    id: 'act-time-night',
+    title: 'Atur Waktu: Malam Hari (Night Mode)',
+    category: 'action',
+    categoryLabel: 'Aksi Cepat',
+    icon: '🌙',
+    desc: 'Ubah kota ke mode Malam dengan lentera menyala, jendela hangat, dan kunang-kunang.',
+    keywords: 'malam night gelap bintang kunang lampu jendela waktu time',
+    actionType: 'set-atmosphere',
+    target: 'night',
+  },
+  {
+    id: 'act-weather-petals',
+    title: 'Cuaca: Kelopak Sakura & Daun Berhembus',
+    category: 'action',
+    categoryLabel: 'Aksi Cepat',
+    icon: '🌸',
+    desc: 'Aktifkan partikel kelopak bunga sakura merah muda dan daun yang melayang santai.',
+    keywords: 'cuaca weather sakura bunga kelopak daun petal spring semi cerah',
+    actionType: 'set-weather',
+    target: 'petals',
+  },
+  {
+    id: 'act-weather-rain',
+    title: 'Cuaca: Hujan Rintik Lo-Fi (Rain & Ripples)',
+    category: 'action',
+    categoryLabel: 'Aksi Cepat',
+    icon: '🌧️',
+    desc: 'Aktifkan efek hujan rintik diagonal dan cipratan riak air di atas kanvas.',
+    keywords: 'cuaca weather hujan rain lofi rintik air basah kolam ripple',
+    actionType: 'set-weather',
+    target: 'rain',
+  },
+  {
+    id: 'act-weather-stars',
+    title: 'Cuaca: Hujan Meteor & Bintang Berkelip (Starfall)',
+    category: 'action',
+    categoryLabel: 'Aksi Cepat',
+    icon: '✨',
+    desc: 'Aktifkan taburan bintang berkelip dan lintasan meteor berkilau di langit.',
+    keywords: 'cuaca weather bintang meteor starfall langit malam berkilau',
+    actionType: 'set-weather',
+    target: 'stars',
   },
 ];
 
@@ -595,6 +671,16 @@ const allPaletteItems: PaletteItem[] = [
         window.dispatchEvent(new CustomEvent('town:toggle-bike-request'));
       } else if (actionType === 'toggle-minimap') {
         window.dispatchEvent(new CustomEvent('town:toggle-minimap'));
+      } else if (actionType === 'set-atmosphere') {
+        if (target) {
+          window.dispatchEvent(new CustomEvent('town:set-atmosphere', { detail: { atmosphere: target } }));
+        }
+      } else if (actionType === 'set-weather') {
+        if (target) {
+          window.dispatchEvent(new CustomEvent('town:set-weather', { detail: { weather: target } }));
+        }
+      } else if (actionType === 'toggle-bgm') {
+        window.dispatchEvent(new CustomEvent('town:toggle-bgm-request'));
       }
     };
 
@@ -639,3 +725,4 @@ const allPaletteItems: PaletteItem[] = [
 
   document.addEventListener('DOMContentLoaded', initCommandPalette);
 </script>
+

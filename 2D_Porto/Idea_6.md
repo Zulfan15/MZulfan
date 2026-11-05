@@ -105,22 +105,32 @@ Namun, dari sisi **kenyamanan pengguna (User Experience)** dan **daya tarik inte
 
 ---
 
-### FASE 3: Kontrol Atmosfer Instan, Cuaca Dinamis & Musik Latar (BGM)
-**Target File**: `src/engine/TownEngine.ts`, `src/game/sfx.ts`, `src/components/Hud.astro`
+### FASE 3: Kontrol Atmosfer Instan, Cuaca Dinamis & Musik Latar (BGM) — ✅ [SELESAI]
+**Target File**: `src/engine/TownEngine.ts`, `src/game/sfx.ts`, `src/components/Hud.astro`, `src/components/TownCanvas.astro`, `src/components/CommandPalette.astro`, `src/styles/global.css`
 
 1. **🌤️ Tombol Cuaca & Waktu Langsung di HUD**:
-   - Pengunjung tidak perlu berjalan jauh ke teleskop Lookout di ujung utara hanya untuk mencoba mode Malam.
-   - Tambahkan chip cuaca/waktu interaktif di HUD atas:
-     - **Waktu**: `☀️ Day` → `🌅 Sunset` → `🌙 Night` (lengkap dengan lampu jalan menyala, jendela gedung berpendar hangat, dan kunang-kunang di malam hari).
-     - **Cuaca (Weather System)**:
-       - `🌸 Cerah Berbunga`: Kelopak sakura & daun melayang lembut.
-       - `🌧️ Hujan Rintik (Lo-Fi Rain)`: Efek rintik hujan diagonal di atas kanvas + riak air di kolam/laut.
-       - `✨ Hujan Meteor (Starfall)`: Bintang jatuh berkilauan saat malam hari.
+   - Pengunjung dapat mengubah waktu dan cuaca secara instan dari tombol HUD atas, burger menu, teleskop Lookout, maupun modal `Ctrl+K`:
+     - **Waktu (Atmosphere Cycle)**:
+       - `☀️ Siang (Day)`: Pencahayaan alami cerah.
+       - `🌅 Senja (Sunset)`: Nuansa keemasan hangat (`rgba(255, 135, 45, 0.16)`) dengan lentera batu dan lampu cyber mulai berpendar.
+       - `🌙 Malam (Night)`: Nuansa malam biru gelap (`rgba(12, 18, 50, 0.44)`), jendela gedung utama (*Home, Dev Center, Lab, Poké Center, Poké Mart, Arcade, Tech Tower*) menyala dengan pendaran hangat, lentera menyala terang dengan radial lighting pools, dan kunang-kunang bioluminescent berterbangan di area taman/air.
+     - **Cuaca Dinamis (Weather System)**:
+       - `🌸 Sakura (Petals)`: Hembusan 45 partikel kelopak bunga sakura merah muda & daun hijau muda yang melayang santai dengan osilasi angin gelombang sinus.
+       - `🌧️ Hujan (Lo-Fi Rain)`: Efek 65 rintik hujan diagonal di atas kanvas dengan riak air (*water splash ripples*) yang meluas di permukaan tanah/air + wash atmosfer sejuk.
+       - `✨ Bintang (Starfall)`: Taburan bintang berkelip dan lintasan meteor berkilau (*shooting star streaks*) meluncur diagonal melintasi langit kota.
+     - Pilihan waktu dan cuaca tersimpan otomatis di `localStorage` (`town:atmosphere` & `town:weather`).
 2. **🎵 8-Bit Procedural Chiptune BGM & Ambient Soundscape (`sfx.ts`)**:
-   - Tambahkan generator musik latar *Lo-Fi 8-Bit* berbasis Web Audio API (tanpa perlu file MP3 besar, ukuran 0 KB!):
-     - Melodi kota yang santai dan nostalgik saat berjalan di Town Square.
-     - Melodi tenang saat mode Malam (*Night Mode*).
-     - Tombol `🎵 BGM` terpisah dari `🔊 SFX` di HUD sehingga pengunjung bebas memilih hanya efek suara, musik penuh, atau hening.
+   - Synthesizer musik latar *Lo-Fi 8-Bit* berbasis browser Web Audio API (**0 KB file audio, instan tanpa download MP3**):
+     - **Tema Siang ("Littleroot Breeze")**: Melodi C Major / G Major yang ceria, santai, dan nostalgik dengan arpeggio chord lembut.
+     - **Tema Senja ("Golden Horizon")**: Nuansa hangat akor Fmaj7 - Em7 - Dm7 dengan bass lembut.
+     - **Tema Malam ("Lullaby of the Stars")**: Melodi music-box bergaya lullaby Am9 / Cmaj7 dengan nada sine chime yang berkelip syahdu seperti bintang.
+     - Tombol **`🎵 BGM`** terpisah dari **`🔊 SFX`** di bar navigasi atas (`Hud.astro`), menu burger, dan modal pencarian, sehingga pengunjung bebas memilih efek suara saja, musik penuh, atau hening.
+
+#### 📝 Catatan Hasil Pengujian & Verifikasi Fase 3:
+- `npm --prefix 2D_Porto run build`: Berhasil bersih dengan **0 error** (seluruh 11 rute statis sukses terkompilasi dalam ~2.3 detik).
+- Audio context otomatis di-unlock saat interaksi pertama pengguna (`pointerdown`/`keydown`) sesuai kebijakan autoplay browser modern.
+- Transisi tema musik menyesuaikan waktu kota secara otomatis (Siang -> Senja -> Malam).
+- Semua partikel cuaca (sakura, hujan, meteor, kunang-kunang) terintegrasi mulus dalam siklus 60fps canvas engine tanpa membebani memori.
 
 ---
 
@@ -178,7 +188,7 @@ Namun, dari sisi **kenyamanan pengguna (User Experience)** dan **daya tarik inte
 |:------:|------|:----------------------:|:------------------------------:|:------:|
 | **1** | **Fase 1** (Run/Bike, Path Preview, HM Fly Map, Live Radar) | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ✅ **SELESAI (Completed)** |
 | **2** | **Fase 2** (`Ctrl+K` Search, Panel Mode, Clean HUD) | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ✅ **SELESAI (Completed)** |
-| **3** | **Fase 3** (HUD Time/Weather Toggle & 8-Bit BGM) | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⏳ *Menunggu Instruksi User* |
+| **3** | **Fase 3** (HUD Time/Weather Toggle & 8-Bit BGM) | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ✅ **SELESAI (Completed)** |
 | **4** | **Fase 4** (Switchable Follower Pokémon & Move FX) | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⏳ *Menunggu Instruksi User* |
 | **5** | **Fase 5** (Trainer Stamp Rally / Quest Guide) | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⏳ *Menunggu Instruksi User* |
 | **6** | **Fase 6** (Mobile Virtual GameBoy Controls) | ⭐⭐⭐⭐⭐ (Mobile) | ⭐⭐⭐⭐ | ⏳ *Menunggu Instruksi User* |
@@ -192,5 +202,8 @@ Namun, dari sisi **kenyamanan pengguna (User Experience)** dan **daya tarik inte
 - [x] Pokénav Command Palette (`Ctrl+K`) memungkinkan pencarian instan skill, download CV, salin email, dan teleportasi dalam **< 2 detik**.
 - [x] Panel bacaan konten memiliki 3 preset fleksibel (`Peta` 70:30, `50:50` Seimbang, `Baca` Reader Mode) yang responsif dan tersimpan di `localStorage`.
 - [x] Bar atas HUD publik terlihat bersih, profesional, dan rapi dengan pengelompokan alat teknis ke tombol popover **`⚙️ Dev`**.
+- [x] Kontrol waktu instan di HUD (`☀️ Siang`, `🌅 Senja`, `🌙 Malam`) menghadirkan pencahayaan kota dinamis, jendela gedung menyala hangat di malam hari, dan kunang-kunang bioluminescent.
+- [x] Sistem cuaca dinamis 3-mode (`🌸 Sakura`, `🌧️ Hujan Lo-Fi`, `✨ Hujan Meteor`) memperkaya atmosfer interaktif kanvas dengan riak air dan debu bintang.
+- [x] Generator musik latar 8-bit Lo-Fi Web Audio API (0 KB file audio) mengiringi penjelajahan dengan 3 variasi tema nostalgik yang selaras dengan suasana waktu.
 - [x] Pengunjung santai maupun recruiter mendapatkan pengalaman eksplorasi ala game Pokémon yang responsif, visual dinamis, dan intuitif.
 
