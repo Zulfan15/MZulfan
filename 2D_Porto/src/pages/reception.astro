@@ -811,6 +811,258 @@ const emailUrl = `mailto:${profile.person.email}`;
       </div>
     </section>
 
+    <!-- VIP Waiting Lounge & Portfolio Zine Rack -->
+    <section class="window p-4 md:p-5 bg-paper border-2 space-y-4" id="vip-lounge-section">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b-2 border-ink/15 pb-3">
+        <div class="flex items-center gap-2.5">
+          <span class="text-2xl p-1.5 rounded-lg bg-pink-100 border border-pink-300">🛋️</span>
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="font-pixel text-xs text-ink uppercase tracking-wide">
+                VIP Visitor Lounge · Portfolio Zine Rack
+              </h2>
+              <span class="chip bg-pink-100 text-pink-800 border-pink-300 font-mono text-[9px] font-bold px-1.5 py-0.5">
+                READING LOUNGE
+              </span>
+            </div>
+            <p class="font-sans text-[11px] text-ink-soft">
+              Relax on the plush leather couches, read technical pre-prints & publications, or claim Chansey's Lucky Egg speed buff
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button
+            type="button"
+            id="btn-claim-lucky-egg"
+            class="btn btn-sm btn-gold text-[10px] font-pixel flex items-center gap-1.5 hover:scale-[1.02] active:scale-95 transition-all"
+            title="Claim Chansey's Lucky Egg (+50% turbo movement speed for 25s)"
+          >
+            <span>🥚</span>
+            <span id="lucky-egg-btn-text">Claim Lucky Egg Buff</span>
+          </button>
+          <button
+            type="button"
+            class="btn btn-sm btn-paper text-[10px] font-pixel btn-inspect-2d"
+            data-prop="waiting-couch"
+            title="Navigate character to VIP Waiting Lounge on 2D canvas"
+          >
+            📍 Inspect 2D
+          </button>
+        </div>
+      </div>
+
+      <!-- Lucky Egg Active Banner (Hidden initially) -->
+      <div id="lucky-egg-active-banner" class="hidden p-3 rounded-xl bg-gradient-to-r from-amber-500/20 via-pink-500/20 to-amber-500/20 border-2 border-amber-400 text-ink text-xs font-sans flex items-center justify-between gap-3 shadow-sm animate-pulse">
+        <div class="flex items-center gap-2.5">
+          <span class="text-xl">🥚✨</span>
+          <div>
+            <div class="font-pixel text-xs text-amber-900 font-bold flex items-center gap-2">
+              <span>LUCKY EGG OVERCLOCK ACTIVE!</span>
+              <span id="lucky-egg-countdown" class="chip bg-amber-500 text-paper font-mono text-[10px] font-bold px-2 py-0.2">25s remaining</span>
+            </div>
+            <p class="text-[11px] text-amber-800 mt-0.5">
+              Chansey's Lucky Egg gives your character <strong>+50% turbo movement speed</strong> across the entire 2D portfolio town!
+            </p>
+          </div>
+        </div>
+        <span class="text-lg hidden sm:inline">⚡</span>
+      </div>
+
+      <!-- Zine Issue Selector Tabs -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5" id="zine-issue-tabs">
+        <button
+          type="button"
+          class="zine-tab card p-3 text-left transition-all cursor-pointer border-2 border-ball bg-ball/5 ring-1 ring-ball shadow-sm"
+          data-issue="aeroscan"
+        >
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="chip bg-emerald-100 text-emerald-800 border-emerald-400 font-mono text-[9px] font-bold">
+              Vol. 01 · Thesis
+            </span>
+            <span class="font-mono text-[9px] text-ink-soft">3 min read</span>
+          </div>
+          <div class="font-pixel text-xs text-ink truncate">AeroScan UAV Vision</div>
+          <div class="font-mono text-[10px] text-ink-soft mt-0.5">YOLOv8 + SAHI Slicing AI</div>
+        </button>
+
+        <button
+          type="button"
+          class="zine-tab card p-3 text-left transition-all cursor-pointer border-2 border-ink/20 hover:border-ink/50 bg-paper"
+          data-issue="foodlink"
+        >
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="chip bg-blue-100 text-blue-800 border-blue-400 font-mono text-[9px] font-bold">
+              Vol. 02 · Systems
+            </span>
+            <span class="font-mono text-[9px] text-ink-soft">4 min read</span>
+          </div>
+          <div class="font-pixel text-xs text-ink truncate">FoodLink Event Streaming</div>
+          <div class="font-mono text-[10px] text-ink-soft mt-0.5">Kafka · Redis · Microservices</div>
+        </button>
+
+        <button
+          type="button"
+          class="zine-tab card p-3 text-left transition-all cursor-pointer border-2 border-ink/20 hover:border-ink/50 bg-paper"
+          data-issue="robotics"
+        >
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="chip bg-amber-100 text-amber-800 border-amber-400 font-mono text-[9px] font-bold">
+              Vol. 03 · Hardware
+            </span>
+            <span class="font-mono text-[9px] text-ink-soft">3 min read</span>
+          </div>
+          <div class="font-pixel text-xs text-ink truncate">ESP32 Tank Kinematics</div>
+          <div class="font-mono text-[10px] text-ink-soft mt-0.5">FreeRTOS · WebSockets Telemetry</div>
+        </button>
+      </div>
+
+      <!-- Zine Reading Container -->
+      <div id="zine-article-container" class="p-4 md:p-5 rounded-xl bg-cream/70 border border-ink/20 space-y-4">
+        
+        <!-- Article 1: AeroScan UAV -->
+        <article id="zine-article-aeroscan" class="zine-article space-y-3.5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-ink/10 pb-3">
+            <div>
+              <span class="chip bg-emerald-100 text-emerald-800 border-emerald-300 font-mono text-[9px] font-bold">
+                UNDERGRADUATE THESIS · PREPARED FOR SINTA 2 JOURNAL
+              </span>
+              <h3 class="font-pixel text-xs md:text-sm text-ink mt-1">
+                Overcoming Small Object Loss in Aerial Orthomosaics via Slicing Aided Hyper Inference (SAHI)
+              </h3>
+              <p class="font-sans text-[11px] text-ink-soft">
+                Author: Muhammad Zulfan Anggadhiputra · Informatics ITENAS Bandung (GPA 3.49 / 4.00)
+              </p>
+            </div>
+            <a href="/lab" class="btn btn-sm btn-primary text-[10px] font-pixel flex items-center gap-1.5 self-start sm:self-auto shrink-0">
+              <span>🔬</span>
+              <span>Testbench in Lab →</span>
+            </a>
+          </div>
+
+          <div class="font-sans text-xs text-ink space-y-2.5 leading-relaxed">
+            <p>
+              Aerial drone surveillance and orthomosaic mapping present a fundamental challenge to standard single-stage object detectors like YOLOv8: high-altitude footage typically captures targets (vehicles, infrastructure defects, or pedestrians) that measure merely <strong>15×15 to 30×30 pixels</strong> within 4K frames. Downsampling such high-resolution images through deep convolutional backbones obliterates key spatial gradients.
+            </p>
+            
+            <div class="p-3.5 rounded-lg bg-paper border border-ink/15 space-y-2 font-mono text-[11px]">
+              <div class="font-bold text-ink flex items-center gap-2">
+                <span>📐</span>
+                <span>The Sliced Inference Pipeline:</span>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-4 gap-2 text-ink-soft text-[10px]">
+                <div class="p-2 rounded bg-cream border border-ink/10">
+                  <span class="font-bold text-ink block">1. Tiling</span>
+                  512×512 slices with 20% slice overlap ratio.
+                </div>
+                <div class="p-2 rounded bg-cream border border-ink/10">
+                  <span class="font-bold text-ink block">2. Batch Inference</span>
+                  YOLOv8x tuned on high-res small objects.
+                </div>
+                <div class="p-2 rounded bg-cream border border-ink/10">
+                  <span class="font-bold text-ink block">3. Full Frame</span>
+                  Global context pass to detect larger macro structures.
+                </div>
+                <div class="p-2 rounded bg-cream border border-ink/10">
+                  <span class="font-bold text-ink block">4. NMS Stitching</span>
+                  Non-Maximum Suppression merges bounding boxes.
+                </div>
+              </div>
+            </div>
+
+            <p>
+              By decoupling resolution limits from the backbone input size, the SAHI pipeline achieved an impressive <strong>+18.4% improvement in mAP50</strong> over standard baseline models, providing actionable intelligence for disaster management, agricultural yield estimation, and traffic density modeling.
+            </p>
+          </div>
+        </article>
+
+        <!-- Article 2: FoodLink Microservices -->
+        <article id="zine-article-foodlink" class="zine-article hidden space-y-3.5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-ink/10 pb-3">
+            <div>
+              <span class="chip bg-blue-100 text-blue-800 border-blue-300 font-mono text-[9px] font-bold">
+                DISTRIBUTED BACKEND ARCHITECTURE · PRODUCTION CASE STUDY
+              </span>
+              <h3 class="font-pixel text-xs md:text-sm text-ink mt-1">
+                Decoupled High-Throughput Event Streaming with Apache Kafka, Redis, and FastAPI
+              </h3>
+              <p class="font-sans text-[11px] text-ink-soft">
+                Author: Muhammad Zulfan Anggadhiputra · Certified Huawei HCIA-Security V4.0
+              </p>
+            </div>
+            <a href="/dev" class="btn btn-sm btn-primary text-[10px] font-pixel flex items-center gap-1.5 self-start sm:self-auto shrink-0">
+              <span>💻</span>
+              <span>Architecture in Dev Center →</span>
+            </a>
+          </div>
+
+          <div class="font-sans text-xs text-ink space-y-2.5 leading-relaxed">
+            <p>
+              Traditional monolithic web architectures face significant degradation under peak burst traffic. In the FoodLink platform, Zulfan engineered a decoupled, event-driven microservices topology capable of processing order state transitions, real-time driver coordinates, and inventory allocations with sub-50ms message latency.
+            </p>
+
+            <div class="p-3.5 rounded-lg bg-paper border border-ink/15 space-y-2 font-mono text-[11px]">
+              <div class="font-bold text-ink flex items-center gap-2">
+                <span>⚡</span>
+                <span>System Highlights &amp; Guarantees:</span>
+              </div>
+              <ul class="list-disc list-inside space-y-1 text-ink-soft text-[11px]">
+                <li><strong>Apache Kafka Event Log:</strong> Partitioned topics guarantee strict sequential order processing and audit trails.</li>
+                <li><strong>Redis Pub/Sub &amp; In-Memory Cache:</strong> Sub-millisecond driver geofencing and active shopping cart state.</li>
+                <li><strong>Idempotency Keys:</strong> Prevents duplicate transactions across network drops and retries.</li>
+                <li><strong>Hardened Security:</strong> JWT role-based access control (RBAC) and enterprise NGFW perimeter policies.</li>
+              </ul>
+            </div>
+          </div>
+        </article>
+
+        <!-- Article 3: ESP32 RC Tank Kinematics -->
+        <article id="zine-article-robotics" class="zine-article hidden space-y-3.5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-ink/10 pb-3">
+            <div>
+              <span class="chip bg-amber-100 text-amber-800 border-amber-300 font-mono text-[9px] font-bold">
+                NATIONAL IDEA FEST 3 BRONZE MEDALIST · EMBEDDED R&D
+              </span>
+              <h3 class="font-pixel text-xs md:text-sm text-ink mt-1">
+                FreeRTOS Dual-Core Segregation &amp; Low-Latency WebSockets for Differential Drive Robots
+              </h3>
+              <p class="font-sans text-[11px] text-ink-soft">
+                Author: Muhammad Zulfan Anggadhiputra · 2-Year Coordinator of ITENAS Robotics Lab
+              </p>
+            </div>
+            <a href="/tower" class="btn btn-sm btn-primary text-[10px] font-pixel flex items-center gap-1.5 self-start sm:self-auto shrink-0">
+              <span>🏢</span>
+              <span>Robotics Bay in Tech Tower →</span>
+            </a>
+          </div>
+
+          <div class="font-sans text-xs text-ink space-y-2.5 leading-relaxed">
+            <p>
+              Combining real-time mechanical motor control with wireless networking requires strict deterministic guarantees. In the ESP32 RC Tank project, Zulfan implemented FreeRTOS preemptive multitasking to completely isolate network jitter from motor timing loops.
+            </p>
+
+            <div class="p-3.5 rounded-lg bg-paper border border-ink/15 space-y-2 font-mono text-[11px]">
+              <div class="font-bold text-ink flex items-center gap-2">
+                <span>🤖</span>
+                <span>Dual-Core Resource Segregation:</span>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-ink-soft text-[10px]">
+                <div class="p-2.5 rounded bg-cream border border-ink/10">
+                  <span class="font-bold text-ink block text-[11px]">Core 0: Network &amp; Telemetry</span>
+                  Dedicated to FreeRTOS TCP/IP stack, asynchronous WebSockets server, and streaming 60Hz telemetry packets to the Flutter app.
+                </div>
+                <div class="p-2.5 rounded bg-cream border border-ink/10">
+                  <span class="font-bold text-ink block text-[11px]">Core 1: Kinematics &amp; Safety</span>
+                  Executes the 100Hz PWM differential drive equation, PID steering calculations, and HC-SR04 ultrasonic collision interrupt routine.
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
     <!-- Front Desk FAQ & Quick Logistics -->
     <section class="window p-4 md:p-5 bg-paper border-2 space-y-4" id="visitor-inquiries">
       <h2 class="font-pixel text-xs text-ink uppercase tracking-wide flex items-center gap-2 border-b-2 border-ink/15 pb-2.5">
@@ -977,6 +1229,13 @@ const emailUrl = `mailto:${profile.person.email}`;
           return;
         }
 
+        if (action === 'waiting-couch') {
+          window.dispatchEvent(new CustomEvent('town:locate', { detail: { propId: 'waiting-couch' } }));
+          const lounge = document.querySelector('#vip-lounge-section');
+          lounge?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          return;
+        }
+
         window.dispatchEvent(new CustomEvent('town:locate', { detail: { propId: action } }));
         const townCanvas = document.querySelector('.town');
         if (townCanvas && window.innerWidth < 768) {
@@ -1083,6 +1342,73 @@ const emailUrl = `mailto:${profile.person.email}`;
         }
       });
     }
+
+    // 📰 Portfolio Zine Issue Tabs
+    const zineTabs = document.querySelectorAll<HTMLButtonElement>('.zine-tab');
+    const zineArticles = document.querySelectorAll<HTMLElement>('.zine-article');
+    zineTabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        const issue = tab.getAttribute('data-issue');
+        if (!issue) return;
+
+        sfx.select();
+
+        zineTabs.forEach((t) => {
+          t.className = 'zine-tab card p-3 text-left transition-all cursor-pointer border-2 border-ink/20 hover:border-ink/50 bg-paper';
+        });
+        tab.className = 'zine-tab card p-3 text-left transition-all cursor-pointer border-2 border-ball bg-ball/5 ring-1 ring-ball shadow-sm';
+
+        zineArticles.forEach((article) => {
+          article.classList.add('hidden');
+        });
+        const targetArticle = document.getElementById(`zine-article-${issue}`);
+        if (targetArticle) {
+          targetArticle.classList.remove('hidden');
+        }
+      });
+    });
+
+    // 🥚 Lucky Egg Speed Buff Tracker
+    const btnClaimLuckyEgg = document.getElementById('btn-claim-lucky-egg');
+    const luckyEggBtnText = document.getElementById('lucky-egg-btn-text');
+    const luckyEggBanner = document.getElementById('lucky-egg-active-banner');
+    const luckyEggCountdown = document.getElementById('lucky-egg-countdown');
+
+    let eggCountdownTimer: number | null = null;
+    let secondsLeft = 0;
+
+    function handleLuckyEggBuff(duration = 25) {
+      secondsLeft = duration;
+      if (luckyEggBanner) luckyEggBanner.classList.remove('hidden');
+      if (luckyEggCountdown) luckyEggCountdown.textContent = `${secondsLeft}s remaining`;
+      if (luckyEggBtnText) luckyEggBtnText.textContent = `✨ Active (${secondsLeft}s)`;
+
+      if (eggCountdownTimer) clearInterval(eggCountdownTimer);
+
+      eggCountdownTimer = window.setInterval(() => {
+        secondsLeft--;
+        if (secondsLeft <= 0) {
+          if (eggCountdownTimer) clearInterval(eggCountdownTimer);
+          eggCountdownTimer = null;
+          if (luckyEggBanner) luckyEggBanner.classList.add('hidden');
+          if (luckyEggBtnText) luckyEggBtnText.textContent = 'Claim Lucky Egg Buff';
+        } else {
+          if (luckyEggCountdown) luckyEggCountdown.textContent = `${secondsLeft}s remaining`;
+          if (luckyEggBtnText) luckyEggBtnText.textContent = `✨ Active (${secondsLeft}s)`;
+        }
+      }, 1000);
+    }
+
+    btnClaimLuckyEgg?.addEventListener('click', () => {
+      window.dispatchEvent(new CustomEvent('town:claim-lucky-egg'));
+      sfx.confirm();
+      handleLuckyEggBuff(25);
+    });
+
+    window.addEventListener('town:lucky-egg-boost', (e: Event) => {
+      const customEvent = e as CustomEvent<{ duration: number }>;
+      handleLuckyEggBuff(customEvent.detail?.duration || 25);
+    });
   }
 
   document.addEventListener('astro:page-load', initHealingStation);

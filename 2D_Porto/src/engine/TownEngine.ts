@@ -1949,6 +1949,12 @@ export class TownEngine {
     };
     window.addEventListener('town:reception-heal-anim', onReceptionHeal);
 
+    const onLuckyEgg = () => {
+      this.activateCoffeeBoost(25);
+      this.wake();
+    };
+    window.addEventListener('town:claim-lucky-egg', onLuckyEgg);
+
     this.unbindEvents.push(
       () => window.removeEventListener('keydown', onKeyDown),
       () => window.removeEventListener('keyup', onKeyUp),
@@ -1973,7 +1979,8 @@ export class TownEngine {
       () => window.removeEventListener('town:locate', onLocate),
       () => window.removeEventListener('town:coffee-boost', onCoffeeBoost),
       () => window.removeEventListener('town:tower-floor', onTowerFloor),
-      () => window.removeEventListener('town:reception-heal-anim', onReceptionHeal)
+      () => window.removeEventListener('town:reception-heal-anim', onReceptionHeal),
+      () => window.removeEventListener('town:claim-lucky-egg', onLuckyEgg)
     );
   }
 
@@ -3106,10 +3113,11 @@ export class TownEngine {
     for (let i = 0; i < 8; i++) {
       this.spawnDustPuff(curDrawX, curDrawY);
     }
+    window.dispatchEvent(new CustomEvent('town:lucky-egg-boost', { detail: { duration: durationSec } }));
     if (this.callbacks.onBubble) {
       this.callbacks.onBubble(
-        '☕ Robusta Overclock Active!',
-        `Kafein robusta murni meresap ke sistem! Kecepatan gerak karakter meningkat +50% selama ${durationSec} detik. Gas poll eksplorasi Mission Control & Portofolio!`
+        '🥚 Lucky Egg Turbo Buff Active!',
+        `Chansey's Lucky Egg has filled you with boundless energy! Character movement speed is boosted by +50% for ${durationSec} seconds. Enjoy exploring Zulfan's Portfolio Town!`
       );
     }
   }
@@ -4283,12 +4291,12 @@ export class TownEngine {
                   {
                     label: '🥚 Take Lucky Egg (+50% Speed Boost)',
                     onClick: () => {
-                      this.activateCoffeeBoost(15000);
+                      this.activateCoffeeBoost(25);
                       sfx.confirm();
                       if (this.callbacks.onBubble) {
                         this.callbacks.onBubble(
                           'Lucky Egg Speed Boost 🥚✨',
-                          "Chansey gave you a fresh Lucky Egg! You feel energized and ready to explore Zulfan's portfolio town with +50% turbo movement speed!"
+                          "Chansey gave you a fresh Lucky Egg! You feel energized and ready to explore Zulfan's portfolio town with +50% turbo movement speed for 25 seconds!"
                         );
                       }
                     },
@@ -4351,8 +4359,21 @@ export class TownEngine {
             if (this.callbacks.onBubble) {
               this.callbacks.onBubble(
                 'VIP Visitor Lounge 🛋️',
-                "A plush executive lounge. On the mahogany coffee table rests Muhammad Zulfan's official résumé, ITENAS Computer Science academic records (GPA 3.49/4.00), and recent research pre-prints.",
+                "A plush executive lounge. On the mahogany coffee table rests Muhammad Zulfan's official résumé, ITENAS Computer Science academic records (GPA 3.49/4.00), and research pre-prints.",
                 [
+                  {
+                    label: '📰 Read Portfolio Zines & Research (Scroll)',
+                    onClick: () => {
+                      const lounge = document.querySelector('#vip-lounge-section');
+                      lounge?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    },
+                  },
+                  {
+                    label: '🥚 Claim Lucky Egg Buff (+50% Speed)',
+                    onClick: () => {
+                      this.activateCoffeeBoost(25);
+                    },
+                  },
                   {
                     label: '📄 Download Official CV (PDF)',
                     onClick: () => {
