@@ -2,6 +2,7 @@
 import TownLayout from '../layouts/TownLayout.astro';
 import WhereTo from '../components/WhereTo.astro';
 import TankSandboxModal from '../components/TankSandboxModal.astro';
+import NocFirewallModal from '../components/NocFirewallModal.astro';
 import { profile } from '../lib/profile';
 
 const githubUrl = profile.socials.find((s) => s.label === 'GitHub')?.url || 'https://github.com/Zulfan15';
@@ -274,10 +275,12 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
           <div class="pt-3 border-t border-ink/10 flex items-center justify-between gap-2">
             <span class="font-mono text-[11px] text-ink-soft">Huawei Certified 2025</span>
             <div class="flex items-center gap-1.5">
+              <button type="button" class="btn btn-sm btn-paper text-[10px] font-pixel text-indigo-700 border-indigo-500 font-bold btn-launch-noc" title="Launch Huawei HCIA-Security Firewall & Network NOC Monitor">
+                🛡️ Launch NOC Monitor
+              </button>
               <button type="button" class="btn btn-sm btn-paper text-[10px] font-pixel btn-inspect-2d" data-prop="server-rack" title="Navigate character to Server Rack NOC on 2D canvas">
                 📍 Inspect 2D
               </button>
-              <span class="chip bg-indigo-100 text-indigo-900 border-indigo-300 font-mono text-[10px]">Certified</span>
             </div>
           </div>
         </article>
@@ -393,6 +396,9 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
   <!-- Interactive ESP32 RC Tank Kinematics & Robotics Telemetry Testbench -->
   <TankSandboxModal />
 
+  <!-- Interactive Huawei HCIA-Security Firewall & Network NOC Monitor -->
+  <NocFirewallModal />
+
   <style>
     .tower-card {
       transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
@@ -500,6 +506,14 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
       tankLaunchButtons.forEach((btn) => {
         btn.addEventListener('click', () => {
           window.dispatchEvent(new CustomEvent('tower:open-tank-sandbox'));
+        });
+      });
+
+      // 🛡️ Launch Huawei HCIA NOC Monitor modal trigger
+      const nocLaunchButtons = document.querySelectorAll<HTMLButtonElement>('.btn-launch-noc');
+      nocLaunchButtons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          window.dispatchEvent(new CustomEvent('tower:open-noc-sandbox'));
         });
       });
 

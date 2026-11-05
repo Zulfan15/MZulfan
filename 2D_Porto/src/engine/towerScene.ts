@@ -645,6 +645,29 @@ export function renderTowerAnimations(
     ctx.strokeStyle = `rgba(129, 140, 248, ${0.45 + 0.3 * Math.sin(tick / 10)})`;
     ctx.lineWidth = 1;
     ctx.strokeRect(sx + 1.5, sy + 1.5, 3 * TILE_SIZE - 3, 3 * TILE_SIZE - 3);
+
+    // Dynamic Server Blinking Activity LEDs across rack shelves
+    for (let bay = 0; bay < 3; bay++) {
+      const bx = sx + 5 + bay * 14;
+      for (let shelf = 0; shelf < 4; shelf++) {
+        const by = sy + 10 + shelf * 7;
+        const isBlinking = ((tick + bay * 7 + shelf * 11) % 16) < 8;
+        ctx.fillStyle = isBlinking ? (shelf % 2 === 0 ? '#38bdf8' : '#818cf8') : '#1e1b4b';
+        ctx.fillRect(bx, by, 3, 2);
+        // Activity status LED
+        const isAct = ((tick + bay * 3 + shelf * 5) % 8) < 4;
+        ctx.fillStyle = isAct ? '#22c55e' : '#052e16';
+        ctx.fillRect(bx + 4, by, 2, 2);
+      }
+    }
+
+    // Fiber Optic vertical pulse running down the central cable channel
+    const fiberY = sy + 8 + ((tick * 2) % 30);
+    ctx.fillStyle = '#f59e0b';
+    ctx.fillRect(sx + 23, fiberY, 2, 4);
+
+    // Glowing 3F HCIA NOC Badge in pixel text
+    drawPixelText(ctx, 'HUAWEI HCIA NOC', sx + 2, sy + 38, '#818cf8');
   } else if (activeFloor === '4F') {
     // Career Terminal at (1, 7, 3, 2)
     const cx = 1 * TILE_SIZE;

@@ -3984,6 +3984,12 @@ export class TownEngine {
                 'Network Operations Center & Security: Internationally certified in Huawei HCIA-Security V4.0 (Firewall policies, IPSec VPN, NAT traversal) & high-concurrency cloud architecture (Apache Kafka, Redis Lua Mutexes, Kubernetes).',
                 [
                   {
+                    label: '🛡️ Launch Huawei Firewall & NOC Monitor',
+                    onClick: () => {
+                      window.dispatchEvent(new CustomEvent('tower:open-noc-sandbox'));
+                    },
+                  },
+                  {
                     label: '🔒 View 3F Security & Topology Details',
                     onClick: () => {
                       window.dispatchEvent(new CustomEvent('town:focus-department', { detail: { floor: '3F', propId: 'server-rack' } }));

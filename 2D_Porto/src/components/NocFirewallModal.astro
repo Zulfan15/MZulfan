@@ -1,0 +1,655 @@
+---
+// NocFirewallModal.astro — Interactive Huawei HCIA-Security Firewall & Network NOC Monitor
+// Showcases Muhammad Zulfan's Huawei HCIA-Security certification, ITENAS Network Lab Assistantship & Distributed Cloud Architecture
+---
+
+<dialog
+  id="noc-firewall-modal"
+  class="noc-modal backdrop:bg-slate-950/80 backdrop:backdrop-blur-sm"
+  aria-labelledby="noc-modal-title"
+>
+  <div class="noc-card window p-0 overflow-hidden bg-slate-900 border-2 border-indigo-500/60 shadow-2xl text-slate-100 flex flex-col max-h-[92vh] w-[95vw] max-w-4xl">
+    <!-- Top Header Bar -->
+    <header class="bg-slate-950 px-4 py-2.5 border-b-2 border-indigo-500/40 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-2.5 flex-wrap">
+        <span class="text-xl">🔒</span>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="chip bg-indigo-950 text-indigo-400 border border-indigo-700/60 font-mono text-[9px] px-1.5 py-0.5 font-bold uppercase tracking-wider">
+              Huawei HCIA-Security V4.0 Certified
+            </span>
+            <span class="chip bg-sky-950 text-sky-400 border border-sky-700/60 font-mono text-[9px] px-1.5 py-0.5 font-bold uppercase tracking-wider">
+              Huawei USG6000V NGFW · VRP OS
+            </span>
+          </div>
+          <h2 id="noc-modal-title" class="font-pixel text-xs text-white tracking-wide mt-0.5">
+            Huawei HCIA-Security Firewall &amp; Network NOC Monitor
+          </h2>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button
+          type="button"
+          id="btn-close-noc-modal"
+          class="btn btn-sm bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-600 font-pixel text-xs px-2.5 py-1 transition-colors"
+          aria-label="Close NOC Monitor"
+        >
+          ✕ CLOSE
+        </button>
+      </div>
+    </header>
+
+    <!-- Telemetry Real-time Metric Bar -->
+    <div class="bg-slate-950/90 px-4 py-2 border-b border-slate-800 grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-mono">
+      <div class="flex items-center gap-2">
+        <span class="text-emerald-400">🛡️</span>
+        <div>
+          <span class="text-slate-400 text-[10px] block">FIREWALL ENGINE</span>
+          <span class="text-emerald-300 font-bold" id="noc-firewall-status">STATEFUL DPI (ACTIVE)</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-indigo-400">🔒</span>
+        <div>
+          <span class="text-slate-400 text-[10px] block">IPSEC VPN TUNNEL</span>
+          <span class="text-indigo-300 font-bold" id="noc-vpn-status">AES-256-GCM (UP)</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-sky-400">⚡</span>
+        <div>
+          <span class="text-slate-400 text-[10px] block">NETWORK THROUGHPUT</span>
+          <span class="text-sky-300 font-bold" id="noc-throughput">14.8 Gbps (12.4k pps)</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-rose-400">🚫</span>
+        <div>
+          <span class="text-slate-400 text-[10px] block">THREATS MITIGATED</span>
+          <span class="text-rose-400 font-bold" id="noc-blocked-counter">3,412 Drops</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="p-4 overflow-y-auto space-y-4 flex-1 bg-slate-900/95">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        <!-- Left: Interactive Network Topology & Packet Stream Canvas (7 Cols) -->
+        <div class="lg:col-span-7 flex flex-col space-y-2">
+          <div class="flex items-center justify-between text-xs font-mono">
+            <span class="text-slate-300 font-bold flex items-center gap-1.5">
+              <span>🖧</span>
+              <span>LIVE NETWORK TOPOLOGY &amp; PACKET PIPELINE</span>
+            </span>
+            <span class="text-indigo-400 text-[11px]" id="noc-packet-rate">Inspecting: 60 fps</span>
+          </div>
+
+          <!-- Network Canvas Wrapper -->
+          <div class="relative rounded-lg overflow-hidden border-2 border-slate-700 bg-slate-950 shadow-inner flex items-center justify-center">
+            <canvas
+              id="noc-topology-canvas"
+              width="440"
+              height="300"
+              class="w-full h-auto block select-none"
+              title="Huawei HCIA Network Topology"
+            ></canvas>
+
+            <!-- Overlay Attack Banner -->
+            <div
+              id="noc-attack-banner"
+              class="absolute top-2.5 right-2.5 bg-rose-950/90 border border-rose-500 text-rose-300 text-[10px] font-mono px-2.5 py-1 rounded shadow hidden animate-pulse"
+            >
+              ⚠️ SYN FLOOD ATTACK DETECTED — FILTER ENGAGED!
+            </div>
+
+            <!-- Overlay Zone Legend -->
+            <div class="absolute bottom-2 left-2 bg-slate-900/85 backdrop-blur-sm border border-slate-800 rounded px-2 py-1 font-mono text-[9px] flex items-center gap-2 shadow">
+              <span class="flex items-center gap-1 text-slate-300"><span class="w-2 h-2 rounded-full bg-sky-400 inline-block"></span> HTTPS</span>
+              <span class="flex items-center gap-1 text-amber-300"><span class="w-2 h-2 rounded-full bg-amber-400 inline-block"></span> IPSec</span>
+              <span class="flex items-center gap-1 text-purple-300"><span class="w-2 h-2 rounded-full bg-purple-400 inline-block"></span> Kafka</span>
+              <span class="flex items-center gap-1 text-rose-400"><span class="w-2 h-2 rounded-full bg-rose-500 inline-block"></span> SYN Drop</span>
+            </div>
+          </div>
+
+          <!-- Simulation Trigger Buttons -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 pt-1">
+            <button
+              type="button"
+              id="btn-sim-normal"
+              class="btn btn-sm bg-slate-800 hover:bg-slate-700 text-sky-300 border border-sky-500/50 font-mono text-[10px] py-1.5"
+              title="Transmit standard HTTPS API requests"
+            >
+              🌐 Send HTTPS
+            </button>
+            <button
+              type="button"
+              id="btn-sim-attack"
+              class="btn btn-sm bg-rose-950 hover:bg-rose-900 text-rose-300 border border-rose-600 font-mono text-[10px] py-1.5 font-bold"
+              title="Simulate SYN Flood attack on Untrust port"
+            >
+              🛡️ SYN Flood Test
+            </button>
+            <button
+              type="button"
+              id="btn-sim-vpn"
+              class="btn btn-sm bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/50 font-mono text-[10px] py-1.5"
+              title="Transmit encrypted IPSec VPN packets"
+            >
+              🔒 Test IPSec VPN
+            </button>
+            <button
+              type="button"
+              id="btn-sim-kafka"
+              class="btn btn-sm bg-slate-800 hover:bg-slate-700 text-purple-300 border border-purple-500/50 font-mono text-[10px] py-1.5"
+              title="Trigger high-throughput Kafka event burst"
+            >
+              ⚡ Kafka Stream
+            </button>
+          </div>
+        </div>
+
+        <!-- Right: Firewall ACL Rules & Live Huawei Syslog (5 Cols) -->
+        <div class="lg:col-span-5 flex flex-col space-y-3">
+          <!-- Huawei USG Security Policy Rules -->
+          <div class="p-2.5 rounded-lg bg-slate-950 border border-slate-800 space-y-2">
+            <div class="flex items-center justify-between text-[11px] font-mono border-b border-slate-800/80 pb-1">
+              <span class="text-slate-300 font-bold uppercase">Huawei USG Security ACL Policies</span>
+              <span class="text-emerald-400 font-bold">State: ACTIVE</span>
+            </div>
+
+            <div class="space-y-1.5 text-[10px] font-mono">
+              <div class="flex items-center justify-between p-1.5 bg-slate-900 rounded border border-slate-800">
+                <div class="flex items-center gap-1.5">
+                  <span class="text-emerald-400 font-bold">PERMIT</span>
+                  <span class="text-slate-300">Rule 10: Web_Inbound (Port 443)</span>
+                </div>
+                <span class="text-sky-400" id="hits-rule-10">Hits: 14,290</span>
+              </div>
+
+              <div class="flex items-center justify-between p-1.5 bg-slate-900 rounded border border-slate-800">
+                <div class="flex items-center gap-1.5">
+                  <span class="text-emerald-400 font-bold">PERMIT</span>
+                  <span class="text-slate-300">Rule 20: IPSec_Tunnel (UDP 500/4500)</span>
+                </div>
+                <span class="text-amber-400" id="hits-rule-20">Hits: 3,120</span>
+              </div>
+
+              <div class="flex items-center justify-between p-1.5 bg-slate-900 rounded border border-slate-800">
+                <div class="flex items-center gap-1.5">
+                  <span class="text-rose-400 font-bold">DROP</span>
+                  <span class="text-slate-300">Rule 30: Anti_DDoS (Rate &gt; 8000pps)</span>
+                </div>
+                <span class="text-rose-400 font-bold" id="hits-rule-30">Drops: 3,412</span>
+              </div>
+
+              <div class="flex items-center justify-between p-1.5 bg-slate-900 rounded border border-slate-800">
+                <div class="flex items-center gap-1.5">
+                  <span class="text-rose-400 font-bold">REJECT</span>
+                  <span class="text-slate-300">Rule 40: Telnet_Insecure (Port 23)</span>
+                </div>
+                <span class="text-slate-400">Drops: 94</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Network Architecture Details Accordion -->
+          <div class="p-2.5 rounded-lg bg-slate-950 border border-slate-800 space-y-1.5 text-xs font-mono">
+            <div class="flex justify-between text-[11px]">
+              <span class="text-slate-400">EDGE ROUTER:</span>
+              <span class="text-sky-400 font-bold">MikroTik RouterOS (NAT &amp; OSPF)</span>
+            </div>
+            <div class="flex justify-between text-[11px]">
+              <span class="text-slate-400">SECURITY ENGINE:</span>
+              <span class="text-indigo-400 font-bold">Huawei USG6000V NGFW / IPS</span>
+            </div>
+            <div class="flex justify-between text-[11px]">
+              <span class="text-slate-400">VPN PROTOCOL:</span>
+              <span class="text-amber-400 font-bold">Site-to-Site IPSec / IKEv2</span>
+            </div>
+            <div class="flex justify-between text-[11px]">
+              <span class="text-slate-400">CLOUD BACKEND:</span>
+              <span class="text-purple-400 font-bold">Kafka + Redis Mutex + Docker</span>
+            </div>
+          </div>
+
+          <!-- Live Huawei VRP Syslog Terminal -->
+          <div class="p-2.5 rounded-lg bg-slate-950 border border-slate-800 flex flex-col space-y-1">
+            <div class="flex items-center justify-between text-[10px] font-mono text-slate-400 border-b border-slate-800/80 pb-1">
+              <span class="text-indigo-400 font-bold">HUAWEI VRP LOG STREAM (@ CONSOLE 0)</span>
+              <span class="text-slate-500">Live Daemon</span>
+            </div>
+            <div
+              id="noc-serial-output"
+              class="h-28 overflow-y-auto font-mono text-[10px] leading-relaxed text-slate-300 space-y-0.5 select-text bg-black/40 p-1.5 rounded border border-slate-800/50"
+            >
+              <div class="text-slate-500">[00:00:01] %% USG6000V VRP version 5.170 (Enterprise Edition) boot completed.</div>
+              <div class="text-emerald-400">[00:00:02] %% %SEC-6-POLICY_PERMIT: Default security policy loaded: Trust to Untrust NAT active.</div>
+              <div class="text-amber-400">[00:00:02] %% %IPSEC-5-SA_UP: IKEv2 Phase-2 SA established with remote gateway (AES-256-GCM).</div>
+              <div class="text-sky-400">[00:00:03] %% %NAT-6-SESSION: MikroTik masquerade pool 10.0.1.0/24 healthy.</div>
+              <div class="text-purple-400">[00:00:04] %% %KAFKA-6-CLUSTER: Distributed broker cluster online (3 nodes, partition replication=2).</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Professional Certification & Experience Footer -->
+      <footer class="p-3 bg-slate-950 rounded-lg border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
+        <div>
+          <span class="text-indigo-400 font-bold font-mono block">
+            🎓 Huawei Certified HCIA-Security V4.0 &amp; ITENAS Computer Network Lab Assistant
+          </span>
+          <p class="text-slate-400 text-[11px] mt-0.5 leading-relaxed">
+            Internationally certified in enterprise security engineering (firewall policies, NAT traversal, IPSec VPN, defense against volumetric DDoS). Mentored 60+ engineering students in MikroTik routing, TCP/IP, and network packet analysis at ITENAS.
+          </p>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+          <a
+            href="/cv/CV_Zulfan.pdf"
+            target="_blank"
+            class="btn btn-sm bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 font-pixel text-[10px] px-3 py-1.5"
+          >
+            📄 Download CV
+          </a>
+          <button
+            type="button"
+            id="btn-footer-close-noc"
+            class="btn btn-sm bg-indigo-600 hover:bg-indigo-500 text-white border border-indigo-400 font-pixel text-[10px] px-3 py-1.5"
+          >
+            ✓ Done Testing
+          </button>
+        </div>
+      </footer>
+    </div>
+  </div>
+</dialog>
+
+<style>
+  .noc-modal::backdrop {
+    background-color: rgba(2, 6, 23, 0.85);
+    backdrop-filter: blur(4px);
+  }
+  .noc-modal {
+    border: none;
+    background: transparent;
+    padding: 0;
+    max-width: 100vw;
+  }
+  .noc-modal[open] {
+    animation: modal-pop 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  @keyframes modal-pop {
+    from {
+      opacity: 0;
+      transform: scale(0.96) translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+</style>
+
+<script>
+  import { sfx } from '../game/sfx';
+
+  interface Packet {
+    x: number;
+    y: number;
+    targetIdx: number;
+    speed: number;
+    type: 'https' | 'attack' | 'vpn' | 'kafka';
+    dropped: boolean;
+  }
+
+  interface Node {
+    x: number;
+    y: number;
+    label: string;
+    sub: string;
+    icon: string;
+    color: string;
+  }
+
+  function initNocMonitor() {
+    const dialog = document.getElementById('noc-firewall-modal') as HTMLDialogElement | null;
+    const closeBtn = document.getElementById('btn-close-noc-modal');
+    const footerCloseBtn = document.getElementById('btn-footer-close-noc');
+    const canvas = document.getElementById('noc-topology-canvas') as HTMLCanvasElement | null;
+    if (!dialog || !canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // DOM UI Elements
+    const serialOutput = document.getElementById('noc-serial-output');
+    const blockedCounterText = document.getElementById('noc-blocked-counter');
+    const attackBanner = document.getElementById('noc-attack-banner');
+    const hitsRule10 = document.getElementById('hits-rule-10');
+    const hitsRule20 = document.getElementById('hits-rule-20');
+    const hitsRule30 = document.getElementById('hits-rule-30');
+
+    const btnSimNormal = document.getElementById('btn-sim-normal');
+    const btnSimAttack = document.getElementById('btn-sim-attack');
+    const btnSimVpn = document.getElementById('btn-sim-vpn');
+    const btnSimKafka = document.getElementById('btn-sim-kafka');
+
+    // Simulation Stats
+    let isRunning = false;
+    let animFrameId: number | null = null;
+    let blockedDrops = 3412;
+    let rule10Hits = 14290;
+    let rule20Hits = 3120;
+    let isAttackActive = false;
+    let attackTimer = 0;
+
+    // Network Topology Nodes Layout (440 x 300)
+    const nodes: Node[] = [
+      { x: 50, y: 150, label: 'UNTRUST ZONE', sub: 'Internet Clients', icon: '🌐', color: '#64748b' },
+      { x: 140, y: 150, label: 'MIKROTIK ROUTER', sub: 'NAT & Edge Gateway', icon: '📶', color: '#38bdf8' },
+      { x: 235, y: 150, label: 'HUAWEI USG NGFW', sub: 'HCIA Firewall / IPS', icon: '🛡️', color: '#818cf8' },
+      { x: 330, y: 80, label: 'IPSEC VPN / DMZ', sub: 'AES-256 Tunnel', icon: '🔒', color: '#f59e0b' },
+      { x: 380, y: 220, label: 'CLOUD CLUSTER', sub: 'Kafka / Redis / DB', icon: '☁️', color: '#c084fc' },
+    ];
+
+    // Connections between nodes: [from, to]
+    const links: [number, number][] = [
+      [0, 1], // Untrust -> MikroTik
+      [1, 2], // MikroTik -> USG Firewall
+      [2, 3], // USG Firewall -> IPSec DMZ
+      [2, 4], // USG Firewall -> Cloud Cluster
+    ];
+
+    let packets: Packet[] = [];
+
+    // Helper to log VRP messages
+    function appendSyslog(msg: string, colorClass: string = 'text-slate-300') {
+      if (!serialOutput) return;
+      const row = document.createElement('div');
+      const now = new Date();
+      const timeStr = `[${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}.${String(Math.floor(now.getMilliseconds() / 100))}]`;
+      row.className = colorClass;
+      row.textContent = `${timeStr} ${msg}`;
+      serialOutput.appendChild(row);
+      if (serialOutput.children.length > 40) {
+        serialOutput.removeChild(serialOutput.children[0]);
+      }
+      serialOutput.scrollTop = serialOutput.scrollHeight;
+    }
+
+    function spawnPacket(type: 'https' | 'attack' | 'vpn' | 'kafka') {
+      packets.push({
+        x: nodes[0].x,
+        y: nodes[0].y,
+        targetIdx: 1, // Start toward MikroTik
+        speed: type === 'attack' ? 3.5 : 2.4,
+        type,
+        dropped: false,
+      });
+    }
+
+    // Modal Lifecycle
+    function openModal() {
+      dialog?.showModal();
+      isRunning = true;
+      appendSyslog('Huawei USG6000V NGFW console session opened.', 'text-indigo-400');
+      sfx.door();
+      startLoop();
+    }
+
+    function closeModal() {
+      dialog?.close();
+      isRunning = false;
+      if (animFrameId) {
+        cancelAnimationFrame(animFrameId);
+        animFrameId = null;
+      }
+    }
+
+    closeBtn?.addEventListener('click', closeModal);
+    footerCloseBtn?.addEventListener('click', closeModal);
+    dialog.addEventListener('close', () => {
+      isRunning = false;
+      if (animFrameId) cancelAnimationFrame(animFrameId);
+    });
+
+    window.addEventListener('tower:open-noc-sandbox', openModal);
+
+    // Simulation Triggers
+    btnSimNormal?.addEventListener('click', () => {
+      for (let i = 0; i < 4; i++) {
+        setTimeout(() => spawnPacket('https'), i * 160);
+      }
+      rule10Hits += 4;
+      if (hitsRule10) hitsRule10.textContent = `Hits: ${rule10Hits.toLocaleString()}`;
+      appendSyslog('%% %SEC-6-POLICY_PERMIT: HTTPS (Port 443) connection allowed by Rule 10.', 'text-sky-300');
+      sfx.blip();
+    });
+
+    btnSimAttack?.addEventListener('click', () => {
+      isAttackActive = true;
+      attackTimer = 180; // 3 seconds attack
+      if (attackBanner) attackBanner.classList.remove('hidden');
+
+      for (let i = 0; i < 16; i++) {
+        setTimeout(() => spawnPacket('attack'), i * 80);
+      }
+      appendSyslog('%% %SEC-4-SYN_FLOOD: Malicious SYN flood burst detected from 203.0.113.88! Rate: 12,400 pps.', 'text-rose-400');
+      appendSyslog('%% %SEC-4-DROP: Anti-DDoS threshold exceeded. All illegitimate SYN packets dropped.', 'text-rose-400');
+      sfx.bump();
+    });
+
+    btnSimVpn?.addEventListener('click', () => {
+      for (let i = 0; i < 3; i++) {
+        setTimeout(() => spawnPacket('vpn'), i * 200);
+      }
+      rule20Hits += 3;
+      if (hitsRule20) hitsRule20.textContent = `Hits: ${rule20Hits.toLocaleString()}`;
+      appendSyslog('%% %IPSEC-6-ESP_PASS: Encrypted packet authenticated (AES-256-GCM / SHA-256).', 'text-amber-300');
+      sfx.select();
+    });
+
+    btnSimKafka?.addEventListener('click', () => {
+      for (let i = 0; i < 5; i++) {
+        setTimeout(() => spawnPacket('kafka'), i * 140);
+      }
+      appendSyslog('%% %KAFKA-6-PRODUCE: High-concurrency event stream dispatched to partition 0 (ack=all).', 'text-purple-300');
+      sfx.confirm();
+    });
+
+    // Update Physics and Packet Routing
+    function update() {
+      if (isAttackActive) {
+        attackTimer--;
+        if (attackTimer <= 0) {
+          isAttackActive = false;
+          if (attackBanner) attackBanner.classList.add('hidden');
+        }
+      }
+
+      // Random background legitimate packet every ~70 frames
+      if (Math.random() < 0.02) {
+        spawnPacket(Math.random() > 0.3 ? 'https' : 'vpn');
+      }
+
+      // Move packets along topology nodes
+      for (let i = packets.length - 1; i >= 0; i--) {
+        const p = packets[i];
+        const targetNode = nodes[p.targetIdx];
+        const dx = targetNode.x - p.x;
+        const dy = targetNode.y - p.y;
+        const dist = Math.hypot(dx, dy);
+
+        if (dist < p.speed + 1) {
+          p.x = targetNode.x;
+          p.y = targetNode.y;
+
+          // Arrived at target node
+          if (p.targetIdx === 1) {
+            // Arrived at MikroTik, forward to Huawei USG Firewall
+            p.targetIdx = 2;
+          } else if (p.targetIdx === 2) {
+            // Arrived at Huawei USG Firewall (Security Inspection Point!)
+            if (p.type === 'attack') {
+              // DROP ATTACK PACKET AT FIREWALL!
+              p.dropped = true;
+              blockedDrops++;
+              if (blockedCounterText) blockedCounterText.textContent = `${blockedDrops.toLocaleString()} Drops`;
+              if (hitsRule30) hitsRule30.textContent = `Drops: ${blockedDrops.toLocaleString()}`;
+              packets.splice(i, 1);
+              continue;
+            } else if (p.type === 'vpn') {
+              // Forward to IPSec DMZ (Node 3)
+              p.targetIdx = 3;
+            } else {
+              // Forward to Cloud Cluster (Node 4)
+              p.targetIdx = 4;
+            }
+          } else {
+            // Reached destination, packet delivered!
+            packets.splice(i, 1);
+            continue;
+          }
+        } else {
+          p.x += (dx / dist) * p.speed;
+          p.y += (dy / dist) * p.speed;
+        }
+      }
+    }
+
+    // Render Canvas
+    function render() {
+      ctx.fillStyle = '#090d16';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Cyber Grid
+      ctx.strokeStyle = '#1e293b';
+      ctx.lineWidth = 1;
+      const grid = 24;
+      for (let x = grid; x < canvas.width; x += grid) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvas.height);
+        ctx.stroke();
+      }
+      for (let y = grid; y < canvas.height; y += grid) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+        ctx.stroke();
+      }
+
+      // Outer Boundary
+      ctx.strokeStyle = '#6366f1';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(6, 6, canvas.width - 12, canvas.height - 12);
+
+      // Render Links between nodes
+      ctx.lineWidth = 2;
+      for (const [fromIdx, toIdx] of links) {
+        const from = nodes[fromIdx];
+        const to = nodes[toIdx];
+
+        ctx.strokeStyle = '#334155';
+        ctx.beginPath();
+        ctx.moveTo(from.x, from.y);
+        ctx.lineTo(to.x, to.y);
+        ctx.stroke();
+
+        // Pulsing line glow
+        ctx.strokeStyle = toIdx === 3 ? 'rgba(245, 158, 11, 0.25)' : toIdx === 4 ? 'rgba(192, 132, 252, 0.25)' : 'rgba(56, 189, 248, 0.25)';
+        ctx.setLineDash([6, 6]);
+        ctx.beginPath();
+        ctx.moveTo(from.x, from.y);
+        ctx.lineTo(to.x, to.y);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+
+      // Render Huawei Firewall Shield Aura
+      const fw = nodes[2];
+      ctx.save();
+      const auraPulse = Math.sin(Date.now() / 250);
+      ctx.beginPath();
+      ctx.arc(fw.x, fw.y, 28 + auraPulse * 3, 0, Math.PI * 2);
+      ctx.strokeStyle = isAttackActive ? 'rgba(239, 68, 68, 0.7)' : 'rgba(129, 140, 248, 0.5)';
+      ctx.lineWidth = isAttackActive ? 3 : 1.5;
+      ctx.stroke();
+      ctx.restore();
+
+      // Render Data Packets
+      for (const p of packets) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.type === 'attack' ? 4 : 3.5, 0, Math.PI * 2);
+
+        if (p.type === 'attack') {
+          ctx.fillStyle = '#ef4444';
+          ctx.shadowColor = '#ef4444';
+          ctx.shadowBlur = 8;
+        } else if (p.type === 'vpn') {
+          ctx.fillStyle = '#f59e0b';
+          ctx.shadowColor = '#f59e0b';
+          ctx.shadowBlur = 6;
+        } else if (p.type === 'kafka') {
+          ctx.fillStyle = '#c084fc';
+          ctx.shadowColor = '#c084fc';
+          ctx.shadowBlur = 6;
+        } else {
+          ctx.fillStyle = '#38bdf8';
+          ctx.shadowColor = '#38bdf8';
+          ctx.shadowBlur = 6;
+        }
+        ctx.fill();
+        ctx.restore();
+      }
+
+      // Render Nodes
+      for (const node of nodes) {
+        ctx.save();
+
+        // Node Box
+        const w = 48;
+        const h = 48;
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(node.x - w / 2, node.y - h / 2, w, h);
+        ctx.strokeStyle = node.color;
+        ctx.lineWidth = 2;
+        ctx.strokeRect(node.x - w / 2, node.y - h / 2, w, h);
+
+        // Icon
+        ctx.font = '18px monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(node.icon, node.x, node.y);
+
+        // Labels
+        ctx.font = 'bold 9px monospace';
+        ctx.fillStyle = '#f8fafc';
+        ctx.fillText(node.label, node.x, node.y + 32);
+
+        ctx.font = '8px monospace';
+        ctx.fillStyle = '#94a3b8';
+        ctx.fillText(node.sub, node.x, node.y + 42);
+
+        ctx.restore();
+      }
+    }
+
+    function loop() {
+      if (!isRunning || !dialog.open) return;
+      update();
+      render();
+      animFrameId = requestAnimationFrame(loop);
+    }
+
+    function startLoop() {
+      if (!animFrameId) {
+        animFrameId = requestAnimationFrame(loop);
+      }
+    }
+  }
+
+  document.addEventListener('astro:page-load', initNocMonitor);
+  document.addEventListener('DOMContentLoaded', initNocMonitor);
+</script>
