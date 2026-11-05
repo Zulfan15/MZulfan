@@ -196,6 +196,23 @@ const feedJson = "{\"timeline\":[{\"label\":\"ITENAS ENROLLMENT\",\"kind\":\"sch
         </a>
       </div>
     </nav>
+
+    <!-- // QUICK ACTIONS TEST BAR (1-Click Interactive Test Points) -->
+    <div class="mcp-quick-bar" role="toolbar" aria-label="Aksi Cepat Interaktif">
+      <span class="mcp-quick-bar__title">Aksi Cepat:</span>
+      <button type="button" class="btn-quick-act" data-quick-action="eternatus" title="Bicara dengan Asisten Server Eternatus">
+        <span class="quick-icon">⚡</span> 1. Eternatus
+      </button>
+      <button type="button" class="btn-quick-act" data-quick-action="coffee" title="Minum Kopi Robusta (+50% Kecepatan)">
+        <span class="quick-icon">☕</span> 2. Minum Kopi (+50%)
+      </button>
+      <button type="button" class="btn-quick-act" data-quick-action="snorlax" title="Sapa Snorlax di meja komando">
+        <span class="quick-icon">💤</span> 3. Sapa Snorlax
+      </button>
+      <button type="button" class="btn-quick-act" data-quick-action="terminal" title="Buka ZulfanOS Terminal CLI">
+        <span class="quick-icon">💻</span> 4. Terminal CLI
+      </button>
+    </div>
 <!-- // TL;DR -->
     <section class="mcp-card" id="sec-tldr" aria-labelledby="tldr-title" data-mc data-feed={feedJson}>
       <h2 id="tldr-title" class="mcp-h">TL;DR</h2>
@@ -512,6 +529,32 @@ const feedJson = "{\"timeline\":[{\"label\":\"ITENAS ENROLLMENT\",\"kind\":\"sch
           targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
           for (const l of subnavLinks) l.classList.remove('is-active');
           link.classList.add('is-active');
+          if (targetId === 'sec-terminal') {
+            const input = document.getElementById('terminal-input') as HTMLInputElement | null;
+            setTimeout(() => input?.focus(), 350);
+          }
+        }
+      });
+    }
+
+    // Quick Actions Bar (1-Click Test Points)
+    const quickActionBtns = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-quick-action]'));
+    for (const btn of quickActionBtns) {
+      btn.addEventListener('click', () => {
+        const action = btn.dataset.quickAction;
+        if (action === 'eternatus') {
+          window.dispatchEvent(new CustomEvent('town:locate', { detail: { propId: 'eternatus' } }));
+        } else if (action === 'coffee') {
+          window.dispatchEvent(new CustomEvent('town:coffee-boost'));
+        } else if (action === 'snorlax') {
+          window.dispatchEvent(new CustomEvent('town:locate', { detail: { propId: 'snorlax' } }));
+        } else if (action === 'terminal') {
+          const terminalSec = document.getElementById('sec-terminal');
+          if (terminalSec) {
+            terminalSec.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            const input = document.getElementById('terminal-input') as HTMLInputElement | null;
+            setTimeout(() => input?.focus(), 350);
+          }
         }
       });
     }

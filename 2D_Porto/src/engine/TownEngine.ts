@@ -1543,6 +1543,40 @@ export class TownEngine {
         return;
       }
 
+      // In Dev Center: clicking on any prop or NPC walks to and interacts with it!
+      if (this.currentScene === 'dev') {
+        const hitProp = DEV_PROPS.find(
+          (p) => targetTileX >= p.x && targetTileX < p.x + p.w && targetTileY >= p.y && targetTileY < p.y + p.h
+        );
+
+        if (hitProp) {
+          const isAdjacent = (
+            this.playerPos.x >= hitProp.x - 1 &&
+            this.playerPos.x <= hitProp.x + hitProp.w &&
+            this.playerPos.y >= hitProp.y - 1 &&
+            this.playerPos.y <= hitProp.y + hitProp.h
+          );
+
+          if (isAdjacent) {
+            if (this.playerPos.x < hitProp.x) this.playerDir = 'right';
+            else if (this.playerPos.x >= hitProp.x + hitProp.w) this.playerDir = 'left';
+            else if (this.playerPos.y < hitProp.y) this.playerDir = 'down';
+            else if (this.playerPos.y >= hitProp.y + hitProp.h) this.playerDir = 'up';
+            this.interactFacing(hitProp.id);
+            this.wake();
+            return;
+          }
+
+          this.walkToObject(hitProp.id);
+          this.wake();
+          return;
+        }
+
+        this.pendingTarget = null;
+        this.walkTo(targetTileX, targetTileY);
+        return;
+      }
+
       // If clicking inside a building footprint, redirect target to its door
       for (const b of this.map.buildings) {
         const cfg = townConfig.getBuilding(b.id) || b;
@@ -3441,6 +3475,37 @@ export class TownEngine {
       case 'drink-cooler':
         this.playerDir = 'right';
         this.interactFacing('drink-cooler');
+        break;
+      // Dev Center props
+      case 'eternatus':
+        this.playerDir = 'right';
+        this.interactFacing('eternatus');
+        break;
+      case 'snorlax':
+      case 'lebronette':
+        this.playerDir = 'up';
+        this.interactFacing('snorlax');
+        break;
+      case 'coffee':
+        this.playerDir = 'right';
+        this.interactFacing('coffee');
+        break;
+      case 'rack':
+        this.playerDir = 'right';
+        this.interactFacing('rack');
+        break;
+      case 'whiteboard':
+        this.playerDir = 'left';
+        this.interactFacing('whiteboard');
+        break;
+      case 'console-wasm':
+      case 'console-edge':
+      case 'console-static':
+      case 'telemetry':
+      case 'radar':
+      case 'timeline':
+        this.playerDir = 'up';
+        this.interactFacing(id);
         break;
       default:
         this.interactFacing(id);
@@ -5683,7 +5748,11 @@ export class TownEngine {
         timeline: { x: 4, y: 1, w: 7, h: 1, lift: 0.8 },
         radar: { x: 1, y: 3, w: 2, h: 2, lift: 0.1 },
         telemetry: { x: 12, y: 3, w: 2, h: 3, lift: -0.3 },
+        snorlax: { x: 6, y: 13, w: 3, h: 2, lift: -0.1 },
         lebronette: { x: 6, y: 13, w: 3, h: 2, lift: -0.1 },
+        eternatus: { x: 11, y: 11, w: 2, h: 2, lift: 0.6 },
+        coffee: { x: 13, y: 14, w: 1, h: 1, lift: 0.7 },
+        rack: { x: 13, y: 11, w: 1, h: 2, lift: 0.6 },
       };
 
       const buttons = container.querySelectorAll<HTMLButtonElement>('.town-label');

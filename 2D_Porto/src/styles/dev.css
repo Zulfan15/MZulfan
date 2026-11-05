@@ -303,6 +303,50 @@ html[data-place="dev"] .panel__footer a {
   border-radius: 2px;
 }
 
+/* ───────────────────────── Quick Actions Bar ───────────────────────── */
+.mcp-quick-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding: 0.45rem 0.65rem;
+  background: #091024;
+  border: 1px dashed var(--mcp-line);
+  margin: -0.2rem 0 1rem 0;
+  border-radius: 2px;
+}
+
+.mcp-quick-bar__title {
+  font: 400 0.5rem / 1 var(--font-retro, monospace);
+  color: var(--mcp-dim);
+  margin-right: 0.2rem;
+  white-space: nowrap;
+}
+
+.btn-quick-act {
+  font: 400 0.5rem / 1.2 var(--font-retro, monospace);
+  color: var(--mcp-cyan);
+  background: #0d1a36;
+  border: 1px solid #1f3b70;
+  padding: 0.25rem 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.15s ease;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.btn-quick-act:hover {
+  background: var(--mcp-cyan);
+  color: #070a14;
+  border-color: var(--mcp-cyan);
+  box-shadow: 0 0 8px rgba(62, 230, 255, 0.4);
+  transform: translateY(-1px);
+}
+
 /* Launch Header & Counter Badge */
 .launch-header {
   display: flex;
