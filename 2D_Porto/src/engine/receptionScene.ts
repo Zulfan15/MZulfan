@@ -54,6 +54,19 @@ export const RECEPTION_PROPS: ReceptionProp[] = [
     hint: 'Talk to Mira 🎧',
   },
   {
+    id: 'chansey',
+    kind: 'npc',
+    x: 9,
+    y: 3,
+    w: 1,
+    h: 1,
+    target: { type: 'event', name: 'chansey' },
+    label: 'Chansey · Medical Asst',
+    style: 'chansey',
+    labelLift: 18,
+    hint: 'Say hello to Chansey 🥚',
+  },
+  {
     id: 'healing-machine',
     kind: 'prop',
     x: 10,
@@ -149,10 +162,11 @@ for (let x = 5; x <= 9; x++) {
   RECEPTION_COLLISION[cIdx(x, 5)] = 1;
 }
 
-// Behind counter where Mira sits (blocked so player doesn't walk into Mira)
+// Behind counter where Mira & Chansey sit (blocked so player doesn't walk through them)
 RECEPTION_COLLISION[cIdx(7, 3)] = 1;
 RECEPTION_COLLISION[cIdx(6, 3)] = 1;
 RECEPTION_COLLISION[cIdx(8, 3)] = 1;
+RECEPTION_COLLISION[cIdx(9, 3)] = 1;
 
 // Healing Machine (x: 10..12, y: 2..3)
 for (let x = 10; x <= 12; x++) {
@@ -427,9 +441,19 @@ function drawPottedPlant(ctx: CanvasRenderingContext2D, x: number, y: number) {
   ctx.fill();
 }
 
+let healEffectTimer = 0;
+
+/**
+ * Trigger dynamic heal particles & light sequencer on canvas 2D
+ */
+export function triggerHealAnimation() {
+  healEffectTimer = 60;
+}
+
 /**
  * Animated elements:
  * - Nurse Mira avatar sprite behind counter with breathing idle
+ * - Companion Chansey avatar sprite with Lucky Egg
  * - Healing machine 6 Pokéballs light sequencer
  * - PC CRT screen flicker
  */
@@ -481,7 +505,75 @@ export function renderReceptionAnimations(ctx: CanvasRenderingContext2D, now: nu
   ctx.fillRect(mx + 2, my + 4 + breathe, 2, 4);
   ctx.fillRect(mx + 3, my + 8 + breathe, 3, 1);
 
-  // 2. Healing Machine 6-Pokéball Light Sequencer
+  // 2. Companion Chansey Avatar Sprite at (x: 9, y: 3)
+  const cx = 9 * TILE_SIZE;
+  const cy = 3 * TILE_SIZE;
+  const chanseyBob = Math.sin(now * 0.005) * 1.0;
+
+  // Chansey Shadow
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.25)';
+  ctx.fillRect(cx + 1, cy + 13, 14, 3);
+
+  // Rounded Egg Body in soft pink
+  ctx.fillStyle = '#f472b6';
+  ctx.beginPath();
+  ctx.ellipse(cx + 8, cy + 8 + chanseyBob, 6.5, 7.5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = '#db2777';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  // Head tufts/appendages (left & right)
+  ctx.fillStyle = '#db2777';
+  ctx.fillRect(cx + 1, cy + 2 + chanseyBob, 2, 2);
+  ctx.fillRect(cx - 1, cy + 4 + chanseyBob, 2, 2);
+  ctx.fillRect(cx + 13, cy + 2 + chanseyBob, 2, 2);
+  ctx.fillRect(cx + 15, cy + 4 + chanseyBob, 2, 2);
+
+  // Belly Pouch (soft cream-pink)
+  ctx.fillStyle = '#fce7f3';
+  ctx.beginPath();
+  ctx.arc(cx + 8, cy + 10 + chanseyBob, 4, 0, Math.PI);
+  ctx.fill();
+  ctx.strokeStyle = '#db2777';
+  ctx.lineWidth = 0.8;
+  ctx.stroke();
+
+  // Lucky Egg in Pouch
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath();
+  ctx.ellipse(cx + 8, cy + 8.5 + chanseyBob, 3, 3.8, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = '#fde047';
+  ctx.lineWidth = 0.8;
+  ctx.stroke();
+
+  // Cheerful Eyes & Rosy Cheeks
+  ctx.fillStyle = '#1e293b';
+  ctx.fillRect(cx + 5, cy + 5 + chanseyBob, 2, 1);
+  ctx.fillRect(cx + 9, cy + 5 + chanseyBob, 2, 1);
+  ctx.fillStyle = '#fb7185';
+  ctx.fillRect(cx + 4, cy + 6 + chanseyBob, 2, 1);
+  ctx.fillRect(cx + 10, cy + 6 + chanseyBob, 2, 1);
+  ctx.fillStyle = '#e11d48';
+  ctx.fillRect(cx + 7, cy + 7 + chanseyBob, 2, 1);
+
+  // Stubby Arms & Feet
+  ctx.fillStyle = '#f472b6';
+  ctx.fillRect(cx + 1, cy + 8 + chanseyBob, 2, 2);
+  ctx.fillRect(cx + 13, cy + 8 + chanseyBob, 2, 2);
+  ctx.fillRect(cx + 4, cy + 14, 3, 2);
+  ctx.fillRect(cx + 9, cy + 14, 3, 2);
+
+  // If healing is active, Chansey sparkles!
+  if (healEffectTimer > 0) {
+    ctx.fillStyle = (tick % 4 < 2) ? '#fde047' : '#38bdf8';
+    ctx.beginPath();
+    ctx.arc(cx + 8, cy + 2 + chanseyBob, 3, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // 3. Healing Machine 6-Pokéball Light Sequencer
   const hmX = 10 * TILE_SIZE;
   const hmY = 2 * TILE_SIZE;
   const ballSlotPositions = [
@@ -493,13 +585,15 @@ export function renderReceptionAnimations(ctx: CanvasRenderingContext2D, now: nu
     { x: hmX + 40, y: hmY + 22 },
   ];
 
-  const activeSlot = tick % 8;
+  const isHealBurst = healEffectTimer > 0;
+  const activeSlot = isHealBurst ? Math.floor((60 - healEffectTimer) / 10) : tick % 8;
+
   for (let i = 0; i < ballSlotPositions.length; i++) {
     const slot = ballSlotPositions[i];
-    const isLit = i <= activeSlot && activeSlot < 6;
+    const isLit = isHealBurst ? true : (i <= activeSlot && activeSlot < 6);
 
     // Pokéball sphere
-    ctx.fillStyle = isLit ? '#ef4444' : '#94a3b8';
+    ctx.fillStyle = isLit ? (isHealBurst ? '#fde047' : '#ef4444') : '#94a3b8';
     ctx.beginPath();
     ctx.arc(slot.x, slot.y, 4, Math.PI, 0);
     ctx.fill();
@@ -517,14 +611,40 @@ export function renderReceptionAnimations(ctx: CanvasRenderingContext2D, now: nu
 
     if (isLit) {
       // Glow aura
-      ctx.fillStyle = 'rgba(56, 189, 248, 0.35)';
+      ctx.fillStyle = isHealBurst ? 'rgba(253, 224, 71, 0.45)' : 'rgba(56, 189, 248, 0.35)';
       ctx.beginPath();
-      ctx.arc(slot.x, slot.y, 6.5, 0, Math.PI * 2);
+      ctx.arc(slot.x, slot.y, isHealBurst ? 8 : 6.5, 0, Math.PI * 2);
       ctx.fill();
     }
   }
 
-  // 3. PC CRT Monitor Screen Flicker & Scanline
+  // Floating Heart & Sparkle Particles during heal burst
+  if (healEffectTimer > 0) {
+    const healProgress = (60 - healEffectTimer) / 60;
+    const alpha = Math.max(0, 1 - healProgress);
+
+    // Heart particle 1
+    const p1Y = hmY + 10 - healProgress * 24;
+    const p1X = hmX + 16 + Math.sin(healProgress * 6) * 6;
+    ctx.fillStyle = `rgba(244, 63, 94, ${alpha})`;
+    ctx.beginPath();
+    ctx.arc(p1X - 2, p1Y, 3, 0, Math.PI * 2);
+    ctx.arc(p1X + 2, p1Y, 3, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Star sparkle 2
+    const p2Y = hmY + 12 - healProgress * 28;
+    const p2X = hmX + 32 + Math.cos(healProgress * 6) * 6;
+    ctx.fillStyle = `rgba(56, 189, 248, ${alpha})`;
+    ctx.fillRect(p2X - 2, p2Y - 2, 4, 4);
+
+    // Floating text banner
+    drawPixelText(ctx, 'HEALED! 10 BALLS', hmX + 2, hmY - 6, '#22c55e');
+
+    healEffectTimer--;
+  }
+
+  // 4. PC CRT Monitor Screen Flicker & Scanline
   const pcX = 13 * TILE_SIZE;
   const pcY = 4 * TILE_SIZE;
   const pcFlicker = (tick % 4 === 0) ? 'rgba(56, 189, 248, 0.95)' : 'rgba(2, 132, 199, 0.9)';

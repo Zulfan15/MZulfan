@@ -43,11 +43,39 @@ const emailUrl = `mailto:${profile.person.email}`;
             👋 <strong>Welcome to Muhammad Zulfan's Portfolio Town!</strong>
           </p>
           <p>
-            I'm <strong>Nurse Mira</strong> at the Front Desk. Whether you need directions to the <a href="/dev" class="font-semibold text-ball underline">Dev Center</a>, want to inspect Zulfan's <a href="/lab" class="font-semibold text-ball underline">Research Lab</a>, challenge the bot in the <a href="/arcade" class="font-semibold text-ball underline">Arcade</a>, or refill your Poké Balls before catching critters in the tall grass, I'm here to assist you!
+            I'm <strong>Nurse Mira</strong> at the Front Desk, together with medical assistant <strong>Chansey 🥚</strong>. Whether you need directions to the <a href="/dev" class="font-semibold text-ball underline">Dev Center</a>, want to inspect Zulfan's <a href="/lab" class="font-semibold text-ball underline">Research Lab</a>, challenge the bot in the <a href="/arcade" class="font-semibold text-ball underline">Arcade</a>, explore <a href="/tower" class="font-semibold text-ball underline">Tech Tower</a>, or refill your Poké Balls before catching critters in the tall grass, we're here to assist you!
           </p>
         </div>
       </div>
     </header>
+
+    <!-- Interactive Quick Action Bar -->
+    <nav class="window p-2.5 md:p-3 bg-slate-900/90 border-2 border-emerald-500/50 flex flex-wrap items-center justify-between gap-2.5 shadow-md text-white" aria-label="Poké Center Quick Actions">
+      <div class="flex items-center gap-2 text-xs font-mono text-emerald-300 font-bold">
+        <span class="text-base">🏥</span>
+        <span>QUICK ACTIONS:</span>
+      </div>
+      <div class="flex flex-wrap items-center gap-1.5" id="reception-quick-bar">
+        <button type="button" class="reception-quick-btn btn btn-sm btn-paper font-pixel text-[10px]" data-quick="mira" title="Talk to Nurse Mira at the Front Desk">
+          👩‍⚕️ 1. Nurse Mira
+        </button>
+        <button type="button" class="reception-quick-btn btn btn-sm btn-paper font-pixel text-[10px]" data-quick="chansey" title="Say hello to Chansey &amp; Lucky Egg">
+          🥚 2. Chansey
+        </button>
+        <button type="button" class="reception-quick-btn btn btn-sm btn-paper font-pixel text-[10px]" data-quick="healing-machine" title="Refill Poké Balls &amp; Rest Party">
+          💖 3. Healing Station
+        </button>
+        <button type="button" class="reception-quick-btn btn btn-sm btn-paper font-pixel text-[10px]" data-quick="pc-terminal" title="Access Network PC &amp; Critterdex">
+          💻 4. Network PC
+        </button>
+        <button type="button" class="reception-quick-btn btn btn-sm btn-paper font-pixel text-[10px]" data-quick="directory-board" title="Read Campus Building Directory">
+          📋 5. Directory
+        </button>
+        <button type="button" class="reception-quick-btn btn btn-sm btn-paper font-pixel text-[10px]" data-quick="waiting-couch" title="Relax in the Visitor Lounge">
+          🛋️ 6. VIP Lounge
+        </button>
+      </div>
+    </nav>
 
     <!-- Pokéball Refill & Healing Station Widget -->
     <section class="window p-4 md:p-5 bg-paper border-2 space-y-4" id="healing-station-widget">
@@ -85,14 +113,24 @@ const emailUrl = `mailto:${profile.person.email}`;
           </div>
         </div>
 
-        <button
-          type="button"
-          id="btn-trigger-heal"
-          class="btn btn-primary w-full sm:w-auto px-4 py-2 flex items-center justify-center gap-2 text-xs font-pixel shadow-sm hover:scale-[1.02] active:scale-95 transition-all"
-        >
-          <span>💖</span>
-          <span>Rest & Refill Balls</span>
-        </button>
+        <div class="flex items-center gap-2">
+          <button
+            type="button"
+            id="btn-trigger-heal"
+            class="btn btn-primary w-full sm:w-auto px-4 py-2 flex items-center justify-center gap-2 text-xs font-pixel shadow-sm hover:scale-[1.02] active:scale-95 transition-all"
+          >
+            <span>💖</span>
+            <span>Rest & Refill Balls</span>
+          </button>
+          <button
+            type="button"
+            class="btn btn-sm btn-paper text-[10px] font-pixel btn-inspect-2d"
+            data-prop="healing-machine"
+            title="Navigate character to Healing Machine on 2D canvas"
+          >
+            📍 Inspect 2D
+          </button>
+        </div>
       </div>
 
       <!-- Feedback Toast -->
@@ -102,13 +140,30 @@ const emailUrl = `mailto:${profile.person.email}`;
       </div>
     </section>
 
-    <!-- Interactive AI Front Desk (Mira) -->
+    <!-- Interactive AI Front Desk (Mira & Chansey) -->
     <section class="space-y-3">
-      <div class="flex items-center justify-between">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <h2 class="section-title">
-          <span>Front Desk AI · Ask Mira</span>
+          <span>Front Desk AI · Ask Mira &amp; Chansey</span>
         </h2>
-        <span class="font-mono text-[10px] text-ink-soft">Powered by Knowledge Base</span>
+        <div class="flex items-center gap-1.5">
+          <button
+            type="button"
+            class="btn btn-sm btn-paper text-[10px] font-pixel btn-inspect-2d"
+            data-prop="mira"
+            title="Navigate character to Nurse Mira on 2D canvas"
+          >
+            📍 Talk to Mira
+          </button>
+          <button
+            type="button"
+            class="btn btn-sm btn-paper text-[10px] font-pixel btn-inspect-2d text-pink-700 border-pink-400 font-bold"
+            data-prop="chansey"
+            title="Navigate character to Chansey on 2D canvas"
+          >
+            🥚 Chansey
+          </button>
+        </div>
       </div>
 
       <ChatBox persona="reception" />
@@ -230,7 +285,7 @@ const emailUrl = `mailto:${profile.person.email}`;
             <span>What is Zulfan's academic background?</span>
           </div>
           <p class="text-ink-soft leading-relaxed">
-            He holds a Bachelor's degree in Informatics / Computer Science from Institut Teknologi Nasional (ITENAS) Bandung, graduating with a 3.82 GPA, serving as coordinator for multiple computer laboratories (Databases, OOP, Networking, and IoT).
+            He holds a Bachelor's degree in Informatics / Computer Science from Institut Teknologi Nasional (ITENAS) Bandung, graduating with a 3.49 / 4.00 GPA, serving as coordinator for the ITENAS Robotics Laboratory, and 6-time teaching assistant across IoT, Computer Networks, OOP Java, and Database Programming.
           </p>
         </div>
 
@@ -246,7 +301,7 @@ const emailUrl = `mailto:${profile.person.email}`;
       </div>
 
       <div class="pt-2 flex flex-wrap gap-2.5">
-        <a href="/resume.pdf" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-gold">
+        <a href={profile.person.cv || '/cv/CV_Zulfan.pdf'} target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-gold">
           <span>📄</span>
           <span>Download Résumé (PDF)</span>
         </a>
@@ -345,10 +400,49 @@ const emailUrl = `mailto:${profile.person.email}`;
     if (btnHeal) {
       btnHeal.addEventListener('click', () => {
         executeHealingEffect(true);
+        window.dispatchEvent(new CustomEvent('town:reception-heal-anim'));
       });
     }
+
+    // Quick Action Bar click listeners
+    const quickButtons = document.querySelectorAll<HTMLButtonElement>('.reception-quick-btn');
+    quickButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const action = btn.getAttribute('data-quick');
+        if (!action) return;
+
+        if (action === 'healing-machine') {
+          window.dispatchEvent(new CustomEvent('town:locate', { detail: { propId: 'healing-machine' } }));
+          executeHealingEffect(true);
+          window.dispatchEvent(new CustomEvent('town:reception-heal-anim'));
+          return;
+        }
+
+        window.dispatchEvent(new CustomEvent('town:locate', { detail: { propId: action } }));
+        const townCanvas = document.querySelector('.town');
+        if (townCanvas && window.innerWidth < 768) {
+          townCanvas.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+
+    // 📍 Inspect in 2D buttons
+    const inspectButtons = document.querySelectorAll<HTMLButtonElement>('.btn-inspect-2d');
+    inspectButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const propId = btn.getAttribute('data-prop');
+        if (!propId) return;
+
+        window.dispatchEvent(new CustomEvent('town:locate', { detail: { propId } }));
+        const townCanvas = document.querySelector('.town');
+        if (townCanvas) {
+          townCanvas.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      });
+    });
   }
 
+  document.addEventListener('astro:page-load', initHealingStation);
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initHealingStation);
   } else {

@@ -61,6 +61,7 @@ import {
   RECEPTION_PROPS,
   createReceptionBackgroundCanvas,
   renderReceptionAnimations,
+  triggerHealAnimation,
 } from './receptionScene';
 import {
   MART_COLS,
@@ -1942,6 +1943,12 @@ export class TownEngine {
     window.addEventListener('town:coffee-boost', onCoffeeBoost);
     window.addEventListener('town:tower-floor', onTowerFloor);
 
+    const onReceptionHeal = () => {
+      triggerHealAnimation();
+      this.wake();
+    };
+    window.addEventListener('town:reception-heal-anim', onReceptionHeal);
+
     this.unbindEvents.push(
       () => window.removeEventListener('keydown', onKeyDown),
       () => window.removeEventListener('keyup', onKeyUp),
@@ -1965,7 +1972,8 @@ export class TownEngine {
       () => window.removeEventListener('town:trigger-move', onTriggerMove),
       () => window.removeEventListener('town:locate', onLocate),
       () => window.removeEventListener('town:coffee-boost', onCoffeeBoost),
-      () => window.removeEventListener('town:tower-floor', onTowerFloor)
+      () => window.removeEventListener('town:tower-floor', onTowerFloor),
+      () => window.removeEventListener('town:reception-heal-anim', onReceptionHeal)
     );
   }
 
@@ -2281,6 +2289,9 @@ export class TownEngine {
       switch (id) {
         case 'mira':
           this.walkTo(7, 5);
+          break;
+        case 'chansey':
+          this.walkTo(9, 5);
           break;
         case 'healing-machine':
           this.walkTo(11, 4);
@@ -4204,28 +4215,95 @@ export class TownEngine {
           if (prop.target.name === 'mira') {
             if (this.callbacks.onBubble) {
               this.callbacks.onBubble(
-                'Nurse Mira · Front Desk',
-                "Welcome to the Pokémon Center! I'm Mira. Feel free to ask me anything about Zulfan's experience, research, or ask me for directions!",
-                {
-                  label: 'Chat with Mira',
-                  onClick: () => {
-                    const input = document.querySelector<HTMLInputElement>('#chat-input');
-                    input?.focus();
+                'Nurse Mira · Front Desk Concierge',
+                "Welcome to the Poké Center! I'm Mira. Feel free to ask me anything about Zulfan's engineering track record, research, or ask me for campus directions!",
+                [
+                  {
+                    label: '💬 Chat with Mira (Ask AI)',
+                    onClick: () => {
+                      const input = document.querySelector<HTMLInputElement>('#chat-input');
+                      input?.focus();
+                      input?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    },
                   },
-                }
+                  {
+                    label: '💖 Ask Chansey to Heal & Refill Balls',
+                    onClick: () => {
+                      this.walkToObject('chansey');
+                    },
+                  },
+                  {
+                    label: '📋 View Campus Directory',
+                    onClick: () => {
+                      this.walkToObject('directory-board');
+                    },
+                  },
+                  {
+                    label: '💻 Access Network PC',
+                    onClick: () => {
+                      this.walkToObject('pc-terminal');
+                    },
+                  },
+                ]
               );
             } else {
               this.callbacks.onDialogue('Nurse Mira', [
                 "Welcome to the Pokémon Center! I'm Mira. Ask me anything about Zulfan's background or town directions!",
               ]);
             }
-          } else if (prop.target.name === 'healing-machine') {
+          } else if (prop.target.name === 'chansey') {
             sfx.heal();
-            this.callbacks.onRefill();
             if (this.callbacks.onBubble) {
               this.callbacks.onBubble(
-                'Pokéball Healing Station',
-                'Your party has been fully rested and all Poké Balls refilled to 10! ✨'
+                'Chansey 🥚 (Front Desk Medical Assistant)',
+                "Chan-sey! 💖 Chansey greets you with a warm smile and cradles a glowing Lucky Egg! Would you like to heal your party, refill your Poké Balls, or enjoy a fresh Lucky Egg speed boost?",
+                [
+                  {
+                    label: '💖 Rest & Refill 10 Poké Balls',
+                    onClick: () => {
+                      sfx.heal();
+                      triggerHealAnimation();
+                      this.callbacks.onRefill();
+                      window.dispatchEvent(new CustomEvent('town:refill-balls'));
+                      if (this.callbacks.onBubble) {
+                        this.callbacks.onBubble(
+                          'Pokéball Healing Station ✨',
+                          'Your party has been fully rested and your bag refilled to 10 Poké Balls! Ready for your next journey in Town!'
+                        );
+                      }
+                    },
+                  },
+                  {
+                    label: '🥚 Take Lucky Egg (+50% Speed Boost)',
+                    onClick: () => {
+                      this.activateCoffeeBoost(15000);
+                      sfx.confirm();
+                      if (this.callbacks.onBubble) {
+                        this.callbacks.onBubble(
+                          'Lucky Egg Speed Boost 🥚✨',
+                          "Chansey gave you a fresh Lucky Egg! You feel energized and ready to explore Zulfan's portfolio town with +50% turbo movement speed!"
+                        );
+                      }
+                    },
+                  },
+                  {
+                    label: '💬 Chat with Nurse Mira',
+                    onClick: () => {
+                      this.walkToObject('mira');
+                    },
+                  },
+                ]
+              );
+            }
+          } else if (prop.target.name === 'healing-machine') {
+            sfx.heal();
+            triggerHealAnimation();
+            this.callbacks.onRefill();
+            window.dispatchEvent(new CustomEvent('town:refill-balls'));
+            if (this.callbacks.onBubble) {
+              this.callbacks.onBubble(
+                'Pokéball Healing Station ✨',
+                'Your party has been fully rested and all Poké Balls refilled to 10! Ready for your next journey in Town!'
               );
             }
           } else if (prop.target.name === 'pc-terminal') {
@@ -5890,6 +5968,7 @@ export class TownEngine {
     if (this.currentScene === 'reception') {
       const receptionLabels: Record<string, { x: number; y: number; w: number; h: number; lift?: number }> = {
         mira: { x: 7, y: 3, w: 1, h: 1, lift: 1.1 },
+        chansey: { x: 9, y: 3, w: 1, h: 1, lift: 1.1 },
         'healing-machine': { x: 10, y: 2, w: 3, h: 2, lift: 0.75 },
         'pc-terminal': { x: 13, y: 4, w: 1, h: 2, lift: 0.5 },
         'directory-board': { x: 1, y: 3, w: 2, h: 1, lift: 1.25 },
