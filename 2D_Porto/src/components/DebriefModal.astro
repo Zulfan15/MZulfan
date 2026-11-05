@@ -1,0 +1,563 @@
+---
+// Mission Debrief Modal — Interactive Project Deep-Dive & Architecture Benchmark
+// Replaces 404 links with in-depth technical analysis and system flows
+---
+
+<dialog class="mc mc--debrief" data-mc-dialog="debrief" aria-labelledby="mc-debrief-title">
+  <div class="mc__bar">
+    <div class="mc-debrief__bar-left">
+      <span class="mc-debrief__badge">CLASSIFIED · MISSION DEBRIEF</span>
+      <h2 id="mc-debrief-title" class="mc__title">Mission Debrief</h2>
+    </div>
+    <div class="mc-debrief__nav-group">
+      <button type="button" class="mc-debrief__btn-nav" id="btn-prev-mission" title="Misi Sebelumnya (Panah Kiri)">◀ Prev</button>
+      <span class="mc-debrief__step" id="mission-step-indicator">1 / 7</span>
+      <button type="button" class="mc-debrief__btn-nav" id="btn-next-mission" title="Misi Selanjutnya (Panah Kanan)">Next ▶</button>
+      <button type="button" class="mc__close" data-mc-close aria-label="Close debrief">✕</button>
+    </div>
+  </div>
+
+  <!-- Mission Fastlane Selector -->
+  <div class="mc-debrief__selector">
+    <div class="mc-debrief__selector-inner">
+      <button type="button" class="mc-debrief__tab is-active" data-debrief-tab="aeroscan">AEROSCAN</button>
+      <button type="button" class="mc-debrief__tab" data-debrief-tab="foodlink">FOODLINK</button>
+      <button type="button" class="mc-debrief__tab" data-debrief-tab="thesis">THESIS SPAM</button>
+      <button type="button" class="mc-debrief__tab" data-debrief-tab="omr-grader">OMR GRADER</button>
+      <button type="button" class="mc-debrief__tab" data-debrief-tab="foodrescue">FOODRESCUE</button>
+      <button type="button" class="mc-debrief__tab" data-debrief-tab="inception">INCEPTION-V3</button>
+      <button type="button" class="mc-debrief__tab" data-debrief-tab="rc-tank">RC TANK IOT</button>
+    </div>
+  </div>
+
+  <div class="mc__body mc-debrief__body">
+    <!-- 1. AEROSCAN -->
+    <article class="debrief-panel is-active" data-debrief-panel="aeroscan">
+      <header class="debrief-header">
+        <div class="debrief-meta">
+          <span class="brief__kind brief__kind--project">Edge AI &amp; CV</span>
+          <span class="brief__status brief__status--active">ACTIVE MISSION</span>
+          <span class="debrief-period">Oct 2026 – Present</span>
+        </div>
+        <h3 class="debrief-title">AeroScan: Real-Time Military Aircraft Detection &amp; Tactical Edge AI</h3>
+        <p class="debrief-role">Lead AI Systems &amp; Computer Vision Engineer</p>
+      </header>
+
+      <section class="debrief-sec">
+        <h4 class="debrief-h4">// Objective &amp; Problem Statement</h4>
+        <p class="debrief-p">
+          Tactical airspace surveillance requires ultra-low latency target identification of advanced 5th-gen combat aircraft under variable weather conditions, severe camera vibrations, and hardware compute constraints. Standard detection models suffer from bounding-box drift during steep-angle bank turns.
+        </p>
+      </section>
+
+      <section class="debrief-sec">
+        <h4 class="debrief-h4">// System Architecture Pipeline</h4>
+        <div class="pipeline">
+          <div class="pipeline__node">
+            <span class="pipeline__step">01</span>
+            <strong>RTSP / Camera Stream</strong>
+            <span class="pipeline__sub">High-FPS Video Ingestion</span>
+          </div>
+          <span class="pipeline__arrow">➔</span>
+          <div class="pipeline__node">
+            <span class="pipeline__step">02</span>
+            <strong>YOLOv11-OBB</strong>
+            <span class="pipeline__sub">Oriented Bounding Box</span>
+          </div>
+          <span class="pipeline__arrow">➔</span>
+          <div class="pipeline__node pipeline__node--highlight">
+            <span class="pipeline__step">03</span>
+            <strong>TensorRT 10 Engine</strong>
+            <span class="pipeline__sub">FP16 CUDA Execution</span>
+          </div>
+          <span class="pipeline__arrow">➔</span>
+          <div class="pipeline__node">
+            <span class="pipeline__step">04</span>
+            <strong>ByteTrack Filter</strong>
+            <span class="pipeline__sub">Trajectory Multi-Object Tracking</span>
+          </div>
+          <span class="pipeline__arrow">➔</span>
+          <div class="pipeline__node">
+            <span class="pipeline__step">05</span>
+            <strong>Tactical HUD UI</strong>
+            <span class="pipeline__sub">Telemetry &amp; Threat Alert</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="debrief-sec">
+        <h4 class="debrief-h4">// Technical Benchmarks &amp; Key Metrics</h4>
+        <div class="debrief-metrics">
+          <div class="metric-card">
+            <span class="metric-card__val">~1.8 ms</span>
+            <span class="metric-card__label">Inference Latency</span>
+            <span class="metric-card__sub">&gt;500 FPS throughput on TensorRT FP16</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-card__val">15 Classes</span>
+            <span class="metric-card__label">Combat Aircraft</span>
+            <span class="metric-card__sub">F-22, Su-57, B-2 Spirit, J-20, etc.</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-card__val">94.2%</span>
+            <span class="metric-card__label">mAP@50 Precision</span>
+            <span class="metric-card__sub">Robust under cloud &amp; speed occlusions</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-card__val">-58%</span>
+            <span class="metric-card__label">VRAM Footprint</span>
+            <span class="metric-card__sub">Quantized for tactical field edge devices</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="debrief-sec">
+        <h4 class="debrief-h4">// Engineering Highlights</h4>
+        <ul class="debrief-list">
+          <li><strong>Oriented Bounding Boxes (OBB):</strong> Captures exact aircraft roll angles and heading vectors without background noise inclusion.</li>
+          <li><strong>ByteTrack Association:</strong> Eliminates ID switching during high-speed crossing maneuvers and tight formation flight.</li>
+          <li><strong>Docker Edge Packaging:</strong> Automated build scripts producing optimized container images for tactical edge field servers.</li>
+        </ul>
+      </section>
+
+      <footer class="debrief-footer">
+        <a class="btn btn--small" href="https://github.com/Zulfan15" target="_blank" rel="noopener noreferrer">🐙 GitHub Repository ↗</a>
+        <a class="btn btn--small" href="/lab">🔬 Research Lab Blueprint ↗</a>
+        <button type="button" class="btn btn--small btn--locate" data-locate-prop="console-wasm">📍 Locate Console in 2D Room</button>
+      </footer>
+    </article>
+
+    <!-- 2. FOODLINK -->
+    <article class="debrief-panel" data-debrief-panel="foodlink" hidden>
+      <header class="debrief-header">
+        <div class="debrief-meta">
+          <span class="brief__kind brief__kind--project">Cloud-Native Architecture</span>
+          <span class="brief__status brief__status--active">ACTIVE MISSION</span>
+          <span class="debrief-period">Nov 2025 – Present</span>
+        </div>
+        <h3 class="debrief-title">FoodLink: High-Concurrency Cloud-Native Food Waste Platform</h3>
+        <p class="debrief-role">Backend &amp; Cloud Infrastructure Architect</p>
+      </header>
+
+      <section class="debrief-sec">
+        <h4 class="debrief-h4">// Objective &amp; Problem Statement</h4>
+        <p class="debrief-p">
+          Food rescue organizations face sudden high-volume donation spikes from supermarkets and hotels. Traditional synchronous backend architectures stall under burst loads, causing perishable food batches to expire before matching with nearby humanitarian shelters.
+        </p>
+      </section>
+
+      <section class="debrief-sec">
+        <h4 class="debrief-h4">// System Architecture Pipeline</h4>
+        <div class="pipeline">
+          <div class="pipeline__node">
+            <span class="pipeline__step">01</span>
+            <strong>Mobile / Web Client</strong>
+            <span class="pipeline__sub">Burst Donation Events</span>
+          </div>
+          <span class="pipeline__arrow">➔</span>
+          <div class="pipeline__node">
+            <span class="pipeline__step">02</span>
+            <strong>Laravel 12 API Gateway</strong>
+            <span class="pipeline__sub">Stateless Auth &amp; Validation</span>
+          </div>
+          <span class="pipeline__arrow">➔</span>
+          <div class="pipeline__node pipeline__node--highlight">
+            <span class="pipeline__step">03</span>
+            <strong>Redis Queue / Pub-Sub</strong>
+            <span class="pipeline__sub">Asynchronous Job Dispatch</span>
+          </div>
+          <span class="pipeline__arrow">➔</span>
+          <div class="pipeline__node">
+            <span class="pipeline__step">04</span>
+            <strong>PostGIS Engine</strong>
+            <span class="pipeline__sub">Spatial Distance Matrix</span>
+          </div>
+          <span class="pipeline__arrow">➔</span>
+          <div class="pipeline__node">
+            <span class="pipeline__step">05</span>
+            <strong>Volunteer Dispatch</strong>
+            <span class="pipeline__sub">Real-Time Push Alerts</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="debrief-sec">
+        <h4 class="debrief-h4">// Technical Benchmarks &amp; Key Metrics</h4>
+        <div class="debrief-metrics">
+          <div class="metric-card">
+            <span class="metric-card__val">&lt; 45 ms</span>
+            <span class="metric-card__label">p99 Latency</span>
+            <span class="metric-card__sub">Under 1,000 concurrent donor requests</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-card__val">&lt; 8 ms</span>
+            <span class="metric-card__label">Spatial Query</span>
+            <span class="metric-card__sub">PostGIS index lookup within 15 km radius</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-card__val">5,000/min</span>
+            <span class="metric-card__label">Queue Capacity</span>
+            <span class="metric-card__sub">Asynchronous event processing via Redis</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-card__val">99.9%</span>
+            <span class="metric-card__label">System Uptime</span>
+            <span class="metric-card__sub">Self-healing Docker container health checks</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="debrief-sec">
+        <h4 class="debrief-h4">// Engineering Highlights</h4>
+        <ul class="debrief-list">
+          <li><strong>Geodesic Geospatial Indexing:</strong> Rapidly pairs donor batches with recipient shelters within optimal driving distance.</li>
+          <li><strong>Asynchronous Job Workers:</strong> Offloads heavy PDF tax receipts, image processing, and push notifications to background workers.</li>
+          <li><strong>CI/CD Automated Testing:</strong> Automated test pipelines utilizing Pest and Docker Compose ensuring zero regression.</li>
+        </ul>
+      </section>
+
+      <footer class="debrief-footer">
+        <a class="btn btn--small" href="https://github.com/Zulfan15" target="_blank" rel="noopener noreferrer">🐙 GitHub Repository ↗</a>
+        <button type="button" class="btn btn--small btn--locate" data-locate-prop="console-edge">📍 Locate Console in 2D Room</button>
+      </footer>
+    </article>
+
+    <!-- 3. THESIS SPAM -->
+    <article class="debrief-panel" data-debrief-panel="thesis" hidden>
+      <header class="debrief-header">
+        <div class="debrief-meta">
+          <span class="brief__kind brief__kind--project">NLP &amp; Machine Learning</span>
+          <span class="brief__status brief__status--awarded">99.56% DEFENSE SCORE</span>
+          <span class="debrief-period">Jan 2025 – June 2026</span>
+        </div>
+        <h3 class="debrief-title">Thesis: Indonesian Online Gambling Spam Classifier (NLP + TF-IDF)</h3>
+        <p class="debrief-role">Author &amp; Machine Learning Researcher (Undergraduate Capstone)</p>
+      </header>
+
+      <section class="debrief-sec">
+        <h4 class="debrief-h4">// Objective &amp; Problem Statement</h4>
+        <p class="debrief-p">
+          Online gambling syndicates aggressively target Indonesian digital platforms using slang obfuscation, Unicode lookalike glyphs, leetspeak (e.g. "s10t g4c0r"), and whitespace manipulation that bypass conventional regex and dictionary filters.
+        </p>
+      </section>
+
+      <section class="debrief-sec">
+        <h4 class="debrief-h4">// System Architecture Pipeline</h4>
+        <div class="pipeline">
+          <div class="pipeline__node">
+            <span class="pipeline__step">01</span>
+            <strong>YouTube API Stream</strong>
+            <span class="pipeline__sub">10,000+ Raw Comments</span>
+          </div>
+          <span class="pipeline__arrow">➔</span>
+          <div class="pipeline__node">
+            <span class="pipeline__step">02</span>
+            <strong>Text Normalizer</strong>
+            <span class="pipeline__sub">Leetspeak &amp; Slang Translation</span>
+          </div>
+          <span class="pipeline__arrow">➔</span>
+          <div class="pipeline__node pipeline__node--highlight">
+            <span class="pipeline__step">03</span>
+            <strong>N-Gram TF-IDF</strong>
+            <span class="pipeline__sub">Feature Weighting &amp; Vectorization</span>
+          </div>
+          <span class="pipeline__arrow">➔</span>
+          <div class="pipeline__node">
+            <span class="pipeline__step">04</span>
+            <strong>SVM &amp; Random Forest</strong>
+            <span class="pipeline__sub">Hyperplane Decision Boundary</span>
+          </div>
+          <span class="pipeline__arrow">➔</span>
+          <div class="pipeline__node">
+            <span class="pipeline__step">05</span>
+            <strong>Prediction Engine</strong>
+            <span class="pipeline__sub">Spam vs Ham Probability</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="debrief-sec">
+        <h4 class="debrief-h4">// Technical Benchmarks &amp; Key Metrics</h4>
+        <div class="debrief-metrics">
+          <div class="metric-card">
+            <span class="metric-card__val">99.56%</span>
+            <span class="metric-card__label">Test Accuracy</span>
+            <span class="metric-card__sub">Evaluated on unseen holdout test split</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-card__val">99.56%</span>
+            <span class="metric-card__label">Precision &amp; Recall</span>
+            <span class="metric-card__sub">Minimal false positives on legitimate comments</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-card__val">10,000+</span>
+            <span class="metric-card__label">Dataset Corpus</span>
+            <span class="metric-card__sub">Real-world annotated Indonesian comments</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-card__val">Grade A</span>
+            <span class="metric-card__label">Defense Honors</span>
+            <span class="metric-card__sub">Top capstone defense evaluation at ITENAS</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="debrief-sec">
+        <h4 class="debrief-h4">// Engineering Highlights</h4>
+        <ul class="debrief-list">
+          <li><strong>Custom Phonetic &amp; Leet Unmasker:</strong> Resolves obfuscated character substitutions before vectorization.</li>
+          <li><strong>Comparative Model Rigor:</strong> Rigorously compared Support Vector Machines (Linear/RBF), Naive Bayes, and Random Forest.</li>
+          <li><strong>Academic Contribution:</strong> Provided reproducible Jupyter notebooks and feature importance analysis for cyber-threat defense.</li>
+        </ul>
+      </section>
+
+      <footer class="debrief-footer">
+        <a class="btn btn--small" href="https://github.com/Zulfan15" target="_blank" rel="noopener noreferrer">🐙 GitHub Repository ↗</a>
+        <a class="btn btn--small" href="/lab">🔬 Capstone Research Note ↗</a>
+      </footer>
+    </article>
+
+    <!-- 4. OMR GRADER -->
+    <article class="debrief-panel" data-debrief-panel="omr-grader" hidden>
+      <header class="debrief-header">
+        <div class="debrief-meta">
+          <span class="brief__kind brief__kind--project">Computer Vision Web App</span>
+          <span class="brief__status brief__status--complete">MISSION COMPLETE</span>
+          <span class="debrief-period">Oct 2025 – Jan 2026</span>
+        </div>
+        <h3 class="debrief-title">Automated OMR Grading Web Application (OpenCV + FastAPI)</h3>
+        <p class="debrief-role">Full-Stack &amp; Computer Vision Engineer (Community Service Project)</p>
+      </header>
+
+      <section class="debrief-sec">
+        <h4 class="debrief-h4">// Objective &amp; Problem Statement</h4>
+        <p class="debrief-p">
+          Educational institutions spend hundreds of hours manually marking standardized exam answer sheets (LJK). Commercial OMR scanner hardware is expensive and prone to paper jams. This system enables grading using ordinary smartphone camera snapshots.
+        </p>
+      </section>
+
+      <section class="debrief-sec">
+        <h4 class="debrief-h4">// System Architecture Pipeline</h4>
+        <div class="pipeline">
+          <div class="pipeline__node">
+            <span class="pipeline__step">01</span>
+            <strong>Mobile Camera Snapshot</strong>
+            <span class="pipeline__sub">Bulk Image Upload</span>
+          </div>
+          <span class="pipeline__arrow">➔</span>
+          <div class="pipeline__node">
+            <span class="pipeline__step">02</span>
+            <strong>Perspective Transform</strong>
+            <span class="pipeline__sub">4-Corner Deskew Alignment</span>
+          </div>
+          <span class="pipeline__arrow">➔</span>
+          <div class="pipeline__node pipeline__node--highlight">
+            <span class="pipeline__step">03</span>
+            <strong>Otsu Threshold &amp; Contours</strong>
+            <span class="pipeline__sub">Bubble Fill Pixel Analysis</span>
+          </div>
+          <span class="pipeline__arrow">➔</span>
+          <div class="pipeline__node">
+            <span class="pipeline__step">04</span>
+            <strong>Dynamic Key Matcher</strong>
+            <span class="pipeline__sub">Scoring &amp; Penalty Calculation</span>
+          </div>
+          <span class="pipeline__arrow">➔</span>
+          <div class="pipeline__node">
+            <span class="pipeline__step">05</span>
+            <strong>Excel / CSV Export</strong>
+            <span class="pipeline__sub">Immediate Teacher Analytics</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="debrief-sec">
+        <h4 class="debrief-h4">// Technical Benchmarks &amp; Key Metrics</h4>
+        <div class="debrief-metrics">
+          <div class="metric-card">
+            <span class="metric-card__val">&lt; 0.35 s</span>
+            <span class="metric-card__label">Processing Speed</span>
+            <span class="metric-card__sub">Per scanned sheet on standard CPU</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-card__val">99.8%</span>
+            <span class="metric-card__label">Bubble Recognition</span>
+            <span class="metric-card__sub">Robust against pencil shade variations</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-card__val">Up to 35°</span>
+            <span class="metric-card__label">Perspective Deskew</span>
+            <span class="metric-card__sub">Corrects hand-held camera tilt angles</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-card__val">$0.00</span>
+            <span class="metric-card__label">Hardware Cost</span>
+            <span class="metric-card__sub">Runs on standard web server and smartphone</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="debrief-sec">
+        <h4 class="debrief-h4">// Engineering Highlights</h4>
+        <ul class="debrief-list">
+          <li><strong>Adaptive 4-Point Homography:</strong> Automatically detects alignment markers and deskews rotated photographs.</li>
+          <li><strong>Dynamic Question Configuration:</strong> Next.js web interface allowing teachers to build custom answer keys (50 to 100 questions).</li>
+          <li><strong>Instant Bulk Grading:</strong> Processes entire classroom batches in under 40 seconds with immediate grade distribution histograms.</li>
+        </ul>
+      </section>
+
+      <footer class="debrief-footer">
+        <a class="btn btn--small" href="https://github.com/Zulfan15" target="_blank" rel="noopener noreferrer">🐙 GitHub Repository ↗</a>
+      </footer>
+    </article>
+
+    <!-- 5. FOODRESCUE -->
+    <article class="debrief-panel" data-debrief-panel="foodrescue" hidden>
+      <header class="debrief-header">
+        <div class="debrief-meta">
+          <span class="brief__kind brief__kind--project">Full-Stack Platform</span>
+          <span class="brief__status brief__status--awarded">BRONZE MEDAL · IDEA FEST 3</span>
+          <span class="debrief-period">Mar 2025 – July 2025</span>
+        </div>
+        <h3 class="debrief-title">FoodRescue: Food Waste Management Web Application</h3>
+        <p class="debrief-role">Full-Stack Lead Developer</p>
+      </header>
+
+      <section class="debrief-sec">
+        <h4 class="debrief-h4">// Objective &amp; Problem Statement</h4>
+        <p class="debrief-p">
+          Awarded Bronze Medal at the IDEA FEST 3 National Competition. The platform connects urban restaurants and food vendors with charities and orphanages to redirect edible surplus food while optimizing volunteer pickup logistics.
+        </p>
+      </section>
+
+      <section class="debrief-sec">
+        <h4 class="debrief-h4">// Technical Benchmarks &amp; Key Metrics</h4>
+        <div class="debrief-metrics">
+          <div class="metric-card">
+            <span class="metric-card__val">Bronze 🥉</span>
+            <span class="metric-card__label">National Award</span>
+            <span class="metric-card__sub">Top 3 finalist across Indonesia</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-card__val">3 Portals</span>
+            <span class="metric-card__label">Role-Based Access</span>
+            <span class="metric-card__sub">Donor, Volunteer Courier, Foundation Admin</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-card__val">Live GIS</span>
+            <span class="metric-card__label">Interactive Map</span>
+            <span class="metric-card__sub">Leaflet geolocation distance calculation</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-card__val">100% Free</span>
+            <span class="metric-card__label">Community Impact</span>
+            <span class="metric-card__sub">Zero platform fees for non-profit foundations</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="debrief-sec">
+        <h4 class="debrief-h4">// Engineering Highlights</h4>
+        <ul class="debrief-list">
+          <li><strong>Leaflet.js Geolocation:</strong> Visualizes real-time donation locations with route distance calculation for volunteers.</li>
+          <li><strong>Three-Way Verification:</strong> Ensures donated food quality meets health criteria before dispatch confirmation.</li>
+        </ul>
+      </section>
+
+      <footer class="debrief-footer">
+        <a class="btn btn--small" href="https://github.com/Zulfan15" target="_blank" rel="noopener noreferrer">🐙 GitHub Repository ↗</a>
+      </footer>
+    </article>
+
+    <!-- 6. INCEPTION-V3 -->
+    <article class="debrief-panel" data-debrief-panel="inception" hidden>
+      <header class="debrief-header">
+        <div class="debrief-meta">
+          <span class="brief__kind brief__kind--project">Deep Learning Classifier</span>
+          <span class="brief__status brief__status--complete">MISSION COMPLETE</span>
+          <span class="debrief-period">Mar 2024 – June 2025</span>
+        </div>
+        <h3 class="debrief-title">Deep Learning Image Classification with InceptionV3</h3>
+        <p class="debrief-role">Computer Vision &amp; Deep Learning Engineer</p>
+      </header>
+
+      <section class="debrief-sec">
+        <h4 class="debrief-h4">// Objective &amp; Problem Statement</h4>
+        <p class="debrief-p">
+          Investigated transfer learning efficacy for industrial recyclable material segregation. Evaluated pre-trained CNN feature extraction versus fine-tuning upper convolutional layers on complex multi-material categories.
+        </p>
+      </section>
+
+      <section class="debrief-sec">
+        <h4 class="debrief-h4">// Technical Benchmarks &amp; Key Metrics</h4>
+        <div class="debrief-metrics">
+          <div class="metric-card">
+            <span class="metric-card__val">91.4%</span>
+            <span class="metric-card__label">Test Accuracy</span>
+            <span class="metric-card__sub">Across 6 diverse recyclable material classes</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-card__val">15 Epochs</span>
+            <span class="metric-card__label">Fast Convergence</span>
+            <span class="metric-card__sub">Leveraged pre-trained ImageNet convolutional weights</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-card__val">Streamlit</span>
+            <span class="metric-card__label">Interactive Demo</span>
+            <span class="metric-card__sub">Real-time image upload &amp; probability bar chart</span>
+          </div>
+        </div>
+      </section>
+
+      <footer class="debrief-footer">
+        <a class="btn btn--small" href="https://github.com/Zulfan15" target="_blank" rel="noopener noreferrer">🐙 GitHub Repository ↗</a>
+        <a class="btn btn--small" href="/lab">🔬 Lab Experiment Log ↗</a>
+      </footer>
+    </article>
+
+    <!-- 7. RC TANK IOT -->
+    <article class="debrief-panel" data-debrief-panel="rc-tank" hidden>
+      <header class="debrief-header">
+        <div class="debrief-meta">
+          <span class="brief__kind brief__kind--project">Embedded Robotics &amp; Mobile</span>
+          <span class="brief__status brief__status--complete">MISSION COMPLETE</span>
+          <span class="debrief-period">Sep 2024 – Jan 2025</span>
+        </div>
+        <h3 class="debrief-title">Remote Control Tank: IoT Hardware &amp; Flutter Mobile Control</h3>
+        <p class="debrief-role">Embedded Firmware &amp; Mobile App Developer</p>
+      </header>
+
+      <section class="debrief-sec">
+        <h4 class="debrief-h4">// Objective &amp; Problem Statement</h4>
+        <p class="debrief-p">
+          Engineered an autonomous dual-tread rover equipped with wireless smartphone telemetry, ultrasonic obstacle-detection fail-safes, and differential PWM steering over an ad-hoc local Wi-Fi link.
+        </p>
+      </section>
+
+      <section class="debrief-sec">
+        <h4 class="debrief-h4">// Technical Benchmarks &amp; Key Metrics</h4>
+        <div class="debrief-metrics">
+          <div class="metric-card">
+            <span class="metric-card__val">&lt; 20 ms</span>
+            <span class="metric-card__label">WebSocket Latency</span>
+            <span class="metric-card__sub">Immediate joystick steering response</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-card__val">&lt; 15 cm</span>
+            <span class="metric-card__label">Obstacle Failsafe</span>
+            <span class="metric-card__sub">Ultrasonic hardware interrupt halts motors</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-card__val">Dual ESP32</span>
+            <span class="metric-card__label">FreeRTOS Tasks</span>
+            <span class="metric-card__sub">Dedicated core for network and motor PWM</span>
+          </div>
+        </div>
+      </section>
+
+      <footer class="debrief-footer">
+        <a class="btn btn--small" href="https://github.com/Zulfan15" target="_blank" rel="noopener noreferrer">🐙 GitHub Repository ↗</a>
+      </footer>
+    </article>
+  </div>
+</dialog>

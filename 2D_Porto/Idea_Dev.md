@@ -31,19 +31,19 @@ Tujuan utama pengembangan ini:
 
 ---
 
-### 🛰️ Fase 2: "Mission Debrief" Drawer / Modal (Fix Link 404)
-- [ ] **Modal Interaktif Mission Debrief**:
+### 🛰️ Fase 2: "Mission Debrief" Drawer / Modal (SELESAI ✅)
+- [x] **Modal Interaktif Mission Debrief**:
   - Mengubah link `Debrief →` pada 7 proyek agar membuka dialog modal arsitektur sistem tanpa pindah halaman (mengatasi error 404).
-- [ ] **Detail Teknis Kaya untuk Tiap 7 Proyek**:
-  1. **AeroScan Tactical AI**: Alur YOLOv11-OBB + ByteTrack, benchmark TensorRT 1.8ms inference, metrik akurasi 99.56%, visualisasi drone bounding box.
-  2. **FoodLink Cloud-Native**: Arsitektur Laravel 12 + Docker + Redis, manajemen antrean donasi makanan, high concurrency.
-  3. **Thesis: Spam Classifier**: Pipeline NLP TF-IDF + SVM, akurasi 99.56% pada sidang skripsi, confusion matrix & feature extraction.
-  4. **Automated OMR Grader**: Algoritma kontur OpenCV, koreksi perspektif lembar LJK, FastAPI + Next.js integration.
-  5. **FoodRescue Platform**: Penghargaan Bronze Medal IDEA FEST 3, integrasi Leaflet GIS untuk kalkulasi jarak relawan.
-  6. **InceptionV3 Deep Learning**: Evaluasi transfer learning, konvergensi loss function, klasifikasi multi-kelas.
-  7. **RC Tank IoT**: Mikrokontroler ESP32, dual motor driver PWM, ultrasonic obstacle sensing, Flutter WebSocket remote control.
-- [ ] **Navigasi Misi Cepat**:
-  - Tombol `[ ← Prev Mission ]` dan `[ Next Mission → ]` di dalam modal serta dukungan navigasi tombol keyboard panah.
+- [x] **Detail Teknis Kaya untuk Tiap 7 Proyek**:
+  1. **AeroScan Tactical AI**: Alur YOLOv11-OBB + ByteTrack, benchmark TensorRT 1.8ms inference, metrik akurasi 94.2% mAP@50, FP16 CUDA execution.
+  2. **FoodLink Cloud-Native**: Arsitektur Laravel 12 + Docker + Redis, p99 latency <45ms, PostGIS query <8ms, manajemen antrean donasi.
+  3. **Thesis: Spam Classifier**: Pipeline NLP TF-IDF + SVM, akurasi 99.56% pada sidang skripsi, 10,000+ dataset komentar YouTube.
+  4. **Automated OMR Grader**: Algoritma kontur OpenCV, deskew hingga 35°, kecepatan <0.35s per lembar LJK, FastAPI + Next.js.
+  5. **FoodRescue Platform**: Penghargaan Bronze Medal IDEA FEST 3, integrasi Leaflet GIS untuk kalkulasi jarak relawan, 3 role portals.
+  6. **InceptionV3 Deep Learning**: Evaluasi transfer learning, konvergensi loss function, akurasi 91.4% pada 6 kelas material sampah.
+  7. **RC Tank IoT**: Mikrokontroler ESP32 FreeRTOS, dual motor driver PWM, ultrasonic obstacle sensing <15cm, Flutter WebSocket remote control.
+- [x] **Navigasi Misi Cepat**:
+  - Tombol `[ ← Prev Mission ]` dan `[ Next Mission → ]`, tab selector instan, serta dukungan navigasi tombol keyboard panah (Left/Right).
 
 ---
 
