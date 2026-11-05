@@ -50,6 +50,9 @@ export default defineConfig({
   site: 'https://zulfan-town.workers.dev',
   output: 'static',
   trailingSlash: 'ignore',
+  redirects: {
+    '/town': '/',
+  },
   prefetch: { prefetchAll: true, defaultStrategy: 'hover' },
   build: { format: 'directory' },
   vite: {

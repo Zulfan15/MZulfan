@@ -1132,6 +1132,7 @@ const dataPlaceRooms = {
       },
       onBubble: showBubble,
       onNavigate: (route) => {
+        if (route === '/town' || route === 'town') route = '/';
         if (route === '/dev') gameStore.addStamp('dev');
         if (route === '/twin') gameStore.addStamp('twin');
         if (route === '/arcade') gameStore.addStamp('arcade');

@@ -4054,7 +4054,9 @@ export class TownEngine {
             this.callbacks.onDialogue(prop.label, [prop.target.text]);
           }
         } else if (prop.target.type === 'place' && prop.target.id) {
-          this.callbacks.onNavigate(`/${prop.target.id}`);
+          sfx.door();
+          if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('town:respawn', '22,28');
+          this.callbacks.onNavigate(prop.target.id === 'town' ? '/' : `/${prop.target.id}`);
         }
         this.wake();
       }
@@ -4086,7 +4088,9 @@ export class TownEngine {
             this.callbacks.onDialogue(prop.label, [prop.target.text]);
           }
         } else if (prop.target.type === 'place' && prop.target.id) {
-          this.callbacks.onNavigate(`/${prop.target.id}`);
+          sfx.door();
+          if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('town:respawn', '22,28');
+          this.callbacks.onNavigate(prop.target.id === 'town' ? '/' : `/${prop.target.id}`);
         }
         this.wake();
       }
@@ -4274,7 +4278,9 @@ export class TownEngine {
             this.callbacks.onDialogue(prop.label, [prop.target.text]);
           }
         } else if (prop.target.type === 'place' && prop.target.id) {
-          this.callbacks.onNavigate(`/${prop.target.id}`);
+          sfx.door();
+          if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('town:respawn', '22,28');
+          this.callbacks.onNavigate(prop.target.id === 'town' ? '/' : `/${prop.target.id}`);
         }
         this.wake();
       }
