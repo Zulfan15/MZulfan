@@ -208,6 +208,7 @@ export const places: Place[] = [
   { id: 'cafe', route: '/cafe', name: 'Poké-Café & Bar', icon: '☕', blurb: 'Specialty Dev Roasts, Castelia Cones, Lo-Fi Vinyl Jukebox & Coffee Chat Lounge.' },
   { id: 'arena', route: '/arena', name: 'Gladiator Arena', icon: '⚔️', blurb: '1v1 Gladiator Duel vs Mewtwo, Six Trials of Rome & Hall of Victors.' },
   { id: 'garden', route: '/garden', name: 'Berry Garden', icon: '🌸', blurb: 'Interactive 6-Bed Berry Plantation, Copper Berry Blender & Botanical Conservatory.' },
+  { id: 'neighbour', route: '/neighbour', name: "Neighbour's House", icon: '🏡', blurb: 'Cozy Fellow Dev Cottage, Eevee Tech Vibe Matcher, PR Ping-Pong & Guestbook Corkboard.' },
 ];
 
 export const placeById = (id: string): Place => places.find((p) => p.id === id) ?? places[0];

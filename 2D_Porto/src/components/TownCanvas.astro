@@ -33,6 +33,7 @@ const dataPlaces = {
   cafe: { name: 'Poké-Café & Bar', href: '/cafe' },
   arena: { name: 'Battle Arena', href: '/arena' },
   garden: { name: 'Berry Garden', href: '/garden' },
+  neighbour: { name: "Neighbour's House", href: '/neighbour' },
 };
 
 const githubUrl = profile.socials.find((s) => s.label === 'GitHub')?.url || 'https://github.com/Zulfan15';
@@ -60,8 +61,8 @@ const dataPlaceRooms = {
   data-places={JSON.stringify(dataPlaces)}
   data-links={JSON.stringify(dataLinks)}
   data-place-rooms={JSON.stringify(dataPlaceRooms)}
-  data-scene={currentPlace === 'about' ? 'home' : currentPlace === 'dev' ? 'dev' : currentPlace === 'lab' ? 'lab' : currentPlace === 'arcade' ? 'arcade' : currentPlace === 'reception' ? 'reception' : currentPlace === 'mart' ? 'mart' : currentPlace === 'tower' ? 'tower' : currentPlace === 'cafe' ? 'cafe' : currentPlace === 'arena' ? 'arena' : currentPlace === 'garden' ? 'garden' : 'town'}
-  data-retro={currentPlace === 'about' || currentPlace === 'dev' || currentPlace === 'lab' || currentPlace === 'arcade' || currentPlace === 'reception' || currentPlace === 'mart' || currentPlace === 'tower' || currentPlace === 'cafe' || currentPlace === 'arena' || currentPlace === 'garden' ? '' : undefined}
+  data-scene={currentPlace === 'about' ? 'home' : currentPlace === 'dev' ? 'dev' : currentPlace === 'lab' ? 'lab' : currentPlace === 'arcade' ? 'arcade' : currentPlace === 'reception' ? 'reception' : currentPlace === 'mart' ? 'mart' : currentPlace === 'tower' ? 'tower' : currentPlace === 'cafe' ? 'cafe' : currentPlace === 'arena' ? 'arena' : currentPlace === 'garden' ? 'garden' : currentPlace === 'neighbour' ? 'neighbour' : 'town'}
+  data-retro={currentPlace === 'about' || currentPlace === 'dev' || currentPlace === 'lab' || currentPlace === 'arcade' || currentPlace === 'reception' || currentPlace === 'mart' || currentPlace === 'tower' || currentPlace === 'cafe' || currentPlace === 'arena' || currentPlace === 'garden' || currentPlace === 'neighbour' ? '' : undefined}
 >
   <h2 id="town-title" class="visually-hidden">Interactive Town Map</h2>
   <p id="town-help" class="visually-hidden">
@@ -100,6 +101,8 @@ const dataPlaceRooms = {
           ? '⚔️ Gladiator Arena'
           : currentPlace === 'garden'
           ? '🌸 Berry Garden'
+          : currentPlace === 'neighbour'
+          ? "🏡 Neighbour's House"
           : '📍 Town Square'}
       </span>
       <span class="town-hud-badge">LIVE 2D</span>
@@ -155,6 +158,8 @@ const dataPlaceRooms = {
                 ? '⚔️ Gladiator Arena'
                 : currentPlace === 'garden'
                 ? '🌸 Berry Garden'
+                : currentPlace === 'neighbour'
+                ? "🏡 Neighbour's House"
                 : '📍 Town Square'}
             </span>
           </div>
@@ -619,11 +624,46 @@ const dataPlaceRooms = {
           <span class="town-label__text">Berry Blender</span>
         </button>
       </>
+    ) : currentPlace === 'neighbour' ? (
+      <>
+        <button type="button" class="town-label town-label--npc" data-id="neighbour-maya" aria-label="Talk to Neighbour Maya">
+          <span class="town-label__icon" aria-hidden="true">👋</span>
+          <span class="town-label__text">Neighbour Maya</span>
+        </button>
+        <button type="button" class="town-label town-label--npc" data-id="eevee-companion" aria-label="Greet Eevee Cottage Mascot">
+          <span class="town-label__icon" aria-hidden="true">🦊</span>
+          <span class="town-label__text">Eevee</span>
+        </button>
+        <button type="button" class="town-label" data-id="guestbook-board" aria-label="Inspect Neighbour Guestbook & Corkboard">
+          <span class="town-label__icon" aria-hidden="true">📌</span>
+          <span class="town-label__text">Guestbook</span>
+        </button>
+        <button type="button" class="town-label" data-id="coop-table" aria-label="Inspect Co-Op Pair-Programming Desk">
+          <span class="town-label__icon" aria-hidden="true">🤝</span>
+          <span class="town-label__text">Co-Op Desk</span>
+        </button>
+        <button type="button" class="town-label town-label--coffee" data-id="fireplace-hearth" aria-label="Enjoy Fireside Oolong Tea">
+          <span class="town-label__icon" aria-hidden="true">🍵</span>
+          <span class="town-label__text">Fireside Tea</span>
+        </button>
+        <button type="button" class="town-label" data-id="retro-console" aria-label="Play PR Ping-Pong Mini-Game">
+          <span class="town-label__icon" aria-hidden="true">🎮</span>
+          <span class="town-label__text">PR Ping-Pong</span>
+        </button>
+        <button type="button" class="town-label" data-id="mentorship-shelf" aria-label="Inspect 6x Lab Mentorship & Guild Library">
+          <span class="town-label__icon" aria-hidden="true">📚</span>
+          <span class="town-label__text">Guild Shelf</span>
+        </button>
+      </>
     ) : (
       <>
         <button type="button" class="town-label town-label--building" data-id="home" aria-label="Walk to Home & Studio">
           <span class="town-label__icon" aria-hidden="true">🏠</span>
           <span class="town-label__text">Home</span>
+        </button>
+        <button type="button" class="town-label town-label--building" data-id="villa" aria-label="Walk to Neighbour's House">
+          <span class="town-label__icon" aria-hidden="true">🏡</span>
+          <span class="town-label__text">Neighbour</span>
         </button>
         <button type="button" class="town-label town-label--building" data-id="dev" aria-label="Walk to Dev Center">
           <span class="town-label__icon" aria-hidden="true">💻</span>
@@ -753,7 +793,7 @@ const dataPlaceRooms = {
     <button
       class="town-guide__toggle"
       type="button"
-      aria-expanded={currentPlace === 'dev' || currentPlace === 'lab' || currentPlace === 'reception' || currentPlace === 'mart' || currentPlace === 'tower' || currentPlace === 'cafe' || currentPlace === 'arena' ? 'true' : 'false'}
+      aria-expanded={currentPlace === 'dev' || currentPlace === 'lab' || currentPlace === 'reception' || currentPlace === 'mart' || currentPlace === 'tower' || currentPlace === 'cafe' || currentPlace === 'arena' || currentPlace === 'garden' || currentPlace === 'neighbour' ? 'true' : 'false'}
       aria-controls="town-guide-card"
       data-town-guide-toggle=""
     >
@@ -765,12 +805,12 @@ const dataPlaceRooms = {
       id="town-guide-card"
       role="region"
       aria-labelledby="town-guide-title"
-      hidden={currentPlace === 'dev' || currentPlace === 'lab' || currentPlace === 'reception' || currentPlace === 'mart' || currentPlace === 'tower' || currentPlace === 'cafe' || currentPlace === 'arena' || currentPlace === 'garden' ? undefined : ''}
+      hidden={currentPlace === 'dev' || currentPlace === 'lab' || currentPlace === 'reception' || currentPlace === 'mart' || currentPlace === 'tower' || currentPlace === 'cafe' || currentPlace === 'arena' || currentPlace === 'garden' || currentPlace === 'neighbour' ? undefined : ''}
       data-town-guide-card=""
     >
       <div class="town-guide__body">
         <strong id="town-guide-title" data-town-guide-title="">
-          {currentPlace === 'about' ? 'CRATE & CLOSET' : currentPlace === 'dev' ? 'DEV CENTER' : currentPlace === 'lab' ? 'RESEARCH LAB' : currentPlace === 'arcade' ? 'Arcade' : currentPlace === 'reception' ? 'POKÉ CENTER · FRONT DESK' : currentPlace === 'mart' ? 'POKÉ MART · SERVICES & INVENTORY' : currentPlace === 'tower' ? 'TECH TOWER · INNOVATION & ENTERPRISE HQ' : currentPlace === 'cafe' ? 'POKÉ-CAFÉ & DEVELOPER ROASTERY BAR' : currentPlace === 'arena' ? 'COLOSSEUM GLADIATORIA · ARENA GLADIATOR' : currentPlace === 'garden' ? 'BOTANICAL BERRY PLANTATION & SAKURA CONSERVATORY' : 'Town Square'}
+          {currentPlace === 'about' ? 'CRATE & CLOSET' : currentPlace === 'dev' ? 'DEV CENTER' : currentPlace === 'lab' ? 'RESEARCH LAB' : currentPlace === 'arcade' ? 'Arcade' : currentPlace === 'reception' ? 'POKÉ CENTER · FRONT DESK' : currentPlace === 'mart' ? 'POKÉ MART · SERVICES & INVENTORY' : currentPlace === 'tower' ? 'TECH TOWER · INNOVATION & ENTERPRISE HQ' : currentPlace === 'cafe' ? 'POKÉ-CAFÉ & DEVELOPER ROASTERY BAR' : currentPlace === 'arena' ? 'COLOSSEUM GLADIATORIA · ARENA GLADIATOR' : currentPlace === 'garden' ? 'BOTANICAL BERRY PLANTATION & SAKURA CONSERVATORY' : currentPlace === 'neighbour' ? "NEIGHBOUR'S COTTAGE · FELLOW DEV GUILD" : 'Town Square'}
         </strong>
         <p data-town-guide-text="">
           {currentPlace === 'about'
@@ -793,6 +833,8 @@ const dataPlaceRooms = {
             ? "Ave, Challenger! Welcome to the Gladiator Colosseum. Choose your Gladiator from the Armory to duel Champion Mewtwo in the Sand Pit, conquer the Six Trials of Rome, or inspect the Hall of Victors. Step on the south gate mat to exit."
             : currentPlace === 'garden'
             ? "Welcome to the Botanical Berry Plantation & Sakura Conservatory! Greet Master Botanist Flora and Shaymin, irrigate the soil beds from the Sprayduck Well, plant and harvest 6 heirloom berry strains, or spin the Copper Berry Blender. Step on the south garden gate to exit."
+            : currentPlace === 'neighbour'
+            ? "Welcome to Neighbour Maya's Cozy Dev Cottage! Greet Maya and Eevee, sip hot Oolong tea by the crackling fireplace, play PR Review Ping-Pong on the retro CRT, or pin a sticky note on the Neighbour Guestbook. Step on the south mat to exit."
             : "An interactive pixel-art town. Walk into buildings to explore projects, lab research, and dev logs. Inspect social runes or talk to the Digital Twin."}
         </p>
       </div>
@@ -1292,6 +1334,8 @@ const dataPlaceRooms = {
             engine.interactFacing('arena');
           } else if (id === 'berry' || id === 'garden') {
             engine.interactFacing('berry');
+          } else if (id === 'villa' || id === 'neighbour') {
+            engine.interactFacing('neighbour');
           }
           canvas.focus();
         }

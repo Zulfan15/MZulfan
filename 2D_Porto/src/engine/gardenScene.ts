@@ -672,3 +672,4 @@ export function renderGardenAnimations(ctx: CanvasRenderingContext2D, tick: numb
 
   ctx.restore();
 }
+

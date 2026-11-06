@@ -102,15 +102,16 @@
     },
     {
       "id": "villa",
-      "name": "Studio Villa",
+      "name": "Neighbour's House",
       "x": 25,
       "y": 20,
       "w": 6,
       "h": 5,
       "kind": "building",
+      "link": "/neighbour",
       "hidden": false,
-      "doorX": 28,
-      "doorY": 25
+      "doorX": 27,
+      "doorY": 24
     },
     {
       "id": "arena",

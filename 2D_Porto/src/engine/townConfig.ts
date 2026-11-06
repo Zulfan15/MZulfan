@@ -1538,6 +1538,13 @@ class TownConfigManager {
               if (b.name) existing.name = b.name;
               if (b.w !== undefined) existing.w = b.w;
               if (b.h !== undefined) existing.h = b.h;
+              if (b.id === 'villa' || b.id === 'neighbour') {
+                existing.id = 'villa';
+                existing.name = "Neighbour's House";
+                existing.link = '/neighbour';
+                existing.doorX = existing.x + 2;
+                existing.doorY = existing.y + (existing.h || 5) - 1;
+              }
             } else {
               this.buildings.set(b.id, b);
             }

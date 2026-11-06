@@ -1,0 +1,1859 @@
+---
+import TownLayout from '../layouts/TownLayout.astro';
+import { profile } from '../lib/profile';
+
+const eeveelutions = [
+  {
+    id: 'vaporeon',
+    name: 'Vaporeon',
+    title: 'Fluid Full-Stack & Cloud Streams',
+    type: 'WATER · FULL-STACK',
+    icon: '💧',
+    accent: '#38bdf8',
+    bg: 'rgba(56, 189, 248, 0.14)',
+    border: 'rgba(56, 189, 248, 0.45)',
+    stack: ['Laravel 12', 'React / Next.js', 'Astro', 'Tailwind CSS', 'PostgreSQL'],
+    quote: 'Adapts seamlessly to any screen or server container — flowing from responsive UI components to resilient REST & WebSocket APIs.',
+    project: 'FoodLink Cloud Platform & PT. Javan Cipta Solusi Enterprise Apps',
+  },
+  {
+    id: 'jolteon',
+    name: 'Jolteon',
+    title: 'High-Voltage Edge AI & 75 FPS Vision',
+    type: 'ELECTRIC · COMPUTER VISION',
+    icon: '⚡',
+    accent: '#facc15',
+    bg: 'rgba(250, 204, 21, 0.14)',
+    border: 'rgba(250, 204, 21, 0.45)',
+    stack: ['YOLOv8 / YOLOv11', 'PyTorch', 'OpenCV', 'TensorRT', 'FastAPI'],
+    quote: 'Strikes with sub-2ms inference speed! Built for real-time aerial object detection, OMR sheet grading, and zero-lag visual pipelines.',
+    project: 'AeroScan UAV Detection & Automated OMR Exam Grader',
+  },
+  {
+    id: 'flareon',
+    name: 'Flareon',
+    title: 'Rapid Prototyping & Hackathon Igniter',
+    type: 'FIRE · PRODUCT VELOCITY',
+    icon: '🔥',
+    accent: '#fb923c',
+    bg: 'rgba(251, 146, 60, 0.14)',
+    border: 'rgba(251, 146, 60, 0.45)',
+    stack: ['Rapid MVP', 'System Design', 'Git Workflow', 'Docker', 'REST API'],
+    quote: 'Turns raw ideas into award-winning prototypes under tight hackathon deadlines while keeping the team energized and aligned.',
+    project: 'IDEA FEST 3 National Bronze Medalist Innovation Build',
+  },
+  {
+    id: 'espeon',
+    name: 'Espeon',
+    title: 'Predictive ML & NLP Intelligence',
+    type: 'PSYCHIC · DATA SCIENCE',
+    icon: '🔮',
+    accent: '#c084fc',
+    bg: 'rgba(192, 132, 252, 0.14)',
+    border: 'rgba(192, 132, 252, 0.45)',
+    stack: ['Scikit-Learn', 'NLP / TF-IDF', 'Pandas', 'Python', 'RAG / LLM'],
+    quote: 'Foresees patterns in noisy datasets and filters out spam, anomalies, and bottlenecks with high-precision classification models.',
+    project: 'Indonesian SMS/Email Spam Classifier & Digital Twin AI',
+  },
+  {
+    id: 'umbreon',
+    name: 'Umbreon',
+    title: 'Zero-Trust CyberSec & Night Ops',
+    type: 'DARK · NETWORK SECURITY',
+    icon: '🌙',
+    accent: '#fbbf24',
+    bg: 'rgba(251, 191, 36, 0.12)',
+    border: 'rgba(251, 191, 36, 0.45)',
+    stack: ['Huawei HCIA-Security V4.0', 'Firewall Rules', 'IPSec VPN', 'NAT / ACL', 'Linux Hardening'],
+    quote: 'Guards the perimeter through late-night deployments with encrypted tunnels, strict firewall policies, and defensive architecture.',
+    project: 'Huawei HCIA-Security V4.0 Certified Network Defense',
+  },
+  {
+    id: 'leafeon',
+    name: 'Leafeon',
+    title: 'Embedded IoT & Sustainable Robotics',
+    type: 'GRASS · ROBOTICS & IOT',
+    icon: '🍃',
+    accent: '#4ade80',
+    bg: 'rgba(74, 222, 128, 0.14)',
+    border: 'rgba(74, 222, 128, 0.45)',
+    stack: ['ESP32 / Arduino', 'C / C++', 'PWM Kinematics', 'Ultrasonic / IR Sensors', 'MQTT / WebSockets'],
+    quote: 'Bridges digital code with the physical world — orchestrating microcontrollers, sensor fusion, and robotic actuators in harmony.',
+    project: 'ITENAS Robotics Lab Coordinator & ESP32 RC Tank Telemetry',
+  },
+];
+
+const mentorshipModules = [
+  {
+    semester: 'Lab Role 01',
+    course: 'Object-Oriented Programming (Java)',
+    icon: '☕',
+    students: '35+ Students',
+    focus: 'Encapsulation, Polymorphism, SOLID Design Patterns & GUI Architecture',
+    highlight: 'Guided students from basic classes to full MVC desktop applications with live debugging sessions.',
+  },
+  {
+    semester: 'Lab Role 02',
+    course: 'Robotics & Embedded Systems Lab (Coordinator)',
+    icon: '🤖',
+    students: '40+ Students',
+    focus: 'ESP32/Arduino Firmware, Motor Kinematics, PID Control & Sensor Fusion',
+    highlight: 'Coordinated lab assistants, designed hands-on hardware practicums, and maintained robotic testbenches.',
+  },
+  {
+    semester: 'Lab Role 03',
+    course: 'Computer Networks & Security Practicum',
+    icon: '🖧',
+    students: '35+ Students',
+    focus: 'VLAN Routing, OSPF, Subnetting, Firewall ACLs & Packet Analysis',
+    highlight: 'Backed by Huawei HCIA-Security V4.0 certification to mentor real-world network troubleshooting.',
+  },
+  {
+    semester: 'Lab Role 04',
+    course: 'Database Systems & SQL Optimization',
+    icon: '🗄️',
+    students: '35+ Students',
+    focus: 'ERD Normalization (3NF), Complex Joins, Indexing & Transaction Integrity',
+    highlight: 'Helped student teams architect normalized relational schemas for their capstone web apps.',
+  },
+  {
+    semester: 'Lab Role 05',
+    course: 'Internet of Things (IoT) & Telemetry',
+    icon: '📡',
+    students: '30+ Students',
+    focus: 'MQTT Brokers, Real-Time Dashboards, Edge Sensors & Cloud Webhooks',
+    highlight: 'Mentored end-to-end IoT prototypes connecting physical sensors to live web visualizations.',
+  },
+  {
+    semester: 'Lab Role 06',
+    course: 'Algorithms & Fundamental Programming',
+    icon: '🧩',
+    students: '40+ Students',
+    focus: 'Data Structures, Time Complexity, Recursion & Clean Code Habits',
+    highlight: 'Built a welcoming, beginner-friendly environment where first-year coders gained confidence.',
+  },
+];
+
+const coopChronicles = [
+  {
+    title: 'PT. Javan Cipta Solusi — Software Engineering Co-Op',
+    badge: 'ENTERPRISE SPRINT',
+    role: 'Full-Stack Developer Intern',
+    icon: '🏢',
+    summary: 'Collaborated in daily agile standups, pair-programmed on enterprise Laravel & modern web modules, and shipped clean, peer-reviewed pull requests.',
+    tags: ['Agile Scrum', 'Pair Programming', 'Git PR Reviews', 'Full-Stack Web'],
+    propId: 'coop-table',
+  },
+  {
+    title: 'IDEA FEST 3 National Competition — Bronze Medal Squad',
+    badge: 'NATIONAL BRONZE 🥉',
+    role: 'Lead AI & System Integrator',
+    icon: '🏆',
+    summary: 'Teamed up across disciplines to build an applied innovation prototype under intense competition deadlines, earning National Bronze recognition.',
+    tags: ['Cross-Functional Team', 'Rapid Prototyping', 'Pitching', 'Edge AI'],
+    propId: 'neighbour-maya',
+  },
+  {
+    title: 'ITENAS Informatics — 6× Laboratory Assistant Guild',
+    badge: '3.49 / 4.00 GPA',
+    role: 'Lab Coordinator & Peer Mentor',
+    icon: '🎓',
+    summary: 'Mentored 180+ fellow informatics students across 6 laboratory courses while maintaining a 3.49/4.00 GPA at Institut Teknologi Nasional Bandung.',
+    tags: ['Technical Mentorship', 'Curriculum Design', 'Code Review', 'Leadership'],
+    propId: 'mentorship-shelf',
+  },
+];
+---
+
+<TownLayout
+  title={`Neighbour's House — Fellow Dev Cottage & Guild | ${profile.person.name}`}
+  description="Step inside Neighbour Maya's cozy developer cottage! Greet Eevee, match your Eeveelution tech vibe, play PR Review Ping-Pong, explore Zulfan's 6x Lab Mentorship chronicles, and sign the Neighbour Guestbook."
+  place="neighbour"
+>
+  <div class="neighbour-page">
+    <!-- 1. Cozy Cottage Hero & Live Friendship HUD -->
+    <section class="cottage-hero">
+      <div class="cottage-hero__glow" aria-hidden="true"></div>
+      <div class="cottage-hero__top">
+        <div class="cottage-hero__badge-row">
+          <span class="cottage-pill cottage-pill--warm">🏡 NEIGHBOUR'S COTTAGE · PLOT #25</span>
+          <span class="cottage-pill cottage-pill--eevee">🦊 EEVEE & MAYA'S DEV GUILD</span>
+        </div>
+        <h1 id="panel-title" class="cottage-hero__title">
+          Neighbour's House &amp; Fellow Dev Guild
+        </h1>
+        <p class="cottage-hero__subtitle">
+          Selamat datang di pondok hangat tetangga sebelah! Di sini <strong>Neighbour Maya</strong> dan <strong>Eevee</strong> berkumpul bersama <strong>{profile.person.name}</strong> untuk <em>pair-programming</em>, berbagi teh Oolong di dekat perapian, melatih ketangkasan <em>code review</em>, dan merayakan kolaborasi komunitas developer.
+        </p>
+      </div>
+
+      <!-- Live Cottage Telemetry & Friendship Bar -->
+      <div class="cottage-stats-grid">
+        <div class="cottage-stat-card">
+          <div class="cottage-stat-card__head">
+            <span class="cottage-stat-card__icon">❤️</span>
+            <span class="cottage-stat-card__label">FRIENDSHIP LEVEL</span>
+          </div>
+          <div class="cottage-stat-card__val" id="hud-friendship-val">88 / 100</div>
+          <div class="cottage-progress">
+            <div class="cottage-progress__fill" id="hud-friendship-bar" style="width: 88%"></div>
+          </div>
+        </div>
+
+        <div class="cottage-stat-card">
+          <div class="cottage-stat-card__head">
+            <span class="cottage-stat-card__icon">🦊</span>
+            <span class="cottage-stat-card__label">ACTIVE VIBE</span>
+          </div>
+          <div class="cottage-stat-card__val" id="hud-vibe-val">Vaporeon 💧</div>
+          <span class="cottage-stat-card__sub" id="hud-vibe-sub">Full-Stack &amp; Cloud</span>
+        </div>
+
+        <div class="cottage-stat-card">
+          <div class="cottage-stat-card__head">
+            <span class="cottage-stat-card__icon">🎮</span>
+            <span class="cottage-stat-card__label">PR RALLY SCORE</span>
+          </div>
+          <div class="cottage-stat-card__val" id="hud-pr-score">0 Merged</div>
+          <span class="cottage-stat-card__sub">Zero Runtime Bugs</span>
+        </div>
+
+        <div class="cottage-stat-card">
+          <div class="cottage-stat-card__head">
+            <span class="cottage-stat-card__icon">📌</span>
+            <span class="cottage-stat-card__label">CORKBOARD NOTES</span>
+          </div>
+          <div class="cottage-stat-card__val" id="hud-notes-count">4 Pinned</div>
+          <span class="cottage-stat-card__sub">Fellow Dev Endorsements</span>
+        </div>
+      </div>
+
+      <!-- Quick 2D Room Navigation & Tea Action -->
+      <div class="cottage-nav-strip">
+        <span class="cottage-nav-strip__label">🚶 WALK IN 2D COTTAGE:</span>
+        <div class="cottage-nav-strip__btns">
+          <button type="button" class="cottage-chip-btn" data-walk-prop="neighbour-maya">
+            👋 Maya
+          </button>
+          <button type="button" class="cottage-chip-btn" data-walk-prop="eevee-companion">
+            🦊 Eevee
+          </button>
+          <button type="button" class="cottage-chip-btn" data-walk-prop="coop-table">
+            🤝 Co-Op Desk
+          </button>
+          <button type="button" class="cottage-chip-btn" data-walk-prop="retro-console">
+            🎮 PR Ping-Pong
+          </button>
+          <button type="button" class="cottage-chip-btn" data-walk-prop="mentorship-shelf">
+            📚 6× Lab Shelf
+          </button>
+          <button type="button" class="cottage-chip-btn" data-walk-prop="guestbook-board">
+            📌 Corkboard
+          </button>
+          <button type="button" class="cottage-chip-btn cottage-chip-btn--tea" id="btn-hero-tea">
+            🍵 Sip Fireside Tea (+Speed)
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Interactive Eevee Companion & 6 Eeveelution Tech Vibe Matcher -->
+    <section id="eevee-vibe-section" class="cottage-section">
+      <div class="cottage-section__header">
+        <div>
+          <span class="cottage-eyebrow">🦊 COTTAGE MASCOT &amp; ADAPTIVE STACK</span>
+          <h2 class="cottage-section__title">Eevee Companion &amp; Eeveelution Tech Matcher</h2>
+        </div>
+        <button type="button" class="cottage-locate-btn" data-walk-prop="eevee-companion">
+          📍 Walk to Eevee
+        </button>
+      </div>
+
+      <!-- Interactive Eevee Petting & Care Bar -->
+      <div class="eevee-care-banner">
+        <div class="eevee-care-banner__avatar">
+          <span class="eevee-avatar-emoji" id="eevee-stage-emoji">🦊</span>
+          <span class="eevee-heart-badge" id="eevee-heart-pop">💖</span>
+        </div>
+        <div class="eevee-care-banner__info">
+          <div class="eevee-care-banner__title-row">
+            <h3 id="eevee-status-title">Eevee is wagging its fluffy tail by the hearth!</h3>
+            <span class="eevee-mood-pill" id="eevee-mood-pill">Mood: Super Happy ✨</span>
+          </div>
+          <p id="eevee-status-dialogue" class="eevee-care-banner__desc">
+            "Eev-vee! 🦊✨" Seperti Eevee yang memiliki DNA adaptif untuk berevolusi sesuai lingkungan, Zulfan mengadaptasi keahlian Full-Stack, Edge AI, CyberSec, hingga IoT sesuai kebutuhan tim Anda.
+          </p>
+          <div class="eevee-care-actions">
+            <button type="button" class="eevee-action-btn" id="btn-pet-eevee">
+              🤚 Pet Eevee (+15 ❤️)
+            </button>
+            <button type="button" class="eevee-action-btn" id="btn-feed-pokepuff">
+              🧁 Give Poké Puff (+20 ❤️)
+            </button>
+            <button type="button" class="eevee-action-btn" id="btn-play-eevee">
+              🧶 Toss Yarn Ball (+15 ❤️)
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6 Eeveelution Selector Grid -->
+      <div class="eeveelution-grid" role="tablist" aria-label="Eeveelution Tech Vibes">
+        {eeveelutions.map((evo, idx) => (
+          <button
+            type="button"
+            class={`eeveelution-card ${idx === 0 ? 'is-active' : ''}`}
+            data-evo-id={evo.id}
+            data-evo-name={evo.name}
+            data-evo-title={evo.title}
+            data-evo-type={evo.type}
+            data-evo-icon={evo.icon}
+            data-evo-accent={evo.accent}
+            data-evo-quote={evo.quote}
+            data-evo-project={evo.project}
+            data-evo-stack={evo.stack.join(',')}
+            style={`--evo-accent: ${evo.accent}; --evo-bg: ${evo.bg}; --evo-border: ${evo.border};`}
+          >
+            <div class="eeveelution-card__top">
+              <span class="eeveelution-card__icon">{evo.icon}</span>
+              <span class="eeveelution-card__type">{evo.type}</span>
+            </div>
+            <h3 class="eeveelution-card__name">{evo.name}</h3>
+            <p class="eeveelution-card__title">{evo.title}</p>
+            <div class="eeveelution-card__tags">
+              {evo.stack.slice(0, 3).map((t) => (
+                <span class="eeveelution-tag">{t}</span>
+              ))}
+            </div>
+          </button>
+        ))}
+      </div>
+
+      <!-- Active Eeveelution Spotlight Box -->
+      <div class="eeveelution-spotlight" id="eeveelution-spotlight">
+        <div class="eeveelution-spotlight__header">
+          <span class="eeveelution-spotlight__icon" id="spotlight-icon">💧</span>
+          <div>
+            <span class="eeveelution-spotlight__badge" id="spotlight-type">WATER · FULL-STACK</span>
+            <h3 class="eeveelution-spotlight__title" id="spotlight-title">
+              Vaporeon — Fluid Full-Stack &amp; Cloud Streams
+            </h3>
+          </div>
+        </div>
+        <p class="eeveelution-spotlight__quote" id="spotlight-quote">
+          {eeveelutions[0].quote}
+        </p>
+        <div class="eeveelution-spotlight__meta">
+          <div class="eeveelution-spotlight__stack" id="spotlight-stack">
+            {eeveelutions[0].stack.map((item) => (
+              <span class="spotlight-pill">{item}</span>
+            ))}
+          </div>
+          <div class="eeveelution-spotlight__project">
+            <strong>Verified Track Record:</strong>{' '}
+            <span id="spotlight-project">{eeveelutions[0].project}</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Interactive Pair-Programming & PR Ping-Pong Mini-Game -->
+    <section id="ping-pong-game-section" class="cottage-section">
+      <div class="cottage-section__header">
+        <div>
+          <span class="cottage-eyebrow">🎮 RETRO CRT CO-OP MINI-GAME</span>
+          <h2 class="cottage-section__title">PR Review Ping-Pong Challenge</h2>
+        </div>
+        <button type="button" class="cottage-locate-btn" data-walk-prop="retro-console">
+          📍 Walk to Retro Console
+        </button>
+      </div>
+
+      <div class="pr-game-box">
+        <div class="pr-game-box__hud">
+          <div class="pr-game-stat">
+            <span class="pr-game-stat__label">ROUND</span>
+            <strong id="pr-round-num">1 / 5</strong>
+          </div>
+          <div class="pr-game-stat">
+            <span class="pr-game-stat__label">STREAK</span>
+            <strong id="pr-streak-num">0 🔥</strong>
+          </div>
+          <div class="pr-game-stat">
+            <span class="pr-game-stat__label">SCORE</span>
+            <strong id="pr-score-num">0 PTS</strong>
+          </div>
+          <button type="button" class="pr-game-reset-btn" id="btn-pr-restart">
+            🔄 New Sprint
+          </button>
+        </div>
+
+        <div class="pr-crt-screen" id="pr-crt-screen">
+          <div class="pr-crt-screen__header">
+            <span class="pr-branch-badge" id="pr-card-branch">feat/aeroscan-tensorrt</span>
+            <span class="pr-author-badge" id="pr-card-author">Author: @maya-dev</span>
+          </div>
+          <h3 class="pr-crt-screen__title" id="pr-card-title">
+            PR #101: Quantize YOLOv8 Aerial Detector to FP16 TensorRT
+          </h3>
+          <pre class="pr-crt-screen__diff" id="pr-card-diff"><code>+ model.export(format="engine", half=True, device=0)
++ // Inference latency dropped from 14.2ms to 1.8ms (75+ FPS)
++ assert(fps &gt;= 60 &amp;&amp; mAP50 &gt;= 0.89)</code></pre>
+          <p class="pr-crt-screen__prompt" id="pr-card-prompt">
+            All unit tests &amp; FPS benchmarks pass! What is your code review call?
+          </p>
+        </div>
+
+        <div class="pr-game-actions">
+          <button type="button" class="pr-decision-btn pr-decision-btn--approve" data-pr-action="approve">
+            ✅ Approve &amp; Merge
+          </button>
+          <button type="button" class="pr-decision-btn pr-decision-btn--refactor" data-pr-action="refactor">
+            🛠️ Request Refactor
+          </button>
+          <button type="button" class="pr-decision-btn pr-decision-btn--block" data-pr-action="block">
+            🛡️ Block Security Risk
+          </button>
+        </div>
+
+        <div class="pr-game-feedback" id="pr-game-feedback">
+          💡 <strong>Tip:</strong> Inspect the code snippet above and pick the right engineering review action!
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Co-Op Chronicles & 6x Lab Mentorship Showcase -->
+    <section id="coop-chronicles-section" class="cottage-section">
+      <div class="cottage-section__header">
+        <div>
+          <span class="cottage-eyebrow">🤝 TEAMWORK &amp; PAIR-PROGRAMMING</span>
+          <h2 class="cottage-section__title">Co-Op Chronicles &amp; Collaborative Sprints</h2>
+        </div>
+        <button type="button" class="cottage-locate-btn" data-walk-prop="coop-table">
+          📍 Walk to Co-Op Desk
+        </button>
+      </div>
+
+      <div class="coop-cards-grid">
+        {coopChronicles.map((item) => (
+          <article class="coop-card">
+            <div class="coop-card__top">
+              <span class="coop-card__icon">{item.icon}</span>
+              <span class="coop-card__badge">{item.badge}</span>
+            </div>
+            <h3 class="coop-card__title">{item.title}</h3>
+            <p class="coop-card__role">{item.role}</p>
+            <p class="coop-card__summary">{item.summary}</p>
+            <div class="coop-card__footer">
+              <div class="coop-card__tags">
+                {item.tags.map((t) => (
+                  <span class="coop-tag">{t}</span>
+                ))}
+              </div>
+              <button type="button" class="coop-card__walk" data-walk-prop={item.propId}>
+                🚶 Inspect in 2D
+              </button>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <!-- 5. 6x ITENAS Lab Mentorship Guild Shelf -->
+    <section id="mentorship-guild-section" class="cottage-section">
+      <div class="cottage-section__header">
+        <div>
+          <span class="cottage-eyebrow">📚 COMMUNITY KNOWLEDGE SHARING</span>
+          <h2 class="cottage-section__title">6× ITENAS Lab Assistant &amp; Mentorship Shelf</h2>
+        </div>
+        <button type="button" class="cottage-locate-btn" data-walk-prop="mentorship-shelf">
+          📍 Walk to Guild Shelf
+        </button>
+      </div>
+
+      <p class="cottage-section__lead">
+        Sebagai tetangga dan rekan belajar di <strong>Teknik Informatika ITENAS Bandung (IPK 3.49 / 4.00)</strong>, Zulfan aktif mendampingi praktikum selama <strong>6 penugasan Asisten Laboratorium</strong> serta menjabat sebagai <strong>Koordinator Laboratorium Robotika</strong>:
+      </p>
+
+      <div class="mentorship-grid">
+        {mentorshipModules.map((mod) => (
+          <div class="mentorship-card">
+            <div class="mentorship-card__head">
+              <span class="mentorship-card__icon">{mod.icon}</span>
+              <span class="mentorship-card__sem">{mod.semester}</span>
+              <span class="mentorship-card__students">{mod.students}</span>
+            </div>
+            <h3 class="mentorship-card__course">{mod.course}</h3>
+            <p class="mentorship-card__focus"><strong>Topics:</strong> {mod.focus}</p>
+            <p class="mentorship-card__highlight">{mod.highlight}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- 6. Live Neighbour Guestbook & Peer Endorsement Corkboard -->
+    <section id="guestbook-section" class="cottage-section">
+      <div class="cottage-section__header">
+        <div>
+          <span class="cottage-eyebrow">📌 INTERACTIVE COTTAGE CORKBOARD</span>
+          <h2 class="cottage-section__title">Neighbour Guestbook &amp; Endorsement Wall</h2>
+        </div>
+        <button type="button" class="cottage-locate-btn" data-walk-prop="guestbook-board">
+          📍 Walk to Corkboard
+        </button>
+      </div>
+
+      <div class="guestbook-layout">
+        <!-- Form to Pin a Sticky Note -->
+        <form id="guestbook-form" class="guestbook-form">
+          <h3 class="guestbook-form__title">📝 Pin a Sticky Note on the Corkboard</h3>
+          <p class="guestbook-form__sub">
+            Tinggalkan salam tetangga, <em>code endorsement</em>, atau pesan kolaborasi untuk Zulfan &amp; Maya!
+          </p>
+
+          <label class="guestbook-label">
+            <span>Your Name / Handle</span>
+            <input
+              type="text"
+              id="gb-name"
+              class="guestbook-input"
+              placeholder="e.g. Alex · Frontend Neighbour"
+              maxlength="40"
+              required
+            />
+          </label>
+
+          <div class="guestbook-row">
+            <label class="guestbook-label">
+              <span>Endorsement Badge</span>
+              <select id="gb-badge" class="guestbook-select">
+                <option value="🤝 Great Co-Op Partner">🤝 Great Co-Op Partner</option>
+                <option value="⚡ Clean Architecture">⚡ Clean Architecture</option>
+                <option value="🧠 Edge AI Wizard">🧠 Edge AI Wizard</option>
+                <option value="🎓 Inspiring Lab Mentor">🎓 Inspiring Lab Mentor</option>
+                <option value="☕ Cozy Coffee Buddy">☕ Cozy Coffee Buddy</option>
+              </select>
+            </label>
+
+            <label class="guestbook-label">
+              <span>Sticky Note Colour</span>
+              <select id="gb-color" class="guestbook-select">
+                <option value="amber">🟨 Warm Honey Amber</option>
+                <option value="sakura">🌸 Sakura Rose Pink</option>
+                <option value="mint">🌿 Fresh Mint Leaf</option>
+                <option value="sky">💎 Sky Cyan Breeze</option>
+              </select>
+            </label>
+          </div>
+
+          <label class="guestbook-label">
+            <span>Your Message</span>
+            <textarea
+              id="gb-message"
+              class="guestbook-textarea"
+              rows="3"
+              placeholder="Write a friendly note for the cottage corkboard..."
+              maxlength="180"
+              required
+            ></textarea>
+          </label>
+
+          <button type="submit" class="guestbook-submit-btn">
+            📌 Pin Note to Corkboard (+20 ❤️)
+          </button>
+        </form>
+
+        <!-- Corkboard Sticky Notes Grid -->
+        <div class="corkboard-wall" id="corkboard-wall" aria-live="polite">
+          <!-- Populated dynamically via script with default + saved notes -->
+        </div>
+      </div>
+    </section>
+  </div>
+</TownLayout>
+
+<script>
+  import { sfx } from '../game/sfx';
+
+  interface GuestbookNote {
+    id: string;
+    name: string;
+    badge: string;
+    color: 'amber' | 'sakura' | 'mint' | 'sky';
+    message: string;
+    date: string;
+  }
+
+  const DEFAULT_NOTES: GuestbookNote[] = [
+    {
+      id: 'maya-1',
+      name: 'Neighbour Maya · Fellow Dev',
+      badge: '🤝 Great Co-Op Partner',
+      color: 'amber',
+      message: 'Zulfan is the best pair-programming neighbour in town! His YOLOv8 + Laravel pipelines always compile cleanly on the first merge.',
+      date: 'Pinned by Cottage Host',
+    },
+    {
+      id: 'lab-2',
+      name: 'Raka · ITENAS Robotics Lab',
+      badge: '🎓 Inspiring Lab Mentor',
+      color: 'mint',
+      message: 'Thank you for coordinating the Robotics Lab and helping our team debug ESP32 PWM motor kinematics before the final demo!',
+      date: 'ITENAS Guild Note',
+    },
+    {
+      id: 'jav-3',
+      name: 'Dina · Agile Sprint Squad',
+      badge: '⚡ Clean Architecture',
+      color: 'sky',
+      message: 'Super reliable during PT. Javan Cipta Solusi sprints — clear PR descriptions, solid database migrations, and zero regressions.',
+      date: 'Sprint Retro Note',
+    },
+    {
+      id: 'ideafest-4',
+      name: 'IDEA FEST 3 Teammate',
+      badge: '🧠 Edge AI Wizard',
+      color: 'sakura',
+      message: 'From late-night model quantization to winning the National Bronze Medal together — proud to build alongside Zulfan!',
+      date: 'Hackathon Chronicle',
+    },
+  ];
+
+  const PR_CHALLENGES = [
+    {
+      branch: 'feat/aeroscan-tensorrt',
+      author: '@maya-dev',
+      title: 'PR #101: Quantize YOLOv8 Aerial Detector to FP16 TensorRT',
+      diff: `+ model.export(format="engine", half=True, device=0)\n+ // Inference latency dropped from 14.2ms to 1.8ms (75+ FPS)\n+ assert(fps >= 60 && mAP50 >= 0.89)`,
+      prompt: 'All unit tests & FPS benchmarks pass with 0% accuracy drop! What is your review call?',
+      correct: 'approve',
+      explain: '✅ Merged! FP16 TensorRT quantization boosted AeroScan throughput to 75+ FPS cleanly.',
+    },
+    {
+      branch: 'hotfix/auth-login-query',
+      author: '@junior-dev',
+      title: 'PR #102: Direct String Concatenation in User Login SQL',
+      diff: `- $user = DB::select("SELECT * FROM users WHERE email = ?", [$email]);\n+ $user = DB::select("SELECT * FROM users WHERE email = '$email'");`,
+      prompt: 'Wait — raw unescaped `$email` is interpolated directly into the SQL string!',
+      correct: 'block',
+      explain: '🛡️ Blocked! You prevented a critical SQL Injection vulnerability (Huawei HCIA-Security approved!).',
+    },
+    {
+      branch: 'feat/esp32-tank-telemetry',
+      author: '@robotics-guild',
+      title: 'PR #103: Poll Ultrasonic Sensor in Tight Infinite Loop Without Delay',
+      diff: `+ while (true) {\n+   sendWebSocket(readUltrasonicCm()); // 10,000 packets/sec!\n+ }`,
+      prompt: 'The logic works, but sending 10,000 packets/sec will flood the ESP32 Wi-Fi buffer.',
+      correct: 'refactor',
+      explain: '🛠️ Refactor requested! Adding a 50ms non-blocking millis() interval keeps telemetry smooth at 20Hz.',
+    },
+    {
+      branch: 'feat/laravel-queue-worker',
+      author: '@zulfan-dev',
+      title: 'PR #104: Dispatch Bulk Report Generation to Asynchronous Job Queue',
+      diff: `+ GenerateMonthlyReportJob::dispatch($tenantId)->onQueue('reports');\n+ return response()->json(['status' => 'queued'], 202);`,
+      prompt: 'Moves heavy PDF generation off the main HTTP thread with proper 202 Accepted status.',
+      correct: 'approve',
+      explain: '✅ Merged! HTTP response time dropped from 4.8s to 18ms.',
+    },
+    {
+      branch: 'chore/client-env-config',
+      author: '@guest-contributor',
+      title: 'PR #105: Commit Production Private API Key in Public Frontend Config',
+      diff: `+ export const PROD_SECRET_KEY = "sk_live_9988776655_secret";\n+ console.log("Loaded secret:", PROD_SECRET_KEY);`,
+      prompt: 'A production secret key is hardcoded and logged in client-side JavaScript!',
+      correct: 'block',
+      explain: '🛡️ Blocked! Secrets belong in server-side .env variables, never in client bundles.',
+    },
+  ];
+
+  function initNeighbourPage() {
+    let friendship = 88;
+    let prIndex = 0;
+    let prStreak = 0;
+    let prScore = 0;
+
+    const friendshipVal = document.getElementById('hud-friendship-val');
+    const friendshipBar = document.getElementById('hud-friendship-bar');
+    const vibeVal = document.getElementById('hud-vibe-val');
+    const vibeSub = document.getElementById('hud-vibe-sub');
+    const hudPrScore = document.getElementById('hud-pr-score');
+    const hudNotesCount = document.getElementById('hud-notes-count');
+
+    function addFriendship(delta: number, bannerText?: string, color = '#fbbf24') {
+      friendship = Math.min(100, friendship + delta);
+      if (friendshipVal) friendshipVal.textContent = `${friendship} / 100`;
+      if (friendshipBar) friendshipBar.style.width = `${friendship}%`;
+      if (bannerText) {
+        window.dispatchEvent(
+          new CustomEvent('town:neighbour-fx', {
+            detail: { text: bannerText, color },
+          })
+        );
+      }
+    }
+
+    // 1. Walk-to-Prop buttons (syncs with 2D canvas)
+    document.querySelectorAll<HTMLElement>('[data-walk-prop]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const propId = btn.getAttribute('data-walk-prop');
+        if (propId) {
+          sfx.select();
+          window.dispatchEvent(new CustomEvent('town:locate', { detail: { propId } }));
+        }
+      });
+    });
+
+    // Hero Fireside Tea button
+    document.getElementById('btn-hero-tea')?.addEventListener('click', () => {
+      sfx.heal();
+      window.dispatchEvent(new CustomEvent('town:locate', { detail: { propId: 'fireplace-hearth' } }));
+      window.dispatchEvent(new CustomEvent('town:coffee-boost'));
+      addFriendship(5, 'FIRESIDE OOLONG TEA! +50% SPEED 🍵', '#f97316');
+    });
+
+    // 2. Interactive Eevee Care buttons
+    const eeveeTitle = document.getElementById('eevee-status-title');
+    const eeveeDialogue = document.getElementById('eevee-status-dialogue');
+    const eeveeMood = document.getElementById('eevee-mood-pill');
+    const eeveeHeartPop = document.getElementById('eevee-heart-pop');
+
+    function pulseEeveeHeart(emoji = '💖') {
+      if (!eeveeHeartPop) return;
+      eeveeHeartPop.textContent = emoji;
+      eeveeHeartPop.classList.remove('is-popping');
+      void eeveeHeartPop.offsetWidth;
+      eeveeHeartPop.classList.add('is-popping');
+    }
+
+    document.getElementById('btn-pet-eevee')?.addEventListener('click', () => {
+      sfx.heal();
+      pulseEeveeHeart('💖');
+      if (eeveeTitle) eeveeTitle.textContent = 'Eevee purrs and leans into your hand!';
+      if (eeveeDialogue) eeveeDialogue.textContent = '"Eev-vee~ 💕" Eevee is radiating Cozy Pair-Programming Aura! Your friendship bond grew stronger.';
+      if (eeveeMood) eeveeMood.textContent = 'Mood: Affectionate 💖';
+      addFriendship(15, 'EEVEE CUDDLE! +15 FRIENDSHIP 🦊💖', '#f472b6');
+    });
+
+    document.getElementById('btn-feed-pokepuff')?.addEventListener('click', () => {
+      sfx.confirm();
+      pulseEeveeHeart('🧁');
+      if (eeveeTitle) eeveeTitle.textContent = 'Eevee happily munches a Sweet Berry Poké Puff!';
+      if (eeveeDialogue) eeveeDialogue.textContent = '"Vee-vee! 🧁✨" Sugar & berry vitamins boosted Eevee\'s energy to 100%! Ready for a full-stack coding marathon.';
+      if (eeveeMood) eeveeMood.textContent = 'Mood: Energized ⚡';
+      addFriendship(20, 'SWEET POKÉ PUFF! +20 FRIENDSHIP 🧁', '#fbbf24');
+    });
+
+    document.getElementById('btn-play-eevee')?.addEventListener('click', () => {
+      sfx.select();
+      pulseEeveeHeart('🧶');
+      if (eeveeTitle) eeveeTitle.textContent = 'Eevee pounces on the yarn ball across the hearth rug!';
+      if (eeveeDialogue) eeveeDialogue.textContent = '"Eev! 🧶🐾" Agile reflexes! Just like catching edge-case bugs before production deployment.';
+      if (eeveeMood) eeveeMood.textContent = 'Mood: Playful 🌟';
+      addFriendship(15, 'PLAYFUL FETCH! +15 FRIENDSHIP 🧶', '#38bdf8');
+    });
+
+    // 3. Eeveelution Tech Vibe Matcher
+    const evoCards = document.querySelectorAll<HTMLButtonElement>('.eeveelution-card');
+    const spotIcon = document.getElementById('spotlight-icon');
+    const spotType = document.getElementById('spotlight-type');
+    const spotTitle = document.getElementById('spotlight-title');
+    const spotQuote = document.getElementById('spotlight-quote');
+    const spotStack = document.getElementById('spotlight-stack');
+    const spotProject = document.getElementById('spotlight-project');
+    const stageEmoji = document.getElementById('eevee-stage-emoji');
+
+    evoCards.forEach((card) => {
+      card.addEventListener('click', () => {
+        sfx.select();
+        evoCards.forEach((c) => c.classList.remove('is-active'));
+        card.classList.add('is-active');
+
+        const name = card.getAttribute('data-evo-name') || 'Vaporeon';
+        const title = card.getAttribute('data-evo-title') || '';
+        const type = card.getAttribute('data-evo-type') || '';
+        const icon = card.getAttribute('data-evo-icon') || '💧';
+        const accent = card.getAttribute('data-evo-accent') || '#38bdf8';
+        const quote = card.getAttribute('data-evo-quote') || '';
+        const project = card.getAttribute('data-evo-project') || '';
+        const stack = (card.getAttribute('data-evo-stack') || '').split(',').filter(Boolean);
+
+        if (spotIcon) spotIcon.textContent = icon;
+        if (spotType) {
+          spotType.textContent = type;
+          spotType.style.color = accent;
+        }
+        if (spotTitle) spotTitle.textContent = `${name} — ${title}`;
+        if (spotQuote) spotQuote.textContent = quote;
+        if (spotProject) spotProject.textContent = project;
+        if (spotStack) {
+          spotStack.innerHTML = stack
+            .map((s) => `<span class="spotlight-pill" style="border-color:${accent}55">${s}</span>`)
+            .join('');
+        }
+        if (stageEmoji) stageEmoji.textContent = icon;
+        if (vibeVal) vibeVal.textContent = `${name} ${icon}`;
+        if (vibeSub) vibeSub.textContent = title.split('&')[0].trim();
+
+        addFriendship(5, `${name.toUpperCase()} VIBE ACTIVATED! ${icon}`, accent);
+      });
+    });
+
+    // 4. PR Review Ping-Pong Mini-Game
+    const roundEl = document.getElementById('pr-round-num');
+    const streakEl = document.getElementById('pr-streak-num');
+    const scoreEl = document.getElementById('pr-score-num');
+    const branchEl = document.getElementById('pr-card-branch');
+    const authorEl = document.getElementById('pr-card-author');
+    const titleEl = document.getElementById('pr-card-title');
+    const diffEl = document.getElementById('pr-card-diff');
+    const promptEl = document.getElementById('pr-card-prompt');
+    const feedbackEl = document.getElementById('pr-game-feedback');
+
+    function renderPrCard() {
+      const item = PR_CHALLENGES[prIndex % PR_CHALLENGES.length];
+      if (roundEl) roundEl.textContent = `${(prIndex % PR_CHALLENGES.length) + 1} / ${PR_CHALLENGES.length}`;
+      if (streakEl) streakEl.textContent = `${prStreak} 🔥`;
+      if (scoreEl) scoreEl.textContent = `${prScore} PTS`;
+      if (branchEl) branchEl.textContent = item.branch;
+      if (authorEl) authorEl.textContent = `Author: ${item.author}`;
+      if (titleEl) titleEl.textContent = item.title;
+      if (diffEl) diffEl.textContent = item.diff;
+      if (promptEl) promptEl.textContent = item.prompt;
+    }
+
+    document.querySelectorAll<HTMLButtonElement>('[data-pr-action]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const chosen = btn.getAttribute('data-pr-action');
+        const current = PR_CHALLENGES[prIndex % PR_CHALLENGES.length];
+        if (!chosen || !current) return;
+
+        if (chosen === current.correct) {
+          sfx.confirm();
+          prStreak += 1;
+          prScore += 100 + prStreak * 20;
+          if (hudPrScore) hudPrScore.textContent = `${prStreak} Streak (${prScore} pts)`;
+          if (feedbackEl) {
+            feedbackEl.className = 'pr-game-feedback is-success';
+            feedbackEl.textContent = `${current.explain} (+${100 + prStreak * 20} PTS)`;
+          }
+          addFriendship(10, `PR #${101 + (prIndex % PR_CHALLENGES.length)} REVIEWED! 🎯`, '#4ade80');
+        } else {
+          sfx.bump();
+          prStreak = 0;
+          if (feedbackEl) {
+            feedbackEl.className = 'pr-game-feedback is-error';
+            feedbackEl.textContent = `⚠️ Not quite! ${current.explain}`;
+          }
+        }
+
+        prIndex = (prIndex + 1) % PR_CHALLENGES.length;
+        renderPrCard();
+      });
+    });
+
+    document.getElementById('btn-pr-restart')?.addEventListener('click', () => {
+      sfx.select();
+      prIndex = 0;
+      prStreak = 0;
+      prScore = 0;
+      renderPrCard();
+      if (feedbackEl) {
+        feedbackEl.className = 'pr-game-feedback';
+        feedbackEl.textContent = '🔄 New Sprint initialized! Review PR #101 above.';
+      }
+    });
+
+    // 5. Neighbour Guestbook Corkboard (localStorage persisted)
+    const STORAGE_KEY = 'town:neighbour-guestbook:v1';
+    const corkboardWall = document.getElementById('corkboard-wall');
+    const guestbookForm = document.getElementById('guestbook-form') as HTMLFormElement | null;
+
+    function loadNotes(): GuestbookNote[] {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return [...DEFAULT_NOTES];
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      } catch {
+        // ignore storage errors
+      }
+      return [...DEFAULT_NOTES];
+    }
+
+    function saveNotes(notes: GuestbookNote[]) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
+      } catch {
+        // ignore storage errors
+      }
+    }
+
+    function escapeHtml(str: string): string {
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function renderNotes() {
+      const notes = loadNotes();
+      if (hudNotesCount) hudNotesCount.textContent = `${notes.length} Pinned`;
+      if (!corkboardWall) return;
+      corkboardWall.innerHTML = notes
+        .map(
+          (n) => `
+          <article class="sticky-note sticky-note--${escapeHtml(n.color)}">
+            <div class="sticky-note__pin" aria-hidden="true">📌</div>
+            <div class="sticky-note__badge">${escapeHtml(n.badge)}</div>
+            <p class="sticky-note__msg">"${escapeHtml(n.message)}"</p>
+            <div class="sticky-note__footer">
+              <strong class="sticky-note__author">${escapeHtml(n.name)}</strong>
+              <span class="sticky-note__date">${escapeHtml(n.date)}</span>
+            </div>
+          </article>
+        `
+        )
+        .join('');
+    }
+
+    guestbookForm?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const nameInput = document.getElementById('gb-name') as HTMLInputElement | null;
+      const badgeSelect = document.getElementById('gb-badge') as HTMLSelectElement | null;
+      const colorSelect = document.getElementById('gb-color') as HTMLSelectElement | null;
+      const msgInput = document.getElementById('gb-message') as HTMLTextAreaElement | null;
+
+      const name = nameInput?.value.trim() || 'Fellow Neighbour';
+      const badge = badgeSelect?.value || '🤝 Great Co-Op Partner';
+      const color = (colorSelect?.value as GuestbookNote['color']) || 'amber';
+      const message = msgInput?.value.trim() || '';
+      if (!message) return;
+
+      const notes = loadNotes();
+      notes.unshift({
+        id: `note-${Date.now()}`,
+        name,
+        badge,
+        color,
+        message,
+        date: 'Just pinned',
+      });
+      saveNotes(notes.slice(0, 12));
+      renderNotes();
+      if (msgInput) msgInput.value = '';
+      sfx.heal();
+      addFriendship(20, `NEW GUESTBOOK NOTE BY ${name.toUpperCase()}! 📌`, '#a855f7');
+    });
+
+    renderPrCard();
+    renderNotes();
+  }
+
+  initNeighbourPage();
+  document.addEventListener('astro:page-load', initNeighbourPage);
+</script>
+
+<style>
+  .neighbour-page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding-bottom: 2.5rem;
+    color: #fef3c7;
+  }
+
+  /* 1. Cozy Cottage Hero */
+  .cottage-hero {
+    position: relative;
+    overflow: hidden;
+    border-radius: 1rem;
+    padding: 1.35rem;
+    background: linear-gradient(145deg, #2b1810 0%, #3d2214 52%, #1f120b 100%);
+    border: 2px solid #b45309;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(253, 224, 71, 0.25);
+  }
+
+  .cottage-hero__glow {
+    position: absolute;
+    top: -40px;
+    right: -40px;
+    width: 220px;
+    height: 220px;
+    background: radial-gradient(circle, rgba(251, 146, 60, 0.28) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .cottage-hero__badge-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin-bottom: 0.65rem;
+  }
+
+  .cottage-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.22rem 0.65rem;
+    border-radius: 999px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+
+  .cottage-pill--warm {
+    background: rgba(245, 158, 11, 0.2);
+    border: 1px solid rgba(251, 191, 36, 0.55);
+    color: #fde68a;
+  }
+
+  .cottage-pill--eevee {
+    background: rgba(244, 114, 182, 0.18);
+    border: 1px solid rgba(244, 114, 182, 0.5);
+    color: #fbcfe8;
+  }
+
+  .cottage-hero__title {
+    font-family: 'Pixelify Sans', sans-serif;
+    font-size: clamp(1.45rem, 2.6vw, 1.95rem);
+    font-weight: 700;
+    color: #fffbeb;
+    margin: 0 0 0.45rem;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  }
+
+  .cottage-hero__subtitle {
+    font-size: 0.88rem;
+    line-height: 1.6;
+    color: #fde68a;
+    margin: 0 0 1rem;
+  }
+
+  .cottage-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
+    gap: 0.65rem;
+    margin-bottom: 1rem;
+  }
+
+  .cottage-stat-card {
+    background: rgba(24, 13, 8, 0.72);
+    border: 1px solid rgba(217, 119, 6, 0.45);
+    border-radius: 0.75rem;
+    padding: 0.65rem 0.75rem;
+  }
+
+  .cottage-stat-card__head {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.64rem;
+    color: #fcd34d;
+    margin-bottom: 0.25rem;
+  }
+
+  .cottage-stat-card__val {
+    font-family: 'Pixelify Sans', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #ffffff;
+  }
+
+  .cottage-stat-card__sub {
+    display: block;
+    font-size: 0.68rem;
+    color: #d6d3d1;
+    margin-top: 0.15rem;
+  }
+
+  .cottage-progress {
+    height: 6px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.12);
+    overflow: hidden;
+    margin-top: 0.35rem;
+  }
+
+  .cottage-progress__fill {
+    height: 100%;
+    background: linear-gradient(90deg, #f59e0b, #ec4899);
+    transition: width 0.35s ease;
+  }
+
+  .cottage-nav-strip {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    padding-top: 0.75rem;
+    border-top: 1px dashed rgba(251, 191, 36, 0.3);
+  }
+
+  .cottage-nav-strip__label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    color: #fcd34d;
+    font-weight: 600;
+  }
+
+  .cottage-nav-strip__btns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .cottage-chip-btn {
+    padding: 0.32rem 0.65rem;
+    border-radius: 0.5rem;
+    background: rgba(254, 243, 199, 0.1);
+    border: 1px solid rgba(251, 191, 36, 0.4);
+    color: #fef3c7;
+    font-size: 0.74rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.18s ease;
+  }
+
+  .cottage-chip-btn:hover {
+    background: rgba(251, 191, 36, 0.25);
+    transform: translateY(-1px);
+  }
+
+  .cottage-chip-btn--tea {
+    background: linear-gradient(135deg, #ea580c, #d97706);
+    border-color: #fde047;
+    color: #fff;
+  }
+
+  /* Section Shell */
+  .cottage-section {
+    background: linear-gradient(180deg, #23140d 0%, #1a0f0a 100%);
+    border: 1.5px solid rgba(180, 83, 9, 0.6);
+    border-radius: 1rem;
+    padding: 1.2rem;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  }
+
+  .cottage-section__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+    margin-bottom: 1rem;
+  }
+
+  .cottage-eyebrow {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.66rem;
+    font-weight: 700;
+    color: #fbbf24;
+    letter-spacing: 0.06em;
+  }
+
+  .cottage-section__title {
+    font-family: 'Pixelify Sans', sans-serif;
+    font-size: 1.25rem;
+    color: #fffbeb;
+    margin: 0.15rem 0 0;
+  }
+
+  .cottage-section__lead {
+    font-size: 0.84rem;
+    line-height: 1.55;
+    color: #fde68a;
+    margin: 0 0 1rem;
+  }
+
+  .cottage-locate-btn {
+    padding: 0.32rem 0.7rem;
+    border-radius: 0.5rem;
+    background: rgba(245, 158, 11, 0.16);
+    border: 1px solid rgba(251, 191, 36, 0.45);
+    color: #fde68a;
+    font-size: 0.72rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .cottage-locate-btn:hover {
+    background: rgba(245, 158, 11, 0.3);
+  }
+
+  /* 2. Eevee Care Banner & Eeveelution Grid */
+  .eevee-care-banner {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.95rem;
+    border-radius: 0.85rem;
+    background: rgba(45, 25, 15, 0.85);
+    border: 1px solid rgba(251, 191, 36, 0.4);
+    margin-bottom: 1rem;
+  }
+
+  .eevee-care-banner__avatar {
+    position: relative;
+    width: 64px;
+    height: 64px;
+    border-radius: 0.85rem;
+    background: radial-gradient(circle, #78350f, #451a03);
+    border: 2px solid #fbbf24;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .eevee-avatar-emoji {
+    font-size: 2rem;
+  }
+
+  .eevee-heart-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    font-size: 1.05rem;
+    transition: transform 0.25s ease;
+  }
+
+  .eevee-heart-badge.is-popping {
+    animation: eeveePop 0.55s ease;
+  }
+
+  @keyframes eeveePop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.65) translateY(-4px); }
+    100% { transform: scale(1); }
+  }
+
+  .eevee-care-banner__title-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .eevee-care-banner__title-row h3 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #fffbeb;
+    margin: 0;
+  }
+
+  .eevee-mood-pill {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    padding: 0.12rem 0.5rem;
+    border-radius: 999px;
+    background: rgba(236, 72, 153, 0.2);
+    border: 1px solid rgba(244, 114, 182, 0.5);
+    color: #fbcfe8;
+  }
+
+  .eevee-care-banner__desc {
+    font-size: 0.8rem;
+    line-height: 1.5;
+    color: #fde68a;
+    margin: 0 0 0.65rem;
+  }
+
+  .eevee-care-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+  }
+
+  .eevee-action-btn {
+    padding: 0.3rem 0.65rem;
+    border-radius: 0.5rem;
+    background: rgba(251, 191, 36, 0.16);
+    border: 1px solid rgba(251, 191, 36, 0.45);
+    color: #fef3c7;
+    font-size: 0.73rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .eevee-action-btn:hover {
+    background: rgba(251, 191, 36, 0.32);
+    transform: translateY(-1px);
+  }
+
+  .eeveelution-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+    gap: 0.65rem;
+    margin-bottom: 0.9rem;
+  }
+
+  .eeveelution-card {
+    text-align: left;
+    padding: 0.75rem;
+    border-radius: 0.75rem;
+    background: var(--evo-bg);
+    border: 1.5px solid var(--evo-border);
+    color: #fffbeb;
+    cursor: pointer;
+    transition: all 0.18s ease;
+  }
+
+  .eeveelution-card:hover,
+  .eeveelution-card.is-active {
+    transform: translateY(-2px);
+    box-shadow: 0 0 16px var(--evo-border);
+    border-color: var(--evo-accent);
+  }
+
+  .eeveelution-card__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.35rem;
+  }
+
+  .eeveelution-card__icon {
+    font-size: 1.35rem;
+  }
+
+  .eeveelution-card__type {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.58rem;
+    font-weight: 700;
+    color: var(--evo-accent);
+  }
+
+  .eeveelution-card__name {
+    font-family: 'Pixelify Sans', sans-serif;
+    font-size: 1rem;
+    margin: 0 0 0.15rem;
+    color: #ffffff;
+  }
+
+  .eeveelution-card__title {
+    font-size: 0.74rem;
+    color: #fde68a;
+    margin: 0 0 0.45rem;
+    line-height: 1.35;
+  }
+
+  .eeveelution-card__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+
+  .eeveelution-tag {
+    font-size: 0.62rem;
+    padding: 0.1rem 0.38rem;
+    border-radius: 0.3rem;
+    background: rgba(0, 0, 0, 0.35);
+    color: #f3f4f6;
+  }
+
+  .eeveelution-spotlight {
+    padding: 0.95rem;
+    border-radius: 0.8rem;
+    background: rgba(15, 23, 42, 0.75);
+    border: 1px solid rgba(56, 189, 248, 0.45);
+  }
+
+  .eeveelution-spotlight__header {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    margin-bottom: 0.45rem;
+  }
+
+  .eeveelution-spotlight__icon {
+    font-size: 1.75rem;
+  }
+
+  .eeveelution-spotlight__badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.64rem;
+    font-weight: 700;
+    color: #38bdf8;
+  }
+
+  .eeveelution-spotlight__title {
+    font-size: 0.98rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0;
+  }
+
+  .eeveelution-spotlight__quote {
+    font-size: 0.82rem;
+    line-height: 1.5;
+    color: #e2e8f0;
+    margin: 0 0 0.65rem;
+  }
+
+  .eeveelution-spotlight__stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .spotlight-pill {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(56, 189, 248, 0.4);
+    color: #f8fafc;
+  }
+
+  .eeveelution-spotlight__project {
+    font-size: 0.76rem;
+    color: #fde68a;
+  }
+
+  /* 3. PR Review Ping-Pong Mini-Game */
+  .pr-game-box {
+    background: #0f172a;
+    border: 2px solid #334155;
+    border-radius: 0.85rem;
+    padding: 0.95rem;
+  }
+
+  .pr-game-box__hud {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.55rem;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+  }
+
+  .pr-game-stat {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+  }
+
+  .pr-game-stat__label {
+    color: #94a3b8;
+  }
+
+  .pr-game-stat strong {
+    color: #38bdf8;
+  }
+
+  .pr-game-reset-btn {
+    padding: 0.25rem 0.6rem;
+    border-radius: 0.4rem;
+    background: rgba(56, 189, 248, 0.15);
+    border: 1px solid rgba(56, 189, 248, 0.4);
+    color: #bae6fd;
+    font-size: 0.7rem;
+    cursor: pointer;
+  }
+
+  .pr-crt-screen {
+    background: #020617;
+    border: 1.5px solid #1e293b;
+    border-radius: 0.65rem;
+    padding: 0.85rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .pr-crt-screen__header {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 0.4rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+  }
+
+  .pr-branch-badge {
+    color: #4ade80;
+    background: rgba(74, 222, 128, 0.12);
+    padding: 0.1rem 0.45rem;
+    border-radius: 0.3rem;
+  }
+
+  .pr-author-badge {
+    color: #cbd5e1;
+  }
+
+  .pr-crt-screen__title {
+    font-size: 0.92rem;
+    color: #f8fafc;
+    margin: 0 0 0.5rem;
+  }
+
+  .pr-crt-screen__diff {
+    background: rgba(15, 23, 42, 0.9);
+    border-left: 3px solid #38bdf8;
+    padding: 0.55rem;
+    border-radius: 0.35rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: #a7f3d0;
+    overflow-x: auto;
+    margin: 0 0 0.55rem;
+  }
+
+  .pr-crt-screen__prompt {
+    font-size: 0.78rem;
+    color: #fde68a;
+    margin: 0;
+  }
+
+  .pr-game-actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
+    gap: 0.5rem;
+    margin-bottom: 0.65rem;
+  }
+
+  .pr-decision-btn {
+    padding: 0.5rem 0.65rem;
+    border-radius: 0.5rem;
+    font-size: 0.76rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+  }
+
+  .pr-decision-btn:hover {
+    transform: translateY(-1px);
+  }
+
+  .pr-decision-btn--approve {
+    background: rgba(16, 185, 129, 0.2);
+    border: 1px solid #10b981;
+    color: #a7f3d0;
+  }
+
+  .pr-decision-btn--refactor {
+    background: rgba(245, 158, 11, 0.2);
+    border: 1px solid #f59e0b;
+    color: #fde68a;
+  }
+
+  .pr-decision-btn--block {
+    background: rgba(239, 68, 68, 0.2);
+    border: 1px solid #ef4444;
+    color: #fecaca;
+  }
+
+  .pr-game-feedback {
+    font-size: 0.78rem;
+    padding: 0.5rem 0.65rem;
+    border-radius: 0.45rem;
+    background: rgba(30, 41, 59, 0.7);
+    color: #e2e8f0;
+  }
+
+  .pr-game-feedback.is-success {
+    background: rgba(6, 78, 59, 0.65);
+    border: 1px solid #10b981;
+    color: #d1fae5;
+  }
+
+  .pr-game-feedback.is-error {
+    background: rgba(127, 29, 29, 0.65);
+    border: 1px solid #f87171;
+    color: #fee2e2;
+  }
+
+  /* 4. Co-Op Chronicles */
+  .coop-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 0.75rem;
+  }
+
+  .coop-card {
+    background: rgba(39, 22, 12, 0.82);
+    border: 1px solid rgba(217, 119, 6, 0.45);
+    border-radius: 0.8rem;
+    padding: 0.9rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .coop-card__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.4rem;
+  }
+
+  .coop-card__icon {
+    font-size: 1.4rem;
+  }
+
+  .coop-card__badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    font-weight: 700;
+    padding: 0.14rem 0.45rem;
+    border-radius: 999px;
+    background: rgba(245, 158, 11, 0.2);
+    border: 1px solid rgba(251, 191, 36, 0.45);
+    color: #fde68a;
+  }
+
+  .coop-card__title {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: #fffbeb;
+    margin: 0 0 0.2rem;
+  }
+
+  .coop-card__role {
+    font-size: 0.74rem;
+    color: #fbbf24;
+    font-weight: 600;
+    margin: 0 0 0.45rem;
+  }
+
+  .coop-card__summary {
+    font-size: 0.78rem;
+    line-height: 1.5;
+    color: #e7e5e4;
+    margin: 0 0 0.7rem;
+  }
+
+  .coop-card__footer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .coop-card__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+
+  .coop-tag {
+    font-size: 0.62rem;
+    padding: 0.1rem 0.4rem;
+    border-radius: 0.3rem;
+    background: rgba(255, 255, 255, 0.08);
+    color: #fde68a;
+  }
+
+  .coop-card__walk {
+    align-self: flex-start;
+    padding: 0.25rem 0.55rem;
+    border-radius: 0.4rem;
+    background: rgba(251, 191, 36, 0.16);
+    border: 1px solid rgba(251, 191, 36, 0.4);
+    color: #fef3c7;
+    font-size: 0.7rem;
+    cursor: pointer;
+  }
+
+  /* 5. Mentorship Grid */
+  .mentorship-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.7rem;
+  }
+
+  .mentorship-card {
+    background: rgba(28, 18, 12, 0.85);
+    border: 1px solid rgba(180, 83, 9, 0.5);
+    border-radius: 0.75rem;
+    padding: 0.8rem;
+  }
+
+  .mentorship-card__head {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-bottom: 0.35rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.64rem;
+  }
+
+  .mentorship-card__sem {
+    color: #fbbf24;
+    font-weight: 700;
+  }
+
+  .mentorship-card__students {
+    margin-left: auto;
+    color: #a7f3d0;
+  }
+
+  .mentorship-card__course {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #fffbeb;
+    margin: 0 0 0.3rem;
+  }
+
+  .mentorship-card__focus {
+    font-size: 0.74rem;
+    color: #fde68a;
+    margin: 0 0 0.3rem;
+    line-height: 1.4;
+  }
+
+  .mentorship-card__highlight {
+    font-size: 0.72rem;
+    color: #d6d3d1;
+    margin: 0;
+    line-height: 1.4;
+  }
+
+  /* 6. Guestbook Corkboard */
+  .guestbook-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .guestbook-form {
+    background: rgba(41, 23, 14, 0.9);
+    border: 1.5px solid rgba(217, 119, 6, 0.55);
+    border-radius: 0.85rem;
+    padding: 0.95rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+  }
+
+  .guestbook-form__title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #fffbeb;
+    margin: 0;
+  }
+
+  .guestbook-form__sub {
+    font-size: 0.76rem;
+    color: #fde68a;
+    margin: 0;
+  }
+
+  .guestbook-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.6rem;
+  }
+
+  .guestbook-label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    font-size: 0.72rem;
+    color: #fcd34d;
+    font-weight: 600;
+  }
+
+  .guestbook-input,
+  .guestbook-select,
+  .guestbook-textarea {
+    background: #140b06;
+    border: 1px solid rgba(217, 119, 6, 0.5);
+    border-radius: 0.45rem;
+    padding: 0.45rem 0.6rem;
+    color: #fffbeb;
+    font-size: 0.78rem;
+  }
+
+  .guestbook-submit-btn {
+    align-self: flex-start;
+    padding: 0.48rem 0.95rem;
+    border-radius: 0.5rem;
+    background: linear-gradient(135deg, #d97706, #b45309);
+    border: 1px solid #fde047;
+    color: #ffffff;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .corkboard-wall {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));
+    gap: 0.75rem;
+    padding: 0.9rem;
+    border-radius: 0.85rem;
+    background: #5c3419;
+    border: 4px solid #3b1f0e;
+    box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.45);
+  }
+
+  .sticky-note {
+    position: relative;
+    padding: 0.8rem;
+    border-radius: 0.4rem;
+    color: #1c1917;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .sticky-note--amber {
+    background: #fef08a;
+  }
+
+  .sticky-note--sakura {
+    background: #fbcfe8;
+  }
+
+  .sticky-note--mint {
+    background: #bbf7d0;
+  }
+
+  .sticky-note--sky {
+    background: #bae6fd;
+  }
+
+  .sticky-note__pin {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    font-size: 0.85rem;
+  }
+
+  .sticky-note__badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    font-weight: 700;
+    color: #44403c;
+    margin-bottom: 0.35rem;
+  }
+
+  .sticky-note__msg {
+    font-size: 0.78rem;
+    line-height: 1.45;
+    margin: 0 0 0.55rem;
+    color: #1c1917;
+  }
+
+  .sticky-note__footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.66rem;
+    color: #44403c;
+    border-top: 1px dashed rgba(0, 0, 0, 0.2);
+    padding-top: 0.35rem;
+  }
+</style>

@@ -112,6 +112,16 @@ import {
   renderGardenAnimations,
   triggerGardenHarvestAnimation,
 } from './gardenScene';
+import {
+  NEIGHBOUR_COLS,
+  NEIGHBOUR_ROWS,
+  NEIGHBOUR_SPAWN,
+  NEIGHBOUR_COLLISION,
+  NEIGHBOUR_PROPS,
+  createNeighbourBackgroundCanvas,
+  renderNeighbourAnimations,
+  triggerNeighbourAnimation,
+} from './neighbourScene';
 import { RESHIRAM_IMAGE_SRC } from './reshiramSprite';
 import { ZEKROM_IMAGE_SRC } from './zekromSprite';
 import { GIRATINA_IMAGE_SRC } from './giratinaSprite';
@@ -223,7 +233,7 @@ export class TownEngine {
   private ctx: CanvasRenderingContext2D;
   private map: TownMap;
   private callbacks: EngineCallbacks;
-  private currentScene: 'town' | 'home' | 'dev' | 'lab' | 'arcade' | 'reception' | 'mart' | 'tower' | 'cafe' | 'arena' | 'garden' = 'town';
+  private currentScene: 'town' | 'home' | 'dev' | 'lab' | 'arcade' | 'reception' | 'mart' | 'tower' | 'cafe' | 'arena' | 'garden' | 'neighbour' = 'town';
   private homeFloor: '1F' | '2F' = '1F';
   public activeTowerFloor: '1F' | '2F' | '3F' | '4F' = '1F';
   private devBackgroundCanvas: HTMLCanvasElement | null = null;
@@ -256,6 +266,7 @@ export class TownEngine {
   private cafeBackgroundCanvas: HTMLCanvasElement | null = null;
   private arenaBackgroundCanvas: HTMLCanvasElement | null = null;
   private gardenBackgroundCanvas: HTMLCanvasElement | null = null;
+  private neighbourBackgroundCanvas: HTMLCanvasElement | null = null;
   private townBackgroundCanvas: HTMLCanvasElement | null = null;
   public townAtmosphere: TownAtmosphere = 'day';
   public weather: TownWeather = 'petals';
@@ -413,6 +424,13 @@ export class TownEngine {
       this.playerDir = GARDEN_SPAWN.dir;
       this.cameraX = (GARDEN_COLS * TILE_SIZE) / 2;
       this.cameraY = (GARDEN_ROWS * TILE_SIZE) / 2;
+    } else if (initialSpawn === 'neighbour' || initialSpawn === 'villa') {
+      this.currentScene = 'neighbour';
+      this.playerPos = { x: NEIGHBOUR_SPAWN.x, y: NEIGHBOUR_SPAWN.y };
+      this.playerTarget = { x: NEIGHBOUR_SPAWN.x, y: NEIGHBOUR_SPAWN.y };
+      this.playerDir = NEIGHBOUR_SPAWN.dir;
+      this.cameraX = (NEIGHBOUR_COLS * TILE_SIZE) / 2;
+      this.cameraY = (NEIGHBOUR_ROWS * TILE_SIZE) / 2;
     } else {
       this.currentScene = 'town';
       let spawnX = 22;
@@ -1461,6 +1479,14 @@ export class TownEngine {
       this.defaultZoom = Math.max(Math.min(zoomW, zoomH), 1.8 * dpr);
       this.cameraX = (GARDEN_COLS * TILE_SIZE) / 2;
       this.cameraY = (GARDEN_ROWS * TILE_SIZE) / 2;
+    } else if (this.currentScene === 'neighbour') {
+      const targetW = NEIGHBOUR_COLS * TILE_SIZE * 1.05;
+      const targetH = NEIGHBOUR_ROWS * TILE_SIZE * 1.05;
+      const zoomW = this.canvas.width / targetW;
+      const zoomH = this.canvas.height / targetH;
+      this.defaultZoom = Math.max(Math.min(zoomW, zoomH), 1.8 * dpr);
+      this.cameraX = (NEIGHBOUR_COLS * TILE_SIZE) / 2;
+      this.cameraY = (NEIGHBOUR_ROWS * TILE_SIZE) / 2;
     } else {
       const targetW = this.map.w * TILE_SIZE * 1.05;
       const zoomW = this.canvas.width / targetW;
@@ -1520,6 +1546,10 @@ export class TownEngine {
       this.currentScene !== 'reception' &&
       this.currentScene !== 'mart' &&
       this.currentScene !== 'tower' &&
+      this.currentScene !== 'cafe' &&
+      this.currentScene !== 'arena' &&
+      this.currentScene !== 'garden' &&
+      this.currentScene !== 'neighbour' &&
       !this.isMoving &&
       this.path.length === 0 &&
       !this.marker &&
@@ -2062,6 +2092,13 @@ export class TownEngine {
     };
     window.addEventListener('town:garden-fx', onGardenFx);
 
+    const onNeighbourFx = (e: Event) => {
+      const ce = e as CustomEvent<{ text?: string; color?: string }>;
+      triggerNeighbourAnimation(ce.detail?.text || 'NEIGHBOUR FRIENDSHIP +10! 🏡', ce.detail?.color || '#fbbf24');
+      this.wake();
+    };
+    window.addEventListener('town:neighbour-fx', onNeighbourFx);
+
     this.unbindEvents.push(
       () => window.removeEventListener('keydown', onKeyDown),
       () => window.removeEventListener('keyup', onKeyUp),
@@ -2091,7 +2128,8 @@ export class TownEngine {
       () => window.removeEventListener('town:mart-cash-anim', onMartCashAnim),
       () => window.removeEventListener('town:cafe-brew-anim', onCafeBrewAnim),
       () => window.removeEventListener('town:arena-fx', onArenaFx),
-      () => window.removeEventListener('town:garden-fx', onGardenFx)
+      () => window.removeEventListener('town:garden-fx', onGardenFx),
+      () => window.removeEventListener('town:neighbour-fx', onNeighbourFx)
     );
   }
 
@@ -2120,7 +2158,9 @@ export class TownEngine {
                         ? ARENA_COLS
                         : this.currentScene === 'garden'
                           ? GARDEN_COLS
-                          : this.map.w;
+                          : this.currentScene === 'neighbour'
+                            ? NEIGHBOUR_COLS
+                            : this.map.w;
     const rows =
       this.currentScene === 'home'
         ? (is2F ? HOME2F_ROWS : HOME_ROWS)
@@ -2142,7 +2182,9 @@ export class TownEngine {
                         ? ARENA_ROWS
                         : this.currentScene === 'garden'
                           ? GARDEN_ROWS
-                          : this.map.h;
+                          : this.currentScene === 'neighbour'
+                            ? NEIGHBOUR_ROWS
+                            : this.map.h;
     if (targetX < 0 || targetX >= cols || targetY < 0 || targetY >= rows) return;
     const start = this.isMoving ? this.playerTarget : this.playerPos;
     const collisionMap =
@@ -2168,7 +2210,9 @@ export class TownEngine {
                         ? ARENA_COLLISION
                         : this.currentScene === 'garden'
                           ? GARDEN_COLLISION
-                          : this.getEffectiveCollisionMap();
+                          : this.currentScene === 'neighbour'
+                            ? NEIGHBOUR_COLLISION
+                            : this.getEffectiveCollisionMap();
 
     let destX = targetX;
     let destY = targetY;
@@ -2528,6 +2572,41 @@ export class TownEngine {
       return;
     }
 
+    if (this.currentScene === 'neighbour') {
+      this.pendingTarget = id;
+      switch (id) {
+        case 'neighbour-maya':
+          this.walkTo(6, 4);
+          break;
+        case 'eevee-companion':
+          this.walkTo(8, 4);
+          break;
+        case 'guestbook-board':
+          this.walkTo(2, 5);
+          break;
+        case 'coop-table':
+          this.walkTo(12, 5);
+          break;
+        case 'fireplace-hearth':
+          this.walkTo(5, 6);
+          break;
+        case 'retro-console':
+          this.walkTo(2, 9);
+          break;
+        case 'mentorship-shelf':
+          this.walkTo(12, 9);
+          break;
+        case 'exit':
+          this.walkTo(7, 11);
+          break;
+        default:
+          const prop = NEIGHBOUR_PROPS.find((p) => p.id === id);
+          if (prop) this.walkTo(prop.x, prop.y + prop.h);
+          break;
+      }
+      return;
+    }
+
     if (this.currentScene === 'reception') {
       this.pendingTarget = id;
       switch (id) {
@@ -2747,6 +2826,8 @@ export class TownEngine {
       shop: ['depop'],
       berry: ['garden'],
       garden: ['berry'],
+      neighbour: ['villa'],
+      villa: ['neighbour'],
       lookout: ['telescope', 'sign_lookout'],
       hobby: ['gazebo', 'sign_hobby'],
       ranger: ['ranger', 'camp'],
@@ -2801,8 +2882,9 @@ export class TownEngine {
         this.walkTo(27, 9);
         break;
       case 'villa':
+      case 'neighbour':
         this.pendingTarget = null;
-        this.walkTo(38, 14);
+        this.walkTo(27, 24);
         break;
       case 'arcade':
         this.pendingTarget = null;
@@ -3044,6 +3126,10 @@ export class TownEngine {
     if (this.currentScene === 'garden') {
       if (x < 0 || x >= GARDEN_COLS || y < 0 || y >= GARDEN_ROWS) return false;
       return GARDEN_COLLISION[y * GARDEN_COLS + x] === 0;
+    }
+    if (this.currentScene === 'neighbour') {
+      if (x < 0 || x >= NEIGHBOUR_COLS || y < 0 || y >= NEIGHBOUR_ROWS) return false;
+      return NEIGHBOUR_COLLISION[y * NEIGHBOUR_COLS + x] === 0;
     }
     return this.isTileWalkable(x, y);
   }
@@ -3987,6 +4073,16 @@ export class TownEngine {
       if (this.playerPos.x === 7 && this.playerPos.y === 11) {
         sfx.door();
         if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('town:respawn', '28,44');
+        this.callbacks.onNavigate('/');
+        return;
+      }
+      return;
+    }
+
+    if (this.currentScene === 'neighbour') {
+      if (this.playerPos.x === 7 && this.playerPos.y === 11) {
+        sfx.door();
+        if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('town:respawn', '27,25');
         this.callbacks.onNavigate('/');
         return;
       }
@@ -5007,6 +5103,178 @@ export class TownEngine {
         } else if (prop.target.type === 'place' && prop.target.id) {
           sfx.door();
           if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('town:respawn', '28,44');
+          this.callbacks.onNavigate(prop.target.id === 'town' ? '/' : `/${prop.target.id}`);
+        }
+        this.wake();
+      }
+      return;
+    }
+
+    if (this.currentScene === 'neighbour') {
+      const fx = this.playerPos.x + DIRS[this.playerDir].x;
+      const fy = this.playerPos.y + DIRS[this.playerDir].y;
+      const prop =
+        (activeTarget ? NEIGHBOUR_PROPS.find((p) => p.id === activeTarget) : undefined) ||
+        NEIGHBOUR_PROPS.find(
+          (p) =>
+            (fx >= p.x && fx < p.x + p.w && fy >= p.y && fy < p.y + p.h) ||
+            (this.playerPos.x >= p.x - 1 &&
+              this.playerPos.x <= p.x + p.w &&
+              this.playerPos.y >= p.y - 1 &&
+              this.playerPos.y <= p.y + p.h)
+        );
+
+      if (prop) {
+        sfx.select();
+        if (prop.target.type === 'event' && prop.target.name) {
+          if (prop.target.name === 'neighbour-maya') {
+            sfx.confirm();
+            triggerNeighbourAnimation('FELLOW DEV GREETING! 🤝', '#38bdf8');
+            if (this.callbacks.onBubble) {
+              this.callbacks.onBubble(
+                'Neighbour Maya · Fellow Dev 👋',
+                '"Hey Zulfan! Welcome to our cozy dev cottage. Feel free to grab some hot tea by the fireplace, challenge the PR Ping-Pong game, or sign our guestbook corkboard!"',
+                [
+                  {
+                    label: '🤝 Open Co-Op Chronicles',
+                    onClick: () => {
+                      const el = document.getElementById('coop-chronicles-section');
+                      el?.scrollIntoView({ behavior: 'smooth' });
+                    },
+                  },
+                  {
+                    label: '📌 Sign Neighbour Guestbook',
+                    onClick: () => {
+                      const el = document.getElementById('guestbook-section');
+                      el?.scrollIntoView({ behavior: 'smooth' });
+                    },
+                  },
+                ]
+              );
+            }
+          } else if (prop.target.name === 'eevee-companion') {
+            sfx.heal();
+            triggerNeighbourAnimation('EEVEE AFFECTION +100! 🦊💖', '#fbbf24');
+            if (this.callbacks.onBubble) {
+              this.callbacks.onBubble(
+                'Eevee · Cottage Mascot 🦊',
+                '"Eev-vee! ✨" Eevee wags its fluffy tail happily and cuddles up! Which evolutionary tech vibe matches your engineering mindset today?',
+                [
+                  {
+                    label: '🦊 Match My Eeveelution Tech Vibe',
+                    onClick: () => {
+                      const el = document.getElementById('eevee-vibe-section');
+                      el?.scrollIntoView({ behavior: 'smooth' });
+                    },
+                  },
+                  {
+                    label: '☕ Share a Cup of Oolong Tea',
+                    onClick: () => {
+                      this.walkToObject('fireplace-hearth');
+                    },
+                  },
+                ]
+              );
+            }
+          } else if (prop.target.name === 'guestbook-board') {
+            sfx.select();
+            triggerNeighbourAnimation('CORKBOARD OPENED! 📌', '#a855f7');
+            if (this.callbacks.onBubble) {
+              this.callbacks.onBubble(
+                'Neighbour Guestbook & Endorsement Corkboard 📌',
+                'A wooden corkboard covered with colourful sticky notes, peer reviews, and heartfelt dev endorsements from visiting trainers across Sinnoh & Unova.',
+                [
+                  {
+                    label: '📌 Leave a Sticky Note / Endorsement',
+                    onClick: () => {
+                      const el = document.getElementById('guestbook-section');
+                      el?.scrollIntoView({ behavior: 'smooth' });
+                    },
+                  },
+                ]
+              );
+            }
+          } else if (prop.target.name === 'coop-table') {
+            sfx.confirm();
+            triggerNeighbourAnimation('PAIR-PROGRAMMING DESK! 💻', '#3b82f6');
+            if (this.callbacks.onBubble) {
+              this.callbacks.onBubble(
+                'Co-Op Pair-Programming Desk 🤝',
+                'Dual mechanical keyboards, ultrawide curved monitor, and Git pull requests ready for review. Explore collaborative open-source sprints & ITENAS hackathon milestones!',
+                [
+                  {
+                    label: '🤝 Inspect Co-Op Projects & Sprints',
+                    onClick: () => {
+                      const el = document.getElementById('coop-chronicles-section');
+                      el?.scrollIntoView({ behavior: 'smooth' });
+                    },
+                  },
+                ]
+              );
+            }
+          } else if (prop.target.name === 'fireplace-hearth') {
+            sfx.heal();
+            this.callbacks.onRefill();
+            this.activateCoffeeBoost(25);
+            triggerNeighbourAnimation('WARM TEA BOOST! +25s SPEED 🍵', '#f97316');
+            if (this.callbacks.onBubble) {
+              this.callbacks.onBubble(
+                'Fireside Oolong Tea Table 🍵',
+                'You enjoyed a piping-hot porcelain cup of roasted Oolong tea by the crackling brick fireplace. Stamina restored to 100% and +50% movement speed for 25s!',
+                [
+                  {
+                    label: '🎮 Play PR Ping-Pong Corner',
+                    onClick: () => {
+                      this.walkToObject('retro-console');
+                    },
+                  },
+                ]
+              );
+            }
+          } else if (prop.target.name === 'retro-console') {
+            sfx.select();
+            triggerNeighbourAnimation('PR PING-PONG READY! 🎮', '#10b981');
+            if (this.callbacks.onBubble) {
+              this.callbacks.onBubble(
+                'Retro CRT & PR Ping-Pong Corner 🎮',
+                'A vintage CRT TV hooked up to a custom indie mini-game: PR Review Ping-Pong! Defend your branch against incoming merge conflicts and syntax bugs.',
+                [
+                  {
+                    label: '🎮 Start PR Ping-Pong Mini-Game',
+                    onClick: () => {
+                      const el = document.getElementById('ping-pong-game-section');
+                      el?.scrollIntoView({ behavior: 'smooth' });
+                    },
+                  },
+                ]
+              );
+            }
+          } else if (prop.target.name === 'mentorship-shelf') {
+            sfx.select();
+            triggerNeighbourAnimation('6x LAB MENTORSHIP GUILD! 📚', '#6366f1');
+            if (this.callbacks.onBubble) {
+              this.callbacks.onBubble(
+                '6× Lab Mentorship & Guild Library 📚',
+                'Cedar shelves filled with curriculum modules, robotics lab manuals, and student project showcases from Zulfan\'s 6 semesters as ITENAS Laboratory Assistant.',
+                [
+                  {
+                    label: '📚 Inspect Mentorship Impact & Guild',
+                    onClick: () => {
+                      const el = document.getElementById('mentorship-guild-section');
+                      el?.scrollIntoView({ behavior: 'smooth' });
+                    },
+                  },
+                  {
+                    label: '📄 View Official CV (PDF)',
+                    href: '/cv/CV_Zulfan.pdf',
+                  },
+                ]
+              );
+            }
+          }
+        } else if (prop.target.type === 'place' && prop.target.id) {
+          sfx.door();
+          if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('town:respawn', '27,25');
           this.callbacks.onNavigate(prop.target.id === 'town' ? '/' : `/${prop.target.id}`);
         }
         this.wake();
@@ -6623,6 +6891,51 @@ export class TownEngine {
       return;
     }
 
+    if (
+      activeTarget === 'neighbour' ||
+      activeTarget === 'villa' ||
+      customPlaced?.id === 'villa' ||
+      customPlaced?.id === 'neighbour'
+    ) {
+      sfx.select();
+      const neighbourLines = [
+        "NEIGHBOUR'S COTTAGE & FELLOW DEV GUILD 🏡",
+        "A warm, sunlit cottage where fellow developers, open-source contributors, and Eevee hang out!",
+        "Step inside to pair-program, sign the Neighbour Guestbook, and discover Eeveelution tech vibes!",
+      ];
+      const neighbourActions = [
+        {
+          label: "🏡 Enter Neighbour's House (/neighbour)",
+          href: '/neighbour',
+        },
+        {
+          label: '🦊 Say Hi to Eevee & Maya',
+          onClick: () => {
+            sfx.heal();
+            this.callbacks.onRefill();
+            document.dispatchEvent(new CustomEvent('town:neighbour-fx', { detail: { text: 'EEVEE CHEERED FOR YOU! 🦊💖', color: '#f59e0b' } }));
+            if (this.callbacks.onBubble) {
+              this.callbacks.onBubble(
+                "Neighbour's Cottage 🏡",
+                "Neighbour Maya and Eevee greeted you warmly from the cottage porch! Your energy is refreshed to 100%! Step inside to pair-program, play PR Ping-Pong, and sign the Guestbook! 🦊✨",
+                {
+                  label: "🏡 Step Inside Neighbour's Cottage",
+                  href: '/neighbour',
+                }
+              );
+            }
+          },
+        },
+      ];
+      if (this.callbacks.onBubble) {
+        this.callbacks.onBubble("Neighbour's House 🏡", neighbourLines.join(' '), neighbourActions);
+      } else {
+        this.callbacks.onDialogue("Neighbour's House 🏡", neighbourLines, () => this.callbacks.onNavigate('/neighbour'));
+      }
+      this.wake();
+      return;
+    }
+
     if (customPlaced) {
       const tpl = SPAWNABLE_TEMPLATES.find(
         (t) => t.id === customPlaced.id || t.id === 'tpl_' + customPlaced.id || t.subType === customPlaced.subType || t.subType === customPlaced.id
@@ -7279,6 +7592,46 @@ export class TownEngine {
       return;
     }
 
+    if (this.currentScene === 'neighbour') {
+      const neighbourLabels: Record<string, { x: number; y: number; w: number; h: number; lift?: number }> = {
+        'neighbour-maya': { x: 6, y: 3, w: 1, h: 1, lift: 1.1 },
+        'eevee-companion': { x: 8, y: 3, w: 1, h: 1, lift: 0.45 },
+        'guestbook-board': { x: 1, y: 3, w: 3, h: 2, lift: 0.55 },
+        'coop-table': { x: 11, y: 3, w: 3, h: 2, lift: 0.55 },
+        'fireplace-hearth': { x: 4, y: 6, w: 1, h: 1, lift: 0.85 },
+        'retro-console': { x: 1, y: 7, w: 3, h: 2, lift: 0.45 },
+        'mentorship-shelf': { x: 11, y: 7, w: 3, h: 2, lift: 0.45 },
+      };
+
+      const buttons = container.querySelectorAll<HTMLButtonElement>('.town-label');
+      buttons.forEach((btn) => {
+        const id = btn.getAttribute('data-id');
+        if (!id || !neighbourLabels[id]) {
+          btn.style.visibility = 'hidden';
+          btn.style.display = 'none';
+          return;
+        }
+
+        btn.style.display = '';
+        const obj = neighbourLabels[id];
+        const worldX = (obj.x + obj.w / 2) * TILE_SIZE;
+        const worldY = (obj.y - (obj.lift ?? 0)) * TILE_SIZE;
+
+        const canvasX = this.canvas.width / 2 + (worldX - this.cameraX) * this.zoom;
+        const canvasY = this.canvas.height / 2 + (worldY - this.cameraY) * this.zoom;
+
+        const dpr = window.devicePixelRatio || 1;
+        const cssX = canvasX / dpr;
+        const cssY = canvasY / dpr;
+
+        btn.style.left = `${Math.round(cssX)}px`;
+        btn.style.top = `${Math.round(cssY)}px`;
+        btn.style.transform = '';
+        btn.style.visibility = 'visible';
+      });
+      return;
+    }
+
     if (this.currentScene === 'reception') {
       const receptionLabels: Record<string, { x: number; y: number; w: number; h: number; lift?: number }> = {
         mira: { x: 7, y: 3, w: 1, h: 1, lift: 1.1 },
@@ -7432,6 +7785,8 @@ export class TownEngine {
       shop: ['depop'],
       berry: ['garden'],
       garden: ['berry'],
+      neighbour: ['villa'],
+      villa: ['neighbour'],
       lookout: ['telescope', 'sign_lookout'],
       hobby: ['gazebo', 'sign_hobby'],
       ranger: ['ranger', 'camp'],
@@ -7473,7 +7828,8 @@ export class TownEngine {
     const labelDefs: Record<string, { x: number; y: number; w: number; h: number; kind: string; lift?: number }> = {
       dev: { x: 10, y: 1, w: 12, h: 11, kind: 'building', lift: 0.1 },
       lab: { x: 24, y: 3, w: 7, h: 6, kind: 'building', lift: 0.1 },
-      villa: { x: 36, y: 9, w: 6, h: 5, kind: 'building', lift: 0.1 },
+      villa: { x: 25, y: 20, w: 6, h: 5, kind: 'building', lift: 0.1 },
+      neighbour: { x: 25, y: 20, w: 6, h: 5, kind: 'building', lift: 0.1 },
       home: { x: 11, y: 20, w: 10, h: 7, kind: 'building', lift: 0.5 },
       reception: { x: 12, y: 29, w: 7, h: 6, kind: 'building', lift: 0.05 },
       office: { x: 3, y: 46, w: 6, h: 8, kind: 'building', lift: 0.1 },
@@ -7953,6 +8309,50 @@ export class TownEngine {
       ctx.drawImage(this.gardenBackgroundCanvas, 0, 0);
 
       renderGardenAnimations(ctx, this.tick);
+
+      this.renderPathAndMarker(ctx);
+
+      const drawX =
+        (this.playerPos.x + (this.playerTarget.x - this.playerPos.x) * this.moveProgress) * TILE_SIZE;
+      const drawY =
+        (this.playerPos.y + (this.playerTarget.y - this.playerPos.y) * this.moveProgress) * TILE_SIZE;
+      const stepFrame = this.isMoving ? Math.floor(this.moveProgress * 4) : 0;
+
+      drawCharacter(ctx, this.playerPalette, this.playerDir, stepFrame, drawX, drawY, 1);
+
+      ctx.restore();
+
+      this.updateDomLabels();
+      return;
+    }
+
+    if (this.currentScene === 'neighbour') {
+      this.cameraX = (NEIGHBOUR_COLS * TILE_SIZE) / 2;
+      this.cameraY = (NEIGHBOUR_ROWS * TILE_SIZE) / 2;
+
+      ctx.save();
+      ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+      // Warm honey-oak hearthwood cottage tone
+      ctx.fillStyle = '#26170e';
+      ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+      ctx.translate(this.canvas.width / 2, this.canvas.height / 2);
+      ctx.scale(this.zoom, this.zoom);
+      ctx.translate(-this.cameraX, -this.cameraY);
+
+      if (this.cameraShakeTime > 0) {
+        const shakeX = (Math.random() - 0.5) * this.cameraShakeIntensity;
+        const shakeY = (Math.random() - 0.5) * this.cameraShakeIntensity;
+        ctx.translate(shakeX, shakeY);
+      }
+
+      if (!this.neighbourBackgroundCanvas) {
+        this.neighbourBackgroundCanvas = createNeighbourBackgroundCanvas();
+      }
+      ctx.drawImage(this.neighbourBackgroundCanvas, 0, 0);
+
+      renderNeighbourAnimations(ctx, this.tick);
 
       this.renderPathAndMarker(ctx);
 
