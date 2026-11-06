@@ -205,6 +205,7 @@ export const places: Place[] = [
   { id: 'reception', route: '/reception', name: 'Front Desk', icon: '🎧', blurb: 'Mira at the Dev Center desk tells you about me.' },
   { id: 'mart', route: '/mart', name: 'Poké Mart', icon: '🏪', blurb: 'Engineering services, tech stacks, developer gear, and downloadable CV.' },
   { id: 'tower', route: '/tower', name: 'Tech Tower', icon: '🏢', blurb: 'Robotics R&D, IoT prototypes, Huawei network security and cloud microservices.' },
+  { id: 'cafe', route: '/cafe', name: 'Poké-Café & Bar', icon: '☕', blurb: 'Specialty Dev Roasts, Castelia Cones, Lo-Fi Vinyl Jukebox & Coffee Chat Lounge.' },
 ];
 
 export const placeById = (id: string): Place => places.find((p) => p.id === id) ?? places[0];

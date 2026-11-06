@@ -1,0 +1,1552 @@
+---
+import TownLayout from '../layouts/TownLayout.astro';
+import { profile } from '../lib/profile';
+
+const githubUrl = profile.socials.find((s) => s.label === 'GitHub')?.url || 'https://github.com/Zulfan15';
+const linkedinUrl =
+  profile.socials.find((s) => s.label === 'LinkedIn')?.url ||
+  'https://www.linkedin.com/in/muhammad-zulfan-anggadhiputra';
+
+interface CafeMenuItem {
+  id: string;
+  name: string;
+  category: 'espresso' | 'pastry' | 'elixir';
+  categoryLabel: string;
+  price: string;
+  calories: string;
+  buff: string;
+  icon: string;
+  accent: string;
+  tastingNotes: string[];
+  description: string;
+  devPairing: string;
+  propTarget: string;
+}
+
+const cafeMenu: CafeMenuItem[] = [
+  {
+    id: 'dark-ts-roast',
+    name: 'Dark Roasted TypeScript Espresso',
+    category: 'espresso',
+    categoryLabel: 'Specialty Roast',
+    price: '₽ 450',
+    calories: 'Strict-Mode · 9 Bar',
+    buff: '+100% Type-Safety & Focus',
+    icon: '☕',
+    accent: 'amber',
+    tastingNotes: ['Dark Cacao', 'Zero Runtime Bugs', 'Crisp Finish'],
+    description:
+      'Double-shot West Java Arabica pulled at 9 bars of pressure. Strictly typed from bean to cup so you never encounter an undefined reference at 2 AM.',
+    devPairing: 'Paired with this 60 FPS Astro + TypeScript 2D Canvas Engine',
+    propTarget: 'roast-board',
+  },
+  {
+    id: 'tensorrt-cortado',
+    name: 'YOLOv11 TensorRT Cortado',
+    category: 'espresso',
+    categoryLabel: 'Specialty Roast',
+    price: '₽ 550',
+    calories: '1.8 ms Extraction · 75 FPS',
+    buff: '+50% Turbo Inference Speed',
+    icon: '⚡',
+    accent: 'orange',
+    tastingNotes: ['Caramelized Hazelnut', 'FP16 Precision', 'Velvet Microfoam'],
+    description:
+      'Quantized espresso cut with warm steamed oat milk. Extracted in sub-2 milliseconds to mirror Zulfan’s real-time drone object detection pipeline.',
+    devPairing: 'Paired with AeroScan AI (YOLOv11 + TensorRT 10)',
+    propTarget: 'roast-board',
+  },
+  {
+    id: 'laravel-v60',
+    name: 'Artisan V60 Clean-Arch Pour-Over',
+    category: 'espresso',
+    categoryLabel: 'Specialty Roast',
+    price: '₽ 480',
+    calories: 'Single-Origin · Hand Drip',
+    buff: '+100% Modular Clarity',
+    icon: '🫖',
+    accent: 'amber',
+    tastingNotes: ['Floral Jasmine', 'Bergamot', 'Clean Service Layer'],
+    description:
+      'Slow-bloomed through a conical V60 filter in three decoupled stages: Controller bloom, Service infusion, and Repository drawdown.',
+    devPairing: 'Paired with FoodLink Laravel 12 + PostGIS Platform',
+    propTarget: 'roast-board',
+  },
+  {
+    id: 'castelia-cone',
+    name: 'Unova Artisan Castelia Cone',
+    category: 'pastry',
+    categoryLabel: 'Castelia Sweet',
+    price: '₽ 500',
+    calories: 'Chilled Swirl · Classic',
+    buff: '+25s Movement Speed & Cure Status',
+    icon: '🍦',
+    accent: 'pink',
+    tastingNotes: ['Madagascar Vanilla', 'Waffle Crunch', 'Alcremie Charm'],
+    description:
+      'The legendary soft-serve spiral from Castelia City, topped by Alcremie with a ruby strawberry and zero-bug sugar crystals. Heals all burnout status conditions.',
+    devPairing: 'Paired with 6x ITENAS Laboratory Assistant Mentorship',
+    propTarget: 'pastry-case',
+  },
+  {
+    id: 'kalos-poke-puff',
+    name: 'Supreme Mocha Poké Puff',
+    category: 'pastry',
+    categoryLabel: 'Castelia Sweet',
+    price: '₽ 420',
+    calories: 'Baked Fresh · Choux Pastry',
+    buff: '+100% Team Morale & Friendship',
+    icon: '🧁',
+    accent: 'rose',
+    tastingNotes: ['Espresso Ganache', 'Whipped Mascarpone', 'Cocoa Dust'],
+    description:
+      'Delicate Kalos-style choux pastry filled with whipped espresso cream and topped with a caramelized coffee bean. A favorite among pair-programming partners.',
+    devPairing: 'Paired with IDEA FEST 3 Bronze Medal Innovation',
+    propTarget: 'pastry-case',
+  },
+  {
+    id: 'lumiose-galette',
+    name: 'Lumiose Almond Butter Galette',
+    category: 'pastry',
+    categoryLabel: 'Castelia Sweet',
+    price: '₽ 390',
+    calories: 'Flaky Crust · Golden',
+    buff: '+80% Algorithmic Stamina',
+    icon: '🥐',
+    accent: 'amber',
+    tastingNotes: ['Toasted Almond', 'Salted Honey Butter', 'Caramel Crust'],
+    description:
+      'Crisp French-style laminated pastry baked until golden-brown. Ideal brain fuel before challenging Deoxys at the Retro Arcade.',
+    devPairing: 'Paired with Kalah Alpha-Beta Pruning AI Engine',
+    propTarget: 'pastry-case',
+  },
+  {
+    id: 'kafka-nitro-tonic',
+    name: 'Kafka Event-Stream Nitro Tonic',
+    category: 'elixir',
+    categoryLabel: 'Night Bar Elixir',
+    price: '₽ 600',
+    calories: 'Nitrogen Infused · Zero Lag',
+    buff: '+100% High-Throughput Focus',
+    icon: '🍹',
+    accent: 'cyan',
+    tastingNotes: ['Yuzu Botanical', 'Cascading Nitro Foam', 'Cold-Extracted'],
+    description:
+      '20-hour cold brew charged with nitrogen gas and layered over sparkling yuzu tonic. Built to sustain high-throughput distributed architecture sessions.',
+    devPairing: 'Paired with Distributed Kafka + Redis Lua Microservices',
+    propTarget: 'craft-tap',
+  },
+  {
+    id: 'berry-matcha-cloud',
+    name: 'Oran Berry & Uji Matcha Cloud',
+    category: 'elixir',
+    categoryLabel: 'Night Bar Elixir',
+    price: '₽ 520',
+    calories: 'Ceremonial Grade · Iced',
+    buff: '+100 HP & Calm Debugging Aura',
+    icon: '🍵',
+    accent: 'emerald',
+    tastingNotes: ['Uji First-Harvest Matcha', 'Sweet Oran Berry', 'Velvet Cloud'],
+    description:
+      'Whisked ceremonial Uji matcha poured over crushed Town Square Oran berries and cold sweet cream. Keeps your heartbeat steady during production deployments.',
+    devPairing: 'Paired with Huawei HCIA-Security V4.0 Network Engineering',
+    propTarget: 'craft-tap',
+  },
+];
+---
+
+<TownLayout
+  title={`Poké-Café & Developer Roastery Bar — ${profile.person.name}`}
+  description="Step inside Zulfan's Poké-Café & Bar: brew custom developer coffee blends, taste Unova Castelia Cones with Alcremie, spin lo-fi vinyl records, and book a VIP Coffee Chat."
+  place="cafe"
+>
+  <article class="cafe-page space-y-6 pb-10">
+    <!-- 1. HERO BANNER & BARISTA RIO + ALCREMIE CONCIERGE -->
+    <header class="cafe-hero relative overflow-hidden rounded-2xl border-2 border-amber-500/40 bg-gradient-to-br from-[#23140d] via-[#1b110c] to-[#120b08] p-5 shadow-2xl">
+      <div class="pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full bg-amber-500/10 blur-3xl"></div>
+      <div class="pointer-events-none absolute -bottom-12 -left-12 h-44 w-44 rounded-full bg-rose-500/10 blur-3xl"></div>
+
+      <!-- Top Status Ribbon -->
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-amber-500/20 pb-3">
+        <div class="flex items-center gap-2">
+          <span class="inline-flex items-center gap-1.5 rounded-full border border-amber-400/40 bg-amber-500/15 px-2.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-amber-300">
+            <span class="h-2 w-2 rounded-full bg-amber-400 animate-pulse"></span>
+            OPEN · ROASTERY & LO-FI BAR
+          </span>
+          <span class="rounded-full border border-pink-400/30 bg-pink-500/10 px-2.5 py-0.5 font-mono text-[10px] text-pink-300">
+            🍓 Alcremie Pastry Stand
+          </span>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <div class="flex items-center gap-1.5 rounded-lg border border-emerald-500/30 bg-emerald-950/50 px-2.5 py-1 font-mono text-[11px] text-emerald-300" title="Your Developer Focus & Caffeine Level">
+            <span>⚡ Focus:</span>
+            <strong id="cafe-focus-pct" class="text-emerald-400">100%</strong>
+          </div>
+          <div class="flex items-center gap-1.5 rounded-lg border border-amber-500/30 bg-amber-950/60 px-2.5 py-1 font-mono text-[11px] text-amber-200" title="Earn 5 stamps by ordering or brewing drinks to unlock VIP Golden Cup">
+            <span>🎟️ Stamps:</span>
+            <strong id="cafe-stamp-counter" class="text-amber-400">1 / 5</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Title & Subtitle -->
+      <div class="mt-4 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div class="space-y-1.5">
+          <p class="font-mono text-[11px] uppercase tracking-widest text-amber-400/90">
+            TOWN SQUARE SOUTH-EAST PLAZA · ARTISAN ESPRESSO & NIGHT LOUNGE
+          </p>
+          <h1 id="panel-title" class="font-pixel text-xl sm:text-2xl tracking-tight text-amber-100 flex items-center gap-2.5">
+            <span>☕</span>
+            <span>POKÉ-CAFÉ & DEV ROASTERY BAR</span>
+          </h1>
+          <p class="text-xs sm:text-sm text-amber-100/80 leading-relaxed max-w-2xl">
+            Welcome inside! Pull up a stool at Master Barista Rio’s mahogany counter, sample <strong class="text-pink-300">Alcremie’s Castelia Cones</strong>, spin warm analog synthwaves on the <strong class="text-amber-300">Vinyl Jukebox</strong>, or reserve the <strong class="text-emerald-300">VIP Booth</strong> for a 1-on-1 engineering coffee chat with <strong class="text-white">{profile.person.name}</strong>.
+          </p>
+        </div>
+
+        <!-- Loyalty Stamp Visual Pill -->
+        <div class="shrink-0 rounded-xl border border-amber-400/30 bg-black/35 p-3 backdrop-blur-sm">
+          <div class="flex items-center justify-between gap-3 mb-1.5">
+            <span class="font-pixel text-[9px] uppercase tracking-wider text-amber-300">☕ Barista Loyalty Card</span>
+            <span id="cafe-vip-badge" class="hidden rounded bg-amber-400/20 border border-amber-300/50 px-1.5 py-0.5 font-mono text-[9px] font-bold text-amber-200">
+              👑 VIP GOLDEN CUP
+            </span>
+          </div>
+          <div id="cafe-stamp-slots" class="flex items-center gap-1.5">
+            <span class="cafe-stamp-slot is-filled" data-slot="0" title="Stamp 1">☕</span>
+            <span class="cafe-stamp-slot" data-slot="1" title="Stamp 2">○</span>
+            <span class="cafe-stamp-slot" data-slot="2" title="Stamp 3">○</span>
+            <span class="cafe-stamp-slot" data-slot="3" title="Stamp 4">○</span>
+            <span class="cafe-stamp-slot" data-slot="4" title="Stamp 5 (VIP Reward)">👑</span>
+          </div>
+          <p id="cafe-stamp-hint" class="mt-1.5 font-mono text-[10px] text-amber-200/70">
+            Sip or brew 4 more creations for the Golden Roaster Badge!
+          </p>
+        </div>
+      </div>
+
+      <!-- Interactive Barista Rio & Alcremie Dialogue Box -->
+      <div class="mt-4 rounded-xl border border-amber-500/30 bg-black/40 p-3.5">
+        <div class="flex flex-col sm:flex-row sm:items-start gap-3">
+          <div class="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              id="btn-walk-barista"
+              class="flex h-11 w-11 items-center justify-center rounded-xl border border-amber-400/40 bg-amber-500/20 text-xl shadow-inner hover:scale-105 transition-transform"
+              title="Walk to Master Barista Rio in 2D Canvas"
+            >
+              ☕
+            </button>
+            <button
+              type="button"
+              id="btn-walk-alcremie"
+              class="flex h-11 w-11 items-center justify-center rounded-xl border border-pink-400/40 bg-pink-500/20 text-xl shadow-inner hover:scale-105 transition-transform"
+              title="Walk to Alcremie in 2D Canvas"
+            >
+              🍓
+            </button>
+          </div>
+
+          <div class="flex-1 min-w-0">
+            <div class="flex flex-wrap items-center gap-2">
+              <span id="cafe-dialogue-speaker" class="font-pixel text-[10px] uppercase tracking-wider text-amber-300">
+                Master Barista Rio & Alcremie
+              </span>
+              <span class="font-mono text-[10px] text-amber-200/60">· Behind the Espresso Counter</span>
+            </div>
+            <p id="cafe-dialogue-text" class="mt-1 text-xs sm:text-sm text-amber-50/95 italic leading-relaxed">
+              "Today's signature pour is Dark Roasted TypeScript with notes of React, Laravel 12, and zero runtime bugs! Click any station below to walk your character around the café, or craft your own custom developer blend!"
+            </p>
+
+            <!-- Interactive Dialogue Topic Chips -->
+            <div class="mt-2.5 flex flex-wrap items-center gap-1.5">
+              <button
+                type="button"
+                class="cafe-topic-btn is-active rounded-lg border border-amber-400/40 bg-amber-500/20 px-2.5 py-1 font-mono text-[10px] text-amber-200 hover:bg-amber-500/30 transition"
+                data-speaker="Master Barista Rio · Head Roaster ☕"
+                data-quote="Today's signature pour is Dark Roasted TypeScript with notes of React, Laravel 12, and zero runtime bugs! Every cup is dialed in at 9 bars of pressure—just like Zulfan's production code."
+                data-prop="barista"
+              >
+                ☕ Today's Dev Blend
+              </button>
+              <button
+                type="button"
+                class="cafe-topic-btn rounded-lg border border-pink-400/30 bg-pink-500/10 px-2.5 py-1 font-mono text-[10px] text-pink-200 hover:bg-pink-500/25 transition"
+                data-speaker="Alcremie · Pastry Mascot 🍓✨"
+                data-quote="Alcre-cremie~! 🍓 Our Unova Castelia Cones and Kalos Poké Puffs are whipped fresh every morning! Take a bite to trigger a +25s Turbo Speed Boost on the 2D Town map!"
+                data-prop="alcremie"
+              >
+                🍦 Castelia Cone Secret
+              </button>
+              <button
+                type="button"
+                class="cafe-topic-btn rounded-lg border border-cyan-400/30 bg-cyan-500/10 px-2.5 py-1 font-mono text-[10px] text-cyan-200 hover:bg-cyan-500/25 transition"
+                data-speaker="Master Barista Rio · Architecture Sommelier 🫘"
+                data-quote="Curious how Zulfan pairs coffee with code? High-concurrency systems get our Nitro Kafka Tonic, while real-time YOLOv11 TensorRT vision pipelines pair best with a 1.8ms Cortado shot!"
+                data-prop="roast-board"
+              >
+                ⚡ Code & Roast Pairing
+              </button>
+              <button
+                type="button"
+                class="cafe-topic-btn rounded-lg border border-emerald-400/30 bg-emerald-500/10 px-2.5 py-1 font-mono text-[10px] text-emerald-200 hover:bg-emerald-500/25 transition"
+                data-speaker="Master Barista Rio · VIP Host 💬"
+                data-quote="Hiring or looking to collaborate? Zulfan graduated from ITENAS Bandung (Informatics, GPA 3.49/4.00) with 6x Lab Assistantship experience. Head over to the VIP Booth at the bottom-right to schedule a chat!"
+                data-prop="vip-booth"
+              >
+                💼 Recruiter Intel
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- 2. 2D CAFÉ FLOOR STATION NAVIGATOR & HOTKEYS -->
+    <section aria-label="2D Café Interactive Stations" class="rounded-xl border border-amber-500/25 bg-[#19110c]/90 p-3.5 shadow-lg">
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5">
+        <div class="flex items-center gap-2">
+          <span class="font-pixel text-[10px] uppercase tracking-wider text-amber-300">
+            🗺️ Walk to Café Station (2D Sync)
+          </span>
+          <span class="text-[11px] text-amber-200/60 hidden sm:inline">
+            — Click any prop to walk your character there in the 2D room
+          </span>
+        </div>
+        <div class="hidden md:flex items-center gap-1.5 font-mono text-[10px] text-amber-200/70">
+          <span>Hotkeys:</span>
+          <kbd class="rounded border border-amber-500/40 bg-black/50 px-1.5 py-0.5 text-amber-300">B</kbd><span>Brew</span>
+          <kbd class="rounded border border-amber-500/40 bg-black/50 px-1.5 py-0.5 text-amber-300">M</kbd><span>Menu</span>
+          <kbd class="rounded border border-amber-500/40 bg-black/50 px-1.5 py-0.5 text-amber-300">J</kbd><span>Jukebox</span>
+          <kbd class="rounded border border-amber-500/40 bg-black/50 px-1.5 py-0.5 text-amber-300">C</kbd><span>VIP Chat</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
+        <button
+          type="button"
+          class="cafe-station-btn flex items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-2.5 py-2 text-left hover:border-amber-400 hover:bg-amber-500/20 transition"
+          data-locate="barista"
+        >
+          <span class="text-base">☕</span>
+          <div class="min-w-0">
+            <div class="font-pixel text-[9px] text-amber-200 truncate">Barista Rio</div>
+            <div class="font-mono text-[9px] text-amber-300/70 truncate">Espresso Bar</div>
+          </div>
+        </button>
+
+        <button
+          type="button"
+          class="cafe-station-btn flex items-center gap-2 rounded-lg border border-pink-500/30 bg-pink-500/10 px-2.5 py-2 text-left hover:border-pink-400 hover:bg-pink-500/20 transition"
+          data-locate="alcremie"
+        >
+          <span class="text-base">🍓</span>
+          <div class="min-w-0">
+            <div class="font-pixel text-[9px] text-pink-200 truncate">Alcremie</div>
+            <div class="font-mono text-[9px] text-pink-300/70 truncate">Sweet Mascot</div>
+          </div>
+        </button>
+
+        <button
+          type="button"
+          class="cafe-station-btn flex items-center gap-2 rounded-lg border border-orange-500/30 bg-orange-500/10 px-2.5 py-2 text-left hover:border-orange-400 hover:bg-orange-500/20 transition"
+          data-locate="roast-board"
+        >
+          <span class="text-base">🫘</span>
+          <div class="min-w-0">
+            <div class="font-pixel text-[9px] text-orange-200 truncate">Roast Lab</div>
+            <div class="font-mono text-[9px] text-orange-300/70 truncate">V60 & Copper</div>
+          </div>
+        </button>
+
+        <button
+          type="button"
+          class="cafe-station-btn flex items-center gap-2 rounded-lg border border-rose-500/30 bg-rose-500/10 px-2.5 py-2 text-left hover:border-rose-400 hover:bg-rose-500/20 transition"
+          data-locate="pastry-case"
+        >
+          <span class="text-base">🍦</span>
+          <div class="min-w-0">
+            <div class="font-pixel text-[9px] text-rose-200 truncate">Pastry Case</div>
+            <div class="font-mono text-[9px] text-rose-300/70 truncate">Castelia Cones</div>
+          </div>
+        </button>
+
+        <button
+          type="button"
+          class="cafe-station-btn flex items-center gap-2 rounded-lg border border-cyan-500/30 bg-cyan-500/10 px-2.5 py-2 text-left hover:border-cyan-400 hover:bg-cyan-500/20 transition"
+          data-locate="craft-tap"
+        >
+          <span class="text-base">🍹</span>
+          <div class="min-w-0">
+            <div class="font-pixel text-[9px] text-cyan-200 truncate">Craft Tap</div>
+            <div class="font-mono text-[9px] text-cyan-300/70 truncate">Nitro & Tonic</div>
+          </div>
+        </button>
+
+        <button
+          type="button"
+          class="cafe-station-btn flex items-center gap-2 rounded-lg border border-purple-500/30 bg-purple-500/10 px-2.5 py-2 text-left hover:border-purple-400 hover:bg-purple-500/20 transition"
+          data-locate="vinyl-jukebox"
+        >
+          <span class="text-base">🎵</span>
+          <div class="min-w-0">
+            <div class="font-pixel text-[9px] text-purple-200 truncate">Jukebox</div>
+            <div class="font-mono text-[9px] text-purple-300/70 truncate">Lo-Fi Vinyl</div>
+          </div>
+        </button>
+
+        <button
+          type="button"
+          class="cafe-station-btn flex items-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-2 text-left hover:border-emerald-400 hover:bg-emerald-500/20 transition"
+          data-locate="vip-booth"
+        >
+          <span class="text-base">💬</span>
+          <div class="min-w-0">
+            <div class="font-pixel text-[9px] text-emerald-200 truncate">VIP Booth</div>
+            <div class="font-mono text-[9px] text-emerald-300/70 truncate">Coffee Chat</div>
+          </div>
+        </button>
+      </div>
+    </section>
+
+    <!-- 3. INTERACTIVE "BUILD YOUR DEV BLEND" CUSTOM ESPRESSO & CONE BREWER -->
+    <section
+      id="cafe-custom-brewer"
+      aria-labelledby="brewer-heading"
+      class="rounded-2xl border-2 border-amber-500/35 bg-gradient-to-b from-[#1e130d] to-[#140d09] p-5 shadow-xl"
+    >
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-amber-500/20 pb-3">
+        <div>
+          <span class="font-mono text-[10px] uppercase tracking-widest text-amber-400">
+            INTERACTIVE BARISTA SYNTHESIZER · 64 COMBINATIONS
+          </span>
+          <h2 id="brewer-heading" class="font-pixel text-base sm:text-lg text-amber-100 flex items-center gap-2 mt-0.5">
+            <span>⚗️</span>
+            <span>BUILD YOUR CUSTOM DEV BLEND</span>
+          </h2>
+        </div>
+        <span class="rounded-lg border border-amber-400/30 bg-amber-500/10 px-2.5 py-1 font-mono text-[11px] text-amber-200">
+          Triggers 2D Espresso Steam & +100% Stamina
+        </span>
+      </div>
+
+      <div class="mt-4 grid grid-cols-1 lg:grid-cols-12 gap-5">
+        <!-- Left 7 Cols: 3-Step Selector -->
+        <div class="lg:col-span-7 space-y-4">
+          <!-- Step 1: Base Bean -->
+          <div>
+            <label class="block font-pixel text-[10px] uppercase tracking-wider text-amber-300 mb-2">
+              1. Select Base Bean / Stack Origin
+            </label>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2" id="brew-step-base">
+              <button
+                type="button"
+                class="brew-opt-btn is-selected flex items-center gap-2.5 rounded-xl border border-amber-400 bg-amber-500/20 p-2.5 text-left transition"
+                data-group="base"
+                data-val="Dark TypeScript Arabica"
+                data-icon="☕"
+                data-focus="98"
+                data-speed="90"
+                data-sweet="65"
+                data-note="Strict-typed dark cacao & zero runtime bugs"
+              >
+                <span class="text-xl">☕</span>
+                <div>
+                  <div class="font-mono text-xs font-bold text-amber-100">Dark TypeScript Arabica</div>
+                  <div class="font-mono text-[10px] text-amber-200/75">Strict-mode · Full-bodied</div>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                class="brew-opt-btn flex items-center gap-2.5 rounded-xl border border-amber-500/25 bg-black/30 p-2.5 text-left hover:border-amber-400/60 transition"
+                data-group="base"
+                data-val="YOLOv11 TensorRT Roast"
+                data-icon="⚡"
+                data-focus="96"
+                data-speed="100"
+                data-sweet="70"
+                data-note="1.8ms quantized extraction at 75+ FPS"
+              >
+                <span class="text-xl">⚡</span>
+                <div>
+                  <div class="font-mono text-xs font-bold text-amber-100">YOLOv11 TensorRT Roast</div>
+                  <div class="font-mono text-[10px] text-amber-200/75">Sub-2ms latency · High voltage</div>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                class="brew-opt-btn flex items-center gap-2.5 rounded-xl border border-amber-500/25 bg-black/30 p-2.5 text-left hover:border-amber-400/60 transition"
+                data-group="base"
+                data-val="Laravel 12 Velvet Blend"
+                data-icon="🫖"
+                data-focus="94"
+                data-speed="88"
+                data-sweet="82"
+                data-note="Clean-architecture floral & PostGIS spice"
+              >
+                <span class="text-xl">🫖</span>
+                <div>
+                  <div class="font-mono text-xs font-bold text-amber-100">Laravel 12 Velvet Blend</div>
+                  <div class="font-mono text-[10px] text-amber-200/75">Artisan MVC · Smooth finish</div>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                class="brew-opt-btn flex items-center gap-2.5 rounded-xl border border-amber-500/25 bg-black/30 p-2.5 text-left hover:border-amber-400/60 transition"
+                data-group="base"
+                data-val="Castelia Sweet Cream Base"
+                data-icon="🍦"
+                data-focus="92"
+                data-speed="95"
+                data-sweet="98"
+                data-note="Unova vanilla bean & chilled soft-serve swirl"
+              >
+                <span class="text-xl">🍦</span>
+                <div>
+                  <div class="font-mono text-xs font-bold text-amber-100">Castelia Sweet Cream Base</div>
+                  <div class="font-mono text-[10px] text-amber-200/75">Unova specialty · Dessert base</div>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <!-- Step 2: Extraction Method -->
+          <div>
+            <label class="block font-pixel text-[10px] uppercase tracking-wider text-amber-300 mb-2">
+              2. Select Extraction Architecture
+            </label>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2" id="brew-step-method">
+              <button
+                type="button"
+                class="brew-opt-btn is-selected flex items-center gap-2.5 rounded-xl border border-amber-400 bg-amber-500/20 p-2.5 text-left transition"
+                data-group="method"
+                data-val="9-Bar Double Ristretto"
+                data-temp="HOT · 93°C"
+              >
+                <span class="text-lg">🔥</span>
+                <div>
+                  <div class="font-mono text-xs font-bold text-amber-100">9-Bar Double Ristretto</div>
+                  <div class="font-mono text-[10px] text-amber-200/75">Concentrated crema · Zero bloat</div>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                class="brew-opt-btn flex items-center gap-2.5 rounded-xl border border-amber-500/25 bg-black/30 p-2.5 text-left hover:border-amber-400/60 transition"
+                data-group="method"
+                data-val="V60 Pour-Over Pipeline"
+                data-temp="HOT · 91°C"
+              >
+                <span class="text-lg">⏳</span>
+                <div>
+                  <div class="font-mono text-xs font-bold text-amber-100">V60 Pour-Over Pipeline</div>
+                  <div class="font-mono text-[10px] text-amber-200/75">3-stage clean filter · Crystal clear</div>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                class="brew-opt-btn flex items-center gap-2.5 rounded-xl border border-amber-500/25 bg-black/30 p-2.5 text-left hover:border-amber-400/60 transition"
+                data-group="method"
+                data-val="Nitro Edge-Cache Cold Brew"
+                data-temp="ICED · 4°C"
+              >
+                <span class="text-lg">❄️</span>
+                <div>
+                  <div class="font-mono text-xs font-bold text-amber-100">Nitro Edge-Cache Cold Brew</div>
+                  <div class="font-mono text-[10px] text-amber-200/75">Sub-millisecond cascade · Chilled</div>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                class="brew-opt-btn flex items-center gap-2.5 rounded-xl border border-amber-500/25 bg-black/30 p-2.5 text-left hover:border-amber-400/60 transition"
+                data-group="method"
+                data-val="Castelia Cone Affogato Float"
+                data-temp="FLOAT · CHILLED"
+              >
+                <span class="text-lg">🍨</span>
+                <div>
+                  <div class="font-mono text-xs font-bold text-amber-100">Castelia Cone Affogato Float</div>
+                  <div class="font-mono text-[10px] text-amber-200/75">Hot espresso over Unova soft-serve</div>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <!-- Step 3: Finishing Topping -->
+          <div>
+            <label class="block font-pixel text-[10px] uppercase tracking-wider text-amber-300 mb-2">
+              3. Select Alcremie Finishing Garnish
+            </label>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2" id="brew-step-topping">
+              <button
+                type="button"
+                class="brew-opt-btn is-selected rounded-xl border border-amber-400 bg-amber-500/20 p-2 text-left transition"
+                data-group="topping"
+                data-val="Alcremie Strawberry Whip 🍓"
+              >
+                <div class="font-mono text-xs font-bold text-amber-100">🍓 Strawberry Whip</div>
+                <div class="font-mono text-[10px] text-amber-200/70">+Sweetness & Charm</div>
+              </button>
+
+              <button
+                type="button"
+                class="brew-opt-btn rounded-xl border border-amber-500/25 bg-black/30 p-2 text-left hover:border-amber-400/60 transition"
+                data-group="topping"
+                data-val="Redis Caramel Mutex Drizzle 🍯"
+              >
+                <div class="font-mono text-xs font-bold text-amber-100">🍯 Caramel Mutex</div>
+                <div class="font-mono text-[10px] text-amber-200/70">Zero Race-Conditions</div>
+              </button>
+
+              <button
+                type="button"
+                class="brew-opt-btn rounded-xl border border-amber-500/25 bg-black/30 p-2 text-left hover:border-amber-400/60 transition"
+                data-group="topping"
+                data-val="24K Gold Leaf Amulet Flakes ✨"
+              >
+                <div class="font-mono text-xs font-bold text-amber-100">✨ 24K Gold Leaf</div>
+                <div class="font-mono text-[10px] text-amber-200/70">Executive VIP Finish</div>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right 5 Cols: Live Cup Ticket & Brew Trigger -->
+        <div class="lg:col-span-5 flex flex-col justify-between rounded-xl border-2 border-amber-400/40 bg-[#120b07] p-4 shadow-inner">
+          <div>
+            <div class="flex items-center justify-between border-b border-dashed border-amber-500/30 pb-2.5">
+              <div>
+                <span class="font-mono text-[10px] uppercase tracking-widest text-amber-400">ORDER TICKET #0349</span>
+                <h3 id="brew-preview-title" class="font-pixel text-sm text-amber-100 mt-0.5">
+                  Dark TypeScript Arabica
+                </h3>
+              </div>
+              <div
+                id="brew-preview-icon"
+                class="flex h-12 w-12 items-center justify-center rounded-xl border border-amber-400/40 bg-amber-500/15 text-2xl shadow-md"
+              >
+                ☕
+              </div>
+            </div>
+
+            <!-- Cup Details -->
+            <dl class="mt-3 space-y-1.5 font-mono text-xs">
+              <div class="flex justify-between gap-2">
+                <dt class="text-amber-200/60">Extraction:</dt>
+                <dd id="brew-preview-method" class="text-amber-100 font-semibold text-right">9-Bar Double Ristretto</dd>
+              </div>
+              <div class="flex justify-between gap-2">
+                <dt class="text-amber-200/60">Garnish:</dt>
+                <dd id="brew-preview-topping" class="text-pink-300 font-semibold text-right">Alcremie Strawberry Whip 🍓</dd>
+              </div>
+              <div class="flex justify-between gap-2">
+                <dt class="text-amber-200/60">Serving Temp:</dt>
+                <dd id="brew-preview-temp" class="text-amber-300 text-right">HOT · 93°C</dd>
+              </div>
+            </dl>
+
+            <p id="brew-preview-note" class="mt-2.5 rounded-lg border border-amber-500/20 bg-amber-950/30 px-2.5 py-1.5 font-mono text-[11px] italic text-amber-200/90">
+              "Strict-typed dark cacao & zero runtime bugs"
+            </p>
+
+            <!-- Telemetry Flavor Bars -->
+            <div class="mt-3 space-y-2">
+              <div>
+                <div class="flex justify-between font-mono text-[10px] text-amber-200/80 mb-0.5">
+                  <span>Coding Focus & Type Safety</span>
+                  <span id="brew-bar-focus-val">98%</span>
+                </div>
+                <div class="h-1.5 w-full rounded-full bg-amber-950 overflow-hidden">
+                  <div id="brew-bar-focus" class="h-full bg-gradient-to-r from-amber-500 to-yellow-300 transition-all duration-300" style="width: 98%"></div>
+                </div>
+              </div>
+
+              <div>
+                <div class="flex justify-between font-mono text-[10px] text-amber-200/80 mb-0.5">
+                  <span>Inference Speed / Throughput</span>
+                  <span id="brew-bar-speed-val">90%</span>
+                </div>
+                <div class="h-1.5 w-full rounded-full bg-amber-950 overflow-hidden">
+                  <div id="brew-bar-speed" class="h-full bg-gradient-to-r from-orange-500 to-amber-300 transition-all duration-300" style="width: 90%"></div>
+                </div>
+              </div>
+
+              <div>
+                <div class="flex justify-between font-mono text-[10px] text-amber-200/80 mb-0.5">
+                  <span>Alcremie Sweetness Balance</span>
+                  <span id="brew-bar-sweet-val">65%</span>
+                </div>
+                <div class="h-1.5 w-full rounded-full bg-amber-950 overflow-hidden">
+                  <div id="brew-bar-sweet" class="h-full bg-gradient-to-r from-pink-500 to-rose-300 transition-all duration-300" style="width: 65%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="mt-4 pt-3 border-t border-amber-500/20 space-y-2">
+            <button
+              type="button"
+              id="btn-brew-custom"
+              class="w-full rounded-xl border border-amber-300 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 px-4 py-2.5 font-pixel text-xs uppercase tracking-wider text-slate-950 font-bold shadow-lg hover:brightness-110 active:scale-[0.99] transition flex items-center justify-center gap-2"
+            >
+              <span>☕</span>
+              <span>Brew & Sip Creation (+100 Energy)</span>
+            </button>
+
+            <div class="flex items-center justify-between gap-2">
+              <button
+                type="button"
+                id="btn-copy-receipt"
+                class="flex-1 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 font-mono text-[11px] text-amber-200 hover:bg-amber-500/20 transition"
+              >
+                🧾 Copy Cup Receipt
+              </button>
+              <button
+                type="button"
+                id="btn-surprise-blend"
+                class="rounded-lg border border-pink-500/30 bg-pink-500/10 px-3 py-1.5 font-mono text-[11px] text-pink-200 hover:bg-pink-500/20 transition"
+              >
+                🎲 Barista's Choice
+              </button>
+            </div>
+
+            <div
+              id="cafe-brew-toast"
+              class="hidden rounded-lg border border-emerald-400/40 bg-emerald-950/80 px-3 py-2 font-mono text-[11px] text-emerald-200 text-center"
+              role="status"
+            ></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. ARTISANAL CAFÉ & NIGHT BAR MENU GRID -->
+    <section id="cafe-menu-grid" aria-labelledby="menu-heading" class="space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-amber-500/25 pb-3">
+        <div>
+          <span class="font-mono text-[10px] uppercase tracking-widest text-amber-400">
+            CRAFTED FOR ENGINEERS & TRAINERS · COMPLIMENTARY HOUSE REFILLS
+          </span>
+          <h2 id="menu-heading" class="font-pixel text-base sm:text-lg text-amber-100 flex items-center gap-2 mt-0.5">
+            <span>📋</span>
+            <span>SIGNATURE ROASTS, CASTELIA CONES & ELIXIRS</span>
+          </h2>
+        </div>
+
+        <!-- Category Filter Tabs -->
+        <div class="flex flex-wrap items-center gap-1.5" role="tablist" aria-label="Filter Café Menu">
+          <button
+            type="button"
+            class="cafe-filter-tab is-active rounded-lg border border-amber-400 bg-amber-500/25 px-3 py-1.5 font-mono text-xs font-semibold text-amber-100 transition"
+            data-filter="all"
+          >
+            All (8)
+          </button>
+          <button
+            type="button"
+            class="cafe-filter-tab rounded-lg border border-amber-500/30 bg-black/30 px-3 py-1.5 font-mono text-xs text-amber-200/80 hover:border-amber-400/50 transition"
+            data-filter="espresso"
+          >
+            ☕ Roasts (3)
+          </button>
+          <button
+            type="button"
+            class="cafe-filter-tab rounded-lg border border-pink-500/30 bg-black/30 px-3 py-1.5 font-mono text-xs text-pink-200/80 hover:border-pink-400/50 transition"
+            data-filter="pastry"
+          >
+            🍦 Sweets (3)
+          </button>
+          <button
+            type="button"
+            class="cafe-filter-tab rounded-lg border border-cyan-500/30 bg-black/30 px-3 py-1.5 font-mono text-xs text-cyan-200/80 hover:border-cyan-400/50 transition"
+            data-filter="elixir"
+          >
+            🍹 Night Bar (2)
+          </button>
+        </div>
+      </div>
+
+      <!-- Menu Cards Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {cafeMenu.map((item) => (
+          <article
+            class="cafe-menu-card group relative flex flex-col justify-between rounded-xl border border-amber-500/25 bg-[#1a110b]/90 p-4 shadow-md hover:border-amber-400/60 transition-all"
+            data-category={item.category}
+            data-item-id={item.id}
+          >
+            <div>
+              <div class="flex items-start justify-between gap-3">
+                <div class="flex items-center gap-3">
+                  <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-amber-400/30 bg-amber-500/10 text-2xl group-hover:scale-105 transition-transform">
+                    {item.icon}
+                  </div>
+                  <div>
+                    <div class="flex flex-wrap items-center gap-1.5">
+                      <span class="rounded bg-amber-500/15 border border-amber-400/30 px-2 py-0.5 font-mono text-[9px] uppercase tracking-wider text-amber-300">
+                        {item.categoryLabel}
+                      </span>
+                      <span class="font-mono text-[10px] text-amber-200/60">{item.calories}</span>
+                    </div>
+                    <h3 class="font-pixel text-xs sm:text-sm text-amber-100 mt-1">{item.name}</h3>
+                  </div>
+                </div>
+                <span class="shrink-0 rounded-lg border border-amber-400/40 bg-black/50 px-2.5 py-1 font-mono text-xs font-bold text-amber-300">
+                  {item.price}
+                </span>
+              </div>
+
+              <p class="mt-3 text-xs text-amber-100/80 leading-relaxed">{item.description}</p>
+
+              <!-- Tasting Notes Pills -->
+              <div class="mt-3 flex flex-wrap items-center gap-1.5">
+                {item.tastingNotes.map((note) => (
+                  <span class="rounded-full border border-amber-500/25 bg-black/40 px-2.5 py-0.5 font-mono text-[10px] text-amber-200/90">
+                    ✦ {note}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div class="mt-4 pt-3 border-t border-amber-500/20 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5">
+              <div class="min-w-0">
+                <div class="font-mono text-[10px] text-emerald-300 font-semibold truncate">
+                  ⚡ Buff: {item.buff}
+                </div>
+                <div class="font-mono text-[10px] text-amber-200/60 truncate" title={item.devPairing}>
+                  🔗 {item.devPairing}
+                </div>
+              </div>
+
+              <button
+                type="button"
+                class="cafe-order-btn shrink-0 rounded-lg border border-amber-400/50 bg-amber-500/20 px-3 py-1.5 font-pixel text-[10px] uppercase tracking-wider text-amber-100 hover:bg-amber-500 hover:text-slate-950 transition"
+                data-order-name={item.name}
+                data-order-icon={item.icon}
+                data-order-prop={item.propTarget}
+              >
+                {item.icon} Order & Sip
+              </button>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <!-- 5. WURLITZER LO-FI VINYL JUKEBOX & AMBIANCE CONTROLLER -->
+    <section
+      id="cafe-jukebox-section"
+      aria-labelledby="jukebox-heading"
+      class="rounded-2xl border-2 border-purple-500/35 bg-gradient-to-br from-[#1b1124] via-[#150f1d] to-[#120b18] p-5 shadow-xl"
+    >
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-purple-500/25 pb-3">
+        <div>
+          <span class="font-mono text-[10px] uppercase tracking-widest text-purple-300">
+            ANALOG SYNTHWAVE & ACOUSTIC LOUNGE · 33⅓ RPM TURNTABLE
+          </span>
+          <h2 id="jukebox-heading" class="font-pixel text-base sm:text-lg text-purple-100 flex items-center gap-2 mt-0.5">
+            <span>🎵</span>
+            <span>LO-FI VINYL JUKEBOX & CODING SOUNDSCAPE</span>
+          </h2>
+        </div>
+
+        <button
+          type="button"
+          id="btn-locate-jukebox"
+          class="rounded-lg border border-purple-400/40 bg-purple-500/15 px-3 py-1.5 font-mono text-xs text-purple-200 hover:bg-purple-500/30 transition"
+        >
+          🚶 Walk to Jukebox in 2D
+        </button>
+      </div>
+
+      <div class="mt-4 grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
+        <!-- Spinning Vinyl Disc Visual (4 Cols) -->
+        <div class="lg:col-span-4 flex flex-col items-center justify-center rounded-xl border border-purple-500/30 bg-black/40 p-4">
+          <div
+            id="cafe-vinyl-disc"
+            class="cafe-vinyl-disc relative flex h-32 w-32 items-center justify-center rounded-full border-4 border-purple-400/40 bg-gradient-to-tr from-slate-950 via-slate-800 to-slate-950 shadow-2xl is-spinning"
+          >
+            <div class="absolute inset-3 rounded-full border border-slate-600/40"></div>
+            <div class="absolute inset-6 rounded-full border border-slate-500/30"></div>
+            <div
+              id="cafe-vinyl-label"
+              class="flex h-12 w-12 items-center justify-center rounded-full border-2 border-amber-300 bg-gradient-to-br from-amber-500 to-pink-500 text-lg shadow-inner"
+            >
+              🎵
+            </div>
+          </div>
+
+          <div class="mt-3 text-center">
+            <div id="jukebox-now-playing" class="font-pixel text-xs text-purple-200">
+              Track 01 · Castelia Morning Acoustic
+            </div>
+            <div id="jukebox-now-sub" class="font-mono text-[10px] text-purple-300/75 mt-0.5">
+              112 BPM · Warm Chiptune & Espresso Steam
+            </div>
+          </div>
+
+          <!-- Animated Equalizer Bars -->
+          <div class="mt-3 flex items-end gap-1 h-5" aria-hidden="true">
+            <span class="cafe-eq-bar w-1.5 bg-purple-400 rounded-t animate-pulse" style="height: 65%"></span>
+            <span class="cafe-eq-bar w-1.5 bg-pink-400 rounded-t animate-pulse" style="height: 100%"></span>
+            <span class="cafe-eq-bar w-1.5 bg-amber-400 rounded-t animate-pulse" style="height: 45%"></span>
+            <span class="cafe-eq-bar w-1.5 bg-cyan-400 rounded-t animate-pulse" style="height: 85%"></span>
+            <span class="cafe-eq-bar w-1.5 bg-purple-400 rounded-t animate-pulse" style="height: 60%"></span>
+            <span class="cafe-eq-bar w-1.5 bg-pink-400 rounded-t animate-pulse" style="height: 90%"></span>
+          </div>
+        </div>
+
+        <!-- Tracklist Selector (8 Cols) -->
+        <div class="lg:col-span-8 space-y-2.5">
+          <button
+            type="button"
+            class="cafe-track-btn is-active w-full flex items-center justify-between gap-3 rounded-xl border border-purple-400 bg-purple-500/20 p-3 text-left transition"
+            data-track-title="Track 01 · Castelia Morning Acoustic"
+            data-track-sub="112 BPM · Sunny Town Square Guitar & Pour-Over Drip"
+            data-track-mood="day"
+            data-track-icon="☀️"
+          >
+            <div class="flex items-center gap-3 min-w-0">
+              <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-500/20 border border-amber-400/40 text-base">
+                ☀️
+              </span>
+              <div class="min-w-0">
+                <div class="font-pixel text-xs text-purple-100 truncate">Track 01 · Castelia Morning Acoustic</div>
+                <div class="font-mono text-[10px] text-purple-200/75 truncate">
+                  Sunny Town Square Guitar · Ideal for Frontend Architecture & UI Polish
+                </div>
+              </div>
+            </div>
+            <span class="shrink-0 rounded bg-purple-400/20 px-2 py-0.5 font-mono text-[10px] text-purple-200">
+              SPINNING
+            </span>
+          </button>
+
+          <button
+            type="button"
+            class="cafe-track-btn w-full flex items-center justify-between gap-3 rounded-xl border border-purple-500/25 bg-black/30 p-3 text-left hover:border-purple-400/60 transition"
+            data-track-title="Track 02 · Golden Sunset Lo-Fi Beats"
+            data-track-sub="88 BPM · Warm Rhodes Piano & Vinyl Crackle"
+            data-track-mood="sunset"
+            data-track-icon="🌇"
+          >
+            <div class="flex items-center gap-3 min-w-0">
+              <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-orange-500/20 border border-orange-400/40 text-base">
+                🌇
+              </span>
+              <div class="min-w-0">
+                <div class="font-pixel text-xs text-purple-100 truncate">Track 02 · Golden Sunset Lo-Fi Beats</div>
+                <div class="font-mono text-[10px] text-purple-200/75 truncate">
+                  Warm Rhodes Chords · Ideal for Code Reviews & System Documentation
+                </div>
+              </div>
+            </div>
+            <span class="shrink-0 rounded bg-black/40 px-2 py-0.5 font-mono text-[10px] text-purple-300/70">
+              PLAY ▶
+            </span>
+          </button>
+
+          <button
+            type="button"
+            class="cafe-track-btn w-full flex items-center justify-between gap-3 rounded-xl border border-purple-500/25 bg-black/30 p-3 text-left hover:border-purple-400/60 transition"
+            data-track-title="Track 03 · Lumiose Midnight Blue Note Jazz"
+            data-track-sub="76 BPM · Late-Night Upright Bass & Rain on Cafe Glass"
+            data-track-mood="night"
+            data-track-icon="🌙"
+          >
+            <div class="flex items-center gap-3 min-w-0">
+              <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-indigo-500/20 border border-indigo-400/40 text-base">
+                🌙
+              </span>
+              <div class="min-w-0">
+                <div class="font-pixel text-xs text-purple-100 truncate">Track 03 · Lumiose Midnight Blue Note Jazz</div>
+                <div class="font-mono text-[10px] text-purple-200/75 truncate">
+                  Deep Nocturne Synth · Ideal for Deep-Focus Debugging & AI Training
+                </div>
+              </div>
+            </div>
+            <span class="shrink-0 rounded bg-black/40 px-2 py-0.5 font-mono text-[10px] text-purple-300/70">
+              PLAY ▶
+            </span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. VIP COFFEE CHAT & PAIRING BOOTH -->
+    <section
+      id="cafe-vip-lounge"
+      aria-labelledby="vip-heading"
+      class="rounded-2xl border-2 border-emerald-500/35 bg-gradient-to-br from-[#0d1f18] via-[#0b1713] to-[#08110e] p-5 shadow-xl"
+    >
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-emerald-500/25 pb-3">
+        <div>
+          <span class="font-mono text-[10px] uppercase tracking-widest text-emerald-400">
+            RESERVED LEATHER BOOTH · DIRECT ENGINEER CONNECTION
+          </span>
+          <h2 id="vip-heading" class="font-pixel text-base sm:text-lg text-emerald-100 flex items-center gap-2 mt-0.5">
+            <span>💬</span>
+            <span>VIP COFFEE CHAT & PAIR-PROGRAMMING LOUNGE</span>
+          </h2>
+        </div>
+
+        <span class="rounded-full border border-emerald-400/40 bg-emerald-500/15 px-3 py-0.5 font-mono text-[10px] font-semibold text-emerald-300">
+          ● Open to Full-Time & Freelance Roles
+        </span>
+      </div>
+
+      <div class="mt-4 grid grid-cols-1 lg:grid-cols-12 gap-5">
+        <div class="lg:col-span-7 space-y-3">
+          <p class="text-xs sm:text-sm text-emerald-100/85 leading-relaxed">
+            Enjoyed your virtual espresso? Pull up a seat at the VIP Booth across from <strong class="text-white">{profile.person.name}</strong> (B.Comp.Sc. / Informatics Graduate at <strong class="text-emerald-300">ITENAS Bandung, GPA 3.49 / 4.00</strong>). Select a conversation topic below to generate a ready-to-send Coffee Chat invitation:
+          </p>
+
+          <!-- Topic Selector Buttons -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2" id="vip-topic-selector">
+            <button
+              type="button"
+              class="vip-chat-topic is-selected rounded-xl border border-emerald-400 bg-emerald-500/20 p-2.5 text-left transition"
+              data-subject="Coffee Chat: Full-Stack / Backend Engineering Role"
+              data-body="Hi Zulfan, I just visited your Poké-Café & Bar portfolio! I'd love to schedule a quick 15-minute coffee chat to discuss a Full-Stack / Software Engineering opportunity with our team."
+            >
+              <div class="font-pixel text-[10px] text-emerald-200">🚀 Full-Stack / Backend Role</div>
+              <div class="font-mono text-[10px] text-emerald-300/75 mt-0.5">Laravel 12, TypeScript, Distributed APIs</div>
+            </button>
+
+            <button
+              type="button"
+              class="vip-chat-topic rounded-xl border border-emerald-500/25 bg-black/30 p-2.5 text-left hover:border-emerald-400/60 transition"
+              data-subject="Coffee Chat: AI / Computer Vision Engineering"
+              data-body="Hi Zulfan, I explored your AeroScan YOLOv11 + TensorRT work and stopped by the Poké-Café! Would love to connect for a coffee chat regarding AI / Computer Vision engineering."
+            >
+              <div class="font-pixel text-[10px] text-emerald-200">🔬 Edge AI & Computer Vision</div>
+              <div class="font-mono text-[10px] text-emerald-300/75 mt-0.5">YOLOv11, TensorRT, PyTorch, Robotics</div>
+            </button>
+
+            <button
+              type="button"
+              class="vip-chat-topic rounded-xl border border-emerald-500/25 bg-black/30 p-2.5 text-left hover:border-emerald-400/60 transition"
+              data-subject="Project Collaboration & Architecture Inquiry"
+              data-body="Hi Zulfan, I'm reaching out from your Poké-Café VIP Booth! We have an upcoming web/AI project and would love to discuss scope, architecture, and availability over a virtual coffee."
+            >
+              <div class="font-pixel text-[10px] text-emerald-200">🛠️ Freelance & Custom Build</div>
+              <div class="font-mono text-[10px] text-emerald-300/75 mt-0.5">Custom Web Platform or AI Prototype</div>
+            </button>
+
+            <button
+              type="button"
+              class="vip-chat-topic rounded-xl border border-emerald-500/25 bg-black/30 p-2.5 text-left hover:border-emerald-400/60 transition"
+              data-subject="Fellow Developer Virtual Espresso Chat ☕"
+              data-body="Hey Zulfan! Loved the interactive 2D Poké-Café & Developer Roastery Bar. Would be awesome to connect and chat about game engines, Astro, and software engineering!"
+            >
+              <div class="font-pixel text-[10px] text-emerald-200">☕ Casual Dev Networking</div>
+              <div class="font-mono text-[10px] text-emerald-300/75 mt-0.5">2D Web Engines, Open Source & Tech</div>
+            </button>
+          </div>
+
+          <!-- Preview Box -->
+          <div class="rounded-xl border border-emerald-500/30 bg-black/40 p-3 font-mono text-xs text-emerald-100/90">
+            <div class="text-[10px] uppercase tracking-wider text-emerald-400 mb-1">
+              ✉️ Prepared Invitation Note:
+            </div>
+            <p id="vip-message-preview" class="italic text-emerald-100/90">
+              "Hi Zulfan, I just visited your Poké-Café & Bar portfolio! I'd love to schedule a quick 15-minute coffee chat to discuss a Full-Stack / Software Engineering opportunity with our team."
+            </p>
+          </div>
+        </div>
+
+        <!-- Right 5 Cols: Direct Contact & Credentials Card -->
+        <div class="lg:col-span-5 flex flex-col justify-between rounded-xl border border-emerald-400/35 bg-black/45 p-4">
+          <div class="space-y-2.5">
+            <div class="flex items-center gap-3">
+              <div class="flex h-11 w-11 items-center justify-center rounded-xl border border-emerald-400/40 bg-emerald-500/20 text-xl">
+                👨‍💻
+              </div>
+              <div>
+                <h3 class="font-pixel text-xs text-emerald-100">{profile.person.name}</h3>
+                <p class="font-mono text-[11px] text-emerald-300/80">
+                  Software & AI Engineer · Bandung, Indonesia
+                </p>
+              </div>
+            </div>
+
+            <ul class="space-y-1.5 pt-2 border-t border-emerald-500/20 font-mono text-[11px] text-emerald-100/85">
+              <li>🎓 <strong>Education:</strong> B.Comp.Sc. ITENAS (GPA 3.49 / 4.00)</li>
+              <li>🏅 <strong>Track Record:</strong> 6x Lab Assistant & IDEA FEST 3 Medalist</li>
+              <li>🛡️ <strong>Certification:</strong> Huawei HCIA-Security V4.0</li>
+              <li>📬 <strong>Direct Email:</strong> {profile.person.email}</li>
+            </ul>
+          </div>
+
+          <div class="mt-4 pt-3 border-t border-emerald-500/20 space-y-2">
+            <a
+              id="vip-mailto-link"
+              href={`mailto:${profile.person.email}?subject=${encodeURIComponent('Coffee Chat: Full-Stack / Backend Engineering Role')}&body=${encodeURIComponent("Hi Zulfan, I just visited your Poké-Café & Bar portfolio! I'd love to schedule a quick 15-minute coffee chat to discuss a Full-Stack / Software Engineering opportunity with our team.")}`}
+              class="w-full rounded-xl border border-emerald-300 bg-emerald-500 px-4 py-2.5 font-pixel text-xs uppercase tracking-wider text-slate-950 font-bold shadow-lg hover:brightness-110 transition flex items-center justify-center gap-2"
+            >
+              <span>✉️</span>
+              <span>Send Coffee Chat Invite</span>
+            </a>
+
+            <div class="grid grid-cols-2 gap-2">
+              <a
+                href={linkedinUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 font-mono text-[11px] text-emerald-200 hover:bg-emerald-500/25 text-center transition"
+              >
+                💼 LinkedIn
+              </a>
+              <a
+                href="/cv/CV_Zulfan.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 font-mono text-[11px] text-amber-200 hover:bg-amber-500/25 text-center transition"
+              >
+                📄 Official CV
+              </a>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 pt-1">
+              <a
+                href="/mart"
+                class="rounded-lg border border-slate-600/50 bg-slate-800/50 px-3 py-1.5 font-mono text-[10px] text-slate-200 hover:border-amber-400/50 text-center transition"
+              >
+                🏪 Visit Poké Mart
+              </a>
+              <a
+                href="/"
+                onclick="sessionStorage.setItem('town:respawn', '29,32')"
+                class="rounded-lg border border-slate-600/50 bg-slate-800/50 px-3 py-1.5 font-mono text-[10px] text-slate-200 hover:border-amber-400/50 text-center transition"
+              >
+                🚪 Exit to Town Square
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </article>
+</TownLayout>
+
+<style>
+  .cafe-stamp-slot {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.65rem;
+    height: 1.65rem;
+    border-radius: 0.5rem;
+    border: 1px dashed rgba(251, 191, 36, 0.45);
+    background: rgba(0, 0, 0, 0.35);
+    font-size: 0.8rem;
+    color: rgba(251, 191, 36, 0.55);
+    transition: all 0.25s ease;
+  }
+  .cafe-stamp-slot.is-filled {
+    border-style: solid;
+    border-color: rgba(251, 191, 36, 0.9);
+    background: rgba(245, 158, 11, 0.25);
+    color: #fde68a;
+    transform: scale(1.05);
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+  }
+  @keyframes vinylSpin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  .cafe-vinyl-disc.is-spinning {
+    animation: vinylSpin 7s linear infinite;
+  }
+</style>
+
+<script>
+  import { sfx } from '../game/sfx';
+
+  function initCafePage() {
+    const STORAGE_KEY = 'town:cafe-loyalty-stamps';
+    let stamps = 1;
+    try {
+      const saved = Number(localStorage.getItem(STORAGE_KEY));
+      if (!Number.isNaN(saved) && saved >= 1 && saved <= 5) {
+        stamps = saved;
+      }
+    } catch {
+      stamps = 1;
+    }
+
+    const stampCounterEl = document.getElementById('cafe-stamp-counter');
+    const stampHintEl = document.getElementById('cafe-stamp-hint');
+    const vipBadgeEl = document.getElementById('cafe-vip-badge');
+    const stampSlots = document.querySelectorAll<HTMLElement>('#cafe-stamp-slots .cafe-stamp-slot');
+    const focusPctEl = document.getElementById('cafe-focus-pct');
+
+    function renderStamps() {
+      if (stampCounterEl) stampCounterEl.textContent = `${stamps} / 5`;
+      stampSlots.forEach((slot, idx) => {
+        if (idx < stamps) {
+          slot.classList.add('is-filled');
+          slot.textContent = idx === 4 ? '👑' : '☕';
+        } else {
+          slot.classList.remove('is-filled');
+          slot.textContent = idx === 4 ? '👑' : '○';
+        }
+      });
+      if (stamps >= 5) {
+        vipBadgeEl?.classList.remove('hidden');
+        if (stampHintEl) {
+          stampHintEl.textContent = '🎉 VIP Golden Roaster unlocked! Unlimited espresso refills active!';
+        }
+      } else if (stampHintEl) {
+        const rem = 5 - stamps;
+        stampHintEl.textContent = `Sip or brew ${rem} more creation${rem === 1 ? '' : 's'} for the VIP Golden Cup!`;
+      }
+    }
+
+    function addLoyaltyStamp(toastMessage?: string) {
+      if (stamps < 5) {
+        stamps += 1;
+        try {
+          localStorage.setItem(STORAGE_KEY, String(stamps));
+        } catch {
+          // ignore storage quota errors
+        }
+      }
+      renderStamps();
+      if (focusPctEl) {
+        focusPctEl.textContent = '100% MAX';
+      }
+      if (toastMessage) {
+        const toast = document.getElementById('cafe-brew-toast');
+        if (toast) {
+          toast.textContent = toastMessage;
+          toast.classList.remove('hidden');
+          setTimeout(() => {
+            toast.classList.add('hidden');
+          }, 4200);
+        }
+      }
+    }
+
+    renderStamps();
+
+    // 1. Barista Rio & Alcremie Dialogue Switcher
+    const speakerEl = document.getElementById('cafe-dialogue-speaker');
+    const quoteEl = document.getElementById('cafe-dialogue-text');
+    const topicBtns = document.querySelectorAll<HTMLButtonElement>('.cafe-topic-btn');
+
+    topicBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        sfx.select();
+        topicBtns.forEach((b) => {
+          b.classList.remove('is-active', 'border-amber-400/40', 'bg-amber-500/20');
+        });
+        btn.classList.add('is-active', 'border-amber-400/40', 'bg-amber-500/20');
+        if (speakerEl && btn.dataset.speaker) speakerEl.textContent = btn.dataset.speaker;
+        if (quoteEl && btn.dataset.quote) quoteEl.textContent = `"${btn.dataset.quote}"`;
+        if (btn.dataset.prop) {
+          window.dispatchEvent(new CustomEvent('town:locate', { detail: { id: btn.dataset.prop } }));
+        }
+      });
+    });
+
+    document.getElementById('btn-walk-barista')?.addEventListener('click', () => {
+      sfx.espressoBrew();
+      window.dispatchEvent(new CustomEvent('town:locate', { detail: { id: 'barista' } }));
+    });
+
+    document.getElementById('btn-walk-alcremie')?.addEventListener('click', () => {
+      sfx.heal();
+      window.dispatchEvent(new CustomEvent('town:locate', { detail: { id: 'alcremie' } }));
+    });
+
+    // 2. 2D Station Walk Buttons
+    const stationBtns = document.querySelectorAll<HTMLButtonElement>('.cafe-station-btn');
+    stationBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const id = btn.dataset.locate;
+        if (!id) return;
+        sfx.select();
+        window.dispatchEvent(new CustomEvent('town:locate', { detail: { id } }));
+      });
+    });
+
+    // 3. Custom Dev Blend Synthesizer
+    let selectedBase = {
+      val: 'Dark TypeScript Arabica',
+      icon: '☕',
+      focus: 98,
+      speed: 90,
+      sweet: 65,
+      note: 'Strict-typed dark cacao & zero runtime bugs',
+    };
+    let selectedMethod = {
+      val: '9-Bar Double Ristretto',
+      temp: 'HOT · 93°C',
+    };
+    let selectedTopping = 'Alcremie Strawberry Whip 🍓';
+
+    const titleEl = document.getElementById('brew-preview-title');
+    const iconEl = document.getElementById('brew-preview-icon');
+    const methodEl = document.getElementById('brew-preview-method');
+    const toppingEl = document.getElementById('brew-preview-topping');
+    const tempEl = document.getElementById('brew-preview-temp');
+    const noteEl = document.getElementById('brew-preview-note');
+    const barFocus = document.getElementById('brew-bar-focus');
+    const barFocusVal = document.getElementById('brew-bar-focus-val');
+    const barSpeed = document.getElementById('brew-bar-speed');
+    const barSpeedVal = document.getElementById('brew-bar-speed-val');
+    const barSweet = document.getElementById('brew-bar-sweet');
+    const barSweetVal = document.getElementById('brew-bar-sweet-val');
+
+    function updateBlendPreview() {
+      if (titleEl) titleEl.textContent = selectedBase.val;
+      if (iconEl) iconEl.textContent = selectedBase.icon;
+      if (methodEl) methodEl.textContent = selectedMethod.val;
+      if (toppingEl) toppingEl.textContent = selectedTopping;
+      if (tempEl) tempEl.textContent = selectedMethod.temp;
+      if (noteEl) noteEl.textContent = `"${selectedBase.note}"`;
+
+      if (barFocus) barFocus.style.width = `${selectedBase.focus}%`;
+      if (barFocusVal) barFocusVal.textContent = `${selectedBase.focus}%`;
+      if (barSpeed) barSpeed.style.width = `${selectedBase.speed}%`;
+      if (barSpeedVal) barSpeedVal.textContent = `${selectedBase.speed}%`;
+      if (barSweet) barSweet.style.width = `${selectedBase.sweet}%`;
+      if (barSweetVal) barSweetVal.textContent = `${selectedBase.sweet}%`;
+    }
+
+    const optBtns = document.querySelectorAll<HTMLButtonElement>('.brew-opt-btn');
+    optBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        sfx.select();
+        const grp = btn.dataset.group;
+        if (!grp) return;
+        document.querySelectorAll<HTMLButtonElement>(`.brew-opt-btn[data-group="${grp}"]`).forEach((b) => {
+          b.classList.remove('is-selected', 'border-amber-400', 'bg-amber-500/20');
+          b.classList.add('border-amber-500/25', 'bg-black/30');
+        });
+        btn.classList.remove('border-amber-500/25', 'bg-black/30');
+        btn.classList.add('is-selected', 'border-amber-400', 'bg-amber-500/20');
+
+        if (grp === 'base') {
+          selectedBase = {
+            val: btn.dataset.val || 'Dark TypeScript Arabica',
+            icon: btn.dataset.icon || '☕',
+            focus: Number(btn.dataset.focus || 95),
+            speed: Number(btn.dataset.speed || 90),
+            sweet: Number(btn.dataset.sweet || 75),
+            note: btn.dataset.note || 'Freshly roasted developer blend',
+          };
+        } else if (grp === 'method') {
+          selectedMethod = {
+            val: btn.dataset.val || '9-Bar Double Ristretto',
+            temp: btn.dataset.temp || 'HOT · 93°C',
+          };
+        } else if (grp === 'topping') {
+          selectedTopping = btn.dataset.val || 'Alcremie Strawberry Whip 🍓';
+        }
+        updateBlendPreview();
+      });
+    });
+
+    document.getElementById('btn-brew-custom')?.addEventListener('click', () => {
+      sfx.espressoBrew();
+      const shortLabel = `${selectedBase.icon} ${selectedBase.val.toUpperCase()}! +100%`;
+      window.dispatchEvent(new CustomEvent('town:cafe-brew-anim', { detail: { text: shortLabel } }));
+      window.dispatchEvent(new CustomEvent('town:coffee-boost'));
+      document.dispatchEvent(new CustomEvent('town:refill-balls'));
+      addLoyaltyStamp(
+        `☕ Freshly brewed "${selectedBase.val}" (${selectedMethod.val}) topped with ${selectedTopping}! +100% Focus & Speed Boost active!`
+      );
+    });
+
+    document.getElementById('btn-surprise-blend')?.addEventListener('click', () => {
+      const bases = Array.from(document.querySelectorAll<HTMLButtonElement>('.brew-opt-btn[data-group="base"]'));
+      const methods = Array.from(document.querySelectorAll<HTMLButtonElement>('.brew-opt-btn[data-group="method"]'));
+      const toppings = Array.from(document.querySelectorAll<HTMLButtonElement>('.brew-opt-btn[data-group="topping"]'));
+      bases[Math.floor(Math.random() * bases.length)]?.click();
+      methods[Math.floor(Math.random() * methods.length)]?.click();
+      toppings[Math.floor(Math.random() * toppings.length)]?.click();
+      sfx.martChime();
+    });
+
+    document.getElementById('btn-copy-receipt')?.addEventListener('click', async () => {
+      sfx.cashRegister();
+      const receipt = [
+        '╔══════════════════════════════════════════╗',
+        "║   ☕ ZULFAN'S POKÉ-CAFÉ & ROASTERY BAR   ║",
+        '╠══════════════════════════════════════════╣',
+        `║ Blend   : ${selectedBase.val}`,
+        `║ Method  : ${selectedMethod.val} (${selectedMethod.temp})`,
+        `║ Garnish : ${selectedTopping}`,
+        `║ Focus   : ${selectedBase.focus}% | Throughput: ${selectedBase.speed}%`,
+        '║ Buff    : +100% Coding Stamina & Zero Bugs',
+        '╚══════════════════════════════════════════╝',
+      ].join('\n');
+      try {
+        await navigator.clipboard.writeText(receipt);
+        addLoyaltyStamp('🧾 Custom Cup Receipt copied to clipboard!');
+      } catch {
+        addLoyaltyStamp('🧾 Receipt ready! Enjoy your custom blend!');
+      }
+    });
+
+    // 4. Menu Filtering & Ordering
+    const filterTabs = document.querySelectorAll<HTMLButtonElement>('.cafe-filter-tab');
+    const menuCards = document.querySelectorAll<HTMLElement>('.cafe-menu-card');
+
+    function applyMenuFilter(category: string) {
+      filterTabs.forEach((tab) => {
+        const active = tab.dataset.filter === category;
+        tab.classList.toggle('is-active', active);
+        tab.classList.toggle('border-amber-400', active);
+        tab.classList.toggle('bg-amber-500/25', active);
+      });
+      menuCards.forEach((card) => {
+        const match = category === 'all' || card.dataset.category === category;
+        card.style.display = match ? '' : 'none';
+      });
+    }
+
+    filterTabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        sfx.select();
+        applyMenuFilter(tab.dataset.filter || 'all');
+      });
+    });
+
+    window.addEventListener('town:cafe-filter', (e: Event) => {
+      const ce = e as CustomEvent<{ category?: string }>;
+      if (ce.detail?.category) {
+        applyMenuFilter(ce.detail.category);
+      }
+    });
+
+    document.querySelectorAll<HTMLButtonElement>('.cafe-order-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const name = btn.dataset.orderName || 'Dev Roast';
+        const icon = btn.dataset.orderIcon || '☕';
+        const prop = btn.dataset.orderProp || 'barista';
+        sfx.espressoBrew();
+        window.dispatchEvent(new CustomEvent('town:locate', { detail: { id: prop } }));
+        window.dispatchEvent(
+          new CustomEvent('town:cafe-brew-anim', {
+            detail: { text: `${icon} ${name.toUpperCase().slice(0, 22)}!` },
+          })
+        );
+        window.dispatchEvent(new CustomEvent('town:coffee-boost'));
+        document.dispatchEvent(new CustomEvent('town:refill-balls'));
+        const originalText = btn.textContent;
+        btn.textContent = '✨ Served (+100%)';
+        addLoyaltyStamp(`${icon} Served fresh: ${name}! Stamina & Poké Balls restored to 100%!`);
+        setTimeout(() => {
+          btn.textContent = originalText;
+        }, 2000);
+      });
+    });
+
+    // 5. Lo-Fi Vinyl Jukebox Controller
+    const trackBtns = document.querySelectorAll<HTMLButtonElement>('.cafe-track-btn');
+    const nowPlayingEl = document.getElementById('jukebox-now-playing');
+    const nowSubEl = document.getElementById('jukebox-now-sub');
+    const vinylLabelEl = document.getElementById('cafe-vinyl-label');
+
+    function selectJukeboxTrack(btn: HTMLButtonElement) {
+      sfx.discSpin();
+      trackBtns.forEach((b) => {
+        b.classList.remove('is-active', 'border-purple-400', 'bg-purple-500/20');
+        b.classList.add('border-purple-500/25', 'bg-black/30');
+        const badge = b.querySelector('span:last-child');
+        if (badge) badge.textContent = 'PLAY ▶';
+      });
+      btn.classList.remove('border-purple-500/25', 'bg-black/30');
+      btn.classList.add('is-active', 'border-purple-400', 'bg-purple-500/20');
+      const activeBadge = btn.querySelector('span:last-child');
+      if (activeBadge) activeBadge.textContent = 'SPINNING';
+
+      if (nowPlayingEl && btn.dataset.trackTitle) nowPlayingEl.textContent = btn.dataset.trackTitle;
+      if (nowSubEl && btn.dataset.trackSub) nowSubEl.textContent = btn.dataset.trackSub;
+      if (vinylLabelEl && btn.dataset.trackIcon) vinylLabelEl.textContent = btn.dataset.trackIcon;
+
+      const mood = (btn.dataset.trackMood || 'day') as 'day' | 'sunset' | 'night';
+      sfx.setBgmTheme(mood);
+      window.dispatchEvent(new CustomEvent('town:set-atmosphere', { detail: { atmosphere: mood } }));
+      window.dispatchEvent(
+        new CustomEvent('town:cafe-brew-anim', {
+          detail: { text: `🎵 ${btn.dataset.trackTitle?.toUpperCase().slice(0, 24) || 'LO-FI VINYL'}` },
+        })
+      );
+    }
+
+    trackBtns.forEach((btn) => {
+      btn.addEventListener('click', () => selectJukeboxTrack(btn));
+    });
+
+    window.addEventListener('town:cafe-jukebox-track', (e: Event) => {
+      const ce = e as CustomEvent<{ mood?: string }>;
+      const targetBtn = document.querySelector<HTMLButtonElement>(
+        `.cafe-track-btn[data-track-mood="${ce.detail?.mood || 'night'}"]`
+      );
+      if (targetBtn) selectJukeboxTrack(targetBtn);
+    });
+
+    document.getElementById('btn-locate-jukebox')?.addEventListener('click', () => {
+      sfx.discSpin();
+      window.dispatchEvent(new CustomEvent('town:locate', { detail: { id: 'vinyl-jukebox' } }));
+    });
+
+    // 6. VIP Coffee Chat Topic Switcher
+    const vipTopics = document.querySelectorAll<HTMLButtonElement>('.vip-chat-topic');
+    const vipPreview = document.getElementById('vip-message-preview');
+    const vipMailto = document.getElementById('vip-mailto-link') as HTMLAnchorElement | null;
+
+    vipTopics.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        sfx.select();
+        vipTopics.forEach((b) => {
+          b.classList.remove('is-selected', 'border-emerald-400', 'bg-emerald-500/20');
+          b.classList.add('border-emerald-500/25', 'bg-black/30');
+        });
+        btn.classList.remove('border-emerald-500/25', 'bg-black/30');
+        btn.classList.add('is-selected', 'border-emerald-400', 'bg-emerald-500/20');
+
+        const subj = btn.dataset.subject || 'Coffee Chat with Zulfan';
+        const body = btn.dataset.body || '';
+        if (vipPreview) vipPreview.textContent = `"${body}"`;
+        if (vipMailto) {
+          const baseEmail = vipMailto.href.split('?')[0];
+          vipMailto.href = `${baseEmail}?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(body)}`;
+        }
+        window.dispatchEvent(new CustomEvent('town:locate', { detail: { id: 'vip-booth' } }));
+      });
+    });
+
+    // 7. Global Keyboard Shortcuts on /cafe
+    window.addEventListener('keydown', (e) => {
+      const tag = (e.target as HTMLElement | null)?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || e.metaKey || e.ctrlKey || e.altKey) return;
+      const key = e.key.toLowerCase();
+      if (key === 'b') {
+        document.getElementById('cafe-custom-brewer')?.scrollIntoView({ behavior: 'smooth' });
+      } else if (key === 'm') {
+        document.getElementById('cafe-menu-grid')?.scrollIntoView({ behavior: 'smooth' });
+      } else if (key === 'j') {
+        document.getElementById('cafe-jukebox-section')?.scrollIntoView({ behavior: 'smooth' });
+      } else if (key === 'c') {
+        document.getElementById('cafe-vip-lounge')?.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  }
+
+  initCafePage();
+</script>

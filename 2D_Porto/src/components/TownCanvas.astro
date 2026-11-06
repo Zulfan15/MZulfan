@@ -30,6 +30,7 @@ const dataPlaces = {
   reception: { name: 'Poké Center', href: '/reception' },
   mart: { name: 'Poké Mart', href: '/mart' },
   tower: { name: 'Tech Tower', href: '/tower' },
+  cafe: { name: 'Poké-Café & Bar', href: '/cafe' },
 };
 
 const githubUrl = profile.socials.find((s) => s.label === 'GitHub')?.url || 'https://github.com/Zulfan15';
@@ -57,8 +58,8 @@ const dataPlaceRooms = {
   data-places={JSON.stringify(dataPlaces)}
   data-links={JSON.stringify(dataLinks)}
   data-place-rooms={JSON.stringify(dataPlaceRooms)}
-  data-scene={currentPlace === 'about' ? 'home' : currentPlace === 'dev' ? 'dev' : currentPlace === 'lab' ? 'lab' : currentPlace === 'arcade' ? 'arcade' : currentPlace === 'reception' ? 'reception' : currentPlace === 'mart' ? 'mart' : currentPlace === 'tower' ? 'tower' : 'town'}
-  data-retro={currentPlace === 'about' || currentPlace === 'dev' || currentPlace === 'lab' || currentPlace === 'arcade' || currentPlace === 'reception' || currentPlace === 'mart' || currentPlace === 'tower' ? '' : undefined}
+  data-scene={currentPlace === 'about' ? 'home' : currentPlace === 'dev' ? 'dev' : currentPlace === 'lab' ? 'lab' : currentPlace === 'arcade' ? 'arcade' : currentPlace === 'reception' ? 'reception' : currentPlace === 'mart' ? 'mart' : currentPlace === 'tower' ? 'tower' : currentPlace === 'cafe' ? 'cafe' : 'town'}
+  data-retro={currentPlace === 'about' || currentPlace === 'dev' || currentPlace === 'lab' || currentPlace === 'arcade' || currentPlace === 'reception' || currentPlace === 'mart' || currentPlace === 'tower' || currentPlace === 'cafe' ? '' : undefined}
 >
   <h2 id="town-title" class="visually-hidden">Interactive Town Map</h2>
   <p id="town-help" class="visually-hidden">
@@ -91,6 +92,8 @@ const dataPlaceRooms = {
           ? '🏪 Poké Mart'
           : currentPlace === 'tower'
           ? '🏢 Tech Tower'
+          : currentPlace === 'cafe'
+          ? '☕ Poké-Café & Bar'
           : '📍 Town Square'}
       </span>
       <span class="town-hud-badge">LIVE 2D</span>
@@ -140,6 +143,8 @@ const dataPlaceRooms = {
                 ? '🏪 Poké Mart'
                 : currentPlace === 'tower'
                 ? '🏢 Tech Tower'
+                : currentPlace === 'cafe'
+                ? '☕ Poké-Café & Bar'
                 : '📍 Town Square'}
             </span>
           </div>
@@ -322,6 +327,8 @@ const dataPlaceRooms = {
         ? '🏪 Poké Mart'
         : currentPlace === 'tower'
         ? '🏢 Tech Tower'
+        : currentPlace === 'cafe'
+        ? '☕ Café & Bar'
         : '📍 Town Square'}
     </span>
     <span class="town-hud-badge">LIVE 2D</span>
@@ -505,6 +512,37 @@ const dataPlaceRooms = {
           <span class="town-label__text">Lounge</span>
         </button>
       </>
+    ) : currentPlace === 'cafe' ? (
+      <>
+        <button type="button" class="town-label town-label--npc" data-id="barista" aria-label="Talk to Master Barista Rio">
+          <span class="town-label__icon" aria-hidden="true">☕</span>
+          <span class="town-label__text">Barista Rio</span>
+        </button>
+        <button type="button" class="town-label town-label--npc" data-id="alcremie" aria-label="Greet Alcremie Pastry Mascot">
+          <span class="town-label__icon" aria-hidden="true">🍓</span>
+          <span class="town-label__text">Alcremie</span>
+        </button>
+        <button type="button" class="town-label" data-id="vinyl-jukebox" aria-label="Play Lo-Fi Vinyl Jukebox">
+          <span class="town-label__icon" aria-hidden="true">🎵</span>
+          <span class="town-label__text">Vinyl Jukebox</span>
+        </button>
+        <button type="button" class="town-label" data-id="pastry-case" aria-label="Inspect Castelia Cones & Pastries">
+          <span class="town-label__icon" aria-hidden="true">🍦</span>
+          <span class="town-label__text">Pastry Case</span>
+        </button>
+        <button type="button" class="town-label" data-id="roast-board" aria-label="Inspect Specialty Dev Roasts">
+          <span class="town-label__icon" aria-hidden="true">🫘</span>
+          <span class="town-label__text">Roast Lab</span>
+        </button>
+        <button type="button" class="town-label" data-id="vip-booth" aria-label="Sit at VIP Coffee Chat Booth">
+          <span class="town-label__icon" aria-hidden="true">💬</span>
+          <span class="town-label__text">VIP Booth</span>
+        </button>
+        <button type="button" class="town-label town-label--coffee" data-id="craft-tap" aria-label="Pour Nitro Cold Brew & Elixirs">
+          <span class="town-label__icon" aria-hidden="true">🍹</span>
+          <span class="town-label__text">Craft Tap</span>
+        </button>
+      </>
     ) : (
       <>
         <button type="button" class="town-label town-label--building" data-id="home" aria-label="Walk to Home & Studio">
@@ -639,7 +677,7 @@ const dataPlaceRooms = {
     <button
       class="town-guide__toggle"
       type="button"
-      aria-expanded={currentPlace === 'dev' || currentPlace === 'lab' || currentPlace === 'reception' || currentPlace === 'mart' || currentPlace === 'tower' ? 'true' : 'false'}
+      aria-expanded={currentPlace === 'dev' || currentPlace === 'lab' || currentPlace === 'reception' || currentPlace === 'mart' || currentPlace === 'tower' || currentPlace === 'cafe' ? 'true' : 'false'}
       aria-controls="town-guide-card"
       data-town-guide-toggle=""
     >
@@ -651,12 +689,12 @@ const dataPlaceRooms = {
       id="town-guide-card"
       role="region"
       aria-labelledby="town-guide-title"
-      hidden={currentPlace === 'dev' || currentPlace === 'lab' || currentPlace === 'reception' || currentPlace === 'mart' || currentPlace === 'tower' ? undefined : ''}
+      hidden={currentPlace === 'dev' || currentPlace === 'lab' || currentPlace === 'reception' || currentPlace === 'mart' || currentPlace === 'tower' || currentPlace === 'cafe' ? undefined : ''}
       data-town-guide-card=""
     >
       <div class="town-guide__body">
         <strong id="town-guide-title" data-town-guide-title="">
-          {currentPlace === 'about' ? 'CRATE & CLOSET' : currentPlace === 'dev' ? 'DEV CENTER' : currentPlace === 'lab' ? 'RESEARCH LAB' : currentPlace === 'arcade' ? 'Arcade' : currentPlace === 'reception' ? 'POKÉ CENTER · FRONT DESK' : currentPlace === 'mart' ? 'POKÉ MART · SERVICES & INVENTORY' : currentPlace === 'tower' ? 'TECH TOWER · INNOVATION & ENTERPRISE HQ' : 'Town Square'}
+          {currentPlace === 'about' ? 'CRATE & CLOSET' : currentPlace === 'dev' ? 'DEV CENTER' : currentPlace === 'lab' ? 'RESEARCH LAB' : currentPlace === 'arcade' ? 'Arcade' : currentPlace === 'reception' ? 'POKÉ CENTER · FRONT DESK' : currentPlace === 'mart' ? 'POKÉ MART · SERVICES & INVENTORY' : currentPlace === 'tower' ? 'TECH TOWER · INNOVATION & ENTERPRISE HQ' : currentPlace === 'cafe' ? 'POKÉ-CAFÉ & DEVELOPER ROASTERY BAR' : 'Town Square'}
         </strong>
         <p data-town-guide-text="">
           {currentPlace === 'about'
@@ -673,6 +711,8 @@ const dataPlaceRooms = {
             ? "Welcome to Zulfan's Poké Mart! Browse software engineering services, inspect tech stack TMs, grab developer potions, or pick up Zulfan's official CV. Talk to Clerk Kevin to discuss a project. Step on the door mat to exit."
             : currentPlace === 'tower'
             ? "Welcome to Tech Tower HQ! Explore 4 floors of robotics, distributed cloud architecture, and industrial R&D. Talk to Xurkitree AI Host at the reception, inspect the ESP32 Robotics workshop, explore the NOC server racks, or take the executive elevator to switch floors. Step on the door mat to exit."
+            : currentPlace === 'cafe'
+            ? "Welcome to Poké-Café & Developer Roastery Bar! Order a custom Dev Blend from Master Barista Rio, greet Alcremie for a Castelia Cone boost, spin lo-fi vinyl records on the Jukebox, or book a 1-on-1 Coffee Chat at the VIP Booth. Step on the door mat to exit."
             : "An interactive pixel-art town. Walk into buildings to explore projects, lab research, and dev logs. Inspect social runes or talk to the Digital Twin."}
         </p>
       </div>

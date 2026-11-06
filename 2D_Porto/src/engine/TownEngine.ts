@@ -82,6 +82,16 @@ import {
   createTowerBackgroundCanvas,
   renderTowerAnimations,
 } from './towerScene';
+import {
+  CAFE_COLS,
+  CAFE_ROWS,
+  CAFE_SPAWN,
+  CAFE_COLLISION,
+  CAFE_PROPS,
+  createCafeBackgroundCanvas,
+  renderCafeAnimations,
+  triggerCafeBrewAnimation,
+} from './cafeScene';
 import { RESHIRAM_IMAGE_SRC } from './reshiramSprite';
 import { ZEKROM_IMAGE_SRC } from './zekromSprite';
 import { GIRATINA_IMAGE_SRC } from './giratinaSprite';
@@ -193,7 +203,7 @@ export class TownEngine {
   private ctx: CanvasRenderingContext2D;
   private map: TownMap;
   private callbacks: EngineCallbacks;
-  private currentScene: 'town' | 'home' | 'dev' | 'lab' | 'arcade' | 'reception' | 'mart' | 'tower' = 'town';
+  private currentScene: 'town' | 'home' | 'dev' | 'lab' | 'arcade' | 'reception' | 'mart' | 'tower' | 'cafe' = 'town';
   private homeFloor: '1F' | '2F' = '1F';
   public activeTowerFloor: '1F' | '2F' | '3F' | '4F' = '1F';
   private devBackgroundCanvas: HTMLCanvasElement | null = null;
@@ -223,6 +233,7 @@ export class TownEngine {
   private receptionBackgroundCanvas: HTMLCanvasElement | null = null;
   private martBackgroundCanvas: HTMLCanvasElement | null = null;
   private towerBackgroundCanvas: HTMLCanvasElement | null = null;
+  private cafeBackgroundCanvas: HTMLCanvasElement | null = null;
   private townBackgroundCanvas: HTMLCanvasElement | null = null;
   public townAtmosphere: TownAtmosphere = 'day';
   public weather: TownWeather = 'petals';
@@ -359,6 +370,13 @@ export class TownEngine {
       this.playerDir = TOWER_SPAWN.dir;
       this.cameraX = (TOWER_COLS * TILE_SIZE) / 2;
       this.cameraY = (TOWER_ROWS * TILE_SIZE) / 2;
+    } else if (initialSpawn === 'cafe' || initialSpawn === 'bar' || initialSpawn === 'kiosk') {
+      this.currentScene = 'cafe';
+      this.playerPos = { x: CAFE_SPAWN.x, y: CAFE_SPAWN.y };
+      this.playerTarget = { x: CAFE_SPAWN.x, y: CAFE_SPAWN.y };
+      this.playerDir = CAFE_SPAWN.dir;
+      this.cameraX = (CAFE_COLS * TILE_SIZE) / 2;
+      this.cameraY = (CAFE_ROWS * TILE_SIZE) / 2;
     } else {
       this.currentScene = 'town';
       let spawnX = 22;
@@ -1383,6 +1401,14 @@ export class TownEngine {
       this.defaultZoom = Math.max(Math.min(zoomW, zoomH), 1.8 * dpr);
       this.cameraX = (TOWER_COLS * TILE_SIZE) / 2;
       this.cameraY = (TOWER_ROWS * TILE_SIZE) / 2;
+    } else if (this.currentScene === 'cafe') {
+      const targetW = CAFE_COLS * TILE_SIZE * 1.05;
+      const targetH = CAFE_ROWS * TILE_SIZE * 1.05;
+      const zoomW = this.canvas.width / targetW;
+      const zoomH = this.canvas.height / targetH;
+      this.defaultZoom = Math.max(Math.min(zoomW, zoomH), 1.8 * dpr);
+      this.cameraX = (CAFE_COLS * TILE_SIZE) / 2;
+      this.cameraY = (CAFE_ROWS * TILE_SIZE) / 2;
     } else {
       const targetW = this.map.w * TILE_SIZE * 1.05;
       const zoomW = this.canvas.width / targetW;
@@ -1963,6 +1989,13 @@ export class TownEngine {
     };
     window.addEventListener('town:mart-cash-anim', onMartCashAnim);
 
+    const onCafeBrewAnim = (e: Event) => {
+      const ce = e as CustomEvent<{ text?: string }>;
+      triggerCafeBrewAnimation(ce.detail?.text || 'FRESH BREW! +100 FOCUS');
+      this.wake();
+    };
+    window.addEventListener('town:cafe-brew-anim', onCafeBrewAnim);
+
     this.unbindEvents.push(
       () => window.removeEventListener('keydown', onKeyDown),
       () => window.removeEventListener('keyup', onKeyUp),
@@ -1989,7 +2022,8 @@ export class TownEngine {
       () => window.removeEventListener('town:tower-floor', onTowerFloor),
       () => window.removeEventListener('town:reception-heal-anim', onReceptionHeal),
       () => window.removeEventListener('town:claim-lucky-egg', onLuckyEgg),
-      () => window.removeEventListener('town:mart-cash-anim', onMartCashAnim)
+      () => window.removeEventListener('town:mart-cash-anim', onMartCashAnim),
+      () => window.removeEventListener('town:cafe-brew-anim', onCafeBrewAnim)
     );
   }
 
@@ -2012,7 +2046,9 @@ export class TownEngine {
                   ? MART_COLS
                   : this.currentScene === 'tower'
                     ? TOWER_COLS
-                    : this.map.w;
+                    : this.currentScene === 'cafe'
+                      ? CAFE_COLS
+                      : this.map.w;
     const rows =
       this.currentScene === 'home'
         ? (is2F ? HOME2F_ROWS : HOME_ROWS)
@@ -2028,7 +2064,9 @@ export class TownEngine {
                   ? MART_ROWS
                   : this.currentScene === 'tower'
                     ? TOWER_ROWS
-                    : this.map.h;
+                    : this.currentScene === 'cafe'
+                      ? CAFE_ROWS
+                      : this.map.h;
     if (targetX < 0 || targetX >= cols || targetY < 0 || targetY >= rows) return;
     const start = this.isMoving ? this.playerTarget : this.playerPos;
     const collisionMap =
@@ -2048,7 +2086,9 @@ export class TownEngine {
                   ? MART_COLLISION
                   : this.currentScene === 'tower'
                     ? TOWER_COLLISION
-                    : this.getEffectiveCollisionMap();
+                    : this.currentScene === 'cafe'
+                      ? CAFE_COLLISION
+                      : this.getEffectiveCollisionMap();
 
     let destX = targetX;
     let destY = targetY;
@@ -2297,6 +2337,41 @@ export class TownEngine {
           break;
         default:
           const prop = MART_PROPS.find((p) => p.id === id);
+          if (prop) this.walkTo(prop.x, prop.y + prop.h);
+          break;
+      }
+      return;
+    }
+
+    if (this.currentScene === 'cafe') {
+      this.pendingTarget = id;
+      switch (id) {
+        case 'barista':
+          this.walkTo(6, 6);
+          break;
+        case 'alcremie':
+          this.walkTo(7, 6);
+          break;
+        case 'vinyl-jukebox':
+          this.walkTo(2, 5);
+          break;
+        case 'pastry-case':
+          this.walkTo(11, 5);
+          break;
+        case 'roast-board':
+          this.walkTo(2, 6);
+          break;
+        case 'vip-booth':
+          this.walkTo(11, 6);
+          break;
+        case 'craft-tap':
+          this.walkTo(12, 4);
+          break;
+        case 'exit':
+          this.walkTo(7, 11);
+          break;
+        default:
+          const prop = CAFE_PROPS.find((p) => p.id === id);
           if (prop) this.walkTo(prop.x, prop.y + prop.h);
           break;
       }
@@ -2807,6 +2882,10 @@ export class TownEngine {
     if (this.currentScene === 'tower') {
       if (x < 0 || x >= TOWER_COLS || y < 0 || y >= TOWER_ROWS) return false;
       return TOWER_COLLISION[y * TOWER_COLS + x] === 0;
+    }
+    if (this.currentScene === 'cafe') {
+      if (x < 0 || x >= CAFE_COLS || y < 0 || y >= CAFE_ROWS) return false;
+      return CAFE_COLLISION[y * CAFE_COLS + x] === 0;
     }
     return this.isTileWalkable(x, y);
   }
@@ -3605,6 +3684,35 @@ export class TownEngine {
         this.playerDir = 'right';
         this.interactFacing('drink-cooler');
         break;
+      // Poké-Café & Bar props
+      case 'barista':
+        this.playerDir = 'up';
+        this.interactFacing('barista');
+        break;
+      case 'alcremie':
+        this.playerDir = 'up';
+        this.interactFacing('alcremie');
+        break;
+      case 'vinyl-jukebox':
+        this.playerDir = 'up';
+        this.interactFacing('vinyl-jukebox');
+        break;
+      case 'pastry-case':
+        this.playerDir = 'up';
+        this.interactFacing('pastry-case');
+        break;
+      case 'roast-board':
+        this.playerDir = 'up';
+        this.interactFacing('roast-board');
+        break;
+      case 'vip-booth':
+        this.playerDir = 'up';
+        this.interactFacing('vip-booth');
+        break;
+      case 'craft-tap':
+        this.playerDir = 'right';
+        this.interactFacing('craft-tap');
+        break;
       // Dev Center props
       case 'eternatus':
         this.playerDir = 'right';
@@ -3657,6 +3765,16 @@ export class TownEngine {
       if (this.playerPos.x === 7 && this.playerPos.y === 11) {
         sfx.door();
         if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('town:respawn', '22,28');
+        this.callbacks.onNavigate('/');
+        return;
+      }
+      return;
+    }
+
+    if (this.currentScene === 'cafe') {
+      if (this.playerPos.x === 7 && this.playerPos.y === 11) {
+        sfx.door();
+        if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('town:respawn', '29,32');
         this.callbacks.onNavigate('/');
         return;
       }
@@ -4103,6 +4221,224 @@ export class TownEngine {
         } else if (prop.target.type === 'place' && prop.target.id) {
           sfx.door();
           if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('town:respawn', '22,28');
+          this.callbacks.onNavigate(prop.target.id === 'town' ? '/' : `/${prop.target.id}`);
+        }
+        this.wake();
+      }
+      return;
+    }
+
+    if (this.currentScene === 'cafe') {
+      const fx = this.playerPos.x + DIRS[this.playerDir].x;
+      const fy = this.playerPos.y + DIRS[this.playerDir].y;
+      const prop =
+        (activeTarget ? CAFE_PROPS.find((p) => p.id === activeTarget) : undefined) ||
+        CAFE_PROPS.find(
+          (p) =>
+            (fx >= p.x && fx < p.x + p.w && fy >= p.y && fy < p.y + p.h) ||
+            (this.playerPos.x >= p.x - 1 &&
+              this.playerPos.x <= p.x + p.w &&
+              this.playerPos.y >= p.y - 1 &&
+              this.playerPos.y <= p.y + p.h)
+        );
+
+      if (prop) {
+        sfx.select();
+        if (prop.target.type === 'event' && prop.target.name) {
+          if (prop.target.name === 'barista') {
+            sfx.espressoBrew();
+            triggerCafeBrewAnimation('WELCOME TO POKÉ-CAFÉ ☕');
+            if (this.callbacks.onBubble) {
+              this.callbacks.onBubble(
+                'Master Barista Rio · Poké-Café & Bar ☕',
+                'Welcome to the Poké-Café & Developer Roastery Bar! We craft specialty single-origin TypeScript espresso, TensorRT cold brews, and artisan Castelia Cones. Care to brew a custom blend or pull up a chair for a Coffee Chat with Zulfan?',
+                [
+                  {
+                    label: '☕ Brew Custom Dev Blend (+100 Energy)',
+                    onClick: () => {
+                      sfx.espressoBrew();
+                      this.callbacks.onRefill();
+                      triggerCafeBrewAnimation('DARK TYPESCRIPT ROAST! +100%');
+                      const el = document.getElementById('cafe-custom-brewer');
+                      el?.scrollIntoView({ behavior: 'smooth' });
+                    },
+                  },
+                  {
+                    label: '📋 Browse Artisanal Menu',
+                    onClick: () => {
+                      const el = document.getElementById('cafe-menu-grid');
+                      el?.scrollIntoView({ behavior: 'smooth' });
+                    },
+                  },
+                  {
+                    label: '💬 Book VIP Coffee Chat',
+                    onClick: () => {
+                      this.walkToObject('vip-booth');
+                      const el = document.getElementById('cafe-vip-lounge');
+                      el?.scrollIntoView({ behavior: 'smooth' });
+                    },
+                  },
+                ]
+              );
+            }
+          } else if (prop.target.name === 'alcremie') {
+            sfx.heal();
+            triggerCafeBrewAnimation('ALCREMIE SWEET CHARM! 🍓✨');
+            if (this.callbacks.onBubble) {
+              this.callbacks.onBubble(
+                'Alcremie · Pastry Mascot 🍓✨',
+                '"Alcre-cremie~!" Alcremie twirls happily and tops your drink with whipped strawberry cream and zero-bug sugar sprinkles! Stamina & coding focus restored to 100%!',
+                [
+                  {
+                    label: '🍦 Taste Castelia Cone (+25s Speed Boost)',
+                    onClick: () => {
+                      sfx.heal();
+                      this.callbacks.onRefill();
+                      this.activateCoffeeBoost(25);
+                      triggerCafeBrewAnimation('CASTELIA CONE RUSH! ⚡');
+                    },
+                  },
+                  {
+                    label: '🧁 Inspect Pastry Showcase',
+                    onClick: () => {
+                      this.walkToObject('pastry-case');
+                    },
+                  },
+                ]
+              );
+            }
+          } else if (prop.target.name === 'vinyl-jukebox') {
+            sfx.discSpin();
+            window.dispatchEvent(new CustomEvent('town:cafe-highlight', { detail: { id: 'vinyl-jukebox' } }));
+            if (this.callbacks.onBubble) {
+              this.callbacks.onBubble(
+                'Lo-Fi Vinyl Jukebox 🎵',
+                'Warm analog synthwaves & acoustic guitar tracks spinning at 33⅓ RPM. Switch the café ambiance between Morning Acoustic, Golden Sunset Lo-Fi, and Midnight Jazz!',
+                [
+                  {
+                    label: '🎵 Open Jukebox & Track Selector',
+                    onClick: () => {
+                      const el = document.getElementById('cafe-jukebox-section');
+                      el?.scrollIntoView({ behavior: 'smooth' });
+                    },
+                  },
+                  {
+                    label: '🌙 Switch to Midnight Jazz Vibe',
+                    onClick: () => {
+                      sfx.discSpin();
+                      window.dispatchEvent(new CustomEvent('town:cafe-jukebox-track', { detail: { mood: 'night' } }));
+                    },
+                  },
+                ]
+              );
+            }
+          } else if (prop.target.name === 'pastry-case') {
+            sfx.martChime();
+            window.dispatchEvent(new CustomEvent('town:cafe-highlight', { detail: { id: 'pastry-case', category: 'pastry' } }));
+            if (this.callbacks.onBubble) {
+              this.callbacks.onBubble(
+                'Castelia Cone & Poké Puff Showcase 🍦',
+                'Chilled glass cloches displaying Unova-famous Castelia Cones, Kalos Supreme Poké Puffs, Lumiose Galettes, and Old Gateau brain fuel for late-night debugging.',
+                [
+                  {
+                    label: '🧁 Filter Sweets & Pastries Menu',
+                    onClick: () => {
+                      window.dispatchEvent(new CustomEvent('town:cafe-filter', { detail: { category: 'pastry' } }));
+                      const el = document.getElementById('cafe-menu-grid');
+                      el?.scrollIntoView({ behavior: 'smooth' });
+                    },
+                  },
+                  {
+                    label: '🍦 Order Castelia Cone (+100 Energy)',
+                    onClick: () => {
+                      sfx.heal();
+                      this.callbacks.onRefill();
+                      triggerCafeBrewAnimation('CASTELIA CONE SERVED! 🍦');
+                    },
+                  },
+                ]
+              );
+            }
+          } else if (prop.target.name === 'roast-board') {
+            sfx.espressoBrew();
+            window.dispatchEvent(new CustomEvent('town:cafe-highlight', { detail: { id: 'roast-board', category: 'espresso' } }));
+            if (this.callbacks.onBubble) {
+              this.callbacks.onBubble(
+                'Specialty Dev Roasts & V60 Brew Lab 🫘',
+                "Small-batch copper roaster & Chemex pour-over station. Today's single-origin beans: Dark Roasted TypeScript, YOLOv11 TensorRT Shot (75 FPS), and Go Routine Pour-Over.",
+                [
+                  {
+                    label: '☕ Open Custom Blend Builder',
+                    onClick: () => {
+                      const el = document.getElementById('cafe-custom-brewer');
+                      el?.scrollIntoView({ behavior: 'smooth' });
+                    },
+                  },
+                  {
+                    label: '🔥 Filter Specialty Roasts',
+                    onClick: () => {
+                      window.dispatchEvent(new CustomEvent('town:cafe-filter', { detail: { category: 'espresso' } }));
+                      const el = document.getElementById('cafe-menu-grid');
+                      el?.scrollIntoView({ behavior: 'smooth' });
+                    },
+                  },
+                ]
+              );
+            }
+          } else if (prop.target.name === 'vip-booth') {
+            sfx.select();
+            window.dispatchEvent(new CustomEvent('town:cafe-highlight', { detail: { id: 'vip-booth' } }));
+            if (this.callbacks.onBubble) {
+              this.callbacks.onBubble(
+                'VIP Coffee Chat & Pairing Booth 💬',
+                'Reserved leather booth with dual monitors and warm pendant lighting. Grab a virtual espresso with Zulfan to discuss full-stack web roles, Edge AI research, or system architecture!',
+                [
+                  {
+                    label: '💬 Open Coffee Chat Scheduler',
+                    onClick: () => {
+                      const el = document.getElementById('cafe-vip-lounge');
+                      el?.scrollIntoView({ behavior: 'smooth' });
+                    },
+                  },
+                  {
+                    label: '📄 View Official CV (PDF)',
+                    href: '/cv/CV_Zulfan.pdf',
+                  },
+                ]
+              );
+            }
+          } else if (prop.target.name === 'craft-tap') {
+            sfx.espressoBrew();
+            window.dispatchEvent(new CustomEvent('town:cafe-highlight', { detail: { id: 'craft-tap', category: 'elixir' } }));
+            if (this.callbacks.onBubble) {
+              this.callbacks.onBubble(
+                'Nitro Cold Brew & Craft Mocktail Tap 🍹',
+                'Pressurized nitrogen cold brew & botanical night-bar elixirs: Kafka Event-Stream Tonic, Redis Lua Sub-Millisecond Fizz, and Berry Matcha Cloud.',
+                [
+                  {
+                    label: '🍹 Filter Night Bar & Cold Brews',
+                    onClick: () => {
+                      window.dispatchEvent(new CustomEvent('town:cafe-filter', { detail: { category: 'elixir' } }));
+                      const el = document.getElementById('cafe-menu-grid');
+                      el?.scrollIntoView({ behavior: 'smooth' });
+                    },
+                  },
+                  {
+                    label: '⚡ Pour Nitro Cold Brew (+20s Speed)',
+                    onClick: () => {
+                      sfx.espressoBrew();
+                      this.callbacks.onRefill();
+                      this.activateCoffeeBoost(20);
+                      triggerCafeBrewAnimation('NITRO COLD BREW! +20s BOOST');
+                    },
+                  },
+                ]
+              );
+            }
+          }
+        } else if (prop.target.type === 'place' && prop.target.id) {
+          sfx.door();
+          if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('town:respawn', '29,32');
           this.callbacks.onNavigate(prop.target.id === 'town' ? '/' : `/${prop.target.id}`);
         }
         this.wake();
@@ -5521,7 +5857,10 @@ export class TownEngine {
     if (sign) {
       sfx.select();
       if (this.callbacks.onBubble) {
-        let action: { label: string; href?: string; onClick?: () => void } | undefined;
+        let action:
+          | { label: string; href?: string; onClick?: () => void }
+          | { label: string; href?: string; onClick?: () => void }[]
+          | undefined;
         if (sign.action) {
           if (sign.action.kind === 'navigate') {
             action = { label: `Open ${sign.name}`, href: sign.action.route };
@@ -5530,12 +5869,20 @@ export class TownEngine {
             action = { label: `Open ${sign.name}`, onClick: () => this.callbacks.onOpenModal(t) };
           } else if (sign.action.kind === 'event') {
             const evt = sign.action.name;
-            action = {
-              label: '☕ Order Dev Roast',
-              onClick: () => {
-                document.dispatchEvent(new CustomEvent(`town:${evt}`));
+            action = [
+              {
+                label: '🚪 Enter Poké-Café & Bar (/cafe)',
+                href: '/cafe',
               },
-            };
+              {
+                label: '☕ Order Dev Roast (+100 Energy)',
+                onClick: () => {
+                  sfx.espressoBrew();
+                  this.callbacks.onRefill();
+                  document.dispatchEvent(new CustomEvent(`town:${evt}`));
+                },
+              },
+            ];
           }
         }
         this.callbacks.onBubble(sign.name, sign.lines.join(' '), action);
@@ -5617,24 +5964,34 @@ export class TownEngine {
         'Specialty roasts & Castelia Cones crafted fresh for devs & trainers!',
         '"Today\'s blend: Dark Roasted TypeScript with notes of React & zero runtime bugs!"',
       ];
-      const kioskAction = {
-        label: '☕ Minum Dev Roast (+100 Energy)',
-        onClick: () => {
-          sfx.heal();
-          this.callbacks.onRefill();
-          document.dispatchEvent(new CustomEvent('town:cafe-coffee'));
-          if (this.callbacks.onBubble) {
-            this.callbacks.onBubble(
-              'Poké-Café Barista Stand ☕',
-              'Kamu menikmati secangkir Dev Roast hangat! Aroma kopi TypeScript segar memulihkan stamina dan fokus kodingmu hingga 100%! ☕✨'
-            );
-          }
+      const kioskActions = [
+        {
+          label: '🚪 Enter Poké-Café & Bar (/cafe)',
+          href: '/cafe',
         },
-      };
+        {
+          label: '☕ Quick Sip Dev Roast (+100 Energy)',
+          onClick: () => {
+            sfx.espressoBrew();
+            this.callbacks.onRefill();
+            document.dispatchEvent(new CustomEvent('town:cafe-coffee'));
+            if (this.callbacks.onBubble) {
+              this.callbacks.onBubble(
+                'Poké-Café Barista Stand ☕',
+                'You enjoyed a warm cup of Dark Roasted TypeScript! Fresh espresso aroma restored your coding focus & stamina to 100%! Step inside the Café & Bar for custom blends, Lo-Fi Vinyl Jukebox & VIP Coffee Chats! ☕✨',
+                {
+                  label: '🚪 Step Inside Poké-Café & Bar',
+                  href: '/cafe',
+                }
+              );
+            }
+          },
+        },
+      ];
       if (this.callbacks.onBubble) {
-        this.callbacks.onBubble('Poké-Café Barista Stand ☕', kioskLines.join(' '), kioskAction);
+        this.callbacks.onBubble('Poké-Café Barista Stand ☕', kioskLines.join(' '), kioskActions);
       } else {
-        this.callbacks.onDialogue('Poké-Café Barista Stand ☕', kioskLines, kioskAction.onClick);
+        this.callbacks.onDialogue('Poké-Café Barista Stand ☕', kioskLines, () => this.callbacks.onNavigate('/cafe'));
       }
       this.wake();
       return;
@@ -6171,6 +6528,46 @@ export class TownEngine {
 
         btn.style.display = '';
         const obj = martLabels[id];
+        const worldX = (obj.x + obj.w / 2) * TILE_SIZE;
+        const worldY = (obj.y - (obj.lift ?? 0)) * TILE_SIZE;
+
+        const canvasX = this.canvas.width / 2 + (worldX - this.cameraX) * this.zoom;
+        const canvasY = this.canvas.height / 2 + (worldY - this.cameraY) * this.zoom;
+
+        const dpr = window.devicePixelRatio || 1;
+        const cssX = canvasX / dpr;
+        const cssY = canvasY / dpr;
+
+        btn.style.left = `${Math.round(cssX)}px`;
+        btn.style.top = `${Math.round(cssY)}px`;
+        btn.style.transform = '';
+        btn.style.visibility = 'visible';
+      });
+      return;
+    }
+
+    if (this.currentScene === 'cafe') {
+      const cafeLabels: Record<string, { x: number; y: number; w: number; h: number; lift?: number }> = {
+        barista: { x: 6, y: 3, w: 1, h: 1, lift: 1.1 },
+        alcremie: { x: 7, y: 3, w: 1, h: 1, lift: 1.1 },
+        'vinyl-jukebox': { x: 1, y: 3, w: 3, h: 2, lift: 0.75 },
+        'pastry-case': { x: 10, y: 3, w: 3, h: 2, lift: 0.75 },
+        'roast-board': { x: 1, y: 7, w: 3, h: 2, lift: 0.75 },
+        'vip-booth': { x: 10, y: 7, w: 3, h: 2, lift: 0.75 },
+        'craft-tap': { x: 13, y: 3, w: 1, h: 3, lift: 0.5 },
+      };
+
+      const buttons = container.querySelectorAll<HTMLButtonElement>('.town-label');
+      buttons.forEach((btn) => {
+        const id = btn.getAttribute('data-id');
+        if (!id || !cafeLabels[id]) {
+          btn.style.visibility = 'hidden';
+          btn.style.display = 'none';
+          return;
+        }
+
+        btn.style.display = '';
+        const obj = cafeLabels[id];
         const worldX = (obj.x + obj.w / 2) * TILE_SIZE;
         const worldY = (obj.y - (obj.lift ?? 0)) * TILE_SIZE;
 
@@ -6733,6 +7130,49 @@ export class TownEngine {
       ctx.drawImage(this.martBackgroundCanvas, 0, 0);
 
       renderMartAnimations(ctx, this.tick);
+
+      this.renderPathAndMarker(ctx);
+
+      const drawX =
+        (this.playerPos.x + (this.playerTarget.x - this.playerPos.x) * this.moveProgress) * TILE_SIZE;
+      const drawY =
+        (this.playerPos.y + (this.playerTarget.y - this.playerPos.y) * this.moveProgress) * TILE_SIZE;
+      const stepFrame = this.isMoving ? Math.floor(this.moveProgress * 4) : 0;
+
+      drawCharacter(ctx, this.playerPalette, this.playerDir, stepFrame, drawX, drawY, 1);
+
+      ctx.restore();
+
+      this.updateDomLabels();
+      return;
+    }
+
+    if (this.currentScene === 'cafe') {
+      this.cameraX = (CAFE_COLS * TILE_SIZE) / 2;
+      this.cameraY = (CAFE_ROWS * TILE_SIZE) / 2;
+
+      ctx.save();
+      ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+      ctx.fillStyle = '#140c08';
+      ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+      ctx.translate(this.canvas.width / 2, this.canvas.height / 2);
+      ctx.scale(this.zoom, this.zoom);
+      ctx.translate(-this.cameraX, -this.cameraY);
+
+      if (this.cameraShakeTime > 0) {
+        const shakeX = (Math.random() - 0.5) * this.cameraShakeIntensity;
+        const shakeY = (Math.random() - 0.5) * this.cameraShakeIntensity;
+        ctx.translate(shakeX, shakeY);
+      }
+
+      if (!this.cafeBackgroundCanvas) {
+        this.cafeBackgroundCanvas = createCafeBackgroundCanvas();
+      }
+      ctx.drawImage(this.cafeBackgroundCanvas, 0, 0);
+
+      renderCafeAnimations(ctx, this.tick);
 
       this.renderPathAndMarker(ctx);
 
