@@ -1,0 +1,1053 @@
+---
+import TownLayout from '../layouts/TownLayout.astro';
+import { profile } from '../lib/profile';
+---
+
+<TownLayout
+  title="Berry Garden & Sakura Conservatory — Muhammad Zulfan"
+  description="Explore Muhammad Zulfan's interactive Botanical Berry Plantation & Sakura Conservatory: plant, irrigate, and harvest 6 heirloom Pokémon berries, spin the Copper Berry Blender, and discover his cultivated engineering ecosystem."
+  place="garden"
+>
+  <div class="berry-conservatory space-y-8 pb-10">
+    <!-- ===================================================================== -->
+    <!-- 1. BOTANICAL CONSERVATORY & SAKURA ORCHARD HEADER BANNER              -->
+    <!-- ===================================================================== -->
+    <section
+      class="relative overflow-hidden rounded-2xl border-[3px] border-[#3f6212] bg-gradient-to-br from-[#14532d] via-[#166534] to-[#115e59] p-5 text-[#fefce8] shadow-[0_10px_0_#1a2e05,0_16px_32px_rgba(20,83,45,0.28)]"
+    >
+      <!-- Top Sunlit Glasshouse & Sakura Trim -->
+      <div
+        class="pointer-events-none absolute inset-x-0 top-0 h-2 bg-gradient-to-r from-[#f472b6] via-[#fde047] to-[#4ade80]"
+      >
+      </div>
+
+      <!-- Ambient Sakura & Sunbeam Glows -->
+      <div
+        class="pointer-events-none absolute -left-10 -top-10 h-44 w-44 rounded-full bg-pink-400/20 blur-2xl"
+      >
+      </div>
+      <div
+        class="pointer-events-none absolute -right-10 -bottom-10 h-44 w-44 rounded-full bg-lime-300/20 blur-2xl"
+      >
+      </div>
+
+      <div class="relative z-10 flex flex-wrap items-start justify-between gap-4 pt-1">
+        <div class="space-y-2">
+          <div class="inline-flex flex-wrap items-center gap-2">
+            <span
+              class="inline-flex items-center gap-1.5 rounded-full border-2 border-[#bbf7d0] bg-[#052e16]/85 px-3 py-0.5 font-mono text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#86efac]"
+            >
+              <span>🌸</span> BOTANICAL BERRY ORCHARD · SAKURA CONSERVATORY
+            </span>
+            <span
+              id="garden-master-badge"
+              class="hidden items-center gap-1 rounded-full border-2 border-[#fde047] bg-gradient-to-r from-[#ec4899] to-[#db2777] px-2.5 py-0.5 font-mono text-[10px] font-black uppercase tracking-wider text-white shadow"
+            >
+              🌺 MASTER BOTANIST SEAL
+            </span>
+          </div>
+
+          <h1
+            class="font-['Press_Start_2P',monospace] text-base leading-snug text-[#fefce8] drop-shadow-[0_2px_0_#052e16] sm:text-lg"
+          >
+            🌱 BERRY GARDEN & ORCHARD
+          </h1>
+
+          <p class="max-w-xl text-xs leading-relaxed text-[#dcfce7]/95 sm:text-sm">
+            Welcome to the sunlit <strong class="text-[#fde047]">Sakura Conservatory</strong>! Tend
+            6 irrigated raised-soil beds with <strong class="text-[#fbcfe8]">Master Botanist Flora</strong>
+            and <strong class="text-[#86efac]">Shaymin</strong> — plant heirloom seeds, water with the
+            <strong class="text-[#fde047]">Sprayduck Can</strong>, harvest fresh berries for
+            <strong>Poké Balls</strong>, and spin the <strong class="text-[#fde047]">Copper Berry Blender</strong>!
+          </p>
+        </div>
+
+        <!-- Live Harvest Basket & Poké Ball Bag Counter -->
+        <div
+          class="flex shrink-0 flex-col items-end rounded-xl border-2 border-[#86efac]/80 bg-[#052e16]/90 px-4 py-2.5 shadow-inner"
+        >
+          <span class="font-mono text-[10px] font-bold uppercase tracking-widest text-[#86efac]">
+            🧺 BERRY HARVEST BASKET
+          </span>
+          <div class="mt-0.5 flex items-baseline gap-2">
+            <span
+              id="garden-harvest-count"
+              class="font-['Press_Start_2P',monospace] text-lg text-[#fde047] drop-shadow-[0_2px_0_#14532d]"
+              >12</span
+            >
+            <span class="font-mono text-[10px] font-extrabold text-[#bbf7d0]">BERRIES</span>
+          </div>
+          <span id="garden-pokeballs-label" class="mt-1 font-mono text-[10px] text-[#fbcfe8]">
+            🎒 Bag: 10 Poké Balls · 0 Blends
+          </span>
+        </div>
+      </div>
+
+      <!-- 4 Quick Conservatory Walk Buttons -->
+      <div class="relative z-10 mt-4 grid grid-cols-2 gap-2 pt-2 sm:grid-cols-4">
+        <button
+          type="button"
+          data-garden-nav="plot-oran"
+          data-scroll-to="plantation-sim-section"
+          class="flex items-center gap-2 rounded-xl border-2 border-[#65a30d] bg-gradient-to-b from-[#fefce8] to-[#ecfccb] px-3 py-2 text-left text-[#1a2e05] shadow-[0_3px_0_#365314] transition hover:-translate-y-0.5 hover:from-white hover:to-[#fef08a]"
+        >
+          <span class="text-base">🌱</span>
+          <div class="min-w-0">
+            <div class="truncate font-mono text-[11px] font-black uppercase">6-Plot Berry Farm</div>
+            <div class="truncate text-[10px] font-semibold text-[#3f6212]">Plant & Harvest [F]</div>
+          </div>
+        </button>
+
+        <button
+          type="button"
+          data-garden-nav="watering-well"
+          data-scroll-to="plantation-sim-section"
+          class="flex items-center gap-2 rounded-xl border-2 border-[#0284c7] bg-gradient-to-b from-[#f0f9ff] to-[#e0f2fe] px-3 py-2 text-left text-[#0c4a6e] shadow-[0_3px_0_#0369a1] transition hover:-translate-y-0.5 hover:from-white hover:to-[#bae6fd]"
+        >
+          <span class="text-base">💧</span>
+          <div class="min-w-0">
+            <div class="truncate font-mono text-[11px] font-black uppercase">Sprayduck Well</div>
+            <div class="truncate text-[10px] font-semibold text-[#0369a1]">Irrigate Beds [W]</div>
+          </div>
+        </button>
+
+        <button
+          type="button"
+          data-garden-nav="berry-blender"
+          data-scroll-to="berry-blender-section"
+          class="flex items-center gap-2 rounded-xl border-2 border-[#d97706] bg-gradient-to-b from-[#fffbeb] to-[#fef3c7] px-3 py-2 text-left text-[#451a03] shadow-[0_3px_0_#92400e] transition hover:-translate-y-0.5 hover:from-white hover:to-[#fde68a]"
+        >
+          <span class="text-base">🍯</span>
+          <div class="min-w-0">
+            <div class="truncate font-mono text-[11px] font-black uppercase">Berry Blender</div>
+            <div class="truncate text-[10px] font-semibold text-[#92400e]">Craft Pokéblocks [B]</div>
+          </div>
+        </button>
+
+        <button
+          type="button"
+          data-garden-nav="shaymin-npc"
+          data-scroll-to="berry-compendium-section"
+          class="flex items-center gap-2 rounded-xl border-2 border-[#db2777] bg-gradient-to-b from-[#fdf2f8] to-[#fce7f3] px-3 py-2 text-left text-[#831843] shadow-[0_3px_0_#9d174d] transition hover:-translate-y-0.5 hover:from-white hover:to-[#fbcfe8]"
+        >
+          <span class="text-base">📖</span>
+          <div class="min-w-0">
+            <div class="truncate font-mono text-[11px] font-black uppercase">Botanical Guide</div>
+            <div class="truncate text-[10px] font-semibold text-[#9d174d]">Cultivated Tech [C]</div>
+          </div>
+        </button>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- 2. INTERACTIVE 6-PLOT BERRY PLANTATION SIMULATOR                      -->
+    <!-- ===================================================================== -->
+    <section
+      id="plantation-sim-section"
+      class="scroll-mt-6 overflow-hidden rounded-2xl border-[3px] border-[#4d7c0f] bg-[#fcfaf2] shadow-[0_8px_0_#365314,0_12px_28px_rgba(20,83,45,0.16)]"
+    >
+      <!-- Cedar & Leaf Header -->
+      <div
+        class="flex flex-wrap items-center justify-between gap-3 border-b-[3px] border-[#4d7c0f] bg-gradient-to-r from-[#14532d] via-[#15803d] to-[#14532d] px-5 py-3.5 text-[#fefce8]"
+      >
+        <div class="flex items-center gap-2.5">
+          <span
+            class="flex h-8 w-8 items-center justify-center rounded-lg border-2 border-[#fde047] bg-[#365314] text-base shadow"
+            >🌱</span
+          >
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="font-mono text-xs font-black uppercase tracking-wider text-[#fef08a] sm:text-sm">
+                LIVE 6-BED BERRY PLANTATION · IRRIGATION & HARVEST
+              </h2>
+              <span
+                id="orchard-weather-pill"
+                class="rounded-full border border-[#86efac]/60 bg-[#052e16] px-2 py-0.5 font-mono text-[10px] font-extrabold text-[#86efac]"
+                >☀️ SUNLIT CONSERVATORY</span
+              >
+            </div>
+            <p class="text-[11px] text-[#dcfce7]/90">
+              Select a seed strain below, then water, mulch, and harvest each raised soil bed! Every harvest adds <strong>+2 Poké Balls</strong> to your bag.
+            </p>
+          </div>
+        </div>
+
+        <!-- Global Orchard Action Buttons -->
+        <div class="flex flex-wrap items-center gap-1.5">
+          <button
+            type="button"
+            id="btn-water-all"
+            class="rounded-lg border-2 border-[#38bdf8] bg-[#0284c7] px-2.5 py-1 font-mono text-[10px] font-extrabold text-white shadow-[0_2px_0_#075985] transition hover:bg-[#0369a1] active:translate-y-0.5"
+          >
+            💧 Sprayduck All
+          </button>
+          <button
+            type="button"
+            id="btn-ripen-all"
+            class="rounded-lg border-2 border-[#fde047] bg-[#ca8a04] px-2.5 py-1 font-mono text-[10px] font-extrabold text-[#fefce8] shadow-[0_2px_0_#713f12] transition hover:bg-[#a16207] active:translate-y-0.5"
+          >
+            🌞 Sunbeam Ripen All
+          </button>
+          <button
+            type="button"
+            id="btn-harvest-all"
+            class="rounded-lg border-2 border-[#bbf7d0] bg-[#16a34a] px-2.5 py-1 font-mono text-[10px] font-extrabold text-white shadow-[0_2px_0_#14532d] transition hover:bg-[#15803d] active:translate-y-0.5"
+          >
+            🧺 Harvest All Ripe
+          </button>
+        </div>
+      </div>
+
+      <!-- Seed Pouch Selector Bar (6 Berry Cultivars) -->
+      <div class="border-b-2 border-[#d9cfb8] bg-[#f3ead6] px-4 py-3">
+        <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
+          <span class="font-mono text-[10px] font-black uppercase tracking-wider text-[#365314]">
+            🌰 HEIRLOOM SEED POUCH — SELECT BERRY STRAIN TO PLANT:
+          </span>
+          <span id="selected-seed-indicator" class="font-mono text-[11px] font-extrabold text-[#15803d]">
+            Selected: 🍊 Oran Berry (+10 HP · Cobalt Strain)
+          </span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-6" id="seed-selector-grid">
+          <!-- Populated dynamically by script -->
+        </div>
+      </div>
+
+      <!-- 6 Interactive Raised-Timber Berry Beds Grid -->
+      <div class="bg-[radial-gradient(circle_at_center,#f7f2e4_0%,#ede3c8_100%)] p-4 sm:p-5">
+        <div id="plantation-plots-grid" class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <!-- 6 Plots rendered dynamically by script -->
+        </div>
+
+        <!-- Live Greenhouse Log -->
+        <div
+          class="mt-4 rounded-xl border-2 border-[#65a30d] bg-[#ecfccb]/70 px-4 py-2.5 font-mono text-xs text-[#1a2e05] shadow-inner"
+        >
+          <div class="flex items-center justify-between">
+            <span class="font-black uppercase text-[#365314]">🌸 CONSERVATORY FIELD LOG:</span>
+            <span class="text-[10px] font-bold text-[#4d7c0f]">Synced with 2D Plantation Canvas</span>
+          </div>
+          <p id="garden-status-log" class="mt-1 text-xs font-semibold text-[#14532d]">
+            👩‍🌾 Master Botanist Flora: "All 6 raised timber beds are irrigated and ready! Click any ripe bush to harvest fresh berries."
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- 3. HOENN COPPER BERRY BLENDER & POKÉBLOCK ARTISAN LAB                 -->
+    <!-- ===================================================================== -->
+    <section
+      id="berry-blender-section"
+      class="scroll-mt-6 overflow-hidden rounded-2xl border-[3px] border-[#b45309] bg-[#fcfaf2] shadow-[0_8px_0_#78350f,0_12px_28px_rgba(120,53,15,0.16)]"
+    >
+      <div
+        class="flex flex-wrap items-center justify-between gap-2 border-b-[3px] border-[#b45309] bg-gradient-to-r from-[#78350f] via-[#92400e] to-[#78350f] px-5 py-3.5 text-[#fef3c7]"
+      >
+        <div class="flex items-center gap-2.5">
+          <span
+            class="flex h-8 w-8 items-center justify-center rounded-lg border-2 border-[#fde047] bg-[#451a03] text-base shadow"
+            >🍯</span
+          >
+          <div>
+            <h2 class="font-mono text-xs font-black uppercase tracking-wider text-[#fef08a] sm:text-sm">
+              COPPER BERRY BLENDER & COMBEE HONEY APIARY
+            </h2>
+            <p class="text-[11px] text-[#fde68a]/90">
+              Drop 3 berries into the high-RPM Copper Blender to craft Pokéblocks, Sakura Poffins, and Developer Focus Jams!
+            </p>
+          </div>
+        </div>
+
+        <span
+          id="blender-rpm-pill"
+          class="rounded-full border-2 border-[#fbbf24] bg-[#451a03] px-3 py-1 font-mono text-[11px] font-black text-[#fef08a]"
+        >
+          ⚙️ 0 RPM · READY
+        </span>
+      </div>
+
+      <div class="grid grid-cols-1 gap-5 p-5 lg:grid-cols-12">
+        <!-- Left 7 Cols: Blender Chamber & Berry Slots -->
+        <div class="space-y-4 lg:col-span-7">
+          <div
+            class="rounded-2xl border-2 border-[#d97706] bg-gradient-to-b from-[#fffbeb] to-[#fef3c7] p-4 shadow-inner"
+          >
+            <div class="flex items-center justify-between">
+              <span class="font-mono text-[11px] font-black uppercase text-[#78350f]">
+                🌀 COPPER BLENDER CHAMBER (SELECT 3 BERRIES):
+              </span>
+              <button
+                type="button"
+                id="btn-clear-blender"
+                class="font-mono text-[10px] font-bold text-[#991b1b] underline hover:text-[#7f1d1d]"
+              >
+                Clear Slots
+              </button>
+            </div>
+
+            <!-- 3 Blender Slots + Spin Rotor -->
+            <div class="mt-3 flex items-center justify-center gap-3 sm:gap-5">
+              <div
+                id="blender-slot-0"
+                class="flex h-16 w-16 flex-col items-center justify-center rounded-2xl border-2 border-dashed border-[#b45309] bg-white/80 text-2xl shadow-sm"
+              >
+                🍊
+              </div>
+              <span class="font-mono text-lg font-black text-[#b45309]">+</span>
+              <div
+                id="blender-slot-1"
+                class="flex h-16 w-16 flex-col items-center justify-center rounded-2xl border-2 border-dashed border-[#b45309] bg-white/80 text-2xl shadow-sm"
+              >
+                🍋
+              </div>
+              <span class="font-mono text-lg font-black text-[#b45309]">+</span>
+              <div
+                id="blender-slot-2"
+                class="flex h-16 w-16 flex-col items-center justify-center rounded-2xl border-2 border-dashed border-[#b45309] bg-white/80 text-2xl shadow-sm"
+              >
+                🍏
+              </div>
+            </div>
+
+            <!-- Quick Add Berry Buttons -->
+            <div class="mt-4">
+              <div class="mb-1.5 font-mono text-[10px] font-bold uppercase text-[#78350f]">
+                Click a Berry to Add to Chamber:
+              </div>
+              <div class="flex flex-wrap gap-1.5" id="blender-ingredient-buttons">
+                <!-- Populated by script -->
+              </div>
+            </div>
+
+            <button
+              type="button"
+              id="btn-spin-blender"
+              class="mt-4 w-full rounded-xl border-2 border-[#78350f] bg-gradient-to-r from-[#d97706] via-[#f59e0b] to-[#d97706] px-4 py-2.5 font-mono text-xs font-black uppercase tracking-wider text-[#451a03] shadow-[0_4px_0_#78350f] transition hover:brightness-105 active:translate-y-0.5"
+            >
+              🌀 SPIN BERRY BLENDER (3,600 RPM) → CRAFT DELICACY!
+            </button>
+          </div>
+        </div>
+
+        <!-- Right 5 Cols: Latest Blended Result & Crafted Pantry -->
+        <div class=" flex flex-col justify-between rounded-2xl border-2 border-[#b45309] bg-[#f7ead2] p-4 lg:col-span-5">
+          <div>
+            <span class="font-mono text-[10px] font-black uppercase tracking-wider text-[#78350f]">
+              🍯 ARTISAN BLEND RESULT & BUFF:
+            </span>
+            <div
+              id="blender-result-card"
+              class="mt-2 rounded-xl border-2 border-[#d97706] bg-[#fffbeb] p-3.5 text-xs text-[#451a03] shadow-sm"
+            >
+              <div class="flex items-center gap-2.5">
+                <span class="text-2xl">✨</span>
+                <div>
+                  <div class="font-mono text-xs font-black text-[#78350f]">
+                    Gold Miracle Pokéblock Ready
+                  </div>
+                  <div class="text-[11px] text-[#92400e]">
+                    Spin the blender to infuse your berries with Combee honey!
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4 border-t border-[#d6be9c] pt-3">
+            <div class="mb-2 font-mono text-[10px] font-black uppercase text-[#78350f]">
+              🏺 CONSERVATORY PANTRY RECIPES:
+            </div>
+            <ul class="space-y-1.5 text-[11px] font-semibold text-[#5c3a1b]">
+              <li>✨ <strong>Any + Lum Berry:</strong> Rainbow Miracle Pokéblock (+50% 2D Speed Boost!)</li>
+              <li>🍋 <strong>Sitrus + Oran:</strong> Golden Citrus Poffin (+4 Poké Balls Gift!)</li>
+              <li>🍒 <strong>Cheri + Leppa:</strong> Spicy Overclock Espresso Jam (Ripens All Plots!)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- 4. BOTANICAL COMPENDIUM: CULTIVATED ENGINEERING ECOSYSTEM             -->
+    <!-- ===================================================================== -->
+    <section
+      id="berry-compendium-section"
+      class="scroll-mt-6 overflow-hidden rounded-2xl border-[3px] border-[#3f6212] bg-[#fcfaf2] shadow-[0_8px_0_#365314,0_12px_28px_rgba(20,83,45,0.16)]"
+    >
+      <div
+        class="flex flex-wrap items-center justify-between gap-2 border-b-[3px] border-[#3f6212] bg-gradient-to-r from-[#14532d] via-[#166534] to-[#14532d] px-5 py-3.5 text-[#fefce8]"
+      >
+        <div class="flex items-center gap-2.5">
+          <span
+            class="flex h-8 w-8 items-center justify-center rounded-lg border-2 border-[#fde047] bg-[#052e16] text-base shadow"
+            >📖</span
+          >
+          <div>
+            <h2 class="font-mono text-xs font-black uppercase tracking-wider text-[#fef08a] sm:text-sm">
+              BOTANICAL COMPENDIUM · CULTIVATED ENGINEERING ROOTS
+            </h2>
+            <p class="text-[11px] text-[#dcfce7]/90">
+              How Muhammad Zulfan cultivates Full-Stack Web, Computer Vision AI, CyberSecurity, and Academic Mentorship.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 gap-4 p-5 sm:grid-cols-2">
+        <article
+          class="rounded-2xl border-2 border-[#0284c7] bg-gradient-to-b from-[#f0f9ff] to-[#e0f2fe] p-4 shadow-[0_4px_0_#0369a1]"
+        >
+          <div class="flex items-center justify-between">
+            <span class="rounded bg-[#0284c7] px-2 py-0.5 font-mono text-[10px] font-black uppercase text-white">
+              🍊 ORAN CULTIVAR · FULL-STACK ROOTS
+            </span>
+            <span class="text-xl">🍊</span>
+          </div>
+          <h3 class="mt-2 font-mono text-sm font-black text-[#0c4a6e]">
+            Resilient Web & Interactive 2D Architecture
+          </h3>
+          <p class="mt-1 text-xs leading-relaxed text-[#075985]">
+            Just as Oran Berries restore core vitality, Zulfan builds dependable full-stack platforms using <strong>Laravel 12, React, Next.js, TypeScript, Astro, and Tailwind CSS</strong> — delivering responsive UIs and 60FPS interactive experiences.
+          </p>
+        </article>
+
+        <article
+          class="rounded-2xl border-2 border-[#ca8a04] bg-gradient-to-b from-[#fefce8] to-[#fef08a] p-4 shadow-[0_4px_0_#a16207]"
+        >
+          <div class="flex items-center justify-between">
+            <span class="rounded bg-[#ca8a04] px-2 py-0.5 font-mono text-[10px] font-black uppercase text-white">
+              🍋 SITRUS HYBRID · AI & COMPUTER VISION
+            </span>
+            <span class="text-xl">🍋</span>
+          </div>
+          <h3 class="mt-2 font-mono text-sm font-black text-[#422006]">
+            High-Yield YOLOv8, OpenCV & NLP Pipelines
+          </h3>
+          <p class="mt-1 text-xs leading-relaxed text-[#713f12]">
+            Cultivated through rigorous research at ITENAS Bandung: <strong>AeroScan YOLOv8</strong> aerial detection, automated <strong>OpenCV OMR exam grading</strong>, and <strong>IndoBERT / SVM</strong> classification models.
+          </p>
+        </article>
+
+        <article
+          class="rounded-2xl border-2 border-[#15803d] bg-gradient-to-b from-[#f0fdf4] to-[#dcfce7] p-4 shadow-[0_4px_0_#166534]"
+        >
+          <div class="flex items-center justify-between">
+            <span class="rounded bg-[#15803d] px-2 py-0.5 font-mono text-[10px] font-black uppercase text-white">
+              🍏 LUM MIRACLE · CYBERSECURITY & IOT
+            </span>
+            <span class="text-xl">🍏</span>
+          </div>
+          <h3 class="mt-2 font-mono text-sm font-black text-[#052e16]">
+            Huawei HCIA-Security V4.0 & ESP32 Telemetry
+          </h3>
+          <p class="mt-1 text-xs leading-relaxed text-[#14532d]">
+            Like the Lum Berry that cures every status condition, Zulfan safeguards systems with certified <strong>Huawei HCIA-Security V4.0</strong> firewall/VPN practices and real-time <strong>ESP32 + MQTT</strong> hardware integration.
+          </p>
+        </article>
+
+        <article
+          class="rounded-2xl border-2 border-[#be185d] bg-gradient-to-b from-[#fdf2f8] to-[#fce7f3] p-4 shadow-[0_4px_0_#9d174d]"
+        >
+          <div class="flex items-center justify-between">
+            <span class="rounded bg-[#be185d] px-2 py-0.5 font-mono text-[10px] font-black uppercase text-white">
+              🌸 SAKURA GROVE · 6× LAB MENTORSHIP
+            </span>
+            <span class="text-xl">🌸</span>
+          </div>
+          <h3 class="mt-2 font-mono text-sm font-black text-[#500724]">
+            ITENAS GPA 3.49/4.00 & IDEA FEST 3 Medalist
+          </h3>
+          <p class="mt-1 text-xs leading-relaxed text-[#831843]">
+            Nurtured 6 cohorts of Informatics students as a <strong>6× University Laboratory Assistant</strong> while earning the <strong>IDEA FEST 3 National Bronze Medal</strong> and graduating with a <strong>3.49 / 4.00 GPA</strong>.
+          </p>
+        </article>
+      </div>
+    </section>
+  </div>
+</TownLayout>
+
+<script>
+  interface BerryStrain {
+    id: string;
+    name: string;
+    icon: string;
+    color: string;
+    badgeBg: string;
+    yieldMin: number;
+    yieldMax: number;
+    effect: string;
+    flavor: string;
+  }
+
+  const BERRY_STRAINS: BerryStrain[] = [
+    {
+      id: 'oran',
+      name: 'Oran Berry',
+      icon: '🍊',
+      color: '#0284c7',
+      badgeBg: 'bg-sky-100 text-sky-900 border-sky-400',
+      yieldMin: 3,
+      yieldMax: 5,
+      effect: '+10 HP Restore · Balanced Cobalt Strain',
+      flavor: 'Earthy & crisp Full-Stack resilience',
+    },
+    {
+      id: 'sitrus',
+      name: 'Sitrus Berry',
+      icon: '🍋',
+      color: '#ca8a04',
+      badgeBg: 'bg-amber-100 text-amber-900 border-amber-400',
+      yieldMin: 3,
+      yieldMax: 6,
+      effect: '+25% HP Restore · Golden Hybrid',
+      flavor: 'Zesty Computer Vision precision',
+    },
+    {
+      id: 'cheri',
+      name: 'Cheri Berry',
+      icon: '🍒',
+      color: '#dc2626',
+      badgeBg: 'bg-red-100 text-red-900 border-red-400',
+      yieldMin: 4,
+      yieldMax: 6,
+      effect: 'Cures Paralysis · Spicy Reflex Crop',
+      flavor: 'Fast-acting IoT & ESP32 energy',
+    },
+    {
+      id: 'pecha',
+      name: 'Pecha Berry',
+      icon: '🍑',
+      color: '#db2777',
+      badgeBg: 'bg-pink-100 text-pink-900 border-pink-400',
+      yieldMin: 3,
+      yieldMax: 5,
+      effect: 'Cures Poison · Sakura Sweet Strain',
+      flavor: 'Clean UI/UX & bug-free sweetness',
+    },
+    {
+      id: 'leppa',
+      name: 'Leppa Berry',
+      icon: '🍎',
+      color: '#ea580c',
+      badgeBg: 'bg-orange-100 text-orange-900 border-orange-400',
+      yieldMin: 3,
+      yieldMax: 5,
+      effect: '+10 PP Restore · Stamina Crop',
+      flavor: 'High-concurrency backend endurance',
+    },
+    {
+      id: 'lum',
+      name: 'Lum Berry',
+      icon: '🍏',
+      color: '#16a34a',
+      badgeBg: 'bg-emerald-100 text-emerald-900 border-emerald-400',
+      yieldMin: 2,
+      yieldMax: 4,
+      effect: 'Miracle Cure-All · HCIA Aegis Strain',
+      flavor: 'Zero-trust security & all-status cure',
+    },
+  ];
+
+  interface PlotState {
+    id: number;
+    bedName: string;
+    strainId: string;
+    stage: 0 | 1 | 2 | 3; // 0=Empty Loam, 1=Sprout, 2=Flowering, 3=Ripe Berry Bush
+    moisture: number; // 0..100
+  }
+
+  const DEFAULT_PLOTS: PlotState[] = [
+    { id: 1, bedName: 'Bed I · North-West Loam', strainId: 'oran', stage: 3, moisture: 90 },
+    { id: 2, bedName: 'Bed II · Conservatory Sun', strainId: 'sitrus', stage: 3, moisture: 85 },
+    { id: 3, bedName: 'Bed III · Sakura Shade', strainId: 'pecha', stage: 2, moisture: 70 },
+    { id: 4, bedName: 'Bed IV · South-West Terrace', strainId: 'cheri', stage: 3, moisture: 80 },
+    { id: 5, bedName: 'Bed V · Spring Channel', strainId: 'leppa', stage: 2, moisture: 65 },
+    { id: 6, bedName: 'Bed VI · Royal Sanctuary', strainId: 'lum', stage: 3, moisture: 95 },
+  ];
+
+  function initBerryConservatory() {
+    let selectedSeedId = 'oran';
+    let harvestedTotal = Number(localStorage.getItem('garden:harvested') || '12');
+    let blendsCount = Number(localStorage.getItem('garden:blends') || '0');
+    let plots: PlotState[] = [];
+    try {
+      const saved = localStorage.getItem('garden:plots:v1');
+      plots = saved ? JSON.parse(saved) : JSON.parse(JSON.stringify(DEFAULT_PLOTS));
+    } catch {
+      plots = JSON.parse(JSON.stringify(DEFAULT_PLOTS));
+    }
+
+    let blenderSlots: string[] = ['oran', 'sitrus', 'lum'];
+
+    function getBagBalls(): number {
+      try {
+        const raw = localStorage.getItem('critterdex:v1');
+        if (raw) {
+          const d = JSON.parse(raw);
+          return Number(d.balls || 10);
+        }
+      } catch {
+        // ignore
+      }
+      return 10;
+    }
+
+    function addBagBalls(amount: number): number {
+      try {
+        const STORAGE_KEY = 'critterdex:v1';
+        let data: any = { seen: {}, caught: {}, steps: 0, balls: 10, quiz: [] };
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) data = JSON.parse(raw);
+        data.balls = (data.balls || 0) + amount;
+        data.met = true;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        return data.balls;
+      } catch {
+        return 10;
+      }
+    }
+
+    function emitGardenCanvasFx(text: string, color = '#fde047') {
+      window.dispatchEvent(
+        new CustomEvent('town:garden-fx', {
+          detail: { text, color },
+        })
+      );
+    }
+
+    function setFieldLog(html: string) {
+      const el = document.getElementById('garden-status-log');
+      if (el) el.innerHTML = html;
+    }
+
+    function saveAndRefreshHeader() {
+      localStorage.setItem('garden:harvested', String(harvestedTotal));
+      localStorage.setItem('garden:blends', String(blendsCount));
+      localStorage.setItem('garden:plots:v1', JSON.stringify(plots));
+
+      const hEl = document.getElementById('garden-harvest-count');
+      const bEl = document.getElementById('garden-pokeballs-label');
+      const badgeEl = document.getElementById('garden-master-badge');
+
+      if (hEl) hEl.textContent = String(harvestedTotal);
+      if (bEl) {
+        bEl.textContent = `🎒 Bag: ${getBagBalls()} Poké Balls · ${blendsCount} Blends`;
+      }
+      if (badgeEl && (harvestedTotal >= 20 || blendsCount >= 1)) {
+        badgeEl.classList.remove('hidden');
+        badgeEl.classList.add('inline-flex');
+      }
+    }
+
+    function getStrain(id: string): BerryStrain {
+      return BERRY_STRAINS.find((s) => s.id === id) || BERRY_STRAINS[0];
+    }
+
+    function renderSeedSelector() {
+      const grid = document.getElementById('seed-selector-grid');
+      const ind = document.getElementById('selected-seed-indicator');
+      if (!grid) return;
+      grid.innerHTML = '';
+
+      const activeStrain = getStrain(selectedSeedId);
+      if (ind) {
+        ind.textContent = `Selected: ${activeStrain.icon} ${activeStrain.name} (${activeStrain.effect})`;
+      }
+
+      BERRY_STRAINS.forEach((st) => {
+        const isSel = st.id === selectedSeedId;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = isSel
+          ? 'flex items-center gap-2 rounded-xl border-2 border-[#15803d] bg-[#14532d] p-2 text-left text-[#fefce8] shadow-[0_3px_0_#052e16] transition'
+          : 'flex items-center gap-2 rounded-xl border-2 border-[#c8bd9e] bg-[#fcfaf2] p-2 text-left text-[#1a2e05] shadow-sm transition hover:border-[#4d7c0f] hover:bg-[#ecfccb]';
+        btn.innerHTML = `
+          <span class="text-xl">${st.icon}</span>
+          <div class="min-w-0">
+            <div class="truncate font-mono text-[11px] font-black">${st.name}</div>
+            <div class="truncate text-[9px] ${isSel ? 'text-[#86efac]' : 'text-[#4d7c0f]'} font-bold">Yield: ${st.yieldMin}–${st.yieldMax}</div>
+          </div>
+        `;
+        btn.addEventListener('click', () => {
+          selectedSeedId = st.id;
+          renderSeedSelector();
+          setFieldLog(
+            `🌰 Selected <strong>${st.icon} ${st.name}</strong> seed pouch (${st.effect}). Click any empty bed to plant!`
+          );
+        });
+        grid.appendChild(btn);
+      });
+    }
+
+    function renderPlots() {
+      const grid = document.getElementById('plantation-plots-grid');
+      if (!grid) return;
+      grid.innerHTML = '';
+
+      plots.forEach((plot, idx) => {
+        const st = getStrain(plot.strainId);
+        const card = document.createElement('div');
+        const isRipe = plot.stage === 3;
+        const isEmpty = plot.stage === 0;
+
+        card.className = isRipe
+          ? 'flex flex-col justify-between rounded-2xl border-2 border-[#16a34a] bg-gradient-to-b from-[#f0fdf4] to-[#dcfce7] p-3.5 shadow-[0_5px_0_#15803d] transition'
+          : 'flex flex-col justify-between rounded-2xl border-2 border-[#8c5a2b] bg-gradient-to-b from-[#fffbeb] to-[#f3ead6] p-3.5 shadow-[0_5px_0_#5c3a1b] transition';
+
+        let stageVisual = '🕳️';
+        let stageLabel = 'Empty Tilled Loam';
+        let stagePct = 0;
+
+        if (plot.stage === 1) {
+          stageVisual = '🌱';
+          stageLabel = `Sprouting ${st.name}`;
+          stagePct = 35;
+        } else if (plot.stage === 2) {
+          stageVisual = '🌿🌸';
+          stageLabel = `Blooming ${st.name} Shrub`;
+          stagePct = 70;
+        } else if (plot.stage === 3) {
+          stageVisual = `🌳${st.icon}${st.icon}`;
+          stageLabel = `Ripe ${st.name} Bush!`;
+          stagePct = 100;
+        }
+
+        card.innerHTML = `
+          <div>
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-mono text-[10px] font-black uppercase tracking-wider text-[#5c3a1b]">${plot.bedName}</span>
+              <span class="rounded-full border px-2 py-0.5 font-mono text-[9px] font-extrabold ${
+                isRipe
+                  ? 'border-green-600 bg-green-700 text-white'
+                  : isEmpty
+                    ? 'border-stone-400 bg-stone-200 text-stone-700'
+                    : st.badgeBg
+              }">
+                ${isRipe ? '✨ READY TO HARVEST' : isEmpty ? 'SOIL READY' : st.name.toUpperCase()}
+              </span>
+            </div>
+
+            <!-- Raised Soil Bed Visual Box -->
+            <div class="mt-2.5 flex items-center justify-between rounded-xl border-2 border-[#78350f] bg-gradient-to-b from-[#522912] to-[#3b1d0c] px-3.5 py-3 text-[#fef3c7] shadow-inner">
+              <div>
+                <div class="font-mono text-xs font-black text-[#fef08a]">${stageLabel}</div>
+                <div class="mt-0.5 text-[10px] text-[#fde68a]/85">${isEmpty ? 'Click Plant Seed below' : st.flavor}</div>
+              </div>
+              <div class="text-2xl select-none">${stageVisual}</div>
+            </div>
+
+            <!-- Moisture & Growth Telemetry Bars -->
+            <div class="mt-2.5 space-y-1.5">
+              <div>
+                <div class="flex justify-between font-mono text-[10px] font-bold text-[#0369a1]">
+                  <span>💧 Soil Moisture</span>
+                  <span>${plot.moisture}%</span>
+                </div>
+                <div class="h-2 w-full overflow-hidden rounded-full bg-sky-950/20">
+                  <div class="h-full rounded-full bg-gradient-to-r from-[#0284c7] to-[#38bdf8] transition-all duration-300" style="width: ${plot.moisture}%"></div>
+                </div>
+              </div>
+
+              <div>
+                <div class="flex justify-between font-mono text-[10px] font-bold text-[#15803d]">
+                  <span>☀️ Growth Stage (${plot.stage}/3)</span>
+                  <span>${stagePct}%</span>
+                </div>
+                <div class="h-2 w-full overflow-hidden rounded-full bg-emerald-950/20">
+                  <div class="h-full rounded-full bg-gradient-to-r from-[#16a34a] via-[#4ade80] to-[#facc15] transition-all duration-300" style="width: ${stagePct}%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Plot Interactive Controls -->
+          <div class="mt-3 grid grid-cols-2 gap-1.5 border-t border-[#d6be9c] pt-2.5">
+            ${
+              isEmpty
+                ? `<button type="button" data-plot-action="plant" data-plot-idx="${idx}" class="col-span-2 rounded-lg border-2 border-[#15803d] bg-[#16a34a] px-3 py-1.5 font-mono text-[11px] font-black text-white shadow-[0_2px_0_#14532d] hover:bg-[#15803d]">
+                    🌱 Plant ${ getStrain(selectedSeedId).icon } ${ getStrain(selectedSeedId).name }
+                  </button>`
+                : isRipe
+                  ? `<button type="button" data-plot-action="harvest" data-plot-idx="${idx}" class="col-span-2 rounded-lg border-2 border-[#ca8a04] bg-gradient-to-r from-[#16a34a] to-[#15803d] px-3 py-1.5 font-mono text-[11px] font-black text-[#fef08a] shadow-[0_2px_0_#052e16] hover:brightness-105">
+                      🧺 Harvest ${st.icon} ${st.name} (+2 Poké Balls)
+                    </button>`
+                  : `<button type="button" data-plot-action="water" data-plot-idx="${idx}" class="rounded-lg border border-[#0284c7] bg-[#e0f2fe] px-2.5 py-1.5 font-mono text-[10px] font-black text-[#0369a1] hover:bg-[#bae6fd]">
+                      💧 Water (+1 Stage)
+                    </button>
+                    <button type="button" data-plot-action="mulch" data-plot-idx="${idx}" class="rounded-lg border border-[#b45309] bg-[#fef3c7] px-2.5 py-1.5 font-mono text-[10px] font-black text-[#78350f] hover:bg-[#fde68a]">
+                      ✨ Instant Ripen
+                    </button>`
+            }
+          </div>
+        `;
+
+        grid.appendChild(card);
+      });
+
+      // Bind plot buttons
+      grid.querySelectorAll('[data-plot-action]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const action = (btn as HTMLElement).dataset.plotAction;
+          const idx = Number((btn as HTMLElement).dataset.plotIdx || '0');
+          const p = plots[idx];
+          if (!p) return;
+
+          if (action === 'plant') {
+            p.strainId = selectedSeedId;
+            p.stage = 1;
+            p.moisture = Math.max(p.moisture, 75);
+            const st = getStrain(p.strainId);
+            emitGardenCanvasFx(`PLANTED ${st.name.toUpperCase()}! 🌱`, '#4ade80');
+            setFieldLog(
+              `🌱 Planted <strong>${st.icon} ${st.name}</strong> seeds in <strong>${p.bedName}</strong>! Water or mulch to ripen.`
+            );
+          } else if (action === 'water') {
+            p.moisture = 100;
+            if (p.stage > 0 && p.stage < 3) {
+              p.stage = (p.stage + 1) as 0 | 1 | 2 | 3;
+            }
+            const st = getStrain(p.strainId);
+            emitGardenCanvasFx(`SPRAYDUCK WATERED! 💧`, '#38bdf8');
+            setFieldLog(
+              `💧 Irrigated <strong>${p.bedName}</strong> with the Sprayduck can! <strong>${st.icon} ${st.name}</strong> advanced to Stage ${p.stage}/3.`
+            );
+          } else if (action === 'mulch') {
+            p.moisture = 100;
+            p.stage = 3;
+            const st = getStrain(p.strainId);
+            emitGardenCanvasFx(`${st.name.toUpperCase()} FULL BLOOM! ✨`, '#facc15');
+            setFieldLog(
+              `✨ Applied Golden Combee Mulch to <strong>${p.bedName}</strong>! <strong>${st.icon} ${st.name}</strong> is now ripe for harvest!`
+            );
+          } else if (action === 'harvest') {
+            const st = getStrain(p.strainId);
+            const yieldCount =
+              st.yieldMin + Math.floor(Math.random() * (st.yieldMax - st.yieldMin + 1));
+            harvestedTotal += yieldCount;
+            const totalBalls = addBagBalls(2);
+            p.stage = 0;
+            p.moisture = 55;
+            emitGardenCanvasFx(`+${yieldCount} ${st.name.toUpperCase()}! 🧺`, st.color);
+            setFieldLog(
+              `🧺 Harvested <strong>+${yieldCount} ${st.icon} ${st.name}s</strong> from <strong>${p.bedName}</strong>! Added <strong>+2 Poké Balls</strong> to your bag (Total: ${totalBalls} 🎒).`
+            );
+          }
+
+          saveAndRefreshHeader();
+          renderPlots();
+        });
+      });
+    }
+
+    // Global Orchard Buttons
+    function waterAllPlots() {
+      plots.forEach((p) => {
+        p.moisture = 100;
+        if (p.stage > 0 && p.stage < 3) {
+          p.stage = (p.stage + 1) as 0 | 1 | 2 | 3;
+        }
+      });
+      emitGardenCanvasFx('SPRAYDUCK IRRIGATION SHOWER! 💧', '#38bdf8');
+      setFieldLog(
+        `💧 <strong>Sprayduck Irrigation Shower!</strong> All 6 soil beds watered to 100% moisture and advanced +1 growth stage!`
+      );
+      saveAndRefreshHeader();
+      renderPlots();
+    }
+
+    function ripenAllPlots() {
+      plots.forEach((p) => {
+        if (p.stage === 0) p.strainId = selectedSeedId;
+        p.stage = 3;
+        p.moisture = 100;
+      });
+      emitGardenCanvasFx('GRACIDEA SUNBEAM: ALL RIPE! 🌞', '#facc15');
+      setFieldLog(
+        `🌞 <strong>Gracidea Sunbeam Blessing!</strong> All 6 plantation beds burst into full ripe berry bloom!`
+      );
+      saveAndRefreshHeader();
+      renderPlots();
+    }
+
+    function harvestAllRipePlots() {
+      let countBeds = 0;
+      let berriesPicked = 0;
+      plots.forEach((p) => {
+        if (p.stage === 3) {
+          const st = getStrain(p.strainId);
+          const y = st.yieldMin + Math.floor(Math.random() * (st.yieldMax - st.yieldMin + 1));
+          berriesPicked += y;
+          countBeds += 1;
+          p.stage = 1; // Automatically replant sprout!
+          p.moisture = 80;
+        }
+      });
+
+      if (countBeds === 0) {
+        setFieldLog(
+          `🌱 No beds are at Stage 3 yet! Click <strong>"🌞 Sunbeam Ripen All"</strong> or water your sprouts first.`
+        );
+        return;
+      }
+
+      harvestedTotal += berriesPicked;
+      const ballsEarned = countBeds * 2;
+      const totalBalls = addBagBalls(ballsEarned);
+      emitGardenCanvasFx(`HARVESTED +${berriesPicked} BERRIES! 🍇`, '#4ade80');
+      setFieldLog(
+        `🧺 <strong>Bountiful Harvest!</strong> Picked <strong>+${berriesPicked} fresh berries</strong> across ${countBeds} beds, replanted new sprouts, and earned <strong>+${ballsEarned} Poké Balls</strong> (Bag: ${totalBalls} 🎒)!`
+      );
+      saveAndRefreshHeader();
+      renderPlots();
+    }
+
+    document.getElementById('btn-water-all')?.addEventListener('click', waterAllPlots);
+    document.getElementById('btn-ripen-all')?.addEventListener('click', ripenAllPlots);
+    document.getElementById('btn-harvest-all')?.addEventListener('click', harvestAllRipePlots);
+
+    window.addEventListener('garden:water-all', waterAllPlots);
+    window.addEventListener('garden:ripen-all', ripenAllPlots);
+
+    // ===================================================================
+    // COPPER BERRY BLENDER LAB
+    // ===================================================================
+    function renderBlenderUI() {
+      for (let i = 0; i < 3; i++) {
+        const slotEl = document.getElementById(`blender-slot-${i}`);
+        if (!slotEl) continue;
+        const sId = blenderSlots[i];
+        if (sId) {
+          const st = getStrain(sId);
+          slotEl.innerHTML = `<span class="text-2xl">${st.icon}</span><span class="font-mono text-[9px] font-black text-[#78350f]">${st.name.split(' ')[0]}</span>`;
+        } else {
+          slotEl.innerHTML = `<span class="text-sm text-stone-400">Empty</span>`;
+        }
+      }
+
+      const ingWrap = document.getElementById('blender-ingredient-buttons');
+      if (ingWrap) {
+        ingWrap.innerHTML = '';
+        BERRY_STRAINS.forEach((st) => {
+          const b = document.createElement('button');
+          b.type = 'button';
+          b.className =
+            'inline-flex items-center gap-1 rounded-lg border border-[#b45309] bg-white px-2.5 py-1 font-mono text-[10px] font-bold text-[#451a03] shadow-sm transition hover:bg-[#fef3c7]';
+          b.innerHTML = `<span>${st.icon}</span><span>+ ${st.name.split(' ')[0]}</span>`;
+          b.addEventListener('click', () => {
+            if (blenderSlots.length >= 3) {
+              blenderSlots.shift();
+            }
+            blenderSlots.push(st.id);
+            renderBlenderUI();
+          });
+          ingWrap.appendChild(b);
+        });
+      }
+    }
+
+    document.getElementById('btn-clear-blender')?.addEventListener('click', () => {
+      blenderSlots = [];
+      renderBlenderUI();
+    });
+
+    document.getElementById('btn-spin-blender')?.addEventListener('click', () => {
+      if (blenderSlots.length === 0) {
+        blenderSlots = ['oran', 'sitrus', 'lum'];
+        renderBlenderUI();
+      }
+      const rpmPill = document.getElementById('blender-rpm-pill');
+      const resCard = document.getElementById('blender-result-card');
+      if (rpmPill) rpmPill.textContent = '🌀 3,600 RPM · BLENDING!';
+
+      blendsCount += 1;
+      const hasLum = blenderSlots.includes('lum');
+      const hasSitrus = blenderSlots.includes('sitrus');
+
+      let title = '✨ Rainbow Miracle Pokéblock (Lv. 99)';
+      let desc =
+        'Infused with Lum & Combee Honey! Triggered +50% Character Speed Boost on the 2D Canvas and +4 Poké Balls!';
+      let icon = '🌈';
+
+      if (!hasLum && hasSitrus) {
+        title = '🍋 Golden Citrus Sakura Poffin (Lv. 88)';
+        desc = 'Smooth citrus-blossom blend! Added +4 Poké Balls to your trainer bag!';
+        icon = '🧁';
+      } else if (!hasLum && !hasSitrus) {
+        title = '🔥 Spicy Cheri Overclock Jam (Lv. 85)';
+        desc = 'High-energy developer roast jam! Automatically ripened all 6 berry beds to Stage 3!';
+        icon = '🏺';
+        ripenAllPlots();
+      }
+
+      addBagBalls(4);
+      window.dispatchEvent(new CustomEvent('town:coffee-boost'));
+      emitGardenCanvasFx('BLENDED MIRACLE POKEBLOCK! 🍯', '#f59e0b');
+      saveAndRefreshHeader();
+
+      if (resCard) {
+        resCard.innerHTML = `
+          <div class="flex items-start gap-2.5">
+            <span class="text-2xl">${icon}</span>
+            <div>
+              <div class="font-mono text-xs font-black text-[#78350f]">${title}</div>
+              <p class="mt-1 text-[11px] leading-snug text-[#5c3a1b]">${desc}</p>
+            </div>
+          </div>
+        `;
+      }
+
+      setTimeout(() => {
+        if (rpmPill) rpmPill.textContent = '⚙️ 3,600 RPM · COMPLETE!';
+      }, 600);
+    });
+
+    // ===================================================================
+    // 2D CONSERVATORY NAVIGATION & HOTKEYS (F, W, B, C)
+    // ===================================================================
+    document.querySelectorAll('[data-garden-nav]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const targetId = (btn as HTMLElement).dataset.gardenNav;
+        const scrollId = (btn as HTMLElement).dataset.scrollTo;
+        if (targetId && (window as any).__townEngine) {
+          (window as any).__townEngine.walkToObject(targetId);
+        }
+        if (scrollId) {
+          document.getElementById(scrollId)?.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+
+    window.addEventListener('keydown', (e) => {
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+      const key = e.key.toLowerCase();
+      const eng = (window as any).__townEngine;
+      if (key === 'f') {
+        eng?.walkToObject('plot-oran');
+        document.getElementById('plantation-sim-section')?.scrollIntoView({ behavior: 'smooth' });
+      } else if (key === 'w') {
+        eng?.walkToObject('watering-well');
+        waterAllPlots();
+      } else if (key === 'b') {
+        eng?.walkToObject('berry-blender');
+        document.getElementById('berry-blender-section')?.scrollIntoView({ behavior: 'smooth' });
+      } else if (key === 'c') {
+        eng?.walkToObject('shaymin-npc');
+        document.getElementById('berry-compendium-section')?.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+
+    saveAndRefreshHeader();
+    renderSeedSelector();
+    renderPlots();
+    renderBlenderUI();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initBerryConservatory);
+  } else {
+    initBerryConservatory();
+  }
+</script>

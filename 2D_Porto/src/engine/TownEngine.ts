@@ -102,6 +102,16 @@ import {
   renderArenaAnimations,
   triggerArenaBattleAnimation,
 } from './arenaScene';
+import {
+  GARDEN_COLS,
+  GARDEN_ROWS,
+  GARDEN_SPAWN,
+  GARDEN_COLLISION,
+  GARDEN_PROPS,
+  createGardenBackgroundCanvas,
+  renderGardenAnimations,
+  triggerGardenHarvestAnimation,
+} from './gardenScene';
 import { RESHIRAM_IMAGE_SRC } from './reshiramSprite';
 import { ZEKROM_IMAGE_SRC } from './zekromSprite';
 import { GIRATINA_IMAGE_SRC } from './giratinaSprite';
@@ -213,7 +223,7 @@ export class TownEngine {
   private ctx: CanvasRenderingContext2D;
   private map: TownMap;
   private callbacks: EngineCallbacks;
-  private currentScene: 'town' | 'home' | 'dev' | 'lab' | 'arcade' | 'reception' | 'mart' | 'tower' | 'cafe' | 'arena' = 'town';
+  private currentScene: 'town' | 'home' | 'dev' | 'lab' | 'arcade' | 'reception' | 'mart' | 'tower' | 'cafe' | 'arena' | 'garden' = 'town';
   private homeFloor: '1F' | '2F' = '1F';
   public activeTowerFloor: '1F' | '2F' | '3F' | '4F' = '1F';
   private devBackgroundCanvas: HTMLCanvasElement | null = null;
@@ -245,6 +255,7 @@ export class TownEngine {
   private towerBackgroundCanvas: HTMLCanvasElement | null = null;
   private cafeBackgroundCanvas: HTMLCanvasElement | null = null;
   private arenaBackgroundCanvas: HTMLCanvasElement | null = null;
+  private gardenBackgroundCanvas: HTMLCanvasElement | null = null;
   private townBackgroundCanvas: HTMLCanvasElement | null = null;
   public townAtmosphere: TownAtmosphere = 'day';
   public weather: TownWeather = 'petals';
@@ -395,6 +406,13 @@ export class TownEngine {
       this.playerDir = ARENA_SPAWN.dir;
       this.cameraX = (ARENA_COLS * TILE_SIZE) / 2;
       this.cameraY = (ARENA_ROWS * TILE_SIZE) / 2;
+    } else if (initialSpawn === 'garden' || initialSpawn === 'berry') {
+      this.currentScene = 'garden';
+      this.playerPos = { x: GARDEN_SPAWN.x, y: GARDEN_SPAWN.y };
+      this.playerTarget = { x: GARDEN_SPAWN.x, y: GARDEN_SPAWN.y };
+      this.playerDir = GARDEN_SPAWN.dir;
+      this.cameraX = (GARDEN_COLS * TILE_SIZE) / 2;
+      this.cameraY = (GARDEN_ROWS * TILE_SIZE) / 2;
     } else {
       this.currentScene = 'town';
       let spawnX = 22;
@@ -1435,6 +1453,14 @@ export class TownEngine {
       this.defaultZoom = Math.max(Math.min(zoomW, zoomH), 1.8 * dpr);
       this.cameraX = (ARENA_COLS * TILE_SIZE) / 2;
       this.cameraY = (ARENA_ROWS * TILE_SIZE) / 2;
+    } else if (this.currentScene === 'garden') {
+      const targetW = GARDEN_COLS * TILE_SIZE * 1.05;
+      const targetH = GARDEN_ROWS * TILE_SIZE * 1.05;
+      const zoomW = this.canvas.width / targetW;
+      const zoomH = this.canvas.height / targetH;
+      this.defaultZoom = Math.max(Math.min(zoomW, zoomH), 1.8 * dpr);
+      this.cameraX = (GARDEN_COLS * TILE_SIZE) / 2;
+      this.cameraY = (GARDEN_ROWS * TILE_SIZE) / 2;
     } else {
       const targetW = this.map.w * TILE_SIZE * 1.05;
       const zoomW = this.canvas.width / targetW;
@@ -2029,6 +2055,13 @@ export class TownEngine {
     };
     window.addEventListener('town:arena-fx', onArenaFx);
 
+    const onGardenFx = (e: Event) => {
+      const ce = e as CustomEvent<{ text?: string; color?: string }>;
+      triggerGardenHarvestAnimation(ce.detail?.text || 'FRESH BERRIES HARVESTED! 🍇', ce.detail?.color || '#fde047');
+      this.wake();
+    };
+    window.addEventListener('town:garden-fx', onGardenFx);
+
     this.unbindEvents.push(
       () => window.removeEventListener('keydown', onKeyDown),
       () => window.removeEventListener('keyup', onKeyUp),
@@ -2057,7 +2090,8 @@ export class TownEngine {
       () => window.removeEventListener('town:claim-lucky-egg', onLuckyEgg),
       () => window.removeEventListener('town:mart-cash-anim', onMartCashAnim),
       () => window.removeEventListener('town:cafe-brew-anim', onCafeBrewAnim),
-      () => window.removeEventListener('town:arena-fx', onArenaFx)
+      () => window.removeEventListener('town:arena-fx', onArenaFx),
+      () => window.removeEventListener('town:garden-fx', onGardenFx)
     );
   }
 
@@ -2084,7 +2118,9 @@ export class TownEngine {
                       ? CAFE_COLS
                       : this.currentScene === 'arena'
                         ? ARENA_COLS
-                        : this.map.w;
+                        : this.currentScene === 'garden'
+                          ? GARDEN_COLS
+                          : this.map.w;
     const rows =
       this.currentScene === 'home'
         ? (is2F ? HOME2F_ROWS : HOME_ROWS)
@@ -2104,7 +2140,9 @@ export class TownEngine {
                       ? CAFE_ROWS
                       : this.currentScene === 'arena'
                         ? ARENA_ROWS
-                        : this.map.h;
+                        : this.currentScene === 'garden'
+                          ? GARDEN_ROWS
+                          : this.map.h;
     if (targetX < 0 || targetX >= cols || targetY < 0 || targetY >= rows) return;
     const start = this.isMoving ? this.playerTarget : this.playerPos;
     const collisionMap =
@@ -2128,7 +2166,9 @@ export class TownEngine {
                       ? CAFE_COLLISION
                       : this.currentScene === 'arena'
                         ? ARENA_COLLISION
-                        : this.getEffectiveCollisionMap();
+                        : this.currentScene === 'garden'
+                          ? GARDEN_COLLISION
+                          : this.getEffectiveCollisionMap();
 
     let destX = targetX;
     let destY = targetY;
@@ -2447,6 +2487,41 @@ export class TownEngine {
           break;
         default:
           const prop = ARENA_PROPS.find((p) => p.id === id);
+          if (prop) this.walkTo(prop.x, prop.y + prop.h);
+          break;
+      }
+      return;
+    }
+
+    if (this.currentScene === 'garden') {
+      this.pendingTarget = id;
+      switch (id) {
+        case 'botanist-flora':
+          this.walkTo(6, 4);
+          break;
+        case 'shaymin-npc':
+          this.walkTo(8, 4);
+          break;
+        case 'plot-oran':
+          this.walkTo(2, 5);
+          break;
+        case 'plot-sitrus':
+          this.walkTo(12, 5);
+          break;
+        case 'watering-well':
+          this.walkTo(5, 6);
+          break;
+        case 'plot-cheri':
+          this.walkTo(2, 9);
+          break;
+        case 'berry-blender':
+          this.walkTo(12, 9);
+          break;
+        case 'exit':
+          this.walkTo(7, 11);
+          break;
+        default:
+          const prop = GARDEN_PROPS.find((p) => p.id === id);
           if (prop) this.walkTo(prop.x, prop.y + prop.h);
           break;
       }
@@ -2965,6 +3040,10 @@ export class TownEngine {
     if (this.currentScene === 'arena') {
       if (x < 0 || x >= ARENA_COLS || y < 0 || y >= ARENA_ROWS) return false;
       return ARENA_COLLISION[y * ARENA_COLS + x] === 0;
+    }
+    if (this.currentScene === 'garden') {
+      if (x < 0 || x >= GARDEN_COLS || y < 0 || y >= GARDEN_ROWS) return false;
+      return GARDEN_COLLISION[y * GARDEN_COLS + x] === 0;
     }
     return this.isTileWalkable(x, y);
   }
@@ -3812,6 +3891,20 @@ export class TownEngine {
         this.playerDir = 'down';
         this.interactFacing(id);
         break;
+      // Botanical Berry Garden props
+      case 'botanist-flora':
+      case 'shaymin-npc':
+      case 'plot-oran':
+      case 'plot-sitrus':
+      case 'plot-cheri':
+      case 'berry-blender':
+        this.playerDir = 'up';
+        this.interactFacing(id);
+        break;
+      case 'watering-well':
+        this.playerDir = 'left';
+        this.interactFacing(id);
+        break;
       // Dev Center props
       case 'eternatus':
         this.playerDir = 'right';
@@ -3884,6 +3977,16 @@ export class TownEngine {
       if (this.playerPos.x === 7 && this.playerPos.y === 11) {
         sfx.door();
         if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('town:respawn', '38,44');
+        this.callbacks.onNavigate('/');
+        return;
+      }
+      return;
+    }
+
+    if (this.currentScene === 'garden') {
+      if (this.playerPos.x === 7 && this.playerPos.y === 11) {
+        sfx.door();
+        if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('town:respawn', '28,44');
         this.callbacks.onNavigate('/');
         return;
       }
@@ -4731,6 +4834,179 @@ export class TownEngine {
         } else if (prop.target.type === 'place' && prop.target.id) {
           sfx.door();
           if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('town:respawn', '38,44');
+          this.callbacks.onNavigate(prop.target.id === 'town' ? '/' : `/${prop.target.id}`);
+        }
+        this.wake();
+      }
+      return;
+    }
+
+    if (this.currentScene === 'garden') {
+      const fx = this.playerPos.x + DIRS[this.playerDir].x;
+      const fy = this.playerPos.y + DIRS[this.playerDir].y;
+      const prop =
+        (activeTarget ? GARDEN_PROPS.find((p) => p.id === activeTarget) : undefined) ||
+        GARDEN_PROPS.find(
+          (p) =>
+            (fx >= p.x && fx < p.x + p.w && fy >= p.y && fy < p.y + p.h) ||
+            (this.playerPos.x >= p.x - 1 &&
+              this.playerPos.x <= p.x + p.w &&
+              this.playerPos.y >= p.y - 1 &&
+              this.playerPos.y <= p.y + p.h)
+        );
+
+      if (prop) {
+        sfx.select();
+        if (prop.target.type === 'event' && prop.target.name) {
+          if (prop.target.name === 'botanist-flora') {
+            sfx.heal();
+            triggerGardenHarvestAnimation('BOTANIST BLESSING! +3 POKE BALLS 🌸', '#f472b6');
+            this.harvestBerries();
+            if (this.callbacks.onBubble) {
+              this.callbacks.onBubble(
+                'Master Botanist Flora · Sakura Conservatory 👩‍🌾',
+                '"Welcome to our Botanical Berry Plantation! Under the shade of the Mother Sakura Tree, we cultivate 6 heirloom berry strains. Try planting, watering, and harvesting in the Live 6-Plot Farm!"',
+                [
+                  {
+                    label: '🌱 Open 6-Plot Berry Plantation',
+                    onClick: () => {
+                      const el = document.getElementById('plantation-sim-section');
+                      el?.scrollIntoView({ behavior: 'smooth' });
+                    },
+                  },
+                  {
+                    label: '🍯 Spin the Copper Berry Blender',
+                    onClick: () => {
+                      const el = document.getElementById('berry-blender-section');
+                      el?.scrollIntoView({ behavior: 'smooth' });
+                    },
+                  },
+                ]
+              );
+            }
+          } else if (prop.target.name === 'shaymin-npc') {
+            sfx.confirm();
+            triggerGardenHarvestAnimation('SHAYMIN SEED FLARE BLOOM! 🌺', '#4ade80');
+            if (this.callbacks.onBubble) {
+              this.callbacks.onBubble(
+                'Shaymin · Gratitude Blossom Guardian 🦔',
+                '"Shay-min! 🌸" Shaymin releases a warm Gracidea pollen breeze across the greenhouse! Your movement speed is boosted by +50% and all soil beds are enriched!',
+                [
+                  {
+                    label: '✨ Receive Gracidea Speed Blessing (+50% Speed)',
+                    onClick: () => {
+                      this.activateCoffeeBoost(30);
+                      window.dispatchEvent(new CustomEvent('garden:ripen-all'));
+                    },
+                  },
+                  {
+                    label: '📖 Read Botanical Skill Compendium',
+                    onClick: () => {
+                      const el = document.getElementById('berry-compendium-section');
+                      el?.scrollIntoView({ behavior: 'smooth' });
+                    },
+                  },
+                ]
+              );
+            }
+          } else if (prop.target.name === 'plot-oran') {
+            sfx.select();
+            triggerGardenHarvestAnimation('ORAN & PECHA BED INSPECTED! 🍊', '#38bdf8');
+            if (this.callbacks.onBubble) {
+              this.callbacks.onBubble(
+                'North-West Raised Bed · Oran & Pecha Cultivars 🍊',
+                'Cobalt-blue Oran Berries (+10 HP Resilience) & sweet pink Pecha Blossoms thrive in moist volcanic loam — symbolizing Zulfan’s rock-solid Full-Stack Web & TypeScript foundation.',
+                [
+                  {
+                    label: '🍊 Harvest / Tend in Live Farm',
+                    onClick: () => {
+                      window.dispatchEvent(new CustomEvent('garden:focus-plot', { detail: { plotIdx: 0 } }));
+                      const el = document.getElementById('plantation-sim-section');
+                      el?.scrollIntoView({ behavior: 'smooth' });
+                    },
+                  },
+                ]
+              );
+            }
+          } else if (prop.target.name === 'plot-sitrus') {
+            sfx.select();
+            triggerGardenHarvestAnimation('SITRUS & LUM HYBRID RIPE! 🍋', '#facc15');
+            if (this.callbacks.onBubble) {
+              this.callbacks.onBubble(
+                'North-East Raised Bed · Sitrus & Miracle Lum 🍋',
+                'Golden Sitrus Berries (+25% HP) and rare Emerald Lum Berries (Cure-All Miracle) represent high-yield Computer Vision (YOLOv8 AeroScan) & Huawei HCIA-Security V4.0 protection!',
+                [
+                  {
+                    label: '🍋 Harvest / Tend in Live Farm',
+                    onClick: () => {
+                      window.dispatchEvent(new CustomEvent('garden:focus-plot', { detail: { plotIdx: 1 } }));
+                      const el = document.getElementById('plantation-sim-section');
+                      el?.scrollIntoView({ behavior: 'smooth' });
+                    },
+                  },
+                ]
+              );
+            }
+          } else if (prop.target.name === 'plot-cheri') {
+            sfx.select();
+            triggerGardenHarvestAnimation('CHERI & LEPPA SPICE HARVEST! 🍒', '#ef4444');
+            if (this.callbacks.onBubble) {
+              this.callbacks.onBubble(
+                'South-West Terrace · Cheri & Leppa Berries 🍒',
+                'Spicy ruby Cheri Berries and high-PP Leppa Berries fuel rapid IoT microcontroller reflexes (ESP32/Arduino) and non-stop backend API endurance!',
+                [
+                  {
+                    label: '🍒 Harvest / Tend in Live Farm',
+                    onClick: () => {
+                      window.dispatchEvent(new CustomEvent('garden:focus-plot', { detail: { plotIdx: 2 } }));
+                      const el = document.getElementById('plantation-sim-section');
+                      el?.scrollIntoView({ behavior: 'smooth' });
+                    },
+                  },
+                ]
+              );
+            }
+          } else if (prop.target.name === 'watering-well') {
+            sfx.heal();
+            triggerGardenHarvestAnimation('SPRAYDUCK IRRIGATION SHOWER! 💧', '#38bdf8');
+            window.dispatchEvent(new CustomEvent('garden:water-all'));
+            if (this.callbacks.onBubble) {
+              this.callbacks.onBubble(
+                'Sprayduck Spring Well · Greenhouse Irrigation 💧',
+                'You filled the iconic yellow Sprayduck watering can from the crystal Sakura spring and irrigated all 6 plantation beds to 100% moisture!',
+                [
+                  {
+                    label: '🌱 Check Irrigated Plots',
+                    onClick: () => {
+                      const el = document.getElementById('plantation-sim-section');
+                      el?.scrollIntoView({ behavior: 'smooth' });
+                    },
+                  },
+                ]
+              );
+            }
+          } else if (prop.target.name === 'berry-blender') {
+            sfx.confirm();
+            triggerGardenHarvestAnimation('COPPER BERRY BLENDER SPINNING! 🍯', '#f59e0b');
+            if (this.callbacks.onBubble) {
+              this.callbacks.onBubble(
+                'Artisanal Berry Blender & Combee Apiary 🍯',
+                'Combine 3 harvested berries in our high-RPM Hoenn Copper Berry Blender to craft Gold Pokéblocks, Developer Focus Jams, and Combee Honey Elixirs!',
+                [
+                  {
+                    label: '🍯 Launch Berry Blender Lab',
+                    onClick: () => {
+                      const el = document.getElementById('berry-blender-section');
+                      el?.scrollIntoView({ behavior: 'smooth' });
+                    },
+                  },
+                ]
+              );
+            }
+          }
+        } else if (prop.target.type === 'place' && prop.target.id) {
+          sfx.door();
+          if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('town:respawn', '28,44');
           this.callbacks.onNavigate(prop.target.id === 'town' ? '/' : `/${prop.target.id}`);
         }
         this.wake();
@@ -6326,14 +6602,22 @@ export class TownEngine {
         'Oran, Sitrus, dan Cheri berries tumbuh subur di kebun botani di bawah naungan pohon sakura.',
         'Tempat yang asri dan tenang untuk memulihkan stamina para trainer dan developer!',
       ];
-      const berryAction = {
-        label: '🍇 Petik Buah Berry (+3 Poké Balls)',
-        onClick: () => this.harvestBerries(),
-      };
+      const berryActions = [
+        {
+          label: '🌸 Enter Berry Garden & Conservatory (/garden)',
+          href: '/garden',
+        },
+        {
+          label: '🍇 Petik Buah Berry (+3 Poké Balls)',
+          onClick: () => this.harvestBerries(),
+        },
+      ];
       if (this.callbacks.onBubble) {
-        this.callbacks.onBubble('Berry Garden & Sakura Grove 🌸', berryLines.join(' '), berryAction);
+        this.callbacks.onBubble('Berry Garden & Sakura Grove 🌸', berryLines.join(' '), berryActions);
       } else {
-        this.callbacks.onDialogue('Berry Garden & Sakura Grove 🌸', berryLines, berryAction.onClick);
+        this.callbacks.onDialogue('Berry Garden & Sakura Grove 🌸', berryLines, () =>
+          this.callbacks.onNavigate('/garden')
+        );
       }
       this.wake();
       return;
@@ -6643,14 +6927,20 @@ export class TownEngine {
         return;
       }
       if (prop.id === 'berry') {
-        const action = {
-          label: '🍇 Pick Berries (+3 Poké Balls)',
-          onClick: () => this.harvestBerries(),
-        };
+        const actions = [
+          {
+            label: '🌸 Enter Berry Garden & Conservatory (/garden)',
+            href: '/garden',
+          },
+          {
+            label: '🍇 Pick Berries (+3 Poké Balls)',
+            onClick: () => this.harvestBerries(),
+          },
+        ];
         if (this.callbacks.onBubble) {
-          this.callbacks.onBubble('Berry Garden & Sakura Grove 🌸', prop.lines.join(' '), action);
+          this.callbacks.onBubble('Berry Garden & Sakura Grove 🌸', prop.lines.join(' '), actions);
         } else {
-          this.callbacks.onDialogue('Berry Garden', prop.lines);
+          this.callbacks.onDialogue('Berry Garden', prop.lines, () => this.callbacks.onNavigate('/garden'));
         }
         this.wake();
         return;
@@ -6911,13 +7201,13 @@ export class TownEngine {
 
     if (this.currentScene === 'arena') {
       const arenaLabels: Record<string, { x: number; y: number; w: number; h: number; lift?: number }> = {
-        'mewtwo-boss': { x: 7, y: 3, w: 1, h: 1, lift: 1.15 },
-        'lucario-coach': { x: 5, y: 3, w: 1, h: 1, lift: 1.1 },
-        'referee-dan': { x: 8, y: 3, w: 1, h: 1, lift: 1.1 },
-        'battle-terminal': { x: 1, y: 3, w: 3, h: 2, lift: 0.75 },
-        'algorithm-dojo': { x: 10, y: 3, w: 3, h: 2, lift: 0.75 },
-        'trophy-vault': { x: 1, y: 7, w: 3, h: 2, lift: 0.75 },
-        'stat-radar': { x: 10, y: 7, w: 3, h: 2, lift: 0.75 },
+        'mewtwo-boss': { x: 7, y: 2, w: 1, h: 1, lift: 1.05 },
+        'lucario-coach': { x: 2, y: 6, w: 1, h: 1, lift: 0.9 },
+        'referee-dan': { x: 12, y: 6, w: 1, h: 1, lift: 0.9 },
+        'battle-terminal': { x: 1, y: 3, w: 2, h: 2, lift: 0.5 },
+        'algorithm-dojo': { x: 12, y: 3, w: 2, h: 2, lift: 0.5 },
+        'trophy-vault': { x: 1, y: 8, w: 2, h: 2, lift: 0.35 },
+        'stat-radar': { x: 12, y: 8, w: 2, h: 2, lift: 0.35 },
       };
 
       const buttons = container.querySelectorAll<HTMLButtonElement>('.town-label');
@@ -6931,6 +7221,46 @@ export class TownEngine {
 
         btn.style.display = '';
         const obj = arenaLabels[id];
+        const worldX = (obj.x + obj.w / 2) * TILE_SIZE;
+        const worldY = (obj.y - (obj.lift ?? 0)) * TILE_SIZE;
+
+        const canvasX = this.canvas.width / 2 + (worldX - this.cameraX) * this.zoom;
+        const canvasY = this.canvas.height / 2 + (worldY - this.cameraY) * this.zoom;
+
+        const dpr = window.devicePixelRatio || 1;
+        const cssX = canvasX / dpr;
+        const cssY = canvasY / dpr;
+
+        btn.style.left = `${Math.round(cssX)}px`;
+        btn.style.top = `${Math.round(cssY)}px`;
+        btn.style.transform = '';
+        btn.style.visibility = 'visible';
+      });
+      return;
+    }
+
+    if (this.currentScene === 'garden') {
+      const gardenLabels: Record<string, { x: number; y: number; w: number; h: number; lift?: number }> = {
+        'botanist-flora': { x: 6, y: 3, w: 1, h: 1, lift: 1.1 },
+        'shaymin-npc': { x: 8, y: 3, w: 1, h: 1, lift: 0.45 },
+        'plot-oran': { x: 1, y: 3, w: 3, h: 2, lift: 0.55 },
+        'plot-sitrus': { x: 11, y: 3, w: 3, h: 2, lift: 0.55 },
+        'watering-well': { x: 4, y: 6, w: 1, h: 1, lift: 0.85 },
+        'plot-cheri': { x: 1, y: 7, w: 3, h: 2, lift: 0.45 },
+        'berry-blender': { x: 11, y: 7, w: 3, h: 2, lift: 0.45 },
+      };
+
+      const buttons = container.querySelectorAll<HTMLButtonElement>('.town-label');
+      buttons.forEach((btn) => {
+        const id = btn.getAttribute('data-id');
+        if (!id || !gardenLabels[id]) {
+          btn.style.visibility = 'hidden';
+          btn.style.display = 'none';
+          return;
+        }
+
+        btn.style.display = '';
+        const obj = gardenLabels[id];
         const worldX = (obj.x + obj.w / 2) * TILE_SIZE;
         const worldY = (obj.y - (obj.lift ?? 0)) * TILE_SIZE;
 
@@ -7561,7 +7891,7 @@ export class TownEngine {
       ctx.save();
       ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-      ctx.fillStyle = '#090d16';
+      ctx.fillStyle = '#271609';
       ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
       ctx.translate(this.canvas.width / 2, this.canvas.height / 2);
@@ -7580,6 +7910,49 @@ export class TownEngine {
       ctx.drawImage(this.arenaBackgroundCanvas, 0, 0);
 
       renderArenaAnimations(ctx, this.tick);
+
+      this.renderPathAndMarker(ctx);
+
+      const drawX =
+        (this.playerPos.x + (this.playerTarget.x - this.playerPos.x) * this.moveProgress) * TILE_SIZE;
+      const drawY =
+        (this.playerPos.y + (this.playerTarget.y - this.playerPos.y) * this.moveProgress) * TILE_SIZE;
+      const stepFrame = this.isMoving ? Math.floor(this.moveProgress * 4) : 0;
+
+      drawCharacter(ctx, this.playerPalette, this.playerDir, stepFrame, drawX, drawY, 1);
+
+      ctx.restore();
+
+      this.updateDomLabels();
+      return;
+    }
+
+    if (this.currentScene === 'garden') {
+      this.cameraX = (GARDEN_COLS * TILE_SIZE) / 2;
+      this.cameraY = (GARDEN_ROWS * TILE_SIZE) / 2;
+
+      ctx.save();
+      ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+      ctx.fillStyle = '#0e2414';
+      ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+      ctx.translate(this.canvas.width / 2, this.canvas.height / 2);
+      ctx.scale(this.zoom, this.zoom);
+      ctx.translate(-this.cameraX, -this.cameraY);
+
+      if (this.cameraShakeTime > 0) {
+        const shakeX = (Math.random() - 0.5) * this.cameraShakeIntensity;
+        const shakeY = (Math.random() - 0.5) * this.cameraShakeIntensity;
+        ctx.translate(shakeX, shakeY);
+      }
+
+      if (!this.gardenBackgroundCanvas) {
+        this.gardenBackgroundCanvas = createGardenBackgroundCanvas();
+      }
+      ctx.drawImage(this.gardenBackgroundCanvas, 0, 0);
+
+      renderGardenAnimations(ctx, this.tick);
 
       this.renderPathAndMarker(ctx);
 

@@ -206,7 +206,8 @@ export const places: Place[] = [
   { id: 'mart', route: '/mart', name: 'Poké Mart', icon: '🏪', blurb: 'Engineering services, tech stacks, developer gear, and downloadable CV.' },
   { id: 'tower', route: '/tower', name: 'Tech Tower', icon: '🏢', blurb: 'Robotics R&D, IoT prototypes, Huawei network security and cloud microservices.' },
   { id: 'cafe', route: '/cafe', name: 'Poké-Café & Bar', icon: '☕', blurb: 'Specialty Dev Roasts, Castelia Cones, Lo-Fi Vinyl Jukebox & Coffee Chat Lounge.' },
-  { id: 'arena', route: '/arena', name: 'Battle Arena', icon: '⚔️', blurb: 'Turn-Based Engineering Battle Simulator vs Mewtwo, AI Gauntlet & Trophy Vault.' },
+  { id: 'arena', route: '/arena', name: 'Gladiator Arena', icon: '⚔️', blurb: '1v1 Gladiator Duel vs Mewtwo, Six Trials of Rome & Hall of Victors.' },
+  { id: 'garden', route: '/garden', name: 'Berry Garden', icon: '🌸', blurb: 'Interactive 6-Bed Berry Plantation, Copper Berry Blender & Botanical Conservatory.' },
 ];
 
 export const placeById = (id: string): Place => places.find((p) => p.id === id) ?? places[0];
