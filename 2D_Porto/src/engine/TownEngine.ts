@@ -92,6 +92,16 @@ import {
   renderCafeAnimations,
   triggerCafeBrewAnimation,
 } from './cafeScene';
+import {
+  ARENA_COLS,
+  ARENA_ROWS,
+  ARENA_SPAWN,
+  ARENA_COLLISION,
+  ARENA_PROPS,
+  createArenaBackgroundCanvas,
+  renderArenaAnimations,
+  triggerArenaBattleAnimation,
+} from './arenaScene';
 import { RESHIRAM_IMAGE_SRC } from './reshiramSprite';
 import { ZEKROM_IMAGE_SRC } from './zekromSprite';
 import { GIRATINA_IMAGE_SRC } from './giratinaSprite';
@@ -203,7 +213,7 @@ export class TownEngine {
   private ctx: CanvasRenderingContext2D;
   private map: TownMap;
   private callbacks: EngineCallbacks;
-  private currentScene: 'town' | 'home' | 'dev' | 'lab' | 'arcade' | 'reception' | 'mart' | 'tower' | 'cafe' = 'town';
+  private currentScene: 'town' | 'home' | 'dev' | 'lab' | 'arcade' | 'reception' | 'mart' | 'tower' | 'cafe' | 'arena' = 'town';
   private homeFloor: '1F' | '2F' = '1F';
   public activeTowerFloor: '1F' | '2F' | '3F' | '4F' = '1F';
   private devBackgroundCanvas: HTMLCanvasElement | null = null;
@@ -234,6 +244,7 @@ export class TownEngine {
   private martBackgroundCanvas: HTMLCanvasElement | null = null;
   private towerBackgroundCanvas: HTMLCanvasElement | null = null;
   private cafeBackgroundCanvas: HTMLCanvasElement | null = null;
+  private arenaBackgroundCanvas: HTMLCanvasElement | null = null;
   private townBackgroundCanvas: HTMLCanvasElement | null = null;
   public townAtmosphere: TownAtmosphere = 'day';
   public weather: TownWeather = 'petals';
@@ -377,6 +388,13 @@ export class TownEngine {
       this.playerDir = CAFE_SPAWN.dir;
       this.cameraX = (CAFE_COLS * TILE_SIZE) / 2;
       this.cameraY = (CAFE_ROWS * TILE_SIZE) / 2;
+    } else if (initialSpawn === 'arena' || initialSpawn === 'colosseum') {
+      this.currentScene = 'arena';
+      this.playerPos = { x: ARENA_SPAWN.x, y: ARENA_SPAWN.y };
+      this.playerTarget = { x: ARENA_SPAWN.x, y: ARENA_SPAWN.y };
+      this.playerDir = ARENA_SPAWN.dir;
+      this.cameraX = (ARENA_COLS * TILE_SIZE) / 2;
+      this.cameraY = (ARENA_ROWS * TILE_SIZE) / 2;
     } else {
       this.currentScene = 'town';
       let spawnX = 22;
@@ -1409,6 +1427,14 @@ export class TownEngine {
       this.defaultZoom = Math.max(Math.min(zoomW, zoomH), 1.8 * dpr);
       this.cameraX = (CAFE_COLS * TILE_SIZE) / 2;
       this.cameraY = (CAFE_ROWS * TILE_SIZE) / 2;
+    } else if (this.currentScene === 'arena') {
+      const targetW = ARENA_COLS * TILE_SIZE * 1.05;
+      const targetH = ARENA_ROWS * TILE_SIZE * 1.05;
+      const zoomW = this.canvas.width / targetW;
+      const zoomH = this.canvas.height / targetH;
+      this.defaultZoom = Math.max(Math.min(zoomW, zoomH), 1.8 * dpr);
+      this.cameraX = (ARENA_COLS * TILE_SIZE) / 2;
+      this.cameraY = (ARENA_ROWS * TILE_SIZE) / 2;
     } else {
       const targetW = this.map.w * TILE_SIZE * 1.05;
       const zoomW = this.canvas.width / targetW;
@@ -1996,6 +2022,13 @@ export class TownEngine {
     };
     window.addEventListener('town:cafe-brew-anim', onCafeBrewAnim);
 
+    const onArenaFx = (e: Event) => {
+      const ce = e as CustomEvent<{ text?: string; color?: string }>;
+      triggerArenaBattleAnimation(ce.detail?.text || 'CRITICAL HIT! 100% EFFICIENCY', ce.detail?.color || '#a855f7');
+      this.wake();
+    };
+    window.addEventListener('town:arena-fx', onArenaFx);
+
     this.unbindEvents.push(
       () => window.removeEventListener('keydown', onKeyDown),
       () => window.removeEventListener('keyup', onKeyUp),
@@ -2023,7 +2056,8 @@ export class TownEngine {
       () => window.removeEventListener('town:reception-heal-anim', onReceptionHeal),
       () => window.removeEventListener('town:claim-lucky-egg', onLuckyEgg),
       () => window.removeEventListener('town:mart-cash-anim', onMartCashAnim),
-      () => window.removeEventListener('town:cafe-brew-anim', onCafeBrewAnim)
+      () => window.removeEventListener('town:cafe-brew-anim', onCafeBrewAnim),
+      () => window.removeEventListener('town:arena-fx', onArenaFx)
     );
   }
 
@@ -2048,7 +2082,9 @@ export class TownEngine {
                     ? TOWER_COLS
                     : this.currentScene === 'cafe'
                       ? CAFE_COLS
-                      : this.map.w;
+                      : this.currentScene === 'arena'
+                        ? ARENA_COLS
+                        : this.map.w;
     const rows =
       this.currentScene === 'home'
         ? (is2F ? HOME2F_ROWS : HOME_ROWS)
@@ -2066,7 +2102,9 @@ export class TownEngine {
                     ? TOWER_ROWS
                     : this.currentScene === 'cafe'
                       ? CAFE_ROWS
-                      : this.map.h;
+                      : this.currentScene === 'arena'
+                        ? ARENA_ROWS
+                        : this.map.h;
     if (targetX < 0 || targetX >= cols || targetY < 0 || targetY >= rows) return;
     const start = this.isMoving ? this.playerTarget : this.playerPos;
     const collisionMap =
@@ -2088,7 +2126,9 @@ export class TownEngine {
                     ? TOWER_COLLISION
                     : this.currentScene === 'cafe'
                       ? CAFE_COLLISION
-                      : this.getEffectiveCollisionMap();
+                      : this.currentScene === 'arena'
+                        ? ARENA_COLLISION
+                        : this.getEffectiveCollisionMap();
 
     let destX = targetX;
     let destY = targetY;
@@ -2378,6 +2418,41 @@ export class TownEngine {
       return;
     }
 
+    if (this.currentScene === 'arena') {
+      this.pendingTarget = id;
+      switch (id) {
+        case 'mewtwo-boss':
+          this.walkTo(7, 4);
+          break;
+        case 'lucario-coach':
+          this.walkTo(5, 4);
+          break;
+        case 'referee-dan':
+          this.walkTo(8, 4);
+          break;
+        case 'battle-terminal':
+          this.walkTo(2, 5);
+          break;
+        case 'algorithm-dojo':
+          this.walkTo(11, 5);
+          break;
+        case 'trophy-vault':
+          this.walkTo(2, 6);
+          break;
+        case 'stat-radar':
+          this.walkTo(11, 6);
+          break;
+        case 'exit':
+          this.walkTo(7, 11);
+          break;
+        default:
+          const prop = ARENA_PROPS.find((p) => p.id === id);
+          if (prop) this.walkTo(prop.x, prop.y + prop.h);
+          break;
+      }
+      return;
+    }
+
     if (this.currentScene === 'reception') {
       this.pendingTarget = id;
       switch (id) {
@@ -2613,7 +2688,7 @@ export class TownEngine {
     }
 
     if (cfg && cfg.doorX !== undefined && cfg.doorY !== undefined) {
-      if (cfg.kind === 'building') {
+      if (cfg.kind === 'building' && cfg.id !== 'arena') {
         this.pendingTarget = null;
       } else {
         this.pendingTarget = id;
@@ -2886,6 +2961,10 @@ export class TownEngine {
     if (this.currentScene === 'cafe') {
       if (x < 0 || x >= CAFE_COLS || y < 0 || y >= CAFE_ROWS) return false;
       return CAFE_COLLISION[y * CAFE_COLS + x] === 0;
+    }
+    if (this.currentScene === 'arena') {
+      if (x < 0 || x >= ARENA_COLS || y < 0 || y >= ARENA_ROWS) return false;
+      return ARENA_COLLISION[y * ARENA_COLS + x] === 0;
     }
     return this.isTileWalkable(x, y);
   }
@@ -3713,6 +3792,17 @@ export class TownEngine {
         this.playerDir = 'right';
         this.interactFacing('craft-tap');
         break;
+      // Battle Frontier Arena props
+      case 'mewtwo-boss':
+      case 'lucario-coach':
+      case 'referee-dan':
+      case 'battle-terminal':
+      case 'algorithm-dojo':
+      case 'trophy-vault':
+      case 'stat-radar':
+        this.playerDir = 'up';
+        this.interactFacing(id);
+        break;
       // Dev Center props
       case 'eternatus':
         this.playerDir = 'right';
@@ -3775,6 +3865,16 @@ export class TownEngine {
       if (this.playerPos.x === 7 && this.playerPos.y === 11) {
         sfx.door();
         if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('town:respawn', '29,32');
+        this.callbacks.onNavigate('/');
+        return;
+      }
+      return;
+    }
+
+    if (this.currentScene === 'arena') {
+      if (this.playerPos.x === 7 && this.playerPos.y === 11) {
+        sfx.door();
+        if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('town:respawn', '38,44');
         this.callbacks.onNavigate('/');
         return;
       }
@@ -4439,6 +4539,189 @@ export class TownEngine {
         } else if (prop.target.type === 'place' && prop.target.id) {
           sfx.door();
           if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('town:respawn', '29,32');
+          this.callbacks.onNavigate(prop.target.id === 'town' ? '/' : `/${prop.target.id}`);
+        }
+        this.wake();
+      }
+      return;
+    }
+
+    if (this.currentScene === 'arena') {
+      const fx = this.playerPos.x + DIRS[this.playerDir].x;
+      const fy = this.playerPos.y + DIRS[this.playerDir].y;
+      const prop =
+        (activeTarget ? ARENA_PROPS.find((p) => p.id === activeTarget) : undefined) ||
+        ARENA_PROPS.find(
+          (p) =>
+            (fx >= p.x && fx < p.x + p.w && fy >= p.y && fy < p.y + p.h) ||
+            (this.playerPos.x >= p.x - 1 &&
+              this.playerPos.x <= p.x + p.w &&
+              this.playerPos.y >= p.y - 1 &&
+              this.playerPos.y <= p.y + p.h)
+        );
+
+      if (prop) {
+        sfx.select();
+        if (prop.target.type === 'event' && prop.target.name) {
+          if (prop.target.name === 'mewtwo-boss') {
+            sfx.encounter();
+            triggerArenaBattleAnimation('MEWTWO PSYSTRIKE RESONANCE! 🔮', '#a855f7');
+            if (this.callbacks.onBubble) {
+              this.callbacks.onBubble(
+                'Frontier Brain Mewtwo · Grand Colosseum 🔮',
+                'MEWTWO (Telepathy): "Welcome to the Battle Frontier Colosseum. Here we test raw algorithmic intellect, real-time AI inference, and high-concurrency system resilience. Step up to the Battle Simulator or take the Architecture Gauntlet!"',
+                [
+                  {
+                    label: '⚔️ Launch Turn-Based Battle vs Mewtwo',
+                    onClick: () => {
+                      const el = document.getElementById('arena-battle-sim');
+                      el?.scrollIntoView({ behavior: 'smooth' });
+                    },
+                  },
+                  {
+                    label: '🧠 Start 6-Stage Technical Gauntlet',
+                    onClick: () => {
+                      const el = document.getElementById('arena-quiz-gauntlet');
+                      el?.scrollIntoView({ behavior: 'smooth' });
+                    },
+                  },
+                ]
+              );
+            }
+          } else if (prop.target.name === 'lucario-coach') {
+            sfx.confirm();
+            triggerArenaBattleAnimation('LUCARIO AURA SPHERE READY! 🌀', '#38bdf8');
+            if (this.callbacks.onBubble) {
+              this.callbacks.onBubble(
+                'Tactical Coach Lucario · Aura Corner 🌀',
+                '"Your coding aura is sharp and focused!" Lucario analyzes your battle strategy and restores your party’s stamina to 100%. Choose your Challenger Pokémon in the Battle Simulator to counter Mewtwo’s Psychic barrier!',
+                [
+                  {
+                    label: '🌀 Select Partner & Battle (+100% Stamina)',
+                    onClick: () => {
+                      sfx.heal();
+                      this.callbacks.onRefill();
+                      const el = document.getElementById('arena-battle-sim');
+                      el?.scrollIntoView({ behavior: 'smooth' });
+                    },
+                  },
+                  {
+                    label: '📊 Inspect 6-Axis Stack IV Radar',
+                    onClick: () => {
+                      this.walkToObject('stat-radar');
+                      const el = document.getElementById('arena-stat-scanner');
+                      el?.scrollIntoView({ behavior: 'smooth' });
+                    },
+                  },
+                ]
+              );
+            }
+          } else if (prop.target.name === 'referee-dan') {
+            sfx.select();
+            triggerArenaBattleAnimation('MATCH OFFICIAL: READY TO DUEL! 🏁', '#22c55e');
+            if (this.callbacks.onBubble) {
+              this.callbacks.onBubble(
+                'Chief Referee Victor · Colosseum Official 🏁',
+                '"Both sides are in position! Sanctioned under Sinnoh & Unova Battle Frontier rules: 4 Engineering Signature Moves per partner, real-time ELO telemetry, and official Frontier Badge certification!"',
+                [
+                  {
+                    label: '⚔️ Jump to Battle Court Console',
+                    onClick: () => {
+                      const el = document.getElementById('arena-battle-sim');
+                      el?.scrollIntoView({ behavior: 'smooth' });
+                    },
+                  },
+                  {
+                    label: '🏆 View Championship Trophy Vault',
+                    onClick: () => {
+                      this.walkToObject('trophy-vault');
+                      const el = document.getElementById('arena-trophy-vault');
+                      el?.scrollIntoView({ behavior: 'smooth' });
+                    },
+                  },
+                ]
+              );
+            }
+          } else if (prop.target.name === 'battle-terminal') {
+            sfx.confirm();
+            triggerArenaBattleAnimation('TACTICAL SIMULATOR ONLINE ⚔️', '#ef4444');
+            if (this.callbacks.onBubble) {
+              this.callbacks.onBubble(
+                'Live Turn-Based Battle Simulator Deck ⚔️',
+                'Command Charizard (Full-Stack Flame), Lucario (Edge AI Aura), Garchomp (Supersonic Systems), or Dialga (Temporal Backend) in a live turn-based engineering duel against Frontier Brain Mewtwo!',
+                [
+                  {
+                    label: '⚔️ Open Battle Simulator',
+                    onClick: () => {
+                      const el = document.getElementById('arena-battle-sim');
+                      el?.scrollIntoView({ behavior: 'smooth' });
+                    },
+                  },
+                ]
+              );
+            }
+          } else if (prop.target.name === 'algorithm-dojo') {
+            sfx.select();
+            triggerArenaBattleAnimation('ARCHITECTURE GAUNTLET LOADED 🧠', '#c084fc');
+            if (this.callbacks.onBubble) {
+              this.callbacks.onBubble(
+                'Algorithm & System Design Gauntlet 🧠',
+                'Test your command of YOLOv11 TensorRT quantization, Laravel 12 + PostGIS spatial queries, Redis Lua atomic locks, and Huawei HCIA-Security firewall policies!',
+                [
+                  {
+                    label: '🧠 Take the 6-Question Gauntlet',
+                    onClick: () => {
+                      const el = document.getElementById('arena-quiz-gauntlet');
+                      el?.scrollIntoView({ behavior: 'smooth' });
+                    },
+                  },
+                ]
+              );
+            }
+          } else if (prop.target.name === 'trophy-vault') {
+            sfx.heal();
+            triggerArenaBattleAnimation('HALL OF FAME HONORS UNLOCKED 🏆', '#fbbf24');
+            if (this.callbacks.onBubble) {
+              this.callbacks.onBubble(
+                'Championship Trophy & Honor Vault 🏆',
+                "Showcasing Muhammad Zulfan's verified competitive & academic honors: IDEA FEST 3 National Bronze Medal, Huawei HCIA-Security V4.0 Certification, ITENAS Informatics GPA 3.49/4.00, and 6x Lab Assistantship.",
+                [
+                  {
+                    label: '🏆 Inspect Trophies & Credentials',
+                    onClick: () => {
+                      const el = document.getElementById('arena-trophy-vault');
+                      el?.scrollIntoView({ behavior: 'smooth' });
+                    },
+                  },
+                  {
+                    label: '📄 Download Official CV (PDF)',
+                    href: '/cv/CV_Zulfan.pdf',
+                  },
+                ]
+              );
+            }
+          } else if (prop.target.name === 'stat-radar') {
+            sfx.select();
+            triggerArenaBattleAnimation('BST 565: PSEUDO-LEGENDARY TIER 📊', '#10b981');
+            if (this.callbacks.onBubble) {
+              this.callbacks.onBubble(
+                '6-Axis Stack EV/IV Telemetry Scanner 📊',
+                'Base Stat Total (BST): 565 / 600. Scans Zulfan’s 6 core engineering dimensions: AI & Computer Vision (98), Frontend & 2D Engines (96), Backend & APIs (95), System Architecture (94), Network Security (92), and Robotics/IoT (90).',
+                [
+                  {
+                    label: '📊 View EV/IV Stat Breakdown',
+                    onClick: () => {
+                      const el = document.getElementById('arena-stat-scanner');
+                      el?.scrollIntoView({ behavior: 'smooth' });
+                    },
+                  },
+                ]
+              );
+            }
+          }
+        } else if (prop.target.type === 'place' && prop.target.id) {
+          sfx.door();
+          if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('town:respawn', '38,44');
           this.callbacks.onNavigate(prop.target.id === 'town' ? '/' : `/${prop.target.id}`);
         }
         this.wake();
@@ -5997,6 +6280,31 @@ export class TownEngine {
       return;
     }
 
+    if (activeTarget === 'arena' || activeTarget === 'colosseum' || customPlaced?.id === 'arena') {
+      sfx.select();
+      const arenaLines = [
+        'BATTLE FRONTIER & ALGORITHM COLOSSEUM ⚔️',
+        'Step into the Grand Stadium where Frontier Brain Mewtwo & Tactical Coach Lucario test your AI, full-stack architecture, and competitive engineering mastery!',
+      ];
+      const arenaActions = [
+        {
+          label: '⚔️ Enter Battle Frontier Arena (/arena)',
+          href: '/arena',
+        },
+        {
+          label: '🔮 Quick Telepathy Quiz vs Mewtwo',
+          onClick: () => document.dispatchEvent(new CustomEvent('town:arena-quiz')),
+        },
+      ];
+      if (this.callbacks.onBubble) {
+        this.callbacks.onBubble('Battle Frontier Colosseum ⚔️', arenaLines.join(' '), arenaActions);
+      } else {
+        this.callbacks.onDialogue('Battle Frontier Colosseum ⚔️', arenaLines, () => this.callbacks.onNavigate('/arena'));
+      }
+      this.wake();
+      return;
+    }
+
     if (
       activeTarget === 'berry' ||
       activeTarget === 'garden' ||
@@ -6355,14 +6663,20 @@ export class TownEngine {
         return;
       }
       if (prop.id === 'arena') {
-        const action = {
-          label: '🔮 Challenge Mewtwo',
-          onClick: () => document.dispatchEvent(new CustomEvent('town:arena-quiz')),
-        };
+        const actions = [
+          {
+            label: '⚔️ Enter Battle Frontier Arena (/arena)',
+            href: '/arena',
+          },
+          {
+            label: '🔮 Quick Telepathy Quiz vs Mewtwo',
+            onClick: () => document.dispatchEvent(new CustomEvent('town:arena-quiz')),
+          },
+        ];
         if (this.callbacks.onBubble) {
-          this.callbacks.onBubble('Pokémon Battle Arena ⚔️', prop.lines.join(' '), action);
+          this.callbacks.onBubble('Pokémon Battle Arena ⚔️', prop.lines.join(' '), actions);
         } else {
-          this.callbacks.onDialogue('Battle Arena', prop.lines);
+          this.callbacks.onDialogue('Battle Arena', prop.lines, () => this.callbacks.onNavigate('/arena'));
         }
         this.wake();
         return;
@@ -6568,6 +6882,46 @@ export class TownEngine {
 
         btn.style.display = '';
         const obj = cafeLabels[id];
+        const worldX = (obj.x + obj.w / 2) * TILE_SIZE;
+        const worldY = (obj.y - (obj.lift ?? 0)) * TILE_SIZE;
+
+        const canvasX = this.canvas.width / 2 + (worldX - this.cameraX) * this.zoom;
+        const canvasY = this.canvas.height / 2 + (worldY - this.cameraY) * this.zoom;
+
+        const dpr = window.devicePixelRatio || 1;
+        const cssX = canvasX / dpr;
+        const cssY = canvasY / dpr;
+
+        btn.style.left = `${Math.round(cssX)}px`;
+        btn.style.top = `${Math.round(cssY)}px`;
+        btn.style.transform = '';
+        btn.style.visibility = 'visible';
+      });
+      return;
+    }
+
+    if (this.currentScene === 'arena') {
+      const arenaLabels: Record<string, { x: number; y: number; w: number; h: number; lift?: number }> = {
+        'mewtwo-boss': { x: 7, y: 3, w: 1, h: 1, lift: 1.15 },
+        'lucario-coach': { x: 5, y: 3, w: 1, h: 1, lift: 1.1 },
+        'referee-dan': { x: 8, y: 3, w: 1, h: 1, lift: 1.1 },
+        'battle-terminal': { x: 1, y: 3, w: 3, h: 2, lift: 0.75 },
+        'algorithm-dojo': { x: 10, y: 3, w: 3, h: 2, lift: 0.75 },
+        'trophy-vault': { x: 1, y: 7, w: 3, h: 2, lift: 0.75 },
+        'stat-radar': { x: 10, y: 7, w: 3, h: 2, lift: 0.75 },
+      };
+
+      const buttons = container.querySelectorAll<HTMLButtonElement>('.town-label');
+      buttons.forEach((btn) => {
+        const id = btn.getAttribute('data-id');
+        if (!id || !arenaLabels[id]) {
+          btn.style.visibility = 'hidden';
+          btn.style.display = 'none';
+          return;
+        }
+
+        btn.style.display = '';
+        const obj = arenaLabels[id];
         const worldX = (obj.x + obj.w / 2) * TILE_SIZE;
         const worldY = (obj.y - (obj.lift ?? 0)) * TILE_SIZE;
 
@@ -7173,6 +7527,50 @@ export class TownEngine {
       ctx.drawImage(this.cafeBackgroundCanvas, 0, 0);
 
       renderCafeAnimations(ctx, this.tick);
+
+      this.renderPathAndMarker(ctx);
+
+      const drawX =
+        (this.playerPos.x + (this.playerTarget.x - this.playerPos.x) * this.moveProgress) * TILE_SIZE;
+      const drawY =
+        (this.playerPos.y + (this.playerTarget.y - this.playerPos.y) * this.moveProgress) * this.moveProgress * 0 +
+        (this.playerPos.y + (this.playerTarget.y - this.playerPos.y) * this.moveProgress) * TILE_SIZE;
+      const stepFrame = this.isMoving ? Math.floor(this.moveProgress * 4) : 0;
+
+      drawCharacter(ctx, this.playerPalette, this.playerDir, stepFrame, drawX, drawY, 1);
+
+      ctx.restore();
+
+      this.updateDomLabels();
+      return;
+    }
+
+    if (this.currentScene === 'arena') {
+      this.cameraX = (ARENA_COLS * TILE_SIZE) / 2;
+      this.cameraY = (ARENA_ROWS * TILE_SIZE) / 2;
+
+      ctx.save();
+      ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+      ctx.fillStyle = '#090d16';
+      ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+      ctx.translate(this.canvas.width / 2, this.canvas.height / 2);
+      ctx.scale(this.zoom, this.zoom);
+      ctx.translate(-this.cameraX, -this.cameraY);
+
+      if (this.cameraShakeTime > 0) {
+        const shakeX = (Math.random() - 0.5) * this.cameraShakeIntensity;
+        const shakeY = (Math.random() - 0.5) * this.cameraShakeIntensity;
+        ctx.translate(shakeX, shakeY);
+      }
+
+      if (!this.arenaBackgroundCanvas) {
+        this.arenaBackgroundCanvas = createArenaBackgroundCanvas();
+      }
+      ctx.drawImage(this.arenaBackgroundCanvas, 0, 0);
+
+      renderArenaAnimations(ctx, this.tick);
 
       this.renderPathAndMarker(ctx);
 
