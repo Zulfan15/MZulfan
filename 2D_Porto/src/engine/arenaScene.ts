@@ -1,5 +1,6 @@
 import type { Dir } from './types';
-import { TILE_SIZE } from './sprites';
+import { TILE_SIZE, drawCharacter, drawLucario } from './sprites';
+import { drawPixelText } from './devScene';
 
 export const ARENA_COLS = 15;
 export const ARENA_ROWS = 12;
@@ -10,21 +11,30 @@ export const ARENA_SPAWN: { x: number; y: number; dir: Dir } = {
   dir: 'up',
 };
 
-// 1 = blocked wall/prop, 0 = walkable stadium floor
-// 15x12 Grand Battle Frontier Colosseum
+const MEWTWO_SPRITE_SRC =
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHAAAABwBAMAAAA0zul4AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAIVBMVEUAAAD4+Pjg4PC4sMi4iMCYiJh4gHiIWJBQWFBAQEAAAABuf+WbAAAAAXRSTlMAQObYZgAAAWxJREFUeNrt2DGtJDEQRdGi8Ck8Co+CKRSFT8EUmkJRuChX7vGMg81Wqk52bmjpSC+wHDi+ffv27dsz8TTEPAvxhvAgXASJp+CvBEg+MIBGqNWvfCCMMWmC6G/HWDVBtHvB4ybRDfWGzDGA6IHoZLPhntkNbXNcI7S82OUDiUYY3LCuHx9YdMJAyoufn+1u2QpJSYzlKs8F6ISSvILMa8sx6IOB064igkziyDYYVJXzNfXAQQ88Y6WrktjRDiVd3u5s7YJkZUp52WfqHLMNkllSpsHmuNEEwS5LEhFY3GdzLtcCKVd5zqkXUQHzrgdil1RjjCUJpJpv1wFxvtySKVEfSPTA5TYsSSq9JEQPDD6wrC1rsx4Y3NvGmKU3NBGNMJBdc25YSmUzDMisDV2iD54+0jZOoh9WJuDlAqIbcruIKNtFRDcklzsvJf3wdjvsfhhAPAtPID0KKaX0KJRSxIMwQI/BQ+Nf4f/7/fYHGujw6q4E2bwAAAAASUVORK5CYII=';
+
+let mewtwoSpriteImg: HTMLImageElement | null = null;
+if (typeof window !== 'undefined') {
+  mewtwoSpriteImg = new Image();
+  mewtwoSpriteImg.src = MEWTWO_SPRITE_SRC;
+}
+
+// 1 = blocked wall/prop, 0 = walkable Roman stone or gladiator sand
+// 15x12 Roman Gladiator Colosseum
 export const ARENA_COLLISION: number[] = [
-  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // y=0 North Jumbotron & Stadium Wall
-  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // y=1 Spectator Stands & Champion Stage
-  1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, // y=2 Podium Steps
-  1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, // y=3 Battle Terminal (1..3), Lucario (5), Mewtwo (7), Algorithm Dojo (10..12)
-  1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, // y=4 Front of upper consoles
-  1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, // y=5 Upper Battle Court
-  1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, // y=6 Center Poké Ball Line (Walkable!)
-  1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, // y=7 Trophy Vault (1..3), Stat Radar (10..12)
-  1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, // y=8 Lower props bottom
-  1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, // y=9 Lower Battle Court
-  1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, // y=10 Challenger Entrance Walkway
-  1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, // y=11 Exit Gate at (7, 11)
+  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // y=0 North Colosseum Arches
+  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // y=1 North Imperial Wall & Banners
+  1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, // y=2 Imperial Dais (x=6..8 blocked, Mewtwo at 7,2)
+  1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, // y=3 Armory (1..2,3..4), North Braziers (4,3 & 10,3), Trial Gate (12..13,3..4)
+  1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, // y=4 North Gladiator Sand Pit
+  1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, // y=5 Open Walkway & Sand Pit
+  1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, // y=6 Lanista Lucario (2,6), Center Sand Pit, Arbiter (12,6)
+  1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, // y=7 Open Walkway & Sand Pit
+  1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, // y=8 Victors Pedestal (1..2,8..9), Runes Obelisk (12..13,8..9)
+  1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, // y=9 South Braziers (4,9 & 10,9)
+  1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, // y=10 South Colonnade & Spawn (7,10)
+  1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, // y=11 Grand South Gate Exit at (7,11)
 ];
 
 export interface ArenaProp {
@@ -33,11 +43,12 @@ export interface ArenaProp {
   y: number;
   w: number;
   h: number;
-  label: string;
+  label?: string;
+  labelLift?: number;
   target: {
-    type: 'place' | 'event' | 'note';
-    id?: string;
+    type: 'event' | 'place' | 'note';
     name?: string;
+    id?: string;
     text?: string;
   };
 }
@@ -46,86 +57,72 @@ export const ARENA_PROPS: ArenaProp[] = [
   {
     id: 'mewtwo-boss',
     x: 7,
-    y: 3,
+    y: 2,
     w: 1,
     h: 1,
-    label: 'Frontier Brain Mewtwo 🔮',
-    target: {
-      type: 'event',
-      name: 'mewtwo-boss',
-    },
-  },
-  {
-    id: 'lucario-coach',
-    x: 5,
-    y: 3,
-    w: 1,
-    h: 1,
-    label: 'Tactical Coach Lucario 🌀',
-    target: {
-      type: 'event',
-      name: 'lucario-coach',
-    },
-  },
-  {
-    id: 'referee-dan',
-    x: 8,
-    y: 3,
-    w: 1,
-    h: 1,
-    label: 'Chief Referee Victor 🏁',
-    target: {
-      type: 'event',
-      name: 'referee-dan',
-    },
+    label: '👑 Champion Mewtwo',
+    labelLift: 20,
+    target: { type: 'event', name: 'mewtwo-boss' },
   },
   {
     id: 'battle-terminal',
     x: 1,
     y: 3,
-    w: 3,
+    w: 2,
     h: 2,
-    label: 'Battle Simulator Deck ⚔️',
-    target: {
-      type: 'event',
-      name: 'battle-terminal',
-    },
+    label: '⚔️ Armory',
+    labelLift: 10,
+    target: { type: 'event', name: 'battle-terminal' },
   },
   {
     id: 'algorithm-dojo',
-    x: 10,
+    x: 12,
     y: 3,
-    w: 3,
+    w: 2,
     h: 2,
-    label: 'Algorithm & AI Gauntlet 🧠',
-    target: {
-      type: 'event',
-      name: 'algorithm-dojo',
-    },
+    label: '🦁 Trial Gate',
+    labelLift: 10,
+    target: { type: 'event', name: 'algorithm-dojo' },
+  },
+  {
+    id: 'lucario-coach',
+    x: 2,
+    y: 6,
+    w: 1,
+    h: 1,
+    label: '🥊 Lucario',
+    labelLift: 16,
+    target: { type: 'event', name: 'lucario-coach' },
+  },
+  {
+    id: 'referee-dan',
+    x: 12,
+    y: 6,
+    w: 1,
+    h: 1,
+    label: '📯 Arbiter',
+    labelLift: 16,
+    target: { type: 'event', name: 'referee-dan' },
   },
   {
     id: 'trophy-vault',
     x: 1,
-    y: 7,
-    w: 3,
+    y: 8,
+    w: 2,
     h: 2,
-    label: 'Championship Trophy Vault 🏆',
-    target: {
-      type: 'event',
-      name: 'trophy-vault',
-    },
+    label: '🏆 Victors',
+    labelLift: 6,
+    target: { type: 'event', name: 'trophy-vault' },
   },
   {
     id: 'stat-radar',
-    x: 10,
-    y: 7,
-    w: 3,
+    x: 12,
+    y: 8,
+    w: 2,
     h: 2,
-    label: '6-Axis Stack IV Scanner 📊',
-    target: {
-      type: 'event',
-      name: 'stat-radar',
-    },
+    label: '🛡️ Runes',
+    labelLift: 6,
+    target: { type: 'event', name: 'stat-radar' },
   },
   {
     id: 'exit',
@@ -133,522 +130,726 @@ export const ARENA_PROPS: ArenaProp[] = [
     y: 11,
     w: 1,
     h: 1,
-    label: 'Exit to Town Square',
-    target: {
-      type: 'place',
-      id: 'town',
-    },
+    target: { type: 'place', id: 'town' },
   },
 ];
 
-interface ArenaBannerFx {
-  text: string;
+interface ArenaWaveEffect {
+  x: number;
+  y: number;
+  radius: number;
+  maxRadius: number;
   color: string;
-  startTick: number;
+  text: string;
+  alpha: number;
 }
 
-let activeArenaFx: ArenaBannerFx | null = null;
-let latestTick = 0;
+const activeArenaWaves: ArenaWaveEffect[] = [];
 
-export function triggerArenaBattleAnimation(text = 'CRITICAL HIT! 100% EFFICIENCY', color = '#a855f7') {
-  activeArenaFx = {
-    text,
+export function triggerArenaBattleAnimation(
+  text = 'GLADIATOR CLASH! ⚔️',
+  color = '#d97706'
+) {
+  activeArenaWaves.push({
+    x: 7.5 * TILE_SIZE,
+    y: 6.5 * TILE_SIZE,
+    radius: 4,
+    maxRadius: 68,
     color,
-    startTick: latestTick,
-  };
+    text,
+    alpha: 1,
+  });
 }
 
+// Roman Colosseum Palette
+const C_STONE_A = '#b8976c'; // Warm Roman travertine flagstone
+const C_STONE_B = '#aa885d'; // Shaded travertine flagstone
+const C_SAND_MAIN = '#e2be86'; // Sunlit gladiator sand
+const C_SAND_ALT = '#d9b277'; // Textured arena sand
+const C_WALL_DARK = '#3b2412'; // Deep Roman arch stone
+const C_WALL_MID = '#6b4726'; // Carved stone block
+const C_WALL_LIGHT = '#8f6339'; // Highlighted stone block
+const C_GOLD = '#f59e0b'; // Imperial Caesar gold
+const C_GOLD_LIGHT = '#fde68a';
+const C_CRIMSON = '#991b1b'; // Imperial banner red
+const C_CRIMSON_DARK = '#7f1d1d';
+
+/**
+ * Procedural static pixel-art background for the Roman Gladiator Colosseum (/arena)
+ */
 export function createArenaBackgroundCanvas(): HTMLCanvasElement {
   const canvas = document.createElement('canvas');
   canvas.width = ARENA_COLS * TILE_SIZE;
   canvas.height = ARENA_ROWS * TILE_SIZE;
   const ctx = canvas.getContext('2d')!;
-  ctx.imageSmoothingEnabled = false;
 
-  const W = canvas.width;
-  const H = canvas.height;
-
-  // 1. Stadium Base Floor (Dark Slate Tech Colosseum)
-  ctx.fillStyle = '#0f172a';
-  ctx.fillRect(0, 0, W, H);
-
+  // 1. Outer Colonnade Travertine Flagstone Floor (r = 2..11, c = 0..14)
   for (let r = 2; r < ARENA_ROWS; r++) {
-    for (let c = 1; c < ARENA_COLS - 1; c++) {
-      const tx = c * TILE_SIZE;
-      const ty = r * TILE_SIZE;
+    for (let c = 0; c < ARENA_COLS; c++) {
       const isAlt = (r + c) % 2 === 0;
-      ctx.fillStyle = isAlt ? '#1e293b' : '#172033';
-      ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
-      ctx.strokeStyle = 'rgba(148, 163, 184, 0.08)';
-      ctx.strokeRect(tx, ty, TILE_SIZE, TILE_SIZE);
+      ctx.fillStyle = isAlt ? C_STONE_A : C_STONE_B;
+      ctx.fillRect(c * TILE_SIZE, r * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+
+      // Stone flagstone mortar joints & bevel highlights
+      ctx.fillStyle = 'rgba(59, 36, 18, 0.35)';
+      ctx.fillRect(c * TILE_SIZE, r * TILE_SIZE + TILE_SIZE - 1, TILE_SIZE, 1);
+      ctx.fillRect(c * TILE_SIZE + TILE_SIZE - 1, r * TILE_SIZE, 1, TILE_SIZE);
+      ctx.fillStyle = 'rgba(255, 244, 224, 0.18)';
+      ctx.fillRect(c * TILE_SIZE + 1, r * TILE_SIZE + 1, TILE_SIZE - 2, 1);
+
+      // Subtle stone crack/grain
+      if ((r * 7 + c * 13) % 5 === 0) {
+        ctx.fillStyle = 'rgba(59, 36, 18, 0.2)';
+        ctx.fillRect(c * TILE_SIZE + 5, r * TILE_SIZE + 7, 4, 1);
+      }
     }
   }
 
-  // 2. North Stadium Wall, Spectator Tier & Holographic Jumbotron (y=0..1)
-  const wallGrad = ctx.createLinearGradient(0, 0, 0, TILE_SIZE * 2.2);
-  wallGrad.addColorStop(0, '#090d16');
-  wallGrad.addColorStop(0.6, '#1e1b4b');
-  wallGrad.addColorStop(1, '#312e81');
-  ctx.fillStyle = wallGrad;
-  ctx.fillRect(0, 0, W, TILE_SIZE * 2.2);
-
-  // Gold & Indigo Trim along top wall
-  ctx.fillStyle = '#f59e0b';
-  ctx.fillRect(TILE_SIZE, TILE_SIZE * 2.1, W - TILE_SIZE * 2, 3);
-
-  // Center Jumbotron Screen (x=4..10, y=0.2..1.8)
-  const jx = 4 * TILE_SIZE;
-  const jy = 5;
-  const jw = 7 * TILE_SIZE;
-  const jh = TILE_SIZE * 1.75;
-  ctx.fillStyle = '#020617';
-  ctx.fillRect(jx, jy, jw, jh);
-  ctx.strokeStyle = '#38bdf8';
-  ctx.lineWidth = 2;
-  ctx.strokeRect(jx, jy, jw, jh);
-
-  // VS Graphic inside Jumbotron
-  ctx.fillStyle = 'rgba(56, 189, 248, 0.15)';
-  ctx.fillRect(jx + 3, jy + 3, jw / 2 - 3, jh - 6);
-  ctx.fillStyle = 'rgba(244, 63, 94, 0.15)';
-  ctx.fillRect(jx + jw / 2, jy + 3, jw / 2 - 3, jh - 6);
-
-  ctx.font = 'bold 8px monospace';
-  ctx.textAlign = 'center';
-  ctx.fillStyle = '#38bdf8';
-  ctx.fillText('CHALLENGER', jx + jw * 0.25, jy + 12);
-  ctx.fillStyle = '#f43f5e';
-  ctx.fillText('MEWTWO AI', jx + jw * 0.75, jy + 12);
-  ctx.fillStyle = '#facc15';
-  ctx.font = 'bold 9px monospace';
-  ctx.fillText('⚔️ VS ⚔️', jx + jw * 0.5, jy + 21);
-
-  // Stadium Spotlights Left & Right on North Wall
-  for (const sx of [2 * TILE_SIZE, 12.5 * TILE_SIZE]) {
-    ctx.fillStyle = '#334155';
-    ctx.fillRect(sx - 8, 6, 16, 18);
-    ctx.fillStyle = '#fef08a';
-    ctx.beginPath();
-    ctx.arc(sx, 15, 5, 0, Math.PI * 2);
-    ctx.fill();
+  // Imperial Red Carpet Runner from South Gate (c = 6..8, r = 9..11)
+  for (let r = 9; r < ARENA_ROWS; r++) {
+    for (let c = 6; c <= 8; c++) {
+      ctx.fillStyle = (r + c) % 2 === 0 ? C_CRIMSON : C_CRIMSON_DARK;
+      ctx.fillRect(c * TILE_SIZE, r * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+      if (c === 6) {
+        ctx.fillStyle = C_GOLD;
+        ctx.fillRect(c * TILE_SIZE, r * TILE_SIZE, 2, TILE_SIZE);
+      }
+      if (c === 8) {
+        ctx.fillStyle = C_GOLD;
+        ctx.fillRect((c + 1) * TILE_SIZE - 2, r * TILE_SIZE, 2, TILE_SIZE);
+      }
+    }
   }
 
-  // 3. Central Championship Battle Court (x=4..10, y=4..9)
-  const courtX = 4 * TILE_SIZE + 2;
-  const courtY = 4 * TILE_SIZE + 4;
-  const courtW = 7 * TILE_SIZE - 4;
-  const courtH = 6 * TILE_SIZE - 8;
+  // 2. Central Sandy Gladiator Combat Pit (x = 4..10, y = 4..9)
+  const pitX = 4 * TILE_SIZE;
+  const pitY = 4 * TILE_SIZE;
+  const pitW = 7 * TILE_SIZE;
+  const pitH = 6 * TILE_SIZE;
 
-  // Clay / Cyber-Turf Court Gradient
-  const turfGrad = ctx.createLinearGradient(courtX, courtY, courtX, courtY + courtH);
-  turfGrad.addColorStop(0, '#3b1d5e'); // Psychic North Half
-  turfGrad.addColorStop(0.5, '#1e293b');
-  turfGrad.addColorStop(1, '#1e3a5f'); // Challenger South Half
-  ctx.fillStyle = turfGrad;
-  ctx.fillRect(courtX, courtY, courtW, courtH);
+  // Outer Chiseled Stone Parapet Curb around the Sand Pit
+  ctx.fillStyle = '#52361c';
+  ctx.fillRect(pitX - 4, pitY - 4, pitW + 8, pitH + 8);
+  ctx.fillStyle = '#8c6640';
+  ctx.fillRect(pitX - 3, pitY - 3, pitW + 6, pitH + 6);
+  ctx.fillStyle = '#d6be9c'; // Marble inner rim
+  ctx.fillRect(pitX - 1, pitY - 1, pitW + 2, pitH + 2);
 
-  // White Stadium Court Boundary Lines
-  ctx.strokeStyle = 'rgba(248, 250, 252, 0.85)';
-  ctx.lineWidth = 2;
-  ctx.strokeRect(courtX, courtY, courtW, courtH);
+  // Golden-Ochre Gladiator Sand Fill
+  for (let r = 4; r <= 9; r++) {
+    for (let c = 4; c <= 10; c++) {
+      ctx.fillStyle = (r + c) % 2 === 0 ? C_SAND_MAIN : C_SAND_ALT;
+      ctx.fillRect(c * TILE_SIZE, r * TILE_SIZE, TILE_SIZE, TILE_SIZE);
 
-  // Center Midline
-  const midY = courtY + courtH / 2;
-  ctx.beginPath();
-  ctx.moveTo(courtX, midY);
-  ctx.lineTo(courtX + courtW, midY);
-  ctx.stroke();
+      // Raked sand ripples & pebble speckles
+      ctx.fillStyle = 'rgba(161, 114, 58, 0.28)';
+      ctx.fillRect(c * TILE_SIZE + 2, r * TILE_SIZE + 4, 5, 1);
+      ctx.fillRect(c * TILE_SIZE + 9, r * TILE_SIZE + 11, 5, 1);
+      ctx.fillStyle = 'rgba(255, 248, 231, 0.35)';
+      ctx.fillRect(c * TILE_SIZE + 3, r * TILE_SIZE + 5, 4, 1);
+    }
+  }
 
-  // Center Poké Ball Emblem on Court Floor
+  // Inner Sand Pit Shadow along North & West Stone Parapet
+  ctx.fillStyle = 'rgba(82, 54, 28, 0.25)';
+  ctx.fillRect(pitX, pitY, pitW, 3);
+  ctx.fillRect(pitX, pitY, 3, pitH);
+
+  // Gladiator Combat Ring Markings in the Sand
   const centerX = 7.5 * TILE_SIZE;
-  const centerY = midY;
-  const ballR = 20;
+  const centerY = 7 * TILE_SIZE;
 
-  ctx.save();
+  // Outer Crimson & Ochre Gladiator Circle
+  ctx.strokeStyle = 'rgba(153, 27, 27, 0.45)';
+  ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.arc(centerX, centerY, ballR, Math.PI, 0, false);
-  ctx.fillStyle = '#ef4444';
-  ctx.fill();
-  ctx.beginPath();
-  ctx.arc(centerX, centerY, ballR, 0, Math.PI, false);
-  ctx.fillStyle = '#f8fafc';
-  ctx.fill();
-
-  ctx.lineWidth = 2.5;
-  ctx.strokeStyle = '#0f172a';
-  ctx.beginPath();
-  ctx.arc(centerX, centerY, ballR, 0, Math.PI * 2);
+  ctx.arc(centerX, centerY, 36, 0, Math.PI * 2);
   ctx.stroke();
 
-  ctx.beginPath();
-  ctx.moveTo(centerX - ballR, centerY);
-  ctx.lineTo(centerX + ballR, centerY);
-  ctx.stroke();
+  // Horizontal Dividing Line across the Pit
+  ctx.fillStyle = 'rgba(153, 27, 27, 0.4)';
+  ctx.fillRect(pitX + 6, centerY - 1, pitW - 12, 2);
 
+  // Central Chiseled Sandstone & Gold Poké-Gladiator Medallion
+  ctx.fillStyle = '#78350f';
+  ctx.beginPath();
+  ctx.arc(centerX, centerY, 17, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Top half (Imperial Crimson)
+  ctx.fillStyle = '#b91c1c';
+  ctx.beginPath();
+  ctx.arc(centerX, centerY, 15, Math.PI, 0, false);
+  ctx.fill();
+
+  // Bottom half (Travertine Ivory)
+  ctx.fillStyle = '#f5ebe0';
+  ctx.beginPath();
+  ctx.arc(centerX, centerY, 15, 0, Math.PI, false);
+  ctx.fill();
+
+  // Center bronze crossbar & boss
+  ctx.fillStyle = '#78350f';
+  ctx.fillRect(centerX - 15, centerY - 2, 30, 4);
   ctx.beginPath();
   ctx.arc(centerX, centerY, 6, 0, Math.PI * 2);
-  ctx.fillStyle = '#f8fafc';
   ctx.fill();
-  ctx.stroke();
-  ctx.restore();
+  ctx.fillStyle = '#fbbf24';
+  ctx.beginPath();
+  ctx.arc(centerX, centerY, 4, 0, Math.PI * 2);
+  ctx.fill();
 
-  // North Champion Box (Blue/Purple) & South Challenger Box (Red/Amber)
-  ctx.fillStyle = '#6366f1';
-  ctx.fillRect(centerX - 18, courtY + 5, 36, 10);
-  ctx.strokeStyle = '#e0e7ff';
-  ctx.lineWidth = 1;
-  ctx.strokeRect(centerX - 18, courtY + 5, 36, 10);
-
-  ctx.fillStyle = '#ef4444';
-  ctx.fillRect(centerX - 18, courtY + courtH - 15, 36, 10);
-  ctx.strokeStyle = '#fee2e2';
-  ctx.strokeRect(centerX - 18, courtY + courtH - 15, 36, 10);
-
-  // 4. Champion Podium at (5..9, y=2..3)
-  const podX = 5 * TILE_SIZE;
-  const podY = 2.3 * TILE_SIZE;
-  const podW = 5 * TILE_SIZE;
-  const podH = 1.6 * TILE_SIZE;
-  ctx.fillStyle = '#312e81';
-  ctx.fillRect(podX, podY, podW, podH);
-  ctx.strokeStyle = '#f59e0b';
-  ctx.lineWidth = 2;
-  ctx.strokeRect(podX, podY, podW, podH);
-
-  // 5. Left Upper Prop: Battle Simulator Terminal (x=1..3, y=3..4)
-  drawBattleSimulatorConsole(ctx, 1 * TILE_SIZE, 3 * TILE_SIZE);
-
-  // 6. Right Upper Prop: Algorithm & AI Gauntlet Dojo (x=10..12, y=3..4)
-  drawAlgorithmDojoStation(ctx, 10 * TILE_SIZE, 3 * TILE_SIZE);
-
-  // 7. Left Lower Prop: Championship Trophy Vault (x=1..3, y=7..8)
-  drawTrophyVaultCase(ctx, 1 * TILE_SIZE, 7 * TILE_SIZE);
-
-  // 8. Right Lower Prop: 6-Axis Stack IV Scanner (x=10..12, y=7..8)
-  drawStatRadarScanner(ctx, 10 * TILE_SIZE, 7 * TILE_SIZE);
-
-  // 9. NPCs: Frontier Brain Mewtwo (7, 3), Lucario (5, 3), Referee (8, 3)
-  drawLucarioCoach(ctx, 5 * TILE_SIZE, 3 * TILE_SIZE);
-  drawMewtwoBoss(ctx, 7 * TILE_SIZE, 3 * TILE_SIZE);
-  drawRefereeNpc(ctx, 8 * TILE_SIZE, 3 * TILE_SIZE);
-
-  // 10. Outer Colosseum Walls & Exit Mat at (7, 11)
-  ctx.fillStyle = '#090d16';
-  ctx.fillRect(0, 0, TILE_SIZE, H);
-  ctx.fillRect(W - TILE_SIZE, 0, TILE_SIZE, H);
-  ctx.fillRect(0, H - TILE_SIZE, 7 * TILE_SIZE, TILE_SIZE);
-  ctx.fillRect(8 * TILE_SIZE, H - TILE_SIZE, 7 * TILE_SIZE, TILE_SIZE);
-
-  // Exit Gate Carpet at (7, 11)
-  const ex = 7 * TILE_SIZE;
-  const ey = 11 * TILE_SIZE;
+  // North Champion's Stone Combat Slab (y = 4.3)
+  ctx.fillStyle = '#7f1d1d';
+  ctx.fillRect(6 * TILE_SIZE + 6, 4 * TILE_SIZE + 5, 2 * TILE_SIZE + 4, 10);
   ctx.fillStyle = '#b91c1c';
-  ctx.fillRect(ex + 2, ey + 2, TILE_SIZE - 4, TILE_SIZE - 2);
-  ctx.strokeStyle = '#fbbf24';
-  ctx.lineWidth = 1.5;
-  ctx.strokeRect(ex + 2, ey + 2, TILE_SIZE - 4, TILE_SIZE - 2);
-  ctx.fillStyle = '#fde68a';
-  ctx.font = 'bold 6px monospace';
-  ctx.textAlign = 'center';
-  ctx.fillText('EXIT', ex + TILE_SIZE / 2, ey + 14);
+  ctx.fillRect(6 * TILE_SIZE + 7, 4 * TILE_SIZE + 6, 2 * TILE_SIZE + 2, 8);
+  ctx.fillStyle = C_GOLD;
+  ctx.fillRect(6 * TILE_SIZE + 6, 4 * TILE_SIZE + 5, 2 * TILE_SIZE + 4, 1);
+
+  // South Challenger's Stone Combat Slab (y = 9.1)
+  ctx.fillStyle = '#1e3a8a';
+  ctx.fillRect(6 * TILE_SIZE + 6, 9 * TILE_SIZE + 1, 2 * TILE_SIZE + 4, 10);
+  ctx.fillStyle = '#2563eb';
+  ctx.fillRect(6 * TILE_SIZE + 7, 9 * TILE_SIZE + 2, 2 * TILE_SIZE + 2, 8);
+  ctx.fillStyle = C_GOLD;
+  ctx.fillRect(6 * TILE_SIZE + 6, 9 * TILE_SIZE + 1, 2 * TILE_SIZE + 4, 1);
+
+  // 3. North Imperial Colosseum Wall & Arches (y = 0..2)
+  ctx.fillStyle = C_WALL_DARK;
+  ctx.fillRect(0, 0, canvas.width, 2 * TILE_SIZE);
+
+  // Ashlar Roman Stone Blocks on North Wall
+  ctx.fillStyle = C_WALL_MID;
+  for (let wy = 2; wy < 2 * TILE_SIZE - 4; wy += 6) {
+    const shift = (wy / 6) % 2 === 0 ? 0 : 7;
+    for (let wx = TILE_SIZE + shift; wx < canvas.width - TILE_SIZE - 8; wx += 14) {
+      ctx.fillRect(wx, wy, 12, 5);
+      ctx.fillStyle = C_WALL_LIGHT;
+      ctx.fillRect(wx, wy, 12, 1);
+      ctx.fillStyle = C_WALL_MID;
+    }
+  }
+
+  // Roman Colosseum Arched Alcoves along North Wall
+  const archPositions = [2 * TILE_SIZE, 5 * TILE_SIZE, 9 * TILE_SIZE, 12 * TILE_SIZE];
+  for (const ax of archPositions) {
+    ctx.fillStyle = '#231409';
+    ctx.fillRect(ax + 2, 8, 12, 20);
+    ctx.beginPath();
+    ctx.arc(ax + 8, 10, 6, Math.PI, 0, false);
+    ctx.fill();
+    // Golden keystone at top of arch
+    ctx.fillStyle = C_GOLD;
+    ctx.fillRect(ax + 7, 3, 2, 3);
+  }
+
+  // Imperial Crimson & Gold Velvet Banners on North Wall
+  const bannerCols = [3 * TILE_SIZE + 3, 11 * TILE_SIZE + 3];
+  for (const bx of bannerCols) {
+    ctx.fillStyle = C_GOLD;
+    ctx.fillRect(bx - 1, 4, 12, 2);
+    ctx.fillStyle = C_CRIMSON;
+    ctx.fillRect(bx, 6, 10, 18);
+    ctx.fillStyle = C_GOLD;
+    ctx.fillRect(bx + 1, 6, 1, 18);
+    ctx.fillRect(bx + 8, 6, 1, 18);
+    // Golden wreath emblem in center of banner
+    ctx.fillRect(bx + 3, 11, 4, 4);
+    ctx.fillStyle = C_CRIMSON;
+    ctx.fillRect(bx + 4, 12, 2, 2);
+    // Banner swallowtail fringe
+    ctx.fillStyle = C_GOLD;
+    ctx.fillRect(bx, 24, 3, 2);
+    ctx.fillRect(bx + 7, 24, 3, 2);
+  }
+
+  // 4 Fluted Corinthian Marble Columns along North Wall
+  const pillarCols = [1 * TILE_SIZE + 2, 4 * TILE_SIZE + 2, 10 * TILE_SIZE + 2, 13 * TILE_SIZE + 2];
+  for (const px of pillarCols) {
+    // Gilded Capital
+    ctx.fillStyle = C_GOLD;
+    ctx.fillRect(px - 1, 2, 12, 3);
+    // Fluted Marble Shaft
+    ctx.fillStyle = '#f5ebe0';
+    ctx.fillRect(px, 5, 10, 23);
+    ctx.fillStyle = '#cbb69b';
+    ctx.fillRect(px + 2, 5, 1, 23);
+    ctx.fillRect(px + 5, 5, 1, 23);
+    ctx.fillRect(px + 8, 5, 1, 23);
+    // Gilded Base
+    ctx.fillStyle = C_GOLD;
+    ctx.fillRect(px - 1, 28, 12, 3);
+  }
+
+  // Golden Cornice Moulding along bottom of North Wall
+  ctx.fillStyle = '#92400e';
+  ctx.fillRect(0, 2 * TILE_SIZE - 3, canvas.width, 3);
+  ctx.fillStyle = C_GOLD;
+  ctx.fillRect(0, 2 * TILE_SIZE - 3, canvas.width, 1);
+
+  // Chiseled Marble Plaque at Center of North Arch ("COLOSSEUM")
+  const signW = 78;
+  const signH = 14;
+  const signX = Math.floor((canvas.width - signW) / 2);
+  const signY = 4;
+  ctx.fillStyle = '#451a03';
+  ctx.fillRect(signX - 2, signY - 2, signW + 4, signH + 4);
+  ctx.fillStyle = '#78350f';
+  ctx.fillRect(signX, signY, signW, signH);
+  ctx.fillStyle = C_GOLD;
+  ctx.fillRect(signX + 1, signY + 1, signW - 2, 1);
+  ctx.fillRect(signX + 1, signY + signH - 2, signW - 2, 1);
+  drawPixelText(ctx, 'COLOSSEUM', signX + 12, signY + 4, C_GOLD_LIGHT);
+
+  // 4. Center North Imperial Tribune / Champion's Podium (x = 6..8, y = 2)
+  drawImperialTribune(ctx, 6 * TILE_SIZE, 2 * TILE_SIZE, 3 * TILE_SIZE, TILE_SIZE);
+
+  // 5. Perimeter Stone Walls (West, East, and South)
+  ctx.fillStyle = C_WALL_DARK;
+  ctx.fillRect(0, 0, TILE_SIZE, canvas.height);
+  ctx.fillRect(canvas.width - TILE_SIZE, 0, TILE_SIZE, canvas.height);
+  ctx.fillRect(0, 11 * TILE_SIZE, 6 * TILE_SIZE + 8, TILE_SIZE);
+  ctx.fillRect(8 * TILE_SIZE + 8, 11 * TILE_SIZE, 6 * TILE_SIZE + 8, TILE_SIZE);
+
+  // Carved stone crenellations along West & East perimeter walls
+  for (let y = 2; y < 11; y++) {
+    ctx.fillStyle = y % 2 === 0 ? C_WALL_MID : C_WALL_LIGHT;
+    ctx.fillRect(2, y * TILE_SIZE + 2, 12, 12);
+    ctx.fillRect(canvas.width - 14, y * TILE_SIZE + 2, 12, 12);
+  }
+
+  // 6. Four Gladiator Stations in the 4 Corners of the Colonnade
+  // North-West: Gladiator Armory & Weapon Rack (x = 1..2, y = 3..4)
+  drawGladiatorArmory(ctx, 1 * TILE_SIZE, 3 * TILE_SIZE, 2 * TILE_SIZE, 2 * TILE_SIZE);
+
+  // North-East: Iron Beast Portcullis & Trial Tablet (x = 12..13, y = 3..4)
+  drawTrialPortcullis(ctx, 12 * TILE_SIZE, 3 * TILE_SIZE, 2 * TILE_SIZE, 2 * TILE_SIZE);
+
+  // South-West: Hall of Victors Marble Pedestals (x = 1..2, y = 8..9)
+  drawVictorsPedestals(ctx, 1 * TILE_SIZE, 8 * TILE_SIZE, 2 * TILE_SIZE, 2 * TILE_SIZE);
+
+  // South-East: Obelisk of Mars & Combat Runes (x = 12..13, y = 8..9)
+  drawRunicObelisk(ctx, 12 * TILE_SIZE, 8 * TILE_SIZE, 2 * TILE_SIZE, 2 * TILE_SIZE);
+
+  // 7. Pit-Side Stone Plinths for Lanista Lucario (2,6) & Legatus Arbiter (12,6)
+  drawTrainerPlinth(ctx, 2 * TILE_SIZE, 6 * TILE_SIZE, '#1d4ed8');
+  drawTrainerPlinth(ctx, 12 * TILE_SIZE, 6 * TILE_SIZE, '#b91c1c');
+
+  // 8. Four Iron Brazier Pedestals at the 4 Corners of the Sand Pit
+  const brazierCoords = [
+    { x: 4 * TILE_SIZE, y: 3 * TILE_SIZE },
+    { x: 10 * TILE_SIZE, y: 3 * TILE_SIZE },
+    { x: 4 * TILE_SIZE, y: 9 * TILE_SIZE },
+    { x: 10 * TILE_SIZE, y: 9 * TILE_SIZE },
+  ];
+  for (const b of brazierCoords) {
+    drawBrazierBase(ctx, b.x, b.y);
+  }
+
+  // 9. Grand South Archway Exit Threshold (x = 6..8, y = 11)
+  ctx.fillStyle = '#78350f';
+  ctx.fillRect(6 * TILE_SIZE + 8, 11 * TILE_SIZE, 2 * TILE_SIZE, TILE_SIZE);
+  ctx.fillStyle = C_CRIMSON;
+  ctx.fillRect(6 * TILE_SIZE + 10, 11 * TILE_SIZE + 2, 2 * TILE_SIZE - 4, 12);
+  ctx.fillStyle = C_GOLD;
+  ctx.fillRect(6 * TILE_SIZE + 12, 11 * TILE_SIZE + 3, 2 * TILE_SIZE - 8, 1);
+  drawPixelText(ctx, 'EXIT', 7 * TILE_SIZE - 3, 11 * TILE_SIZE + 6, C_GOLD_LIGHT);
 
   return canvas;
 }
 
-function drawBattleSimulatorConsole(ctx: CanvasRenderingContext2D, x: number, y: number) {
-  const w = 3 * TILE_SIZE;
-  const h = 2 * TILE_SIZE;
+function drawImperialTribune(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  w: number,
+  h: number
+) {
+  // Raised Marble Balcony Platform
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
+  ctx.fillRect(x, y + 3, w, h);
 
-  // Base desk
-  ctx.fillStyle = '#1e293b';
-  ctx.fillRect(x + 2, y + 6, w - 4, h - 8);
-  ctx.strokeStyle = '#ef4444';
-  ctx.lineWidth = 1.5;
-  ctx.strokeRect(x + 2, y + 6, w - 4, h - 8);
+  ctx.fillStyle = '#e7d8c1'; // Travertine marble steps
+  ctx.fillRect(x, y, w, h);
+  ctx.fillStyle = '#cbb69b';
+  ctx.fillRect(x + 2, y + h - 3, w - 4, 3);
 
-  // Dual Tactical Screens
-  ctx.fillStyle = '#020617';
-  ctx.fillRect(x + 6, y + 10, 26, 18);
-  ctx.fillRect(x + 36, y + 10, 26, 18);
-  ctx.strokeStyle = '#38bdf8';
-  ctx.strokeRect(x + 6, y + 10, 26, 18);
-  ctx.strokeStyle = '#f43f5e';
-  ctx.strokeRect(x + 36, y + 10, 26, 18);
-
-  // HP bars inside screens
-  ctx.fillStyle = '#22c55e';
-  ctx.fillRect(x + 9, y + 14, 18, 3);
-  ctx.fillStyle = '#f59e0b';
-  ctx.fillRect(x + 39, y + 14, 14, 3);
-
-  // Arcade Joystick & Battle Buttons
-  ctx.fillStyle = '#ef4444';
-  ctx.beginPath();
-  ctx.arc(x + 18, y + 36, 3.5, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = '#eab308';
-  ctx.beginPath();
-  ctx.arc(x + 28, y + 36, 3.5, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = '#38bdf8';
-  ctx.beginPath();
-  ctx.arc(x + 48, y + 36, 3.5, 0, Math.PI * 2);
-  ctx.fill();
+  // Imperial Crimson Throne Carpet
+  ctx.fillStyle = C_CRIMSON;
+  ctx.fillRect(x + 6, y, w - 12, h - 2);
+  ctx.fillStyle = C_GOLD;
+  ctx.fillRect(x + 6, y, 2, h - 2);
+  ctx.fillRect(x + w - 8, y, 2, h - 2);
+  ctx.fillRect(x + 6, y + h - 3, w - 12, 2);
 }
 
-function drawAlgorithmDojoStation(ctx: CanvasRenderingContext2D, x: number, y: number) {
-  const w = 3 * TILE_SIZE;
-  const h = 2 * TILE_SIZE;
+function drawGladiatorArmory(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  w: number,
+  h: number
+) {
+  // Drop shadow
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
+  ctx.fillRect(x + 2, y + 3, w, h);
 
-  ctx.fillStyle = '#1e1b4b';
-  ctx.fillRect(x + 2, y + 6, w - 4, h - 8);
-  ctx.strokeStyle = '#a855f7';
-  ctx.lineWidth = 1.5;
-  ctx.strokeRect(x + 2, y + 6, w - 4, h - 8);
+  // Heavy Oak & Forged Iron Armory Platform
+  ctx.fillStyle = '#451a03';
+  ctx.fillRect(x, y, w, h);
+  ctx.fillStyle = '#78350f';
+  ctx.fillRect(x + 2, y + 2, w - 4, h - 4);
+  ctx.fillStyle = '#b45309';
+  ctx.fillRect(x + 2, y + 2, w - 4, 2);
 
-  // Holographic Brain / Matrix Screen
-  ctx.fillStyle = '#090d16';
-  ctx.fillRect(x + 8, y + 10, w - 16, 20);
-  ctx.strokeStyle = '#c084fc';
-  ctx.strokeRect(x + 8, y + 10, w - 16, 20);
+  // Weapon Rack Crossbar (Top half)
+  ctx.fillStyle = '#271206';
+  ctx.fillRect(x + 4, y + 4, w - 8, 12);
+  ctx.fillStyle = '#92400e';
+  ctx.fillRect(x + 4, y + 8, w - 8, 2);
 
-  ctx.fillStyle = '#d8b4fe';
-  ctx.font = 'bold 7px monospace';
-  ctx.textAlign = 'center';
-  ctx.fillText('AI GAUNTLET', x + w / 2, y + 23);
+  // Silver Gladius Blades hanging on rack
+  ctx.fillStyle = '#e2e8f0';
+  ctx.fillRect(x + 7, y + 5, 2, 9);
+  ctx.fillRect(x + 13, y + 5, 2, 9);
+  ctx.fillStyle = '#fbbf24'; // Gold hilts
+  ctx.fillRect(x + 6, y + 5, 4, 2);
+  ctx.fillRect(x + 12, y + 5, 4, 2);
 
-  // Neural nodes
-  ctx.fillStyle = '#38bdf8';
-  for (let i = 0; i < 4; i++) {
-    ctx.fillRect(x + 12 + i * 14, y + 34, 8, 5);
-  }
-}
-
-function drawTrophyVaultCase(ctx: CanvasRenderingContext2D, x: number, y: number) {
-  const w = 3 * TILE_SIZE;
-  const h = 2 * TILE_SIZE;
-
-  // Velvet & Gold Pedestal
-  ctx.fillStyle = '#27171c';
-  ctx.fillRect(x + 2, y + 6, w - 4, h - 8);
-  ctx.strokeStyle = '#fbbf24';
-  ctx.lineWidth = 2;
-  ctx.strokeRect(x + 2, y + 6, w - 4, h - 8);
-
-  // Glass Display Top
-  ctx.fillStyle = 'rgba(254, 243, 199, 0.12)';
-  ctx.fillRect(x + 6, y + 10, w - 12, 24);
-
-  // 3 Trophies (Gold Cup, Cyber Shield, Academic Star)
+  // Golden Gladiator Trident on right of rack
   ctx.fillStyle = '#fbbf24';
-  ctx.beginPath();
-  ctx.arc(x + 18, y + 22, 6, 0, Math.PI * 2);
-  ctx.fill();
+  ctx.fillRect(x + 21, y + 4, 2, 11);
+  ctx.fillRect(x + 19, y + 4, 6, 2);
+  ctx.fillRect(x + 19, y + 2, 1, 3);
+  ctx.fillRect(x + 22, y + 2, 1, 3);
+  ctx.fillRect(x + 24, y + 2, 1, 3);
 
-  ctx.fillStyle = '#38bdf8';
-  ctx.beginPath();
-  ctx.arc(x + 36, y + 22, 6, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.fillStyle = '#f43f5e';
-  ctx.beginPath();
-  ctx.arc(x + 54, y + 22, 6, 0, Math.PI * 2);
-  ctx.fill();
-}
-
-function drawStatRadarScanner(ctx: CanvasRenderingContext2D, x: number, y: number) {
-  const w = 3 * TILE_SIZE;
-  const h = 2 * TILE_SIZE;
-
-  ctx.fillStyle = '#0f2922';
-  ctx.fillRect(x + 2, y + 6, w - 4, h - 8);
-  ctx.strokeStyle = '#10b981';
-  ctx.lineWidth = 1.5;
-  ctx.strokeRect(x + 2, y + 6, w - 4, h - 8);
-
-  // Radar Hexagon Graphic
-  const cx = x + w / 2;
-  const cy = y + h / 2 + 2;
-  ctx.strokeStyle = '#34d399';
-  ctx.lineWidth = 1.2;
-  ctx.beginPath();
-  for (let i = 0; i < 6; i++) {
-    const angle = (Math.PI / 3) * i;
-    const rx = cx + Math.cos(angle) * 14;
-    const ry = cy + Math.sin(angle) * 11;
-    if (i === 0) ctx.moveTo(rx, ry);
-    else ctx.lineTo(rx, ry);
-  }
-  ctx.closePath();
-  ctx.fillStyle = 'rgba(16, 185, 129, 0.28)';
-  ctx.fill();
-  ctx.stroke();
-}
-
-function drawMewtwoBoss(ctx: CanvasRenderingContext2D, x: number, y: number) {
-  const cx = x + TILE_SIZE / 2;
-  const cy = y + TILE_SIZE / 2;
-
-  // Psychic Shadow
-  ctx.fillStyle = 'rgba(168, 85, 247, 0.35)';
-  ctx.beginPath();
-  ctx.ellipse(cx, cy + 9, 9, 4, 0, 0, Math.PI * 2);
-  ctx.fill();
-
-  // Purple Tail
-  ctx.strokeStyle = '#9333ea';
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  ctx.moveTo(cx, cy + 4);
-  ctx.quadraticCurveTo(cx + 10, cy + 2, cx + 8, cy - 6);
-  ctx.stroke();
-
-  // Body & Chest
-  ctx.fillStyle = '#e9d5ff';
-  ctx.beginPath();
-  ctx.ellipse(cx, cy + 1, 5.5, 7, 0, 0, Math.PI * 2);
-  ctx.fill();
-
-  // Head & Horns
-  ctx.beginPath();
-  ctx.arc(cx, cy - 6, 5.5, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillRect(cx - 5, cy - 12, 2.5, 4);
-  ctx.fillRect(cx + 2.5, cy - 12, 2.5, 4);
-
-  // Glowing Psychic Eyes
-  ctx.fillStyle = '#c084fc';
-  ctx.fillRect(cx - 3.5, cy - 7, 2, 2);
-  ctx.fillRect(cx + 1.5, cy - 7, 2, 2);
-}
-
-function drawLucarioCoach(ctx: CanvasRenderingContext2D, x: number, y: number) {
-  const cx = x + TILE_SIZE / 2;
-  const cy = y + TILE_SIZE / 2;
-
-  // Aura Shadow
-  ctx.fillStyle = 'rgba(56, 189, 248, 0.3)';
-  ctx.beginPath();
-  ctx.ellipse(cx, cy + 9, 8, 3.5, 0, 0, Math.PI * 2);
-  ctx.fill();
-
-  // Yellow Torso & Blue Limbs
-  ctx.fillStyle = '#facc15';
-  ctx.fillRect(cx - 4, cy - 2, 8, 7);
-  ctx.fillStyle = '#2563eb';
-  ctx.beginPath();
-  ctx.arc(cx, cy - 6, 5, 0, Math.PI * 2);
-  ctx.fill();
-
-  // Ears
-  ctx.fillRect(cx - 4.5, cy - 12, 2.5, 5);
-  ctx.fillRect(cx + 2, cy - 12, 2.5, 5);
-
-  // Red Eyes
-  ctx.fillStyle = '#ef4444';
-  ctx.fillRect(cx - 3, cy - 7, 2, 1.5);
-  ctx.fillRect(cx + 1, cy - 7, 2, 1.5);
-}
-
-function drawRefereeNpc(ctx: CanvasRenderingContext2D, x: number, y: number) {
-  const cx = x + TILE_SIZE / 2;
-  const cy = y + TILE_SIZE / 2;
-
-  // Striped Referee Shirt
-  ctx.fillStyle = '#f8fafc';
-  ctx.fillRect(cx - 4, cy - 1, 8, 8);
-  ctx.fillStyle = '#0f172a';
-  ctx.fillRect(cx - 2, cy - 1, 2, 8);
-  ctx.fillRect(cx + 1, cy - 1, 2, 8);
-
-  // Head & Cap
+  // Roman Scutum Shield (Bottom left: Crimson with Gold Wing Boss)
+  ctx.fillStyle = '#fbbf24';
+  ctx.fillRect(x + 4, y + 17, 11, 12);
+  ctx.fillStyle = '#b91c1c';
+  ctx.fillRect(x + 5, y + 18, 9, 10);
   ctx.fillStyle = '#fde68a';
-  ctx.beginPath();
-  ctx.arc(cx, cy - 5, 4.5, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = '#dc2626';
-  ctx.fillRect(cx - 5, cy - 9, 10, 3);
+  ctx.fillRect(x + 8, y + 21, 3, 4);
 
-  // Signal Flags (Red & Green)
-  ctx.fillStyle = '#ef4444';
-  ctx.fillRect(cx - 9, cy - 3, 4, 4);
-  ctx.fillStyle = '#22c55e';
-  ctx.fillRect(cx + 5, cy - 3, 4, 4);
+  // Centurion Galea Helmet with Red Crest (Bottom right)
+  ctx.fillStyle = '#dc2626'; // Red horsehair plume
+  ctx.fillRect(x + 18, y + 17, 8, 3);
+  ctx.fillStyle = '#d97706'; // Bronze helmet dome
+  ctx.fillRect(x + 19, y + 20, 7, 7);
+  ctx.fillStyle = '#1e293b'; // Visor slits
+  ctx.fillRect(x + 20, y + 23, 2, 2);
+  ctx.fillRect(x + 23, y + 23, 2, 2);
 }
 
-export function renderArenaAnimations(ctx: CanvasRenderingContext2D, tick: number) {
-  latestTick = tick;
+function drawTrialPortcullis(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  w: number,
+  h: number
+) {
+  // Shadow
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
+  ctx.fillRect(x + 2, y + 3, w, h);
 
-  // 1. Mewtwo Psychic Aura Rings & Levitating Orbs at (7, 3)
-  const mx = 7.5 * TILE_SIZE;
-  const my = 3.5 * TILE_SIZE;
-  const pulse = Math.sin(tick * 0.08) * 3;
+  // Carved Stone Gatehouse Base
+  ctx.fillStyle = '#44403c';
+  ctx.fillRect(x, y, w, h);
+  ctx.fillStyle = '#78716c';
+  ctx.fillRect(x + 2, y + 2, w - 4, h - 4);
 
-  ctx.save();
-  ctx.strokeStyle = 'rgba(192, 132, 252, 0.55)';
-  ctx.lineWidth = 1.5;
-  ctx.beginPath();
-  ctx.arc(mx, my - 2, 11 + pulse, 0, Math.PI * 2);
-  ctx.stroke();
+  // Dark Arched Beast Gate Recess
+  ctx.fillStyle = '#1c1917';
+  ctx.fillRect(x + 5, y + 5, w - 10, h - 8);
 
-  // Two orbiting psychic spheres
-  for (let i = 0; i < 2; i++) {
-    const angle = tick * 0.07 + i * Math.PI;
-    const ox = mx + Math.cos(angle) * 13;
-    const oy = my - 2 + Math.sin(angle) * 7;
-    ctx.fillStyle = '#d8b4fe';
-    ctx.beginPath();
-    ctx.arc(ox, oy, 2.5, 0, Math.PI * 2);
-    ctx.fill();
+  // Forged Iron Portcullis Bars
+  ctx.fillStyle = '#a8a29e';
+  for (let bx = x + 7; bx <= x + w - 7; bx += 4) {
+    ctx.fillRect(bx, y + 5, 2, h - 8);
   }
+  ctx.fillRect(x + 5, y + 10, w - 10, 2);
+  ctx.fillRect(x + 5, y + 18, w - 10, 2);
 
-  // 2. Lucario Aura Sphere Pulse at (5, 3)
-  const lx = 5.5 * TILE_SIZE;
-  const ly = 3.5 * TILE_SIZE;
-  ctx.strokeStyle = 'rgba(56, 189, 248, 0.5)';
-  ctx.beginPath();
-  ctx.arc(lx, ly, 9 + Math.cos(tick * 0.1) * 2, 0, Math.PI * 2);
-  ctx.stroke();
+  // Golden Lion Keystone Crest at top of Gate
+  ctx.fillStyle = '#f59e0b';
+  ctx.fillRect(x + 11, y + 2, 10, 5);
+  ctx.fillStyle = '#fef08a';
+  ctx.fillRect(x + 13, y + 3, 6, 3);
+}
 
-  // 3. Center Court Poké Ball Glow Pulse
-  const centerX = 7.5 * TILE_SIZE;
-  const centerY = 7 * TILE_SIZE;
-  const glowAlpha = 0.15 + Math.abs(Math.sin(tick * 0.05)) * 0.2;
-  ctx.strokeStyle = `rgba(250, 204, 21, ${glowAlpha.toFixed(2)})`;
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.arc(centerX, centerY, 23 + Math.sin(tick * 0.05) * 2, 0, Math.PI * 2);
-  ctx.stroke();
+function drawVictorsPedestals(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  w: number,
+  h: number
+) {
+  // Shadow
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
+  ctx.fillRect(x + 2, y + 3, w, h);
 
-  // 4. Active Battle / Action Shockwave & Banner FX
-  if (activeArenaFx) {
-    const elapsed = tick - activeArenaFx.startTick;
-    if (elapsed < 110) {
-      const progress = elapsed / 110;
-      const radius = 12 + progress * 95;
-      ctx.strokeStyle = activeArenaFx.color;
-      ctx.globalAlpha = Math.max(0, 1 - progress);
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.arc(centerX, centerY - 12, radius, 0, Math.PI * 2);
-      ctx.stroke();
+  // Marble Sanctuary Base with Crimson Carpet
+  ctx.fillStyle = '#78350f';
+  ctx.fillRect(x, y, w, h);
+  ctx.fillStyle = '#991b1b';
+  ctx.fillRect(x + 2, y + 2, w - 4, h - 4);
+  ctx.fillStyle = '#f59e0b';
+  ctx.fillRect(x + 2, y + 2, w - 4, 1);
+  ctx.fillRect(x + 2, y + h - 3, w - 4, 1);
 
-      // Floating Banner above Mewtwo & Center Court
-      const fy = 2.4 * TILE_SIZE - progress * 16;
-      ctx.globalAlpha = Math.min(1, (1 - progress) * 1.4);
-      ctx.fillStyle = 'rgba(9, 13, 22, 0.9)';
-      ctx.fillRect(centerX - 82, fy - 10, 164, 16);
-      ctx.strokeStyle = activeArenaFx.color;
-      ctx.lineWidth = 1.5;
-      ctx.strokeRect(centerX - 82, fy - 10, 164, 16);
+  // Three White Marble Pedestals
+  const pCols = [x + 4, x + 13, x + 22];
+  for (let i = 0; i < pCols.length; i++) {
+    const px = pCols[i];
+    // Marble column
+    ctx.fillStyle = '#f5ebe0';
+    ctx.fillRect(px, y + 14, 6, 12);
+    ctx.fillStyle = '#d6c2a8';
+    ctx.fillRect(px + 4, y + 14, 2, 12);
 
+    // Trophy atop pedestal
+    if (i === 0) {
+      // Bronze Chalice
+      ctx.fillStyle = '#d97706';
+      ctx.fillRect(px + 1, y + 7, 4, 5);
+      ctx.fillRect(px, y + 12, 6, 2);
+    } else if (i === 1) {
+      // Golden Laurel Crown / Grand Cup
+      ctx.fillStyle = '#fbbf24';
+      ctx.fillRect(px, y + 5, 6, 6);
       ctx.fillStyle = '#fef08a';
-      ctx.font = 'bold 7px monospace';
-      ctx.textAlign = 'center';
-      ctx.fillText(activeArenaFx.text.slice(0, 28), centerX, fy + 1);
+      ctx.fillRect(px + 1, y + 6, 4, 3);
+      ctx.fillStyle = '#d97706';
+      ctx.fillRect(px + 1, y + 11, 4, 3);
     } else {
-      activeArenaFx = null;
+      // Silver & Sapphire Praetorian Shield
+      ctx.fillStyle = '#38bdf8';
+      ctx.fillRect(px, y + 7, 6, 6);
+      ctx.fillStyle = '#e0f2fe';
+      ctx.fillRect(px + 2, y + 8, 2, 4);
     }
   }
+}
+
+function drawRunicObelisk(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  w: number,
+  h: number
+) {
+  // Shadow
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
+  ctx.fillRect(x + 2, y + 3, w, h);
+
+  // Chiseled Stone Sanctuary Platform
+  ctx.fillStyle = '#451a03';
+  ctx.fillRect(x, y, w, h);
+  ctx.fillStyle = '#a8875e';
+  ctx.fillRect(x + 2, y + 2, w - 4, h - 4);
+
+  // Engraved Bronze Astrolabe Ring on Platform
+  ctx.strokeStyle = '#92400e';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.arc(x + w / 2, y + h / 2 + 2, 10, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // Tall Carved Sandstone Obelisk in Center
+  ctx.fillStyle = '#573b1a';
+  ctx.fillRect(x + 11, y + 4, 10, 22);
+  ctx.fillStyle = '#d6b68a';
+  ctx.fillRect(x + 12, y + 5, 8, 20);
+  // Golden Pyramidion Cap
+  ctx.fillStyle = '#fbbf24';
+  ctx.fillRect(x + 13, y + 2, 6, 3);
+  ctx.fillRect(x + 14, y + 1, 4, 2);
+
+  // Glowing Amber & Crimson Gladiator Runes etched vertically
+  ctx.fillStyle = '#dc2626';
+  ctx.fillRect(x + 15, y + 8, 2, 3);
+  ctx.fillStyle = '#d97706';
+  ctx.fillRect(x + 14, y + 13, 4, 2);
+  ctx.fillStyle = '#2563eb';
+  ctx.fillRect(x + 15, y + 17, 2, 3);
+}
+
+function drawTrainerPlinth(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  trimColor: string
+) {
+  ctx.fillStyle = '#573b1a';
+  ctx.fillRect(x + 1, y + 3, TILE_SIZE - 2, TILE_SIZE - 4);
+  ctx.fillStyle = '#e7d8c1';
+  ctx.fillRect(x + 2, y + 4, TILE_SIZE - 4, TILE_SIZE - 6);
+  ctx.fillStyle = trimColor;
+  ctx.fillRect(x + 3, y + 5, TILE_SIZE - 6, 2);
+}
+
+function drawBrazierBase(ctx: CanvasRenderingContext2D, x: number, y: number) {
+  // Stone pedestal
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
+  ctx.beginPath();
+  ctx.ellipse(x + 8, y + 14, 6, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#57534e';
+  ctx.fillRect(x + 4, y + 9, 8, 5);
+  // Forged Iron Fire Bowl
+  ctx.fillStyle = '#1c1917';
+  ctx.fillRect(x + 2, y + 6, 12, 4);
+  ctx.fillStyle = '#b45309'; // Bronze rim
+  ctx.fillRect(x + 2, y + 6, 12, 1);
+}
+
+/**
+ * Dynamic frame-by-frame animations for the Roman Gladiator Colosseum
+ */
+export function renderArenaAnimations(ctx: CanvasRenderingContext2D, tick: number) {
+  ctx.save();
+
+  // 1. Roaring Fire Braziers at the 4 Corners of the Sand Pit
+  const braziers = [
+    { x: 4 * TILE_SIZE, y: 3 * TILE_SIZE },
+    { x: 10 * TILE_SIZE, y: 3 * TILE_SIZE },
+    { x: 4 * TILE_SIZE, y: 9 * TILE_SIZE },
+    { x: 10 * TILE_SIZE, y: 9 * TILE_SIZE },
+  ];
+
+  braziers.forEach((b, idx) => {
+    const flicker = Math.sin(tick * 0.22 + idx * 1.7) * 1.5;
+    const glowR = 16 + Math.sin(tick * 0.15 + idx) * 3;
+
+    // Warm firelight glow on surrounding sand & stone
+    const grad = ctx.createRadialGradient(
+      b.x + 8,
+      b.y + 5,
+      2,
+      b.x + 8,
+      b.y + 5,
+      glowR
+    );
+    grad.addColorStop(0, 'rgba(251, 146, 60, 0.38)');
+    grad.addColorStop(1, 'rgba(251, 146, 60, 0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(b.x + 8, b.y + 5, glowR, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Outer crimson/orange flame tongue
+    ctx.fillStyle = '#ea580c';
+    ctx.fillRect(b.x + 4, b.y + 2 + Math.round(flicker * 0.4), 8, 4);
+    ctx.fillRect(b.x + 5, b.y + Math.round(flicker * 0.6), 6, 3);
+
+    // Inner golden-yellow flame core
+    ctx.fillStyle = '#facc15';
+    ctx.fillRect(b.x + 5, b.y + 3, 6, 3);
+    ctx.fillStyle = '#fef08a';
+    ctx.fillRect(b.x + 6, b.y + 2 + Math.round(flicker * 0.3), 4, 2);
+
+    // Rising fire ember spark
+    const sparkY = (tick + idx * 13) % 24;
+    if (sparkY < 16) {
+      ctx.fillStyle = sparkY < 8 ? '#fde047' : '#f97316';
+      ctx.fillRect(
+        b.x + 7 + Math.round(Math.sin(tick * 0.2 + idx) * 2),
+        b.y + 2 - Math.floor(sparkY * 0.45),
+        1.5,
+        1.5
+      );
+    }
+  });
+
+  // 2. Grand Champion Mewtwo on North Imperial Tribune (x = 7, y = 2)
+  const mX = 7 * TILE_SIZE;
+  const mY = 2 * TILE_SIZE;
+  const levitate = Math.sin(tick * 0.05) * 2;
+
+  // Golden & Psychic Champion Aura Ring beneath Mewtwo
+  const auraR = 13 + Math.sin(tick * 0.07) * 2;
+  ctx.strokeStyle = 'rgba(245, 158, 11, 0.55)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.arc(mX + 8, mY + 6 + levitate, auraR, 0, Math.PI * 2);
+  ctx.stroke();
+
+  if (mewtwoSpriteImg && mewtwoSpriteImg.complete && mewtwoSpriteImg.naturalWidth > 0) {
+    ctx.drawImage(mewtwoSpriteImg, mX - 9, mY - 12 + levitate, 34, 34);
+  } else {
+    // Fallback pixel silhouette while image loads
+    ctx.fillStyle = '#e9d5ff';
+    ctx.fillRect(mX + 4, mY + 2 + levitate, 8, 12);
+  }
+
+  // Orbiting Golden Laurel Sparks around Champion Mewtwo
+  for (let i = 0; i < 3; i++) {
+    const angle = tick * 0.045 + (i * Math.PI * 2) / 3;
+    const ox = mX + 8 + Math.cos(angle) * 12;
+    const oy = mY + 6 + levitate + Math.sin(angle) * 6;
+    ctx.fillStyle = i % 2 === 0 ? '#fbbf24' : '#e9d5ff';
+    ctx.fillRect(Math.round(ox), Math.round(oy), 2, 2);
+  }
+
+  // 3. Lanista Lucario on West Pit-Side Plinth (x = 2, y = 6)
+  drawLucario(ctx, 2 * TILE_SIZE + 1, 6 * TILE_SIZE - 1, tick, 0.85);
+
+  // 4. Legatus Arbiter (Roman Centurion Referee) on East Pit-Side Plinth (x = 12, y = 6)
+  const arbX = 12 * TILE_SIZE;
+  const arbY = 6 * TILE_SIZE - 2;
+  drawCharacter(
+    ctx,
+    {
+      skin: '#fed7aa',
+      hair: '#78350f',
+      shirt: '#b91c1c', // Imperial crimson tunic
+      pants: '#fef3c7', // Roman toga trim
+      shoes: '#92400e', // Leather caligae sandals
+      accent: '#fbbf24', // Golden laurel wreath
+    },
+    'left',
+    Math.floor(tick / 24) % 2,
+    arbX,
+    arbY,
+    1
+  );
+  // Golden Arbiter Staff held beside Legatus
+  const flagBob = Math.round(Math.sin(tick * 0.08));
+  ctx.fillStyle = '#fbbf24';
+  ctx.fillRect(arbX + 2, arbY + 3 + flagBob, 2, 11);
+  ctx.fillStyle = '#dc2626';
+  ctx.fillRect(arbX - 1, arbY + 3 + flagBob, 3, 4);
+
+  // 5. Active Gladiator Clash Shockwaves (triggered by 1v1 Duel or NPC interactions)
+  for (let i = activeArenaWaves.length - 1; i >= 0; i--) {
+    const wave = activeArenaWaves[i];
+    wave.radius += 2.2;
+    wave.alpha = Math.max(0, 1 - wave.radius / wave.maxRadius);
+
+    ctx.strokeStyle = wave.color;
+    ctx.globalAlpha = wave.alpha;
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.arc(wave.x, wave.y, wave.radius, 0, Math.PI * 2);
+    ctx.stroke();
+
+    if (wave.alpha > 0.25) {
+      drawPixelText(
+        ctx,
+        wave.text,
+        Math.max(12, Math.floor(wave.x - wave.text.length * 2.5)),
+        Math.floor(wave.y - 12 - (1 - wave.alpha) * 16),
+        '#fef08a'
+      );
+    }
+
+    if (wave.radius >= wave.maxRadius) {
+      activeArenaWaves.splice(i, 1);
+    }
+  }
+
   ctx.restore();
 }

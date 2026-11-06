@@ -2422,25 +2422,25 @@ export class TownEngine {
       this.pendingTarget = id;
       switch (id) {
         case 'mewtwo-boss':
-          this.walkTo(7, 4);
+          this.walkTo(7, 3);
           break;
         case 'lucario-coach':
-          this.walkTo(5, 4);
+          this.walkTo(3, 6);
           break;
         case 'referee-dan':
-          this.walkTo(8, 4);
+          this.walkTo(11, 6);
           break;
         case 'battle-terminal':
           this.walkTo(2, 5);
           break;
         case 'algorithm-dojo':
-          this.walkTo(11, 5);
+          this.walkTo(12, 5);
           break;
         case 'trophy-vault':
-          this.walkTo(2, 6);
+          this.walkTo(2, 7);
           break;
         case 'stat-radar':
-          this.walkTo(11, 6);
+          this.walkTo(12, 7);
           break;
         case 'exit':
           this.walkTo(7, 11);
@@ -3792,15 +3792,24 @@ export class TownEngine {
         this.playerDir = 'right';
         this.interactFacing('craft-tap');
         break;
-      // Battle Frontier Arena props
+      // Gladiator Colosseum props
       case 'mewtwo-boss':
-      case 'lucario-coach':
-      case 'referee-dan':
       case 'battle-terminal':
       case 'algorithm-dojo':
+        this.playerDir = 'up';
+        this.interactFacing(id);
+        break;
+      case 'lucario-coach':
+        this.playerDir = 'left';
+        this.interactFacing(id);
+        break;
+      case 'referee-dan':
+        this.playerDir = 'right';
+        this.interactFacing(id);
+        break;
       case 'trophy-vault':
       case 'stat-radar':
-        this.playerDir = 'up';
+        this.playerDir = 'down';
         this.interactFacing(id);
         break;
       // Dev Center props
@@ -4565,23 +4574,23 @@ export class TownEngine {
         if (prop.target.type === 'event' && prop.target.name) {
           if (prop.target.name === 'mewtwo-boss') {
             sfx.encounter();
-            triggerArenaBattleAnimation('MEWTWO PSYSTRIKE RESONANCE! 🔮', '#a855f7');
+            triggerArenaBattleAnimation('IMPERIAL PSYSTRIKE! 👑', '#f59e0b');
             if (this.callbacks.onBubble) {
               this.callbacks.onBubble(
-                'Frontier Brain Mewtwo · Grand Colosseum 🔮',
-                'MEWTWO (Telepathy): "Welcome to the Battle Frontier Colosseum. Here we test raw algorithmic intellect, real-time AI inference, and high-concurrency system resilience. Step up to the Battle Simulator or take the Architecture Gauntlet!"',
+                'Grand Champion Mewtwo · Imperial Tribune 👑',
+                'MEWTWO (Telepathy): "Ave, Challenger! Welcome to the Gladiator Colosseum. Step onto the sacred sand to test your blade in 1v1 combat, or face the Six Trials of Rome!"',
                 [
                   {
-                    label: '⚔️ Launch Turn-Based Battle vs Mewtwo',
+                    label: '⚔️ Enter the Gladiator Pit (1v1 Duel)',
                     onClick: () => {
-                      const el = document.getElementById('arena-battle-sim');
+                      const el = document.getElementById('battle-sim-section');
                       el?.scrollIntoView({ behavior: 'smooth' });
                     },
                   },
                   {
-                    label: '🧠 Start 6-Stage Technical Gauntlet',
+                    label: '🦁 Face the Six Colosseum Trials',
                     onClick: () => {
-                      const el = document.getElementById('arena-quiz-gauntlet');
+                      const el = document.getElementById('algo-dojo-section');
                       el?.scrollIntoView({ behavior: 'smooth' });
                     },
                   },
@@ -4590,26 +4599,26 @@ export class TownEngine {
             }
           } else if (prop.target.name === 'lucario-coach') {
             sfx.confirm();
-            triggerArenaBattleAnimation('LUCARIO AURA SPHERE READY! 🌀', '#38bdf8');
+            triggerArenaBattleAnimation('LANISTA AURA BLESSING! 🥊', '#38bdf8');
             if (this.callbacks.onBubble) {
               this.callbacks.onBubble(
-                'Tactical Coach Lucario · Aura Corner 🌀',
-                '"Your coding aura is sharp and focused!" Lucario analyzes your battle strategy and restores your party’s stamina to 100%. Choose your Challenger Pokémon in the Battle Simulator to counter Mewtwo’s Psychic barrier!',
+                'Lanista Lucario · Master of Gladiators 🥊',
+                '"Your combat aura burns bright, Gladiator!" Lanista Lucario sharpens your tactics and restores your warrior stamina to 100%. Choose your Champion from the Armory to break Mewtwo’s Imperial Guard!',
                 [
                   {
-                    label: '🌀 Select Partner & Battle (+100% Stamina)',
+                    label: '⚔️ Choose Champion & Duel (+100% Stamina)',
                     onClick: () => {
                       sfx.heal();
                       this.callbacks.onRefill();
-                      const el = document.getElementById('arena-battle-sim');
+                      const el = document.getElementById('battle-sim-section');
                       el?.scrollIntoView({ behavior: 'smooth' });
                     },
                   },
                   {
-                    label: '📊 Inspect 6-Axis Stack IV Radar',
+                    label: '🛡️ Inspect Obelisk Combat Runes',
                     onClick: () => {
                       this.walkToObject('stat-radar');
-                      const el = document.getElementById('arena-stat-scanner');
+                      const el = document.getElementById('stat-radar-section');
                       el?.scrollIntoView({ behavior: 'smooth' });
                     },
                   },
@@ -4618,24 +4627,24 @@ export class TownEngine {
             }
           } else if (prop.target.name === 'referee-dan') {
             sfx.select();
-            triggerArenaBattleAnimation('MATCH OFFICIAL: READY TO DUEL! 🏁', '#22c55e');
+            triggerArenaBattleAnimation('MUNERA SANCTIONED! 📯', '#dc2626');
             if (this.callbacks.onBubble) {
               this.callbacks.onBubble(
-                'Chief Referee Victor · Colosseum Official 🏁',
-                '"Both sides are in position! Sanctioned under Sinnoh & Unova Battle Frontier rules: 4 Engineering Signature Moves per partner, real-time ELO telemetry, and official Frontier Badge certification!"',
+                'Legatus Arbiter · Chief Judge of the Sand 📯',
+                '"By decree of the Colosseum Senate: 4 signature strikes per Gladiator, 3 Imperial Blessings per bout, and the Golden Caesar Laurel for victorious challengers! Let the Munera begin!"',
                 [
                   {
-                    label: '⚔️ Jump to Battle Court Console',
+                    label: '⚔️ Step into the Gladiator Pit',
                     onClick: () => {
-                      const el = document.getElementById('arena-battle-sim');
+                      const el = document.getElementById('battle-sim-section');
                       el?.scrollIntoView({ behavior: 'smooth' });
                     },
                   },
                   {
-                    label: '🏆 View Championship Trophy Vault',
+                    label: '🏆 Visit the Hall of Victors',
                     onClick: () => {
                       this.walkToObject('trophy-vault');
-                      const el = document.getElementById('arena-trophy-vault');
+                      const el = document.getElementById('trophy-vault-section');
                       el?.scrollIntoView({ behavior: 'smooth' });
                     },
                   },
@@ -4644,16 +4653,16 @@ export class TownEngine {
             }
           } else if (prop.target.name === 'battle-terminal') {
             sfx.confirm();
-            triggerArenaBattleAnimation('TACTICAL SIMULATOR ONLINE ⚔️', '#ef4444');
+            triggerArenaBattleAnimation('ARMORY FORGE READY! ⚔️', '#ef4444');
             if (this.callbacks.onBubble) {
               this.callbacks.onBubble(
-                'Live Turn-Based Battle Simulator Deck ⚔️',
-                'Command Charizard (Full-Stack Flame), Lucario (Edge AI Aura), Garchomp (Supersonic Systems), or Dialga (Temporal Backend) in a live turn-based engineering duel against Frontier Brain Mewtwo!',
+                'Gladiator Armory & Weapon Rack ⚔️',
+                'Forged blades, Roman Scutum shields, and Golden Tridents! Command Charizard (Ignis Myrmillo), Lucario (Aura Dimachaerus), Garchomp (Draco Secutor), or Dialga (Chronos Hoplomachus) in the Gladiator Pit!',
                 [
                   {
-                    label: '⚔️ Open Battle Simulator',
+                    label: '⚔️ Open Gladiator Duel Pit',
                     onClick: () => {
-                      const el = document.getElementById('arena-battle-sim');
+                      const el = document.getElementById('battle-sim-section');
                       el?.scrollIntoView({ behavior: 'smooth' });
                     },
                   },
@@ -4662,16 +4671,16 @@ export class TownEngine {
             }
           } else if (prop.target.name === 'algorithm-dojo') {
             sfx.select();
-            triggerArenaBattleAnimation('ARCHITECTURE GAUNTLET LOADED 🧠', '#c084fc');
+            triggerArenaBattleAnimation('PORTA BESTIARIORUM OPEN! 🦁', '#d97706');
             if (this.callbacks.onBubble) {
               this.callbacks.onBubble(
-                'Algorithm & System Design Gauntlet 🧠',
-                'Test your command of YOLOv11 TensorRT quantization, Laravel 12 + PostGIS spatial queries, Redis Lua atomic locks, and Huawei HCIA-Security firewall policies!',
+                'Porta Bestiariorum · Six Trials Gate 🦁',
+                'Behind these iron portcullis bars lie the Six Engineering Trials of the Colosseum: Computer Vision, Praetorian CyberSec, High-Velocity Web, Concurrent Backends, NLP Scrolls, and IoT Telemetry!',
                 [
                   {
-                    label: '🧠 Take the 6-Question Gauntlet',
+                    label: '🦁 Enter the Six Colosseum Trials',
                     onClick: () => {
-                      const el = document.getElementById('arena-quiz-gauntlet');
+                      const el = document.getElementById('algo-dojo-section');
                       el?.scrollIntoView({ behavior: 'smooth' });
                     },
                   },
@@ -4680,21 +4689,21 @@ export class TownEngine {
             }
           } else if (prop.target.name === 'trophy-vault') {
             sfx.heal();
-            triggerArenaBattleAnimation('HALL OF FAME HONORS UNLOCKED 🏆', '#fbbf24');
+            triggerArenaBattleAnimation('AVE VICTOR! SPOILS OF ROME 🏆', '#fbbf24');
             if (this.callbacks.onBubble) {
               this.callbacks.onBubble(
-                'Championship Trophy & Honor Vault 🏆',
-                "Showcasing Muhammad Zulfan's verified competitive & academic honors: IDEA FEST 3 National Bronze Medal, Huawei HCIA-Security V4.0 Certification, ITENAS Informatics GPA 3.49/4.00, and 6x Lab Assistantship.",
+                'Hall of Victors · Marble Pedestals 🏆',
+                "Behold Muhammad Zulfan's consecrated Colosseum spoils: IDEA FEST 3 National Bronze Medallion, Huawei HCIA-Security V4.0 Praetorian Seal, ITENAS Senate GPA 3.49/4.00, and 6× Legion Lab Assistantship.",
                 [
                   {
-                    label: '🏆 Inspect Trophies & Credentials',
+                    label: '🏆 Inspect Pedestals & Laurels',
                     onClick: () => {
-                      const el = document.getElementById('arena-trophy-vault');
+                      const el = document.getElementById('trophy-vault-section');
                       el?.scrollIntoView({ behavior: 'smooth' });
                     },
                   },
                   {
-                    label: '📄 Download Official CV (PDF)',
+                    label: '📜 Download Imperial Scroll (CV PDF)',
                     href: '/cv/CV_Zulfan.pdf',
                   },
                 ]
@@ -4702,16 +4711,16 @@ export class TownEngine {
             }
           } else if (prop.target.name === 'stat-radar') {
             sfx.select();
-            triggerArenaBattleAnimation('BST 565: PSEUDO-LEGENDARY TIER 📊', '#10b981');
+            triggerArenaBattleAnimation('OBELISK RUNES AWAKENED: 565 PWR 🛡️', '#f59e0b');
             if (this.callbacks.onBubble) {
               this.callbacks.onBubble(
-                '6-Axis Stack EV/IV Telemetry Scanner 📊',
-                'Base Stat Total (BST): 565 / 600. Scans Zulfan’s 6 core engineering dimensions: AI & Computer Vision (98), Frontend & 2D Engines (96), Backend & APIs (95), System Architecture (94), Network Security (92), and Robotics/IoT (90).',
+                'Obelisk of Mars · 6-Axis Combat Runes 🛡️',
+                'Carved in ancient sandstone (565 Total Combat Power): Eagle Vision AI/CV (98), Gladius Full-Stack (96), Aqueduct Backend (95), Aegis CyberSec (92), Chariot IoT (90), and Senate Algorithms (94).',
                 [
                   {
-                    label: '📊 View EV/IV Stat Breakdown',
+                    label: '🛡️ Inspect Gladiator Runes',
                     onClick: () => {
-                      const el = document.getElementById('arena-stat-scanner');
+                      const el = document.getElementById('stat-radar-section');
                       el?.scrollIntoView({ behavior: 'smooth' });
                     },
                   },

@@ -1,1536 +1,1763 @@
 ---
 import TownLayout from '../layouts/TownLayout.astro';
 import { profile } from '../lib/profile';
-
-const linkedinUrl =
-  profile.socials.find((s) => s.label === 'LinkedIn')?.url ||
-  'https://www.linkedin.com/in/muhammad-zulfan-anggadhiputra';
-
-interface TrophyItem {
-  id: string;
-  title: string;
-  subtitle: string;
-  badge: string;
-  icon: string;
-  year: string;
-  description: string;
-  skills: string[];
-}
-
-const trophies: TrophyItem[] = [
-  {
-    id: 'ideafest-bronze',
-    title: 'Bronze Medalist — National Essay Competition IDEA FEST 3',
-    subtitle: 'National Scientific & Technological Innovation Award',
-    badge: '🥉 NATIONAL MEDALIST',
-    icon: '🏆',
-    year: '2024',
-    description:
-      'Awarded the Bronze Medal in a competitive national scientific essay championship, proposing applied AI and scalable digital transformation solutions evaluated by academic and industry judges.',
-    skills: ['Scientific Research', 'Applied AI', 'System Design', 'Problem Solving'],
-  },
-  {
-    id: 'huawei-hcia',
-    title: 'Huawei Certified ICT Associate — HCIA-Security V4.0',
-    subtitle: 'International Network & Cyber Security Certification',
-    badge: '🛡️ GLOBAL CERTIFIED',
-    icon: '🔒',
-    year: '2025',
-    description:
-      'Internationally certified by Huawei in enterprise network security architecture, next-generation firewall policy enforcement, IPSec/SSL VPN cryptography, NAT traversal, and intrusion defense.',
-    skills: ['Firewall Policies', 'IPSec VPN', 'Cryptography', 'Network Security'],
-  },
-  {
-    id: 'itenas-gpa',
-    title: 'B.Comp.Sc. (Informatics) — ITENAS Bandung',
-    subtitle: 'Cumulative GPA: 3.49 / 4.00 · AI & Distributed Systems Focus',
-    badge: '🎓 HONORS GRADUATE',
-    icon: '🎓',
-    year: '2021 – 2025',
-    description:
-      'Graduated with a strong 3.49 / 4.00 GPA in Informatics (Computer Science) from Institut Teknologi Nasional (ITENAS) Bandung, specializing in real-time computer vision thesis research and full-stack software engineering.',
-    skills: ['Computer Science', 'Deep Learning Thesis', 'Software Engineering', 'GPA 3.49/4.00'],
-  },
-  {
-    id: 'lab-assistant-6x',
-    title: '6x Laboratory Teaching Assistant — ITENAS Informatics',
-    subtitle: 'Mentored 200+ Undergraduate Students Across 6 Core Labs',
-    badge: '👨‍🏫 6× LAB MENTOR',
-    icon: '⚡',
-    year: '2023 – 2025',
-    description:
-      'Entrusted across 6 consecutive laboratory courses: Robotics, Internet of Things (IoT), Computer Networks, Object-Oriented Programming (Java), Database Systems (SQL), and Basic Programming.',
-    skills: ['Robotics & IoT', 'Computer Networks', 'Java OOP', 'SQL Databases'],
-  },
-];
-
-interface StatAxis {
-  label: string;
-  code: string;
-  base: number;
-  ev: string;
-  iv: string;
-  color: string;
-  proof: string;
-}
-
-const statAxes: StatAxis[] = [
-  {
-    label: 'AI & Computer Vision',
-    code: 'SP.ATK',
-    base: 98,
-    ev: '252 EV',
-    iv: '31 IV',
-    color: 'from-purple-500 to-fuchsia-400',
-    proof: 'YOLOv11 + TensorRT 10 (~1.8 ms/frame, 75+ FPS drone detection & OMR grading)',
-  },
-  {
-    label: 'Frontend & 2D Engines',
-    code: 'SPEED',
-    base: 96,
-    ev: '252 EV',
-    iv: '31 IV',
-    color: 'from-cyan-500 to-sky-400',
-    proof: '60 FPS custom HTML5 Canvas 2D RPG engine, Astro static islands, TypeScript & Tailwind',
-  },
-  {
-    label: 'Backend & Distributed APIs',
-    code: 'ATK',
-    base: 95,
-    ev: '220 EV',
-    iv: '31 IV',
-    color: 'from-amber-500 to-yellow-400',
-    proof: 'Laravel 12, Go, Python FastAPI, PostGIS spatial queries, Redis Lua atomic mutexes',
-  },
-  {
-    label: 'System Architecture',
-    code: 'HP',
-    base: 94,
-    ev: '200 EV',
-    iv: '31 IV',
-    color: 'from-emerald-500 to-teal-400',
-    proof: 'End-to-end microservices, Docker orchestration, Apache Kafka event streams & CI/CD',
-  },
-  {
-    label: 'Network & Cyber Security',
-    code: 'SP.DEF',
-    base: 92,
-    ev: '180 EV',
-    iv: '31 IV',
-    color: 'from-blue-500 to-indigo-400',
-    proof: 'Huawei HCIA-Security V4.0, Firewall ACLs, IPSec VPN tunnels & zero-trust auth',
-  },
-  {
-    label: 'IoT & Robotics Hardware',
-    code: 'DEF',
-    base: 90,
-    ev: '160 EV',
-    iv: '31 IV',
-    color: 'from-rose-500 to-orange-400',
-    proof: 'ESP32/Arduino firmware, MQTT telemetry, ultrasonic & PID autonomous robotics control',
-  },
-];
 ---
 
 <TownLayout
-  title={`Battle Frontier & Algorithm Colosseum — ${profile.person.name}`}
-  description="Step onto the Grand Battle Frontier Colosseum court: challenge Frontier Brain Mewtwo in a turn-based engineering battle simulator, conquer the 6-stage AI & System Design Gauntlet, and inspect Zulfan's Trophy Vault."
+  title="Gladiator Colosseum — Muhammad Zulfan"
+  description="Step into Muhammad Zulfan's Gladiator Colosseum: command your Champion in a 1v1 Arena Duel against Grand Champion Mewtwo, conquer the Six Trials of Rome, inspect the Hall of Victors, and read the Obelisk of Mars."
   place="arena"
 >
-  <article class="arena-page space-y-6 pb-10">
-    <!-- 1. GRAND COLOSSEUM HERO BANNER & MEWTWO / LUCARIO COMMAND BRIEFING -->
-    <header class="relative overflow-hidden rounded-2xl border-2 border-purple-500/45 bg-gradient-to-br from-[#140d26] via-[#0f172a] to-[#1a0b2e] p-5 shadow-2xl">
-      <div class="pointer-events-none absolute -right-12 -top-12 h-48 w-48 rounded-full bg-purple-500/15 blur-3xl"></div>
-      <div class="pointer-events-none absolute -bottom-12 -left-12 h-48 w-48 rounded-full bg-cyan-500/15 blur-3xl"></div>
+  <div class="gladiator-colosseum space-y-8 pb-10">
+    <!-- ===================================================================== -->
+    <!-- 1. IMPERIAL COLOSSEUM MARQUEE BANNER (ROMAN TRAVERTINE & CRIMSON)     -->
+    <!-- ===================================================================== -->
+    <section
+      class="relative overflow-hidden rounded-2xl border-[3px] border-[#8c5a2b] bg-gradient-to-b from-[#5c1111] via-[#7f1d1d] to-[#450a0a] p-5 text-[#fef3c7] shadow-[0_10px_0_#3b1d0a,0_16px_32px_rgba(45,18,6,0.35)]"
+    >
+      <!-- Top & Bottom Roman Gold Fretwork Trim -->
+      <div
+        class="pointer-events-none absolute inset-x-0 top-0 h-2 bg-[repeating-linear-gradient(90deg,#fbbf24_0px,#fbbf24_12px,#92400e_12px,#92400e_24px)] opacity-90"
+      >
+      </div>
+      <div
+        class="pointer-events-none absolute inset-x-0 bottom-0 h-1.5 bg-gradient-to-r from-[#92400e] via-[#fbbf24] to-[#92400e]"
+      >
+      </div>
 
-      <!-- Top Status Ribbon -->
-      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-purple-500/25 pb-3">
-        <div class="flex items-center gap-2">
-          <span class="inline-flex items-center gap-1.5 rounded-full border border-purple-400/40 bg-purple-500/15 px-2.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-purple-200">
-            <span class="h-2 w-2 rounded-full bg-purple-400 animate-ping"></span>
-            LIVE COLOSSEUM · SANCTIONED FRONTIER MATCH
-          </span>
-          <span class="rounded-full border border-cyan-400/30 bg-cyan-500/10 px-2.5 py-0.5 font-mono text-[10px] text-cyan-300">
-            🌀 Lucario Aura Corner
-          </span>
-        </div>
+      <!-- Warm Torchlight Radial Glows -->
+      <div
+        class="pointer-events-none absolute -left-10 -top-10 h-44 w-44 rounded-full bg-amber-500/20 blur-2xl"
+      >
+      </div>
+      <div
+        class="pointer-events-none absolute -right-10 -bottom-10 h-44 w-44 rounded-full bg-orange-500/20 blur-2xl"
+      >
+      </div>
 
-        <div class="flex items-center gap-2">
-          <div class="flex items-center gap-1.5 rounded-lg border border-amber-500/40 bg-amber-950/50 px-2.5 py-1 font-mono text-[11px] text-amber-200" title="Your Competitive Engineering Rating">
-            <span>⚡ Rating:</span>
-            <strong id="arena-elo-display" class="text-amber-400">1850 ELO</strong>
+      <div class="relative z-10 flex flex-wrap items-start justify-between gap-4 pt-1">
+        <div class="space-y-2">
+          <div class="inline-flex flex-wrap items-center gap-2">
+            <span
+              class="inline-flex items-center gap-1.5 rounded-full border-2 border-[#fbbf24] bg-[#450a0a]/90 px-3 py-0.5 font-mono text-[10px] font-extrabold uppercase tracking-[0.18em] text-[#fde68a] shadow-sm"
+            >
+              <span>🏛️</span> COLOSSEUM GLADIATORIA · AMPHITHEATRUM
+            </span>
+            <span
+              id="arena-frontier-badge"
+              class="hidden items-center gap-1 rounded-full border-2 border-[#fde047] bg-gradient-to-r from-[#d97706] to-[#b45309] px-2.5 py-0.5 font-mono text-[10px] font-black uppercase tracking-wider text-[#fffbeb] shadow"
+            >
+              👑 CORONA AUREA · GRAND VICTOR
+            </span>
           </div>
-          <div
-            id="arena-frontier-badge-pill"
-            class="flex items-center gap-1.5 rounded-lg border border-purple-400/40 bg-purple-950/60 px-2.5 py-1 font-mono text-[11px] text-purple-200"
+
+          <h1
+            class="font-['Press_Start_2P',monospace] text-base leading-snug text-[#fef3c7] drop-shadow-[0_2px_0_#450a0a] sm:text-lg"
           >
-            <span>🏅 Status:</span>
-            <strong id="arena-badge-status" class="text-purple-300">Challenger</strong>
-          </div>
-        </div>
-      </div>
-
-      <!-- Main Title & Subtitle -->
-      <div class="mt-4 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div class="space-y-1.5">
-          <p class="font-mono text-[11px] uppercase tracking-widest text-purple-300/90">
-            TOWN SQUARE EAST STADIUM · COMPETITIVE AI, ALGORITHMS & SYSTEM DESIGN
-          </p>
-          <h1 id="panel-title" class="font-pixel text-xl sm:text-2xl tracking-tight text-white flex items-center gap-2.5">
-            <span>⚔️</span>
-            <span>BATTLE FRONTIER & ALGORITHM COLOSSEUM</span>
+            ⚔️ THE GLADIATOR ARENA
           </h1>
-          <p class="text-xs sm:text-sm text-slate-200/85 leading-relaxed max-w-2xl">
-            Welcome to the main stadium court! Command your partner Pokémon in a <strong class="text-amber-300">Turn-Based Engineering Duel</strong> against <strong class="text-purple-300">Frontier Brain Mewtwo</strong>, test your architectural instincts in the <strong class="text-cyan-300">6-Stage Technical Gauntlet</strong>, or inspect <strong class="text-white">{profile.person.name}’s</strong> championship medals and <strong class="text-emerald-300">565 BST EV/IV Stack Radar</strong>.
+
+          <p class="max-w-xl text-xs leading-relaxed text-[#fde68a]/90 sm:text-sm">
+            <em>"Ave, Challenger!"</em> Step onto the sunlit sand of the <strong class="text-white"
+              >Grand Colosseum</strong
+            >. Draw your blade in a <strong class="text-[#fde047]">1v1 Gladiator Duel</strong> against
+            Emperor's Champion <strong class="text-[#fde047]">Mewtwo</strong>, conquer the <strong
+              class="text-[#fde047]">Six Trials of Rome</strong
+            >, and claim your place in the <strong class="text-[#fde047]">Hall of Victors</strong>.
           </p>
         </div>
 
-        <!-- Quick Scoreboard Card -->
-        <div class="shrink-0 rounded-xl border border-purple-400/35 bg-black/45 p-3.5 backdrop-blur-sm min-w-[210px]">
-          <div class="flex items-center justify-between text-[10px] font-pixel uppercase tracking-wider text-purple-300 mb-2">
-            <span>🏟️ Jumbotron Telemetry</span>
-            <span class="text-emerald-400">60 FPS</span>
-          </div>
-          <div class="grid grid-cols-2 gap-2 text-center font-mono">
-            <div class="rounded-lg border border-slate-700/70 bg-slate-900/80 p-2">
-              <div class="text-[10px] text-slate-400">Victories</div>
-              <div id="arena-wins-count" class="text-sm font-bold text-amber-300">0</div>
-            </div>
-            <div class="rounded-lg border border-slate-700/70 bg-slate-900/80 p-2">
-              <div class="text-[10px] text-slate-400">Gauntlet</div>
-              <div id="arena-gauntlet-score-top" class="text-sm font-bold text-cyan-300">0 / 6</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Interactive Mewtwo & Lucario Briefing Box -->
-      <div class="mt-4 rounded-xl border border-purple-500/30 bg-black/40 p-3.5">
-        <div class="flex flex-col sm:flex-row sm:items-start gap-3">
-          <div class="flex items-center gap-2 shrink-0">
-            <button
-              type="button"
-              id="btn-walk-mewtwo"
-              class="flex h-11 w-11 items-center justify-center rounded-xl border border-purple-400/40 bg-purple-500/20 text-xl shadow-inner hover:scale-105 transition-transform"
-              title="Walk to Frontier Brain Mewtwo in 2D Stadium"
-            >
-              🔮
-            </button>
-            <button
-              type="button"
-              id="btn-walk-lucario"
-              class="flex h-11 w-11 items-center justify-center rounded-xl border border-cyan-400/40 bg-cyan-500/20 text-xl shadow-inner hover:scale-105 transition-transform"
-              title="Walk to Tactical Coach Lucario in 2D Stadium"
-            >
-              🌀
-            </button>
-          </div>
-
-          <div class="flex-1 min-w-0">
-            <div class="flex flex-wrap items-center gap-2">
-              <span id="arena-dialogue-speaker" class="font-pixel text-[10px] uppercase tracking-wider text-purple-300">
-                Frontier Brain Mewtwo 🔮
-              </span>
-              <span class="font-mono text-[10px] text-slate-400">· North Champion Podium</span>
-            </div>
-            <p id="arena-dialogue-text" class="mt-1 text-xs sm:text-sm text-slate-100 italic leading-relaxed">
-              "Telepathy link established. In this arena, brute force is meaningless—only low-latency algorithms, resilient system architecture, and sharp engineering decisions prevail. Show me your strategy!"
-            </p>
-
-            <div class="mt-2.5 flex flex-wrap items-center gap-1.5">
-              <button
-                type="button"
-                class="arena-topic-btn is-active rounded-lg border border-purple-400/40 bg-purple-500/20 px-2.5 py-1 font-mono text-[10px] text-purple-200 hover:bg-purple-500/30 transition"
-                data-speaker="Frontier Brain Mewtwo · AI Overlord 🔮"
-                data-quote="Telepathy link established. In this arena, brute force is meaningless—only low-latency algorithms, resilient system architecture, and sharp engineering decisions prevail. Show me your strategy!"
-                data-prop="mewtwo-boss"
-              >
-                🔮 Mewtwo's Challenge
-              </button>
-              <button
-                type="button"
-                class="arena-topic-btn rounded-lg border border-cyan-400/30 bg-cyan-500/10 px-2.5 py-1 font-mono text-[10px] text-cyan-200 hover:bg-cyan-500/25 transition"
-                data-speaker="Tactical Coach Lucario · Aura Master 🌀"
-                data-quote="I sense high Aura resonance in Zulfan's stack! Tip for the Battle Simulator: Mewtwo's Psystrike hits hard, so use Shield/Optimization moves before unleashing your TensorRT or PostGIS finishers!"
-                data-prop="lucario-coach"
-              >
-                🌀 Lucario's Battle Tip
-              </button>
-              <button
-                type="button"
-                class="arena-topic-btn rounded-lg border border-emerald-400/30 bg-emerald-500/10 px-2.5 py-1 font-mono text-[10px] text-emerald-200 hover:bg-emerald-500/25 transition"
-                data-speaker="Chief Referee Victor · Match Official 🏁"
-                data-quote="Every attack in the Battle Simulator triggers live shockwaves on the 2D Colosseum canvas! Defeat Mewtwo or score 4+/6 on the AI Gauntlet to claim the official Frontier Master Badge!"
-                data-prop="referee-dan"
-              >
-                🏁 Colosseum Rules
-              </button>
-              <button
-                type="button"
-                class="arena-topic-btn rounded-lg border border-amber-400/30 bg-amber-500/10 px-2.5 py-1 font-mono text-[10px] text-amber-200 hover:bg-amber-500/25 transition"
-                data-speaker="Hall of Fame Curator · Trophy Vault 🏆"
-                data-quote="Zulfan brings proven competitive credentials to the arena: IDEA FEST 3 National Bronze Medalist, Huawei HCIA-Security V4.0 Certified, ITENAS 3.49/4.00 GPA, and 6x Lab Teaching Assistant!"
-                data-prop="trophy-vault"
-              >
-                🏆 Verified Honors
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </header>
-
-    <!-- 2. 2D COLOSSEUM STATION NAVIGATOR & HOTKEYS -->
-    <section aria-label="2D Stadium Interactive Stations" class="rounded-xl border border-purple-500/25 bg-[#0f1424]/90 p-3.5 shadow-lg">
-      <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5">
-        <div class="flex items-center gap-2">
-          <span class="font-pixel text-[10px] uppercase tracking-wider text-purple-300">
-            🗺️ Walk to Stadium Station (2D Sync)
+        <!-- Imperial Fame & Crowd Favor Tablet -->
+        <div
+          class="flex shrink-0 flex-col items-end rounded-xl border-2 border-[#fbbf24]/80 bg-[#2e0909]/90 px-4 py-2.5 shadow-inner"
+        >
+          <span class="font-mono text-[10px] font-bold uppercase tracking-widest text-[#fcd34d]">
+            👑 GLADIATOR FAME (GLORIA)
           </span>
-          <span class="text-[11px] text-slate-400 hidden sm:inline">
-            — Click any station to walk your trainer across the 2D Colosseum court
+          <div class="mt-0.5 flex items-baseline gap-1.5">
+            <span
+              id="arena-elo-value"
+              class="font-['Press_Start_2P',monospace] text-lg text-[#fef08a] drop-shadow-[0_2px_0_#78350f]"
+              >1850</span
+            >
+            <span
+              id="arena-elo-tier"
+              class="rounded border border-[#f59e0b]/60 bg-[#78350f]/80 px-1.5 py-0.5 font-mono text-[9px] font-extrabold text-[#fde68a]"
+              >PRIMUS PALUS</span
+            >
+          </div>
+          <span id="arena-record-label" class="mt-1 font-mono text-[10px] text-[#fde68a]/80">
+            Victories: 0W · Trials: 0/6
           </span>
         </div>
-        <div class="hidden md:flex items-center gap-1.5 font-mono text-[10px] text-slate-300">
-          <span>Hotkeys:</span>
-          <kbd class="rounded border border-purple-500/40 bg-black/50 px-1.5 py-0.5 text-purple-300">D</kbd><span>Duel</span>
-          <kbd class="rounded border border-purple-500/40 bg-black/50 px-1.5 py-0.5 text-purple-300">G</kbd><span>Gauntlet</span>
-          <kbd class="rounded border border-purple-500/40 bg-black/50 px-1.5 py-0.5 text-purple-300">T</kbd><span>Trophies</span>
-          <kbd class="rounded border border-purple-500/40 bg-black/50 px-1.5 py-0.5 text-purple-300">S</kbd><span>Stats</span>
-        </div>
       </div>
 
-      <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
+      <!-- 4 Colosseum Gate Quick-Walk Buttons -->
+      <div class="relative z-10 mt-4 grid grid-cols-2 gap-2 pt-2 sm:grid-cols-4">
         <button
           type="button"
-          class="arena-station-btn flex items-center gap-2 rounded-lg border border-purple-500/30 bg-purple-500/10 px-2.5 py-2 text-left hover:border-purple-400 hover:bg-purple-500/20 transition"
-          data-locate="mewtwo-boss"
-        >
-          <span class="text-base">🔮</span>
-          <div class="min-w-0">
-            <div class="font-pixel text-[9px] text-purple-200 truncate">Mewtwo AI</div>
-            <div class="font-mono text-[9px] text-purple-300/70 truncate">Frontier Boss</div>
-          </div>
-        </button>
-
-        <button
-          type="button"
-          class="arena-station-btn flex items-center gap-2 rounded-lg border border-cyan-500/30 bg-cyan-500/10 px-2.5 py-2 text-left hover:border-cyan-400 hover:bg-cyan-500/20 transition"
-          data-locate="lucario-coach"
-        >
-          <span class="text-base">🌀</span>
-          <div class="min-w-0">
-            <div class="font-pixel text-[9px] text-cyan-200 truncate">Lucario</div>
-            <div class="font-mono text-[9px] text-cyan-300/70 truncate">Aura Coach</div>
-          </div>
-        </button>
-
-        <button
-          type="button"
-          class="arena-station-btn flex items-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-2 text-left hover:border-emerald-400 hover:bg-emerald-500/20 transition"
-          data-locate="referee-dan"
-        >
-          <span class="text-base">🏁</span>
-          <div class="min-w-0">
-            <div class="font-pixel text-[9px] text-emerald-200 truncate">Referee</div>
-            <div class="font-mono text-[9px] text-emerald-300/70 truncate">Match Judge</div>
-          </div>
-        </button>
-
-        <button
-          type="button"
-          class="arena-station-btn flex items-center gap-2 rounded-lg border border-rose-500/30 bg-rose-500/10 px-2.5 py-2 text-left hover:border-rose-400 hover:bg-rose-500/20 transition"
-          data-locate="battle-terminal"
+          data-arena-nav="battle-terminal"
+          data-scroll-to="battle-sim-section"
+          class="group flex items-center gap-2 rounded-xl border-2 border-[#d97706] bg-gradient-to-b from-[#fef3c7] to-[#fde68a] px-3 py-2 text-left text-[#451a03] shadow-[0_3px_0_#78350f] transition hover:-translate-y-0.5 hover:from-[#fffbeb] hover:to-[#fef08a] active:translate-y-0"
         >
           <span class="text-base">⚔️</span>
           <div class="min-w-0">
-            <div class="font-pixel text-[9px] text-rose-200 truncate">Battle Deck</div>
-            <div class="font-mono text-[9px] text-rose-300/70 truncate">1v1 Simulator</div>
+            <div class="truncate font-mono text-[11px] font-black uppercase">1v1 Arena Pit</div>
+            <div class="truncate text-[10px] font-semibold text-[#78350f]"> Walk to Armory [D]</div>
           </div>
         </button>
 
         <button
           type="button"
-          class="arena-station-btn flex items-center gap-2 rounded-lg border border-fuchsia-500/30 bg-fuchsia-500/10 px-2.5 py-2 text-left hover:border-fuchsia-400 hover:bg-fuchsia-500/20 transition"
-          data-locate="algorithm-dojo"
+          data-arena-nav="algorithm-dojo"
+          data-scroll-to="algo-dojo-section"
+          class="group flex items-center gap-2 rounded-xl border-2 border-[#d97706] bg-gradient-to-b from-[#fef3c7] to-[#fde68a] px-3 py-2 text-left text-[#451a03] shadow-[0_3px_0_#78350f] transition hover:-translate-y-0.5 hover:from-[#fffbeb] hover:to-[#fef08a] active:translate-y-0"
         >
-          <span class="text-base">🧠</span>
+          <span class="text-base">🦁</span>
           <div class="min-w-0">
-            <div class="font-pixel text-[9px] text-fuchsia-200 truncate">AI Gauntlet</div>
-            <div class="font-mono text-[9px] text-fuchsia-300/70 truncate">Tech Quiz</div>
+            <div class="truncate font-mono text-[11px] font-black uppercase">Six Trials Gate</div>
+            <div class="truncate text-[10px] font-semibold text-[#78350f]">Portcullis [G]</div>
           </div>
         </button>
 
         <button
           type="button"
-          class="arena-station-btn flex items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-2.5 py-2 text-left hover:border-amber-400 hover:bg-amber-500/20 transition"
-          data-locate="trophy-vault"
+          data-arena-nav="trophy-vault"
+          data-scroll-to="trophy-vault-section"
+          class="group flex items-center gap-2 rounded-xl border-2 border-[#d97706] bg-gradient-to-b from-[#fef3c7] to-[#fde68a] px-3 py-2 text-left text-[#451a03] shadow-[0_3px_0_#78350f] transition hover:-translate-y-0.5 hover:from-[#fffbeb] hover:to-[#fef08a] active:translate-y-0"
         >
           <span class="text-base">🏆</span>
           <div class="min-w-0">
-            <div class="font-pixel text-[9px] text-amber-200 truncate">Trophy Vault</div>
-            <div class="font-mono text-[9px] text-amber-300/70 truncate">Medals & Certs</div>
+            <div class="truncate font-mono text-[11px] font-black uppercase">Hall of Victors</div>
+            <div class="truncate text-[10px] font-semibold text-[#78350f]">Spoils & CV [T]</div>
           </div>
         </button>
 
         <button
           type="button"
-          class="arena-station-btn flex items-center gap-2 rounded-lg border border-teal-500/30 bg-teal-500/10 px-2.5 py-2 text-left hover:border-teal-400 hover:bg-teal-500/20 transition"
-          data-locate="stat-radar"
+          data-arena-nav="stat-radar"
+          data-scroll-to="stat-radar-section"
+          class="group flex items-center gap-2 rounded-xl border-2 border-[#d97706] bg-gradient-to-b from-[#fef3c7] to-[#fde68a] px-3 py-2 text-left text-[#451a03] shadow-[0_3px_0_#78350f] transition hover:-translate-y-0.5 hover:from-[#fffbeb] hover:to-[#fef08a] active:translate-y-0"
         >
-          <span class="text-base">📊</span>
+          <span class="text-base">🛡️</span>
           <div class="min-w-0">
-            <div class="font-pixel text-[9px] text-teal-200 truncate">IV Scanner</div>
-            <div class="font-mono text-[9px] text-teal-300/70 truncate">565 BST Radar</div>
+            <div class="truncate font-mono text-[11px] font-black uppercase">Combat Runes</div>
+            <div class="truncate text-[10px] font-semibold text-[#78350f]">565 Obelisk [S]</div>
           </div>
         </button>
       </div>
     </section>
 
-    <!-- 3. INTERACTIVE TURN-BASED POKÉMON ENGINEERING BATTLE SIMULATOR -->
+    <!-- ===================================================================== -->
+    <!-- 2. THE GLADIATOR PIT: 1V1 COLOSSEUM COMBAT SIMULATOR                  -->
+    <!-- ===================================================================== -->
     <section
-      id="arena-battle-sim"
-      aria-labelledby="battle-sim-heading"
-      class="rounded-2xl border-2 border-rose-500/40 bg-gradient-to-b from-[#191024] via-[#111827] to-[#0b1120] p-5 shadow-2xl"
+      id="battle-sim-section"
+      class="scroll-mt-6 overflow-hidden rounded-2xl border-[3px] border-[#8c5a2b] bg-[#fbf3e4] shadow-[0_8px_0_#5c3a1b,0_12px_28px_rgba(59,36,18,0.18)]"
     >
-      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-rose-500/25 pb-3">
-        <div>
-          <span class="font-mono text-[10px] uppercase tracking-widest text-rose-400">
-            LIVE TURN-BASED COMBAT ENGINE · SYNCED WITH 2D COLOSSEUM COURT
-          </span>
-          <h2 id="battle-sim-heading" class="font-pixel text-base sm:text-lg text-white flex items-center gap-2 mt-0.5">
-            <span>⚔️</span>
-            <span>FRONTIER BRAIN BATTLE SIMULATOR (1V1 DUEL)</span>
-          </h2>
+      <!-- Carved Roman Stone Arch Header -->
+      <div
+        class="flex flex-wrap items-center justify-between gap-2 border-b-[3px] border-[#8c5a2b] bg-gradient-to-r from-[#4a2c11] via-[#6b3e18] to-[#4a2c11] px-5 py-3.5 text-[#fef3c7]"
+      >
+        <div class="flex items-center gap-2.5">
+          <span
+            class="flex h-8 w-8 items-center justify-center rounded-lg border-2 border-[#fbbf24] bg-[#7f1d1d] text-base shadow"
+            >⚔️</span
+          >
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="font-mono text-xs font-black uppercase tracking-wider text-[#fef08a] sm:text-sm">
+                MUNERA GLADIATORUM · 1V1 SAND PIT DUEL
+              </h2>
+              <span
+                id="battle-turn-pill"
+                class="rounded-full border border-[#fbbf24]/60 bg-[#7f1d1d] px-2 py-0.5 font-mono text-[10px] font-extrabold text-[#fde68a]"
+                >BOUT I</span
+              >
+            </div>
+            <p class="text-[11px] text-[#fde68a]/80">
+              Select your Gladiator from the Armory and strike down Emperor's Champion Mewtwo!
+            </p>
+          </div>
         </div>
 
         <div class="flex items-center gap-2">
-          <span id="battle-turn-indicator" class="rounded-lg border border-amber-400/40 bg-amber-500/15 px-2.5 py-1 font-mono text-xs font-bold text-amber-300">
-            TURN 1 · YOUR MOVE
-          </span>
           <button
             type="button"
-            id="btn-reset-battle"
-            class="rounded-lg border border-slate-600 bg-slate-800/80 px-2.5 py-1 font-mono text-xs text-slate-200 hover:border-rose-400 transition"
+            id="btn-battle-reset"
+            class="rounded-lg border-2 border-[#fbbf24] bg-[#7f1d1d] px-3 py-1 font-mono text-[11px] font-extrabold text-[#fef3c7] shadow-[0_2px_0_#450a0a] transition hover:bg-[#991b1b] active:translate-y-0.5"
           >
-            ↺ Rematch
+            ↺ New Bout
           </button>
         </div>
       </div>
 
-      <!-- Partner Selector Row -->
-      <div class="mt-3.5">
-        <span class="block font-pixel text-[10px] uppercase tracking-wider text-slate-300 mb-2">
-          1. Select Your Challenger Tech Guardian:
-        </span>
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2" id="battle-partner-selector">
+      <!-- Gladiator Roster Armory Selector Bar -->
+      <div class="border-b-2 border-[#c8a97e] bg-[#f2e2c4] px-4 py-3">
+        <div class="mb-2 flex items-center justify-between">
+          <span class="font-mono text-[10px] font-black uppercase tracking-wider text-[#5c3a1b]">
+            🗡️ ARMORY ROSTER — CHOOSE YOUR GLADIATOR CHAMPION:
+          </span>
+          <span class="font-mono text-[10px] font-bold text-[#78350f]">
+            Synced with 2D Colosseum Sand Pit
+          </span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 sm:grid-cols-4" id="challenger-roster-tabs">
           <button
             type="button"
-            class="battle-partner-btn is-selected flex items-center gap-2 rounded-xl border border-amber-400 bg-amber-500/20 p-2.5 text-left transition"
-            data-partner="charizard"
+            data-fighter-idx="0"
+            class="fighter-tab active flex items-center gap-2 rounded-xl border-2 border-[#991b1b] bg-gradient-to-b from-[#7f1d1d] to-[#450a0a] p-2 text-left text-[#fef3c7] shadow-[0_3px_0_#2e0909] transition"
           >
             <span class="text-xl">🔥</span>
             <div class="min-w-0">
-              <div class="font-pixel text-[10px] text-amber-100 truncate">Charizard</div>
-              <div class="font-mono text-[9px] text-amber-200/80 truncate">Full-Stack Web</div>
+              <div class="truncate font-mono text-[11px] font-black">Charizard</div>
+              <div class="truncate text-[9px] font-bold text-[#fca5a5]">Ignis Myrmillo</div>
             </div>
           </button>
 
           <button
             type="button"
-            class="battle-partner-btn flex items-center gap-2 rounded-xl border border-slate-700 bg-black/30 p-2.5 text-left hover:border-cyan-400/60 transition"
-            data-partner="lucario"
+            data-fighter-idx="1"
+            class="fighter-tab flex items-center gap-2 rounded-xl border-2 border-[#b59264] bg-[#fdf8ed] p-2 text-left text-[#451a03] shadow-[0_2px_0_#8c5a2b] transition hover:border-[#78350f] hover:bg-[#fef3c7]"
           >
-            <span class="text-xl">🌀</span>
+            <span class="text-xl">🥊</span>
             <div class="min-w-0">
-              <div class="font-pixel text-[10px] text-cyan-100 truncate">Lucario</div>
-              <div class="font-mono text-[9px] text-cyan-200/80 truncate">Edge AI & Aura</div>
+              <div class="truncate font-mono text-[11px] font-black">Lucario</div>
+              <div class="truncate text-[9px] font-semibold text-[#78350f]">Aura Dimachaerus</div>
             </div>
           </button>
 
           <button
             type="button"
-            class="battle-partner-btn flex items-center gap-2 rounded-xl border border-slate-700 bg-black/30 p-2.5 text-left hover:border-indigo-400/60 transition"
-            data-partner="garchomp"
+            data-fighter-idx="2"
+            class="fighter-tab flex items-center gap-2 rounded-xl border-2 border-[#b59264] bg-[#fdf8ed] p-2 text-left text-[#451a03] shadow-[0_2px_0_#8c5a2b] transition hover:border-[#78350f] hover:bg-[#fef3c7]"
           >
-            <span class="text-xl">🦈</span>
+            <span class="text-xl">🐉</span>
             <div class="min-w-0">
-              <div class="font-pixel text-[10px] text-indigo-100 truncate">Garchomp</div>
-              <div class="font-mono text-[9px] text-indigo-200/80 truncate">Supersonic Algo</div>
+              <div class="truncate font-mono text-[11px] font-black">Garchomp</div>
+              <div class="truncate text-[9px] font-semibold text-[#78350f]">Draco Secutor</div>
             </div>
           </button>
 
           <button
             type="button"
-            class="battle-partner-btn flex items-center gap-2 rounded-xl border border-slate-700 bg-black/30 p-2.5 text-left hover:border-emerald-400/60 transition"
-            data-partner="dialga"
+            data-fighter-idx="3"
+            class="fighter-tab flex items-center gap-2 rounded-xl border-2 border-[#b59264] bg-[#fdf8ed] p-2 text-left text-[#451a03] shadow-[0_2px_0_#8c5a2b] transition hover:border-[#78350f] hover:bg-[#fef3c7]"
           >
             <span class="text-xl">⏳</span>
             <div class="min-w-0">
-              <div class="font-pixel text-[10px] text-emerald-100 truncate">Dialga</div>
-              <div class="font-mono text-[9px] text-emerald-200/80 truncate">Cloud & Security</div>
+              <div class="truncate font-mono text-[11px] font-black">Dialga</div>
+              <div class="truncate text-[9px] font-semibold text-[#78350f]">Chronos Titan</div>
             </div>
           </button>
         </div>
       </div>
 
-      <!-- Battle HUD Stage: Challenger vs Mewtwo -->
-      <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 rounded-xl border border-slate-700/80 bg-[#090d16] p-4 shadow-inner">
-        <!-- Challenger Status Box -->
-        <div class="rounded-xl border border-cyan-500/35 bg-gradient-to-br from-cyan-950/40 to-slate-950 p-3.5">
-          <div class="flex items-center justify-between gap-2">
-            <div class="flex items-center gap-2.5">
-              <span id="sim-player-icon" class="flex h-11 w-11 items-center justify-center rounded-xl border border-amber-400/40 bg-amber-500/20 text-2xl">
-                🔥
-              </span>
-              <div>
-                <div class="flex items-center gap-1.5">
-                  <h3 id="sim-player-name" class="font-pixel text-xs sm:text-sm text-white">Charizard</h3>
-                  <span class="rounded bg-cyan-500/20 px-1.5 py-0.5 font-mono text-[9px] text-cyan-300">Lv.95</span>
-                </div>
-                <p id="sim-player-role" class="font-mono text-[10px] text-slate-300">
-                  Full-Stack Web & Cloud Flame
-                </p>
-              </div>
-            </div>
-            <div class="text-right font-mono">
-              <div class="text-xs font-bold text-emerald-300">
-                <span id="sim-player-hp-text">280</span> / <span id="sim-player-maxhp-text">280</span> HP
-              </div>
-              <div id="sim-player-buff" class="text-[9px] text-amber-300">Shield: Normal</div>
-            </div>
-          </div>
-
-          <div class="mt-2.5 h-2.5 w-full rounded-full bg-slate-800 overflow-hidden p-0.5">
-            <div
-              id="sim-player-hp-bar"
-              class="h-full rounded-full bg-gradient-to-r from-emerald-500 to-green-400 transition-all duration-300"
-              style="width: 100%"
-            ></div>
-          </div>
-        </div>
-
-        <!-- Boss Status Box (Frontier Brain Mewtwo) -->
-        <div class="rounded-xl border border-purple-500/40 bg-gradient-to-br from-purple-950/45 to-slate-950 p-3.5">
-          <div class="flex items-center justify-between gap-2">
-            <div class="flex items-center gap-2.5">
-              <span id="sim-boss-icon" class="flex h-11 w-11 items-center justify-center rounded-xl border border-purple-400/50 bg-purple-500/20 text-2xl">
-                🔮
-              </span>
-              <div>
-                <div class="flex items-center gap-1.5">
-                  <h3 class="font-pixel text-xs sm:text-sm text-purple-100">Frontier Mewtwo</h3>
-                  <span class="rounded bg-purple-500/30 px-1.5 py-0.5 font-mono text-[9px] text-purple-200">Lv.100 BOSS</span>
-                </div>
-                <p class="font-mono text-[10px] text-purple-300/80">
-                  Neural Overlord · High-Load Boss
-                </p>
-              </div>
-            </div>
-            <div class="text-right font-mono">
-              <div class="text-xs font-bold text-purple-200">
-                <span id="sim-boss-hp-text">320</span> / 320 HP
-              </div>
-              <div id="sim-boss-intent" class="text-[9px] text-rose-300">Charging Psystrike...</div>
-            </div>
-          </div>
-
-          <div class="mt-2.5 h-2.5 w-full rounded-full bg-slate-800 overflow-hidden p-0.5">
-            <div
-              id="sim-boss-hp-bar"
-              class="h-full rounded-full bg-gradient-to-r from-purple-500 to-fuchsia-400 transition-all duration-300"
-              style="width: 100%"
-            ></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 4 Signature Engineering Move Buttons -->
-      <div class="mt-4">
-        <span class="block font-pixel text-[10px] uppercase tracking-wider text-slate-300 mb-2">
-          2. Execute Engineering Signature Move:
-        </span>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5" id="sim-moves-grid">
-          <button
-            type="button"
-            class="sim-move-btn rounded-xl border border-amber-500/40 bg-amber-500/15 p-3 text-left hover:bg-amber-500/25 hover:border-amber-400 active:scale-[0.99] transition"
-            data-move-idx="0"
-          >
-            <div class="flex items-center justify-between">
-              <span id="move-0-name" class="font-pixel text-xs text-amber-200">🔥 Laravel 12 Blitz</span>
-              <span id="move-0-pwr" class="font-mono text-[10px] text-amber-300">95 PWR</span>
-            </div>
-            <p id="move-0-desc" class="font-mono text-[10px] text-slate-300 mt-1">
-              High-damage MVC + PostGIS spatial strike
-            </p>
-          </button>
-
-          <button
-            type="button"
-            class="sim-move-btn rounded-xl border border-cyan-500/40 bg-cyan-500/15 p-3 text-left hover:bg-cyan-500/25 hover:border-cyan-400 active:scale-[0.99] transition"
-            data-move-idx="1"
-          >
-            <div class="flex items-center justify-between">
-              <span id="move-1-name" class="font-pixel text-xs text-cyan-200">⚡ TensorRT Quantize</span>
-              <span id="move-1-pwr" class="font-mono text-[10px] text-cyan-300">85 PWR · CRIT</span>
-            </div>
-            <p id="move-1-desc" class="font-mono text-[10px] text-slate-300 mt-1">
-              1.8ms FP16 strike with high critical-hit rate
-            </p>
-          </button>
-
-          <button
-            type="button"
-            class="sim-move-btn rounded-xl border border-indigo-500/40 bg-indigo-500/15 p-3 text-left hover:bg-indigo-500/25 hover:border-indigo-400 active:scale-[0.99] transition"
-            data-move-idx="2"
-          >
-            <div class="flex items-center justify-between">
-              <span id="move-2-name" class="font-pixel text-xs text-indigo-200">🛡️ HCIA Firewall Aegis</span>
-              <span id="move-2-pwr" class="font-mono text-[10px] text-indigo-300">+DEF & ATK</span>
-            </div>
-            <p id="move-2-desc" class="font-mono text-[10px] text-slate-300 mt-1">
-              Halves incoming Boss damage & boosts attack +35%
-            </p>
-          </button>
-
-          <button
-            type="button"
-            class="sim-move-btn rounded-xl border border-emerald-500/40 bg-emerald-500/15 p-3 text-left hover:bg-emerald-500/25 hover:border-emerald-400 active:scale-[0.99] transition"
-            data-move-idx="3"
-          >
-            <div class="flex items-center justify-between">
-              <span id="move-3-name" class="font-pixel text-xs text-emerald-200">💖 Full Restore Refactor</span>
-              <span id="move-3-pwr" class="font-mono text-[10px] text-emerald-300">+110 HP</span>
-            </div>
-            <p id="move-3-desc" class="font-mono text-[10px] text-slate-300 mt-1">
-              Clean-code hotfix that restores 110 HP & stamina
-            </p>
-          </button>
-        </div>
-      </div>
-
-      <!-- Live Battle Commentary Ticker -->
-      <div class="mt-4 rounded-xl border border-slate-700 bg-black/60 p-3 font-mono text-xs">
-        <div class="flex items-center justify-between text-[10px] uppercase tracking-wider text-purple-300 mb-1">
-          <span>🎙️ Stadium Play-by-Play Combat Log</span>
-          <span id="battle-status-tag" class="text-emerald-400">● Battle Active</span>
-        </div>
-        <div id="sim-battle-log" class="space-y-1 text-slate-200 max-h-28 overflow-y-auto">
-          <p>🏁 Referee Victor raises the green flag! Frontier Brain Mewtwo (Lv.100) awaits your first engineering command!</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- 4. THE 6-STAGE MEWTWO ARCHITECTURE & AI GAUNTLET -->
-    <section
-      id="arena-quiz-gauntlet"
-      aria-labelledby="gauntlet-heading"
-      class="rounded-2xl border-2 border-purple-500/35 bg-gradient-to-b from-[#171126] to-[#0f1420] p-5 shadow-xl"
-    >
-      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-purple-500/25 pb-3">
-        <div>
-          <span class="font-mono text-[10px] uppercase tracking-widest text-purple-300">
-            TECHNICAL INTERVIEW & ARCHITECTURE DOJO · REAL PORTFOLIO CASE STUDIES
-          </span>
-          <h2 id="gauntlet-heading" class="font-pixel text-base sm:text-lg text-white flex items-center gap-2 mt-0.5">
-            <span>🧠</span>
-            <span>6-STAGE AI & SYSTEM DESIGN GAUNTLET</span>
-          </h2>
-        </div>
-
-        <div class="flex items-center gap-2">
-          <span class="rounded-lg border border-purple-400/40 bg-purple-500/15 px-3 py-1 font-mono text-xs font-bold text-purple-200">
-            Score: <span id="gauntlet-score-val">0</span> / 6
-          </span>
-          <button
-            type="button"
-            id="btn-reset-gauntlet"
-            class="rounded-lg border border-slate-600 bg-slate-800/80 px-2.5 py-1 font-mono text-xs text-slate-200 hover:border-purple-400 transition"
-          >
-            ↺ Reset Quiz
-          </button>
-        </div>
-      </div>
-
-      <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4" id="gauntlet-questions-grid">
-        <!-- Q1: Edge AI -->
-        <div class="gauntlet-card rounded-xl border border-purple-500/25 bg-black/35 p-4" data-q-idx="0" data-correct="0">
-          <div class="flex items-center justify-between text-[10px] font-mono text-purple-300 mb-1">
-            <span>STAGE 01 · EDGE AI & TENSORRT</span>
-            <span class="gauntlet-status text-slate-400">Unsolved</span>
-          </div>
-          <h3 class="font-pixel text-xs text-white leading-snug">
-            How did Zulfan achieve ~1.8 ms/frame (75+ FPS) real-time inference on his AeroScan YOLOv11 drone detection pipeline?
-          </h3>
-          <div class="mt-3 space-y-1.5">
-            <button type="button" class="gauntlet-opt w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-left font-mono text-xs text-slate-200 hover:border-purple-400 transition" data-opt="0">
-              (A) TensorRT 10 FP16/INT8 layer fusion & CUDA graph optimization
-            </button>
-            <button type="button" class="gauntlet-opt w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-left font-mono text-xs text-slate-200 hover:border-purple-400 transition" data-opt="1">
-              (B) Running unquantized FP64 weights on a single-threaded CPU loop
-            </button>
-          </div>
-          <p class="gauntlet-exp hidden mt-2.5 rounded-lg border border-emerald-500/30 bg-emerald-950/40 p-2 font-mono text-[11px] text-emerald-200">
-            ✓ Correct! Exporting YOLOv11s to TensorRT FP16 fuses conv/BN/SiLU layers and cuts latency to ~1.8 ms/frame.
-          </p>
-        </div>
-
-        <!-- Q2: Distributed Spatial Backend -->
-        <div class="gauntlet-card rounded-xl border border-purple-500/25 bg-black/35 p-4" data-q-idx="1" data-correct="0">
-          <div class="flex items-center justify-between text-[10px] font-mono text-purple-300 mb-1">
-            <span>STAGE 02 · SPATIAL CLOUD BACKEND</span>
-            <span class="gauntlet-status text-slate-400">Unsolved</span>
-          </div>
-          <h3 class="font-pixel text-xs text-white leading-snug">
-            In the FoodLink platform, which stack powers nearest-recipient geospatial matching and async notifications?
-          </h3>
-          <div class="mt-3 space-y-1.5">
-            <button type="button" class="gauntlet-opt w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-left font-mono text-xs text-slate-200 hover:border-purple-400 transition" data-opt="0">
-              (A) Laravel 12 API Gateway + PostgreSQL/PostGIS R-Tree + Redis Queues
-            </button>
-            <button type="button" class="gauntlet-opt w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-left font-mono text-xs text-slate-200 hover:border-purple-400 transition" data-opt="1">
-              (B) Client-side CSV flat files with synchronous blocking HTTP polling
-            </button>
-          </div>
-          <p class="gauntlet-exp hidden mt-2.5 rounded-lg border border-emerald-500/30 bg-emerald-950/40 p-2 font-mono text-[11px] text-emerald-200">
-            ✓ Correct! PostGIS GIST spatial indexes compute radius matchmaking in milliseconds while Redis queues dispatch jobs asynchronously.
-          </p>
-        </div>
-
-        <!-- Q3: Concurrency & Race Conditions -->
-        <div class="gauntlet-card rounded-xl border border-purple-500/25 bg-black/35 p-4" data-q-idx="2" data-correct="0">
-          <div class="flex items-center justify-between text-[10px] font-mono text-purple-300 mb-1">
-            <span>STAGE 03 · HIGH-CONCURRENCY LOCKS</span>
-            <span class="gauntlet-status text-slate-400">Unsolved</span>
-          </div>
-          <h3 class="font-pixel text-xs text-white leading-snug">
-            How do you prevent double-claiming when 1,000+ users request a limited food donation item simultaneously?
-          </h3>
-          <div class="mt-3 space-y-1.5">
-            <button type="button" class="gauntlet-opt w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-left font-mono text-xs text-slate-200 hover:border-purple-400 transition" data-opt="0">
-              (A) Atomic Redis Lua mutex scripts paired with transactional row locking
-            </button>
-            <button type="button" class="gauntlet-opt w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-left font-mono text-xs text-slate-200 hover:border-purple-400 transition" data-opt="1">
-              (B) Relying on a frontend `setTimeout` delay before submitting the form
-            </button>
-          </div>
-          <p class="gauntlet-exp hidden mt-2.5 rounded-lg border border-emerald-500/30 bg-emerald-950/40 p-2 font-mono text-[11px] text-emerald-200">
-            ✓ Correct! Redis Lua scripts execute atomically in sub-millisecond memory, eliminating race conditions under spike load.
-          </p>
-        </div>
-
-        <!-- Q4: Game AI Search -->
-        <div class="gauntlet-card rounded-xl border border-purple-500/25 bg-black/35 p-4" data-q-idx="3" data-correct="0">
-          <div class="flex items-center justify-between text-[10px] font-mono text-purple-300 mb-1">
-            <span>STAGE 04 · ADVERSARIAL GAME AI</span>
-            <span class="gauntlet-status text-slate-400">Unsolved</span>
-          </div>
-          <h3 class="font-pixel text-xs text-white leading-snug">
-            Which algorithm powers the Deoxys Mancala/Kalah AI bot in Zulfan's Retro Arcade?
-          </h3>
-          <div class="mt-3 space-y-1.5">
-            <button type="button" class="gauntlet-opt w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-left font-mono text-xs text-slate-200 hover:border-purple-400 transition" data-opt="0">
-              (A) Depth-limited Minimax with Alpha-Beta Pruning & heuristic evaluation
-            </button>
-            <button type="button" class="gauntlet-opt w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-left font-mono text-xs text-slate-200 hover:border-purple-400 transition" data-opt="1">
-              (B) Pure `Math.random()` pit selection without lookahead
-            </button>
-          </div>
-          <p class="gauntlet-exp hidden mt-2.5 rounded-lg border border-emerald-500/30 bg-emerald-950/40 p-2 font-mono text-[11px] text-emerald-200">
-            ✓ Correct! Alpha-Beta pruning prunes suboptimal branches exponentially, allowing deep lookahead in real time.
-          </p>
-        </div>
-
-        <!-- Q5: Network Security -->
-        <div class="gauntlet-card rounded-xl border border-purple-500/25 bg-black/35 p-4" data-q-idx="4" data-correct="0">
-          <div class="flex items-center justify-between text-[10px] font-mono text-purple-300 mb-1">
-            <span>STAGE 05 · HUAWEI HCIA-SECURITY V4.0</span>
-            <span class="gauntlet-status text-slate-400">Unsolved</span>
-          </div>
-          <h3 class="font-pixel text-xs text-white leading-snug">
-            Under Huawei HCIA-Security V4.0 best practices, how should site-to-site enterprise traffic across public WANs be secured?
-          </h3>
-          <div class="mt-3 space-y-1.5">
-            <button type="button" class="gauntlet-opt w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-left font-mono text-xs text-slate-200 hover:border-purple-400 transition" data-opt="0">
-              (A) IPSec VPN ESP tunnel encryption with stateful security-zone firewall ACLs
-            </button>
-            <button type="button" class="gauntlet-opt w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-left font-mono text-xs text-slate-200 hover:border-purple-400 transition" data-opt="1">
-              (B) Exposing internal database ports directly on `0.0.0.0/0` over plain Telnet
-            </button>
-          </div>
-          <p class="gauntlet-exp hidden mt-2.5 rounded-lg border border-emerald-500/30 bg-emerald-950/40 p-2 font-mono text-[11px] text-emerald-200">
-            ✓ Correct! Stateful security zones (Trust/DMZ/Untrust) combined with IPSec VPN protect confidentiality and integrity.
-          </p>
-        </div>
-
-        <!-- Q6: 2D Web Engine Performance -->
-        <div class="gauntlet-card rounded-xl border border-purple-500/25 bg-black/35 p-4" data-q-idx="5" data-correct="0">
-          <div class="flex items-center justify-between text-[10px] font-mono text-purple-300 mb-1">
-            <span>STAGE 06 · 60 FPS CANVAS ENGINE</span>
-            <span class="gauntlet-status text-slate-400">Unsolved</span>
-          </div>
-          <h3 class="font-pixel text-xs text-white leading-snug">
-            How does this 2D Pokémon Portfolio Town maintain 60 FPS rendering without GPU frame drops?
-          </h3>
-          <div class="mt-3 space-y-1.5">
-            <button type="button" class="gauntlet-opt w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-left font-mono text-xs text-slate-200 hover:border-purple-400 transition" data-opt="0">
-              (A) Pre-baking static tilemaps to offscreen canvases & A* grid pathfinding
-            </button>
-            <button type="button" class="gauntlet-opt w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-left font-mono text-xs text-slate-200 hover:border-purple-400 transition" data-opt="1">
-              (B) Recreating 4,000 DOM &lt;div&gt; nodes on every requestAnimationFrame tick
-            </button>
-          </div>
-          <p class="gauntlet-exp hidden mt-2.5 rounded-lg border border-emerald-500/30 bg-emerald-950/40 p-2 font-mono text-[11px] text-emerald-200">
-            ✓ Correct! Offscreen background caching turns thousands of tile draw calls into a single `ctx.drawImage` blit per frame.
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <!-- 5. CHAMPIONSHIP TROPHY VAULT & COMPETITIVE HONORS -->
-    <section id="arena-trophy-vault" aria-labelledby="trophy-heading" class="space-y-4">
-      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-amber-500/25 pb-3">
-        <div>
-          <span class="font-mono text-[10px] uppercase tracking-widest text-amber-400">
-            HALL OF FAME PEDESTAL · VERIFIED COMPETITIVE & ACADEMIC RECORD
-          </span>
-          <h2 id="trophy-heading" class="font-pixel text-base sm:text-lg text-amber-100 flex items-center gap-2 mt-0.5">
-            <span>🏆</span>
-            <span>CHAMPIONSHIP TROPHY VAULT & HONORS</span>
-          </h2>
-        </div>
-
-        <button
-          type="button"
-          id="btn-locate-trophies"
-          class="rounded-lg border border-amber-400/40 bg-amber-500/15 px-3 py-1.5 font-mono text-xs text-amber-200 hover:bg-amber-500/30 transition"
+      <!-- =============================================================== -->
+      <!-- THE SANDY GLADIATOR BATTLEFIELD (ARENA FLOOR)                   -->
+      <!-- =============================================================== -->
+      <div
+        id="battle-stage-viewport"
+        class="relative overflow-hidden border-b-[3px] border-[#8c5a2b] bg-[radial-gradient(circle_at_center,#f3d9a4_0%,#e0b875_58%,#c4934b_100%)] p-4 sm:p-5"
+      >
+        <!-- Concentric Gladiator Combat Rings etched in the Sand -->
+        <div
+          class="pointer-events-none absolute left-1/2 top-1/2 h-56 w-56 -translate-x-1/2 -translate-y-1/2 rounded-full border-[3px] border-dashed border-[#991b1b]/25"
         >
-          🚶 Inspect Trophy Case in 2D
-        </button>
-      </div>
+        </div>
+        <div
+          class="pointer-events-none absolute left-1/2 top-1/2 h-32 w-32 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-[#78350f]/25"
+        >
+        </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {trophies.map((t) => (
-          <article class="rounded-xl border border-amber-500/30 bg-gradient-to-br from-[#1f1610] to-[#120d0a] p-4 shadow-lg hover:border-amber-400/70 transition">
-            <div class="flex items-start justify-between gap-3">
-              <div class="flex items-center gap-3">
-                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-amber-400/40 bg-amber-500/15 text-2xl">
-                  {t.icon}
+        <!-- Imperial Crowd Favor Bar (Pollice Verso: 👍 MITTE vs 👎 IUGULA) -->
+        <div
+          class="relative z-10 mb-4 flex items-center justify-between gap-3 rounded-xl border-2 border-[#78350f] bg-[#3b1d0a]/90 px-3 py-1.5 text-[#fef3c7] shadow"
+        >
+          <span class="font-mono text-[10px] font-extrabold uppercase tracking-wider text-[#fde68a]">
+            👍 CROWD FAVOR (POLLICE VERSO)
+          </span>
+          <div class="h-2.5 flex-1 overflow-hidden rounded-full border border-[#fbbf24]/50 bg-[#1c0d06]">
+            <div
+              id="crowd-favor-bar"
+              class="h-full bg-gradient-to-r from-[#dc2626] via-[#f59e0b] to-[#16a34a] transition-all duration-500"
+              style="width: 55%"
+            >
+            </div>
+          </div>
+          <span id="crowd-favor-text" class="font-mono text-[10px] font-black text-[#fef08a]">
+            55% · ROARING! 🔥
+          </span>
+        </div>
+
+        <!-- Combatants Grid: Champion Mewtwo (Top Right) & Challenger Gladiator (Bottom Left) -->
+        <div class="relative z-10 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <!-- OPPONENT: GRAND CHAMPION MEWTWO -->
+          <div
+            class="order-1 rounded-2xl border-2 border-[#7f1d1d] bg-gradient-to-b from-[#fffbeb] to-[#f5e6c8] p-3.5 shadow-[0_5px_0_#5c1111] sm:order-2"
+          >
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <div class="flex items-center gap-1.5">
+                  <span
+                    class="rounded border border-[#fbbf24] bg-[#7f1d1d] px-1.5 py-0.5 font-mono text-[9px] font-black uppercase text-[#fef08a]"
+                    >IMPERIAL CHAMPION</span
+                  >
+                  <span class="font-mono text-[10px] font-extrabold text-[#78350f]">LV.100</span>
+                </div>
+                <h3 class="mt-1 font-mono text-sm font-black text-[#3b1d0a]">
+                  👑 Mewtwo · Colosseum Rex
+                </h3>
+                <p id="boss-status-tag" class="font-mono text-[10px] font-bold text-[#991b1b]">
+                  🛡️ Imperial Aegis Active · Psychic/Gladiator
+                </p>
+              </div>
+              <div
+                id="boss-sprite-avatar"
+                class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border-2 border-[#fbbf24] bg-gradient-to-br from-[#7f1d1d] to-[#450a0a] text-2xl shadow-inner transition-transform duration-300"
+              >
+                🔮
+              </div>
+            </div>
+
+            <!-- Boss HP Bar -->
+            <div class="mt-3">
+              <div class="mb-1 flex justify-between font-mono text-[10px] font-black text-[#451a03]">
+                <span>VITALITAS (HP)</span>
+                <span id="boss-hp-text">500 / 500</span>
+              </div>
+              <div class="h-3.5 w-full overflow-hidden rounded-full border-2 border-[#5c3a1b] bg-[#291709] p-0.5">
+                <div
+                  id="boss-hp-bar"
+                  class="h-full rounded-full bg-gradient-to-r from-[#dc2626] via-[#ef4444] to-[#f59e0b] transition-all duration-300"
+                  style="width: 100%"
+                >
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PLAYER: CHALLENGER GLADIATOR -->
+          <div
+            class="order-2 rounded-2xl border-2 border-[#8c5a2b] bg-gradient-to-b from-[#fffbeb] to-[#f5e6c8] p-3.5 shadow-[0_5px_0_#5c3a1b] sm:order-1"
+          >
+            <div class="flex items-start justify-between gap-2">
+              <div class=" flex items-center gap-2.5">
+                <div
+                  id="player-sprite-avatar"
+                  class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border-2 border-[#d97706] bg-gradient-to-br from-[#fef3c7] to-[#fde68a] text-2xl shadow-inner transition-transform duration-300"
+                >
+                  🔥
                 </div>
                 <div>
-                  <span class="inline-block rounded bg-amber-500/20 border border-amber-400/40 px-2 py-0.5 font-mono text-[9px] font-bold text-amber-300">
-                    {t.badge}
-                  </span>
-                  <h3 class="font-pixel text-xs sm:text-sm text-amber-100 mt-1">{t.title}</h3>
-                  <p class="font-mono text-[10px] text-amber-200/75">{t.subtitle}</p>
+                  <div class="flex items-center gap-1.5">
+                    <span
+                      id="player-class-badge"
+                      class="rounded border border-[#d97706] bg-[#78350f] px-1.5 py-0.5 font-mono text-[9px] font-black uppercase text-[#fef08a]"
+                      >IGNIS MYRMILLO</span
+                    >
+                    <span class="font-mono text-[10px] font-extrabold text-[#78350f]">LV.95</span>
+                  </div>
+                  <h3 id="player-fighter-name" class="mt-1 font-mono text-sm font-black text-[#3b1d0a]">
+                    Charizard · Full-Stack Striker
+                  </h3>
+                  <p id="player-buff-tag" class="font-mono text-[10px] font-bold text-[#92400e]">
+                    ⚔️ Ready on the Colosseum Sand
+                  </p>
                 </div>
               </div>
-              <span class="shrink-0 font-mono text-[10px] text-amber-300/80">{t.year}</span>
             </div>
 
-            <p class="mt-3 text-xs text-amber-100/85 leading-relaxed">{t.description}</p>
-
-            <div class="mt-3 flex flex-wrap gap-1.5">
-              {t.skills.map((s) => (
-                <span class="rounded-full border border-amber-500/25 bg-black/40 px-2.5 py-0.5 font-mono text-[10px] text-amber-200">
-                  ✦ {s}
-                </span>
-              ))}
+            <!-- Player HP Bar -->
+            <div class="mt-3">
+              <div class="mb-1 flex justify-between font-mono text-[10px] font-black text-[#451a03]">
+                <span>VITALITAS (HP)</span>
+                <span id="player-hp-text">420 / 420</span>
+              </div>
+              <div class="h-3.5 w-full overflow-hidden rounded-full border-2 border-[#5c3a1b] bg-[#291709] p-0.5">
+                <div
+                  id="player-hp-bar"
+                  class="h-full rounded-full bg-gradient-to-r from-[#15803d] via-[#22c55e] to-[#86efac] transition-all duration-300"
+                  style="width: 100%"
+                >
+                </div>
+              </div>
             </div>
-          </article>
-        ))}
+          </div>
+        </div>
+      </div>
+
+      <!-- =============================================================== -->
+      <!-- GLADIATOR WEAPON STRIKES & IMPERIAL BLESSINGS                   -->
+      <!-- =============================================================== -->
+      <div class="space-y-4 bg-[#f7ead2] p-4 sm:p-5">
+        <div>
+          <div class="mb-2 flex items-center justify-between">
+            <span class="font-mono text-[11px] font-black uppercase tracking-wider text-[#5c1111]">
+              ⚔️ COMMAND YOUR GLADIATOR STRIKE (4 TECHNIQUES):
+            </span>
+            <span class="font-mono text-[10px] font-bold text-[#78350f]">
+              Click a weapon strike to clash in the pit
+            </span>
+          </div>
+
+          <div id="battle-moves-grid" class="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+            <!-- Dynamically populated by arena script -->
+          </div>
+        </div>
+
+        <!-- 3 Imperial Arena Blessings (Items) -->
+        <div class="rounded-xl border-2 border-[#b59264] bg-[#fdf8ed] p-3">
+          <div class="mb-2 flex items-center justify-between">
+            <span class="font-mono text-[10px] font-black uppercase tracking-wider text-[#78350f]">
+              🏺 IMPERIAL TRIBUNE BLESSINGS (1 USE EACH PER BOUT):
+            </span>
+          </div>
+          <div class="grid grid-cols-1 gap-2 sm:grid-cols-3">
+            <button
+              type="button"
+              id="item-potion-btn"
+              class="flex items-center justify-between rounded-lg border-2 border-[#15803d] bg-[#f0fdf4] px-3 py-2 text-left text-xs font-bold text-[#14532d] shadow-sm transition hover:bg-[#dcfce7] disabled:opacity-45"
+            >
+              <span>🏺 Ambrosia Nectar (+65% HP)</span>
+              <span id="item-potion-count" class="font-mono text-[10px] font-black">1×</span>
+            </button>
+
+            <button
+              type="button"
+              id="item-xspatk-btn"
+              class="flex items-center justify-between rounded-lg border-2 border-[#b45309] bg-[#fffbeb] px-3 py-2 text-left text-xs font-bold text-[#78350f] shadow-sm transition hover:bg-[#fef3c7] disabled:opacity-45"
+            >
+              <span>🔥 Vulcan Whetstone (+35% ATK)</span>
+              <span id="item-xspatk-count" class="font-mono text-[10px] font-black">1×</span>
+            </button>
+
+            <button
+              type="button"
+              id="item-guard-btn"
+              class="flex items-center justify-between rounded-lg border-2 border-[#1d4ed8] bg-[#eff6ff] px-3 py-2 text-left text-xs font-bold text-[#1e3a8a] shadow-sm transition hover:bg-[#dbeafe] disabled:opacity-45"
+            >
+              <span>🛡️ Roman Testudo (50% Shield)</span>
+              <span id="item-guard-count" class="font-mono text-[10px] font-black">1×</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Parchment Scroll Combat Chronicle (Battle Log) -->
+        <div
+          class="rounded-xl border-2 border-[#8c5a2b] bg-[#efe0c2] p-3.5 shadow-inner"
+        >
+          <div class="mb-1.5 flex items-center justify-between border-b border-[#b59264] pb-1">
+            <span class="font-mono text-[10px] font-black uppercase tracking-wider text-[#5c3a1b]">
+              📜 ACTA DIURNA · COLOSSEUM COMBAT CHRONICLE
+            </span>
+            <span class="font-mono text-[10px] font-bold text-[#991b1b]">LIVE SAND TELEMETRY</span>
+          </div>
+          <div
+            id="battle-combat-log"
+            class="max-h-32 space-y-1.5 overflow-y-auto font-mono text-xs leading-relaxed text-[#3b1d0a]"
+          >
+            <div>
+              📯 <strong>Legatus Arbiter:</strong> "Gladiators! Salute the Emperor and draw your weapons!"
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
-    <!-- 6. 6-AXIS ENGINEERING EV/IV BASE STAT RADAR -->
+    <!-- ===================================================================== -->
+    <!-- 3. THE SIX TRIALS OF ROME: PORTA BESTIARIORUM GAUNTLET                -->
+    <!-- ===================================================================== -->
     <section
-      id="arena-stat-scanner"
-      aria-labelledby="scanner-heading"
-      class="rounded-2xl border-2 border-emerald-500/35 bg-gradient-to-br from-[#0c1f1a] via-[#0b161e] to-[#091018] p-5 shadow-xl"
+      id="algo-dojo-section"
+      class="scroll-mt-6 overflow-hidden rounded-2xl border-[3px] border-[#8c5a2b] bg-[#fbf3e4] shadow-[0_8px_0_#5c3a1b,0_12px_28px_rgba(59,36,18,0.18)]"
     >
-      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-emerald-500/25 pb-3">
-        <div>
-          <span class="font-mono text-[10px] uppercase tracking-widest text-emerald-400">
-            POKÉDEX ENGINEER TELEMETRY · 6×31 FLAWLESS IV PROFILE
-          </span>
-          <h2 id="scanner-heading" class="font-pixel text-base sm:text-lg text-emerald-100 flex items-center gap-2 mt-0.5">
-            <span>📊</span>
-            <span>6-AXIS STACK EV/IV BASE STAT SCANNER (BST: 565)</span>
-          </h2>
+      <div
+        class="flex flex-wrap items-center justify-between gap-2 border-b-[3px] border-[#8c5a2b] bg-gradient-to-r from-[#5c1111] via-[#7f1d1d] to-[#5c1111] px-5 py-3.5 text-[#fef3c7]"
+      >
+        <div class="flex items-center gap-2.5">
+          <span
+            class="flex h-8 w-8 items-center justify-center rounded-lg border-2 border-[#fbbf24] bg-[#450a0a] text-base shadow"
+            >🦁</span
+          >
+          <div>
+            <h2 class="font-mono text-xs font-black uppercase tracking-wider text-[#fef08a] sm:text-sm">
+              PORTA BESTIARIORUM · THE SIX LABORS OF THE COLOSSEUM
+            </h2>
+            <p class="text-[11px] text-[#fde68a]/85">
+              Conquer 6 Stone Tablet Engineering Trials to earn +25 Fame each and unlock the Golden Caesar Laurel!
+            </p>
+          </div>
         </div>
 
-        <span class="rounded-lg border border-emerald-400/40 bg-emerald-500/15 px-3 py-1 font-mono text-xs font-bold text-emerald-300">
-          Ability: TensorRT Overclock ⚡
+        <span
+          id="gauntlet-progress-pill"
+          class="rounded-full border-2 border-[#fbbf24] bg-[#450a0a] px-3 py-1 font-mono text-[11px] font-black text-[#fef08a]"
+        >
+          TRIAL I / VI · 0 SOLVED
         </span>
       </div>
 
-      <div class="mt-4 space-y-3">
-        {statAxes.map((axis) => (
-          <div class="rounded-xl border border-emerald-500/20 bg-black/35 p-3">
-            <div class="flex flex-wrap items-center justify-between gap-2 font-mono text-xs mb-1.5">
-              <div class="flex items-center gap-2">
-                <span class="rounded bg-emerald-500/20 border border-emerald-400/30 px-2 py-0.5 text-[10px] font-bold text-emerald-300 w-16 text-center">
-                  {axis.code}
-                </span>
-                <strong class="text-white">{axis.label}</strong>
-              </div>
-              <div class="flex items-center gap-2 text-[11px]">
-                <span class="text-emerald-300/80">{axis.iv} · {axis.ev}</span>
-                <span class="rounded bg-emerald-500/25 px-2 py-0.5 font-bold text-emerald-200">{axis.base} / 100</span>
-              </div>
-            </div>
-
-            <div class="h-2 w-full rounded-full bg-slate-900 overflow-hidden">
-              <div class={`h-full rounded-full bg-gradient-to-r ${axis.color}`} style={`width: ${axis.base}%`}></div>
-            </div>
-
-            <p class="mt-1.5 font-mono text-[10px] text-slate-300/85">
-              🔗 Verified Proof: {axis.proof}
-            </p>
-          </div>
-        ))}
-      </div>
-
-      <!-- Bottom Quick Links -->
-      <div class="mt-5 pt-4 border-t border-emerald-500/20 flex flex-wrap items-center justify-between gap-3">
-        <div class="font-mono text-xs text-emerald-200/90">
-          Ready to recruit this <strong>565 BST Engineer</strong> to your party?
+      <div class="space-y-4 p-5">
+        <!-- Roman Numeral Trial Selector Pills -->
+        <div class="flex flex-wrap gap-2" id="gauntlet-stage-pills">
+          <!-- Populated by script -->
         </div>
-        <div class="flex flex-wrap items-center gap-2">
-          <a
-            href="/cv/CV_Zulfan.pdf"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="rounded-xl border border-emerald-300 bg-emerald-500 px-4 py-2 font-pixel text-xs uppercase tracking-wider text-slate-950 font-bold hover:brightness-110 transition"
+
+        <!-- Carved Travertine Stone Tablet Question Card -->
+        <div
+          class="rounded-2xl border-2 border-[#8c5a2b] bg-gradient-to-b from-[#fdf8ed] to-[#f2e2c4] p-4 shadow-[inset_0_2px_0_#ffffff,0_4px_0_#8c5a2b]"
+        >
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-[#c8a97e] pb-2.5">
+            <span
+              id="gauntlet-domain-tag"
+              class="rounded-md border border-[#991b1b] bg-[#7f1d1d] px-2.5 py-0.5 font-mono text-[10px] font-black uppercase text-[#fef08a]"
+            >
+              TRIAL I · EAGLE VISION (COMPUTER VISION & EDGE AI)
+            </span>
+            <span id="gauntlet-reward-tag" class="font-mono text-[11px] font-extrabold text-[#92400e]">
+              🏅 Reward: +25 Gladiator Fame
+            </span>
+          </div>
+
+          <h3
+            id="gauntlet-question-title"
+            class="mt-3 font-mono text-sm font-black leading-snug text-[#2e1605] sm:text-base"
           >
-            📄 Download Official CV
-          </a>
-          <a
-            href={linkedinUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="rounded-xl border border-emerald-400/40 bg-emerald-500/15 px-3.5 py-2 font-mono text-xs text-emerald-200 hover:bg-emerald-500/25 transition"
+            Loading Stone Tablet Trial...
+          </h3>
+
+          <div id="gauntlet-options-list" class="mt-4 grid grid-cols-1 gap-2.5">
+            <!-- Options injected by script -->
+          </div>
+
+          <!-- Senate Verdict Feedback Box -->
+          <div
+            id="gauntlet-feedback-box"
+            class="mt-4 hidden rounded-xl border-2 border-[#8c5a2b] bg-[#fffbeb] p-3.5 text-xs leading-relaxed text-[#451a03]"
           >
-            💼 Connect on LinkedIn
-          </a>
-          <a
-            href="/arcade"
-            class="rounded-xl border border-purple-400/40 bg-purple-500/15 px-3.5 py-2 font-mono text-xs text-purple-200 hover:bg-purple-500/25 transition"
-          >
-            🕹️ Challenge Deoxys Arcade
-          </a>
-          <a
-            href="/"
-            onclick="sessionStorage.setItem('town:respawn', '38,44')"
-            class="rounded-xl border border-slate-600 bg-slate-800/70 px-3.5 py-2 font-mono text-xs text-slate-200 hover:border-purple-400 transition"
-          >
-            🚪 Exit Stadium
-          </a>
+          </div>
+
+          <div class="mt-4 flex items-center justify-between border-t border-[#c8a97e] pt-3">
+            <button
+              type="button"
+              id="btn-gauntlet-prev"
+              class="rounded-lg border-2 border-[#8c5a2b] bg-[#fdf8ed] px-3 py-1.5 font-mono text-xs font-extrabold text-[#451a03] transition hover:bg-[#f2e2c4]"
+            >
+              ← Prev Tablet
+            </button>
+            <button
+              type="button"
+              id="btn-gauntlet-next"
+              class="rounded-lg border-2 border-[#991b1b] bg-[#7f1d1d] px-4 py-1.5 font-mono text-xs font-extrabold text-[#fef08a] shadow-[0_2px_0_#450a0a] transition hover:bg-[#991b1b]"
+            >
+              Next Tablet →
+            </button>
+          </div>
         </div>
       </div>
     </section>
-  </article>
+
+    <!-- ===================================================================== -->
+    <!-- 4. HALL OF VICTORS: MARBLE PEDESTALS & IMPERIAL SPOILS                -->
+    <!-- ===================================================================== -->
+    <section
+      id="trophy-vault-section"
+      class="scroll-mt-6 overflow-hidden rounded-2xl border-[3px] border-[#8c5a2b] bg-[#fbf3e4] shadow-[0_8px_0_#5c3a1b,0_12px_28px_rgba(59,36,18,0.18)]"
+    >
+      <div
+        class="flex flex-wrap items-center justify-between gap-2 border-b-[3px] border-[#8c5a2b] bg-gradient-to-r from-[#4a2c11] via-[#78350f] to-[#4a2c11] px-5 py-3.5 text-[#fef3c7]"
+      >
+        <div class="flex items-center gap-2.5">
+          <span
+            class="flex h-8 w-8 items-center justify-center rounded-lg border-2 border-[#fbbf24] bg-[#7f1d1d] text-base shadow"
+            >🏆</span
+          >
+          <div>
+            <h2 class="font-mono text-xs font-black uppercase tracking-wider text-[#fef08a] sm:text-sm">
+              HALL OF VICTORS · IMPERIAL SPOILS & CREDENTIALS
+            </h2>
+            <p class="text-[11px] text-[#fde68a]/85">
+              Consecrated marble pedestals honoring Muhammad Zulfan's verified national awards, security seals, and academic laurels.
+            </p>
+          </div>
+        </div>
+
+        <a
+          href="/cv/CV_Zulfan.pdf"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-1.5 rounded-lg border-2 border-[#fbbf24] bg-[#7f1d1d] px-3 py-1.5 font-mono text-[11px] font-extrabold text-[#fef08a] shadow-[0_2px_0_#450a0a] transition hover:bg-[#991b1b]"
+        >
+          📜 Imperial Scroll (CV PDF) ↗
+        </a>
+      </div>
+
+      <div class="grid grid-cols-1 gap-4 p-5 sm:grid-cols-2">
+        <!-- Pedestal I: IDEA FEST 3 National Bronze Medal -->
+        <article
+          class=" flex flex-col justify-between rounded-2xl border-2 border-[#b45309] bg-gradient-to-b from-[#fffbeb] to-[#f5e6c8] p-4 shadow-[0_5px_0_#78350f]"
+        >
+          <div>
+            <div class="flex items-start justify-between gap-2">
+              <span
+                class="rounded-md border border-[#b45309] bg-[#fef3c7] px-2 py-0.5 font-mono text-[10px] font-black uppercase text-[#78350f]"
+              >
+                PEDESTAL I · NATIONAL MEDALLION
+              </span>
+              <span class="text-2xl">🥉</span>
+            </div>
+            <h3 class="mt-2 font-mono text-sm font-black text-[#3b1d0a]">
+              Bronze Medal — IDEA FEST 3 National Essay Competition
+            </h3>
+            <p class="mt-1.5 text-xs leading-relaxed text-[#5c3a1b]">
+              Awarded at the national academic innovation arena for pioneering applied AI & technology solutions addressing real-world Indonesian infrastructure challenges.
+            </p>
+          </div>
+          <div class="mt-4 flex items-center justify-between border-t border-[#d6be9c] pt-2.5">
+            <span class="font-mono text-[10px] font-bold text-[#92400e]">🏛️ National Arena Honor</span>
+            <button
+              type="button"
+              data-trophy-inspect="ideafest"
+              class="rounded-lg border border-[#78350f] bg-[#78350f] px-2.5 py-1 font-mono text-[10px] font-extrabold text-[#fef3c7] transition hover:bg-[#92400e]"
+            >
+              Inspect Decree →
+            </button>
+          </div>
+        </article>
+
+        <!-- Pedestal II: Huawei HCIA-Security V4.0 -->
+        <article
+          class="flex flex-col justify-between rounded-2xl border-2 border-[#991b1b] bg-gradient-to-b from-[#fffbeb] to-[#f5e6c8] p-4 shadow-[0_5px_0_#7f1d1d]"
+        >
+          <div>
+            <div class="flex items-start justify-between gap-2">
+              <span
+                class="rounded-md border border-[#991b1b] bg-[#fee2e2] px-2 py-0.5 font-mono text-[10px] font-black uppercase text-[#7f1d1d]"
+              >
+                PEDESTAL II · PRAETORIAN AEGIS SEAL
+              </span>
+              <span class="text-2xl">🛡️</span>
+            </div>
+            <h3 class="mt-2 font-mono text-sm font-black text-[#3b1d0a]">
+              Huawei Certified ICT Associate — HCIA-Security V4.0
+            </h3>
+            <p class="mt-1.5 text-xs leading-relaxed text-[#5c3a1b]">
+              Verified mastery of enterprise firewall architecture, intrusion prevention (IPS/IDS), cryptographic VPN tunnels, and zero-trust network defense.
+            </p>
+          </div>
+          <div class="mt-4 flex items-center justify-between border-t border-[#d6be9c] pt-2.5">
+            <span class="font-mono text-[10px] font-bold text-[#991b1b]">🛡️ Praetorian Defense</span>
+            <button
+              type="button"
+              data-trophy-inspect="hcia"
+              class="rounded-lg border border-[#991b1b] bg-[#7f1d1d] px-2.5 py-1 font-mono text-[10px] font-extrabold text-[#fef3c7] transition hover:bg-[#991b1b]"
+            >
+              Inspect Decree →
+            </button>
+          </div>
+        </article>
+
+        <!-- Pedestal III: ITENAS Informatics Engineering GPA 3.49/4.00 -->
+        <article
+          class="flex flex-col justify-between rounded-2xl border-2 border-[#b45309] bg-gradient-to-b from-[#fffbeb] to-[#f5e6c8] p-4 shadow-[0_5px_0_#78350f]"
+        >
+          <div>
+            <div class="flex items-start justify-between gap-2">
+              <span
+                class="rounded-md border border-[#b45309] bg-[#fef3c7] px-2 py-0.5 font-mono text-[10px] font-black uppercase text-[#78350f]"
+              >
+                PEDESTAL III · SENATE LAUREL WREATH
+              </span>
+              <span class="text-2xl">🎓</span>
+            </div>
+            <h3 class="mt-2 font-mono text-sm font-black text-[#3b1d0a]">
+              B.Comp.Sc. (S.Kom.) Informatics — GPA 3.49 / 4.00
+            </h3>
+            <p class="mt-1.5 text-xs leading-relaxed text-[#5c3a1b]">
+              Graduated from Institut Teknologi Nasional (ITENAS) Bandung (2021–2025) specializing in Computer Vision (YOLOv8), Full-Stack Web Engineering, and IoT Systems.
+            </p>
+          </div>
+          <div class="mt-4 flex items-center justify-between border-t border-[#d6be9c] pt-2.5">
+            <span class="font-mono text-[10px] font-bold text-[#92400e]">📜 ITENAS Senate Scholar</span>
+            <button
+              type="button"
+              data-trophy-inspect="gpa"
+              class="rounded-lg border border-[#78350f] bg-[#78350f] px-2.5 py-1 font-mono text-[10px] font-extrabold text-[#fef3c7] transition hover:bg-[#92400e]"
+            >
+              Inspect Decree →
+            </button>
+          </div>
+        </article>
+
+        <!-- Pedestal IV: 6x University Laboratory Assistant -->
+        <article
+          class="flex flex-col justify-between rounded-2xl border-2 border-[#991b1b] bg-gradient-to-b from-[#fffbeb] to-[#f5e6c8] p-4 shadow-[0_5px_0_#7f1d1d]"
+        >
+          <div>
+            <div class="flex items-start justify-between gap-2">
+              <span
+                class="rounded-md border border-[#991b1b] bg-[#fee2e2] px-2 py-0.5 font-mono text-[10px] font-black uppercase text-[#7f1d1d]"
+              >
+                PEDESTAL IV · LANISTA OF SIX LEGIONS
+              </span>
+              <span class="text-2xl">👑</span>
+            </div>
+            <h3 class="mt-2 font-mono text-sm font-black text-[#3b1d0a]">
+              6× Informatics Laboratory Assistant & Mentor
+            </h3>
+            <p class="mt-1.5 text-xs leading-relaxed text-[#5c3a1b]">
+              Trained hundreds of engineering students across Basic Programming, OOP, Database Systems, Multimedia, IoT & Microcontrollers, and Computer Networks.
+            </p>
+          </div>
+          <div class="mt-4 flex items-center justify-between border-t border-[#d6be9c] pt-2.5">
+            <span class="font-mono text-[10px] font-bold text-[#991b1b]">⚔️ 6 Semesters of Command</span>
+            <button
+              type="button"
+              data-trophy-inspect="lab"
+              class="rounded-lg border border-[#991b1b] bg-[#7f1d1d] px-2.5 py-1 font-mono text-[10px] font-extrabold text-[#fef3c7] transition hover:bg-[#991b1b]"
+            >
+              Inspect Decree →
+            </button>
+          </div>
+        </article>
+      </div>
+
+      <!-- Imperial Decree Inspector Box -->
+      <div
+        id="trophy-decree-modal"
+        class="mx-5 mb-5 hidden rounded-xl border-2 border-[#7f1d1d] bg-[#fffbeb] p-4 text-xs text-[#3b1d0a] shadow-inner"
+      >
+        <div class="flex items-center justify-between border-b border-[#d6be9c] pb-2">
+          <strong id="trophy-decree-title" class="font-mono text-xs font-black uppercase text-[#7f1d1d]"
+            >IMPERIAL SENATE DECREE</strong
+          >
+          <button
+            type="button"
+            id="btn-close-decree"
+            class="rounded border border-[#7f1d1d] px-2 py-0.5 font-mono text-[10px] font-bold text-[#7f1d1d] hover:bg-[#fee2e2]"
+            >✕ Close</button
+          >
+        </div>
+        <p id="trophy-decree-body" class="mt-2 leading-relaxed text-[#451a03]"></p>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- 5. OBELISK OF MARS: 6-AXIS GLADIATOR COMBAT RUNES (565 BST)           -->
+    <!-- ===================================================================== -->
+    <section
+      id="stat-radar-section"
+      class="scroll-mt-6 overflow-hidden rounded-2xl border-[3px] border-[#8c5a2b] bg-[#fbf3e4] shadow-[0_8px_0_#5c3a1b,0_12px_28px_rgba(59,36,18,0.18)]"
+    >
+      <div
+        class="flex flex-wrap items-center justify-between gap-2 border-b-[3px] border-[#8c5a2b] bg-gradient-to-r from-[#4a2c11] via-[#6b3e18] to-[#4a2c11] px-5 py-3.5 text-[#fef3c7]"
+      >
+        <div class="flex items-center gap-2.5">
+          <span
+            class="flex h-8 w-8 items-center justify-center rounded-lg border-2 border-[#fbbf24] bg-[#78350f] text-base shadow"
+            >🛡️</span
+          >
+          <div>
+            <h2 class="font-mono text-xs font-black uppercase tracking-wider text-[#fef08a] sm:text-sm">
+              OBELISK OF MARS · 6-AXIS GLADIATOR COMBAT RUNES
+            </h2>
+            <p class="text-[11px] text-[#fde68a]/85">
+              Base Stat Total: <strong class="text-white">565 / 600</strong> (Grand Champion Tier) — switch Gladiator Stances to inspect attribute allocations.
+            </p>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-1.5" id="stat-preset-buttons">
+          <button
+            type="button"
+            data-stat-mode="balanced"
+            class="stat-mode-btn rounded-lg border-2 border-[#fbbf24] bg-[#7f1d1d] px-2.5 py-1 font-mono text-[10px] font-extrabold text-[#fef08a]"
+          >
+            ⚔️ Balanced Myrmillo
+          </button>
+          <button
+            type="button"
+            data-stat-mode="ai"
+            class="stat-mode-btn rounded-lg border-2 border-[#b59264] bg-[#fdf8ed] px-2.5 py-1 font-mono text-[10px] font-extrabold text-[#451a03]"
+          >
+            🦅 Visionary Retiarius (AI)
+          </button>
+          <button
+            type="button"
+            data-stat-mode="fullstack"
+            class="stat-mode-btn rounded-lg border-2 border-[#b59264] bg-[#fdf8ed] px-2.5 py-1 font-mono text-[10px] font-extrabold text-[#451a03]"
+          >
+            🛡️ Praetorian Vanguard (Web/Sec)
+          </button>
+        </div>
+      </div>
+
+      <div class="space-y-3 p-5" id="gladiator-runes-bars">
+        <!-- Populated by script -->
+      </div>
+    </section>
+  </div>
 </TownLayout>
 
 <script>
-  import { sfx } from '../game/sfx';
-  import { gameStore } from '../game/store';
-
-  interface PartnerSpec {
+  interface GladiatorMove {
     name: string;
-    role: string;
-    icon: string;
-    maxHp: number;
-    moves: {
-      name: string;
-      pwrLabel: string;
-      desc: string;
-      dmgMin: number;
-      dmgMax: number;
-      heal?: number;
-      shield?: boolean;
-      color: string;
-    }[];
+    weapon: string;
+    power: number;
+    type: string;
+    heal?: number;
+    desc: string;
+    fxColor: string;
   }
 
-  const PARTNERS: Record<string, PartnerSpec> = {
-    charizard: {
-      name: 'Charizard',
-      role: 'Full-Stack Web & Cloud Flame',
-      icon: '🔥',
-      maxHp: 280,
+  interface GladiatorFighter {
+    name: string;
+    title: string;
+    classBadge: string;
+    avatar: string;
+    maxHp: number;
+    moves: GladiatorMove[];
+  }
+
+  const GLADIATOR_ROSTER: GladiatorFighter[] = [
+    {
+      name: 'Charizard · Full-Stack Striker',
+      title: 'Ignis Myrmillo',
+      classBadge: 'IGNIS MYRMILLO',
+      avatar: '🔥',
+      maxHp: 420,
       moves: [
         {
-          name: '🔥 Laravel 12 Blitz',
-          pwrLabel: '95 PWR',
-          desc: 'High-damage MVC + PostGIS spatial strike',
-          dmgMin: 78,
-          dmgMax: 98,
-          color: '#f97316',
+          name: '🗡️ Gladius Flare Blitz (Next.js + Astro SSR)',
+          weapon: 'SUPER EFFECTIVE',
+          power: 135,
+          type: 'Fire/Blade',
+          desc: 'Zero-JS island architecture & sub-50ms edge rendering slash!',
+          fxColor: '#ef4444',
         },
         {
-          name: '⚡ Astro 60FPS Slash',
-          pwrLabel: '85 PWR · CRIT',
-          desc: 'Zero-bloat static island critical strike',
-          dmgMin: 72,
-          dmgMax: 112,
-          color: '#38bdf8',
+          name: '🔱 Trident Blast Burn (Laravel 12 + MySQL)',
+          weapon: 'HEAVY PIERCE',
+          power: 125,
+          type: 'Fire/ Lance',
+          desc: 'High-throughput RESTful API & indexed relational query strike!',
+          fxColor: '#f97316',
         },
         {
-          name: '🛡️ JWT Dragon Scale',
-          pwrLabel: '+DEF & ATK',
-          desc: 'Halves incoming Boss damage & boosts attack +35%',
-          dmgMin: 25,
-          dmgMax: 35,
-          shield: true,
-          color: '#6366f1',
+          name: '🦅 Winged Tailwind (TypeScript + Tailwind)',
+          weapon: 'AGILITY CRIT',
+          power: 110,
+          type: 'Aerial',
+          desc: 'Strict type-safe component system with 60FPS canvas precision!',
+          fxColor: '#eab308',
         },
         {
-          name: '💖 Espresso Restore',
-          pwrLabel: '+110 HP',
-          desc: 'Dark Roasted TypeScript hotfix restores 110 HP',
-          dmgMin: 0,
-          dmgMax: 0,
-          heal: 110,
-          color: '#10b981',
+          name: '🏺 Roost of Vulcan (CI/CD Auto-Heal)',
+          weapon: '+140 HP RESTORE',
+          power: 65,
+          heal: 140,
+          type: 'Recovery',
+          desc: 'Automated Docker rollback & health-check recovery (+140 HP)!',
+          fxColor: '#22c55e',
         },
       ],
     },
-    lucario: {
-      name: 'Lucario',
-      role: 'Edge AI & Aura Tactician',
-      icon: '🌀',
-      maxHp: 270,
+    {
+      name: 'Lucario · CyberSec Guardian',
+      title: 'Aura Dimachaerus',
+      classBadge: 'AURA DIMACHAERUS',
+      avatar: '🥊',
+      maxHp: 400,
       moves: [
         {
-          name: '🌀 TensorRT Aura Sphere',
-          pwrLabel: '100 PWR',
-          desc: '1.8ms FP16 quantized sphere that never misses',
-          dmgMin: 84,
-          dmgMax: 104,
-          color: '#38bdf8',
+          name: '🗡️ Dual-Blade Aura Sphere (HCIA Firewall)',
+          weapon: 'NEVER MISSES',
+          power: 130,
+          type: 'Aura/SecOps',
+          desc: 'Huawei HCIA-Security V4.0 zero-trust packet inspection!',
+          fxColor: '#38bdf8',
         },
         {
-          name: '⚡ YOLOv11 Bullet Punch',
-          pwrLabel: '88 PWR · FAST',
-          desc: '75+ FPS priority bounding-box strike',
-          dmgMin: 75,
-          dmgMax: 108,
-          color: '#a855f7',
+          name: '⚡ Close Combat Blitz (IndoBERT + SVM NLP)',
+          weapon: 'CRITICAL AI',
+          power: 140,
+          type: 'Fighting/ML',
+          desc: '98.4% precision spam & threat classification strike!',
+          fxColor: '#2563eb',
         },
         {
-          name: '🛡️ Calm Mind Aegis',
-          pwrLabel: '+DEF & ATK',
-          desc: 'Focuses neural weights: +35% Atk & 50% shield',
-          dmgMin: 28,
-          dmgMax: 38,
-          shield: true,
-          color: '#6366f1',
+          name: '🛡️ Bullet Punch Counter (SQLi/XSS Shield)',
+          weapon: 'PRIORITY STRIKE',
+          power: 115,
+          type: 'Steel',
+          desc: 'Parameterized query & CSP header counter-attack!',
+          fxColor: '#64748b',
         },
         {
-          name: '💖 Oran Berry Pulse',
-          pwrLabel: '+115 HP',
-          desc: 'Restores 115 HP with organic Town Square berries',
-          dmgMin: 0,
-          dmgMax: 0,
-          heal: 115,
-          color: '#10b981',
+          name: '🏺 Calm Mind Meditation (Aura Restore)',
+          weapon: '+135 HP RESTORE',
+          power: 70,
+          heal: 135,
+          type: 'Recovery',
+          desc: 'Restores 135 HP while reinforcing cryptographic barriers!',
+          fxColor: '#10b981',
         },
       ],
     },
-    garchomp: {
-      name: 'Garchomp',
-      role: 'Supersonic Systems & Algorithms',
-      icon: '🦈',
-      maxHp: 295,
+    {
+      name: 'Garchomp · Vision Secutor',
+      title: 'Draco Secutor',
+      classBadge: 'DRACO SECUTOR',
+      avatar: '🐉',
+      maxHp: 450,
       moves: [
         {
-          name: '🦈 PostGIS Earthquake',
-          pwrLabel: '105 PWR',
-          desc: 'Massive spatial-index seismic shockwave',
-          dmgMin: 86,
-          dmgMax: 108,
-          color: '#eab308',
+          name: '🔱 AeroScan YOLOv8 Earthquake (Edge CV)',
+          weapon: 'SUPREME DMG',
+          power: 145,
+          type: 'Dragon/CV',
+          desc: 'Real-time aerial object detection & TensorRT FP16 quantization!',
+          fxColor: '#d97706',
         },
         {
-          name: '⚡ Redis Lua Claw',
-          pwrLabel: '90 PWR · CRIT',
-          desc: 'Sub-millisecond atomic mutex critical slash',
-          dmgMin: 76,
-          dmgMax: 115,
-          color: '#ef4444',
+          name: '🗡️ Outrage Scythe (OpenCV OMR Scanner)',
+          weapon: 'MULTI-SLASH',
+          power: 130,
+          type: 'Dragon',
+          desc: 'Automated perspective warp & contour grading at 100+ sheets/min!',
+          fxColor: '#dc2626',
         },
         {
-          name: '🛡️ Docker Sand Veil',
-          pwrLabel: '+DEF & ATK',
-          desc: 'Containerized isolation halves incoming damage',
-          dmgMin: 25,
-          dmgMax: 35,
-          shield: true,
-          color: '#6366f1',
+          name: '🪨 Stone Edge Barrage (Python + PyTorch)',
+          weapon: 'HIGH CRIT',
+          power: 120,
+          type: 'Rock/AI',
+          desc: 'Custom dataset augmentation & confusion-matrix precision!',
+          fxColor: '#b45309',
         },
         {
-          name: '💖 Clean-Code Refactor',
-          pwrLabel: '+105 HP',
-          desc: 'Eliminates tech debt & restores 105 HP',
-          dmgMin: 0,
-          dmgMax: 0,
-          heal: 105,
-          color: '#10b981',
+          name: '🏺 Sand Veil Renewal (GPU Cache Heal)',
+          weapon: '+145 HP RESTORE',
+          power: 65,
+          heal: 145,
+          type: 'Recovery',
+          desc: 'Clears VRAM bottlenecks and restores 145 HP!',
+          fxColor: '#16a34a',
         },
       ],
     },
-    dialga: {
-      name: 'Dialga',
-      role: 'Temporal Cloud & HCIA Security',
-      icon: '⏳',
-      maxHp: 310,
+    {
+      name: 'Dialga · Chronos Hoplomachus',
+      title: 'Chronos Titan',
+      classBadge: 'CHRONOS TITAN',
+      avatar: '⏳',
+      maxHp: 460,
       moves: [
         {
-          name: '⏳ Roar of Real-Time Kafka',
-          pwrLabel: '110 PWR',
-          desc: 'High-throughput event-stream temporal blast',
-          dmgMin: 90,
-          dmgMax: 112,
-          color: '#38bdf8',
+          name: '⏳ Roar of Time (ESP32 + MQTT Telemetry)',
+          weapon: 'TEMPORAL BLAST',
+          power: 145,
+          type: 'Steel/IoT',
+          desc: 'Sub-millisecond robotic rover & sensor telemetry synchronization!',
+          fxColor: '#0284c7',
         },
         {
-          name: '⚡ HCIA Flash Cannon',
-          pwrLabel: '90 PWR',
-          desc: 'Huawei HCIA-Security encrypted beam strike',
-          dmgMin: 78,
-          dmgMax: 102,
-          color: '#818cf8',
+          name: '🛡️ Flash Cannon Aegis (Redis + Queue Workers)',
+          weapon: 'CONCURRENCY',
+          power: 125,
+          type: 'Steel/Cloud',
+          desc: 'Atomic distributed locks & zero-drop job queue processing!',
+          fxColor: '#4f46e5',
         },
         {
-          name: '🛡️ IPSec VPN Barrier',
-          pwrLabel: '+DEF & ATK',
-          desc: 'Zero-trust tunnel halves Boss damage & boosts Atk',
-          dmgMin: 30,
-          dmgMax: 40,
-          shield: true,
-          color: '#6366f1',
+          name: '⚡ Chrono Bolt (PostGIS + Spatial Indexing)',
+          weapon: 'PRECISION',
+          power: 115,
+          type: 'Dragon',
+          desc: 'High-speed geospatial query execution across thousands of nodes!',
+          fxColor: '#ca8a04',
         },
         {
-          name: '💖 Temporal Rollback',
-          pwrLabel: '+120 HP',
-          desc: 'Rewinds system state to restore 120 HP',
-          dmgMin: 0,
-          dmgMax: 0,
-          heal: 120,
-          color: '#10b981',
+          name: '🏺 Temporal Repair (Watchdog Auto-Heal)',
+          weapon: '+150 HP RESTORE',
+          power: 60,
+          heal: 150,
+          type: 'Recovery',
+          desc: 'Rewinds system state to healthy checkpoint (+150 HP)!',
+          fxColor: '#16a34a',
         },
       ],
+    },
+  ];
+
+  const COLOSSEUM_TRIALS = [
+    {
+      numeral: 'I',
+      domain: 'TRIAL I · EAGLE VISION (YOLOV8 & EDGE AI)',
+      question:
+        'During an AeroScan drone reconnaissance mission, YOLOv8 inference on an embedded Jetson edge device drops to 11 FPS. Which Gladiator optimization doubles throughput while keeping mAP@50 within 0.8%?',
+      options: [
+        'Export YOLOv8 to TensorRT FP16 engine with dynamic batching & CUDA NMS',
+        'Convert all video frames to uncompressed BMP over HTTP polling',
+        'Increase input resolution from 640×640 to 1920×1920 on CPU',
+        'Run training epochs live during each inference frame',
+      ],
+      correct: 0,
+      explanation:
+        'VICTORY! Exporting PyTorch weights to TensorRT FP16 fuses conv-BN-SiLU layers and halves memory bandwidth, boosting edge FPS by 2.4×–3× with negligible mAP loss.',
+    },
+    {
+      numeral: 'II',
+      domain: 'TRIAL II · PRAETORIAN SHIELD (HUAWEI HCIA-SECURITY)',
+      question:
+        'An attacker attempts to bypass the Colosseum gate using injected SQL payloads and stolen session tokens. Which layered defense policy stops both vectors immediately?',
+      options: [
+        'Parameterized prepared statements + HttpOnly/SameSite=Strict JWT cookies + WAF rate-limiting',
+        'Base64-encoding SQL queries in client-side localStorage',
+        'Disabling HTTPS TLS certificates to inspect plaintext headers',
+        'Opening port 3306 to public internet with a static password',
+      ],
+      correct: 0,
+      explanation:
+        'VICTORY! Prepared statements separate query structure from data (eliminating SQLi), while HttpOnly/SameSite=Strict cookies + WAF rules block token theft and brute-force floods.',
+    },
+    {
+      numeral: 'III',
+      domain: 'TRIAL III · CHARIOT VELOCITY (ASTRO + 2D CANVAS)',
+      question:
+        'To maintain a locked 60 FPS inside this 2D Colosseum while rendering reading panels alongside the game, how should the background tilemap and UI islands be architected?',
+      options: [
+        'Pre-render static stone/sand tiles onto an offscreen HTMLCanvasElement once, and blit only dynamic sprites each frame',
+        'Re-parse JSON and create 180 DOM <div> nodes on every requestAnimationFrame tick',
+        'Block the main thread with synchronous XMLHttpRequest calls every 16ms',
+        'Force full-page React hydration on all static typography paragraphs',
+      ],
+      correct: 0,
+      explanation:
+        'VICTORY! Offscreen canvas caching turns hundreds of tile draw calls into a single GPU texture blit per frame, keeping frame times under 2ms.',
+    },
+    {
+      numeral: 'IV',
+      domain: 'TRIAL IV · AQUEDUCT CONCURRENCY (LARAVEL & QUEUES)',
+      question:
+        'When 500 challengers submit tournament scores simultaneously, synchronous PDF certificate generation causes HTTP 504 timeouts. What is the clean architectural fix?',
+      options: [
+        'Dispatch PDF generation to asynchronous Redis/Laravel Queue workers and notify clients via status polling/WebSockets',
+        'Set PHP max_execution_time to 99999 seconds on the web server',
+        'Store binary PDF files inside browser cookies',
+        'Drop 80% of incoming requests randomly at the load balancer',
+      ],
+      correct: 0,
+      explanation:
+        'VICTORY! Offloading heavy I/O and rendering to background queue workers lets the HTTP endpoint respond in <30ms while workers process jobs reliably.',
+    },
+    {
+      numeral: 'V',
+      domain: 'TRIAL V · ORACLE SCROLLS (NLP & OMR VISION)',
+      question:
+        'In an automated Optical Mark Recognition (OMR) exam grading pipeline using OpenCV, tilted camera photos cause bubble misreads. Which step corrects the geometry before thresholding?',
+      options: [
+        'Detect the 4 corner fiducial contours and apply a 4-point perspective transform (homography warp)',
+        'Apply a 50×50 Gaussian blur until all bubbles merge together',
+        'Convert the image to 1-pixel height',
+        'Randomly rotate the image by 45 degrees',
+      ],
+      correct: 0,
+      explanation:
+        'VICTORY! Finding the sheet’s outer corner markers and applying cv2.getPerspectiveTransform + warpPerspective produces a flat, canonical top-down grid.',
+    },
+    {
+      numeral: 'VI',
+      domain: 'TRIAL VI · CENTURION TELEMETRY (ESP32 & IOT)',
+      question:
+        'An autonomous ESP32 reconnaissance rover operating over unstable field Wi-Fi needs lightweight, low-overhead pub/sub telemetry with automatic last-will disconnect alerts. Which protocol fits best?',
+      options: [
+        'MQTT with QoS 1 and Last Will & Testament (LWT) topic configured on the broker',
+        'Uncompressed SOAP XML overFTP polling every 100ms',
+        'SMTP email attachments for every joystick tick',
+        'Telnet broadcast on port 23 without framing',
+      ],
+      correct: 0,
+      explanation:
+        'VICTORY! MQTT uses a 2-byte fixed header, supports QoS delivery guarantees over lossy links, and natively broadcasts LWT state if the rover loses connection.',
+    },
+  ];
+
+  const TROPHY_DECREES: Record<string, { title: string; body: string }> = {
+    ideafest: {
+      title: '🥉 IMPERIAL DECREE I — IDEA FEST 3 NATIONAL BRONZE MEDALLION',
+      body: 'Conferred upon Muhammad Zulfan for national-level excellence in technological essay & innovation design at IDEA FEST 3. Demonstrated rigorous problem formulation, applied AI system architecture, and measurable societal impact.',
+    },
+    hcia: {
+      title: '🛡️ IMPERIAL DECREE II — HUAWEI HCIA-SECURITY V4.0 PRAETORIAN SEAL',
+      body: 'Official industry certification validating command over network security architecture, Next-Generation Firewalls (NGFW), IPS/antivirus policies, IPsec/SSL VPN cryptography, and incident response operations.',
+    },
+    gpa: {
+      title: '🎓 IMPERIAL DECREE III — ITENAS BANDUNG SENATE LAUREL (GPA 3.49 / 4.00)',
+      body: 'Bachelor of Computer Science (S.Kom.) in Informatics Engineering from Institut Teknologi Nasional (ITENAS) Bandung (2021–2025). Thesis & capstone research focused on real-time Computer Vision, machine learning, and full-stack platforms.',
+    },
+    lab: {
+      title: '👑 IMPERIAL DECREE IV — LANISTA OF SIX INFORMATICS LEGIONS',
+      body: 'Appointed 6 times as University Laboratory Assistant at ITENAS Bandung, instructing and evaluating practical cohorts in Basic Programming, Object-Oriented Programming, Database Systems, Multimedia, IoT, and Computer Networks.',
     },
   };
 
-  const MEWTWO_MOVES = [
-    { name: '🔮 Psystrike Overload', dmg: 68, intent: 'Charging Psystrike Overload...' },
-    { name: '🌌 Neural Shadow Ball', dmg: 58, intent: ' Preparing Neural Shadow Ball...' },
-    { name: '⚡ DDOS Aura Storm', dmg: 74, intent: 'Warning: High-Load DDOS Storm incoming!' },
-  ];
+  const RUNE_PRESETS: Record<
+    string,
+    { label: string; score: number; rune: string; desc: string }[]
+  > = {
+    balanced: [
+      {
+        label: '🦅 Eagle Vision (Computer Vision · YOLOv8 · OpenCV)',
+        score: 98,
+        rune: 'XCVIII',
+        desc: 'AeroScan drone detection, OMR automated grading, and IndoBERT/SVM pipelines.',
+      },
+      {
+        label: '🗡️ Gladius Strike (Full-Stack · Next.js · React · Astro)',
+        score: 96,
+        rune: 'XCVI',
+        desc: 'Interactive 2D canvas engines, TypeScript UI architecture, and responsive web apps.',
+      },
+      {
+        label: '🏛️ Aqueduct Might (Backend · Laravel · Node.js · SQL)',
+        score: 95,
+        rune: 'XCV',
+        desc: 'RESTful APIs, relational database design, authentication, and queue workers.',
+      },
+      {
+        label: '📜 Senate Wisdom (Algorithms · 6× Lab Mentor · 3.49 GPA)',
+        score: 94,
+        rune: 'XCIV',
+        desc: 'Strong foundations in OOP, data structures, relational algebra, and technical mentorship.',
+      },
+      {
+        label: '🛡️ Praetorian Aegis (Huawei HCIA-Security V4.0)',
+        score: 92,
+        rune: 'XCII',
+        desc: 'Enterprise firewall policies, VPN encryption, and web application hardening.',
+      },
+      {
+        label: '⚡ Chariot Telemetry (IoT · ESP32 · Robotics · Networks)',
+        score: 90,
+        rune: 'XC',
+        desc: 'Embedded C/C++ microcontrollers, sensor fusion, and MQTT real-time control.',
+      },
+    ],
+    ai: [
+      {
+        label: '🦅 Eagle Vision (Computer Vision · YOLOv8 · OpenCV)',
+        score: 99,
+        rune: 'XCIX',
+        desc: 'Maximum focus on real-time object detection, image processing, and model optimization.',
+      },
+      {
+        label: '📜 Senate Wisdom (ML Pipelines · NLP · Data Science)',
+        score: 97,
+        rune: 'XCVII',
+        desc: 'Feature engineering, TF-IDF + SVM, IndoBERT classification, and evaluation metrics.',
+      },
+      {
+        label: '⚡ Chariot Telemetry (Edge AI & IoT Sensor Fusion)',
+        score: 94,
+        rune: 'XCIV',
+        desc: 'Bridging aerial/rover hardware streams with real-time vision inference.',
+      },
+      {
+        label: '🗡️ Gladius Strike (Interactive AI Dashboards)',
+        score: 93,
+        rune: 'XCIII',
+        desc: 'Visualizing bounding boxes, confidence heatmaps, and live telemetry on the web.',
+      },
+      {
+        label: '🏛️ Aqueduct Might (Python FastAPI / Flask / Laravel)',
+        score: 92,
+        rune: 'XCII',
+        desc: 'Serving inference endpoints and storing structured detection logs.',
+      },
+      {
+        label: '🛡️ Praetorian Aegis (Adversarial & API Security)',
+        score: 90,
+        rune: 'XC',
+        desc: 'Securing model endpoints and telemetry pipelines.',
+      },
+    ],
+    fullstack: [
+      {
+        label: '🗡️ Gladius Strike (Full-Stack · Next.js · React · Astro)',
+        score: 98,
+        rune: 'XCVIII',
+        desc: 'Production-grade frontend systems, custom 2D game UIs, and Tailwind design systems.',
+      },
+      {
+        label: '🏛️ Aqueduct Might (Laravel 12 · MySQL · PostgreSQL)',
+        score: 97,
+        rune: 'XCVII',
+        desc: 'Scalable multi-role architectures, RBAC, and transactional integrity.',
+      },
+      {
+        label: '🛡️ Praetorian Aegis (Huawei HCIA-Security V4.0)',
+        score: 96,
+        rune: 'XCVI',
+        desc: 'OWASP hardening, firewall rules, JWT/session security, and zero-trust gateways.',
+      },
+      {
+        label: '🦅 Eagle Vision (Integrated AI & CV Microservices)',
+        score: 93,
+        rune: 'XCIII',
+        desc: 'Embedding computer vision and intelligent automation into web workflows.',
+      },
+      {
+        label: '📜 Senate Wisdom (Clean Architecture & Mentorship)',
+        score: 92,
+        rune: 'XCII',
+        desc: 'Maintainable TypeScript/PHP codebases backed by 6 semesters of lab teaching.',
+      },
+      {
+        label: '⚡ Chariot Telemetry (WebSockets & Real-Time Sync)',
+        score: 89,
+        rune: 'LXXXIX',
+        desc: 'Low-latency state synchronization across connected clients.',
+      },
+    ],
+  };
 
-  function initArenaPage() {
-    const STORAGE_KEY = 'town:arena-elo-v1';
-    let elo = 1850;
-    let wins = 0;
+  function initGladiatorArena() {
+    // Persistent Fame / Wins / Trials
+    let fame = Number(localStorage.getItem('arena:elo') || '1850');
+    let wins = Number(localStorage.getItem('arena:wins') || '0');
+    let solvedTrials: number[] = [];
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (typeof parsed.elo === 'number') elo = parsed.elo;
-        if (typeof parsed.wins === 'number') wins = parsed.wins;
-      }
+      solvedTrials = JSON.parse(localStorage.getItem('arena:solved') || '[]');
     } catch {
-      // ignore storage errors
+      solvedTrials = [];
     }
 
-    const eloEl = document.getElementById('arena-elo-display');
-    const winsEl = document.getElementById('arena-wins-count');
-    const badgeStatusEl = document.getElementById('arena-badge-status');
-
-    function updateHeaderTelemetry() {
-      if (eloEl) eloEl.textContent = `${elo} ELO`;
-      if (winsEl) winsEl.textContent = String(wins);
-      if (badgeStatusEl) {
-        if (wins > 0) {
-          badgeStatusEl.textContent = '👑 Frontier Master';
-          badgeStatusEl.className = 'text-amber-300 font-bold';
-        } else {
-          badgeStatusEl.textContent = 'Challenger';
-        }
-      }
-    }
-    updateHeaderTelemetry();
-
-    // 1. Briefing Topic Switcher
-    const speakerEl = document.getElementById('arena-dialogue-speaker');
-    const quoteEl = document.getElementById('arena-dialogue-text');
-    const topicBtns = document.querySelectorAll<HTMLButtonElement>('.arena-topic-btn');
-
-    topicBtns.forEach((btn) => {
-      btn.addEventListener('click', () => {
-        sfx.select();
-        topicBtns.forEach((b) => {
-          b.classList.remove('is-active', 'border-purple-400/40', 'bg-purple-500/20');
-        });
-        btn.classList.add('is-active', 'border-purple-400/40', 'bg-purple-500/20');
-        if (speakerEl && btn.dataset.speaker) speakerEl.textContent = btn.dataset.speaker;
-        if (quoteEl && btn.dataset.quote) quoteEl.textContent = `"${btn.dataset.quote}"`;
-        if (btn.dataset.prop) {
-          window.dispatchEvent(new CustomEvent('town:locate', { detail: { id: btn.dataset.prop } }));
-        }
-      });
-    });
-
-    document.getElementById('btn-walk-mewtwo')?.addEventListener('click', () => {
-      sfx.encounter();
-      window.dispatchEvent(new CustomEvent('town:locate', { detail: { id: 'mewtwo-boss' } }));
-    });
-    document.getElementById('btn-walk-lucario')?.addEventListener('click', () => {
-      sfx.confirm();
-      window.dispatchEvent(new CustomEvent('town:locate', { detail: { id: 'lucario-coach' } }));
-    });
-    document.getElementById('btn-locate-trophies')?.addEventListener('click', () => {
-      sfx.heal();
-      window.dispatchEvent(new CustomEvent('town:locate', { detail: { id: 'trophy-vault' } }));
-    });
-
-    // 2. 2D Station Walk Buttons
-    document.querySelectorAll<HTMLButtonElement>('.arena-station-btn').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const id = btn.dataset.locate;
-        if (!id) return;
-        sfx.select();
-        window.dispatchEvent(new CustomEvent('town:locate', { detail: { id } }));
-      });
-    });
-
-    // 3. Turn-Based Battle Simulator Logic
-    let activePartnerKey = 'charizard';
-    let playerHp = PARTNERS.charizard.maxHp;
-    let playerMaxHp = PARTNERS.charizard.maxHp;
-    let bossHp = 320;
-    const bossMaxHp = 320;
-    let turn = 1;
+    // Combat state
+    let selectedFighterIdx = 0;
+    let playerHp = GLADIATOR_ROSTER[0].maxHp;
+    let playerMaxHp = GLADIATOR_ROSTER[0].maxHp;
+    let bossHp = 500;
+    const bossMaxHp = 500;
+    let boutTurn = 1;
+    let crowdFavor = 55;
+    let atkBuff = 1.0;
     let shieldActive = false;
-    let atkMultiplier = 1;
+    let usedPotion = false;
+    let usedWhetstone = false;
+    let usedShield = false;
     let battleOver = false;
 
-    const pIconEl = document.getElementById('sim-player-icon');
-    const pNameEl = document.getElementById('sim-player-name');
-    const pRoleEl = document.getElementById('sim-player-role');
-    const pHpText = document.getElementById('sim-player-hp-text');
-    const pMaxHpText = document.getElementById('sim-player-maxhp-text');
-    const pHpBar = document.getElementById('sim-player-hp-bar');
-    const pBuffEl = document.getElementById('sim-player-buff');
+    const eloValEl = document.getElementById('arena-elo-value');
+    const eloTierEl = document.getElementById('arena-elo-tier');
+    const recordLabelEl = document.getElementById('arena-record-label');
+    const badgeEl = document.getElementById('arena-frontier-badge');
 
-    const bHpText = document.getElementById('sim-boss-hp-text');
-    const bHpBar = document.getElementById('sim-boss-hp-bar');
-    const bIntentEl = document.getElementById('sim-boss-intent');
-    const turnEl = document.getElementById('battle-turn-indicator');
-    const statusTagEl = document.getElementById('battle-status-tag');
-    const logEl = document.getElementById('sim-battle-log');
-
-    function appendLog(html: string) {
-      if (!logEl) return;
-      const p = document.createElement('p');
-      p.innerHTML = html;
-      logEl.prepend(p);
+    function updateFameUI() {
+      if (eloValEl) eloValEl.textContent = String(fame);
+      if (eloTierEl) {
+        eloTierEl.textContent =
+          fame >= 2000
+            ? 'CAESAR IMPERATOR'
+            : fame >= 1900
+              ? 'RUDIARIUS MASTER'
+              : 'PRIMUS PALUS';
+      }
+      if (recordLabelEl) {
+        recordLabelEl.textContent = `Victories: ${wins}W · Trials: ${solvedTrials.length}/6`;
+      }
+      if (badgeEl) {
+        if (wins >= 1 || solvedTrials.length >= 3) {
+          badgeEl.classList.remove('hidden');
+          badgeEl.classList.add('inline-flex');
+        }
+      }
+      localStorage.setItem('arena:elo', String(fame));
+      localStorage.setItem('arena:wins', String(wins));
+      localStorage.setItem('arena:solved', JSON.stringify(solvedTrials));
     }
 
-    function renderBattleHud() {
-      const spec = PARTNERS[activePartnerKey];
-      if (pIconEl) pIconEl.textContent = spec.icon;
-      if (pNameEl) pNameEl.textContent = spec.name;
-      if (pRoleEl) pRoleEl.textContent = spec.role;
-      if (pHpText) pHpText.textContent = String(Math.max(0, playerHp));
-      if (pMaxHpText) pMaxHpText.textContent = String(playerMaxHp);
+    function emitCanvasShockwave(text: string, color: string) {
+      window.dispatchEvent(
+        new CustomEvent('town:arena-fx', {
+          detail: { text, color },
+        })
+      );
+    }
+
+    function appendCombatLog(html: string) {
+      const logEl = document.getElementById('battle-combat-log');
+      if (!logEl) return;
+      const item = document.createElement('div');
+      item.innerHTML = html;
+      logEl.prepend(item);
+    }
+
+    function updateBattleBars() {
+      const f = GLADIATOR_ROSTER[selectedFighterIdx];
+      const pName = document.getElementById('player-fighter-name');
+      const pBadge = document.getElementById('player-class-badge');
+      const pAvatar = document.getElementById('player-sprite-avatar');
+      const pHpText = document.getElementById('player-hp-text');
+      const pHpBar = document.getElementById('player-hp-bar');
+      const bHpText = document.getElementById('boss-hp-text');
+      const bHpBar = document.getElementById('boss-hp-bar');
+      const turnPill = document.getElementById('battle-turn-pill');
+      const favorBar = document.getElementById('crowd-favor-bar');
+      const favorText = document.getElementById('crowd-favor-text');
+      const pBuffTag = document.getElementById('player-buff-tag');
+
+      if (pName) pName.textContent = f.name;
+      if (pBadge) pBadge.textContent = f.classBadge;
+      if (pAvatar) pAvatar.textContent = f.avatar;
+      if (pHpText) pHpText.textContent = `${Math.max(0, playerHp)} / ${playerMaxHp}`;
       if (pHpBar) {
-        const pct = Math.max(0, Math.min(100, Math.round((playerHp / playerMaxHp) * 100)));
+        const pct = Math.max(0, Math.min(100, (playerHp / playerMaxHp) * 100));
         pHpBar.style.width = `${pct}%`;
       }
-      if (pBuffEl) {
-        pBuffEl.textContent = shieldActive
-          ? `🛡️ Shield ON · Atk ×${atkMultiplier.toFixed(2)}`
-          : `Atk ×${atkMultiplier.toFixed(2)}`;
-      }
-
-      if (bHpText) bHpText.textContent = String(Math.max(0, bossHp));
+      if (bHpText) bHpText.textContent = `${Math.max(0, bossHp)} / ${bossMaxHp}`;
       if (bHpBar) {
-        const bPct = Math.max(0, Math.min(100, Math.round((bossHp / bossMaxHp) * 100)));
-        bHpBar.style.width = `${bPct}%`;
+        const pct = Math.max(0, Math.min(100, (bossHp / bossMaxHp) * 100));
+        bHpBar.style.width = `${pct}%`;
+      }
+      if (turnPill) turnPill.textContent = `BOUT TURN ${boutTurn}`;
+      if (favorBar) favorBar.style.width = `${crowdFavor}%`;
+      if (favorText) {
+        favorText.textContent =
+          crowdFavor >= 80
+            ? `${crowdFavor}% · 👍 MITTE! AVE!`
+            : crowdFavor >= 50
+              ? `${crowdFavor}% · ROARING! 🔥`
+              : `${crowdFavor}% · TENSE PIT`;
+      }
+      if (pBuffTag) {
+        const buffs: string[] = [];
+        if (atkBuff > 1) buffs.push('🔥 +35% Vulcan Blade');
+        if (shieldActive) buffs.push('🛡️ Testudo Shield (50% DR)');
+        pBuffTag.textContent =
+          buffs.length > 0 ? buffs.join(' · ') : '⚔️ Ready on the Colosseum Sand';
       }
 
-      spec.moves.forEach((m, idx) => {
-        const nEl = document.getElementById(`move-${idx}-name`);
-        const pwEl = document.getElementById(`move-${idx}-pwr`);
-        const dEl = document.getElementById(`move-${idx}-desc`);
-        if (nEl) nEl.textContent = m.name;
-        if (pwEl) pwEl.textContent = m.pwrLabel;
-        if (dEl) dEl.textContent = m.desc;
+      const potBtn = document.getElementById('item-potion-btn') as HTMLButtonElement | null;
+      const atkBtn = document.getElementById('item-xspatk-btn') as HTMLButtonElement | null;
+      const grdBtn = document.getElementById('item-guard-btn') as HTMLButtonElement | null;
+      const potCnt = document.getElementById('item-potion-count');
+      const atkCnt = document.getElementById('item-xspatk-count');
+      const grdCnt = document.getElementById('item-guard-count');
+
+      if (potBtn) potBtn.disabled = usedPotion || battleOver;
+      if (atkBtn) atkBtn.disabled = usedWhetstone || battleOver;
+      if (grdBtn) grdBtn.disabled = usedShield || battleOver;
+      if (potCnt) potCnt.textContent = usedPotion ? '0×' : '1×';
+      if (atkCnt) atkCnt.textContent = usedWhetstone ? '0×' : '1×';
+      if (grdCnt) grdCnt.textContent = usedShield ? '0×' : '1×';
+    }
+
+    function renderFighterMoves() {
+      const grid = document.getElementById('battle-moves-grid');
+      if (!grid) return;
+      const f = GLADIATOR_ROSTER[selectedFighterIdx];
+      grid.innerHTML = '';
+
+      f.moves.forEach((mv, idx) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.disabled = battleOver;
+        btn.className =
+          'group flex flex-col justify-between rounded-xl border-2 border-[#8c5a2b] bg-gradient-to-b from-[#fffbeb] to-[#f2e2c4] p-3 text-left text-[#3b1d0a] shadow-[0_3px_0_#5c3a1b] transition hover:-translate-y-0.5 hover:border-[#991b1b] hover:from-[#fffbeb] hover:to-[#fde68a] active:translate-y-0 disabled:opacity-50';
+        btn.innerHTML = `
+          <div class="flex items-start justify-between gap-2 w-full">
+            <span class="font-mono text-xs font-black text-[#450a0a] group-hover:text-[#991b1b]">${mv.name}</span>
+            <span class="shrink-0 rounded border border-[#b45309] bg-[#fef3c7] px-1.5 py-0.5 font-mono text-[9px] font-extrabold text-[#78350f]">${mv.weapon}</span>
+          </div>
+          <p class="mt-1 text-[11px] leading-snug text-[#5c3a1b]">${mv.desc}</p>
+          <div class="mt-2 flex items-center justify-between border-t border-[#d6be9c] pt-1.5 w-full font-mono text-[10px] font-bold text-[#78350f]">
+            <span>Discipline: ${mv.type}</span>
+            <span class="text-[#991b1b]">Power: ${mv.power}</span>
+          </div>
+        `;
+        btn.addEventListener('click', () => executeGladiatorTurn(idx));
+        grid.appendChild(btn);
       });
     }
 
-    function resetBattle(partnerKey = activePartnerKey) {
-      activePartnerKey = partnerKey;
-      const spec = PARTNERS[activePartnerKey];
-      playerMaxHp = spec.maxHp;
-      playerHp = playerMaxHp;
-      bossHp = bossMaxHp;
-      turn = 1;
-      shieldActive = false;
-      atkMultiplier = 1;
-      battleOver = false;
-      if (turnEl) turnEl.textContent = 'TURN 1 · YOUR MOVE';
-      if (statusTagEl) {
-        statusTagEl.textContent = '● Battle Active';
-        statusTagEl.className = 'text-emerald-400';
-      }
-      if (logEl) {
-        logEl.innerHTML = `<p>🏁 Referee Victor signals the start! <strong>${spec.icon} ${spec.name}</strong> steps onto the Colosseum court against <strong>🔮 Frontier Brain Mewtwo</strong>!</p>`;
-      }
-      renderBattleHud();
-    }
+    function executeGladiatorTurn(moveIdx: number) {
+      if (battleOver) return;
+      const f = GLADIATOR_ROSTER[selectedFighterIdx];
+      const mv = f.moves[moveIdx];
 
-    document.querySelectorAll<HTMLButtonElement>('.battle-partner-btn').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const key = btn.dataset.partner;
-        if (!key || !PARTNERS[key]) return;
-        sfx.select();
-        document.querySelectorAll<HTMLButtonElement>('.battle-partner-btn').forEach((b) => {
-          b.classList.remove('is-selected', 'border-amber-400', 'bg-amber-500/20');
-          b.classList.add('border-slate-700', 'bg-black/30');
-        });
-        btn.classList.remove('border-slate-700', 'bg-black/30');
-        btn.classList.add('is-selected', 'border-amber-400', 'bg-amber-500/20');
-        resetBattle(key);
-        window.dispatchEvent(
-          new CustomEvent('town:arena-fx', {
-            detail: { text: `GO! ${PARTNERS[key].name.toUpperCase()}!`, color: '#38bdf8' },
-          })
+      const pAvatar = document.getElementById('player-sprite-avatar');
+      const bAvatar = document.getElementById('boss-sprite-avatar');
+      if (pAvatar) {
+        pAvatar.classList.add('scale-110');
+        setTimeout(() => pAvatar.classList.remove('scale-110'), 220);
+      }
+
+      const variance = 0.92 + Math.random() * 0.16;
+      const dmg = Math.round(mv.power * atkBuff * variance);
+      bossHp = Math.max(0, bossHp - dmg);
+
+      if (mv.heal) {
+        playerHp = Math.min(playerMaxHp, playerHp + mv.heal);
+        appendCombatLog(
+          `🏺 <strong>${f.name}</strong> invoked <strong>${mv.name}</strong> — restored <strong class="text-green-800">+${mv.heal} HP</strong> and dealt <strong>${dmg} DMG</strong>!`
         );
-      });
-    });
+      } else {
+        appendCombatLog(
+          `⚔️ <strong>${f.name}</strong> unleashed <strong>${mv.name}</strong> for <strong class="text-[#991b1b]">${dmg} DMG</strong>!`
+        );
+      }
 
-    document.getElementById('btn-reset-battle')?.addEventListener('click', () => {
-      sfx.confirm();
-      resetBattle(activePartnerKey);
-    });
+      crowdFavor = Math.min(100, crowdFavor + 8);
+      emitCanvasShockwave(`${f.title.toUpperCase()} -${dmg} HP! ⚔️`, mv.fxColor);
 
-    document.querySelectorAll<HTMLButtonElement>('.sim-move-btn').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        if (battleOver) {
-          resetBattle(activePartnerKey);
-          return;
-        }
-        const idx = Number(btn.dataset.moveIdx || 0);
-        const spec = PARTNERS[activePartnerKey];
-        const move = spec.moves[idx];
-        if (!move) return;
+      if (bossHp <= 0) {
+        battleOver = true;
+        wins += 1;
+        fame += 45;
+        crowdFavor = 100;
+        updateBattleBars();
+        updateFameUI();
+        renderFighterMoves();
+        emitCanvasShockwave('AVE VICTOR! MEWTWO DEFEATED! 👑', '#fbbf24');
+        appendCombatLog(
+          `👑 <strong>VICTORIA GLADIATORIA!</strong> Emperor's Champion Mewtwo kneels on the sand! The Colosseum crowd roars <em>"AVE VICTOR!"</em> (<strong>+45 Fame</strong> & <strong>Corona Aurea</strong> unlocked!)`
+        );
+        return;
+      }
 
-        // Player Move Execution
-        if (move.heal) {
-          sfx.heal();
-          const healed = Math.min(playerMaxHp - playerHp, move.heal);
-          playerHp = Math.min(playerMaxHp, playerHp + move.heal);
-          appendLog(
-            `<span class="text-emerald-300">Turn ${turn}:</span> <strong>${spec.name}</strong> used <strong>${move.name}</strong>! Restored <strong>+${healed} HP</strong> & cleared fatigue!`
-          );
-          window.dispatchEvent(
-            new CustomEvent('town:arena-fx', {
-              detail: { text: `${move.name.toUpperCase()} +${healed} HP`, color: move.color },
-            })
-          );
-        } else if (move.shield) {
-          sfx.confirm();
-          shieldActive = true;
-          atkMultiplier = Math.min(1.75, atkMultiplier + 0.35);
-          const chipDmg = Math.round((move.dmgMin + Math.random() * (move.dmgMax - move.dmgMin)) * atkMultiplier);
-          bossHp = Math.max(0, bossHp - chipDmg);
-          appendLog(
-            `<span class="text-indigo-300">Turn ${turn}:</span> <strong>${spec.name}</strong> deployed <strong>${move.name}</strong>! Dealt <strong>${chipDmg} DMG</strong>, raised Attack ×${atkMultiplier.toFixed(2)} & activated 50% Firewall Shield!`
-          );
-          window.dispatchEvent(
-            new CustomEvent('town:arena-fx', {
-              detail: { text: `SHIELD UP! ${move.name.toUpperCase()}`, color: move.color },
-            })
-          );
-        } else {
-          sfx.encounter();
-          const isCrit = Math.random() < 0.28;
-          const baseDmg = move.dmgMin + Math.random() * (move.dmgMax - move.dmgMin);
-          const finalDmg = Math.round(baseDmg * atkMultiplier * (isCrit ? 1.35 : 1));
-          bossHp = Math.max(0, bossHp - finalDmg);
-          appendLog(
-            `<span class="text-amber-300">Turn ${turn}:</span> <strong>${spec.name}</strong> unleashed <strong>${move.name}</strong>! ${isCrit ? '<strong class="text-yellow-300">CRITICAL HIT!</strong> ' : ''}Dealt <strong>${finalDmg} DMG</strong> to Mewtwo!`
-          );
-          window.dispatchEvent(
-            new CustomEvent('town:arena-fx', {
-              detail: {
-                text: `${isCrit ? 'CRIT! ' : ''}${move.name.toUpperCase()} -${finalDmg} HP`,
-                color: move.color,
-              },
-            })
-          );
-        }
-
-        renderBattleHud();
-
-        // Check Victory
-        if (bossHp <= 0) {
-          battleOver = true;
-          wins += 1;
-          elo += 150;
-          try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify({ elo, wins }));
-          } catch {
-            // ignore
-          }
-          gameStore.addStamp('battle');
-          sfx.heal();
-          updateHeaderTelemetry();
-          if (turnEl) turnEl.textContent = '🏆 VICTORY! FRONTIER MASTER!';
-          if (statusTagEl) {
-            statusTagEl.textContent = '★ MEWTWO DEFEATED (+150 ELO)';
-            statusTagEl.className = 'text-amber-300 font-bold';
-          }
-          appendLog(
-            `<strong class="text-amber-300">🏆 VICTORY!</strong> Frontier Brain Mewtwo’s psychic barrier collapsed! You earned <strong>+150 ELO</strong> and the <strong>Arena Frontier Master Badge</strong>!`
-          );
-          window.dispatchEvent(
-            new CustomEvent('town:arena-fx', {
-              detail: { text: '🏆 VICTORY! FRONTIER BADGE UNLOCKED!', color: '#fbbf24' },
-            })
-          );
-          return;
-        }
-
-        // Boss Counter-Attack
-        const bossMove = MEWTWO_MOVES[turn % MEWTWO_MOVES.length];
-        const rawBossDmg = bossMove.dmg + Math.floor(Math.random() * 14);
-        const actualBossDmg = shieldActive ? Math.round(rawBossDmg * 0.5) : rawBossDmg;
+      // Boss counterattack
+      const bossMoves = [
+        { name: '🔮 Imperial Psystrike Barrage', dmg: 95 },
+        { name: '⚡ Colosseum Aura Tempest', dmg: 85 },
+        { name: '🛡️ Telekinetic Gladius Slash', dmg: 90 },
+      ];
+      const bm = bossMoves[boutTurn % bossMoves.length];
+      let incoming = Math.round(bm.dmg * (0.9 + Math.random() * 0.2));
+      if (shieldActive) {
+        incoming = Math.round(incoming * 0.5);
         shieldActive = false;
-        playerHp = Math.max(0, playerHp - actualBossDmg);
+      }
+      playerHp = Math.max(0, playerHp - incoming);
 
-        appendLog(
-          `<span class="text-purple-300">Mewtwo Counter:</span> <strong>🔮 Frontier Mewtwo</strong> cast <strong>${bossMove.name}</strong> for <strong>${actualBossDmg} DMG</strong>!`
+      if (bAvatar) {
+        bAvatar.classList.add('scale-110');
+        setTimeout(() => bAvatar.classList.remove('scale-110'), 220);
+      }
+
+      appendCombatLog(
+        `🔮 <strong>Champion Mewtwo</strong> countered with <strong>${bm.name}</strong> (-${incoming} HP)!`
+      );
+
+      if (playerHp <= 0) {
+        battleOver = true;
+        appendCombatLog(
+          `🛡️ Your Gladiator fought bravely to the last breath! Click <strong>"↺ New Bout"</strong> to re-enter the sand pit!`
         );
+      }
 
-        if (bIntentEl) {
-          const nextMove = MEWTWO_MOVES[(turn + 1) % MEWTWO_MOVES.length];
-          bIntentEl.textContent = nextMove.intent;
-        }
+      boutTurn += 1;
+      updateBattleBars();
+      renderFighterMoves();
+    }
 
-        if (playerHp <= 0) {
-          battleOver = true;
-          if (turnEl) turnEl.textContent = '⚠️ FAINTED · CLICK REMATCH';
-          if (statusTagEl) {
-            statusTagEl.textContent = '● Rematch Ready';
-            statusTagEl.className = 'text-rose-400';
-          }
-          appendLog(
-            `<span class="text-rose-300">⚠️ ${spec.name} fainted!</span> Tip from Lucario: Use <strong>🛡️ Shield</strong> on Turn 2 and <strong>💖 Restore</strong> when HP drops below 120! Click any move or <strong>↺ Rematch</strong> to try again.`
-          );
+    function resetBout(newFighterIdx?: number) {
+      if (typeof newFighterIdx === 'number') {
+        selectedFighterIdx = newFighterIdx;
+      }
+      const f = GLADIATOR_ROSTER[selectedFighterIdx];
+      playerMaxHp = f.maxHp;
+      playerHp = f.maxHp;
+      bossHp = bossMaxHp;
+      boutTurn = 1;
+      crowdFavor = 55;
+      atkBuff = 1.0;
+      shieldActive = false;
+      usedPotion = false;
+      usedWhetstone = false;
+      usedShield = false;
+      battleOver = false;
+
+      // Update Roster Tab styles
+      document.querySelectorAll('.fighter-tab').forEach((btn, idx) => {
+        if (idx === selectedFighterIdx) {
+          btn.className =
+            'fighter-tab active flex items-center gap-2 rounded-xl border-2 border-[#991b1b] bg-gradient-to-b from-[#7f1d1d] to-[#450a0a] p-2 text-left text-[#fef3c7] shadow-[0_3px_0_#2e0909] transition';
         } else {
-          turn += 1;
-          if (turnEl) turnEl.textContent = `TURN ${turn} · YOUR MOVE`;
+          btn.className =
+            'fighter-tab flex items-center gap-2 rounded-xl border-2 border-[#b59264] bg-[#fdf8ed] p-2 text-left text-[#451a03] shadow-[0_2px_0_#8c5a2b] transition hover:border-[#78350f] hover:bg-[#fef3c7]';
         }
+      });
 
-        renderBattleHud();
+      updateBattleBars();
+      renderFighterMoves();
+      appendCombatLog(
+        `📯 <strong>${f.name}</strong> (${f.title}) steps onto the Colosseum sand! Crowd favor rises!`
+      );
+      emitCanvasShockwave(`${f.title.toUpperCase()} ENTERS! ⚔️`, '#d97706');
+    }
+
+    // Bind Roster Tabs
+    document.querySelectorAll('.fighter-tab').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const idx = Number((btn as HTMLElement).dataset.fighterIdx || '0');
+        resetBout(idx);
       });
     });
 
-    // 4. 6-Stage AI & Architecture Gauntlet Logic
-    let gauntletScore = 0;
-    const solvedStages = new Set<number>();
-    const scoreValEl = document.getElementById('gauntlet-score-val');
-    const scoreTopEl = document.getElementById('arena-gauntlet-score-top');
+    // Bind Reset Button
+    document.getElementById('btn-battle-reset')?.addEventListener('click', () => {
+      resetBout(selectedFighterIdx);
+    });
 
-    function updateGauntletScore() {
-      if (scoreValEl) scoreValEl.textContent = String(gauntletScore);
-      if (scoreTopEl) scoreTopEl.textContent = `${gauntletScore} / 6`;
-      if (gauntletScore >= 4) {
-        gameStore.addStamp('battle');
+    // Bind 3 Imperial Blessings
+    document.getElementById('item-potion-btn')?.addEventListener('click', () => {
+      if (usedPotion || battleOver) return;
+      usedPotion = true;
+      const healAmt = Math.round(playerMaxHp * 0.65);
+      playerHp = Math.min(playerMaxHp, playerHp + healAmt);
+      appendCombatLog(
+        `🏺 <strong>Imperial Blessing:</strong> Drank <strong>Ambrosia Nectar</strong> (+${healAmt} HP restored)!`
+      );
+      emitCanvasShockwave('AMBROSIA NECTAR +65% HP! 🏺', '#22c55e');
+      updateBattleBars();
+    });
+
+    document.getElementById('item-xspatk-btn')?.addEventListener('click', () => {
+      if (usedWhetstone || battleOver) return;
+      usedWhetstone = true;
+      atkBuff = 1.35;
+      appendCombatLog(
+        `🔥 <strong>Imperial Blessing:</strong> Honed blade on <strong>Vulcan's Whetstone</strong> (+35% Strike Power)!`
+      );
+      emitCanvasShockwave('VULCAN WHETSTONE +35% ATK! 🔥', '#f59e0b');
+      updateBattleBars();
+    });
+
+    document.getElementById('item-guard-btn')?.addEventListener('click', () => {
+      if (usedShield || battleOver) return;
+      usedShield = true;
+      shieldActive = true;
+      appendCombatLog(
+        `🛡️ <strong>Imperial Blessing:</strong> Raised <strong>Roman Testudo Wall</strong> (Next incoming strike halved)!`
+      );
+      emitCanvasShockwave('ROMAN TESTUDO SHIELD UP! 🛡️', '#38bdf8');
+      updateBattleBars();
+    });
+
+    // ===================================================================
+    // SIX TRIALS OF ROME (PORTA BESTIARIORUM GAUNTLET)
+    // ===================================================================
+    let currentTrialIdx = 0;
+
+    function renderGauntletStage() {
+      const trial = COLOSSEUM_TRIALS[currentTrialIdx];
+      const pillsWrap = document.getElementById('gauntlet-stage-pills');
+      const progressPill = document.getElementById('gauntlet-progress-pill');
+      const domainTag = document.getElementById('gauntlet-domain-tag');
+      const qTitle = document.getElementById('gauntlet-question-title');
+      const optList = document.getElementById('gauntlet-options-list');
+      const fbBox = document.getElementById('gauntlet-feedback-box');
+
+      if (progressPill) {
+        progressPill.textContent = `TRIAL ${trial.numeral} / VI · ${solvedTrials.length} SOLVED`;
+      }
+      if (domainTag) domainTag.textContent = trial.domain;
+      if (qTitle) qTitle.textContent = trial.question;
+      if (fbBox) {
+        fbBox.classList.add('hidden');
+        fbBox.innerHTML = '';
+      }
+
+      if (pillsWrap) {
+        pillsWrap.innerHTML = '';
+        COLOSSEUM_TRIALS.forEach((t, idx) => {
+          const isSolved = solvedTrials.includes(idx);
+          const isCurrent = idx === currentTrialIdx;
+          const b = document.createElement('button');
+          b.type = 'button';
+          b.className = isCurrent
+            ? 'rounded-lg border-2 border-[#991b1b] bg-[#7f1d1d] px-3 py-1 font-mono text-xs font-black text-[#fef08a] shadow-sm'
+            : isSolved
+              ? 'rounded-lg border-2 border-[#15803d] bg-[#dcfce7] px-3 py-1 font-mono text-xs font-black text-[#14532d]'
+              : 'rounded-lg border-2 border-[#b59264] bg-[#fdf8ed] px-3 py-1 font-mono text-xs font-bold text-[#5c3a1b] hover:bg-[#f2e2c4]';
+          b.textContent = `${isSolved ? '✓ ' : ''}Tabula ${t.numeral}`;
+          b.addEventListener('click', () => {
+            currentTrialIdx = idx;
+            renderGauntletStage();
+          });
+          pillsWrap.appendChild(b);
+        });
+      }
+
+      if (optList) {
+        optList.innerHTML = '';
+        trial.options.forEach((optText, oIdx) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className =
+            'flex items-center gap-3 rounded-xl border-2 border-[#b59264] bg-[#fffbeb] px-3.5 py-2.5 text-left text-xs font-bold text-[#3b1d0a] shadow-sm transition hover:border-[#7f1d1d] hover:bg-[#fef3c7]';
+          const romanLetter = ['A', 'B', 'C', 'D'][oIdx];
+          btn.innerHTML = `
+            <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-[#8c5a2b] bg-[#f2e2c4] font-mono text-[11px] font-black text-[#451a03]">${romanLetter}</span>
+            <span>${optText}</span>
+          `;
+          btn.addEventListener('click', () => {
+            if (!fbBox) return;
+            fbBox.classList.remove('hidden');
+            if (oIdx === trial.correct) {
+              btn.className =
+                'flex items-center gap-3 rounded-xl border-2 border-[#15803d] bg-[#dcfce7] px-3.5 py-2.5 text-left text-xs font-black text-[#14532d]';
+              if (!solvedTrials.includes(currentTrialIdx)) {
+                solvedTrials.push(currentTrialIdx);
+                fame += 25;
+                updateFameUI();
+                emitCanvasShockwave(`TRIAL ${trial.numeral} CONQUERED! +25 FAME 🦁`, '#fbbf24');
+              }
+              fbBox.innerHTML = `<strong class="text-green-800">🏛️ SENATE VERDICT — TRIUMPH!</strong> ${trial.explanation}`;
+              renderGauntletStage();
+              fbBox.classList.remove('hidden');
+              fbBox.innerHTML = `<strong class="text-green-800">🏛️ SENATE VERDICT — TRIUMPH!</strong> ${trial.explanation}`;
+            } else {
+              btn.className =
+                'flex items-center gap-3 rounded-xl border-2 border-[#b91c1c] bg-[#fee2e2] px-3.5 py-2.5 text-left text-xs font-bold text-[#7f1d1d]';
+              fbBox.innerHTML = `<strong class="text-[#991b1b]">⚔️ PARRIED BY THE GUARDIAN!</strong> Re-examine the architecture constraints and strike another option.`;
+            }
+          });
+          optList.appendChild(btn);
+        });
       }
     }
 
-    document.querySelectorAll<HTMLElement>('.gauntlet-card').forEach((card) => {
-      const qIdx = Number(card.dataset.qIdx || 0);
-      const correctOpt = Number(card.dataset.correct || 0);
-      const statusEl = card.querySelector('.gauntlet-status');
-      const expEl = card.querySelector('.gauntlet-exp');
-      const opts = card.querySelectorAll<HTMLButtonElement>('.gauntlet-opt');
+    document.getElementById('btn-gauntlet-prev')?.addEventListener('click', () => {
+      currentTrialIdx = (currentTrialIdx - 1 + COLOSSEUM_TRIALS.length) % COLOSSEUM_TRIALS.length;
+      renderGauntletStage();
+    });
+    document.getElementById('btn-gauntlet-next')?.addEventListener('click', () => {
+      currentTrialIdx = (currentTrialIdx + 1) % COLOSSEUM_TRIALS.length;
+      renderGauntletStage();
+    });
 
-      opts.forEach((btn) => {
-        btn.addEventListener('click', () => {
-          if (solvedStages.has(qIdx)) return;
-          const picked = Number(btn.dataset.opt || 0);
-          if (picked === correctOpt) {
-            solvedStages.add(qIdx);
-            gauntletScore += 1;
-            sfx.confirm();
-            btn.classList.remove('border-slate-700', 'bg-slate-900/80');
-            btn.classList.add('border-emerald-400', 'bg-emerald-500/25', 'text-emerald-100', 'font-bold');
-            if (statusEl) {
-              statusEl.textContent = '★ Cleared';
-              statusEl.className = 'gauntlet-status text-emerald-400 font-bold';
-            }
-            expEl?.classList.remove('hidden');
-            updateGauntletScore();
-            window.dispatchEvent(
-              new CustomEvent('town:arena-fx', {
-                detail: { text: `STAGE 0${qIdx + 1} CLEARED! (${gauntletScore}/6)`, color: '#10b981' },
-              })
-            );
-          } else {
-            sfx.select();
-            btn.classList.remove('border-slate-700');
-            btn.classList.add('border-rose-500/60', 'bg-rose-950/40', 'text-rose-200');
-            if (statusEl) {
-              statusEl.textContent = 'Try Again';
-              statusEl.className = 'gauntlet-status text-rose-400';
-            }
-          }
-        });
+    // ===================================================================
+    // HALL OF VICTORS DECREE INSPECTOR
+    // ===================================================================
+    const decreeModal = document.getElementById('trophy-decree-modal');
+    const decreeTitle = document.getElementById('trophy-decree-title');
+    const decreeBody = document.getElementById('trophy-decree-body');
+
+    document.querySelectorAll('[data-trophy-inspect]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const key = (btn as HTMLElement).dataset.trophyInspect || 'ideafest';
+        const d = TROPHY_DECREES[key];
+        if (!d || !decreeModal || !decreeTitle || !decreeBody) return;
+        decreeTitle.textContent = d.title;
+        decreeBody.textContent = d.body;
+        decreeModal.classList.remove('hidden');
+        emitCanvasShockwave('AVE VICTOR! DECREE UNSEALED 🏆', '#fbbf24');
       });
     });
 
-    document.getElementById('btn-reset-gauntlet')?.addEventListener('click', () => {
-      sfx.select();
-      gauntletScore = 0;
-      solvedStages.clear();
-      updateGauntletScore();
-      document.querySelectorAll<HTMLElement>('.gauntlet-card').forEach((card) => {
-        const statusEl = card.querySelector('.gauntlet-status');
-        if (statusEl) {
-          statusEl.textContent = 'Unsolved';
-          statusEl.className = 'gauntlet-status text-slate-400';
+    document.getElementById('btn-close-decree')?.addEventListener('click', () => {
+      decreeModal?.classList.add('hidden');
+    });
+
+    // ===================================================================
+    // OBELISK OF MARS: 6-AXIS GLADIATOR RUNES
+    // ===================================================================
+    function renderGladiatorRunes(mode = 'balanced') {
+      const container = document.getElementById('gladiator-runes-bars');
+      if (!container) return;
+      const items = RUNE_PRESETS[mode] || RUNE_PRESETS.balanced;
+      container.innerHTML = '';
+
+      items.forEach((item) => {
+        const row = document.createElement('div');
+        row.className =
+          'rounded-xl border-2 border-[#c8a97e] bg-gradient-to-b from-[#fffbeb] to-[#f5e6c8] p-3 shadow-sm';
+        row.innerHTML = `
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <span class="font-mono text-xs font-black text-[#3b1d0a]">${item.label}</span>
+            <div class="flex items-center gap-1.5">
+              <span class="rounded border border-[#8c5a2b] bg-[#f2e2c4] px-1.5 py-0.5 font-mono text-[10px] font-bold text-[#5c3a1b]">RUNE ${item.rune}</span>
+              <span class="rounded border border-[#991b1b] bg-[#7f1d1d] px-2 py-0.5 font-mono text-xs font-black text-[#fef08a]">${item.score} / 100</span>
+            </div>
+          </div>
+          <div class="mt-2 h-3 w-full overflow-hidden rounded-full border border-[#78350f] bg-[#2e1605] p-0.5">
+            <div class="h-full rounded-full bg-gradient-to-r from-[#991b1b] via-[#d97706] to-[#fbbf24] transition-all duration-500" style="width: ${item.score}%"></div>
+          </div>
+          <p class="mt-1.5 text-[11px] text-[#5c3a1b]">${item.desc}</p>
+        `;
+        container.appendChild(row);
+      });
+
+      document.querySelectorAll('.stat-mode-btn').forEach((b) => {
+        const bMode = (b as HTMLElement).dataset.statMode;
+        if (bMode === mode) {
+          b.className =
+            'stat-mode-btn rounded-lg border-2 border-[#fbbf24] bg-[#7f1d1d] px-2.5 py-1 font-mono text-[10px] font-extrabold text-[#fef08a]';
+        } else {
+          b.className =
+            'stat-mode-btn rounded-lg border-2 border-[#b59264] bg-[#fdf8ed] px-2.5 py-1 font-mono text-[10px] font-extrabold text-[#451a03]';
         }
-        card.querySelector('.gauntlet-exp')?.classList.add('hidden');
-        card.querySelectorAll<HTMLButtonElement>('.gauntlet-opt').forEach((btn) => {
-          btn.className =
-            'gauntlet-opt w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-left font-mono text-xs text-slate-200 hover:border-purple-400 transition';
-        });
+      });
+    }
+
+    document.querySelectorAll('.stat-mode-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const mode = (btn as HTMLElement).dataset.statMode || 'balanced';
+        renderGladiatorRunes(mode);
+        emitCanvasShockwave(`STANCE: ${mode.toUpperCase()} 🛡️`, '#d97706');
       });
     });
 
-    // 5. Global Hotkeys on /arena
+    // ===================================================================
+    // 2D COLOSSEUM NAVIGATION BUTTONS & KEYBOARD HOTKEYS (D, G, T, S)
+    // ===================================================================
+    document.querySelectorAll('[data-arena-nav]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const targetId = (btn as HTMLElement).dataset.arenaNav;
+        const scrollId = (btn as HTMLElement).dataset.scrollTo;
+        if (targetId && (window as any).__townEngine) {
+          (window as any).__townEngine.walkToObject(targetId);
+        }
+        if (scrollId) {
+          document.getElementById(scrollId)?.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+
     window.addEventListener('keydown', (e) => {
-      const tag = (e.target as HTMLElement | null)?.tagName;
-      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || e.metaKey || e.ctrlKey || e.altKey) return;
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
       const key = e.key.toLowerCase();
+      const eng = (window as any).__townEngine;
       if (key === 'd') {
-        document.getElementById('arena-battle-sim')?.scrollIntoView({ behavior: 'smooth' });
+        eng?.walkToObject('battle-terminal');
+        document.getElementById('battle-sim-section')?.scrollIntoView({ behavior: 'smooth' });
       } else if (key === 'g') {
-        document.getElementById('arena-quiz-gauntlet')?.scrollIntoView({ behavior: 'smooth' });
+        eng?.walkToObject('algorithm-dojo');
+        document.getElementById('algo-dojo-section')?.scrollIntoView({ behavior: 'smooth' });
       } else if (key === 't') {
-        document.getElementById('arena-trophy-vault')?.scrollIntoView({ behavior: 'smooth' });
+        eng?.walkToObject('trophy-vault');
+        document.getElementById('trophy-vault-section')?.scrollIntoView({ behavior: 'smooth' });
       } else if (key === 's') {
-        document.getElementById('arena-stat-scanner')?.scrollIntoView({ behavior: 'smooth' });
+        eng?.walkToObject('stat-radar');
+        document.getElementById('stat-radar-section')?.scrollIntoView({ behavior: 'smooth' });
       }
     });
+
+    // Initial render
+    updateFameUI();
+    resetBout(0);
+    renderGauntletStage();
+    renderGladiatorRunes('balanced');
   }
 
-  initArenaPage();
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initGladiatorArena);
+  } else {
+    initGladiatorArena();
+  }
 </script>
