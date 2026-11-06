@@ -7594,7 +7594,7 @@ export class TownEngine {
 
     if (this.currentScene === 'neighbour') {
       const neighbourLabels: Record<string, { x: number; y: number; w: number; h: number; lift?: number }> = {
-        'neighbour-maya': { x: 6, y: 3, w: 1, h: 1, lift: 1.1 },
+        'neighbour-maya': { x: 6, y: 3, w: 1, h: 1, lift: 1.45 },
         'eevee-companion': { x: 8, y: 3, w: 1, h: 1, lift: 0.45 },
         'guestbook-board': { x: 1, y: 3, w: 3, h: 2, lift: 0.55 },
         'coop-table': { x: 11, y: 3, w: 3, h: 2, lift: 0.55 },

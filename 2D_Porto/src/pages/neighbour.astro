@@ -179,12 +179,25 @@ const coopChronicles = [
           <span class="cottage-pill cottage-pill--warm">🏡 NEIGHBOUR'S COTTAGE · PLOT #25</span>
           <span class="cottage-pill cottage-pill--eevee">🦊 EEVEE & MAYA'S DEV GUILD</span>
         </div>
-        <h1 id="panel-title" class="cottage-hero__title">
-          Neighbour's House &amp; Fellow Dev Guild
-        </h1>
-        <p class="cottage-hero__subtitle">
-          Selamat datang di pondok hangat tetangga sebelah! Di sini <strong>Neighbour Maya</strong> dan <strong>Eevee</strong> berkumpul bersama <strong>{profile.person.name}</strong> untuk <em>pair-programming</em>, berbagi teh Oolong di dekat perapian, melatih ketangkasan <em>code review</em>, dan merayakan kolaborasi komunitas developer.
-        </p>
+        <div class="cottage-hero__profile-row">
+          <div class="cottage-hero__avatar-frame" title="Neighbour Maya (Dawn) · Fellow Developer">
+            <img
+              src="/assets/maya.png"
+              alt="Neighbour Maya (Dawn)"
+              class="cottage-hero__avatar-sprite"
+              width="68"
+              height="96"
+            />
+          </div>
+          <div class="cottage-hero__text-col">
+            <h1 id="panel-title" class="cottage-hero__title">
+              Neighbour's House &amp; Fellow Dev Guild
+            </h1>
+            <p class="cottage-hero__subtitle">
+              Selamat datang di pondok hangat tetangga sebelah! Di sini <strong>Neighbour Maya</strong> dan <strong>Eevee</strong> berkumpul bersama <strong>{profile.person.name}</strong> untuk <em>pair-programming</em>, berbagi teh Oolong di dekat perapian, melatih ketangkasan <em>code review</em>, dan merayakan kolaborasi komunitas developer.
+            </p>
+          </div>
+        </div>
       </div>
 
       <!-- Live Cottage Telemetry & Friendship Bar -->
@@ -391,7 +404,10 @@ const coopChronicles = [
         <div class="pr-crt-screen" id="pr-crt-screen">
           <div class="pr-crt-screen__header">
             <span class="pr-branch-badge" id="pr-card-branch">feat/aeroscan-tensorrt</span>
-            <span class="pr-author-badge" id="pr-card-author">Author: @maya-dev</span>
+            <span class="pr-author-badge" id="pr-card-author">
+              <img src="/assets/maya.png" alt="Maya" class="pr-author-avatar-img" width="17" height="24" />
+              Author: @maya-dev
+            </span>
           </div>
           <h3 class="pr-crt-screen__title" id="pr-card-title">
             PR #101: Quantize YOLOv8 Aerial Detector to FP16 TensorRT
@@ -816,7 +832,9 @@ const coopChronicles = [
       if (streakEl) streakEl.textContent = `${prStreak} 🔥`;
       if (scoreEl) scoreEl.textContent = `${prScore} PTS`;
       if (branchEl) branchEl.textContent = item.branch;
-      if (authorEl) authorEl.textContent = `Author: ${item.author}`;
+      if (authorEl) {
+        authorEl.innerHTML = `<img src="/assets/maya.png" alt="Maya" class="pr-author-avatar-img" width="17" height="24" /> Author: ${escapeHtml(item.author)}`;
+      }
       if (titleEl) titleEl.textContent = item.title;
       if (diffEl) diffEl.textContent = item.diff;
       if (promptEl) promptEl.textContent = item.prompt;
@@ -904,17 +922,26 @@ const coopChronicles = [
       if (!corkboardWall) return;
       corkboardWall.innerHTML = notes
         .map(
-          (n) => `
+          (n) => {
+            const isMaya = n.id === 'maya-1' || n.name.includes('Maya');
+            const avatarHtml = isMaya
+              ? `<img src="/assets/maya.png" alt="Maya" class="sticky-note__avatar-img" width="22" height="31" />`
+              : '';
+            return `
           <article class="sticky-note sticky-note--${escapeHtml(n.color)}">
             <div class="sticky-note__pin" aria-hidden="true">📌</div>
             <div class="sticky-note__badge">${escapeHtml(n.badge)}</div>
             <p class="sticky-note__msg">"${escapeHtml(n.message)}"</p>
             <div class="sticky-note__footer">
-              <strong class="sticky-note__author">${escapeHtml(n.name)}</strong>
+              <div class="sticky-note__author-group">
+                ${avatarHtml}
+                <strong class="sticky-note__author">${escapeHtml(n.name)}</strong>
+              </div>
               <span class="sticky-note__date">${escapeHtml(n.date)}</span>
             </div>
           </article>
-        `
+        `;
+          }
         )
         .join('');
     }
@@ -1016,6 +1043,68 @@ const coopChronicles = [
     color: #fbcfe8;
   }
 
+  /* Maya Hero Avatar Card */
+  .cottage-hero__profile-row {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    margin-bottom: 0.85rem;
+  }
+
+  @media (max-width: 640px) {
+    .cottage-hero__profile-row {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+  }
+
+  .cottage-hero__avatar-frame {
+    flex-shrink: 0;
+    width: 82px;
+    height: 108px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle, rgba(239, 148, 198, 0.22) 0%, rgba(30, 20, 16, 0.85) 75%);
+    border: 2px solid #ef94c6;
+    border-radius: 0.85rem;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4), inset 0 0 12px rgba(239, 107, 107, 0.2);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cottage-hero__avatar-frame::after {
+    content: 'MAYA';
+    position: absolute;
+    bottom: 2px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.55rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    color: #ffd6bd;
+    background: rgba(0, 0, 0, 0.55);
+    padding: 1px 0;
+  }
+
+  .cottage-hero__avatar-sprite {
+    image-rendering: pixelated;
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.5));
+    transition: transform 0.25s ease;
+  }
+
+  .cottage-hero__avatar-sprite:hover {
+    transform: scale(1.08) translateY(-2px);
+  }
+
+  .cottage-hero__text-col {
+    flex: 1;
+    min-width: 0;
+  }
+
   .cottage-hero__title {
     font-family: 'Pixelify Sans', sans-serif;
     font-size: clamp(1.45rem, 2.6vw, 1.95rem);
@@ -1029,7 +1118,7 @@ const coopChronicles = [
     font-size: 0.88rem;
     line-height: 1.6;
     color: #fde68a;
-    margin: 0 0 1rem;
+    margin: 0;
   }
 
   .cottage-stats-grid {
@@ -1489,7 +1578,15 @@ const coopChronicles = [
   }
 
   .pr-author-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
     color: #cbd5e1;
+  }
+
+  .pr-author-avatar-img {
+    image-rendering: pixelated;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4));
   }
 
   .pr-crt-screen__title {
@@ -1856,4 +1953,19 @@ const coopChronicles = [
     border-top: 1px dashed rgba(0, 0, 0, 0.2);
     padding-top: 0.35rem;
   }
+
+  .sticky-note__author-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .sticky-note__avatar-img {
+    image-rendering: pixelated;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.35);
+    padding: 1px;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.15));
+  }
 </style>
+

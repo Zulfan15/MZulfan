@@ -1,4 +1,4 @@
-import { TILE_SIZE, drawCharacter } from './sprites';
+import { TILE_SIZE, drawCharacter, drawPixelMatrix } from './sprites';
 import { drawPixelText } from './devScene';
 import type { Dir } from './types';
 
@@ -625,6 +625,73 @@ function drawEeveeCompanion(ctx: CanvasRenderingContext2D, x: number, y: number,
   ctx.fillRect(x + 7.5, heartY + 4, 2, 1);
 }
 
+// Authentic Dawn / Maya Pixel Sprite Palette & Matrix (Gen 4 Pokémon Trainer & Fellow Dev)
+export const MAYA_PALETTE: Record<string, string> = {
+  A: '#ada5ce', // beanie shaded rim / hair clip
+  B: '#39638c', // navy blue hair
+  C: '#efefff', // white knit beanie & white scarf
+  D: '#000000', // crisp outline, eyes, boots
+  E: '#cecede', // beanie rim fold & scarf shade
+  F: '#394252', // deep navy hair shading
+  G: '#ef94c6', // pink Pokéball emblem on beanie
+  H: '#c66b9c', // dark pink emblem shadow
+  I: '#dea57b', // warm skin tone shading
+  J: '#ffd6bd', // bright skin tone
+  K: '#7b4242', // dress neckline / shadow
+  L: '#c63942', // red dress / vest
+  M: '#ef6b6b', // bright red pleated skirt
+};
+
+export const MAYA_SPRITE_MATRIX: string[] = [
+  '.......AAA.......', // 0
+  '......BCCCB......', // 1
+  '...BBACCCCCABB...', // 2
+  '..BACCCCCCCCCAB..', // 3
+  '..DCCCCCCCCCCCD..', // 4
+  '.DECCCCCCCCCCCED.', // 5
+  '.FECCCCCCCCCCCEF.', // 6
+  'DFEECCCCCCCCCEEFD', // 7
+  'DFAEEECGGGCEEEAFD', // 8
+  'DFAEEEHEEEHEEEAFD', // 9
+  'DIFECEAAAAAECEDID', // 10
+  'DIFAAEECECEEAAFID', // 11
+  'DFFGFABIIIBAFGFFD', // 12
+  'DFBDICDJJJDCIDBFD', // 13
+  'DDBDIJJJJJJJIDBDD', // 14
+  '.DBDAIJJIJJIKDBD.', // 15
+  '.DDLEDKIIIKDLDD..', // 16
+  'DJJDBACEEECDLLDD.', // 17
+  'DIIBEFCALACADLEJK', // 18
+  '.DDCCBALLLADLDJJD', // 19
+  '..DAADGLLLGMKDDD.', // 20
+  '...DDDMMMMMDDD...', // 21
+  '...DHHDDDDDHHD...', // 22
+  '....DD.....DD....', // 23
+];
+
+export function drawMayaCharacter(ctx: CanvasRenderingContext2D, x: number, y: number, tick: number) {
+  const bob = Math.sin(tick * 0.08) * 0.7;
+  const destX = x;
+  const destY = Math.round(y - 8 + bob);
+
+  // Soft oval ground shadow beneath Maya
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.28)';
+  ctx.beginPath();
+  ctx.ellipse(x + 8.5, y + 15, 8.5, 3.5, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Draw authentic Dawn / Maya 17x24 pixel sprite
+  drawPixelMatrix(ctx, MAYA_SPRITE_MATRIX, MAYA_PALETTE, destX, destY, 1, false);
+
+  // Cute developer twinkle / sparkle above her knit hat
+  if (Math.floor(tick / 50) % 3 === 0) {
+    ctx.fillStyle = '#fde047';
+    ctx.fillRect(destX + 17, destY - 2, 2, 2);
+    ctx.fillRect(destX + 18, destY - 3, 1, 4);
+    ctx.fillRect(destX + 16, destY - 1, 5, 1);
+  }
+}
+
 export function renderNeighbourAnimations(ctx: CanvasRenderingContext2D, tick: number) {
   // 1. Crackling Animated Hearth Fire & Warm Radial Glow (x: 6..8, y: 1..2)
   const fireX = 7.5 * TILE_SIZE;
@@ -657,21 +724,7 @@ export function renderNeighbourAnimations(ctx: CanvasRenderingContext2D, tick: n
   ctx.fillRect(fBaseX + 13 + Math.cos(tick * 0.25) * 3, sparkY - 2, 1.5, 1.5);
 
   // 2. Neighbour Maya · Fellow Developer & Co-Op Partner at (6, 3)
-  drawCharacter(
-    ctx,
-    {
-      skin: '#fde68a',
-      hair: '#7c2d12',
-      shirt: '#0284c7',
-      pants: '#1e293b',
-      shoes: '#451a03',
-    },
-    'down',
-    0,
-    6 * TILE_SIZE,
-    3 * TILE_SIZE,
-    1
-  );
+  drawMayaCharacter(ctx, 6 * TILE_SIZE, 3 * TILE_SIZE, tick);
 
   // 3. Eevee · Cottage Mascot at (8, 3)
   drawEeveeCompanion(ctx, 8 * TILE_SIZE, 3 * TILE_SIZE, tick);
