@@ -126,10 +126,7 @@ export const MART_PROPS: MartProp[] = [
     y: 3,
     w: 1,
     h: 3,
-    target: {
-      type: 'note',
-      text: 'POKÉ-COOLER: Chilled Fresh Water, Soda Pop, and Bandung Specialty Cold Brew to keep development productivity at maximum.',
-    },
+    target: { type: 'event', name: 'drink-cooler' },
     label: 'Drink Cooler',
     style: 'drink-cooler',
     labelLift: 10,

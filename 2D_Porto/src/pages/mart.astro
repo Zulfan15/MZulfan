@@ -8,684 +8,702 @@ const githubUrl = profile.socials.find((s) => s.label === 'GitHub')?.url || 'htt
 const linkedinUrl = profile.socials.find((s) => s.label === 'LinkedIn')?.url || 'https://www.linkedin.com/in/muhammad-zulfan-anggadhiputra';
 const emailUrl = `mailto:${profile.person.email}`;
 const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
+
+type Category = 'services' | 'tms' | 'potions' | 'key';
+
+interface MartItem {
+  id: string;
+  category: Category;
+  icon: string;
+  badge: string;
+  title: string;
+  subtitle: string;
+  desc: string;
+  tags: string[];
+  /** Playful in-game scope indicator (₽). null = not purchasable. */
+  price: number | null;
+  unit?: 'sprint' | 'project' | 'session';
+  featured: number;
+  iconBox: string;
+  badgeClass: string;
+  subtitleClass: string;
+  tmId?: string;
+  potion?: 'coffee' | 'ether';
+  link?: { href: string; label: string; external?: boolean };
+  cv?: boolean;
+}
+
+const items: MartItem[] = [
+  {
+    id: 'srv-ai',
+    category: 'services',
+    icon: '🦅',
+    badge: 'AI / ML SERVICE',
+    title: 'Edge AI & Computer Vision',
+    subtitle: 'AeroScan YOLOv11 + TensorRT',
+    desc: 'Ultra-fast object detection and tracking optimized for edge computing (~1.8 ms/frame). Custom dataset annotation, model pruning, and FP16/INT8 TensorRT engine build.',
+    tags: ['YOLOv11', 'TensorRT', 'PyTorch', 'OpenCV', 'CUDA'],
+    price: 1500,
+    unit: 'sprint',
+    featured: 1,
+    iconBox: 'bg-blue-100 border-blue-300',
+    badgeClass: 'bg-blue-600 border-blue-800',
+    subtitleClass: 'text-blue-700',
+  },
+  {
+    id: 'srv-web',
+    category: 'services',
+    icon: '🌐',
+    badge: 'FULL-STACK WEB',
+    title: 'Cloud-Native Web Systems',
+    subtitle: 'FoodLink & Modern Web Apps',
+    desc: 'Scalable web architectures with clean domain design, spatial PostGIS queries, real-time event streaming via Kafka & Redis, and automated containerized CI/CD.',
+    tags: ['Laravel 12', 'TypeScript', 'Astro', 'PostGIS', 'Redis', 'Kafka'],
+    price: 1200,
+    unit: 'sprint',
+    featured: 2,
+    iconBox: 'bg-emerald-100 border-emerald-300',
+    badgeClass: 'bg-emerald-600 border-emerald-800',
+    subtitleClass: 'text-emerald-700',
+  },
+  {
+    id: 'srv-iot',
+    category: 'services',
+    icon: '🤖',
+    badge: 'EMBEDDED / IOT',
+    title: 'IoT & Robotics Integration',
+    subtitle: 'ITENAS Robotics Coordinator',
+    desc: 'Hardware microcontroller prototyping, sensor fusion, MQTT telemetry, ROS robotics control, and end-to-end device-to-dashboard communication pipelines.',
+    tags: ['ESP32', 'STM32', 'ROS', 'MQTT', 'C++ / MicroPython'],
+    price: 1000,
+    unit: 'project',
+    featured: 3,
+    iconBox: 'bg-purple-100 border-purple-300',
+    badgeClass: 'bg-purple-600 border-purple-800',
+    subtitleClass: 'text-purple-700',
+  },
+  {
+    id: 'srv-advisory',
+    category: 'services',
+    icon: '🧠',
+    badge: 'ADVISORY & AUDIT',
+    title: 'System Architecture Advisory',
+    subtitle: 'Code Review & Security Audit',
+    desc: 'Comprehensive architectural audits, database indexing optimization, HCIA-certified network security review, Docker orchestration, and performance tuning.',
+    tags: ['Docker', 'HCIA-Security', 'MySQL', 'PostgreSQL', 'Linux'],
+    price: 800,
+    unit: 'session',
+    featured: 4,
+    iconBox: 'bg-amber-100 border-amber-300',
+    badgeClass: 'bg-amber-600 border-amber-800',
+    subtitleClass: 'text-amber-800',
+  },
+  {
+    id: 'tm-01',
+    category: 'tms',
+    icon: '💿',
+    badge: 'TM 01 · ML',
+    title: 'TM 01: PyTorch & Deep Learning',
+    subtitle: 'Model Architecture & Training',
+    desc: 'Deep convolutional neural networks, vision transformers, transfer learning workflows, and data augmentation pipelines.',
+    tags: ['PyTorch', 'Torchvision', 'Weights & Biases'],
+    price: 0,
+    featured: 5,
+    iconBox: 'bg-orange-100 border-orange-300',
+    badgeClass: 'bg-orange-600 border-orange-800',
+    subtitleClass: 'text-orange-700',
+    tmId: 'tm-01',
+    link: { href: '/lab', label: '🔬 Lab R&D' },
+  },
+  {
+    id: 'tm-02',
+    category: 'tms',
+    icon: '💿',
+    badge: 'TM 02 · FRONTEND',
+    title: 'TM 02: TypeScript & Astro Islands',
+    subtitle: 'Zero-JS Runtime & Canvas 2D',
+    desc: 'Type-safe full-stack web development with component islands, HTML5 Canvas game engines, and pixel-perfect responsive layouts.',
+    tags: ['TypeScript 5', 'Astro 7', 'HTML5 Canvas'],
+    price: 0,
+    featured: 6,
+    iconBox: 'bg-cyan-100 border-cyan-300',
+    badgeClass: 'bg-cyan-600 border-cyan-800',
+    subtitleClass: 'text-cyan-700',
+    tmId: 'tm-02',
+    link: { href: githubUrl, label: '💻 GitHub', external: true },
+  },
+  {
+    id: 'tm-03',
+    category: 'tms',
+    icon: '💿',
+    badge: 'TM 03 · BACKEND',
+    title: 'TM 03: Laravel 12 & Microservices',
+    subtitle: 'Event-Driven Architecture',
+    desc: 'Enterprise PHP/Laravel with PostGIS spatial data, Kafka streaming, Redis cache invalidation, and automated Pest unit tests.',
+    tags: ['Laravel 12', 'Kafka', 'PostGIS', 'Pest PHP'],
+    price: 0,
+    featured: 7,
+    iconBox: 'bg-red-100 border-red-300',
+    badgeClass: 'bg-red-600 border-red-800',
+    subtitleClass: 'text-red-700',
+    tmId: 'tm-03',
+    link: { href: '/dev', label: '🚀 Dev Center' },
+  },
+  {
+    id: 'tm-04',
+    category: 'tms',
+    icon: '💿',
+    badge: 'TM 04 · GPU / HPC',
+    title: 'TM 04: TensorRT & CUDA Engines',
+    subtitle: 'High-Throughput Inference',
+    desc: 'Low-level GPU acceleration, FP16 quantization calibration, multi-stream parallel inference, and memory bandwidth optimization.',
+    tags: ['NVIDIA TensorRT', 'CUDA 12', 'ONNX Runtime'],
+    price: 0,
+    featured: 8,
+    iconBox: 'bg-emerald-100 border-emerald-300',
+    badgeClass: 'bg-emerald-600 border-emerald-800',
+    subtitleClass: 'text-emerald-700',
+    tmId: 'tm-04',
+    link: { href: '/lab', label: '🔬 Model Specs' },
+  },
+  {
+    id: 'potion-espresso',
+    category: 'potions',
+    icon: '☕',
+    badge: 'POTION · FOCUS',
+    title: 'Bandung Specialty Espresso',
+    subtitle: 'Developer Caffeine Fuel',
+    desc: 'Single-origin West Java Arabica roast. Cures developer fatigue and grants a real +50% walking-speed boost to your trainer in the 2D mart for a short while.',
+    tags: ['+50% Speed', '+100% Focus', '0 Syntax Errors'],
+    price: 50,
+    featured: 9,
+    iconBox: 'bg-amber-100 border-amber-300',
+    badgeClass: 'bg-amber-800 border-amber-950',
+    subtitleClass: 'text-amber-900',
+    potion: 'coffee',
+  },
+  {
+    id: 'potion-ether',
+    category: 'potions',
+    icon: '🧪',
+    badge: 'POTION · REFACTOR',
+    title: 'Clean Architecture Max Ether',
+    subtitle: 'Technical Debt Cleanser',
+    desc: 'Purges spaghetti code, restores SOLID design principles, and increases automated test coverage metrics above 95%.',
+    tags: ['SOLID Principles', '95% Test Coverage'],
+    price: 100,
+    featured: 10,
+    iconBox: 'bg-teal-100 border-teal-300',
+    badgeClass: 'bg-teal-700 border-teal-900',
+    subtitleClass: 'text-teal-800',
+    potion: 'ether',
+  },
+  {
+    id: 'key-cv',
+    category: 'key',
+    icon: '📄',
+    badge: 'KEY ITEM · RESUME',
+    title: "Zulfan's Official CV (PDF)",
+    subtitle: 'Curriculum Vitae Document',
+    desc: 'Complete professional curriculum vitae featuring technical projects, ITENAS lab assistant coordinator experience, honors, and verified contact links.',
+    tags: ['PDF Format', 'Verified 2026', 'Full Experience'],
+    price: null,
+    featured: 11,
+    iconBox: 'bg-blue-200 border-blue-400',
+    badgeClass: 'bg-blue-700 border-blue-900',
+    subtitleClass: 'text-blue-800',
+    cv: true,
+  },
+  {
+    id: 'key-degree',
+    category: 'key',
+    icon: '🎓',
+    badge: 'KEY ITEM · DEGREE',
+    title: 'Bachelor of Informatics',
+    subtitle: 'ITENAS Bandung (GPA 3.49)',
+    desc: 'Informatics Degree (S.Kom.), HCIA-Security Certified, IDEA FEST 3 Bronze Medalist, and 6-time computer science lab assistant.',
+    tags: ['GPA 3.49', 'HCIA-Security', 'Idea Fest Bronze'],
+    price: null,
+    featured: 12,
+    iconBox: 'bg-blue-200 border-blue-400',
+    badgeClass: 'bg-blue-700 border-blue-900',
+    subtitleClass: 'text-blue-800',
+    link: { href: '/dev', label: '🎖️ Track Record' },
+  },
+];
+
+const bundles = [
+  {
+    id: 'pack-vision',
+    icon: '🦅',
+    name: 'Edge Vision Starter Pack',
+    blurb: 'Detection model + training know-how + GPU inference tuning, end to end.',
+    items: ['srv-ai', 'tm-01', 'tm-04'],
+    accent: 'border-blue-400 bg-blue-50',
+  },
+  {
+    id: 'pack-fullstack',
+    icon: '🌐',
+    name: 'Full-Stack Launch Pack',
+    blurb: 'Cloud-native platform with a typed Astro frontend and event-driven Laravel backend.',
+    items: ['srv-web', 'tm-02', 'tm-03'],
+    accent: 'border-emerald-400 bg-emerald-50',
+  },
+  {
+    id: 'pack-secure',
+    icon: '🛡️',
+    name: 'Secure & Ship Pack',
+    blurb: 'Build the product, then harden it with an HCIA-certified architecture audit.',
+    items: ['srv-web', 'srv-advisory'],
+    accent: 'border-amber-400 bg-amber-50',
+  },
+  {
+    id: 'pack-robotics',
+    icon: '🤖',
+    name: 'Robotics Field Kit',
+    blurb: 'Embedded telemetry pipelines paired with on-device computer vision.',
+    items: ['srv-iot', 'srv-ai'],
+    accent: 'border-purple-400 bg-purple-50',
+  },
+];
+
+const stamps = [
+  { id: 'bag', icon: '🎒', label: 'Pack a brief' },
+  { id: 'tm', icon: '💿', label: 'Inspect a TM' },
+  { id: 'potion', icon: '☕', label: 'Drink a potion' },
+  { id: 'meowth', icon: '🪙', label: 'Chat with Meowth ×3' },
+  { id: 'cv', icon: '📄', label: 'Grab the CV' },
+  { id: 'brief', icon: '🧾', label: 'Checkout a brief' },
+];
+
+const categories: { id: 'all' | Category; label: string }[] = [
+  { id: 'all', label: '🌟 All' },
+  { id: 'services', label: '🎒 Services & Solutions' },
+  { id: 'tms', label: '💿 Technical TMs' },
+  { id: 'potions', label: '🧪 Dev Potions' },
+  { id: 'key', label: '🔑 Key Items & CV' },
+];
+const countFor = (id: 'all' | Category) => (id === 'all' ? items.length : items.filter((i) => i.category === id).length);
+
+const itemName = (id: string) => items.find((i) => i.id === id)?.title ?? id;
+
+const formatPrice = (item: MartItem) => {
+  if (item.price === null) return 'KEY ITEM';
+  if (item.price === 0) return 'FREE · OPEN';
+  return `₽ ${item.price.toLocaleString('en-US')}`;
+};
+
+const clientData = {
+  email: profile.person.email,
+  cvUrl,
+  items: items.map(({ id, category, title, price, unit }) => ({ id, category, title, price, unit: unit ?? null })),
+  bundles: bundles.map(({ id, name, items: ids }) => ({ id, name, items: ids })),
+  stamps: stamps.map(({ id, label }) => ({ id, label })),
+};
 ---
 
 <TownLayout place="mart" title="Poké Mart · Tech Services & Inventory — Muhammad Zulfan">
-  <div class="space-y-8">
-    <!-- Header Hero Banner -->
+  <script type="application/json" id="mart-data" set:html={JSON.stringify(clientData)} />
+
+  <div class="space-y-8" id="mart-root">
+    <!-- ═══════════════ Header Hero Banner ═══════════════ -->
     <header class="window p-4 md:p-5 bg-gradient-to-br from-cream via-paper to-cream border-2">
       <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b-2 border-ink/15 pb-4 mb-4">
         <div class="flex items-center gap-3">
-          <div class="w-12 h-12 rounded-xl bg-blue-500/10 border-2 border-blue-600 flex items-center justify-center text-2xl shadow-sm">
+          <div class="w-12 h-12 rounded-xl bg-blue-500/10 border-2 border-blue-600 flex items-center justify-center text-2xl shadow-sm" aria-hidden="true">
             🏪
           </div>
           <div>
             <div class="eyebrow text-blue-600 flex items-center gap-1.5 font-bold">
               <span>TOWN COMMERCIAL DISTRICT</span>
-              <span>•</span>
+              <span aria-hidden="true">•</span>
               <span>POKÉ MART STORE #01</span>
             </div>
             <h1 class="font-pixel text-base md:text-lg text-ink mt-0.5">
-              Poké Mart · Tech Services & Inventory
+              Poké Mart · Tech Services &amp; Inventory
             </h1>
           </div>
         </div>
         <div class="flex flex-wrap items-center gap-2">
+          <span id="pm-vip-badge" class="hidden chip bg-amber-300 text-amber-950 border-amber-600 font-mono text-[10px] font-bold">
+            ⭐ VIP TRAINER
+          </span>
           <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-100 border border-blue-400 text-blue-900 font-mono text-[10px] font-bold">
-            <span class="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
+            <span class="w-2 h-2 rounded-full bg-blue-600 animate-pulse" aria-hidden="true"></span>
             CLERK KEVIN ON DUTY
           </span>
           <button
             type="button"
             id="wallet-badge-btn"
             class="chip bg-amber-100 hover:bg-amber-200 text-amber-900 border-amber-400 font-mono text-xs px-2.5 py-1 font-bold cursor-pointer transition-colors"
-            title="Click to check wallet balance"
+            title="Open wallet ledger (G)"
+            aria-haspopup="dialog"
           >
             💰 ₽ 9,999
           </button>
         </div>
       </div>
 
-      <!-- Clerk Kevin & Meowth Dialogue Box -->
-      <div class="flex flex-col md:flex-row gap-4 items-start">
-        <div class="p-3.5 rounded-lg bg-paper border border-ink/20 flex-1 text-xs leading-relaxed text-ink-soft space-y-2.5">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-ink/10 pb-2">
-            <p class="font-medium text-ink flex items-center gap-1.5">
-              <span>👨‍💼</span>
-              <strong>Clerk Kevin:</strong>
-              <span class="text-[11px] font-mono text-blue-600 font-semibold">"Welcome to Zulfan's Poké Mart!"</span>
-            </p>
-            <div class="flex items-center gap-1.5">
-              <button
-                type="button"
-                class="btn btn-sm btn-paper text-[10px] font-pixel btn-inspect-2d"
-                data-prop="clerk"
-                title="Navigate character to Clerk Kevin on 2D canvas"
-              >
-                📍 Kevin
-              </button>
-              <button
-                type="button"
-                class="btn btn-sm btn-paper text-[10px] font-pixel text-amber-700 font-bold border-amber-400 btn-inspect-2d"
-                data-prop="meowth"
-                title="Navigate character to Meowth on 2D canvas"
-              >
-                🪙 Meowth
-              </button>
-            </div>
-          </div>
-          <p>
-            Looking to commission a high-speed Edge AI system? Need full-stack web engineering, custom IoT integrations, or want to pick up Zulfan's official credentials? Browse the catalog below, add items to your <strong>Project Inquiry Bag</strong>, or download Zulfan's official CV right from the Key Items shelf!
-          </p>
-          <!-- Meowth Mascot Voice Box & Easter Egg Deck -->
-          <div class="p-3 rounded-xl bg-gradient-to-r from-amber-50 via-cream to-amber-100/90 border-2 border-amber-400/80 text-amber-950 text-xs space-y-2 shadow-xs">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-              <div class="flex items-start gap-2.5">
-                <span class="text-2xl p-1 bg-amber-200 rounded-lg border border-amber-400 shadow-inner shrink-0">🪙</span>
-                <div>
-                  <div class="flex items-center gap-2 flex-wrap">
-                    <span class="chip bg-amber-800 text-paper border-amber-950 font-mono text-[9px] px-1.5 py-0.2 font-bold uppercase">
-                      CASHIER MASCOT
-                    </span>
-                    <strong class="font-pixel text-[11px] text-amber-900">Meowth's Recruiter Intel</strong>
-                    <span id="meowth-pat-counter" class="chip bg-amber-200 text-amber-900 font-mono text-[9px] px-1.5 py-0.2 border border-amber-400 font-bold hidden">
-                      🪙 Luck x1
-                    </span>
-                  </div>
-                  <p id="meowth-speech-bubble" class="font-sans text-xs italic text-amber-900 mt-1 transition-all">
-                    "That's right! Zulfan's edge AI vision pipelines run at 120 FPS on Jetson hardware without breaking a sweat!"
-                  </p>
-                </div>
-              </div>
+      <!-- Live store stats strip -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-2 mb-4" aria-label="Your Poké Mart session">
+        <button type="button" class="pm-stat" data-jump="inquiry-bag-section" title="Jump to Project Inquiry Bag (Q)">
+          <span class="pm-stat__label">🎒 Inquiry Bag</span>
+          <span class="pm-stat__value" id="stat-bag-count">0 items</span>
+          <span class="pm-stat__sub" id="stat-bag-total">Open discussion</span>
+        </button>
+        <button type="button" class="pm-stat" data-open-wallet title="Open wallet ledger (G)">
+          <span class="pm-stat__label">💰 Wallet</span>
+          <span class="pm-stat__value" id="stat-wallet">₽ 9,999</span>
+          <span class="pm-stat__sub">Spend on potions</span>
+        </button>
+        <button type="button" class="pm-stat" data-jump="pm-stamp-card" title="Jump to Mart Stamp Card">
+          <span class="pm-stat__label">🎫 Stamp Card</span>
+          <span class="pm-stat__value" id="stat-stamps">0 / 6</span>
+          <span class="pm-stat__sub" id="stat-stamps-sub">Collect all for VIP</span>
+        </button>
+        <div class="pm-stat" role="status">
+          <span class="pm-stat__label">⚡ Active Buff</span>
+          <span class="pm-stat__value" id="stat-buff">None</span>
+          <span class="pm-stat__sub" id="stat-buff-sub">Drink a potion</span>
+        </div>
+      </div>
 
-              <div class="flex items-center gap-1.5 shrink-0">
-                <button
-                  type="button"
-                  id="btn-meowth-quote"
-                  class="btn btn-sm btn-paper text-[10px] font-pixel text-amber-900 border-amber-400 shadow-sm hover:scale-[1.02] active:scale-95 transition-all"
-                  title="Ask Meowth for another tip or recruiter quote"
-                >
-                  💬 Another Quote
-                </button>
-                <button
-                  type="button"
-                  id="btn-toss-coin-2d"
-                  class="btn btn-sm btn-gold text-[10px] font-pixel shrink-0 shadow-sm hover:scale-[1.02] active:scale-95 transition-all"
-                  title="Trigger Cash Register Cha-Ching Animation on 2D Canvas"
-                >
-                  Pay Day FX ✨
-                </button>
+      <!-- Daily deal banner (filled client-side so the date is always current) -->
+      <div id="pm-deal-banner" class="hidden mb-4 p-3 rounded-xl border-2 border-dashed border-ball/70 bg-red-50 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+        <div class="flex items-start gap-2.5">
+          <span class="text-2xl" aria-hidden="true">🏷️</span>
+          <div>
+            <div class="font-pixel text-[10px] text-ball uppercase tracking-wide">Meowth's Daily Deal · <span id="pm-deal-date"></span></div>
+            <p class="text-xs text-ink mt-0.5">
+              <strong id="pm-deal-name">—</strong> is <strong class="text-ball">15% off</strong> today. Discount is applied automatically in your Inquiry Bag.
+            </p>
+          </div>
+        </div>
+        <button type="button" id="pm-deal-claim" class="btn btn-sm btn-primary text-[10px] font-pixel shrink-0">
+          🏷️ Claim Deal
+        </button>
+      </div>
+
+      <!-- Clerk Kevin & Meowth Dialogue Box -->
+      <div class="p-3.5 rounded-lg bg-paper border border-ink/20 text-xs leading-relaxed text-ink-soft space-y-2.5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-ink/10 pb-2">
+          <p class="font-medium text-ink flex items-center gap-1.5">
+            <span aria-hidden="true">👨‍💼</span>
+            <strong>Clerk Kevin:</strong>
+            <span class="text-[11px] font-mono text-blue-600 font-semibold">"Welcome to Zulfan's Poké Mart!"</span>
+          </p>
+          <div class="flex items-center gap-1.5">
+            <button type="button" class="btn btn-sm btn-paper text-[10px] font-pixel btn-inspect-2d" data-prop="clerk" title="Walk to Clerk Kevin on the 2D canvas">
+              📍 Kevin
+            </button>
+            <button type="button" class="btn btn-sm btn-paper text-[10px] font-pixel text-amber-700 font-bold border-amber-400 btn-inspect-2d" data-prop="meowth" title="Walk to Meowth on the 2D canvas">
+              🪙 Meowth
+            </button>
+          </div>
+        </div>
+        <p>
+          Looking to commission a high-speed Edge AI system? Need full-stack web engineering, custom IoT integrations, or want to pick up Zulfan's official credentials? Browse the catalog, pack services into your <strong>Project Inquiry Bag</strong>, then <strong>check out</strong> at the counter to get a ready-to-send project brief.
+        </p>
+
+        <!-- Meowth Mascot Voice Box -->
+        <div class="p-3 rounded-xl bg-gradient-to-r from-amber-50 via-cream to-amber-100/90 border-2 border-amber-400/80 text-amber-950 text-xs shadow-xs">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+            <div class="flex items-start gap-2.5">
+              <span class="text-2xl p-1 bg-amber-200 rounded-lg border border-amber-400 shadow-inner shrink-0" aria-hidden="true">🪙</span>
+              <div>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="chip bg-amber-800 text-paper border-amber-950 font-mono text-[9px] px-1.5 font-bold uppercase">CASHIER MASCOT</span>
+                  <strong class="font-pixel text-[11px] text-amber-900">Meowth's Recruiter Intel</strong>
+                  <span id="meowth-pat-counter" class="chip bg-amber-200 text-amber-900 font-mono text-[9px] px-1.5 border border-amber-400 font-bold hidden">
+                    🪙 Luck x1
+                  </span>
+                </div>
+                <p id="meowth-speech-bubble" class="font-sans text-xs italic text-amber-900 mt-1 transition-opacity" aria-live="polite">
+                  "That's right! Zulfan's edge AI vision pipelines run at 120 FPS on Jetson hardware without breaking a sweat!"
+                </p>
               </div>
+            </div>
+            <div class="flex items-center gap-1.5 shrink-0">
+              <button type="button" id="btn-meowth-quote" class="btn btn-sm btn-paper text-[10px] font-pixel text-amber-900 border-amber-400 shadow-sm" title="Ask Meowth for another tip">
+                💬 Another Quote
+              </button>
+              <button type="button" id="btn-toss-coin-2d" class="btn btn-sm btn-gold text-[10px] font-pixel shrink-0 shadow-sm" title="Play the cash-register animation on the 2D canvas">
+                Pay Day FX ✨
+              </button>
             </div>
           </div>
         </div>
       </div>
     </header>
 
-    <!-- Interactive Mart Quick Action Bar -->
-    <nav class="window p-2.5 md:p-3 bg-slate-900/90 border-2 border-blue-500/50 flex flex-wrap items-center justify-between gap-2.5 shadow-md text-white" aria-label="Poké Mart Quick Actions">
+    <!-- ═══════════════ Quick Action Bar ═══════════════ -->
+    <nav class="window p-2.5 md:p-3 bg-slate-900/90 border-2 border-blue-500/50 flex flex-wrap items-center justify-between gap-2.5 shadow-md text-white" aria-label="Walk to a spot in the 2D mart">
       <div class="flex items-center gap-2 text-xs font-mono text-blue-300 font-bold">
-        <span class="text-base">🏪</span>
-        <span>QUICK ACTIONS:</span>
+        <span class="text-base" aria-hidden="true">🚶</span>
+        <span>WALK IN 2D MART:</span>
       </div>
       <div class="flex flex-wrap items-center gap-1.5" id="mart-quick-bar">
-        <button type="button" class="mart-quick-btn btn btn-sm btn-paper font-pixel text-[10px]" data-quick="clerk" title="Talk to Clerk Kevin at Cashier Counter">
-          👨‍💼 1. Clerk Kevin
-        </button>
-        <button type="button" class="mart-quick-btn btn btn-sm btn-paper font-pixel text-[10px] text-amber-700 font-bold border-amber-400" data-quick="meowth" title="Say hello to Meowth &amp; Amulet Coin">
-          🪙 2. Meowth
-        </button>
-        <button type="button" class="mart-quick-btn btn btn-sm btn-paper font-pixel text-[10px]" data-quick="services-shelf" title="Inspect Engineering Services Shelf">
-          🎒 3. Services
-        </button>
-        <button type="button" class="mart-quick-btn btn btn-sm btn-paper font-pixel text-[10px]" data-quick="tech-tms" title="Browse Technical TMs Shelf">
-          💿 4. Tech TMs
-        </button>
-        <button type="button" class="mart-quick-btn btn btn-sm btn-paper font-pixel text-[10px]" data-quick="potions-shelf" title="Check Dev Potions &amp; Caffeine Fuel">
-          🧪 5. Dev Potions
-        </button>
-        <button type="button" class="mart-quick-btn btn btn-sm btn-paper font-pixel text-[10px]" data-quick="key-showcase" title="Inspect Key Items &amp; Verified CV">
-          🔑 6. Key Items &amp; CV
-        </button>
-        <button type="button" class="mart-quick-btn btn btn-sm btn-paper font-pixel text-[10px]" data-quick="drink-cooler" title="Inspect Drink Cooler">
-          🥤 7. Drink Cooler
-        </button>
+        <button type="button" class="mart-quick-btn btn btn-sm btn-paper font-pixel text-[10px]" data-quick="clerk">👨‍💼 Clerk Kevin</button>
+        <button type="button" class="mart-quick-btn btn btn-sm btn-paper font-pixel text-[10px] text-amber-700 font-bold border-amber-400" data-quick="meowth">🪙 Meowth</button>
+        <button type="button" class="mart-quick-btn btn btn-sm btn-paper font-pixel text-[10px]" data-quick="services-shelf" data-tab="services">🎒 Services</button>
+        <button type="button" class="mart-quick-btn btn btn-sm btn-paper font-pixel text-[10px]" data-quick="tech-tms" data-tab="tms">💿 Tech TMs</button>
+        <button type="button" class="mart-quick-btn btn btn-sm btn-paper font-pixel text-[10px]" data-quick="potions-shelf" data-tab="potions">🧪 Potions</button>
+        <button type="button" class="mart-quick-btn btn btn-sm btn-paper font-pixel text-[10px]" data-quick="key-showcase" data-tab="key">🔑 Key Items</button>
+        <button type="button" class="mart-quick-btn btn btn-sm btn-paper font-pixel text-[10px]" data-quick="drink-cooler">🥤 Drink Cooler</button>
       </div>
     </nav>
 
-    <!-- Mart Hotkeys Quick Reference Bar -->
+    <!-- Hotkeys reference (chosen to avoid global town hotkeys B / M / P / X …) -->
     <div class="flex flex-wrap items-center justify-between gap-2 px-3.5 py-2 rounded-xl bg-paper border-2 border-ink/15 text-[10px] font-mono text-ink-soft shadow-xs">
       <div class="flex items-center gap-2">
-        <span class="text-sm">⌨️</span>
+        <span class="text-sm" aria-hidden="true">⌨️</span>
         <span class="font-bold uppercase tracking-wider text-ink font-pixel text-[10px]">Mart Hotkeys:</span>
       </div>
-      <div class="flex flex-wrap items-center gap-2 font-mono">
-        <span><kbd class="px-1.5 py-0.5 rounded bg-cream border border-ink/20 font-bold text-ink">[M]</kbd> Wallet Ledger</span>
-        <span class="text-ink/30">•</span>
-        <span><kbd class="px-1.5 py-0.5 rounded bg-cream border border-ink/20 font-bold text-ink">[T]</kbd> TM Disc Reader</span>
-        <span class="text-ink/30">•</span>
-        <span><kbd class="px-1.5 py-0.5 rounded bg-cream border border-ink/20 font-bold text-ink">[B]</kbd> Inquiry Bag</span>
-        <span class="text-ink/30">•</span>
-        <span><kbd class="px-1.5 py-0.5 rounded bg-cream border border-ink/20 font-bold text-ink">[P]</kbd> Pay Day 🪙</span>
-        <span class="text-ink/30">•</span>
-        <span><kbd class="px-1.5 py-0.5 rounded bg-cream border border-ink/20 font-bold text-ink">[Esc]</kbd> Close Modal</span>
+      <div class="flex flex-wrap items-center gap-2">
+        <span><kbd class="kbd">/</kbd> Search</span>
+        <span class="text-ink/30" aria-hidden="true">•</span>
+        <span><kbd class="kbd">G</kbd> Wallet</span>
+        <span class="text-ink/30" aria-hidden="true">•</span>
+        <span><kbd class="kbd">T</kbd> TM Reader</span>
+        <span class="text-ink/30" aria-hidden="true">•</span>
+        <span><kbd class="kbd">Q</kbd> Inquiry Bag</span>
+        <span class="text-ink/30" aria-hidden="true">•</span>
+        <span><kbd class="kbd">R</kbd> Checkout</span>
+        <span class="text-ink/30" aria-hidden="true">•</span>
+        <span><kbd class="kbd">Esc</kbd> Close</span>
       </div>
     </div>
 
-    <!-- Catalog Section with Category Filter Tabs -->
-    <section class="window p-4 md:p-5 bg-paper border-2 space-y-5" id="mart-catalog">
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b-2 border-ink/15 pb-4">
+    <!-- ═══════════════ Catalog ═══════════════ -->
+    <section class="window p-4 md:p-5 bg-paper border-2 space-y-4" id="mart-catalog" aria-labelledby="mart-catalog-title">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-b-2 border-ink/15 pb-4">
         <div>
-          <h2 class="font-pixel text-xs text-ink uppercase tracking-wide flex items-center gap-2">
-            <span>📦</span>
-            <span>Store Shelves & Technical Inventory</span>
+          <h2 id="mart-catalog-title" class="font-pixel text-xs text-ink uppercase tracking-wide flex items-center gap-2">
+            <span aria-hidden="true">📦</span>
+            <span>Store Shelves &amp; Technical Inventory</span>
           </h2>
           <p class="font-sans text-[11px] text-ink-soft mt-0.5">
-            Select a department to view available technical services, skill TMs, developer perks, and credentials.
+            Filter by department, search any tech, or sort by price. Click a tag to search for it.
           </p>
         </div>
 
-        <!-- Category Tabs -->
         <div class="flex flex-wrap gap-1.5" role="tablist" aria-label="Department categories">
-          <button
-            type="button"
-            class="mart-tab-btn btn btn-sm btn-paper font-pixel text-[10px] active"
-            data-mart-tab="all"
-          >
-            🌟 All (12)
-          </button>
-          <button
-            type="button"
-            class="mart-tab-btn btn btn-sm btn-paper font-pixel text-[10px]"
-            data-mart-tab="services"
-          >
-            🎒 Services & Solutions (4)
-          </button>
-          <button
-            type="button"
-            class="mart-tab-btn btn btn-sm btn-paper font-pixel text-[10px]"
-            data-mart-tab="tms"
-          >
-            💿 Technical TMs (4)
-          </button>
-          <button
-            type="button"
-            class="mart-tab-btn btn btn-sm btn-paper font-pixel text-[10px]"
-            data-mart-tab="potions"
-          >
-            🧪 Dev Potions (2)
-          </button>
-          <button
-            type="button"
-            class="mart-tab-btn btn btn-sm btn-paper font-pixel text-[10px]"
-            data-mart-tab="key"
-          >
-            🔑 Key Items & CV (2)
-          </button>
+          {categories.map((c, i) => (
+            <button
+              type="button"
+              role="tab"
+              aria-selected={i === 0 ? 'true' : 'false'}
+              aria-controls="mart-grid"
+              class={`mart-tab-btn btn btn-sm font-pixel text-[10px] ${i === 0 ? 'btn-ball active' : 'btn-paper'}`}
+              data-mart-tab={c.id}
+            >
+              {c.label} ({countFor(c.id)})
+            </button>
+          ))}
         </div>
       </div>
 
+      <!-- Search & sort toolbar -->
+      <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+        <label class="relative flex-1">
+          <span class="sr-only">Search the catalog</span>
+          <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-sm" aria-hidden="true">🔍</span>
+          <input
+            id="mart-search"
+            type="search"
+            autocomplete="off"
+            placeholder="Search services, TMs, tech (e.g. TensorRT, Laravel, MQTT)…  press /"
+            class="w-full pl-8 pr-3 py-2 rounded-lg border-2 border-ink/25 bg-cream/40 text-xs font-sans text-ink placeholder:text-ink-soft/60 focus:border-blue-500 focus:outline-none"
+          />
+        </label>
+        <div class="flex items-center gap-2">
+          <label for="mart-sort" class="font-mono text-[10px] text-ink-soft uppercase font-bold">Sort</label>
+          <select id="mart-sort" class="py-2 px-2 rounded-lg border-2 border-ink/25 bg-cream/40 text-xs font-sans text-ink focus:border-blue-500 focus:outline-none">
+            <option value="featured">Featured</option>
+            <option value="price-asc">Price: low → high</option>
+            <option value="price-desc">Price: high → low</option>
+            <option value="az">Name: A → Z</option>
+          </select>
+        </div>
+      </div>
+      <p class="font-mono text-[10px] text-ink-soft" id="mart-result-count" aria-live="polite">Showing 12 of 12 items</p>
+
       <!-- Item Cards Grid -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="mart-grid">
-        <!-- 1. Edge AI & Computer Vision -->
-        <article class="mart-card p-4 rounded-xl bg-cream/50 border-2 border-ink/20 flex flex-col justify-between hover:border-blue-500 transition-all shadow-sm" data-category="services">
-          <div>
-            <div class="flex items-start justify-between gap-2 mb-2">
-              <span class="text-2xl p-1.5 rounded-lg bg-blue-100 border border-blue-300">🦅</span>
-              <span class="chip bg-blue-600 text-paper border-blue-800 font-mono font-bold text-[10px] px-2 py-0.5 uppercase">
-                AI / ML SERVICE
-              </span>
+        {items.map((item) => (
+          <article
+            class={`mart-card pm-card relative p-4 rounded-xl border-2 flex flex-col justify-between transition-all ${item.category === 'key' ? 'bg-blue-50/80 border-blue-400 shadow-md' : 'bg-cream/50 border-ink/20 shadow-sm'}`}
+            data-category={item.category}
+            data-id={item.id}
+            data-title={item.title}
+            data-price={item.price === null ? '' : String(item.price)}
+            data-featured={String(item.featured)}
+            data-search={[item.title, item.subtitle, item.desc, item.badge, ...item.tags].join(' ').toLowerCase()}
+          >
+            <span class="pm-deal-ribbon hidden" aria-hidden="true">🏷️ −15% TODAY</span>
+            <div>
+              <div class="flex items-start justify-between gap-2 mb-2">
+                <span class={`text-2xl p-1.5 rounded-lg border ${item.iconBox}`} aria-hidden="true">{item.icon}</span>
+                <div class="flex flex-col items-end gap-1">
+                  <span class={`chip text-paper font-mono font-bold text-[10px] px-2 py-0.5 uppercase ${item.badgeClass}`}>{item.badge}</span>
+                  <span class="pm-inbag-chip hidden chip bg-emerald-100 text-emerald-800 border-emerald-500 font-mono text-[9px] font-bold">🎒 IN BRIEF</span>
+                </div>
+              </div>
+              <h3 class="font-pixel text-xs text-ink">{item.title}</h3>
+              <p class={`font-mono text-[11px] font-bold mb-2 ${item.subtitleClass}`}>{item.subtitle}</p>
+              <p class="text-xs text-ink-soft leading-relaxed mb-3">{item.desc}</p>
+              <div class="flex flex-wrap gap-1 mb-4">
+                {item.tags.map((tag) => (
+                  <button type="button" class="chip text-[10px] pm-tag hover:bg-gold/60 cursor-pointer" data-tag={tag} title={`Search for ${tag}`}>
+                    {tag}
+                  </button>
+                ))}
+              </div>
             </div>
-            <h3 class="font-pixel text-xs text-ink">Edge AI & Computer Vision</h3>
-            <p class="font-mono text-[11px] text-blue-700 font-bold mb-2">AeroScan YOLOv11 + TensorRT</p>
-            <p class="text-xs text-ink-soft leading-relaxed mb-3">
-              Ultra-fast object detection and tracking optimized for edge computing (~1.8 ms/frame). Custom dataset annotation, model pruning, and FP16/INT8 TensorRT engine build.
-            </p>
-            <div class="flex flex-wrap gap-1 mb-4">
-              <span class="chip text-[10px]">YOLOv11</span>
-              <span class="chip text-[10px]">TensorRT</span>
-              <span class="chip text-[10px]">PyTorch</span>
-              <span class="chip text-[10px]">OpenCV</span>
-              <span class="chip text-[10px]">CUDA</span>
-            </div>
-          </div>
-          <div class="pt-3 border-t border-ink/10 flex items-center justify-between gap-2">
-            <span class="font-pixel text-xs text-amber-700 font-bold">₽ 1,500 <span class="font-sans text-[10px] text-ink-soft font-normal">/ sprint</span></span>
-            <button
-              type="button"
-              class="btn btn-sm btn-ball add-to-bag-btn text-[10px] font-pixel"
-              data-item-id="srv-ai"
-              data-item-name="Edge AI & Computer Vision Service"
-              data-item-price="₽ 1,500"
-            >
-              ➕ Add to Brief
-            </button>
-          </div>
-        </article>
 
-        <!-- 2. Full-Stack Cloud Platform -->
-        <article class="mart-card p-4 rounded-xl bg-cream/50 border-2 border-ink/20 flex flex-col justify-between hover:border-blue-500 transition-all shadow-sm" data-category="services">
-          <div>
-            <div class="flex items-start justify-between gap-2 mb-2">
-              <span class="text-2xl p-1.5 rounded-lg bg-emerald-100 border border-emerald-300">🌐</span>
-              <span class="chip bg-emerald-600 text-paper border-emerald-800 font-mono font-bold text-[10px] px-2 py-0.5 uppercase">
-                FULL-STACK WEB
+            <div class={`pt-3 border-t flex items-center justify-between gap-2 ${item.category === 'key' ? 'border-blue-200' : 'border-ink/10'}`}>
+              <span class={`font-pixel text-xs font-bold ${item.price === 0 ? 'text-emerald-700' : item.price === null ? 'text-blue-900' : 'text-amber-700'}`}>
+                {formatPrice(item)}
+                {item.unit && <span class="font-sans text-[10px] text-ink-soft font-normal"> / {item.unit}</span>}
               </span>
-            </div>
-            <h3 class="font-pixel text-xs text-ink">Cloud-Native Web Systems</h3>
-            <p class="font-mono text-[11px] text-emerald-700 font-bold mb-2">FoodLink & Modern Web Apps</p>
-            <p class="text-xs text-ink-soft leading-relaxed mb-3">
-              Scalable web architectures with clean domain design, spatial PostGIS queries, real-time event streaming via Kafka & Redis, and automated containerized CI/CD.
-            </p>
-            <div class="flex flex-wrap gap-1 mb-4">
-              <span class="chip text-[10px]">Laravel 12</span>
-              <span class="chip text-[10px]">TypeScript</span>
-              <span class="chip text-[10px]">Astro</span>
-              <span class="chip text-[10px]">PostGIS</span>
-              <span class="chip text-[10px]">Redis</span>
-              <span class="chip text-[10px]">Kafka</span>
-            </div>
-          </div>
-          <div class="pt-3 border-t border-ink/10 flex items-center justify-between gap-2">
-            <span class="font-pixel text-xs text-amber-700 font-bold">₽ 1,200 <span class="font-sans text-[10px] text-ink-soft font-normal">/ sprint</span></span>
-            <button
-              type="button"
-              class="btn btn-sm btn-ball add-to-bag-btn text-[10px] font-pixel"
-              data-item-id="srv-web"
-              data-item-name="Cloud-Native Web Platform Service"
-              data-item-price="₽ 1,200"
-            >
-              ➕ Add to Brief
-            </button>
-          </div>
-        </article>
 
-        <!-- 3. IoT & Embedded Systems -->
-        <article class="mart-card p-4 rounded-xl bg-cream/50 border-2 border-ink/20 flex flex-col justify-between hover:border-blue-500 transition-all shadow-sm" data-category="services">
-          <div>
-            <div class="flex items-start justify-between gap-2 mb-2">
-              <span class="text-2xl p-1.5 rounded-lg bg-purple-100 border border-purple-300">🤖</span>
-              <span class="chip bg-purple-600 text-paper border-purple-800 font-mono font-bold text-[10px] px-2 py-0.5 uppercase">
-                EMBEDDED / IOT
-              </span>
-            </div>
-            <h3 class="font-pixel text-xs text-ink">IoT & Robotics Integration</h3>
-            <p class="font-mono text-[11px] text-purple-700 font-bold mb-2">ITENAS Robotics Coordinator</p>
-            <p class="text-xs text-ink-soft leading-relaxed mb-3">
-              Hardware microcontroller prototyping, sensor fusion, MQTT telemetry, ROS robotics control, and end-to-end device-to-dashboard communication pipelines.
-            </p>
-            <div class="flex flex-wrap gap-1 mb-4">
-              <span class="chip text-[10px]">ESP32</span>
-              <span class="chip text-[10px]">STM32</span>
-              <span class="chip text-[10px]">ROS</span>
-              <span class="chip text-[10px]">MQTT</span>
-              <span class="chip text-[10px]">C++ / MicroPython</span>
-            </div>
-          </div>
-          <div class="pt-3 border-t border-ink/10 flex items-center justify-between gap-2">
-            <span class="font-pixel text-xs text-amber-700 font-bold">₽ 1,000 <span class="font-sans text-[10px] text-ink-soft font-normal">/ project</span></span>
-            <button
-              type="button"
-              class="btn btn-sm btn-ball add-to-bag-btn text-[10px] font-pixel"
-              data-item-id="srv-iot"
-              data-item-name="IoT & Robotics Integration Service"
-              data-item-price="₽ 1,000"
-            >
-              ➕ Add to Brief
-            </button>
-          </div>
-        </article>
+              <div class="flex items-center gap-1.5 flex-wrap justify-end">
+                {item.category === 'services' && (
+                  <button type="button" class="btn btn-sm btn-ball pm-bag-toggle text-[10px] font-pixel" data-item-id={item.id} aria-pressed="false">
+                    ➕ Add to Brief
+                  </button>
+                )}
 
-        <!-- 4. Architecture Advisory & Code Review -->
-        <article class="mart-card p-4 rounded-xl bg-cream/50 border-2 border-ink/20 flex flex-col justify-between hover:border-blue-500 transition-all shadow-sm" data-category="services">
-          <div>
-            <div class="flex items-start justify-between gap-2 mb-2">
-              <span class="text-2xl p-1.5 rounded-lg bg-amber-100 border border-amber-300">🧠</span>
-              <span class="chip bg-amber-600 text-paper border-amber-800 font-mono font-bold text-[10px] px-2 py-0.5 uppercase">
-                ADVISORY & AUDIT
-              </span>
-            </div>
-            <h3 class="font-pixel text-xs text-ink">System Architecture Advisory</h3>
-            <p class="font-mono text-[11px] text-amber-800 font-bold mb-2">Code Review & Security Audit</p>
-            <p class="text-xs text-ink-soft leading-relaxed mb-3">
-              Comprehensive architectural audits, database indexing optimization, HCIA-certified network security review, Docker orchestration, and performance tuning.
-            </p>
-            <div class="flex flex-wrap gap-1 mb-4">
-              <span class="chip text-[10px]">Docker</span>
-              <span class="chip text-[10px]">HCIA-Security</span>
-              <span class="chip text-[10px]">MySQL</span>
-              <span class="chip text-[10px]">PostgreSQL</span>
-              <span class="chip text-[10px]">Linux</span>
-            </div>
-          </div>
-          <div class="pt-3 border-t border-ink/10 flex items-center justify-between gap-2">
-            <span class="font-pixel text-xs text-amber-700 font-bold">₽ 800 <span class="font-sans text-[10px] text-ink-soft font-normal">/ session</span></span>
-            <button
-              type="button"
-              class="btn btn-sm btn-ball add-to-bag-btn text-[10px] font-pixel"
-              data-item-id="srv-advisory"
-              data-item-name="System Architecture & Security Audit"
-              data-item-price="₽ 800"
-            >
-              ➕ Add to Brief
-            </button>
-          </div>
-        </article>
+                {item.category === 'tms' && (
+                  <>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-paper text-[10px] font-pixel text-blue-700 border-blue-400 inspect-tm-btn"
+                      data-tm-id={item.tmId}
+                      title={`Inspect ${item.badge.split(' ·')[0]} in the optical reader`}
+                    >
+                      💿 Inspect
+                    </button>
+                    <button type="button" class="btn btn-sm btn-paper pm-bag-toggle text-[10px] font-pixel" data-item-id={item.id} aria-pressed="false" title="Add this TM to your brief">
+                      ➕ Brief
+                    </button>
+                    {item.link && (
+                      <a
+                        href={item.link.href}
+                        class="btn btn-sm btn-paper text-[10px] font-pixel"
+                        {...(item.link.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                      >
+                        {item.link.label}
+                      </a>
+                    )}
+                  </>
+                )}
 
-        <!-- 5. TM 01: PyTorch & Deep Learning -->
-        <article class="mart-card p-4 rounded-xl bg-cream/50 border-2 border-ink/20 flex flex-col justify-between hover:border-blue-500 transition-all shadow-sm" data-category="tms">
-          <div>
-            <div class="flex items-start justify-between gap-2 mb-2">
-              <span class="text-2xl p-1.5 rounded-lg bg-orange-100 border border-orange-300">💿</span>
-              <span class="chip bg-orange-600 text-paper border-orange-800 font-mono font-bold text-[10px] px-2 py-0.5 uppercase">
-                TM 01 · ML
-              </span>
-            </div>
-            <h3 class="font-pixel text-xs text-ink">TM 01: PyTorch & Deep Learning</h3>
-            <p class="font-mono text-[11px] text-orange-700 font-bold mb-2">Model Architecture & Training</p>
-            <p class="text-xs text-ink-soft leading-relaxed mb-3">
-              Deep convolutional neural networks, vision transformers, transfer learning workflows, and data augmentation pipelines.
-            </p>
-            <div class="flex flex-wrap gap-1 mb-4">
-              <span class="chip text-[10px]">PyTorch</span>
-              <span class="chip text-[10px]">Torchvision</span>
-              <span class="chip text-[10px]">Weights & Biases</span>
-            </div>
-          </div>
-          <div class="pt-3 border-t border-ink/10 flex items-center justify-between gap-2">
-            <span class="font-pixel text-xs text-emerald-700 font-bold">FREE · OPEN</span>
-            <div class="flex items-center gap-1.5">
-              <button
-                type="button"
-                class="btn btn-sm btn-paper text-[10px] font-pixel text-blue-700 border-blue-400 inspect-tm-btn flex items-center gap-1 shadow-sm active:scale-95 transition-all"
-                data-tm-id="tm-01"
-                title="Inspect TM 01 Disc in Optical Reader"
-              >
-                <span>💿</span>
-                <span>Inspect Disc</span>
-              </button>
-              <a href="/lab" class="btn btn-sm btn-paper text-[10px] font-pixel">
-                🔬 Lab R&D
-              </a>
-            </div>
-          </div>
-        </article>
+                {item.potion && (
+                  <button
+                    type="button"
+                    id={item.potion === 'coffee' ? 'drink-coffee-btn' : 'drink-ether-btn'}
+                    class={`btn btn-sm font-pixel text-[10px] pm-potion-btn ${item.potion === 'coffee' ? 'btn-gold' : 'btn-paper'}`}
+                    data-potion={item.potion}
+                  >
+                    {item.potion === 'coffee' ? '☕ Drink Now' : '🧪 Use Ether'}
+                  </button>
+                )}
 
-        <!-- 6. TM 02: TypeScript & Modern Astro -->
-        <article class="mart-card p-4 rounded-xl bg-cream/50 border-2 border-ink/20 flex flex-col justify-between hover:border-blue-500 transition-all shadow-sm" data-category="tms">
-          <div>
-            <div class="flex items-start justify-between gap-2 mb-2">
-              <span class="text-2xl p-1.5 rounded-lg bg-cyan-100 border border-cyan-300">💿</span>
-              <span class="chip bg-cyan-600 text-paper border-cyan-800 font-mono font-bold text-[10px] px-2 py-0.5 uppercase">
-                TM 02 · FRONTEND
-              </span>
-            </div>
-            <h3 class="font-pixel text-xs text-ink">TM 02: TypeScript & Astro Islands</h3>
-            <p class="font-mono text-[11px] text-cyan-700 font-bold mb-2">Zero-JS Runtime & Canvas 2D</p>
-            <p class="text-xs text-ink-soft leading-relaxed mb-3">
-              Type-safe full-stack web development with component islands, HTML5 Canvas game engines, and pixel-perfect responsive layouts.
-            </p>
-            <div class="flex flex-wrap gap-1 mb-4">
-              <span class="chip text-[10px]">TypeScript 5</span>
-              <span class="chip text-[10px]">Astro 5</span>
-              <span class="chip text-[10px]">HTML5 Canvas</span>
-            </div>
-          </div>
-          <div class="pt-3 border-t border-ink/10 flex items-center justify-between gap-2">
-            <span class="font-pixel text-xs text-emerald-700 font-bold">FREE · OPEN</span>
-            <div class="flex items-center gap-1.5">
-              <button
-                type="button"
-                class="btn btn-sm btn-paper text-[10px] font-pixel text-blue-700 border-blue-400 inspect-tm-btn flex items-center gap-1 shadow-sm active:scale-95 transition-all"
-                data-tm-id="tm-02"
-                title="Inspect TM 02 Disc in Optical Reader"
-              >
-                <span>💿</span>
-                <span>Inspect Disc</span>
-              </button>
-              <a href={githubUrl} target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-paper text-[10px] font-pixel">
-                💻 GitHub
-              </a>
-            </div>
-          </div>
-        </article>
+                {item.cv && (
+                  <a
+                    href={cvUrl}
+                    download="CV_Muhammad_Zulfan.pdf"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="btn btn-sm btn-gold font-pixel text-[10px] flex items-center gap-1.5 shadow-sm pm-cv-link"
+                  >
+                    📥 Download CV
+                  </a>
+                )}
 
-        <!-- 7. TM 03: Laravel 12 & Event Streaming -->
-        <article class="mart-card p-4 rounded-xl bg-cream/50 border-2 border-ink/20 flex flex-col justify-between hover:border-blue-500 transition-all shadow-sm" data-category="tms">
-          <div>
-            <div class="flex items-start justify-between gap-2 mb-2">
-              <span class="text-2xl p-1.5 rounded-lg bg-red-100 border border-red-300">💿</span>
-              <span class="chip bg-red-600 text-paper border-red-800 font-mono font-bold text-[10px] px-2 py-0.5 uppercase">
-                TM 03 · BACKEND
-              </span>
+                {item.category === 'key' && item.link && (
+                  <a href={item.link.href} class="btn btn-sm btn-paper font-pixel text-[10px]">{item.link.label}</a>
+                )}
+              </div>
             </div>
-            <h3 class="font-pixel text-xs text-ink">TM 03: Laravel 12 & Microservices</h3>
-            <p class="font-mono text-[11px] text-red-700 font-bold mb-2">Event-Driven Architecture</p>
-            <p class="text-xs text-ink-soft leading-relaxed mb-3">
-              Enterprise PHP/Laravel with PostGIS spatial data, Kafka streaming, Redis cache invalidation, and automated Pest unit tests.
-            </p>
-            <div class="flex flex-wrap gap-1 mb-4">
-              <span class="chip text-[10px]">Laravel 12</span>
-              <span class="chip text-[10px]">Kafka</span>
-              <span class="chip text-[10px]">PostGIS</span>
-              <span class="chip text-[10px]">Pest PHP</span>
-            </div>
-          </div>
-          <div class="pt-3 border-t border-ink/10 flex items-center justify-between gap-2">
-            <span class="font-pixel text-xs text-emerald-700 font-bold">FREE · OPEN</span>
-            <div class="flex items-center gap-1.5">
-              <button
-                type="button"
-                class="btn btn-sm btn-paper text-[10px] font-pixel text-blue-700 border-blue-400 inspect-tm-btn flex items-center gap-1 shadow-sm active:scale-95 transition-all"
-                data-tm-id="tm-03"
-                title="Inspect TM 03 Disc in Optical Reader"
-              >
-                <span>💿</span>
-                <span>Inspect Disc</span>
-              </button>
-              <a href="/dev" class="btn btn-sm btn-paper text-[10px] font-pixel">
-                🚀 Dev Center
-              </a>
-            </div>
-          </div>
-        </article>
+          </article>
+        ))}
+      </div>
 
-        <!-- 8. TM 04: TensorRT & CUDA High-Performance -->
-        <article class="mart-card p-4 rounded-xl bg-cream/50 border-2 border-ink/20 flex flex-col justify-between hover:border-blue-500 transition-all shadow-sm" data-category="tms">
-          <div>
-            <div class="flex items-start justify-between gap-2 mb-2">
-              <span class="text-2xl p-1.5 rounded-lg bg-emerald-100 border border-emerald-300">💿</span>
-              <span class="chip bg-emerald-600 text-paper border-emerald-800 font-mono font-bold text-[10px] px-2 py-0.5 uppercase">
-                TM 04 · GPU / HPC
-              </span>
-            </div>
-            <h3 class="font-pixel text-xs text-ink">TM 04: TensorRT & CUDA Engines</h3>
-            <p class="font-mono text-[11px] text-emerald-700 font-bold mb-2">High-Throughput Inference</p>
-            <p class="text-xs text-ink-soft leading-relaxed mb-3">
-              Low-level GPU acceleration, FP16 quantization calibration, multi-stream parallel inference, and memory bandwidth optimization.
-            </p>
-            <div class="flex flex-wrap gap-1 mb-4">
-              <span class="chip text-[10px]">NVIDIA TensorRT</span>
-              <span class="chip text-[10px]">CUDA 12</span>
-              <span class="chip text-[10px]">ONNX Runtime</span>
-            </div>
-          </div>
-          <div class="pt-3 border-t border-ink/10 flex items-center justify-between gap-2">
-            <span class="font-pixel text-xs text-emerald-700 font-bold">FREE · OPEN</span>
-            <div class="flex items-center gap-1.5">
-              <button
-                type="button"
-                class="btn btn-sm btn-paper text-[10px] font-pixel text-blue-700 border-blue-400 inspect-tm-btn flex items-center gap-1 shadow-sm active:scale-95 transition-all"
-                data-tm-id="tm-04"
-                title="Inspect TM 04 Disc in Optical Reader"
-              >
-                <span>💿</span>
-                <span>Inspect Disc</span>
-              </button>
-              <a href="/lab" class="btn btn-sm btn-paper text-[10px] font-pixel">
-                🔬 Model Specs
-              </a>
-            </div>
-          </div>
-        </article>
-
-        <!-- 9. Developer Potion: Bandung Espresso -->
-        <article class="mart-card p-4 rounded-xl bg-cream/50 border-2 border-ink/20 flex flex-col justify-between hover:border-blue-500 transition-all shadow-sm" data-category="potions">
-          <div>
-            <div class="flex items-start justify-between gap-2 mb-2">
-              <span class="text-2xl p-1.5 rounded-lg bg-amber-100 border border-amber-300">☕</span>
-              <span class="chip bg-amber-800 text-paper border-amber-950 font-mono font-bold text-[10px] px-2 py-0.5 uppercase">
-                POTION · FOCUS
-              </span>
-            </div>
-            <h3 class="font-pixel text-xs text-ink">Bandung Specialty Espresso</h3>
-            <p class="font-mono text-[11px] text-amber-900 font-bold mb-2">Developer Caffeine Fuel</p>
-            <p class="text-xs text-ink-soft leading-relaxed mb-3">
-              Single-origin West Java Arabica roast. Instantly cures developer fatigue, grants +100% bug elimination speed, and guarantees clean commits.
-            </p>
-            <div class="flex flex-wrap gap-1 mb-4">
-              <span class="chip text-[10px]">+100% Focus</span>
-              <span class="chip text-[10px]">0 Syntax Errors</span>
-            </div>
-          </div>
-          <div class="pt-3 border-t border-ink/10 flex items-center justify-between gap-2">
-            <span class="font-pixel text-xs text-amber-700 font-bold">₽ 50</span>
-            <button
-              type="button"
-              class="btn btn-sm btn-gold font-pixel text-[10px]"
-              id="drink-coffee-btn"
-            >
-              ☕ Drink Now
-            </button>
-          </div>
-        </article>
-
-        <!-- 10. Developer Potion: Clean Architecture Max Ether -->
-        <article class="mart-card p-4 rounded-xl bg-cream/50 border-2 border-ink/20 flex flex-col justify-between hover:border-blue-500 transition-all shadow-sm" data-category="potions">
-          <div>
-            <div class="flex items-start justify-between gap-2 mb-2">
-              <span class="text-2xl p-1.5 rounded-lg bg-teal-100 border border-teal-300">🧪</span>
-              <span class="chip bg-teal-700 text-paper border-teal-900 font-mono font-bold text-[10px] px-2 py-0.5 uppercase">
-                POTION · REFACTOR
-              </span>
-            </div>
-            <h3 class="font-pixel text-xs text-ink">Clean Architecture Max Ether</h3>
-            <p class="font-mono text-[11px] text-teal-800 font-bold mb-2">Technical Debt Cleanser</p>
-            <p class="text-xs text-ink-soft leading-relaxed mb-3">
-              Purges spaghetti code, restores SOLID design principles, and increases automated test coverage metrics above 95%.
-            </p>
-            <div class="flex flex-wrap gap-1 mb-4">
-              <span class="chip text-[10px]">SOLID Principles</span>
-              <span class="chip text-[10px]">95% Test Coverage</span>
-            </div>
-          </div>
-          <div class="pt-3 border-t border-ink/10 flex items-center justify-between gap-2">
-            <span class="font-pixel text-xs text-amber-700 font-bold">₽ 100</span>
-            <button
-              type="button"
-              class="btn btn-sm btn-paper font-pixel text-[10px]"
-              id="drink-ether-btn"
-            >
-              🧪 Use Ether
-            </button>
-          </div>
-        </article>
-
-        <!-- 11. Key Item: Official CV Download -->
-        <article class="mart-card p-4 rounded-xl bg-blue-50/80 border-2 border-blue-400 flex flex-col justify-between hover:border-blue-600 transition-all shadow-md" data-category="key">
-          <div>
-            <div class="flex items-start justify-between gap-2 mb-2">
-              <span class="text-2xl p-1.5 rounded-lg bg-blue-200 border border-blue-400">📄</span>
-              <span class="chip bg-blue-700 text-paper border-blue-900 font-mono font-bold text-[10px] px-2 py-0.5 uppercase">
-                KEY ITEM · RESUME
-              </span>
-            </div>
-            <h3 class="font-pixel text-xs text-ink">Zulfan's Official CV (PDF)</h3>
-            <p class="font-mono text-[11px] text-blue-800 font-bold mb-2">Curriculum Vitae Document</p>
-            <p class="text-xs text-ink-soft leading-relaxed mb-3">
-              Complete professional curriculum vitae featuring technical projects, ITENAS lab assistant coordinator experience, honors, and verified contact links.
-            </p>
-            <div class="flex flex-wrap gap-1 mb-4">
-              <span class="chip text-[10px]">PDF Format</span>
-              <span class="chip text-[10px]">Verified 2026</span>
-              <span class="chip text-[10px]">Full Experience</span>
-            </div>
-          </div>
-          <div class="pt-3 border-t border-blue-200 flex items-center justify-between gap-2">
-            <span class="font-pixel text-xs text-blue-900 font-bold">KEY ITEM</span>
-            <a
-              href={cvUrl}
-              download="CV_Muhammad_Zulfan.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="btn btn-sm btn-gold font-pixel text-[10px] flex items-center gap-1.5 shadow-sm"
-            >
-              <span>📥</span>
-              <span>Download CV (PDF)</span>
-            </a>
-          </div>
-        </article>
-
-        <!-- 12. Key Item: Academic Degree & Honors -->
-        <article class="mart-card p-4 rounded-xl bg-blue-50/80 border-2 border-blue-400 flex flex-col justify-between hover:border-blue-600 transition-all shadow-md" data-category="key">
-          <div>
-            <div class="flex items-start justify-between gap-2 mb-2">
-              <span class="text-2xl p-1.5 rounded-lg bg-blue-200 border border-blue-400">🎓</span>
-              <span class="chip bg-blue-700 text-paper border-blue-900 font-mono font-bold text-[10px] px-2 py-0.5 uppercase">
-                KEY ITEM · DEGREE
-              </span>
-            </div>
-            <h3 class="font-pixel text-xs text-ink">Bachelor of Informatics</h3>
-            <p class="font-mono text-[11px] text-blue-800 font-bold mb-2">ITENAS Bandung (GPA 3.49)</p>
-            <p class="text-xs text-ink-soft leading-relaxed mb-3">
-              Informatics Degree (S.Kom.), HCIA-Security Certified, IDEA FEST 3 Bronze Medalist, and 6-time computer science lab assistant.
-            </p>
-            <div class="flex flex-wrap gap-1 mb-4">
-              <span class="chip text-[10px]">GPA 3.49</span>
-              <span class="chip text-[10px]">HCIA-Security</span>
-              <span class="chip text-[10px]">Idea Fest Bronze</span>
-            </div>
-          </div>
-          <div class="pt-3 border-t border-blue-200 flex items-center justify-between gap-2">
-            <span class="font-pixel text-xs text-blue-900 font-bold">KEY ITEM</span>
-            <a href="/dev" class="btn btn-sm btn-paper font-pixel text-[10px]">
-              🎖️ Track Record
-            </a>
-          </div>
-        </article>
+      <div id="mart-empty" class="hidden text-center py-8 px-4 rounded-xl border-2 border-dashed border-ink/20 bg-cream/40">
+        <div class="text-3xl mb-2" aria-hidden="true">🪙</div>
+        <p class="font-pixel text-[11px] text-ink">Meowth searched every shelf… nothing matched.</p>
+        <p class="text-xs text-ink-soft mt-1">Try another keyword or reset the filters.</p>
+        <button type="button" id="mart-reset-filters" class="btn btn-sm btn-paper font-pixel text-[10px] mt-3">↺ Reset filters</button>
       </div>
     </section>
 
-    <!-- Interactive Project Inquiry Bag -->
+    <!-- ═══════════════ Bundles ═══════════════ -->
+    <section class="window p-4 md:p-5 bg-paper border-2 space-y-4" aria-labelledby="pm-bundles-title">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b-2 border-ink/15 pb-3">
+        <div>
+          <h2 id="pm-bundles-title" class="font-pixel text-xs text-ink uppercase tracking-wide flex items-center gap-2">
+            <span aria-hidden="true">🎁</span>
+            <span>Trainer Starter Packs</span>
+          </h2>
+          <p class="font-sans text-[11px] text-ink-soft mt-0.5">
+            One click packs a curated combo. Complete any pack in your bag to unlock <strong class="text-ball">10% bundle savings</strong> on its priced services.
+          </p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
+        {bundles.map((b) => (
+          <article class={`pm-bundle p-3.5 rounded-xl border-2 flex flex-col justify-between gap-3 ${b.accent}`} data-bundle-id={b.id}>
+            <div>
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-2xl" aria-hidden="true">{b.icon}</span>
+                <span class="pm-bundle-status chip font-mono text-[9px] font-bold bg-paper">0 / {b.items.length}</span>
+              </div>
+              <h3 class="font-pixel text-[11px] text-ink mt-1.5">{b.name}</h3>
+              <p class="text-[11px] text-ink-soft leading-relaxed mt-1">{b.blurb}</p>
+              <ul class="mt-2 space-y-0.5">
+                {b.items.map((id) => (
+                  <li class="text-[10px] font-mono text-ink flex items-center gap-1.5" data-bundle-item={id}>
+                    <span class="pm-bundle-check" aria-hidden="true">○</span>
+                    <span>{itemName(id)}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <button type="button" class="btn btn-sm btn-paper font-pixel text-[10px] pm-bundle-btn" data-bundle-id={b.id}>
+              🎁 Pack This Bundle
+            </button>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <!-- ═══════════════ Project Inquiry Bag ═══════════════ -->
     <section
       class="window p-4 md:p-5 bg-gradient-to-r from-blue-900 via-slate-900 to-blue-950 text-paper border-2 space-y-4 shadow-lg"
       id="inquiry-bag-section"
-      data-contact-email={profile.person.email}
+      aria-labelledby="pm-bag-title"
     >
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/20 pb-3">
         <div class="flex items-center gap-2.5">
-          <span class="text-2xl p-1.5 rounded-lg bg-blue-800/60 border border-blue-400">🎒</span>
+          <span class="text-2xl p-1.5 rounded-lg bg-blue-800/60 border border-blue-400" aria-hidden="true">🎒</span>
           <div>
             <div class="flex items-center gap-2">
-              <h2 class="font-pixel text-xs text-white uppercase tracking-wide">
-                Project Inquiry Bag
-              </h2>
-              <span class="chip bg-blue-500 text-white border-white/40 font-mono font-bold text-[9px] px-1.5 py-0.2">
-                SMART BRIEF
-              </span>
+              <h2 id="pm-bag-title" class="font-pixel text-xs text-white uppercase tracking-wide">Project Inquiry Bag</h2>
+              <span class="chip bg-blue-500 text-white border-white/40 font-mono font-bold text-[9px] px-1.5">SMART BRIEF</span>
             </div>
             <p class="font-sans text-[11px] text-blue-200">
-              Assemble the technical services and expertise you need, then copy your formatted brief or draft an inquiry
+              Pack services, adjust sprint counts, add your project details, then check out for a formatted brief.
             </p>
           </div>
         </div>
         <div class="flex items-center gap-2">
-          <span id="bag-count-badge" class="chip bg-blue-500 text-white border-white/40 font-mono font-bold text-xs px-2.5 py-1">
+          <span id="bag-count-badge" class="chip bg-blue-500 text-white border-white/40 font-mono font-bold text-xs px-2.5 py-1" aria-live="polite">
             0 Items Selected
           </span>
-          <button type="button" id="clear-bag-btn" class="btn btn-sm btn-paper text-[10px] font-pixel text-ink hidden">
-            Clear Bag
-          </button>
+          <button type="button" id="clear-bag-btn" class="btn btn-sm btn-paper text-[10px] font-pixel text-ink hidden">Clear Bag</button>
         </div>
       </div>
 
@@ -693,835 +711,1699 @@ const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
       <div class="p-3.5 rounded-xl bg-white/5 border border-white/10 space-y-2.5">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
           <span class="font-mono text-[10px] text-blue-300 uppercase font-bold flex items-center gap-1.5">
-            <span>🎯</span>
-            <span>Choose Engagement / Collaboration Model:</span>
+            <span aria-hidden="true">🎯</span>
+            <span>Engagement / Collaboration Model:</span>
           </span>
-          <span id="track-indicator" class="font-mono text-[10px] text-amber-300 font-semibold">
-            Track: Full-Time / Hybrid Role
-          </span>
+          <span id="track-indicator" class="font-mono text-[10px] text-amber-300 font-semibold">Track: Full-Time / Hybrid Role</span>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2" id="collab-track-selector">
-          <button
-            type="button"
-            class="collab-track-btn p-2.5 rounded-lg border-2 text-left transition-all cursor-pointer border-amber-400 bg-amber-500/20 text-white shadow-sm"
-            data-track="fulltime"
-          >
-            <div class="font-pixel text-[11px] flex items-center gap-1.5 text-amber-300">
-              <span>💼</span>
-              <span>Full-Time Role</span>
-            </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2" id="collab-track-selector" role="radiogroup" aria-label="Collaboration model">
+          <button type="button" role="radio" aria-checked="true" class="collab-track-btn pm-track" data-track="fulltime">
+            <div class="font-pixel text-[11px] flex items-center gap-1.5"><span aria-hidden="true">💼</span><span>Full-Time Role</span></div>
             <div class="font-sans text-[10px] text-blue-200 mt-0.5">Software / AI Engineer hire</div>
           </button>
-
-          <button
-            type="button"
-            class="collab-track-btn p-2.5 rounded-lg border text-left transition-all cursor-pointer border-white/15 bg-white/5 text-slate-300 hover:border-white/40"
-            data-track="sprint"
-          >
-            <div class="font-pixel text-[11px] flex items-center gap-1.5 text-white">
-              <span>🚀</span>
-              <span>Fixed MVP Sprint</span>
-            </div>
+          <button type="button" role="radio" aria-checked="false" class="collab-track-btn pm-track" data-track="sprint">
+            <div class="font-pixel text-[11px] flex items-center gap-1.5"><span aria-hidden="true">🚀</span><span>Fixed MVP Sprint</span></div>
             <div class="font-sans text-[10px] text-blue-200 mt-0.5">2–4 week scoped build</div>
           </button>
-
-          <button
-            type="button"
-            class="collab-track-btn p-2.5 rounded-lg border text-left transition-all cursor-pointer border-white/15 bg-white/5 text-slate-300 hover:border-white/40"
-            data-track="advisory"
-          >
-            <div class="font-pixel text-[11px] flex items-center gap-1.5 text-white">
-              <span>🛡️</span>
-              <span>Security &amp; Audit</span>
-            </div>
+          <button type="button" role="radio" aria-checked="false" class="collab-track-btn pm-track" data-track="advisory">
+            <div class="font-pixel text-[11px] flex items-center gap-1.5"><span aria-hidden="true">🛡️</span><span>Security &amp; Audit</span></div>
             <div class="font-sans text-[10px] text-blue-200 mt-0.5">HCIA Security &amp; code review</div>
           </button>
         </div>
       </div>
 
-      <!-- Bag Items List -->
-      <div id="bag-items-list" class="space-y-2 text-xs">
-        <p class="text-blue-300 italic py-2 text-center" id="empty-bag-message">
-          No services added yet. Click <strong>"➕ Add to Brief"</strong> on any item above to assemble your project inquiry.
-        </p>
-      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-5 gap-4">
+        <!-- Bag Items List -->
+        <div class="lg:col-span-3 space-y-2">
+          <div class="font-mono text-[10px] text-blue-300 uppercase font-bold">🧾 Selected items</div>
+          <div id="bag-items-list" class="space-y-2 text-xs"></div>
+          <p class="text-blue-300 italic py-4 text-center text-xs rounded-lg border border-dashed border-white/15" id="empty-bag-message">
+            No services added yet. Click <strong>"➕ Add to Brief"</strong> on any item or pack a Starter Pack.
+          </p>
 
-      <!-- Total & Action Toolbar -->
-      <div class="pt-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-white/10">
-        <div class="space-y-0.5">
-          <div class="text-[11px] text-blue-200 font-mono">
-            Estimated Sprint Budget: <strong id="bag-estimated-total" class="text-amber-300 font-bold text-xs">Free / Open Discussion</strong>
-          </div>
-          <div class="text-[10px] text-blue-300/80 font-sans">
-            Recipient: <strong class="text-white underline">{profile.person.email}</strong>
-          </div>
+          <!-- Totals -->
+          <dl class="mt-3 p-3 rounded-lg bg-black/25 border border-white/10 font-mono text-[11px] space-y-1">
+            <div class="flex justify-between text-blue-200"><dt>Subtotal</dt><dd id="bag-subtotal">₽ 0</dd></div>
+            <div class="flex justify-between text-rose-300 hidden" id="bag-deal-row"><dt>🏷️ Daily deal (−15%)</dt><dd id="bag-deal-amount">−₽ 0</dd></div>
+            <div class="flex justify-between text-emerald-300 hidden" id="bag-bundle-row"><dt id="bag-bundle-label">🎁 Bundle savings (−10%)</dt><dd id="bag-bundle-amount">−₽ 0</dd></div>
+            <div class="flex justify-between text-white font-bold border-t border-white/15 pt-1.5 mt-1.5">
+              <dt>Estimated scope budget</dt><dd id="bag-estimated-total" class="text-amber-300">Free / Open Discussion</dd>
+            </div>
+            <div class="flex justify-between text-blue-200"><dt>Estimated timeline</dt><dd id="bag-duration">—</dd></div>
+          </dl>
+          <p class="text-[10px] text-blue-300/80 font-sans">
+            ₽ values are playful in-game scope indicators — real rates and timelines are agreed per project.
+          </p>
         </div>
 
+        <!-- Project details form -->
+        <form id="pm-details-form" class="lg:col-span-2 p-3.5 rounded-xl bg-white/5 border border-white/10 space-y-2.5" autocomplete="on">
+          <div class="font-mono text-[10px] text-blue-300 uppercase font-bold">📝 Your project details (optional)</div>
+          <label class="block">
+            <span class="text-[10px] text-blue-200 font-mono">Your name</span>
+            <input name="name" type="text" maxlength="80" autocomplete="name" class="pm-input" placeholder="e.g. Ayu Lestari" />
+          </label>
+          <label class="block">
+            <span class="text-[10px] text-blue-200 font-mono">Company / team</span>
+            <input name="company" type="text" maxlength="80" autocomplete="organization" class="pm-input" placeholder="e.g. Silph Co. Engineering" />
+          </label>
+          <label class="block">
+            <span class="text-[10px] text-blue-200 font-mono">Preferred start</span>
+            <select name="timeline" class="pm-input">
+              <option value="Flexible">Flexible</option>
+              <option value="ASAP (within 2 weeks)">ASAP (within 2 weeks)</option>
+              <option value="Within 1 month">Within 1 month</option>
+              <option value="1–3 months">1–3 months</option>
+            </select>
+          </label>
+          <label class="block">
+            <span class="text-[10px] text-blue-200 font-mono">Short message</span>
+            <textarea name="message" rows="3" maxlength="600" class="pm-input resize-y" placeholder="What are you building? Any constraints, stack, or goals?"></textarea>
+          </label>
+          <p class="text-[10px] text-blue-300/70">Saved only in this browser tab — nothing is sent until you choose to email it.</p>
+        </form>
+      </div>
+
+      <!-- Action Toolbar -->
+      <div class="pt-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-white/10">
+        <div class="text-[10px] text-blue-300/80 font-sans">
+          Recipient: <strong class="text-white underline">{profile.person.email}</strong>
+        </div>
         <div class="flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            id="copy-brief-btn"
-            class="btn btn-sm btn-paper text-ink font-pixel text-xs flex items-center gap-1.5 shadow-sm active:scale-95 transition-all"
-            title="Copy project brief formatted in Markdown to clipboard"
-          >
-            <span>📋</span>
-            <span id="copy-brief-label">Copy Project Brief</span>
+          <button type="button" id="copy-brief-btn" class="btn btn-sm btn-paper text-ink font-pixel text-xs flex items-center gap-1.5 shadow-sm" title="Copy brief as Markdown">
+            <span aria-hidden="true">📋</span><span id="copy-brief-label">Copy Brief</span>
           </button>
-          <a
-            href={emailUrl}
-            id="send-inquiry-email-btn"
-            class="btn btn-sm btn-gold font-pixel text-xs flex items-center gap-1.5 shadow-md cursor-pointer hover:scale-[1.02] active:scale-95 transition-all"
-          >
-            <span>📨</span>
-            <span>Draft Inquiry Email</span>
+          <button type="button" id="download-brief-btn" class="btn btn-sm btn-paper text-ink font-pixel text-xs flex items-center gap-1.5 shadow-sm" title="Download brief as a .md file">
+            <span aria-hidden="true">💾</span><span>Download .md</span>
+          </button>
+          <button type="button" id="checkout-btn" class="btn btn-sm btn-gold font-pixel text-xs flex items-center gap-1.5 shadow-md" title="Check out at the counter (R)">
+            <span aria-hidden="true">🧾</span><span>Checkout at Counter</span>
+          </button>
+          <a href={emailUrl} id="send-inquiry-email-btn" class="btn btn-sm btn-primary font-pixel text-xs flex items-center gap-1.5 shadow-md">
+            <span aria-hidden="true">📨</span><span>Draft Email</span>
           </a>
         </div>
       </div>
     </section>
 
-    <!-- Clerk Kevin FAQ & Hiring Info -->
-    <section class="window p-4 md:p-5 bg-paper border-2 space-y-4">
-      <div class="flex items-center gap-2 border-b-2 border-ink/15 pb-3">
-        <span class="text-xl">💬</span>
-        <h2 class="font-pixel text-xs text-ink uppercase tracking-wide">
-          Clerk Kevin's Ordering & Hiring Guide
-        </h2>
-      </div>
+    <!-- ═══════════════ Stamp Card + FAQ ═══════════════ -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <section id="pm-stamp-card" class="window p-4 md:p-5 bg-gradient-to-br from-amber-50 to-cream border-2 space-y-3" aria-labelledby="pm-stamp-title">
+        <div class="flex items-center justify-between gap-2 border-b-2 border-ink/15 pb-2.5">
+          <h2 id="pm-stamp-title" class="font-pixel text-xs text-ink uppercase tracking-wide flex items-center gap-2">
+            <span aria-hidden="true">🎫</span><span>Mart Stamp Card</span>
+          </h2>
+          <span id="pm-stamp-count" class="chip font-mono text-[10px] font-bold bg-paper">0 / 6</span>
+        </div>
+        <p class="text-[11px] text-ink-soft">Explore the mart to collect stamps. Fill the card to become a <strong>VIP Trainer</strong> and receive a one-time ₽ 2,000 bonus from Meowth.</p>
+        <ul class="grid grid-cols-3 gap-2">
+          {stamps.map((s) => (
+            <li class="pm-stamp" data-stamp={s.id} title={s.label}>
+              <span class="pm-stamp__icon" aria-hidden="true">{s.icon}</span>
+              <span class="pm-stamp__label">{s.label}</span>
+            </li>
+          ))}
+        </ul>
+        <button type="button" id="pm-stamp-reset" class="text-[10px] font-mono text-ink-soft underline hover:text-ink">Reset stamp card</button>
+      </section>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-        <div class="p-3 rounded-lg bg-cream/70 border border-ink/15">
-          <div class="font-bold text-ink mb-1 flex items-center gap-1.5">
-            <span>💼</span>
-            <span>What collaboration and hiring models are available?</span>
-          </div>
-          <p class="text-ink-soft leading-relaxed">
-            Zulfan is open to <strong>Full-Time Software Engineer / AI Developer</strong> roles, <strong>Project-Based Contracts</strong>, and <strong>Independent Technical Advisory</strong>—available both Remotely and Hybrid (Bandung/Jakarta).
-          </p>
+      <section class="window p-4 md:p-5 bg-paper border-2 space-y-3 lg:col-span-2" aria-labelledby="pm-faq-title">
+        <div class="flex items-center gap-2 border-b-2 border-ink/15 pb-2.5">
+          <span class="text-xl" aria-hidden="true">💬</span>
+          <h2 id="pm-faq-title" class="font-pixel text-xs text-ink uppercase tracking-wide">Clerk Kevin's Ordering &amp; Hiring Guide</h2>
         </div>
 
-        <div class="p-3 rounded-lg bg-cream/70 border border-ink/15">
-          <div class="font-bold text-ink mb-1 flex items-center gap-1.5">
-            <span>⏱️</span>
-            <span>What is the estimated project turnaround time?</span>
-          </div>
-          <p class="text-ink-soft leading-relaxed">
-            For Edge AI and Full-Stack Web MVPs/prototypes, timelines typically range between 2–4 weeks per sprint, accompanied by regular demos, comprehensive unit tests, and thorough documentation.
-          </p>
+        <div class="space-y-2 text-xs">
+          <details class="pm-faq" open>
+            <summary>💼 What collaboration and hiring models are available?</summary>
+            <p>
+              Zulfan is open to <strong>Full-Time Software Engineer / AI Developer</strong> roles, <strong>Project-Based Contracts</strong>, and <strong>Independent Technical Advisory</strong> — available both Remotely and Hybrid (Bandung/Jakarta).
+            </p>
+          </details>
+          <details class="pm-faq">
+            <summary>⏱️ What is the estimated project turnaround time?</summary>
+            <p>
+              For Edge AI and Full-Stack Web MVPs/prototypes, timelines typically range between 2–4 weeks per sprint, accompanied by regular demos, unit tests, and thorough documentation. The bag shows a rough timeline as you add sprints.
+            </p>
+          </details>
+          <details class="pm-faq">
+            <summary>🪙 Are the ₽ prices real?</summary>
+            <p>
+              No — Poké-Dollars are a playful way to compare the relative size of each engagement. Actual rates depend on scope and are discussed directly. Technical TMs and the CV are always free.
+            </p>
+          </details>
+          <details class="pm-faq">
+            <summary>📑 How can I download Zulfan's CV and portfolio?</summary>
+            <p>
+              Click <a href={cvUrl} download class="font-semibold text-blue-600 underline pm-cv-link">Download CV (PDF)</a> on the Key Items shelf, or explore his research track record in the <a href="/lab" class="font-semibold text-blue-600 underline">Research Lab</a>.
+            </p>
+          </details>
+          <details class="pm-faq">
+            <summary>⚡ What is the quickest way to reach Zulfan?</summary>
+            <p>
+              Check out your brief and send it to <a href={emailUrl} class="font-semibold text-blue-600 underline">{profile.person.email}</a>, or connect on <a href={linkedinUrl} target="_blank" rel="noopener noreferrer" class="font-semibold text-blue-600 underline">LinkedIn</a>.
+            </p>
+          </details>
         </div>
+      </section>
+    </div>
 
-        <div class="p-3 rounded-lg bg-cream/70 border border-ink/15">
-          <div class="font-bold text-ink mb-1 flex items-center gap-1.5">
-            <span>📑</span>
-            <span>How can I download Zulfan's CV and Portfolio?</span>
-          </div>
-          <p class="text-ink-soft leading-relaxed">
-            You can directly click <a href={cvUrl} download class="font-semibold text-blue-600 underline">Download CV (PDF)</a> on the Key Items shelf above, or explore his research track record in the <a href="/lab" class="font-semibold text-blue-600 underline">Research Lab</a>.
-          </p>
-        </div>
-
-        <div class="p-3 rounded-lg bg-cream/70 border border-ink/15">
-          <div class="font-bold text-ink mb-1 flex items-center gap-1.5">
-            <span>⚡</span>
-            <span>What is the quickest way to reach Zulfan?</span>
-          </div>
-          <p class="text-ink-soft leading-relaxed">
-            Send your project brief directly via email to <a href={emailUrl} class="font-semibold text-blue-600 underline">{profile.person.email}</a> or connect professionally on <a href={linkedinUrl} target="_blank" rel="noopener noreferrer" class="font-semibold text-blue-600 underline">LinkedIn</a>.
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <!-- Navigation WhereTo -->
     <WhereTo currentPath="/mart" />
   </div>
 
-  <!-- Interactive Live Poké-Dollar Wallet Modal -->
-  <dialog id="wallet-modal" class="backdrop:bg-slate-950/70 backdrop:backdrop-blur-sm">
+  <!-- ═══════════════ Wallet Modal ═══════════════ -->
+  <dialog id="wallet-modal" aria-labelledby="pm-wallet-title" class="backdrop:bg-slate-950/70 backdrop:backdrop-blur-sm">
     <div class="window p-0 overflow-hidden bg-slate-900 border-2 border-amber-400 shadow-2xl text-slate-100 max-w-md w-[92vw]">
-      <!-- Header -->
       <div class="bg-slate-950 px-4 py-3 border-b border-amber-400/40 flex items-center justify-between">
         <div class="flex items-center gap-2">
-          <span class="text-xl">💰</span>
+          <span class="text-xl" aria-hidden="true">💰</span>
           <div>
-            <span class="chip bg-amber-950 text-amber-300 border border-amber-600 font-mono text-[9px] px-1.5 py-0.2 font-bold uppercase">
-              POKÉ MART DIGITAL WALLET
-            </span>
-            <h3 class="font-pixel text-xs text-white mt-0.5">Trainer Poké-Dollar Ledger</h3>
+            <span class="chip bg-amber-950 text-amber-300 border border-amber-600 font-mono text-[9px] px-1.5 font-bold uppercase">POKÉ MART DIGITAL WALLET</span>
+            <h3 id="pm-wallet-title" class="font-pixel text-xs text-white mt-0.5">Trainer Poké-Dollar Ledger</h3>
           </div>
         </div>
-        <button
-          type="button"
-          id="btn-close-wallet-modal"
-          class="btn btn-sm bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-600 text-xs font-pixel px-2 py-0.5"
-        >
-          ✕
-        </button>
+        <button type="button" id="btn-close-wallet-modal" aria-label="Close wallet" class="btn btn-sm bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-600 text-xs font-pixel px-2 py-0.5">✕</button>
       </div>
 
-      <!-- Balance Display -->
-      <div class="p-5 text-center space-y-3 bg-gradient-to-b from-slate-900 to-slate-950">
-        <div class="font-mono text-xs text-slate-400 uppercase tracking-widest">Available Balance</div>
-        <div class="font-pixel text-3xl text-amber-400 tracking-wider flex items-center justify-center gap-2">
-          <span>₽</span>
-          <span id="wallet-modal-balance">9,999</span>
-        </div>
-        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-950 border border-emerald-500 text-emerald-300 font-mono text-[10px] font-bold">
-          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          100% SOLVENT · FREE TRIAL FUND
+      <div class="p-5 space-y-3 bg-gradient-to-b from-slate-900 to-slate-950">
+        <div class="text-center space-y-2">
+          <div class="font-mono text-xs text-slate-400 uppercase tracking-widest">Available Balance</div>
+          <div class="font-pixel text-3xl text-amber-400 tracking-wider flex items-center justify-center gap-2">
+            <span>₽</span><span id="wallet-modal-balance">9,999</span>
+          </div>
         </div>
 
-        <p class="font-sans text-xs text-slate-300 leading-relaxed max-w-sm mx-auto text-left bg-slate-950/80 p-3 rounded-lg border border-slate-800">
-          💡 <strong>Good to know:</strong> All of Muhammad Zulfan's Technical TMs and official CV downloads are <strong>100% free</strong>! You can spend your Poké-Dollars on developer potions or simulate MVP project sprint budgets.
+        <div>
+          <div class="font-mono text-[10px] text-slate-400 uppercase tracking-wider mb-1.5">Recent transactions</div>
+          <ul id="wallet-ledger" class="max-h-40 overflow-y-auto space-y-1 font-mono text-[11px]"></ul>
+        </div>
+
+        <p class="font-sans text-xs text-slate-300 leading-relaxed bg-slate-950/80 p-3 rounded-lg border border-slate-800">
+          💡 All Technical TMs and the official CV are <strong>100% free</strong>. Spend Poké-Dollars on developer potions — they only exist for fun.
         </p>
 
-        <!-- Pay Day Refill Action -->
-        <div class="pt-2 flex flex-col sm:flex-row items-center justify-center gap-2">
-          <button
-            type="button"
-            id="btn-meowth-payday"
-            class="btn btn-sm bg-amber-500 hover:bg-amber-400 text-slate-950 border border-amber-300 font-pixel text-xs px-4 py-2 flex items-center gap-2 font-bold w-full sm:w-auto justify-center shadow-md active:scale-95 transition-all"
-          >
-            <span>🪙</span>
-            <span>Meowth's Pay Day (+₽ 1,000)</span>
+        <div class="pt-1 flex flex-col sm:flex-row items-center justify-center gap-2">
+          <button type="button" id="btn-meowth-payday" class="btn btn-sm bg-amber-500 hover:bg-amber-400 text-slate-950 border border-amber-300 font-pixel text-xs px-4 py-2 flex items-center gap-2 font-bold w-full sm:w-auto justify-center shadow-md">
+            <span aria-hidden="true">🪙</span><span>Meowth's Pay Day (+₽ 1,000)</span>
           </button>
-          <button
-            type="button"
-            id="btn-reset-wallet"
-            class="btn btn-sm bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-600 font-mono text-xs px-3 py-2 w-full sm:w-auto"
-          >
+          <button type="button" id="btn-reset-wallet" class="btn btn-sm bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-600 font-mono text-xs px-3 py-2 w-full sm:w-auto">
             Reset to ₽ 9,999
           </button>
-        </div>
-
-        <div id="wallet-feedback-toast" class="hidden font-mono text-xs text-emerald-400 pt-1">
-          ✨ Pay Day triggered! Meowth showered the register with golden coins!
         </div>
       </div>
     </div>
   </dialog>
 
-  <!-- Interactive Optical TM Disc Reader Modal -->
+  <!-- ═══════════════ Checkout Receipt Modal ═══════════════ -->
+  <dialog id="receipt-modal" aria-labelledby="pm-receipt-title" class="backdrop:bg-slate-950/70 backdrop:backdrop-blur-sm">
+    <div class="pm-receipt-wrap max-w-md w-[92vw]">
+      <div class="pm-receipt">
+        <div class="text-center">
+          <div class="text-2xl" aria-hidden="true">🏪</div>
+          <h3 id="pm-receipt-title" class="font-pixel text-xs text-ink mt-1">POKÉ MART · STORE #01</h3>
+          <p class="font-mono text-[10px] text-ink-soft">Project Brief Receipt</p>
+        </div>
+        <pre id="receipt-body" class="pm-receipt__body"></pre>
+        <div class="pm-receipt__barcode" aria-hidden="true"></div>
+        <p class="text-center font-mono text-[10px] text-ink-soft">Thank you for shopping! — Kevin &amp; Meowth 🪙</p>
+      </div>
+      <div class="flex flex-wrap items-center justify-center gap-2 mt-3">
+        <button type="button" id="receipt-copy" class="btn btn-sm btn-paper font-pixel text-[10px]">📋 Copy</button>
+        <button type="button" id="receipt-download" class="btn btn-sm btn-paper font-pixel text-[10px]">💾 Download .md</button>
+        <a id="receipt-email" href={emailUrl} class="btn btn-sm btn-gold font-pixel text-[10px]">📨 Send by Email</a>
+        <button type="button" id="receipt-close" class="btn btn-sm btn-paper font-pixel text-[10px]">✕ Close</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Toast region -->
+  <div id="pm-toast-region" class="pm-toast-region" aria-live="polite" aria-atomic="false"></div>
+
   <TmReaderModal />
 </TownLayout>
 
 <script>
   import { sfx } from '../game/sfx';
 
-  function initMartPage() {
-    // 1. Category Filtering
-    const tabs = document.querySelectorAll<HTMLButtonElement>('.mart-tab-btn');
-    const cards = document.querySelectorAll<HTMLElement>('.mart-card');
+  type Category = 'services' | 'tms' | 'potions' | 'key';
+  type Unit = 'sprint' | 'project' | 'session' | null;
+  type CollabTrack = 'fulltime' | 'sprint' | 'advisory';
 
-    tabs.forEach((tab) => {
-      tab.addEventListener('click', () => {
-        tabs.forEach((t) => t.classList.remove('active', 'btn-ball'));
-        tab.classList.add('active', 'btn-ball');
+  interface CatalogItem {
+    id: string;
+    category: Category;
+    title: string;
+    price: number | null;
+    unit: Unit;
+  }
+  interface Bundle {
+    id: string;
+    name: string;
+    items: string[];
+  }
+  interface MartData {
+    email: string;
+    cvUrl: string;
+    items: CatalogItem[];
+    bundles: Bundle[];
+    stamps: { id: string; label: string }[];
+  }
+  interface BagItem {
+    id: string;
+    name: string;
+    price: number | null;
+    unit: Unit;
+    qty: number;
+  }
+  interface LedgerEntry {
+    t: number;
+    label: string;
+    delta: number;
+  }
 
-        const cat = tab.getAttribute('data-mart-tab');
-        sfx.select();
+  // ── Storage keys ──────────────────────────────────────────────
+  const BAG_KEY = 'mart_inquiry_bag_v2';
+  const LEGACY_BAG_KEY = 'mart_inquiry_bag';
+  const TRACK_KEY = 'mart_collab_track';
+  const DETAILS_KEY = 'mart_brief_details';
+  const WALLET_KEY = 'pokemart_wallet_balance';
+  const LEDGER_KEY = 'pokemart_wallet_ledger';
+  const STAMPS_KEY = 'pokemart_stamps';
+  const VIP_KEY = 'pokemart_vip_claimed';
+  const DEFAULT_BALANCE = 9999;
+  const MAX_QTY = 6;
+  const DEAL_RATE = 0.15;
+  const BUNDLE_RATE = 0.1;
 
-        cards.forEach((card) => {
-          if (cat === 'all' || card.getAttribute('data-category') === cat) {
-            card.style.display = '';
-          } else {
-            card.style.display = 'none';
-          }
-        });
-      });
-    });
+  const TRACK_LABELS: Record<CollabTrack, string> = {
+    fulltime: 'Full-Time Role',
+    sprint: 'Fixed MVP Sprint',
+    advisory: 'Security & Architecture Audit',
+  };
+  const TRACK_DESCRIPTIONS: Record<CollabTrack, string> = {
+    fulltime: 'Track: Full-Time / Hybrid Role (Software & AI Engineer)',
+    sprint: 'Track: Fixed MVP Sprint (2–4 Week Scoped Build)',
+    advisory: 'Track: Security & Architecture Audit (HCIA Security)',
+  };
+  /** Rough calendar weeks per unit — [min, max]. */
+  const UNIT_WEEKS: Record<Exclude<Unit, null>, [number, number]> = {
+    sprint: [2, 4],
+    project: [4, 8],
+    session: [0.5, 1],
+  };
 
-    // 2. Interactive Project Inquiry Bag & Collaboration Tracks
-    interface BagItem {
-      id: string;
-      name: string;
-      price: string;
-    }
+  const MEOWTH_QUOTES = [
+    "That's right! Zulfan's edge AI vision pipelines run at 120 FPS on Jetson hardware without breaking a sweat!",
+    'Recruiters who hire Zulfan get double sprint velocity and 100% clean git commits!',
+    'Looking for a verified full-stack engineer? Zulfan graduated from ITENAS with a 3.49 GPA and served as a lab assistant 6 times!',
+    'Psst! All Technical TMs and the official CV here are 100% free! Keep your Poké-Dollars for coffee!',
+    'IDEA FEST 3 Bronze Medalist and HCIA-Security Certified... this engineer is ready for high-impact production roles!',
+    'Complete a Starter Pack in your bag and I knock 10% off. Meowth is generous today… nya!',
+    "Kevin says: fill in your project details before checkout — Zulfan loves a clear brief!",
+  ];
 
-    type CollabTrack = 'fulltime' | 'sprint' | 'advisory';
-    let currentTrack: CollabTrack = 'fulltime';
-
-    const trackDescriptions: Record<CollabTrack, string> = {
-      fulltime: 'Track: Full-Time / Hybrid Role (Software & AI Engineer)',
-      sprint: 'Track: Fixed MVP Sprint (2–4 Week Scoped Build)',
-      advisory: 'Track: Security & Architecture Audit (HCIA Security)',
-    };
-
-    const trackLabels: Record<CollabTrack, string> = {
-      fulltime: 'Full-Time Role',
-      sprint: 'Fixed MVP Sprint',
-      advisory: 'Security & Architecture Audit',
-    };
-
-    let bag: BagItem[] = [];
-
-    // Load from session storage if any
+  // ── Small utilities ───────────────────────────────────────────
+  const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T | null;
+  const fmt = (n: number) => `₽ ${Math.round(n).toLocaleString('en-US')}`;
+  const escapeHtml = (s: string) =>
+    s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  const readJson = <T,>(storage: Storage, key: string, fallback: T): T => {
     try {
-      const stored = sessionStorage.getItem('mart_inquiry_bag');
-      if (stored) bag = JSON.parse(stored);
-      const savedTrack = sessionStorage.getItem('mart_collab_track') as CollabTrack | null;
-      if (savedTrack && (savedTrack === 'fulltime' || savedTrack === 'sprint' || savedTrack === 'advisory')) {
-        currentTrack = savedTrack;
-      }
-    } catch {}
+      const raw = storage.getItem(key);
+      return raw ? (JSON.parse(raw) as T) : fallback;
+    } catch {
+      return fallback;
+    }
+  };
+  const writeJson = (storage: Storage, key: string, value: unknown) => {
+    try {
+      storage.setItem(key, JSON.stringify(value));
+    } catch {
+      /* storage unavailable */
+    }
+  };
+  const cashFx = (text: string) => window.dispatchEvent(new CustomEvent('town:mart-cash-anim', { detail: { text } }));
+  const reduceMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const scrollToId = (id: string) =>
+    $(id)?.scrollIntoView({ behavior: reduceMotion() ? 'auto' : 'smooth', block: 'start' });
 
-    const bagSection = document.getElementById('inquiry-bag-section');
-    const contactEmail = bagSection?.getAttribute('data-contact-email') || 'zulfanangga2908@gmail.com';
-    const bagCountBadge = document.getElementById('bag-count-badge');
-    const bagList = document.getElementById('bag-items-list');
-    const clearBtn = document.getElementById('clear-bag-btn');
-    const emailBtn = document.getElementById('send-inquiry-email-btn') as HTMLAnchorElement | null;
-    const emptyMsg = document.getElementById('empty-bag-message');
-    const trackIndicator = document.getElementById('track-indicator');
-    const trackButtons = document.querySelectorAll<HTMLButtonElement>('.collab-track-btn');
-    const totalDisplay = document.getElementById('bag-estimated-total');
-    const copyBriefBtn = document.getElementById('copy-brief-btn');
-    const copyBriefLabel = document.getElementById('copy-brief-label');
+  function toast(message: string, tone: 'info' | 'success' | 'warn' = 'info', action?: { label: string; onClick: () => void }) {
+    const region = $('pm-toast-region');
+    if (!region) return;
+    const el = document.createElement('div');
+    el.className = `pm-toast pm-toast--${tone}`;
+    el.setAttribute('role', tone === 'warn' ? 'alert' : 'status');
+    const text = document.createElement('span');
+    text.textContent = message;
+    el.appendChild(text);
+    if (action) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'pm-toast__action';
+      btn.textContent = action.label;
+      btn.addEventListener('click', () => {
+        action.onClick();
+        el.remove();
+      });
+      el.appendChild(btn);
+    }
+    region.appendChild(el);
+    while (region.children.length > 3) region.firstElementChild?.remove();
+    window.setTimeout(() => {
+      el.classList.add('is-leaving');
+      window.setTimeout(() => el.remove(), 250);
+    }, 3200);
+  }
 
-    function computeBagTotal(): number {
-      return bag.reduce((sum, item) => {
-        const num = parseInt(item.price.replace(/[^0-9]/g, ''), 10);
-        return isNaN(num) ? sum : sum + num;
-      }, 0);
+  // Window-level listeners must only be registered once, even if init runs again.
+  let windowListenersBound = false;
+
+  function initMartPage() {
+    const root = $('mart-root');
+    const dataEl = $('mart-data');
+    if (!root || !dataEl || root.dataset.pmInit === '1') return;
+    root.dataset.pmInit = '1';
+
+    let data: MartData;
+    try {
+      data = JSON.parse(dataEl.textContent || '{}') as MartData;
+    } catch {
+      return;
+    }
+    const catalog = new Map(data.items.map((i) => [i.id, i]));
+
+    // ═════════ Daily deal (date-seeded, priced services only) ═════════
+    const dealPool = data.items.filter((i) => i.category === 'services' && (i.price ?? 0) > 0);
+    const dayIndex = Math.floor(Date.now() / 86_400_000);
+    const dealItem = dealPool.length ? dealPool[dayIndex % dealPool.length] : null;
+
+    if (dealItem) {
+      const banner = $('pm-deal-banner');
+      const nameEl = $('pm-deal-name');
+      const dateEl = $('pm-deal-date');
+      if (nameEl) nameEl.textContent = dealItem.title;
+      if (dateEl) dateEl.textContent = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+      banner?.classList.remove('hidden');
+      document.querySelector(`.mart-card[data-id="${dealItem.id}"] .pm-deal-ribbon`)?.classList.remove('hidden');
     }
 
-    function renderBag() {
-      if (!bagCountBadge || !bagList) return;
-
-      bagCountBadge.textContent = `${bag.length} ${bag.length === 1 ? 'Item' : 'Items'} Selected`;
-
-      const totalBudget = computeBagTotal();
-      if (totalDisplay) {
-        if (totalBudget > 0) {
-          totalDisplay.textContent = `₽ ${totalBudget.toLocaleString()} (Estimated)`;
-        } else {
-          totalDisplay.textContent = 'Free / Open Discussion';
-        }
-      }
-
-      if (bag.length === 0) {
-        if (emptyMsg) emptyMsg.style.display = '';
-        if (clearBtn) clearBtn.classList.add('hidden');
-        bagList.innerHTML = '';
-        if (emptyMsg) bagList.appendChild(emptyMsg);
-        if (emailBtn) {
-          const trackTitle = trackLabels[currentTrack];
-          const subject = `[${trackTitle}] Collaboration Inquiry — Muhammad Zulfan`;
-          const body = `Hi Muhammad Zulfan,%0D%0A%0D%0AI visited your Poké Mart catalog and would like to connect regarding a ${trackTitle}.%0D%0A%0D%0APlease let me know your availability for an introductory discussion.%0D%0A%0D%0ABest regards,`;
-          emailBtn.href = `mailto:${contactEmail}?subject=${encodeURIComponent(subject)}&body=${body}`;
-        }
-        return;
-      }
-
-      if (clearBtn) clearBtn.classList.remove('hidden');
-      if (emptyMsg) emptyMsg.style.display = 'none';
-      bagList.innerHTML = '';
-
-      bag.forEach((item, index) => {
-        const row = document.createElement('div');
-        row.className = 'flex items-center justify-between p-2.5 rounded-lg bg-white/10 border border-white/15 text-white transition-colors hover:bg-white/15';
-        row.innerHTML = `
-          <div class="flex items-center gap-2.5">
-            <span class="text-blue-300 font-mono font-bold text-xs">#${index + 1}</span>
-            <span class="font-medium text-xs text-white">${item.name}</span>
-            <span class="text-amber-300 font-mono text-[11px] font-bold">(${item.price})</span>
-          </div>
-          <button type="button" class="text-red-400 hover:text-red-300 px-2 py-0.5 rounded font-mono font-bold text-xs remove-item-btn transition-colors" data-index="${index}" title="Remove this item">
-            ✕ Remove
-          </button>
-        `;
-        bagList.appendChild(row);
-      });
-
-      // Bind remove buttons
-      bagList.querySelectorAll<HTMLButtonElement>('.remove-item-btn').forEach((btn) => {
-        btn.addEventListener('click', (e) => {
-          const idx = parseInt((e.currentTarget as HTMLElement).getAttribute('data-index') || '0', 10);
-          bag.splice(idx, 1);
-          saveAndRenderBag();
-          sfx.select();
-        });
-      });
-
-      // Update mailto link based on track & items
-      if (emailBtn) {
-        const trackTitle = trackLabels[currentTrack];
-        const subject = `[${trackTitle}] Muhammad Zulfan Portfolio Inquiry (${bag.length} items)`;
-        const itemsListText = bag.map((it, idx) => `  ${idx + 1}. ${it.name} (${it.price})`).join('%0D%0A');
-        const budgetText = totalBudget > 0 ? `₽ ${totalBudget.toLocaleString()}` : 'Free / Open Discussion';
-
-        const body = `Hi Muhammad Zulfan,%0D%0A%0D%0AI visited your Poké Mart catalog and assembled the following technical brief:%0D%0A%0D%0A• Collaboration Track: ${trackTitle}%0D%0A• Estimated Budget: ${budgetText}%0D%0A• Selected Technical Services & Items:%0D%0A${itemsListText}%0D%0A%0D%0ACould we schedule a call or discussion regarding timeline and scope?%0D%0A%0D%0ABest regards,`;
-
-        emailBtn.href = `mailto:${contactEmail}?subject=${encodeURIComponent(subject)}&body=${body}`;
-      }
-    }
-
-    function saveAndRenderBag() {
+    // ═════════ Bag state ═════════
+    let bag: BagItem[] = readJson<BagItem[]>(sessionStorage, BAG_KEY, []);
+    // Migrate the legacy bag format (duplicate rows + string prices) once.
+    if (!bag.length) {
+      const legacy = readJson<{ id: string; name: string; price: string }[]>(sessionStorage, LEGACY_BAG_KEY, []);
+      for (const old of legacy) addToBag(old.id, old.name, false);
       try {
-        sessionStorage.setItem('mart_inquiry_bag', JSON.stringify(bag));
-        sessionStorage.setItem('mart_collab_track', currentTrack);
-      } catch {}
+        sessionStorage.removeItem(LEGACY_BAG_KEY);
+      } catch {
+        /* ignore */
+      }
+    }
+    bag = bag.filter((b) => b && typeof b.id === 'string');
+
+    let currentTrack: CollabTrack = (() => {
+      try {
+        const t = sessionStorage.getItem(TRACK_KEY);
+        return t === 'sprint' || t === 'advisory' || t === 'fulltime' ? t : 'fulltime';
+      } catch {
+        return 'fulltime';
+      }
+    })();
+
+    function addToBag(id: string, fallbackName?: string, announce = true): boolean {
+      if (bag.some((b) => b.id === id)) return false;
+      const meta = catalog.get(id);
+      bag.push({
+        id,
+        name: meta?.title ?? fallbackName ?? id,
+        price: meta ? meta.price : 0,
+        unit: meta ? meta.unit : null,
+        qty: 1,
+      });
+      if (announce) {
+        sfx.select();
+        cashFx('CHA-CHING! +1 BRIEF');
+        stamp('bag');
+      }
+      return true;
+    }
+
+    function removeFromBag(id: string) {
+      bag = bag.filter((b) => b.id !== id);
+    }
+
+    function lineBase(b: BagItem) {
+      return (b.price ?? 0) * b.qty;
+    }
+
+    function computeTotals() {
+      const subtotal = bag.reduce((s, b) => s + lineBase(b), 0);
+      const dealLine = dealItem ? bag.find((b) => b.id === dealItem.id) : undefined;
+      const dealDiscount = dealLine ? lineBase(dealLine) * DEAL_RATE : 0;
+
+      const bagIds = new Set(bag.map((b) => b.id));
+      const completed = data.bundles.filter((bd) => bd.items.every((id) => bagIds.has(id)));
+      const discountedIds = new Set(completed.flatMap((bd) => bd.items));
+      let bundleDiscount = 0;
+      for (const b of bag) {
+        if (!discountedIds.has(b.id)) continue;
+        const afterDeal = lineBase(b) * (dealItem && b.id === dealItem.id ? 1 - DEAL_RATE : 1);
+        bundleDiscount += afterDeal * BUNDLE_RATE;
+      }
+
+      let minW = 0;
+      let maxW = 0;
+      for (const b of bag) {
+        if (!b.unit) continue;
+        const [lo, hi] = UNIT_WEEKS[b.unit];
+        minW += lo * b.qty;
+        maxW += hi * b.qty;
+      }
+
+      return {
+        subtotal,
+        dealDiscount,
+        bundleDiscount,
+        total: Math.max(0, subtotal - dealDiscount - bundleDiscount),
+        completed,
+        minW,
+        maxW,
+      };
+    }
+
+    function durationText(minW: number, maxW: number) {
+      if (maxW <= 0) return '—';
+      if (maxW < 1.5) return '≈ 1 week';
+      return `≈ ${Math.max(1, Math.round(minW))}–${Math.round(maxW)} weeks`;
+    }
+
+    // ═════════ Project details form ═════════
+    const form = $<HTMLFormElement>('pm-details-form');
+    const details: Record<string, string> = readJson(sessionStorage, DETAILS_KEY, {});
+    if (form) {
+      for (const [k, v] of Object.entries(details)) {
+        const field = form.elements.namedItem(k) as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | null;
+        if (field && typeof v === 'string') field.value = v;
+      }
+      form.addEventListener('input', () => {
+        const fd = new FormData(form);
+        for (const [k, v] of fd.entries()) details[k] = String(v).trim();
+        writeJson(sessionStorage, DETAILS_KEY, details);
+        updateEmailLink();
+      });
+      form.addEventListener('submit', (e) => e.preventDefault());
+    }
+
+    // ═════════ Brief generation ═════════
+    function briefLines(): { md: string; plain: string; subject: string } {
+      const t = computeTotals();
+      const track = TRACK_LABELS[currentTrack];
+      const budget = t.total > 0 ? `${fmt(t.total)} (estimated)` : 'Free / Open Discussion';
+      const who = [details.name, details.company].filter(Boolean).join(' · ');
+
+      const itemLines = bag.length
+        ? bag.map((b, i) => {
+            const price = b.price === null ? 'Key item' : b.price === 0 ? 'Free' : `${fmt(b.price)}${b.unit ? ` / ${b.unit}` : ''}`;
+            const qty = b.unit && b.qty > 1 ? ` × ${b.qty}` : '';
+            return `${i + 1}. ${b.name}${qty} — ${price}`;
+          })
+        : [`No specific items — general inquiry for a ${track}.`];
+
+      const md = [
+        '# Muhammad Zulfan — Project Inquiry & Engineering Brief',
+        '',
+        `**Collaboration track:** ${TRACK_DESCRIPTIONS[currentTrack].replace('Track: ', '')}`,
+        who ? `**From:** ${who}` : '',
+        `**Preferred start:** ${details.timeline || 'Flexible'}`,
+        `**Estimated scope budget:** ${budget}`,
+        `**Estimated timeline:** ${durationText(t.minW, t.maxW)}`,
+        t.completed.length ? `**Starter packs:** ${t.completed.map((c) => c.name).join(', ')}` : '',
+        '',
+        '## Selected services & items',
+        ...itemLines,
+        details.message ? `\n## Message\n${details.message}` : '',
+        '',
+        '---',
+        `_Generated at Poké Mart — Muhammad Zulfan's 2D portfolio · CV: ${location.origin}${data.cvUrl}_`,
+        '_₽ values are playful scope indicators; real rates are agreed per project._',
+      ]
+        .filter((l) => l !== '')
+        .join('\n');
+
+      const plain = [
+        'Hi Muhammad Zulfan,',
+        '',
+        `I visited your Poké Mart and assembled this brief for a ${track}:`,
+        '',
+        who ? `• From: ${who}` : '',
+        `• Preferred start: ${details.timeline || 'Flexible'}`,
+        `• Estimated scope budget: ${budget}`,
+        `• Estimated timeline: ${durationText(t.minW, t.maxW)}`,
+        '• Selected services & items:',
+        ...itemLines.map((l) => `   ${l}`),
+        details.message ? `\nMessage:\n${details.message}` : '',
+        '',
+        'Could we schedule a call to discuss scope and timeline?',
+        '',
+        'Best regards,',
+        details.name || '',
+      ]
+        .filter((l, i, arr) => !(l === '' && arr[i - 1] === ''))
+        .join('\n');
+
+      const subject = `[${track}] Portfolio Inquiry — Muhammad Zulfan${bag.length ? ` (${bag.length} item${bag.length > 1 ? 's' : ''})` : ''}`;
+      return { md, plain, subject };
+    }
+
+    function mailtoHref() {
+      const { plain, subject } = briefLines();
+      return `mailto:${data.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(plain)}`;
+    }
+
+    function updateEmailLink() {
+      const href = mailtoHref();
+      const a = $<HTMLAnchorElement>('send-inquiry-email-btn');
+      const b = $<HTMLAnchorElement>('receipt-email');
+      if (a) a.href = href;
+      if (b) b.href = href;
+    }
+
+    async function copyText(text: string): Promise<boolean> {
+      try {
+        await navigator.clipboard.writeText(text);
+        return true;
+      } catch {
+        // Fallback for insecure contexts / denied permissions
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        let ok = false;
+        try {
+          ok = document.execCommand('copy');
+        } catch {
+          ok = false;
+        }
+        ta.remove();
+        return ok;
+      }
+    }
+
+    function downloadBrief() {
+      const { md } = briefLines();
+      const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Zulfan_Project_Brief_${new Date().toISOString().slice(0, 10)}.md`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+      sfx.confirm();
+      stamp('brief');
+      toast('💾 Brief downloaded as Markdown.', 'success');
+    }
+
+    // ═════════ Rendering ═════════
+    function renderBag() {
+      const list = $('bag-items-list');
+      const empty = $('empty-bag-message');
+      const t = computeTotals();
+      const count = bag.length;
+
+      const badge = $('bag-count-badge');
+      if (badge) badge.textContent = `${count} ${count === 1 ? 'Item' : 'Items'} Selected`;
+      $('clear-bag-btn')?.classList.toggle('hidden', count === 0);
+      empty?.classList.toggle('hidden', count > 0);
+
+      if (list) {
+        list.innerHTML = bag
+          .map((b, i) => {
+            const isDeal = dealItem?.id === b.id;
+            const unitPrice = b.price === null ? 'KEY' : b.price === 0 ? 'FREE' : fmt(b.price);
+            const stepper = b.unit
+              ? `<div class="flex items-center gap-1" role="group" aria-label="Quantity for ${escapeHtml(b.name)}">
+                   <button type="button" class="pm-qty" data-qty="-1" data-id="${escapeHtml(b.id)}" aria-label="Decrease" ${b.qty <= 1 ? 'disabled' : ''}>−</button>
+                   <span class="font-mono text-[11px] w-12 text-center text-white">${b.qty} ${escapeHtml(b.unit)}${b.qty > 1 ? 's' : ''}</span>
+                   <button type="button" class="pm-qty" data-qty="1" data-id="${escapeHtml(b.id)}" aria-label="Increase" ${b.qty >= MAX_QTY ? 'disabled' : ''}>+</button>
+                 </div>`
+              : '';
+            return `
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2.5 rounded-lg bg-white/10 border border-white/15 text-white hover:bg-white/15 transition-colors">
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <span class="text-blue-300 font-mono font-bold text-xs">#${i + 1}</span>
+                  <span class="font-medium text-xs text-white truncate">${escapeHtml(b.name)}</span>
+                  <span class="text-amber-300 font-mono text-[11px] font-bold shrink-0">${unitPrice}</span>
+                  ${isDeal ? '<span class="chip bg-rose-500 text-white border-rose-300 font-mono text-[9px] font-bold shrink-0">−15%</span>' : ''}
+                </div>
+                <div class="flex items-center gap-2 justify-end">
+                  ${stepper}
+                  <button type="button" class="text-red-300 hover:text-red-200 px-2 py-0.5 rounded font-mono font-bold text-xs pm-remove" data-id="${escapeHtml(b.id)}" aria-label="Remove ${escapeHtml(b.name)}">✕</button>
+                </div>
+              </div>`;
+          })
+          .join('');
+      }
+
+      const set = (id: string, text: string) => {
+        const el = $(id);
+        if (el) el.textContent = text;
+      };
+      set('bag-subtotal', fmt(t.subtotal));
+      $('bag-deal-row')?.classList.toggle('hidden', t.dealDiscount <= 0);
+      set('bag-deal-amount', `−${fmt(t.dealDiscount)}`);
+      $('bag-bundle-row')?.classList.toggle('hidden', t.bundleDiscount <= 0);
+      set('bag-bundle-amount', `−${fmt(t.bundleDiscount)}`);
+      set('bag-bundle-label', `🎁 Bundle savings (−10% · ${t.completed.length} pack${t.completed.length === 1 ? '' : 's'})`);
+      set('bag-estimated-total', t.total > 0 ? `${fmt(t.total)} (est.)` : 'Free / Open Discussion');
+      set('bag-duration', durationText(t.minW, t.maxW));
+
+      // Hero stats
+      set('stat-bag-count', `${count} item${count === 1 ? '' : 's'}`);
+      set('stat-bag-total', t.total > 0 ? fmt(t.total) : 'Open discussion');
+
+      // Card states
+      const bagIds = new Set(bag.map((b) => b.id));
+      document.querySelectorAll<HTMLElement>('.mart-card').forEach((card) => {
+        const inBag = bagIds.has(card.dataset.id || '');
+        card.classList.toggle('pm-card--inbag', inBag);
+        card.querySelector('.pm-inbag-chip')?.classList.toggle('hidden', !inBag);
+      });
+      document.querySelectorAll<HTMLButtonElement>('.pm-bag-toggle').forEach((btn) => {
+        const id = btn.dataset.itemId || '';
+        const inBag = bagIds.has(id);
+        const isTm = catalog.get(id)?.category === 'tms';
+        btn.setAttribute('aria-pressed', String(inBag));
+        btn.textContent = inBag ? (isTm ? '✓ In Brief' : '✓ In Brief — Remove') : isTm ? '➕ Brief' : '➕ Add to Brief';
+        btn.classList.toggle('pm-btn-inbag', inBag);
+      });
+
+      // Bundles progress
+      document.querySelectorAll<HTMLElement>('.pm-bundle').forEach((el) => {
+        const bd = data.bundles.find((b) => b.id === el.dataset.bundleId);
+        if (!bd) return;
+        const have = bd.items.filter((id) => bagIds.has(id)).length;
+        const done = have === bd.items.length;
+        const status = el.querySelector('.pm-bundle-status');
+        if (status) status.textContent = done ? '✓ COMPLETE −10%' : `${have} / ${bd.items.length}`;
+        el.classList.toggle('pm-bundle--done', done);
+        el.querySelectorAll<HTMLElement>('[data-bundle-item]').forEach((li) => {
+          const check = li.querySelector('.pm-bundle-check');
+          if (check) check.textContent = bagIds.has(li.dataset.bundleItem || '') ? '●' : '○';
+        });
+        const btn = el.querySelector<HTMLButtonElement>('.pm-bundle-btn');
+        if (btn) {
+          btn.textContent = done ? '✓ Packed' : '🎁 Pack This Bundle';
+          btn.disabled = done;
+        }
+      });
+
+      updateEmailLink();
+    }
+
+    function saveAndRender() {
+      writeJson(sessionStorage, BAG_KEY, bag);
+      try {
+        sessionStorage.setItem(TRACK_KEY, currentTrack);
+      } catch {
+        /* ignore */
+      }
       renderBag();
     }
 
-    // Collaboration Track Switcher
+    // Bag list (event delegation)
+    $('bag-items-list')?.addEventListener('click', (e) => {
+      const target = (e.target as HTMLElement).closest<HTMLButtonElement>('button');
+      if (!target) return;
+      const id = target.dataset.id || '';
+      if (target.classList.contains('pm-remove')) {
+        removeFromBag(id);
+        sfx.select();
+        saveAndRender();
+      } else if (target.classList.contains('pm-qty')) {
+        const line = bag.find((b) => b.id === id);
+        if (!line) return;
+        line.qty = Math.min(MAX_QTY, Math.max(1, line.qty + Number(target.dataset.qty || 0)));
+        sfx.blip();
+        saveAndRender();
+      }
+    });
+
+    $('clear-bag-btn')?.addEventListener('click', () => {
+      if (!bag.length) return;
+      const snapshot = bag.slice();
+      bag = [];
+      sfx.select();
+      saveAndRender();
+      toast('🎒 Bag cleared.', 'info', {
+        label: 'Undo',
+        onClick: () => {
+          bag = snapshot;
+          saveAndRender();
+        },
+      });
+    });
+
+    // Add / remove toggles on cards
+    document.querySelectorAll<HTMLButtonElement>('.pm-bag-toggle').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const id = btn.dataset.itemId || '';
+        if (bag.some((b) => b.id === id)) {
+          removeFromBag(id);
+          sfx.select();
+          toast(`Removed ${catalog.get(id)?.title ?? 'item'} from your brief.`);
+        } else {
+          addToBag(id);
+          toast(`🎒 ${catalog.get(id)?.title ?? 'Item'} added to your brief.`, 'success', {
+            label: 'View bag',
+            onClick: () => scrollToId('inquiry-bag-section'),
+          });
+        }
+        saveAndRender();
+      });
+    });
+
+    // Bundles
+    document.querySelectorAll<HTMLButtonElement>('.pm-bundle-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const bd = data.bundles.find((b) => b.id === btn.dataset.bundleId);
+        if (!bd) return;
+        let added = 0;
+        for (const id of bd.items) if (addToBag(id, undefined, false)) added++;
+        sfx.cashRegister();
+        cashFx('STARTER PACK! −10%');
+        stamp('bag');
+        saveAndRender();
+        toast(`🎁 ${bd.name} packed (${added} new item${added === 1 ? '' : 's'}). Bundle savings unlocked!`, 'success', {
+          label: 'View bag',
+          onClick: () => scrollToId('inquiry-bag-section'),
+        });
+      });
+    });
+
+    // Daily deal claim
+    $('pm-deal-claim')?.addEventListener('click', () => {
+      if (!dealItem) return;
+      const added = addToBag(dealItem.id);
+      saveAndRender();
+      toast(added ? `🏷️ ${dealItem.title} added with today's 15% deal!` : `🏷️ ${dealItem.title} is already in your bag — deal applied.`, 'success');
+    });
+
+    // Collaboration track
+    const trackButtons = document.querySelectorAll<HTMLButtonElement>('.collab-track-btn');
     function setTrack(track: CollabTrack) {
       currentTrack = track;
-      if (trackIndicator) {
-        trackIndicator.textContent = trackDescriptions[track];
-      }
-
+      const ind = $('track-indicator');
+      if (ind) ind.textContent = TRACK_DESCRIPTIONS[track];
       trackButtons.forEach((btn) => {
-        const t = btn.getAttribute('data-track');
-        const headingDiv = btn.querySelector('.font-pixel');
-        if (t === track) {
-          btn.className = 'collab-track-btn p-2.5 rounded-lg border-2 text-left transition-all cursor-pointer border-amber-400 bg-amber-500/20 text-white shadow-sm';
-          if (headingDiv) headingDiv.className = 'font-pixel text-[11px] flex items-center gap-1.5 text-amber-300 font-bold';
-        } else {
-          btn.className = 'collab-track-btn p-2.5 rounded-lg border text-left transition-all cursor-pointer border-white/15 bg-white/5 text-slate-300 hover:border-white/40';
-          if (headingDiv) headingDiv.className = 'font-pixel text-[11px] flex items-center gap-1.5 text-white';
-        }
+        const active = btn.dataset.track === track;
+        btn.classList.toggle('is-active', active);
+        btn.setAttribute('aria-checked', String(active));
       });
-
-      saveAndRenderBag();
+      saveAndRender();
     }
-
-    trackButtons.forEach((btn) => {
+    trackButtons.forEach((btn) =>
       btn.addEventListener('click', () => {
-        const track = btn.getAttribute('data-track') as CollabTrack;
-        if (track && track !== currentTrack) {
+        const t = btn.dataset.track as CollabTrack;
+        if (t && t !== currentTrack) {
           sfx.select();
-          setTrack(track);
+          setTrack(t);
         }
-      });
-    });
+      })
+    );
 
-    // Copy Project Brief Button
-    copyBriefBtn?.addEventListener('click', async () => {
-      const trackTitle = trackDescriptions[currentTrack];
-      const totalBudget = computeBagTotal();
-      const budgetText = totalBudget > 0 ? `₽ ${totalBudget.toLocaleString()} (Estimated)` : 'Free / Open Discussion';
-
-      let briefText = `# Muhammad Zulfan — Project Inquiry & Engineering Brief\n\n`;
-      briefText += `**Collaboration Track:** ${trackTitle}\n`;
-      briefText += `**Recipient:** ${contactEmail}\n`;
-      briefText += `**Estimated Sprint Budget:** ${budgetText}\n\n`;
-      briefText += `### Selected Technical Services & Items:\n`;
-
-      if (bag.length === 0) {
-        briefText += `_No specific items selected — general collaboration inquiry for ${trackTitle}._\n`;
+    // Copy / download / checkout
+    $('copy-brief-btn')?.addEventListener('click', async () => {
+      const ok = await copyText(briefLines().md);
+      if (ok) {
+        sfx.confirm();
+        cashFx('BRIEF COPIED! 📋');
+        stamp('brief');
+        const label = $('copy-brief-label');
+        if (label) {
+          label.textContent = '✨ Copied!';
+          window.setTimeout(() => (label.textContent = 'Copy Brief'), 1800);
+        }
+        toast('📋 Brief copied as Markdown.', 'success');
       } else {
-        bag.forEach((it, idx) => {
-          briefText += `${idx + 1}. **${it.name}** — ${it.price}\n`;
-        });
-      }
-
-      briefText += `\n---\n*Generated from Poké Mart at Muhammad Zulfan's 2D Portfolio*\n*Profile & Official CV: /cv/CV_Zulfan.pdf | GPA 3.49 ITENAS*`;
-
-      try {
-        await navigator.clipboard.writeText(briefText);
-        sfx.confirm();
-        window.dispatchEvent(
-          new CustomEvent('town:mart-cash-anim', {
-            detail: { text: 'BRIEF COPIED! 📋' },
-          })
-        );
-        if (copyBriefLabel) {
-          const orig = copyBriefLabel.textContent;
-          copyBriefLabel.textContent = '✨ Brief Copied!';
-          copyBriefBtn.classList.add('bg-emerald-600', 'text-white');
-          setTimeout(() => {
-            copyBriefLabel.textContent = orig;
-            copyBriefBtn.classList.remove('bg-emerald-600', 'text-white');
-          }, 2000);
-        }
-      } catch (err) {
-        console.error('Clipboard copy failed:', err);
+        sfx.bump();
+        toast('Clipboard blocked — use “Download .md” instead.', 'warn');
       }
     });
+    $('download-brief-btn')?.addEventListener('click', downloadBrief);
+    $('send-inquiry-email-btn')?.addEventListener('click', () => stamp('brief'));
 
-    // Add buttons
-    document.querySelectorAll<HTMLButtonElement>('.add-to-bag-btn').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const id = btn.getAttribute('data-item-id') || '';
-        const name = btn.getAttribute('data-item-name') || '';
-        const price = btn.getAttribute('data-item-price') || '';
+    // ═════════ Receipt modal ═════════
+    const receiptModal = $<HTMLDialogElement>('receipt-modal');
 
-        bag.push({ id, name, price });
-        saveAndRenderBag();
-        sfx.select();
+    function openReceipt() {
+      if (!receiptModal) return;
+      const t = computeTotals();
+      const now = new Date();
+      const ymd = now.toISOString().slice(0, 10).replace(/-/g, '');
+      const order = `PM-${ymd}-${Math.random().toString(16).slice(2, 6).toUpperCase()}`;
+      const W = 34;
+      const row = (l: string, r: string) => {
+        const left = l.length + r.length + 1 > W ? `${l.slice(0, W - r.length - 2)}…` : l;
+        return `${left}${' '.repeat(Math.max(1, W - left.length - r.length))}${r}`;
+      };
+      const rule = '-'.repeat(W);
+      const who = [details.name, details.company].filter(Boolean).join(' · ');
 
-        // Trigger 2D Cash Register FX
-        window.dispatchEvent(
-          new CustomEvent('town:mart-cash-anim', {
-            detail: { text: `CHA-CHING! +1 BRIEF` },
-          })
-        );
+      const lines = [
+        row('ORDER', order),
+        row('DATE', now.toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' })),
+        row('TRACK', TRACK_LABELS[currentTrack]),
+        who ? row('FOR', who) : '',
+        rule,
+        ...(bag.length
+          ? bag.map((b) => {
+              const qty = b.unit && b.qty > 1 ? ` x${b.qty}` : '';
+              const price = b.price === null ? 'KEY' : b.price === 0 ? 'FREE' : fmt(lineBase(b));
+              return row(`${b.name}${qty}`, price);
+            })
+          : ['(general inquiry — no items)']),
+        rule,
+        row('SUBTOTAL', fmt(t.subtotal)),
+        t.dealDiscount > 0 ? row('DAILY DEAL -15%', `-${fmt(t.dealDiscount)}`) : '',
+        t.bundleDiscount > 0 ? row('BUNDLE -10%', `-${fmt(t.bundleDiscount)}`) : '',
+        row('EST. SCOPE', t.total > 0 ? fmt(t.total) : 'OPEN'),
+        row('EST. TIMELINE', durationText(t.minW, t.maxW)),
+        row('START', details.timeline || 'Flexible'),
+        rule,
+        `SEND TO: ${data.email}`,
+      ].filter(Boolean);
 
-        // Button feedback
-        const orig = btn.textContent;
-        btn.textContent = '✓ Added to Brief!';
-        btn.classList.add('bg-emerald-600', 'border-emerald-700');
-        setTimeout(() => {
-          btn.textContent = orig;
-          btn.classList.remove('bg-emerald-600', 'border-emerald-700');
-        }, 1200);
+      const body = $('receipt-body');
+      if (body) body.textContent = lines.join('\n');
+      updateEmailLink();
+      sfx.cashRegister();
+      cashFx('CHECKOUT! 🧾');
+      stamp('brief');
+      receiptModal.showModal();
+    }
 
-        // Scroll to bag section smoothly
-        const bagSec = document.getElementById('inquiry-bag-section');
-        if (bagSec) {
-          bagSec.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
-      });
+    $('checkout-btn')?.addEventListener('click', openReceipt);
+    $('receipt-close')?.addEventListener('click', () => receiptModal?.close());
+    $('receipt-download')?.addEventListener('click', downloadBrief);
+    $('receipt-copy')?.addEventListener('click', async () => {
+      const ok = await copyText(briefLines().md);
+      toast(ok ? '📋 Brief copied as Markdown.' : 'Clipboard blocked — try Download.', ok ? 'success' : 'warn');
+      if (ok) sfx.confirm();
     });
 
-    if (clearBtn) {
-      clearBtn.addEventListener('click', () => {
-        bag = [];
-        saveAndRenderBag();
-        sfx.select();
-      });
-    }
+    // ═════════ Wallet + ledger ═════════
+    const walletModal = $<HTMLDialogElement>('wallet-modal');
 
-    // 3. Live Poké-Dollar Wallet Ledger & Potions
-    const WALLET_KEY = 'pokemart_wallet_balance';
-    const DEFAULT_BALANCE = 9999;
-
-    function getWalletBalance(): number {
+    function getBalance(): number {
       try {
-        const raw = localStorage.getItem(WALLET_KEY);
-        if (raw !== null) {
-          const val = parseInt(raw, 10);
-          if (!isNaN(val)) return val;
-        }
-      } catch {}
-      return DEFAULT_BALANCE;
-    }
-
-    function setWalletBalance(balance: number): void {
-      try {
-        localStorage.setItem(WALLET_KEY, balance.toString());
-      } catch {}
-      updateWalletUI(balance);
-    }
-
-    function updateWalletUI(balance: number) {
-      const badgeBtn = document.getElementById('wallet-badge-btn');
-      const modalBalance = document.getElementById('wallet-modal-balance');
-      const formatted = balance.toLocaleString();
-
-      if (badgeBtn) {
-        badgeBtn.textContent = `💰 ₽ ${formatted}`;
-      }
-      if (modalBalance) {
-        modalBalance.textContent = formatted;
+        const v = parseInt(localStorage.getItem(WALLET_KEY) ?? '', 10);
+        return Number.isFinite(v) ? v : DEFAULT_BALANCE;
+      } catch {
+        return DEFAULT_BALANCE;
       }
     }
 
-    // Wallet Modal Controls
-    const walletModal = document.getElementById('wallet-modal') as HTMLDialogElement | null;
-    const walletBadgeBtn = document.getElementById('wallet-badge-btn');
-    const closeWalletBtn = document.getElementById('btn-close-wallet-modal');
-    const meowthPaydayBtn = document.getElementById('btn-meowth-payday');
-    const resetWalletBtn = document.getElementById('btn-reset-wallet');
-    const walletFeedbackToast = document.getElementById('wallet-feedback-toast');
+    function renderLedger() {
+      const ul = $('wallet-ledger');
+      if (!ul) return;
+      const entries = readJson<LedgerEntry[]>(localStorage, LEDGER_KEY, []);
+      ul.innerHTML = entries.length
+        ? entries
+            .map(
+              (e) => `<li class="flex justify-between gap-2 px-2 py-1 rounded bg-slate-950/60 border border-slate-800">
+                <span class="truncate text-slate-300">${escapeHtml(e.label)}</span>
+                <span class="${e.delta >= 0 ? 'text-emerald-400' : 'text-rose-400'} font-bold shrink-0">${e.delta >= 0 ? '+' : '−'}${fmt(Math.abs(e.delta))}</span>
+              </li>`
+            )
+            .join('')
+        : '<li class="text-slate-500 italic px-2">No transactions yet.</li>';
+    }
 
-    walletBadgeBtn?.addEventListener('click', () => {
+    function renderWallet() {
+      const bal = getBalance();
+      const badge = $('wallet-badge-btn');
+      if (badge) badge.textContent = `💰 ${fmt(bal)}`;
+      const modalBal = $('wallet-modal-balance');
+      if (modalBal) modalBal.textContent = bal.toLocaleString('en-US');
+      const stat = $('stat-wallet');
+      if (stat) stat.textContent = fmt(bal);
+      renderLedger();
+    }
+
+    function transact(delta: number, label: string) {
+      const next = Math.max(0, getBalance() + delta);
+      try {
+        localStorage.setItem(WALLET_KEY, String(next));
+      } catch {
+        /* ignore */
+      }
+      const entries = readJson<LedgerEntry[]>(localStorage, LEDGER_KEY, []);
+      entries.unshift({ t: Date.now(), label, delta });
+      writeJson(localStorage, LEDGER_KEY, entries.slice(0, 12));
+      renderWallet();
+    }
+
+    function openWallet() {
+      if (!walletModal || walletModal.open) return;
       sfx.select();
-      walletModal?.showModal();
-    });
+      renderWallet();
+      walletModal.showModal();
+    }
 
-    closeWalletBtn?.addEventListener('click', () => {
-      sfx.select();
-      walletModal?.close();
-    });
+    $('wallet-badge-btn')?.addEventListener('click', openWallet);
+    document.querySelectorAll('[data-open-wallet]').forEach((el) => el.addEventListener('click', openWallet));
+    $('btn-close-wallet-modal')?.addEventListener('click', () => walletModal?.close());
 
-    // Close on backdrop click
-    walletModal?.addEventListener('click', (e) => {
-      const rect = walletModal.getBoundingClientRect();
-      const isInDialog = (
-        rect.top <= e.clientY &&
-        e.clientY <= rect.top + rect.height &&
-        rect.left <= e.clientX &&
-        e.clientX <= rect.left + rect.width
-      );
-      if (!isInDialog) {
-        walletModal.close();
-      }
-    });
-
-    meowthPaydayBtn?.addEventListener('click', () => {
-      const current = getWalletBalance();
-      const newBal = current + 1000;
-      setWalletBalance(newBal);
+    $('btn-meowth-payday')?.addEventListener('click', () => {
+      transact(1000, "Meowth's Pay Day");
       sfx.confirm();
-
-      window.dispatchEvent(
-        new CustomEvent('town:mart-cash-anim', {
-          detail: { text: 'PAY DAY! +₽1,000' },
-        })
-      );
-
-      if (walletFeedbackToast) {
-        walletFeedbackToast.classList.remove('hidden');
-        setTimeout(() => {
-          walletFeedbackToast.classList.add('hidden');
-        }, 2800);
-      }
+      cashFx('PAY DAY! +₽1,000');
+      toast('🪙 Pay Day! Meowth showered the register with ₽ 1,000.', 'success');
     });
-
-    resetWalletBtn?.addEventListener('click', () => {
-      setWalletBalance(DEFAULT_BALANCE);
+    $('btn-reset-wallet')?.addEventListener('click', () => {
+      try {
+        localStorage.setItem(WALLET_KEY, String(DEFAULT_BALANCE));
+        localStorage.removeItem(LEDGER_KEY);
+      } catch {
+        /* ignore */
+      }
       sfx.select();
+      renderWallet();
     });
 
-    // Potion interactions with Wallet deductions
-    const coffeeBtn = document.getElementById('drink-coffee-btn');
-    if (coffeeBtn) {
-      coffeeBtn.addEventListener('click', () => {
-        const bal = getWalletBalance();
-        if (bal < 50) {
-          sfx.buzzer();
-          alert('⚠️ Not enough Poké-Dollars! Click Meowth\'s Pay Day in the wallet modal to refill funds! 🪙');
-          return;
+    // Close any dialog on backdrop click
+    [walletModal, receiptModal].forEach((dlg) =>
+      dlg?.addEventListener('click', (e) => {
+        if (e.target === dlg) dlg.close();
+      })
+    );
+
+    // ═════════ Potions + buffs ═════════
+    let buffTimer: number | undefined;
+    let buffEnds = 0;
+
+    function setBuff(name: string, sub: string, seconds: number) {
+      buffEnds = Date.now() + seconds * 1000;
+      const nameEl = $('stat-buff');
+      const subEl = $('stat-buff-sub');
+      if (nameEl) nameEl.textContent = name;
+      window.clearInterval(buffTimer);
+      const tick = () => {
+        const left = Math.max(0, Math.ceil((buffEnds - Date.now()) / 1000));
+        if (subEl) subEl.textContent = left > 0 ? `${sub} · ${left}s` : 'Drink a potion';
+        if (left <= 0) {
+          if (nameEl) nameEl.textContent = 'None';
+          window.clearInterval(buffTimer);
         }
-        setWalletBalance(bal - 50);
-        sfx.espressoBrew();
-        setTimeout(() => sfx.heal(), 180);
-        window.dispatchEvent(
-          new CustomEvent('town:mart-cash-anim', {
-            detail: { text: 'SIP! -₽50 (+100% FOCUS)' },
-          })
-        );
-        const orig = coffeeBtn.textContent;
-        coffeeBtn.textContent = '✨ Max Stamina!';
-        coffeeBtn.classList.add('bg-emerald-500', 'text-white');
-        setTimeout(() => {
-          coffeeBtn.textContent = orig;
-          coffeeBtn.classList.remove('bg-emerald-500', 'text-white');
-        }, 2000);
-      });
+      };
+      tick();
+      buffTimer = window.setInterval(tick, 1000);
     }
 
-    const etherBtn = document.getElementById('drink-ether-btn');
-    if (etherBtn) {
-      etherBtn.addEventListener('click', () => {
-        const bal = getWalletBalance();
-        if (bal < 100) {
-          sfx.buzzer();
-          alert('⚠️ Not enough Poké-Dollars! Click Meowth\'s Pay Day in the wallet modal to refill funds! 🪙');
-          return;
-        }
-        setWalletBalance(bal - 100);
-        sfx.confirm();
-        setTimeout(() => sfx.heal(), 140);
-        window.dispatchEvent(
-          new CustomEvent('town:mart-cash-anim', {
-            detail: { text: 'ETHER! -₽100 (CLEAN ARCH)' },
-          })
-        );
-        const orig = etherBtn.textContent;
-        etherBtn.textContent = '⚡ Code Refactored!';
-        etherBtn.classList.add('bg-teal-500', 'text-white');
-        setTimeout(() => {
-          etherBtn.textContent = orig;
-          etherBtn.classList.remove('bg-teal-500', 'text-white');
-        }, 2000);
-      });
-    }
+    const POTIONS = {
+      coffee: { cost: 50, label: 'Bandung Specialty Espresso', fx: 'SIP! -₽50 (+50% SPEED)', busy: '✨ Max Stamina!' },
+      ether: { cost: 100, label: 'Clean Architecture Max Ether', fx: 'ETHER! -₽100 (CLEAN ARCH)', busy: '⚡ Refactored!' },
+    } as const;
 
-    // Quick Action Bar click listeners
-    const quickButtons = document.querySelectorAll<HTMLButtonElement>('.mart-quick-btn');
-    quickButtons.forEach((btn) => {
+    document.querySelectorAll<HTMLButtonElement>('.pm-potion-btn').forEach((btn) => {
       btn.addEventListener('click', () => {
-        const action = btn.getAttribute('data-quick');
-        if (!action) return;
-
-        window.dispatchEvent(new CustomEvent('town:locate', { detail: { propId: action } }));
-        const townCanvas = document.querySelector('.town');
-        if (townCanvas && window.innerWidth < 768) {
-          townCanvas.scrollIntoView({ behavior: 'smooth' });
+        const kind = btn.dataset.potion as keyof typeof POTIONS;
+        const p = POTIONS[kind];
+        if (!p) return;
+        if (getBalance() < p.cost) {
+          sfx.bump();
+          toast(`Not enough Poké-Dollars for ${p.label}.`, 'warn', { label: 'Open wallet', onClick: openWallet });
+          return;
         }
+        transact(-p.cost, p.label);
+        if (kind === 'coffee') {
+          sfx.espressoBrew();
+          window.setTimeout(() => sfx.heal(), 180);
+          window.dispatchEvent(new CustomEvent('town:coffee-boost'));
+          setBuff('☕ Caffeinated', '+50% walk speed', 30);
+        } else {
+          sfx.confirm();
+          window.setTimeout(() => sfx.heal(), 140);
+          setBuff('🧪 Clean Arch', 'SOLID +95% coverage', 30);
+        }
+        cashFx(p.fx);
+        stamp('potion');
+        const orig = btn.textContent;
+        btn.textContent = p.busy;
+        btn.disabled = true;
+        window.setTimeout(() => {
+          btn.textContent = orig;
+          btn.disabled = false;
+        }, 1500);
       });
     });
 
-    // 📍 Inspect in 2D buttons
-    const inspectButtons = document.querySelectorAll<HTMLButtonElement>('.btn-inspect-2d');
-    inspectButtons.forEach((btn) => {
+    // ═════════ Stamp card ═════════
+    function getStamps(): string[] {
+      return readJson<string[]>(localStorage, STAMPS_KEY, []);
+    }
+
+    function renderStamps() {
+      const owned = new Set(getStamps());
+      const total = data.stamps.length;
+      const have = data.stamps.filter((s) => owned.has(s.id)).length;
+      document.querySelectorAll<HTMLElement>('.pm-stamp').forEach((el) => {
+        el.classList.toggle('is-stamped', owned.has(el.dataset.stamp || ''));
+      });
+      const text = `${have} / ${total}`;
+      const c1 = $('pm-stamp-count');
+      const c2 = $('stat-stamps');
+      if (c1) c1.textContent = text;
+      if (c2) c2.textContent = text;
+      const vip = have >= total;
+      const sub = $('stat-stamps-sub');
+      if (sub) sub.textContent = vip ? '⭐ VIP Trainer' : 'Collect all for VIP';
+      $('pm-vip-badge')?.classList.toggle('hidden', !vip);
+    }
+
+    function stamp(id: string) {
+      const owned = getStamps();
+      if (owned.includes(id) || !data.stamps.some((s) => s.id === id)) return;
+      owned.push(id);
+      writeJson(localStorage, STAMPS_KEY, owned);
+      renderStamps();
+      const label = data.stamps.find((s) => s.id === id)?.label ?? id;
+      toast(`🎫 Stamp collected: ${label}`, 'success');
+
+      if (owned.length >= data.stamps.length) {
+        let claimed = false;
+        try {
+          claimed = localStorage.getItem(VIP_KEY) === '1';
+          localStorage.setItem(VIP_KEY, '1');
+        } catch {
+          /* ignore */
+        }
+        if (!claimed) {
+          transact(2000, 'VIP Trainer bonus');
+          sfx.catchSuccess();
+          cashFx('VIP TRAINER! +₽2,000');
+          toast('⭐ Stamp card complete! You are now a VIP Trainer (+₽ 2,000).', 'success');
+        }
+      }
+    }
+
+    $('pm-stamp-reset')?.addEventListener('click', () => {
+      try {
+        localStorage.removeItem(STAMPS_KEY);
+      } catch {
+        /* ignore */
+      }
+      sfx.select();
+      renderStamps();
+    });
+
+    document.querySelectorAll('.pm-cv-link').forEach((a) => a.addEventListener('click', () => stamp('cv')));
+
+    // ═════════ Catalog: tabs, search, sort ═════════
+    const tabs = document.querySelectorAll<HTMLButtonElement>('.mart-tab-btn');
+    const grid = $('mart-grid');
+    const cards = Array.from(document.querySelectorAll<HTMLElement>('.mart-card'));
+    const search = $<HTMLInputElement>('mart-search');
+    const sortSel = $<HTMLSelectElement>('mart-sort');
+    let activeCat = 'all';
+
+    function applyFilters() {
+      const q = (search?.value || '').trim().toLowerCase();
+      const terms = q.split(/\s+/).filter(Boolean);
+      let shown = 0;
+      for (const card of cards) {
+        const catOk = activeCat === 'all' || card.dataset.category === activeCat;
+        const hay = card.dataset.search || '';
+        const qOk = terms.every((t) => hay.includes(t));
+        const visible = catOk && qOk;
+        card.hidden = !visible;
+        if (visible) shown++;
+      }
+      const countEl = $('mart-result-count');
+      if (countEl) countEl.textContent = `Showing ${shown} of ${cards.length} items${q ? ` for “${q}”` : ''}`;
+      $('mart-empty')?.classList.toggle('hidden', shown > 0);
+    }
+
+    function applySort() {
+      if (!grid) return;
+      const mode = sortSel?.value || 'featured';
+      const price = (c: HTMLElement, dir: 1 | -1) => {
+        const raw = c.dataset.price;
+        return raw === '' || raw === undefined ? (dir === 1 ? Infinity : -Infinity) : Number(raw);
+      };
+      const sorted = cards.slice().sort((a, b) => {
+        switch (mode) {
+          case 'price-asc':
+            return price(a, 1) - price(b, 1);
+          case 'price-desc':
+            return price(b, -1) - price(a, -1);
+          case 'az':
+            return (a.dataset.title || '').localeCompare(b.dataset.title || '');
+          default:
+            return Number(a.dataset.featured) - Number(b.dataset.featured);
+        }
+      });
+      sorted.forEach((c) => grid.appendChild(c));
+    }
+
+    function setTab(cat: string) {
+      activeCat = cat;
+      tabs.forEach((t) => {
+        const active = t.dataset.martTab === cat;
+        t.classList.toggle('active', active);
+        t.classList.toggle('btn-ball', active);
+        t.classList.toggle('btn-paper', !active);
+        t.setAttribute('aria-selected', String(active));
+      });
+      applyFilters();
+    }
+
+    tabs.forEach((tab) =>
+      tab.addEventListener('click', () => {
+        sfx.select();
+        setTab(tab.dataset.martTab || 'all');
+      })
+    );
+
+    let searchDebounce: number | undefined;
+    search?.addEventListener('input', () => {
+      window.clearTimeout(searchDebounce);
+      searchDebounce = window.setTimeout(applyFilters, 90);
+    });
+    sortSel?.addEventListener('change', () => {
+      sfx.select();
+      applySort();
+    });
+
+    document.querySelectorAll<HTMLButtonElement>('.pm-tag').forEach((tag) =>
+      tag.addEventListener('click', () => {
+        if (!search) return;
+        search.value = tag.dataset.tag || '';
+        sfx.blip();
+        setTab('all');
+        search.focus({ preventScroll: true });
+      })
+    );
+
+    $('mart-reset-filters')?.addEventListener('click', () => {
+      if (search) search.value = '';
+      if (sortSel) sortSel.value = 'featured';
+      applySort();
+      setTab('all');
+    });
+
+    // ═════════ 2D canvas hooks ═════════
+    const scrollCanvas = (mobileOnly: boolean) => {
+      const town = document.querySelector('.town');
+      if (town && (!mobileOnly || window.innerWidth < 768)) {
+        town.scrollIntoView({ behavior: reduceMotion() ? 'auto' : 'smooth', block: 'nearest' });
+      }
+    };
+
+    document.querySelectorAll<HTMLButtonElement>('.mart-quick-btn').forEach((btn) =>
       btn.addEventListener('click', () => {
-        const propId = btn.getAttribute('data-prop');
+        const propId = btn.dataset.quick;
         if (!propId) return;
-
         window.dispatchEvent(new CustomEvent('town:locate', { detail: { propId } }));
-        const townCanvas = document.querySelector('.town');
-        if (townCanvas) {
-          townCanvas.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
-      });
-    });
+        if (btn.dataset.tab) setTab(btn.dataset.tab);
+        scrollCanvas(true);
+      })
+    );
 
-    // 🪙 Toss coin test button
-    const btnTossCoin = document.getElementById('btn-toss-coin-2d');
-    btnTossCoin?.addEventListener('click', () => {
-      sfx.cashRegister();
-      window.dispatchEvent(
-        new CustomEvent('town:mart-cash-anim', {
-          detail: { text: 'PAY DAY! +₽999' },
-        })
-      );
-      const townCanvas = document.querySelector('.town');
-      if (townCanvas && window.innerWidth < 768) {
-        townCanvas.scrollIntoView({ behavior: 'smooth' });
-      }
-    });
-
-    // 💿 Inspect TM Disc buttons (Opens Silph-9000 Optical Reader)
-    document.querySelectorAll<HTMLButtonElement>('.inspect-tm-btn').forEach((btn) => {
+    document.querySelectorAll<HTMLButtonElement>('.btn-inspect-2d').forEach((btn) =>
       btn.addEventListener('click', () => {
-        const tmId = btn.getAttribute('data-tm-id') || 'tm-01';
-        window.dispatchEvent(
-          new CustomEvent('town:open-tm-reader', {
-            detail: { tmId },
-          })
-        );
-      });
-    });
+        const propId = btn.dataset.prop;
+        if (!propId) return;
+        window.dispatchEvent(new CustomEvent('town:locate', { detail: { propId } }));
+        scrollCanvas(false);
+      })
+    );
 
-    // 💿 Listen for TM taught/added from reader modal into Project Inquiry Bag
-    window.addEventListener('town:add-tm-to-bag', (e: Event) => {
-      const customEvt = e as CustomEvent<{ id: string; name: string; price: string }>;
-      if (customEvt.detail) {
-        bag.push({
-          id: customEvt.detail.id,
-          name: customEvt.detail.name,
-          price: customEvt.detail.price,
-        });
-        saveAndRenderBag();
-
-        // Scroll to inquiry bag smoothly
-        const bagSec = document.getElementById('inquiry-bag-section');
-        if (bagSec) {
-          bagSec.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
-      }
-    });
-
-    // 🪙 4. Meowth Recruiter Intel Quotes & Amulet Luck Counter
-    const meowthQuotes = [
-      "That's right! Zulfan's edge AI vision pipelines run at 120 FPS on Jetson hardware without breaking a sweat!",
-      "Recruiters who hire Zulfan get double sprint velocity and 100% clean git commits!",
-      "Looking for a verified full-stack engineer? Zulfan graduated from ITENAS with a 3.49 GPA and coordinated 6 lab semesters!",
-      "Psst! All Technical TMs and official CVs here are 100% free! Keep your Poké-Dollars for coffee!",
-      "IDEA FEST Bronze Medalist and HCIA-Security Certified... this engineer is ready for high-impact production roles!",
-    ];
-    let meowthQuoteIndex = 0;
-    let meowthPats = 0;
-
-    const meowthQuoteBtn = document.getElementById('btn-meowth-quote');
-    const meowthSpeechBubble = document.getElementById('meowth-speech-bubble');
-    const meowthPatCounter = document.getElementById('meowth-pat-counter');
-
-    function advanceMeowthQuote() {
-      meowthQuoteIndex = (meowthQuoteIndex + 1) % meowthQuotes.length;
-      meowthPats++;
+    $('btn-toss-coin-2d')?.addEventListener('click', () => {
       sfx.cashRegister();
+      cashFx('PAY DAY! +₽999');
+      scrollCanvas(true);
+    });
 
-      window.dispatchEvent(
-        new CustomEvent('town:mart-cash-anim', {
-          detail: { text: `LUCK +${meowthPats}! 🪙` },
-        })
-      );
+    document.querySelectorAll<HTMLButtonElement>('.inspect-tm-btn').forEach((btn) =>
+      btn.addEventListener('click', () => {
+        window.dispatchEvent(new CustomEvent('town:open-tm-reader', { detail: { tmId: btn.dataset.tmId || 'tm-01' } }));
+        stamp('tm');
+      })
+    );
 
-      if (meowthSpeechBubble) {
-        meowthSpeechBubble.style.opacity = '0';
-        setTimeout(() => {
-          meowthSpeechBubble.textContent = `"${meowthQuotes[meowthQuoteIndex]}"`;
-          meowthSpeechBubble.style.opacity = '1';
+    // Jump buttons in the stats strip
+    document.querySelectorAll<HTMLElement>('[data-jump]').forEach((el) =>
+      el.addEventListener('click', () => {
+        sfx.select();
+        scrollToId(el.dataset.jump || '');
+      })
+    );
+
+    // ═════════ Meowth quotes ═════════
+    let quoteIndex = 0;
+    let pats = 0;
+    $('btn-meowth-quote')?.addEventListener('click', () => {
+      quoteIndex = (quoteIndex + 1) % MEOWTH_QUOTES.length;
+      pats++;
+      sfx.cashRegister();
+      cashFx(`LUCK +${pats}! 🪙`);
+      const bubble = $('meowth-speech-bubble');
+      if (bubble) {
+        bubble.style.opacity = '0';
+        window.setTimeout(() => {
+          bubble.textContent = `"${MEOWTH_QUOTES[quoteIndex]}"`;
+          bubble.style.opacity = '1';
         }, 150);
       }
-
-      if (meowthPatCounter) {
-        meowthPatCounter.classList.remove('hidden');
-        meowthPatCounter.textContent = `🪙 Luck x${meowthPats}`;
-        if (meowthPats >= 3) {
-          meowthPatCounter.textContent = `✨ AMULET VIP (${meowthPats}x Luck)`;
-          meowthPatCounter.className = 'chip bg-amber-400 text-slate-950 font-mono text-[9px] px-2 py-0.5 border border-amber-600 font-bold animate-pulse';
-        }
+      const counter = $('meowth-pat-counter');
+      if (counter) {
+        counter.classList.remove('hidden');
+        counter.textContent = pats >= 3 ? `✨ AMULET VIP (${pats}x Luck)` : `🪙 Luck x${pats}`;
+        if (pats >= 3) counter.classList.add('animate-pulse');
       }
-    }
-
-    meowthQuoteBtn?.addEventListener('click', advanceMeowthQuote);
-
-    // ⌨️ 5. Global Keyboard Shortcuts for Poké Mart
-    window.addEventListener('keydown', (e: KeyboardEvent) => {
-      const tag = (e.target as HTMLElement)?.tagName?.toLowerCase();
-      if (tag === 'input' || tag === 'textarea' || (e.target as HTMLElement)?.isContentEditable) {
-        return;
-      }
-
-      if (e.key === 'm' || e.key === 'M') {
-        e.preventDefault();
-        sfx.select();
-        const modal = document.getElementById('wallet-modal') as HTMLDialogElement | null;
-        if (modal?.open) {
-          modal.close();
-        } else {
-          modal?.showModal();
-        }
-      } else if (e.key === 't' || e.key === 'T') {
-        e.preventDefault();
-        const tmModal = document.getElementById('tm-reader-modal') as HTMLDialogElement | null;
-        if (tmModal?.open) {
-          tmModal.close();
-          sfx.select();
-        } else {
-          window.dispatchEvent(
-            new CustomEvent('town:open-tm-reader', {
-              detail: { tmId: 'tm-01' },
-            })
-          );
-        }
-      } else if (e.key === 'b' || e.key === 'B') {
-        e.preventDefault();
-        sfx.select();
-        const bagSec = document.getElementById('inquiry-bag-section');
-        bagSec?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      } else if (e.key === 'p' || e.key === 'P') {
-        e.preventDefault();
-        const paydayBtn = document.getElementById('btn-meowth-payday');
-        paydayBtn?.click();
-      }
+      if (pats >= 3) stamp('meowth');
     });
 
-    // 🔊 6. Ambient Department Soundscapes on Card Hover
-    let lastHoverSound = 0;
-    const hoverCards = document.querySelectorAll<HTMLElement>('.mart-card');
-    hoverCards.forEach((card) => {
-      card.addEventListener('mouseenter', () => {
+    // ═════════ Ambient hover sounds (throttled, mouse only) ═════════
+    let lastHover = 0;
+    cards.forEach((card) =>
+      card.addEventListener('pointerenter', (e) => {
+        if ((e as PointerEvent).pointerType !== 'mouse') return;
         const now = Date.now();
-        if (now - lastHoverSound < 500) return;
-        lastHoverSound = now;
+        if (now - lastHover < 600) return;
+        lastHover = now;
+        if (card.dataset.category === 'potions') sfx.espressoBrew();
+        else if (card.dataset.category === 'tms') sfx.discSpin();
+      })
+    );
 
-        const cat = card.getAttribute('data-category');
-        if (cat === 'potions') {
-          sfx.espressoBrew();
-        } else if (cat === 'tms') {
-          sfx.discSpin();
+    // ═════════ Window-level listeners (bound once) ═════════
+    if (!windowListenersBound) {
+      windowListenersBound = true;
+
+      // TM taught from the optical reader → add (deduped) to the bag
+      window.addEventListener('town:add-tm-to-bag', (e: Event) => {
+        const detail = (e as CustomEvent<{ id: string; name: string }>).detail;
+        if (!detail || !document.getElementById('mart-root')) return;
+        window.dispatchEvent(new CustomEvent('pm:add-to-bag', { detail }));
+      });
+
+      // Hotkeys — G / T / Q / R / "/" (B, M, P, X… are reserved by the town engine)
+      window.addEventListener('keydown', (e: KeyboardEvent) => {
+        if (!document.getElementById('mart-root')) return;
+        if (e.ctrlKey || e.metaKey || e.altKey) return;
+        const el = e.target as HTMLElement | null;
+        const tag = el?.tagName;
+        if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || el?.isContentEditable) return;
+        if (document.querySelector('dialog[open]')) return;
+
+        const key = e.key.toLowerCase();
+        if (key === '/') {
+          e.preventDefault();
+          const s = document.getElementById('mart-search') as HTMLInputElement | null;
+          s?.focus();
+          s?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else if (key === 'g') {
+          e.preventDefault();
+          window.dispatchEvent(new CustomEvent('pm:hotkey', { detail: 'wallet' }));
+        } else if (key === 't') {
+          e.preventDefault();
+          window.dispatchEvent(new CustomEvent('town:open-tm-reader', { detail: { tmId: 'tm-01' } }));
+        } else if (key === 'q') {
+          e.preventDefault();
+          window.dispatchEvent(new CustomEvent('pm:hotkey', { detail: 'bag' }));
+        } else if (key === 'r') {
+          e.preventDefault();
+          window.dispatchEvent(new CustomEvent('pm:hotkey', { detail: 'checkout' }));
         }
+      });
+    }
+
+    window.addEventListener('pm:add-to-bag', (e: Event) => {
+      const d = (e as CustomEvent<{ id: string; name: string }>).detail;
+      const added = addToBag(d.id, d.name, false);
+      stamp('bag');
+      saveAndRender();
+      toast(added ? `💿 ${catalog.get(d.id)?.title ?? d.name} taught to your project brief.` : 'That TM is already in your brief.', added ? 'success' : 'info', {
+        label: 'View bag',
+        onClick: () => scrollToId('inquiry-bag-section'),
       });
     });
 
-    // Initialize state
-    updateWalletUI(getWalletBalance());
+    window.addEventListener('pm:hotkey', (e: Event) => {
+      const action = (e as CustomEvent<string>).detail;
+      if (action === 'wallet') openWallet();
+      else if (action === 'bag') {
+        sfx.select();
+        scrollToId('inquiry-bag-section');
+      } else if (action === 'checkout') openReceipt();
+    });
+
+    // ═════════ Initial render ═════════
+    applySort();
+    setTab('all');
+    renderWallet();
+    renderStamps();
     setTrack(currentTrack);
-    renderBag();
   }
 
-  document.addEventListener('astro:page-load', initMartPage);
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initMartPage);
+    document.addEventListener('DOMContentLoaded', initMartPage, { once: true });
   } else {
     initMartPage();
   }
+  document.addEventListener('astro:page-load', initMartPage);
 </script>
 
+<style is:global>
+  /* ── Stats strip ── */
+  .pm-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.1rem;
+    padding: 0.55rem 0.7rem;
+    border-radius: 0.75rem;
+    border: 2px solid rgb(28 23 38 / 0.15);
+    background: rgb(255 250 240 / 0.85);
+    text-align: left;
+    transition: transform 0.15s ease, border-color 0.15s ease;
+  }
+  button.pm-stat:hover {
+    transform: translateY(-1px);
+    border-color: #3b82f6;
+  }
+  .pm-stat__label {
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-ink-soft);
+  }
+  .pm-stat__value {
+    font-family: var(--font-pixel, inherit);
+    font-size: 12px;
+    color: var(--color-ink);
+  }
+  .pm-stat__sub {
+    font-size: 10px;
+    color: var(--color-ink-soft);
+  }
+
+  /* ── Cards ── */
+  .pm-card:hover {
+    border-color: #3b82f6;
+    transform: translateY(-2px);
+  }
+  .pm-card--inbag {
+    border-color: #10b981 !important;
+    box-shadow: 0 0 0 3px rgb(16 185 129 / 0.18), 0 4px 0 rgb(28 23 38 / 0.2);
+  }
+  .pm-card[hidden] {
+    display: none !important;
+  }
+  .pm-deal-ribbon {
+    position: absolute;
+    top: -0.55rem;
+    left: 0.75rem;
+    padding: 0.1rem 0.45rem;
+    border-radius: 0.35rem;
+    border: 1.5px solid var(--color-ink);
+    background: var(--color-ball);
+    color: #fff;
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    box-shadow: 0 2px 0 var(--color-ink);
+  }
+  .pm-btn-inbag {
+    background: #10b981 !important;
+    color: #fff !important;
+  }
+
+  /* ── Bundles ── */
+  .pm-bundle--done {
+    border-color: #10b981 !important;
+    background: #ecfdf5 !important;
+  }
+  .pm-bundle--done .pm-bundle-status {
+    background: #10b981;
+    color: #fff;
+    border-color: #047857;
+  }
+
+  /* ── Track selector ── */
+  .pm-track {
+    padding: 0.625rem;
+    border-radius: 0.5rem;
+    border: 1px solid rgb(255 255 255 / 0.15);
+    background: rgb(255 255 255 / 0.05);
+    color: rgb(203 213 225);
+    text-align: left;
+    transition: all 0.15s ease;
+  }
+  .pm-track:hover {
+    border-color: rgb(255 255 255 / 0.4);
+  }
+  .pm-track.is-active {
+    border: 2px solid #fbbf24;
+    background: rgb(245 158 11 / 0.2);
+    color: #fff;
+  }
+  .pm-track.is-active .font-pixel {
+    color: #fcd34d;
+  }
+
+  /* ── Bag ── */
+  .pm-qty {
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 0.35rem;
+    border: 1px solid rgb(255 255 255 / 0.3);
+    background: rgb(255 255 255 / 0.1);
+    color: #fff;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .pm-qty:hover:not(:disabled) {
+    background: rgb(255 255 255 / 0.25);
+  }
+  .pm-qty:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+  .pm-input {
+    display: block;
+    width: 100%;
+    margin-top: 0.2rem;
+    padding: 0.4rem 0.55rem;
+    border-radius: 0.45rem;
+    border: 1px solid rgb(255 255 255 / 0.2);
+    background: rgb(2 6 23 / 0.55);
+    color: #fff;
+    font-size: 12px;
+  }
+  .pm-input::placeholder {
+    color: rgb(148 163 184 / 0.7);
+  }
+  .pm-input:focus {
+    outline: none;
+    border-color: #fbbf24;
+  }
+  .pm-input option {
+    color: #0f172a;
+  }
+
+  /* ── Stamp card ── */
+  .pm-stamp {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.2rem;
+    padding: 0.5rem 0.25rem;
+    border-radius: 0.75rem;
+    border: 2px dashed rgb(28 23 38 / 0.25);
+    background: rgb(255 250 240 / 0.6);
+    text-align: center;
+    transition: all 0.2s ease;
+  }
+  .pm-stamp__icon {
+    font-size: 1.35rem;
+    filter: grayscale(1);
+    opacity: 0.35;
+    transition: all 0.25s ease;
+  }
+  .pm-stamp__label {
+    font-size: 9px;
+    line-height: 1.2;
+    color: var(--color-ink-soft);
+  }
+  .pm-stamp.is-stamped {
+    border-style: solid;
+    border-color: var(--color-ball);
+    background: #fff1f0;
+  }
+  .pm-stamp.is-stamped .pm-stamp__icon {
+    filter: none;
+    opacity: 1;
+    transform: rotate(-8deg) scale(1.08);
+  }
+
+  /* ── FAQ ── */
+  .pm-faq {
+    border-radius: 0.6rem;
+    border: 1px solid rgb(28 23 38 / 0.15);
+    background: rgb(246 236 210 / 0.6);
+    padding: 0.6rem 0.75rem;
+  }
+  .pm-faq summary {
+    cursor: pointer;
+    font-weight: 700;
+    color: var(--color-ink);
+    list-style: none;
+  }
+  .pm-faq summary::-webkit-details-marker {
+    display: none;
+  }
+  .pm-faq summary::after {
+    content: '＋';
+    float: right;
+    color: var(--color-ink-soft);
+  }
+  .pm-faq[open] summary::after {
+    content: '－';
+  }
+  .pm-faq p {
+    margin-top: 0.4rem;
+    color: var(--color-ink-soft);
+    line-height: 1.6;
+  }
+
+  /* ── Receipt ── */
+  #receipt-modal {
+    background: transparent;
+    padding: 0;
+    border: none;
+  }
+  .pm-receipt {
+    position: relative;
+    padding: 1.1rem 1.1rem 1.4rem;
+    background: #fffdf6;
+    color: var(--color-ink);
+    border: 2px solid var(--color-ink);
+    box-shadow: 0 6px 0 var(--color-ink), 0 24px 50px rgb(0 0 0 / 0.4);
+    -webkit-mask: radial-gradient(circle 6px at 50% 100%, transparent 98%, #000) 0 0 / 16px 100% repeat-x;
+    mask: radial-gradient(circle 6px at 50% 100%, transparent 98%, #000) 0 0 / 16px 100% repeat-x;
+  }
+  .pm-receipt__body {
+    margin: 0.8rem 0;
+    padding-top: 0.6rem;
+    border-top: 2px dashed rgb(28 23 38 / 0.3);
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 11px;
+    line-height: 1.55;
+    white-space: pre;
+    overflow-x: auto;
+  }
+  .pm-receipt__barcode {
+    height: 34px;
+    margin: 0.5rem auto 0.4rem;
+    width: 75%;
+    background: repeating-linear-gradient(90deg, var(--color-ink) 0 2px, transparent 2px 4px, var(--color-ink) 4px 5px, transparent 5px 8px, var(--color-ink) 8px 11px, transparent 11px 12px);
+  }
+  .pm-receipt-wrap {
+    animation: pm-print 0.45s ease-out;
+  }
+  @keyframes pm-print {
+    from {
+      transform: translateY(-24px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  /* ── Toasts ── */
+  .pm-toast-region {
+    position: fixed;
+    right: 1rem;
+    bottom: 1rem;
+    z-index: 80;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-width: min(22rem, calc(100vw - 2rem));
+    pointer-events: none;
+  }
+  .pm-toast {
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.6rem 0.8rem;
+    border-radius: 0.6rem;
+    border: 2px solid var(--color-ink);
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-size: 12px;
+    box-shadow: 0 3px 0 var(--color-ink), 0 10px 24px rgb(0 0 0 / 0.2);
+    animation: pm-toast-in 0.22s ease-out;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+  .pm-toast--success {
+    background: #ecfdf5;
+  }
+  .pm-toast--warn {
+    background: #fff1f2;
+  }
+  .pm-toast.is-leaving {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  .pm-toast__action {
+    flex-shrink: 0;
+    padding: 0.15rem 0.5rem;
+    border-radius: 0.35rem;
+    border: 1.5px solid var(--color-ink);
+    background: var(--color-gold);
+    font-family: var(--font-pixel, inherit);
+    font-size: 9px;
+  }
+  @keyframes pm-toast-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pm-card,
+    .pm-stat,
+    .pm-toast,
+    .pm-receipt-wrap,
+    .pm-stamp__icon {
+      animation: none !important;
+      transition: none !important;
+    }
+    .pm-card:hover,
+    button.pm-stat:hover {
+      transform: none;
+    }
+  }
+</style>

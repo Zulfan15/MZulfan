@@ -5329,6 +5329,13 @@ export class TownEngine {
                     },
                   },
                   {
+                    label: '🧾 Checkout Brief at Counter',
+                    onClick: () => {
+                      const btn = document.getElementById('checkout-btn');
+                      btn?.click();
+                    },
+                  },
+                  {
                     label: '🔑 Key Items & CV (PDF)',
                     onClick: () => {
                       window.open('/cv/CV_Zulfan.pdf', '_blank');
@@ -5491,6 +5498,38 @@ export class TownEngine {
                     label: '🔑 Inspect Key Shelf (Scroll Panel)',
                     onClick: () => {
                       const tab = document.querySelector<HTMLButtonElement>('[data-mart-tab="key"]');
+                      tab?.click();
+                      const el = document.getElementById('mart-catalog');
+                      el?.scrollIntoView({ behavior: 'smooth' });
+                    },
+                  },
+                ]
+              );
+            }
+          } else if (prop.target.name === 'drink-cooler') {
+            if (this.callbacks.onBubble) {
+              this.callbacks.onBubble(
+                'Poké-Cooler & Cold Brew Vending 🥤',
+                'POKÉ-COOLER: Chilled Fresh Water, Soda Pop, and Bandung Specialty Cold Brew to keep development productivity at maximum (+50% walking speed boost!).',
+                [
+                  {
+                    label: '☕ Drink Bandung Espresso (₽ 50)',
+                    onClick: () => {
+                      const btn = document.getElementById('drink-coffee-btn');
+                      btn?.click();
+                    },
+                  },
+                  {
+                    label: '🧪 Use Clean Arch Ether (₽ 100)',
+                    onClick: () => {
+                      const btn = document.getElementById('drink-ether-btn');
+                      btn?.click();
+                    },
+                  },
+                  {
+                    label: '📦 Inspect Potions Shelf',
+                    onClick: () => {
+                      const tab = document.querySelector<HTMLButtonElement>('[data-mart-tab="potions"]');
                       tab?.click();
                       const el = document.getElementById('mart-catalog');
                       el?.scrollIntoView({ behavior: 'smooth' });
