@@ -879,28 +879,26 @@ const pairProjects = [
             />
           </label>
 
-          <div class="guestbook-row">
-            <label class="guestbook-label">
-              <span>Endorsement Badge</span>
-              <select id="gb-badge" class="guestbook-select">
-                <option value="🤝 Great Co-Op Partner">🤝 Great Co-Op Partner</option>
-                <option value="⚡ Clean Architecture">⚡ Clean Architecture</option>
-                <option value="🧠 Edge AI Wizard">🧠 Edge AI Wizard</option>
-                <option value="🎓 Inspiring Lab Mentor">🎓 Inspiring Lab Mentor</option>
-                <option value="☕ Cozy Coffee Buddy">☕ Cozy Coffee Buddy</option>
-              </select>
-            </label>
+          <label class="guestbook-label">
+            <span>Endorsement Badge</span>
+            <select id="gb-badge" class="guestbook-select">
+              <option value="🤝 Great Co-Op Partner">🤝 Great Co-Op Partner</option>
+              <option value="⚡ Clean Architecture">⚡ Clean Architecture</option>
+              <option value="🧠 Edge AI Wizard">🧠 Edge AI Wizard</option>
+              <option value="🎓 Inspiring Lab Mentor">🎓 Inspiring Lab Mentor</option>
+              <option value="☕ Cozy Coffee Buddy">☕ Cozy Coffee Buddy</option>
+            </select>
+          </label>
 
-            <label class="guestbook-label">
-              <span>Sticky Note Colour</span>
-              <select id="gb-color" class="guestbook-select">
-                <option value="amber">🟨 Warm Honey Amber</option>
-                <option value="sakura">🌸 Sakura Rose Pink</option>
-                <option value="mint">🌿 Fresh Mint Leaf</option>
-                <option value="sky">💎 Sky Cyan Breeze</option>
-              </select>
-            </label>
-          </div>
+          <label class="guestbook-label">
+            <span>Sticky Note Colour</span>
+            <select id="gb-color" class="guestbook-select">
+              <option value="amber">🟨 Warm Honey Amber</option>
+              <option value="sakura">🌸 Sakura Rose Pink</option>
+              <option value="mint">🌿 Fresh Mint Leaf</option>
+              <option value="sky">💎 Sky Cyan Breeze</option>
+            </select>
+          </label>
 
           <label class="guestbook-label">
             <span>Sticker Reaction</span>
@@ -3070,42 +3068,104 @@ const pairProjects = [
   .guestbook-label {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
-    font-size: 0.72rem;
+    gap: 0.35rem;
+    font-size: 0.74rem;
     color: #fbbf24;
     font-family: 'JetBrains Mono', monospace;
+    width: 100%;
+    box-sizing: border-box;
+    min-width: 0;
   }
 
   .guestbook-input,
   .guestbook-select,
   .guestbook-textarea {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
     background: #020617;
-    border: 1px solid rgba(251, 191, 36, 0.4);
-    border-radius: 0.45rem;
-    padding: 0.45rem 0.65rem;
-    color: #fff;
-    font-size: 0.78rem;
+    border: 1px solid rgba(251, 191, 36, 0.45);
+    border-radius: 0.5rem;
+    padding: 0.55rem 0.8rem;
+    color: #fffbeb;
+    font-size: 0.82rem;
+    font-family: inherit;
+    line-height: 1.45;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .guestbook-input:focus,
+  .guestbook-select:focus,
+  .guestbook-textarea:focus {
+    outline: none;
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.3);
+  }
+
+  .guestbook-select {
+    cursor: pointer;
+    background-color: #0b1120;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fbbf24' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.85rem center;
+    background-size: 1rem;
+    padding-right: 2.5rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .guestbook-select option {
+    background-color: #0f172a;
+    color: #f8fafc;
+    padding: 0.55rem 0.75rem;
+    font-size: 0.82rem;
   }
 
   .guestbook-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.55rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .guestbook-stickers-row {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.55rem;
+    gap: 0.45rem;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .sticker-radio {
     display: inline-flex;
     align-items: center;
-    gap: 0.25rem;
-    font-size: 0.74rem;
-    color: #fff;
+    gap: 0.35rem;
+    padding: 0.28rem 0.55rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(251, 191, 36, 0.25);
+    border-radius: 0.4rem;
+    font-size: 0.75rem;
+    color: #fffbeb;
     cursor: pointer;
+    user-select: none;
+    transition: all 0.15s ease;
+  }
+
+  .sticker-radio:hover {
+    background: rgba(251, 191, 36, 0.18);
+    border-color: #fbbf24;
+  }
+
+  .sticker-radio input[type="radio"] {
+    accent-color: #f59e0b;
+    margin: 0;
   }
 
   .guestbook-submit-btn {
@@ -3132,7 +3192,7 @@ const pairProjects = [
     border-radius: 0.85rem;
     padding: 1.15rem;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 210px), 1fr));
     gap: 0.85rem;
     align-content: flex-start;
     box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.6);
@@ -3148,6 +3208,8 @@ const pairProjects = [
     justify-content: space-between;
     min-height: 140px;
     transition: transform 0.2s ease;
+    box-sizing: border-box;
+    word-break: break-word;
   }
 
   .sticky-note:hover {
@@ -3181,22 +3243,27 @@ const pairProjects = [
     transform: translateX(-50%);
     font-size: 1rem;
     filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.4));
+    pointer-events: none;
   }
 
   .sticky-note__sticker {
     position: absolute;
     top: 6px;
     right: 6px;
-    font-size: 1rem;
+    font-size: 1.15rem;
+    line-height: 1;
+    pointer-events: none;
   }
 
   .sticky-note__badge {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.6rem;
+    font-size: 0.62rem;
     font-weight: 800;
     text-transform: uppercase;
-    opacity: 0.85;
+    opacity: 0.9;
     margin-bottom: 0.35rem;
+    padding-right: 28px; /* Safe gutter preventing badge text from colliding with sticker */
+    word-break: break-word;
   }
 
   .sticky-note__msg {
