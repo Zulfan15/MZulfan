@@ -18,6 +18,7 @@ import { LUNALA_IMAGE_SRC } from './lunalaSprite';
 import { SOLGALEO_IMAGE_SRC } from './solgaleoSprite';
 import { SAMUROTT_IMAGE_SRC } from './samurottSprite';
 import { GYARADOS_IMAGE_SRC } from './gyaradosSprite';
+import { SNORLAX_IMAGE_SRC } from './snorlaxSprite';
 
 export const MEWTWO_IMAGE_SRC =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHAAAABwBAMAAAA0zul4AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAIVBMVEUAAAD4+Pjg4PC4sMi4iMCYiJh4gHiIWJBQWFBAQEAAAABuf+WbAAAAAXRSTlMAQObYZgAAAWxJREFUeNrt2DGtJDEQRdGi8Ck8Co+CKRSFT8EUmkJRuChX7vGMg81Wqk52bmjpSC+wHDi+ffv27dsz8TTEPAvxhvAgXASJp+CvBEg+MIBGqNWvfCCMMWmC6G/HWDVBtHvB4ybRDfWGzDGA6IHoZLPhntkNbXNcI7S82OUDiUYY3LCuHx9YdMJAyoufn+1u2QpJSYzlKs8F6ISSvILMa8sx6IOB064igkziyDYYVJXzNfXAQQ88Y6WrktjRDiVd3u5s7YJkZUp52WfqHLMNkllSpsHmuNEEwS5LEhFY3GdzLtcCKVd5zqkXUQHzrgdil1RjjCUJpJpv1wFxvtySKVEfSPTA5TYsSSq9JEQPDD6wrC1rsx4Y3NvGmKU3NBGNMJBdc25YSmUzDMisDV2iD54+0jZOoh9WJuDlAqIbcruIKNtFRDcklzsvJf3wdjvsfhhAPAtPID0KKaX0KJRSxIMwQI/BQ+Nf4f/7/fYHGujw6q4E2bwAAAAASUVORK5CYII=';
@@ -349,6 +350,19 @@ export const COMPANIONS: CompanionInfo[] = [
     lore: 'Tech Guardian: Precision Systems & Clean Code Mastery. Menghunus pedang Seamitar untuk memotong bug rumit, refactoring bersih, dan performa kode yang tangguh.',
     imageSrc: SAMUROTT_IMAGE_SRC,
     tagline: 'Tebasan Seamitar presisi tinggi & arsitektur tangguh',
+  },
+  {
+    id: 'snorlax',
+    name: 'Snorlax',
+    title: 'Sleeping Heavy Titan',
+    icon: '😴',
+    element: 'Normal',
+    badgeClass: 'bg-amber-100 text-amber-950 border-amber-400',
+    skillName: 'Gemuruh Tubuh (Body Slam)',
+    skillDesc: 'Snorlax melompat tinggi dan menjatuhkan tubuh raksasanya dengan kekuatan tektonik masif yang menggetarkan seluruh daratan.',
+    lore: 'Tech Guardian: Resilient Caching, Memory Pools & High-Capacity Storage. Menjaga daya tahan memori jangka panjang dan ketenangan sistem di bawah beban trafik berat.',
+    imageSrc: SNORLAX_IMAGE_SRC,
+    tagline: 'Penyimpanan cache raksasa & ketahanan sistem super santai',
   },
 ];
 

@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updatedAt": "2026-11-11T08:45:26.638Z",
+  "updatedAt": "2026-11-11T09:14:03.264Z",
   "buildings": [
     {
       "id": "dev",
@@ -792,6 +792,18 @@
       "orientation": "S",
       "dialogue": "SAMUROTT: 'Rrrwooon-kllliiinggg...!' ⚔️🌊 Samurott menghunus bilah pedang kerang Seamitar dari pelindung kakinya dengan kecepatan kilat. Sang Master Seamitar berdiri gagah membelah ombak dan menjaga kedaulatan Zulfan's Town.",
       "hidden": false
+    },
+    {
+      "id": "gyarados_mwbwjbi7",
+      "name": "Gyarados Sang Naga Lautan #1",
+      "x": 23,
+      "y": 43,
+      "w": 2,
+      "h": 2,
+      "kind": "npc",
+      "subType": "gyarados",
+      "orientation": "S",
+      "dialogue": "GYARADOS: 'Gwoooaaargh... Roaaar!' 🌊🐉 Deru ombak raksasa dan badai air bergemuruh saat Gyarados meliuk gagah. Sang Naga Lautan pantang menyerah menembus arus dan menjaga perairan Zulfan's Town."
     }
   ],
   "tiles": [

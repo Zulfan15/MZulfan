@@ -601,6 +601,47 @@ export const PMD_POKEMON_CONFIGS: Record<string, PMDPokemonConfig> = {
       anchorY: 84,
     },
   },
+  snorlax: {
+    id: 'snorlax',
+    name: 'Snorlax',
+    scale: 0.95,
+    idle: {
+      src: '/assets/pokemon/snorlax/Idle-Anim.png',
+      frameWidth: 32,
+      frameHeight: 64,
+      frameCount: 6,
+      durations: [40, 1, 3, 4, 3, 1],
+      anchorX: 16,
+      anchorY: 37,
+    },
+    walk: {
+      src: '/assets/pokemon/snorlax/Walk-Anim.png',
+      frameWidth: 32,
+      frameHeight: 48,
+      frameCount: 4,
+      durations: [8, 10, 8, 10],
+      anchorX: 16,
+      anchorY: 29,
+    },
+    shoot: {
+      src: '/assets/pokemon/snorlax/Shoot-Anim.png',
+      frameWidth: 40,
+      frameHeight: 56,
+      frameCount: 12,
+      durations: [2, 2, 6, 1, 1, 2, 2, 2, 2, 2, 2, 2],
+      anchorX: 20,
+      anchorY: 32,
+    },
+    attack: {
+      src: '/assets/pokemon/snorlax/Attack-Anim.png',
+      frameWidth: 64,
+      frameHeight: 88,
+      frameCount: 10,
+      durations: [2, 8, 1, 1, 1, 2, 2, 2, 2, 2],
+      anchorX: 32,
+      anchorY: 47,
+    },
+  },
 };
 
 export class PokemonPMDAnimator {

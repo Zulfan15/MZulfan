@@ -325,6 +325,7 @@ export class TownEngine {
   private kyogreAttackTick = 0;
   private tyranitarAttackTick = 0;
   private gyaradosAttackTick = 0;
+  private snorlaxAttackTick = 0;
   private pmdAnimator = new PokemonPMDAnimator();
 
   // Signature Move Visual FX & Camera Shake
@@ -2011,8 +2012,8 @@ export class TownEngine {
           const cfg = townConfig.getBuilding(n.id);
           const nx = cfg ? cfg.x : (n.id === 'ace' ? aceX : n.x);
           const ny = cfg ? cfg.y : (n.id === 'ace' ? aceY : n.y);
-          const nw = cfg?.w ?? (['charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar', 'garchomp', 'urshifu', 'groudon', 'kyogre', 'reshiram', 'zekrom', 'samurott', 'gyarados'].includes(n.id) ? 2 : 1);
-          const nh = cfg?.h ?? (['charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar', 'garchomp', 'urshifu', 'groudon', 'kyogre', 'reshiram', 'zekrom', 'samurott', 'gyarados'].includes(n.id) ? 2 : 1);
+          const nw = cfg?.w ?? (['charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar', 'garchomp', 'urshifu', 'groudon', 'kyogre', 'reshiram', 'zekrom', 'samurott', 'gyarados', 'snorlax'].includes(n.id) ? 2 : 1);
+          const nh = cfg?.h ?? (['charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar', 'garchomp', 'urshifu', 'groudon', 'kyogre', 'reshiram', 'zekrom', 'samurott', 'gyarados', 'snorlax'].includes(n.id) ? 2 : 1);
           return targetTileX >= nx && targetTileX < nx + nw && targetTileY >= ny && targetTileY < ny + nh;
         }) ||
         townConfig.getBuildings().find((b) => {
@@ -2024,8 +2025,8 @@ export class TownEngine {
         const cfg = townConfig.getBuilding(hitNpc.id);
         const nx = cfg ? cfg.x : (hitNpc.id === 'ace' ? aceX : hitNpc.x);
         const ny = cfg ? cfg.y : (hitNpc.id === 'ace' ? aceY : hitNpc.y);
-        const nw = (hitNpc as any).w ?? cfg?.w ?? (['charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar', 'garchomp', 'urshifu', 'groudon', 'kyogre', 'reshiram', 'zekrom', 'samurott', 'gyarados'].includes(hitNpc.id) ? 2 : 1);
-        const nh = (hitNpc as any).h ?? cfg?.h ?? (['charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar', 'garchomp', 'urshifu', 'groudon', 'kyogre', 'reshiram', 'zekrom', 'samurott', 'gyarados'].includes(hitNpc.id) ? 2 : 1);
+        const nw = (hitNpc as any).w ?? cfg?.w ?? (['charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar', 'garchomp', 'urshifu', 'groudon', 'kyogre', 'reshiram', 'zekrom', 'samurott', 'gyarados', 'snorlax'].includes(hitNpc.id) ? 2 : 1);
+        const nh = (hitNpc as any).h ?? cfg?.h ?? (['charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar', 'garchomp', 'urshifu', 'groudon', 'kyogre', 'reshiram', 'zekrom', 'samurott', 'gyarados', 'snorlax'].includes(hitNpc.id) ? 2 : 1);
 
         // If player is already adjacent to this NPC, interact immediately!
         const isAdjacent = (
@@ -3524,6 +3525,9 @@ export class TownEngine {
     }
     if (this.gyaradosAttackTick > 0) {
       this.gyaradosAttackTick--;
+    }
+    if (this.snorlaxAttackTick > 0) {
+      this.snorlaxAttackTick--;
     }
 
     // Update dynamic weather particles
@@ -6519,8 +6523,8 @@ export class TownEngine {
         const cfg = townConfig.getBuilding(n.id);
         const nx = cfg ? cfg.x : (n.id === 'ace' ? aceX : n.x);
         const ny = cfg ? cfg.y : (n.id === 'ace' ? aceY : n.y);
-        const nw = cfg?.w ?? (['charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar', 'garchomp', 'urshifu', 'groudon', 'kyogre', 'reshiram', 'zekrom', 'samurott', 'gyarados'].includes(n.id) ? 2 : 1);
-        const nh = cfg?.h ?? (['charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar', 'garchomp', 'urshifu', 'groudon', 'kyogre', 'reshiram', 'zekrom', 'samurott', 'gyarados'].includes(n.id) ? 2 : 1);
+        const nw = cfg?.w ?? (['charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar', 'garchomp', 'urshifu', 'groudon', 'kyogre', 'reshiram', 'zekrom', 'samurott', 'gyarados', 'snorlax'].includes(n.id) ? 2 : 1);
+        const nh = cfg?.h ?? (['charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar', 'garchomp', 'urshifu', 'groudon', 'kyogre', 'reshiram', 'zekrom', 'samurott', 'gyarados', 'snorlax'].includes(n.id) ? 2 : 1);
         const inFacing = fx >= nx && fx < nx + nw && fy >= ny && fy < ny + nh;
         const isAdjacent = (
           this.playerPos.x >= nx - 1 &&
@@ -7541,6 +7545,18 @@ export class TownEngine {
               onClick: () => this.setActiveFollower('gyarados'),
             },
           ];
+        } else if (customPlaced.subType === 'snorlax') {
+          dialogueText = "SNORLAX: 'Zzz... Gwaaahhh...!' 😴💤 [Tech Guardian: Bulletproof Fault Tolerance & High-Availability Storage] Kokoh dan tenang menghadapi jutaan beban traffic tanpa pernah goyah sekalipun!";
+          action = [
+            {
+              label: '⚡ Hantaman Tubuh (Body Slam)',
+              onClick: () => this.triggerSignatureMove('snorlax', customPlaced.x, customPlaced.y),
+            },
+            {
+              label: '🤝 Ajak Jalan Bersama',
+              onClick: () => this.setActiveFollower('snorlax'),
+            },
+          ];
         } else if (customPlaced.subType === 'latios') {
           dialogueText = "LATIOS: 'Shwiii-shooo...!' ✈️🔷 [Tech Guardian: High-Speed Telemetry & API Edge Gateways] Mengarahkan arus komputasi supersonik dengan latensi paling rendah.";
           action = [
@@ -8446,6 +8462,7 @@ export class TownEngine {
       'ranger',
       'tyranitar',
       'gyarados',
+      'snorlax',
       'garchomp',
       'urshifu',
       'urshifu_gmax',
@@ -10480,7 +10497,7 @@ export class TownEngine {
         const isPokemon = [
           'charizard', 'tyranitar', 'blastoise', 'garchomp', 'urshifu', 'rayquaza',
           'mewtwo', 'arceus', 'dialga', 'palkia', 'reshiram', 'zekrom',
-          'giratina', 'groudon', 'kyogre', 'gyarados', 'latios', 'latias', 'darkrai',
+          'giratina', 'groudon', 'kyogre', 'gyarados', 'snorlax', 'latios', 'latias', 'darkrai',
           'necrozma', 'lunala', 'solgaleo', 'samurott', 'lucario', 'pikachu'
         ].includes(b.subType || b.id);
         const isFlipped = (isPokemon && !this.pmdAnimator.isSupported(b.subType || b.id)) ? b.orientation === 'E' : false;
@@ -11112,6 +11129,34 @@ export class TownEngine {
             b.y * TILE_SIZE + 16,
             this.tick
           );
+        } else if ((b.subType === 'snorlax' || b.id === 'snorlax') && this.pmdAnimator.isSupported('snorlax')) {
+          const coreX = b.x * TILE_SIZE + 8;
+          const coreY = b.y * TILE_SIZE + 16;
+          const breath = Math.sin(this.tick * 0.035) * 0.8;
+
+          // Ground shadow
+          ctx.fillStyle = 'rgba(20, 25, 35, 0.45)';
+          ctx.beginPath();
+          ctx.ellipse(coreX, b.y * TILE_SIZE + 16, 15, 6, 0, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Sleepy cozy floating 'z' particles
+          if (this.tick % 60 < 25) {
+            ctx.fillStyle = '#93c5fd';
+            ctx.font = '8px monospace';
+            ctx.fillText('z', coreX + 6 + (this.tick % 15) * 0.4, b.y * TILE_SIZE - 4 - ((this.tick * 0.6) % 12));
+          }
+
+          const dir = b.orientation || 'S';
+          this.pmdAnimator.draw(
+            ctx,
+            'snorlax',
+            'idle',
+            dir,
+            coreX,
+            b.y * TILE_SIZE + 16 + breath,
+            this.tick
+          );
         } else if (b.subType === 'lucario' || b.id === 'lucario') {
           drawLucario(ctx, b.x * TILE_SIZE, b.y * TILE_SIZE, this.tick, 1);
         } else if (b.subType === 'pikachu' || b.id === 'pikachu') {
@@ -11557,6 +11602,7 @@ export class TownEngine {
       groudon: { name: 'Groudon', title: 'Continent Titan', icon: '🌋' },
       kyogre: { name: 'Kyogre', title: 'Sea Basin Titan', icon: '🌊' },
       gyarados: { name: 'Gyarados', title: 'Atrocious Water Titan', icon: '🌊' },
+      snorlax: { name: 'Snorlax', title: 'Sleeping Titan', icon: '😴' },
       latios: { name: 'Latios', title: 'Eon Jet Guardian', icon: '✈️' },
       latias: { name: 'Latias', title: 'Eon Mist Guardian', icon: '💖' },
       darkrai: { name: 'Darkrai', title: 'Pitch-Black Shadow', icon: '🌑' },
@@ -11921,6 +11967,26 @@ export class TownEngine {
           type: 'spark',
         });
       }
+    } else if (id.includes('snorlax')) {
+      this.snorlaxAttackTick = 26;
+      this.cameraShakeTime = 22;
+      this.cameraShakeIntensity = 4.8;
+      for (let i = 0; i < 45; i++) {
+        const ang = Math.random() * Math.PI * 2;
+        const spd = 2.2 + Math.random() * 4.2;
+        this.moveParticles.push({
+          x: ox + Math.cos(ang) * 10,
+          y: oy + Math.sin(ang) * 10,
+          vx: Math.cos(ang) * spd,
+          vy: Math.sin(ang) * spd,
+          size: 3 + Math.random() * 3.5,
+          color: ['#fbbf24', '#f59e0b', '#d97706', '#94a3b8', '#e2e8f0'][Math.floor(Math.random() * 5)],
+          alpha: 0.95,
+          life: 0,
+          maxLife: 28 + Math.floor(Math.random() * 14),
+          type: 'spark',
+        });
+      }
     } else if (id.includes('latios')) {
       for (let i = 0; i < 45; i++) {
         const ang = Math.PI * 0.25 + (Math.random() - 0.5) * 1.0;
@@ -12096,6 +12162,7 @@ export class TownEngine {
       groudon: { rx: 15, ry: 6, yOff: 16 },
       kyogre: { rx: 15, ry: 5.5, yOff: 16 },
       gyarados: { rx: 16, ry: 5.5, yOff: 16 },
+      snorlax: { rx: 15, ry: 6, yOff: 15 },
       dialga: { rx: 14, ry: 5, yOff: 16 },
       palkia: { rx: 14, ry: 5, yOff: 16 },
       giratina: { rx: 14, ry: 5, yOff: 16 },
@@ -12711,6 +12778,37 @@ export class TownEngine {
         coreY,
         animTick
       );
+    } else if (fid === 'snorlax') {
+      const coreX = drawX + 8;
+      const coreY = drawY + 16;
+
+      // Sleepy aura & subtle floating 'z' when idle
+      if (!isFollowerWalking && this.tick % 60 < 25) {
+        ctx.fillStyle = '#93c5fd';
+        ctx.font = '8px monospace';
+        ctx.fillText('z', coreX + 6 + (this.tick % 15) * 0.4, coreY - 14 - ((this.tick * 0.6) % 12));
+      }
+
+      let action: 'idle' | 'walk' | 'shoot' = 'idle';
+      let animTick = this.tick;
+      if (this.snorlaxAttackTick > 0) {
+        action = 'shoot';
+        animTick = 26 - this.snorlaxAttackTick;
+      } else if (isFollowerWalking) {
+        action = 'walk';
+        animTick = this.followerWalkTick;
+      }
+      const dir = this.followerDir || 'down';
+
+      this.pmdAnimator.draw(
+        ctx,
+        'snorlax',
+        action,
+        dir,
+        coreX,
+        coreY,
+        animTick
+      );
     } else if (fid === 'latios') {
       if (this.latiosImg && this.latiosImg.complete) {
         const coreX = drawX + 8;
@@ -13060,6 +13158,7 @@ export class TownEngine {
       groudon: { rx: 15, ry: 6, yOff: 16 },
       kyogre: { rx: 15, ry: 5.5, yOff: 16 },
       gyarados: { rx: 16, ry: 5.5, yOff: 16 },
+      snorlax: { rx: 15, ry: 6, yOff: 15 },
       dialga: { rx: 15, ry: 5.5, yOff: 16 },
       palkia: { rx: 15, ry: 5.5, yOff: 16 },
       giratina: { rx: 15, ry: 5.5, yOff: 16 },
@@ -13146,6 +13245,9 @@ export class TownEngine {
     } else if (fid === 'gyarados' && this.gyaradosAttackTick > 0) {
       action = 'shoot';
       attackTick = 25 - this.gyaradosAttackTick;
+    } else if (fid === 'snorlax' && this.snorlaxAttackTick > 0) {
+      action = 'shoot';
+      attackTick = 26 - this.snorlaxAttackTick;
     }
 
     const curAnimTick = attackTick > 0 ? attackTick : animTick;
@@ -13287,6 +13389,7 @@ export class TownEngine {
       garchomp: { down: { dx: 0, dy: -17 }, side: { dx: -3, dy: -16 }, up: { dx: 0, dy: -16 } },
       tyranitar:{ down: { dx: 0, dy: -19 }, side: { dx: -3, dy: -18 }, up: { dx: 0, dy: -18 } },
       gyarados: { down: { dx: 0, dy: -22 }, side: { dx: -5, dy: -20 }, up: { dx: 0, dy: -21 } },
+      snorlax:  { down: { dx: 0, dy: -18 }, side: { dx: -3, dy: -17 }, up: { dx: 0, dy: -17 } },
       urshifu:  { down: { dx: 0, dy: -19 }, side: { dx: -3, dy: -18 }, up: { dx: 0, dy: -18 } },
       solgaleo: { down: { dx: 0, dy: -18 }, side: { dx: -4, dy: -17 }, up: { dx: 0, dy: -17 } },
       necrozma: { down: { dx: 0, dy: -19 }, side: { dx: -3, dy: -18 }, up: { dx: 0, dy: -18 } },
