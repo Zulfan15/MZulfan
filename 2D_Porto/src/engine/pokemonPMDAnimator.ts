@@ -99,6 +99,38 @@ export const PMD_POKEMON_CONFIGS: Record<string, PMDPokemonConfig> = {
       anchorY: 65,
     },
   },
+  reshiram: {
+    id: 'reshiram',
+    name: 'Reshiram',
+    scale: 0.65,
+    idle: {
+      src: '/assets/pokemon/reshiram/Idle-Anim.png',
+      frameWidth: 72,
+      frameHeight: 104,
+      frameCount: 6,
+      durations: [90, 4, 8, 4, 8, 4],
+      anchorX: 36,
+      anchorY: 56,
+    },
+    walk: {
+      src: '/assets/pokemon/reshiram/Walk-Anim.png',
+      frameWidth: 88,
+      frameHeight: 96,
+      frameCount: 5,
+      durations: [8, 6, 8, 6, 8],
+      anchorX: 44,
+      anchorY: 52,
+    },
+    shoot: {
+      src: '/assets/pokemon/reshiram/Shoot-Anim.png',
+      frameWidth: 96,
+      frameHeight: 80,
+      frameCount: 16,
+      durations: [2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2],
+      anchorX: 48,
+      anchorY: 44,
+    },
+  },
 };
 
 export class PokemonPMDAnimator {

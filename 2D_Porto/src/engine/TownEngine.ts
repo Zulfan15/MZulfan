@@ -311,6 +311,7 @@ export class TownEngine {
   private followerWalkTick = 0;
   private rayquazaAttackTick = 0;
   private arceusAttackTick = 0;
+  private reshiramAttackTick = 0;
   private pmdAnimator = new PokemonPMDAnimator();
 
   // Signature Move Visual FX & Camera Shake
@@ -3155,6 +3156,9 @@ export class TownEngine {
     }
     if (this.arceusAttackTick > 0) {
       this.arceusAttackTick--;
+    }
+    if (this.reshiramAttackTick > 0) {
+      this.reshiramAttackTick--;
     }
 
     // Update dynamic weather particles
@@ -9075,24 +9079,18 @@ export class TownEngine {
         }
         if (isFlipped) ctx.restore();
       } else if (npc.id === 'reshiram' || (npc as any).subType === 'reshiram') {
-        // Authentic Reshiram (Vast White Pokémon) Overworld Sprite with Jet Turbine Fusion Flare
+        // Authentic Reshiram (Vast White Pokémon) PMD Animated Sprite with Jet Turbine Fusion Flare
         const drawX = curTileX * TILE_SIZE;
         const drawY = curTileY * TILE_SIZE;
+        const coreX = drawX + 8;
+        const coreY = drawY + 16;
         const levitate = Math.sin(this.tick * 0.035) * 1.5;
 
         // Ground contact shadow
         ctx.fillStyle = 'rgba(20, 25, 35, 0.4)';
         ctx.beginPath();
-        ctx.ellipse(drawX + 8, drawY + 16, 14, 5, 0, 0, Math.PI * 2);
+        ctx.ellipse(coreX, drawY + 16, 14, 5, 0, 0, Math.PI * 2);
         ctx.fill();
-
-        const isFlipped = (cfg?.orientation || 'W') === 'E';
-        if (isFlipped) {
-          ctx.save();
-          ctx.translate(drawX + 8, 0);
-          ctx.scale(-1, 1);
-          ctx.translate(-(drawX + 8), 0);
-        }
 
         // Fiery Jet Turbine Glow behind tail (Fusion Flare)
         const turbineGlow = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
@@ -9117,11 +9115,30 @@ export class TownEngine {
           ctx.fillRect(tailX + 2 - Math.sin(this.tick * 0.1) * 7, tailY - 6 - (this.tick % 14), 1.5, 1.5);
         }
 
-        // Draw Reshiram sprite
-        if (this.reshiramImg && this.reshiramImg.complete && this.reshiramImg.naturalWidth > 0) {
+        // Draw PMD Animated Reshiram
+        const dir = cfg?.orientation || npc.dir || 'W';
+        const pmdDrawn = this.pmdAnimator.draw(
+          ctx,
+          'reshiram',
+          'idle',
+          dir,
+          coreX,
+          coreY,
+          this.tick
+        );
+
+        // Fallback to static sprite if PMD image not loaded yet
+        if (!pmdDrawn && this.reshiramImg && this.reshiramImg.complete && this.reshiramImg.naturalWidth > 0) {
+          const isFlipped = (cfg?.orientation || 'W') === 'E';
+          if (isFlipped) {
+            ctx.save();
+            ctx.translate(drawX + 8, 0);
+            ctx.scale(-1, 1);
+            ctx.translate(-(drawX + 8), 0);
+          }
           ctx.drawImage(this.reshiramImg, drawX - 13, drawY - 20 + levitate, 42, 42);
+          if (isFlipped) ctx.restore();
         }
-        if (isFlipped) ctx.restore();
       } else if (npc.id === 'arceus' || (npc as any).subType === 'arceus') {
         // Divine Arceus Overworld Sprite with Golden Judgment Ring
         const drawX = curTileX * TILE_SIZE;
@@ -10009,9 +10026,25 @@ export class TownEngine {
         } else if ((b.subType === 'zekrom' || b.id === 'zekrom') && this.zekromImg && this.zekromImg.complete) {
           const lev = Math.sin(this.tick * 0.035) * 1.5;
           ctx.drawImage(this.zekromImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + lev, 42, 42);
-        } else if ((b.subType === 'reshiram' || b.id === 'reshiram') && this.reshiramImg && this.reshiramImg.complete) {
+        } else if (b.subType === 'reshiram' || b.id === 'reshiram') {
+          const coreX = b.x * TILE_SIZE + 8;
+          const coreY = b.y * TILE_SIZE + 16;
           const lev = Math.sin(this.tick * 0.035) * 1.5;
-          ctx.drawImage(this.reshiramImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + lev, 42, 42);
+
+          const dir = b.orientation || 'W';
+          const pmdDrawn = this.pmdAnimator.draw(
+            ctx,
+            'reshiram',
+            'idle',
+            dir,
+            coreX,
+            coreY,
+            this.tick
+          );
+
+          if (!pmdDrawn && this.reshiramImg && this.reshiramImg.complete) {
+            ctx.drawImage(this.reshiramImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + lev, 42, 42);
+          }
         } else if (b.subType === 'arceus' || b.id === 'arceus') {
           const coreX = b.x * TILE_SIZE + 8;
           const coreY = b.y * TILE_SIZE + 16;
@@ -10949,6 +10982,7 @@ export class TownEngine {
         });
       }
     } else if (id.includes('reshiram')) {
+      this.reshiramAttackTick = 30;
       for (let i = 0; i < 50; i++) {
         const angle = -Math.PI / 2 + (Math.random() - 0.5) * 1.6;
         const spd = 3.0 + Math.random() * 5.0;
@@ -11391,19 +11425,43 @@ export class TownEngine {
         ctx.drawImage(this.palkiaImg, drawX - 13, drawY - 20 + stepBob + idleBob, 42, 42);
       }
     } else if (fid === 'reshiram') {
-      if (this.reshiramImg && this.reshiramImg.complete) {
-        const turbineGlow = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
-        const tailX = drawX - 3;
-        const tailY = drawY + 8 + stepBob + idleBob;
-        const fireGrad = ctx.createRadialGradient(tailX, tailY, 2, tailX, tailY, 14);
-        fireGrad.addColorStop(0, `rgba(255, 165, 0, ${turbineGlow + 0.25})`);
-        fireGrad.addColorStop(0.5, `rgba(239, 68, 68, ${turbineGlow})`);
-        fireGrad.addColorStop(1, 'rgba(239, 68, 68, 0)');
-        ctx.fillStyle = fireGrad;
-        ctx.beginPath();
-        ctx.arc(tailX, tailY, 14, 0, Math.PI * 2);
-        ctx.fill();
+      const coreX = drawX + 8;
+      const coreY = drawY + 16;
+      const turbineGlow = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
+      const tailX = drawX - 3;
+      const tailY = drawY + 8 + stepBob + idleBob;
+      const fireGrad = ctx.createRadialGradient(tailX, tailY, 2, tailX, tailY, 14);
+      fireGrad.addColorStop(0, `rgba(255, 165, 0, ${turbineGlow + 0.25})`);
+      fireGrad.addColorStop(0.5, `rgba(239, 68, 68, ${turbineGlow})`);
+      fireGrad.addColorStop(1, 'rgba(239, 68, 68, 0)');
+      ctx.fillStyle = fireGrad;
+      ctx.beginPath();
+      ctx.arc(tailX, tailY, 14, 0, Math.PI * 2);
+      ctx.fill();
 
+      // Determine action, direction, and animation frame tick
+      let action: 'idle' | 'walk' | 'shoot' = 'idle';
+      let animTick = this.tick;
+      if (this.reshiramAttackTick > 0) {
+        action = 'shoot';
+        animTick = 30 - this.reshiramAttackTick;
+      } else if (this.isMoving) {
+        action = 'walk';
+        animTick = this.followerWalkTick;
+      }
+      const dir = this.followerDir || 'down';
+
+      const pmdDrawn = this.pmdAnimator.draw(
+        ctx,
+        'reshiram',
+        action,
+        dir,
+        coreX,
+        coreY,
+        animTick
+      );
+
+      if (!pmdDrawn && this.reshiramImg && this.reshiramImg.complete) {
         ctx.drawImage(this.reshiramImg, drawX - 13, drawY - 20 + stepBob + idleBob, 42, 42);
       }
     } else if (fid === 'zekrom') {
