@@ -320,6 +320,7 @@ export class TownEngine {
   private dialgaAttackTick = 0;
   private lunalaAttackTick = 0;
   private solgaleoAttackTick = 0;
+  private garchompAttackTick = 0;
   private pmdAnimator = new PokemonPMDAnimator();
 
   // Signature Move Visual FX & Camera Shake
@@ -3504,6 +3505,9 @@ export class TownEngine {
     }
     if (this.solgaleoAttackTick > 0) {
       this.solgaleoAttackTick--;
+    }
+    if (this.garchompAttackTick > 0) {
+      this.garchompAttackTick--;
     }
 
     // Update dynamic weather particles
@@ -9677,37 +9681,49 @@ export class TownEngine {
         // Authentic Garchomp Dragon/Ground Mach Pokémon Overworld Sprite
         const drawX = curTileX * TILE_SIZE;
         const drawY = curTileY * TILE_SIZE;
+        const coreX = drawX + 8;
         const machBob = Math.sin(this.tick * 0.05) * 0.9;
 
         // Ground contact shadow
         ctx.fillStyle = 'rgba(20, 20, 30, 0.4)';
         ctx.beginPath();
-        ctx.ellipse(drawX + 8, drawY + 16, 13, 4.5, 0, 0, Math.PI * 2);
+        ctx.ellipse(coreX, drawY + 16, 13, 4.5, 0, 0, Math.PI * 2);
         ctx.fill();
-
-        const isFlipped = (cfg?.orientation || 'W') === 'E';
-        if (isFlipped) {
-          ctx.save();
-          ctx.translate(drawX + 8, 0);
-          ctx.scale(-1, 1);
-          ctx.translate(-(drawX + 8), 0);
-        }
 
         // Dragon Claw & Supersonic Mach Slipstream particles
         if (this.tick % 16 < 11) {
           ctx.fillStyle = '#38bdf8'; // Sky blue dragon aura
-          ctx.fillRect(drawX + 8 + Math.cos(this.tick * 0.15) * 12, drawY + 6 - (this.tick % 10) + machBob, 2, 1);
+          ctx.fillRect(coreX + Math.cos(this.tick * 0.15) * 12, drawY + 6 - (this.tick % 10) + machBob, 2, 1);
           ctx.fillStyle = '#fde047'; // Sand dune speed spark
-          ctx.fillRect(drawX + 3 + Math.sin(this.tick * 0.2) * 10, drawY + 14 - (this.tick % 8), 1.5, 1.5);
+          ctx.fillRect(coreX - 5 + Math.sin(this.tick * 0.2) * 10, drawY + 14 - (this.tick % 8), 1.5, 1.5);
           ctx.fillStyle = '#f43f5e'; // Crimson star chest spark
-          ctx.fillRect(drawX + 6 + Math.cos(this.tick * 0.25) * 8, drawY - 2 + machBob, 1.5, 1.5);
+          ctx.fillRect(coreX + Math.cos(this.tick * 0.25) * 8, drawY - 2 + machBob, 1.5, 1.5);
         }
 
-        // Authentic Pokémon Black & White Garchomp Sprite
-        if (this.garchompImg && this.garchompImg.complete && this.garchompImg.naturalWidth > 0) {
+        // Draw Garchomp 8-direction PMD animated sprite (with fallback)
+        const dir = (cfg?.orientation || 'W').toLowerCase();
+        const pmdDir = dir === 'w' ? 'left' : dir === 'e' ? 'right' : dir === 'n' ? 'up' : 'down';
+        const pmdDrawn = this.pmdAnimator.draw(
+          ctx,
+          'garchomp',
+          'idle',
+          pmdDir,
+          coreX,
+          drawY + 16,
+          this.tick
+        );
+
+        if (!pmdDrawn && this.garchompImg && this.garchompImg.complete && this.garchompImg.naturalWidth > 0) {
+          const isFlipped = (cfg?.orientation || 'W') === 'E';
+          if (isFlipped) {
+            ctx.save();
+            ctx.translate(drawX + 8, 0);
+            ctx.scale(-1, 1);
+            ctx.translate(-(drawX + 8), 0);
+          }
           ctx.drawImage(this.garchompImg, drawX - 13, drawY - 20 + machBob, 42, 42);
+          if (isFlipped) ctx.restore();
         }
-        if (isFlipped) ctx.restore();
       } else if (npc.id === 'urshifu' || (npc as any).subType === 'urshifu' || (npc as any).subType === 'urshifu_gmax') {
         // Authentic Urshifu Gigantamax Rapid Strike Overworld Sprite with G-Max Torrent Aura
         const drawX = curTileX * TILE_SIZE;
@@ -10416,26 +10432,39 @@ export class TownEngine {
           if (img && img.complete) {
             ctx.drawImage(img, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + stomp, 42, 42);
           }
-        } else if ((b.subType === 'garchomp' || b.id === 'garchomp') && this.garchompImg && this.garchompImg.complete) {
+        } else if ((b.subType === 'garchomp' || b.id === 'garchomp') && (this.pmdAnimator.isSupported('garchomp') || (this.garchompImg && this.garchompImg.complete))) {
           const machBob = Math.sin(this.tick * 0.05) * 0.9;
           const drawX = b.x * TILE_SIZE;
           const drawY = b.y * TILE_SIZE;
+          const coreX = drawX + 8;
 
           // Ground shadow
           ctx.fillStyle = 'rgba(20, 20, 30, 0.4)';
           ctx.beginPath();
-          ctx.ellipse(drawX + 8, drawY + 16, 13, 4.5, 0, 0, Math.PI * 2);
+          ctx.ellipse(coreX, drawY + 16, 13, 4.5, 0, 0, Math.PI * 2);
           ctx.fill();
 
           // Dragon Claw & Mach slipstream particles
           if (this.tick % 16 < 11) {
             ctx.fillStyle = '#38bdf8';
-            ctx.fillRect(drawX + 8 + Math.cos(this.tick * 0.15) * 12, drawY + 6 - (this.tick % 10) + machBob, 2, 1);
+            ctx.fillRect(coreX + Math.cos(this.tick * 0.15) * 12, drawY + 6 - (this.tick % 10) + machBob, 2, 1);
             ctx.fillStyle = '#fde047';
-            ctx.fillRect(drawX + 3 + Math.sin(this.tick * 0.2) * 10, drawY + 14 - (this.tick % 8), 1.5, 1.5);
+            ctx.fillRect(coreX - 5 + Math.sin(this.tick * 0.2) * 10, drawY + 14 - (this.tick % 8), 1.5, 1.5);
           }
 
-          ctx.drawImage(this.garchompImg, drawX - 13, drawY - 20 + machBob, 42, 42);
+          const dir = b.orientation || 'W';
+          const pmdDrawn = this.pmdAnimator.draw(
+            ctx,
+            'garchomp',
+            'idle',
+            dir,
+            coreX,
+            b.y * TILE_SIZE + 16,
+            this.tick
+          );
+          if (!pmdDrawn && this.garchompImg && this.garchompImg.complete) {
+            ctx.drawImage(this.garchompImg, drawX - 13, drawY - 20 + machBob, 42, 42);
+          }
         } else if ((b.subType === 'urshifu' || b.id === 'urshifu' || b.subType === 'urshifu_gmax') && this.urshifuImg && this.urshifuImg.complete) {
           const stanceBob = Math.sin(this.tick * 0.04) * 0.8;
           const drawX = b.x * TILE_SIZE;
@@ -11495,6 +11524,7 @@ export class TownEngine {
         });
       }
     } else if (id.includes('garchomp')) {
+      this.garchompAttackTick = 26;
       for (let i = 0; i < 35; i++) {
         const spd = 3.5 + Math.random() * 4.5;
         const ang = Math.PI * 0.25 + (Math.random() - 0.5) * 0.8;
@@ -11807,6 +11837,7 @@ export class TownEngine {
         });
       }
     } else if (id.includes('solgaleo')) {
+      this.solgaleoAttackTick = 25;
       for (let i = 0; i < 50; i++) {
         const ang = Math.random() * Math.PI * 2;
         const spd = 3.2 + Math.random() * 5.2;
@@ -11954,7 +11985,51 @@ export class TownEngine {
         ctx.drawImage(this.tyranitarImg, drawX - 13, drawY - 20 + stepBob, 42, 42);
       }
     } else if (fid === 'garchomp') {
-      if (this.garchompImg && this.garchompImg.complete) {
+      const coreX = drawX + 8;
+      const coreY = drawY + 16;
+
+      // Dragon Rush / Mach supersonic slipstream aura
+      const dragonPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
+      const dragonGrad = ctx.createRadialGradient(coreX, coreY - 10, 2, coreX, coreY - 10, 18);
+      dragonGrad.addColorStop(0, `rgba(56, 189, 248, ${dragonPulse + 0.3})`);
+      dragonGrad.addColorStop(0.5, `rgba(3, 105, 161, ${dragonPulse * 0.7})`);
+      dragonGrad.addColorStop(1, 'rgba(15, 23, 42, 0)');
+      ctx.fillStyle = dragonGrad;
+      ctx.beginPath();
+      ctx.arc(coreX, coreY - 10, 18, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Sandstorm sparks & dragon energy
+      if (this.tick % 16 < 11) {
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillRect(coreX + Math.cos(this.tick * 0.15) * 12, coreY - 12 - (this.tick % 10), 2, 1);
+        ctx.fillStyle = '#fde047';
+        ctx.fillRect(coreX - 6 + Math.sin(this.tick * 0.2) * 10, coreY - 6 - (this.tick % 8), 1.5, 1.5);
+      }
+
+      // Determine action, direction, and animation frame tick
+      let action: 'idle' | 'walk' | 'shoot' = 'idle';
+      let animTick = this.tick;
+      if (this.garchompAttackTick > 0) {
+        action = 'shoot';
+        animTick = 26 - this.garchompAttackTick;
+      } else if (isFollowerWalking) {
+        action = 'walk';
+        animTick = this.followerWalkTick;
+      }
+      const dir = this.followerDir || 'down';
+
+      const pmdDrawn = this.pmdAnimator.draw(
+        ctx,
+        'garchomp',
+        action,
+        dir,
+        coreX,
+        coreY,
+        animTick
+      );
+
+      if (!pmdDrawn && this.garchompImg && this.garchompImg.complete) {
         ctx.drawImage(this.garchompImg, drawX - 13, drawY - 20 + stepBob + idleBob, 42, 42);
       }
     } else if (fid === 'urshifu') {
@@ -12736,6 +12811,9 @@ export class TownEngine {
     } else if (fid === 'solgaleo' && this.solgaleoAttackTick > 0) {
       action = 'shoot';
       attackTick = 25 - this.solgaleoAttackTick;
+    } else if (fid === 'garchomp' && this.garchompAttackTick > 0) {
+      action = 'shoot';
+      attackTick = 26 - this.garchompAttackTick;
     }
 
     const curAnimTick = attackTick > 0 ? attackTick : animTick;
@@ -12802,6 +12880,16 @@ export class TownEngine {
       ctx.beginPath();
       ctx.arc(coreX, coreY - 10, 20, 0, Math.PI * 2);
       ctx.fill();
+    } else if (fid === 'garchomp') {
+      const dragonPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
+      const dragonGrad = ctx.createRadialGradient(coreX, coreY - 10, 2, coreX, coreY - 10, 20);
+      dragonGrad.addColorStop(0, `rgba(56, 189, 248, ${dragonPulse + 0.3})`);
+      dragonGrad.addColorStop(0.5, `rgba(3, 105, 161, ${dragonPulse * 0.7})`);
+      dragonGrad.addColorStop(1, 'rgba(15, 23, 42, 0)');
+      ctx.fillStyle = dragonGrad;
+      ctx.beginPath();
+      ctx.arc(coreX, coreY - 10, 20, 0, Math.PI * 2);
+      ctx.fill();
     }
 
     // Anatomical per-species and per-direction saddle offsets relative to (coreX, coreY)
@@ -12824,7 +12912,7 @@ export class TownEngine {
       groudon:  { down: { dx: 0, dy: -20 }, side: { dx: -3, dy: -18 }, up: { dx: 0, dy: -19 } },
       kyogre:   { down: { dx: 0, dy: -17 }, side: { dx: -2, dy: -16 }, up: { dx: 0, dy: -17 } },
       charizard:{ down: { dx: 0, dy: -18 }, side: { dx: -3, dy: -17 }, up: { dx: 0, dy: -17 } },
-      garchomp: { down: { dx: 0, dy: -18 }, side: { dx: -3, dy: -17 }, up: { dx: 0, dy: -17 } },
+      garchomp: { down: { dx: 0, dy: -17 }, side: { dx: -3, dy: -16 }, up: { dx: 0, dy: -16 } },
       tyranitar:{ down: { dx: 0, dy: -19 }, side: { dx: -3, dy: -18 }, up: { dx: 0, dy: -18 } },
       urshifu:  { down: { dx: 0, dy: -19 }, side: { dx: -3, dy: -18 }, up: { dx: 0, dy: -18 } },
       solgaleo: { down: { dx: 0, dy: -18 }, side: { dx: -4, dy: -17 }, up: { dx: 0, dy: -17 } },
