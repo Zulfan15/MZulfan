@@ -549,6 +549,18 @@ export const SPAWNABLE_TEMPLATES: SpawnableTemplate[] = [
     defaultDialogue: "SOLGALEO: 'Laaa-lionnn-shooo...!' ☀️🦁 Surai keemasan Solgaleo berkobar terang benderang. Sang Utusan Mentari memasuki fase Radiant Sun (Sunsteel Strike), menyinari seluruh Zulfan's Town dengan kehangatan dan energi kehidupan surya tanpa batas.",
   },
   {
+    id: 'tpl_samurott',
+    name: 'Samurott Ahli Seamitar',
+    icon: '⚔️',
+    category: 'Dunia Pokémon',
+    w: 2,
+    h: 2,
+    kind: 'npc',
+    subType: 'samurott',
+    desc: 'Pokémon Formidable Seamitar Unova dengan bilah pedang kerang berpresisi tinggi (2x2)',
+    defaultDialogue: "SAMUROTT: 'Rrrwooon-kllliiinggg...!' ⚔️🌊 Samurott menghunus bilah pedang kerang Seamitar dari pelindung kakinya dengan kecepatan kilat. Sang Master Seamitar berdiri gagah membelah ombak dan menjaga kedaulatan Zulfan's Town.",
+  },
+  {
     id: 'tpl_mewtwo',
     name: 'Mewtwo Sang Penantang',
     icon: '🔮',

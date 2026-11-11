@@ -136,6 +136,7 @@ import { DARKRAI_IMAGE_SRC } from './darkraiSprite';
 import { NECROZMA_IMAGE_SRC } from './necrozmaSprite';
 import { LUNALA_IMAGE_SRC } from './lunalaSprite';
 import { SOLGALEO_IMAGE_SRC } from './solgaleoSprite';
+import { SAMUROTT_IMAGE_SRC } from './samurottSprite';
 import { CHARIZARD_IMAGE_SRC } from './charizardSprite';
 import { TYRANITAR_IMAGE_SRC } from './tyranitarSprite';
 import { GARCHOMP_IMAGE_SRC } from './garchompSprite';
@@ -260,6 +261,7 @@ export class TownEngine {
   private necrozmaImg: HTMLImageElement | null = null;
   private lunalaImg: HTMLImageElement | null = null;
   private solgaleoImg: HTMLImageElement | null = null;
+  private samurottImg: HTMLImageElement | null = null;
   private receptionBackgroundCanvas: HTMLCanvasElement | null = null;
   private martBackgroundCanvas: HTMLCanvasElement | null = null;
   private towerBackgroundCanvas: HTMLCanvasElement | null = null;
@@ -504,6 +506,8 @@ export class TownEngine {
       this.lunalaImg.src = LUNALA_IMAGE_SRC;
       this.solgaleoImg = new Image();
       this.solgaleoImg.src = SOLGALEO_IMAGE_SRC;
+      this.samurottImg = new Image();
+      this.samurottImg.src = SAMUROTT_IMAGE_SRC;
       this.charizardImg = new Image();
       this.charizardImg.src = CHARIZARD_IMAGE_SRC;
       this.garchompImg = new Image();
@@ -1765,8 +1769,8 @@ export class TownEngine {
           const cfg = townConfig.getBuilding(n.id);
           const nx = cfg ? cfg.x : (n.id === 'ace' ? aceX : n.x);
           const ny = cfg ? cfg.y : (n.id === 'ace' ? aceY : n.y);
-          const nw = cfg?.w ?? (['charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar', 'garchomp', 'urshifu', 'groudon', 'kyogre', 'reshiram', 'zekrom'].includes(n.id) ? 2 : 1);
-          const nh = cfg?.h ?? (['charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar', 'garchomp', 'urshifu', 'groudon', 'kyogre', 'reshiram', 'zekrom'].includes(n.id) ? 2 : 1);
+          const nw = cfg?.w ?? (['charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar', 'garchomp', 'urshifu', 'groudon', 'kyogre', 'reshiram', 'zekrom', 'samurott'].includes(n.id) ? 2 : 1);
+          const nh = cfg?.h ?? (['charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar', 'garchomp', 'urshifu', 'groudon', 'kyogre', 'reshiram', 'zekrom', 'samurott'].includes(n.id) ? 2 : 1);
           return targetTileX >= nx && targetTileX < nx + nw && targetTileY >= ny && targetTileY < ny + nh;
         }) ||
         townConfig.getBuildings().find((b) => {
@@ -1778,8 +1782,8 @@ export class TownEngine {
         const cfg = townConfig.getBuilding(hitNpc.id);
         const nx = cfg ? cfg.x : (hitNpc.id === 'ace' ? aceX : hitNpc.x);
         const ny = cfg ? cfg.y : (hitNpc.id === 'ace' ? aceY : hitNpc.y);
-        const nw = (hitNpc as any).w ?? cfg?.w ?? (['charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar', 'garchomp', 'urshifu', 'groudon', 'kyogre', 'reshiram', 'zekrom'].includes(hitNpc.id) ? 2 : 1);
-        const nh = (hitNpc as any).h ?? cfg?.h ?? (['charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar', 'garchomp', 'urshifu', 'groudon', 'kyogre', 'reshiram', 'zekrom'].includes(hitNpc.id) ? 2 : 1);
+        const nw = (hitNpc as any).w ?? cfg?.w ?? (['charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar', 'garchomp', 'urshifu', 'groudon', 'kyogre', 'reshiram', 'zekrom', 'samurott'].includes(hitNpc.id) ? 2 : 1);
+        const nh = (hitNpc as any).h ?? cfg?.h ?? (['charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar', 'garchomp', 'urshifu', 'groudon', 'kyogre', 'reshiram', 'zekrom', 'samurott'].includes(hitNpc.id) ? 2 : 1);
 
         // If player is already adjacent to this NPC, interact immediately!
         const isAdjacent = (
@@ -3729,6 +3733,10 @@ export class TownEngine {
       case 'urshifu_gmax':
         this.playerDir = 'up';
         this.interactFacing('urshifu');
+        break;
+      case 'samurott':
+        this.playerDir = 'up';
+        this.interactFacing('samurott');
         break;
       case 'mewtwo':
         this.playerDir = 'up';
@@ -6113,8 +6121,8 @@ export class TownEngine {
         const cfg = townConfig.getBuilding(n.id);
         const nx = cfg ? cfg.x : (n.id === 'ace' ? aceX : n.x);
         const ny = cfg ? cfg.y : (n.id === 'ace' ? aceY : n.y);
-        const nw = cfg?.w ?? (['charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar', 'garchomp', 'urshifu', 'groudon', 'kyogre', 'reshiram', 'zekrom'].includes(n.id) ? 2 : 1);
-        const nh = cfg?.h ?? (['charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar', 'garchomp', 'urshifu', 'groudon', 'kyogre', 'reshiram', 'zekrom'].includes(n.id) ? 2 : 1);
+        const nw = cfg?.w ?? (['charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar', 'garchomp', 'urshifu', 'groudon', 'kyogre', 'reshiram', 'zekrom', 'samurott'].includes(n.id) ? 2 : 1);
+        const nh = cfg?.h ?? (['charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar', 'garchomp', 'urshifu', 'groudon', 'kyogre', 'reshiram', 'zekrom', 'samurott'].includes(n.id) ? 2 : 1);
         const inFacing = fx >= nx && fx < nx + nw && fy >= ny && fy < ny + nh;
         const isAdjacent = (
           this.playerPos.x >= nx - 1 &&
@@ -6747,6 +6755,37 @@ export class TownEngine {
         this.wake();
         return;
       }
+      if (npc.id === 'samurott' || (npc as any).subType === 'samurott') {
+        sfx.select();
+        const samurottLines = [
+          'SAMUROTT: "Rrrwooon-kllliiinggg...!" ⚔️🌊',
+          'Di pelataran Zulfan\'s Town, Samurott Sang Formidable Seamitar berdiri gagah menghunus pedang kerang Seamitar.',
+          'Bilah Seamitar yang terpasang di pelindung kakinya diasah dengan presisi mutlak, siap memotong kode kusut dan rintangan teknis.',
+          'Sebagai pelindung Clean Code dan Precision Architecture, Samurott melambangkan ketangguhan dan eksekusi tanpa cela.',
+        ];
+        const samurottActions: BubbleAction[] = [
+          {
+            label: '⚔️ Tebasan Kerang Razor Shell',
+            onClick: () => this.triggerSignatureMove('samurott', npc.x, npc.y),
+          },
+          {
+            label: '🤝 Ajak Jalan Bersama',
+            onClick: () => this.setActiveFollower('samurott'),
+          },
+        ];
+        if (this.callbacks.onBubble) {
+          this.callbacks.onBubble(
+            'Samurott (Formidable Seamitar) ⚔️🌊',
+            'Rrrwooon-kllliiinggg...! ⚔️🌊 (Samurott menghunus pedang kerang Seamitar berkecepatan kilat. Ombak air berputar membentuk tebasan Razor Shell presisi tinggi yang melindungi Zulfan\'s Town.)',
+            samurottActions
+          );
+        } else {
+          this.callbacks.onDialogue('Samurott Formidable Seamitar ⚔️🌊', samurottLines);
+        }
+        document.dispatchEvent(new CustomEvent('town:samurott'));
+        this.wake();
+        return;
+      }
       if (npc.id === 'charizard' || npc.id === 'lebron' || npc.action?.kind === 'event') {
         const evt = npc.action?.kind === 'event' ? npc.action.name : npc.id;
         document.dispatchEvent(new CustomEvent(`town:${evt}`));
@@ -7162,6 +7201,18 @@ export class TownEngine {
             {
               label: '🤝 Ajak Jalan Bersama',
               onClick: () => this.setActiveFollower('solgaleo'),
+            },
+          ];
+        } else if (customPlaced.subType === 'samurott') {
+          dialogueText = "SAMUROTT: 'Rrrwooon-kllliiinggg...!' ⚔️🌊 [Tech Guardian: Precision Systems & Clean Code Mastery] Menghunus pedang Seamitar untuk memotong bug rumit, refactoring bersih, dan performa kode yang tangguh.";
+          action = [
+            {
+              label: '⚔️ Tebasan Kerang Razor Shell',
+              onClick: () => this.triggerSignatureMove('samurott', customPlaced.x, customPlaced.y),
+            },
+            {
+              label: '🤝 Ajak Jalan Bersama',
+              onClick: () => this.setActiveFollower('samurott'),
             },
           ];
         } else if (customPlaced.subType === 'rayquaza') {
@@ -7966,6 +8017,7 @@ export class TownEngine {
       'necrozma_dusk_mane',
       'lunala',
       'solgaleo',
+      'samurott',
       'arceus',
       'ranger',
       'tyranitar',
@@ -9706,6 +9758,54 @@ export class TownEngine {
           ctx.drawImage(this.solgaleoImg, drawX - 15, drawY - 21 + breath, 46, 43);
           if (isFlipped) ctx.restore();
         }
+      } else if (npc.id === 'samurott' || (npc as any).subType === 'samurott') {
+        // Authentic Samurott Overworld Sprite with Seamitar Hydro Aura
+        const drawX = curTileX * TILE_SIZE;
+        const drawY = curTileY * TILE_SIZE;
+        const breath = Math.sin(this.tick * 0.05) * 0.8;
+        const coreX = drawX + 8;
+        const coreY = drawY + 6;
+
+        // Ground shadow
+        ctx.fillStyle = 'rgba(10, 25, 45, 0.45)';
+        ctx.beginPath();
+        ctx.ellipse(coreX, drawY + 16, 14, 5, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Hydro Seamitar Aura
+        const waterPulse = 0.3 + Math.sin(this.tick * 0.08) * 0.15;
+        const waterGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 18);
+        waterGrad.addColorStop(0, `rgba(255, 255, 255, ${waterPulse + 0.3})`);
+        waterGrad.addColorStop(0.4, `rgba(56, 189, 248, ${waterPulse + 0.15})`);
+        waterGrad.addColorStop(0.75, `rgba(14, 165, 233, ${waterPulse * 0.7})`);
+        waterGrad.addColorStop(1, 'rgba(2, 132, 199, 0)');
+        ctx.fillStyle = waterGrad;
+        ctx.beginPath();
+        ctx.arc(coreX, coreY, 18, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Water splash sparks & seamitar glint
+        if (this.tick % 20 < 12) {
+          ctx.fillStyle = '#38bdf8';
+          ctx.fillRect(coreX + Math.sin(this.tick * 0.22) * 12, coreY + 4 - ((this.tick * 1.2) % 14), 1.5, 1.5);
+          ctx.fillStyle = '#0284c7';
+          ctx.fillRect(coreX - 6 + Math.cos(this.tick * 0.17) * 10, coreY + 5 - ((this.tick * 1.0) % 13), 2, 2);
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(coreX + 4 + Math.sin(this.tick * 0.28) * 8, coreY + 2 - (this.tick % 11), 1.5, 1.5);
+        }
+
+        // Draw Samurott sprite (96x96 scaled to 42x42)
+        if (this.samurottImg && this.samurottImg.complete && this.samurottImg.naturalWidth > 0) {
+          const isFlipped = (cfg?.orientation || 'W') === 'E';
+          if (isFlipped) {
+            ctx.save();
+            ctx.translate(drawX + 8, 0);
+            ctx.scale(-1, 1);
+            ctx.translate(-(drawX + 8), 0);
+          }
+          ctx.drawImage(this.samurottImg, drawX - 13, drawY - 20 + breath, 42, 42);
+          if (isFlipped) ctx.restore();
+        }
       } else {
         const drawX = curTileX * TILE_SIZE;
         const drawY = curTileY * TILE_SIZE;
@@ -9749,6 +9849,7 @@ export class TownEngine {
         'kyogre',
         'garchomp',
         'urshifu',
+        'samurott',
       ].includes(npc.id) || (npc as any).subType;
 
       if (isTalkable) {
@@ -9766,6 +9867,7 @@ export class TownEngine {
           'kyogre',
           'reshiram',
           'zekrom',
+          'samurott',
         ].includes(npc.id);
         const bx = curTileX * TILE_SIZE + (isBig ? 24 : 18);
         const by = curTileY * TILE_SIZE - 10 + Math.sin(this.tick * 0.08 + curTileX * 0.5) * 1.5;
@@ -9792,7 +9894,7 @@ export class TownEngine {
           'charizard', 'tyranitar', 'blastoise', 'garchomp', 'urshifu', 'rayquaza',
           'mewtwo', 'arceus', 'dialga', 'palkia', 'reshiram', 'zekrom',
           'giratina', 'groudon', 'kyogre', 'latios', 'latias', 'darkrai',
-          'necrozma', 'lunala', 'solgaleo', 'lucario', 'pikachu'
+          'necrozma', 'lunala', 'solgaleo', 'samurott', 'lucario', 'pikachu'
         ].includes(b.subType || b.id);
         const isFlipped = isPokemon ? b.orientation === 'E' : false;
         const centerX = b.x * TILE_SIZE + 8;
@@ -10171,6 +10273,40 @@ export class TownEngine {
           }
 
           ctx.drawImage(this.solgaleoImg, b.x * TILE_SIZE - 15, b.y * TILE_SIZE - 21 + breath, 46, 43);
+        } else if ((b.subType === 'samurott' || b.id === 'samurott') && this.samurottImg && this.samurottImg.complete) {
+          const breath = Math.sin(this.tick * 0.05) * 0.8;
+          const coreX = b.x * TILE_SIZE + 8;
+          const coreY = b.y * TILE_SIZE + 6;
+
+          // Ground shadow
+          ctx.fillStyle = 'rgba(10, 25, 45, 0.45)';
+          ctx.beginPath();
+          ctx.ellipse(coreX, b.y * TILE_SIZE + 16, 14, 5, 0, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Hydro Seamitar Aura
+          const waterPulse = 0.3 + Math.sin(this.tick * 0.08) * 0.15;
+          const waterGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 18);
+          waterGrad.addColorStop(0, `rgba(255, 255, 255, ${waterPulse + 0.3})`);
+          waterGrad.addColorStop(0.4, `rgba(56, 189, 248, ${waterPulse + 0.15})`);
+          waterGrad.addColorStop(0.75, `rgba(14, 165, 233, ${waterPulse * 0.7})`);
+          waterGrad.addColorStop(1, 'rgba(2, 132, 199, 0)');
+          ctx.fillStyle = waterGrad;
+          ctx.beginPath();
+          ctx.arc(coreX, coreY, 18, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Water splash sparks & seamitar glint
+          if (this.tick % 20 < 12) {
+            ctx.fillStyle = '#38bdf8';
+            ctx.fillRect(coreX + Math.sin(this.tick * 0.22) * 12, coreY + 4 - ((this.tick * 1.2) % 14), 1.5, 1.5);
+            ctx.fillStyle = '#0284c7';
+            ctx.fillRect(coreX - 6 + Math.cos(this.tick * 0.17) * 10, coreY + 5 - ((this.tick * 1.0) % 13), 2, 2);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(coreX + 4 + Math.sin(this.tick * 0.28) * 8, coreY + 2 - (this.tick % 11), 1.5, 1.5);
+          }
+
+          ctx.drawImage(this.samurottImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + breath, 42, 42);
         } else {
           const dir =
             b.orientation === 'W'
@@ -10516,6 +10652,7 @@ export class TownEngine {
       necrozma: { name: 'Necrozma', title: 'Prism Solar Light', icon: '🦁' },
       lunala: { name: 'Lunala', title: 'Moone Lunar Beast', icon: '🌙' },
       solgaleo: { name: 'Solgaleo', title: 'Sunne Solar Beast', icon: '☀️' },
+      samurott: { name: 'Samurott', title: 'Formidable Seamitar', icon: '⚔️' },
     };
 
     const cleanId = id.toLowerCase().replace(/[^a-z]/g, '');
@@ -10929,6 +11066,23 @@ export class TownEngine {
           type: 'flame',
         });
       }
+    } else if (id.includes('samurott')) {
+      for (let i = 0; i < 50; i++) {
+        const ang = Math.random() * Math.PI * 2;
+        const spd = 3.5 + Math.random() * 5.0;
+        this.moveParticles.push({
+          x: ox,
+          y: oy,
+          vx: Math.cos(ang) * spd,
+          vy: Math.sin(ang) * spd,
+          size: 2.8 + Math.random() * 3.8,
+          color: ['#0284c7', '#0ea5e9', '#38bdf8', '#7dd3fc', '#ffffff'][Math.floor(Math.random() * 5)],
+          alpha: 0.95,
+          life: 0,
+          maxLife: 28 + Math.floor(Math.random() * 16),
+          type: 'water',
+        });
+      }
     } else {
       for (let i = 0; i < 40; i++) {
         const ang = Math.random() * Math.PI * 2;
@@ -10975,6 +11129,7 @@ export class TownEngine {
       urshifu: { rx: 16, ry: 5.5, yOff: 16 },
       lunala: { rx: 17, ry: 5, yOff: 16 },
       solgaleo: { rx: 16, ry: 6, yOff: 16 },
+      samurott: { rx: 14, ry: 5, yOff: 16 },
       necrozma: { rx: 16, ry: 6, yOff: 16 },
       groudon: { rx: 15, ry: 6, yOff: 16 },
       kyogre: { rx: 15, ry: 5.5, yOff: 16 },
@@ -11282,6 +11437,22 @@ export class TownEngine {
         ctx.fill();
 
         ctx.drawImage(this.solgaleoImg, drawX - 15, drawY - 21 + stepBob, 46, 43);
+      }
+    } else if (fid === 'samurott') {
+      if (this.samurottImg && this.samurottImg.complete) {
+        const coreX = drawX + 8;
+        const coreY = drawY + 4 + stepBob;
+        const waterGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 16);
+        waterGrad.addColorStop(0, 'rgba(255, 255, 255, 0.7)');
+        waterGrad.addColorStop(0.4, 'rgba(56, 189, 248, 0.45)');
+        waterGrad.addColorStop(0.8, 'rgba(14, 165, 233, 0.25)');
+        waterGrad.addColorStop(1, 'rgba(2, 132, 199, 0)');
+        ctx.fillStyle = waterGrad;
+        ctx.beginPath();
+        ctx.arc(coreX, coreY, 16, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.drawImage(this.samurottImg, drawX - 13, drawY - 20 + stepBob + idleBob, 42, 42);
       }
     }
 
