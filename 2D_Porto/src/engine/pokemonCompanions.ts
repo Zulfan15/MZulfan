@@ -17,6 +17,7 @@ import { NECROZMA_IMAGE_SRC } from './necrozmaSprite';
 import { LUNALA_IMAGE_SRC } from './lunalaSprite';
 import { SOLGALEO_IMAGE_SRC } from './solgaleoSprite';
 import { SAMUROTT_IMAGE_SRC } from './samurottSprite';
+import { GYARADOS_IMAGE_SRC } from './gyaradosSprite';
 
 export const MEWTWO_IMAGE_SRC =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHAAAABwBAMAAAA0zul4AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAIVBMVEUAAAD4+Pjg4PC4sMi4iMCYiJh4gHiIWJBQWFBAQEAAAABuf+WbAAAAAXRSTlMAQObYZgAAAWxJREFUeNrt2DGtJDEQRdGi8Ck8Co+CKRSFT8EUmkJRuChX7vGMg81Wqk52bmjpSC+wHDi+ffv27dsz8TTEPAvxhvAgXASJp+CvBEg+MIBGqNWvfCCMMWmC6G/HWDVBtHvB4ybRDfWGzDGA6IHoZLPhntkNbXNcI7S82OUDiUYY3LCuHx9YdMJAyoufn+1u2QpJSYzlKs8F6ISSvILMa8sx6IOB064igkziyDYYVJXzNfXAQQ88Y6WrktjRDiVd3u5s7YJkZUp52WfqHLMNkllSpsHmuNEEwS5LEhFY3GdzLtcCKVd5zqkXUQHzrgdil1RjjCUJpJpv1wFxvtySKVEfSPTA5TYsSSq9JEQPDD6wrC1rsx4Y3NvGmKU3NBGNMJBdc25YSmUzDMisDV2iD54+0jZOoh9WJuDlAqIbcruIKNtFRDcklzsvJf3wdjvsfhhAPAtPID0KKaX0KJRSxIMwQI/BQ+Nf4f/7/fYHGujw6q4E2bwAAAAASUVORK5CYII=';
@@ -244,6 +245,19 @@ export const COMPANIONS: CompanionInfo[] = [
     lore: 'Tech Guardian: Streaming Data Pipelines, Event-Driven Architecture & Real-Time Queues. Mengalirkan jutaan pesan data secara kontinu tanpa hambatan.',
     imageSrc: KYOGRE_IMAGE_SRC,
     tagline: 'Pipeline streaming data & arsitektur event-driven',
+  },
+  {
+    id: 'gyarados',
+    name: 'Gyarados',
+    title: 'Atrocious Water Titan',
+    icon: '🌊',
+    element: 'Air / Terbang',
+    badgeClass: 'bg-cyan-100 text-cyan-950 border-cyan-400',
+    skillName: 'Semburan Air (Hydro Pump)',
+    skillDesc: 'Semburan air bertekanan dahsyat menghantam deras melibas segala rintangan tanpa gentar.',
+    lore: 'Tech Guardian: High-Throughput Streaming & Resilient Network Pipelines. Mengalirkan jutaan transaksi data secara deras dan pantang menyerah menembus arus!',
+    imageSrc: GYARADOS_IMAGE_SRC,
+    tagline: 'Aliran data masif & ketahanan jaringan tangguh',
   },
   {
     id: 'latios',

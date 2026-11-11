@@ -11112,6 +11112,10 @@ export class TownEngine {
             b.y * TILE_SIZE + 16,
             this.tick
           );
+        } else if (b.subType === 'lucario' || b.id === 'lucario') {
+          drawLucario(ctx, b.x * TILE_SIZE, b.y * TILE_SIZE, this.tick, 1);
+        } else if (b.subType === 'pikachu' || b.id === 'pikachu') {
+          drawPikachu(ctx, b.x * TILE_SIZE, b.y * TILE_SIZE);
         } else {
           const dir =
             b.orientation === 'W'
