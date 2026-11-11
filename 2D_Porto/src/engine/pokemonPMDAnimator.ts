@@ -255,6 +255,47 @@ export const PMD_POKEMON_CONFIGS: Record<string, PMDPokemonConfig> = {
       anchorY: 90,
     },
   },
+  dialga: {
+    id: 'dialga',
+    name: 'Dialga',
+    scale: 0.65,
+    idle: {
+      src: '/assets/pokemon/dialga/Idle-Anim.png',
+      frameWidth: 72,
+      frameHeight: 104,
+      frameCount: 2,
+      durations: [80, 45],
+      anchorX: 36,
+      anchorY: 66,
+    },
+    walk: {
+      src: '/assets/pokemon/dialga/Walk-Anim.png',
+      frameWidth: 72,
+      frameHeight: 104,
+      frameCount: 4,
+      durations: [12, 14, 12, 14],
+      anchorX: 36,
+      anchorY: 66,
+    },
+    shoot: {
+      src: '/assets/pokemon/dialga/Shoot-Anim.png',
+      frameWidth: 72,
+      frameHeight: 120,
+      frameCount: 12,
+      durations: [1, 2, 8, 1, 2, 2, 2, 2, 2, 2, 2, 2],
+      anchorX: 36,
+      anchorY: 73,
+    },
+    attack: {
+      src: '/assets/pokemon/dialga/Attack-Anim.png',
+      frameWidth: 96,
+      frameHeight: 128,
+      frameCount: 14,
+      durations: [2, 2, 6, 1, 1, 1, 2, 2, 2, 2, 2, 2, 1, 2],
+      anchorX: 48,
+      anchorY: 76,
+    },
+  },
 };
 
 export class PokemonPMDAnimator {

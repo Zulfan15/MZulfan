@@ -316,6 +316,7 @@ export class TownEngine {
   private zekromAttackTick = 0;
   private giratinaAttackTick = 0;
   private palkiaAttackTick = 0;
+  private dialgaAttackTick = 0;
   private pmdAnimator = new PokemonPMDAnimator();
 
   // Signature Move Visual FX & Camera Shake
@@ -3173,6 +3174,9 @@ export class TownEngine {
     }
     if (this.palkiaAttackTick > 0) {
       this.palkiaAttackTick--;
+    }
+    if (this.dialgaAttackTick > 0) {
+      this.dialgaAttackTick--;
     }
 
     // Update dynamic weather particles
@@ -8922,8 +8926,20 @@ export class TownEngine {
           ctx.fillRect(coreX - 6 + Math.cos(this.tick * 0.16) * 10, coreY + 4 - (this.tick % 10), 2, 2);
         }
 
-        // Draw Dialga sprite
-        if (this.dialgaImg && this.dialgaImg.complete && this.dialgaImg.naturalWidth > 0) {
+        // Draw PMD Animated Dialga
+        const dir = (cfg?.orientation === 'E' || cfg?.orientation === 'SE' || cfg?.orientation === 'NE') ? 'E' : (cfg?.orientation || 'W');
+        const pmdDrawn = this.pmdAnimator.draw(
+          ctx,
+          'dialga',
+          'idle',
+          dir,
+          coreX,
+          drawY + 16,
+          this.tick
+        );
+
+        // Fallback to static sprite if PMD not yet loaded
+        if (!pmdDrawn && this.dialgaImg && this.dialgaImg.complete && this.dialgaImg.naturalWidth > 0) {
           const isFlipped = (cfg?.orientation || 'W') === 'E';
           if (isFlipped) {
             ctx.save();
@@ -10066,9 +10082,24 @@ export class TownEngine {
           }
 
           ctx.drawImage(this.urshifuImg, drawX - 16, drawY - 24 + stanceBob, 48, 45);
-        } else if ((b.subType === 'dialga' || b.id === 'dialga') && this.dialgaImg && this.dialgaImg.complete) {
+        } else if (b.subType === 'dialga' || b.id === 'dialga') {
+          const coreX = b.x * TILE_SIZE + 8;
+          const coreY = b.y * TILE_SIZE + 16;
           const lev = Math.sin(this.tick * 0.04) * 1.5;
-          ctx.drawImage(this.dialgaImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + lev, 42, 42);
+
+          const dir = b.orientation || 'W';
+          const pmdDrawn = this.pmdAnimator.draw(
+            ctx,
+            'dialga',
+            'idle',
+            dir,
+            coreX,
+            coreY,
+            this.tick
+          );
+          if (!pmdDrawn && this.dialgaImg && this.dialgaImg.complete) {
+            ctx.drawImage(this.dialgaImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + lev, 42, 42);
+          }
         } else if (b.subType === 'palkia' || b.id === 'palkia') {
           const coreX = b.x * TILE_SIZE + 8;
           const coreY = b.y * TILE_SIZE + 16;
@@ -11124,6 +11155,7 @@ export class TownEngine {
         });
       }
     } else if (id.includes('dialga')) {
+      this.dialgaAttackTick = 28;
       for (let i = 0; i < 45; i++) {
         const ang = Math.random() * Math.PI * 2;
         const spd = 2.5 + Math.random() * 4.5;
@@ -11575,19 +11607,59 @@ export class TownEngine {
         ctx.drawImage(this.arceusImg, drawX - 12, drawY - 18 + stepBob + idleBob, 40, 40);
       }
     } else if (fid === 'dialga') {
-      if (this.dialgaImg && this.dialgaImg.complete) {
-        const corePulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
-        const coreX = drawX + 8;
-        const coreY = drawY - 2 + stepBob + idleBob;
-        const coreGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 18);
-        coreGrad.addColorStop(0, `rgba(224, 242, 254, ${corePulse + 0.35})`);
-        coreGrad.addColorStop(0.45, `rgba(56, 189, 248, ${corePulse + 0.1})`);
-        coreGrad.addColorStop(1, 'rgba(2, 132, 199, 0)');
-        ctx.fillStyle = coreGrad;
-        ctx.beginPath();
-        ctx.arc(coreX, coreY, 18, 0, Math.PI * 2);
-        ctx.fill();
+      const coreX = drawX + 8;
+      const coreY = drawY + 16;
+      const corePulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
+      const coreGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 18);
+      coreGrad.addColorStop(0, `rgba(224, 242, 254, ${corePulse + 0.35})`);
+      coreGrad.addColorStop(0.45, `rgba(56, 189, 248, ${corePulse + 0.1})`);
+      coreGrad.addColorStop(1, 'rgba(2, 132, 199, 0)');
+      ctx.fillStyle = coreGrad;
+      ctx.beginPath();
+      ctx.arc(coreX, coreY, 18, 0, Math.PI * 2);
+      ctx.fill();
 
+      // Roar of Time temporal distortion pulse ring
+      const timePhase = (this.tick * 0.045) % 1;
+      const ringRadius = 5 + timePhase * 16;
+      const ringAlpha = (1 - timePhase) * 0.65;
+      ctx.strokeStyle = `rgba(56, 189, 248, ${ringAlpha})`;
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.arc(coreX, coreY, ringRadius, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Diamond time-sparkles floating around Dialga
+      if (this.tick % 24 < 14) {
+        ctx.fillStyle = '#f0f9ff';
+        ctx.fillRect(coreX + Math.sin(this.tick * 0.2) * 12, coreY - 4 - (this.tick % 14), 1.5, 1.5);
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillRect(coreX - 6 + Math.cos(this.tick * 0.16) * 10, coreY + 4 - (this.tick % 10), 2, 2);
+      }
+
+      // Determine action, direction, and animation frame tick
+      let action: 'idle' | 'walk' | 'shoot' = 'idle';
+      let animTick = this.tick;
+      if (this.dialgaAttackTick > 0) {
+        action = 'shoot';
+        animTick = 28 - this.dialgaAttackTick;
+      } else if (isFollowerWalking) {
+        action = 'walk';
+        animTick = this.followerWalkTick;
+      }
+      const dir = this.followerDir || 'down';
+
+      const pmdDrawn = this.pmdAnimator.draw(
+        ctx,
+        'dialga',
+        action,
+        dir,
+        coreX,
+        coreY,
+        animTick
+      );
+
+      if (!pmdDrawn && this.dialgaImg && this.dialgaImg.complete) {
         ctx.drawImage(this.dialgaImg, drawX - 13, drawY - 20 + stepBob + idleBob, 42, 42);
       }
     } else if (fid === 'palkia') {
