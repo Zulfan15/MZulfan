@@ -173,6 +173,47 @@ export const PMD_POKEMON_CONFIGS: Record<string, PMDPokemonConfig> = {
       anchorY: 71,
     },
   },
+  giratina: {
+    id: 'giratina',
+    name: 'Giratina',
+    scale: 0.82,
+    idle: {
+      src: '/assets/pokemon/giratina/Idle-Anim.png',
+      frameWidth: 56,
+      frameHeight: 80,
+      frameCount: 2,
+      durations: [60, 40],
+      anchorX: 28,
+      anchorY: 44,
+    },
+    walk: {
+      src: '/assets/pokemon/giratina/Walk-Anim.png',
+      frameWidth: 64,
+      frameHeight: 80,
+      frameCount: 4,
+      durations: [12, 12, 12, 12],
+      anchorX: 32,
+      anchorY: 44,
+    },
+    shoot: {
+      src: '/assets/pokemon/giratina/Shoot-Anim.png',
+      frameWidth: 72,
+      frameHeight: 88,
+      frameCount: 12,
+      durations: [2, 2, 6, 1, 2, 2, 2, 2, 2, 2, 2, 2],
+      anchorX: 36,
+      anchorY: 47,
+    },
+    attack: {
+      src: '/assets/pokemon/giratina/Attack-Anim.png',
+      frameWidth: 72,
+      frameHeight: 96,
+      frameCount: 14,
+      durations: [2, 2, 6, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+      anchorX: 36,
+      anchorY: 50,
+    },
+  },
 };
 
 export class PokemonPMDAnimator {

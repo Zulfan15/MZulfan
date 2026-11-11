@@ -313,6 +313,7 @@ export class TownEngine {
   private arceusAttackTick = 0;
   private reshiramAttackTick = 0;
   private zekromAttackTick = 0;
+  private giratinaAttackTick = 0;
   private pmdAnimator = new PokemonPMDAnimator();
 
   // Signature Move Visual FX & Camera Shake
@@ -3163,6 +3164,9 @@ export class TownEngine {
     }
     if (this.zekromAttackTick > 0) {
       this.zekromAttackTick--;
+    }
+    if (this.giratinaAttackTick > 0) {
+      this.giratinaAttackTick--;
     }
 
     // Update dynamic weather particles
@@ -9021,8 +9025,21 @@ export class TownEngine {
           ctx.fillRect(portalX + 4 - Math.sin(this.tick * 0.15) * 8, portalY - 8 - (this.tick % 12), 1.5, 1.5);
         }
 
-        // Draw Giratina sprite
-        if (this.giratinaImg && this.giratinaImg.complete && this.giratinaImg.naturalWidth > 0) {
+        // Draw PMD Animated Giratina
+        const dir = (cfg?.orientation === 'E' || cfg?.orientation === 'SE' || cfg?.orientation === 'NE') ? 'E' : 'W';
+        const coreX = drawX + 8;
+        const pmdDrawn = this.pmdAnimator.draw(
+          ctx,
+          'giratina',
+          'idle',
+          dir,
+          coreX,
+          drawY + 16,
+          this.tick
+        );
+
+        // Fallback to static sprite if PMD not yet loaded
+        if (!pmdDrawn && this.giratinaImg && this.giratinaImg.complete && this.giratinaImg.naturalWidth > 0) {
           const isFlipped = (cfg?.orientation || 'W') === 'E';
           if (isFlipped) {
             ctx.save();
@@ -10036,9 +10053,24 @@ export class TownEngine {
         } else if ((b.subType === 'palkia' || b.id === 'palkia') && this.palkiaImg && this.palkiaImg.complete) {
           const lev = Math.sin(this.tick * 0.04) * 1.6;
           ctx.drawImage(this.palkiaImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + lev, 42, 42);
-        } else if ((b.subType === 'giratina' || b.id === 'giratina') && this.giratinaImg && this.giratinaImg.complete) {
+        } else if (b.subType === 'giratina' || b.id === 'giratina') {
+          const coreX = b.x * TILE_SIZE + 8;
+          const coreY = b.y * TILE_SIZE + 16;
           const lev = Math.sin(this.tick * 0.04) * 1.8;
-          ctx.drawImage(this.giratinaImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + lev, 42, 42);
+
+          const dir = b.orientation || 'W';
+          const pmdDrawn = this.pmdAnimator.draw(
+            ctx,
+            'giratina',
+            'idle',
+            dir,
+            coreX,
+            coreY,
+            this.tick
+          );
+          if (!pmdDrawn && this.giratinaImg && this.giratinaImg.complete) {
+            ctx.drawImage(this.giratinaImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + lev, 42, 42);
+          }
         } else if (b.subType === 'zekrom' || b.id === 'zekrom') {
           const coreX = b.x * TILE_SIZE + 8;
           const coreY = b.y * TILE_SIZE + 16;
@@ -11049,6 +11081,7 @@ export class TownEngine {
         });
       }
     } else if (id.includes('giratina')) {
+      this.giratinaAttackTick = 27;
       for (let i = 0; i < 50; i++) {
         const ang = Math.random() * Math.PI * 2;
         const spd = 2.4 + Math.random() * 4.2;
@@ -11548,18 +11581,40 @@ export class TownEngine {
         ctx.drawImage(this.zekromImg, drawX - 13, drawY - 20 + stepBob + idleBob, 42, 42);
       }
     } else if (fid === 'giratina') {
-      if (this.giratinaImg && this.giratinaImg.complete) {
-        const coreX = drawX + 8;
-        const coreY = drawY - 2 + stepBob + idleBob * 1.5;
-        const shadowGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 17);
-        shadowGrad.addColorStop(0, 'rgba(232, 121, 249, 0.5)');
-        shadowGrad.addColorStop(0.6, 'rgba(112, 26, 117, 0.35)');
-        shadowGrad.addColorStop(1, 'rgba(15, 23, 42, 0)');
-        ctx.fillStyle = shadowGrad;
-        ctx.beginPath();
-        ctx.arc(coreX, coreY, 17, 0, Math.PI * 2);
-        ctx.fill();
+      const coreX = drawX + 8;
+      const coreY = drawY + 16;
+      const shadowGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 17);
+      shadowGrad.addColorStop(0, 'rgba(232, 121, 249, 0.5)');
+      shadowGrad.addColorStop(0.6, 'rgba(112, 26, 117, 0.35)');
+      shadowGrad.addColorStop(1, 'rgba(15, 23, 42, 0)');
+      ctx.fillStyle = shadowGrad;
+      ctx.beginPath();
+      ctx.arc(coreX, coreY, 17, 0, Math.PI * 2);
+      ctx.fill();
 
+      // Determine action, direction, and animation frame tick
+      let action: 'idle' | 'walk' | 'shoot' = 'idle';
+      let animTick = this.tick;
+      if (this.giratinaAttackTick > 0) {
+        action = 'shoot';
+        animTick = 27 - this.giratinaAttackTick;
+      } else if (this.isMoving) {
+        action = 'walk';
+        animTick = this.followerWalkTick;
+      }
+      const dir = this.followerDir || 'down';
+
+      const pmdDrawn = this.pmdAnimator.draw(
+        ctx,
+        'giratina',
+        action,
+        dir,
+        coreX,
+        coreY,
+        animTick
+      );
+
+      if (!pmdDrawn && this.giratinaImg && this.giratinaImg.complete) {
         ctx.drawImage(this.giratinaImg, drawX - 13, drawY - 20 + stepBob + idleBob * 1.5, 42, 42);
       }
     } else if (fid === 'groudon') {
