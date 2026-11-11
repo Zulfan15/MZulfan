@@ -469,6 +469,47 @@ export const PMD_POKEMON_CONFIGS: Record<string, PMDPokemonConfig> = {
       anchorY: 55,
     },
   },
+  kyogre: {
+    id: 'kyogre',
+    name: 'Kyogre',
+    scale: 0.78,
+    idle: {
+      src: '/assets/pokemon/kyogre/Idle-Anim.png',
+      frameWidth: 64,
+      frameHeight: 72,
+      frameCount: 10,
+      durations: [10, 14, 14, 14, 14, 10, 14, 14, 14, 14],
+      anchorX: 32,
+      anchorY: 40,
+    },
+    walk: {
+      src: '/assets/pokemon/kyogre/Walk-Anim.png',
+      frameWidth: 64,
+      frameHeight: 72,
+      frameCount: 10,
+      durations: [8, 8, 8, 8, 8, 8, 8, 8, 8, 8],
+      anchorX: 32,
+      anchorY: 40,
+    },
+    shoot: {
+      src: '/assets/pokemon/kyogre/Shoot-Anim.png',
+      frameWidth: 72,
+      frameHeight: 72,
+      frameCount: 11,
+      durations: [2, 6, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+      anchorX: 36,
+      anchorY: 38,
+    },
+    attack: {
+      src: '/assets/pokemon/kyogre/Attack-Anim.png',
+      frameWidth: 80,
+      frameHeight: 72,
+      frameCount: 10,
+      durations: [2, 6, 1, 1, 2, 2, 2, 2, 2, 2],
+      anchorX: 40,
+      anchorY: 39,
+    },
+  },
 };
 
 export class PokemonPMDAnimator {

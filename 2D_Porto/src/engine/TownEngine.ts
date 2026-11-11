@@ -322,6 +322,7 @@ export class TownEngine {
   private solgaleoAttackTick = 0;
   private garchompAttackTick = 0;
   private groudonAttackTick = 0;
+  private kyogreAttackTick = 0;
   private pmdAnimator = new PokemonPMDAnimator();
 
   // Signature Move Visual FX & Camera Shake
@@ -3512,6 +3513,9 @@ export class TownEngine {
     }
     if (this.groudonAttackTick > 0) {
       this.groudonAttackTick--;
+    }
+    if (this.kyogreAttackTick > 0) {
+      this.kyogreAttackTick--;
     }
 
     // Update dynamic weather particles
@@ -9971,8 +9975,20 @@ export class TownEngine {
           ctx.fillRect(coreX + 5 + Math.sin(this.tick * 0.28) * 9, coreY - 6 - (this.tick % 8), 1.5, 1.5);
         }
 
-        // Draw Kyogre sprite
-        if (this.kyogreImg && this.kyogreImg.complete && this.kyogreImg.naturalWidth > 0) {
+        // Draw Kyogre 8-direction PMD animated sprite (with fallback)
+        const dir = (cfg?.orientation || 'W').toLowerCase();
+        const pmdDir = dir === 'w' ? 'left' : dir === 'e' ? 'right' : dir === 'n' ? 'up' : 'down';
+        const pmdDrawn = this.pmdAnimator.draw(
+          ctx,
+          'kyogre',
+          'idle',
+          pmdDir,
+          coreX,
+          drawY + 16,
+          this.tick
+        );
+
+        if (!pmdDrawn && this.kyogreImg && this.kyogreImg.complete && this.kyogreImg.naturalWidth > 0) {
           const isFlipped = (cfg?.orientation || 'W') === 'E';
           if (isFlipped) {
             ctx.save();
@@ -10703,7 +10719,7 @@ export class TownEngine {
           if (!pmdDrawn && this.groudonImg && this.groudonImg.complete) {
             ctx.drawImage(this.groudonImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + breath, 42, 42);
           }
-        } else if ((b.subType === 'kyogre' || b.id === 'kyogre') && this.kyogreImg && this.kyogreImg.complete) {
+        } else if ((b.subType === 'kyogre' || b.id === 'kyogre') && (this.pmdAnimator.isSupported('kyogre') || (this.kyogreImg && this.kyogreImg.complete))) {
           const swimY = Math.sin(this.tick * 0.04) * 1.8;
           const coreX = b.x * TILE_SIZE + 8;
           const coreY = b.y * TILE_SIZE + 2 + swimY;
@@ -10735,7 +10751,19 @@ export class TownEngine {
             ctx.fillRect(coreX + 5 + Math.sin(this.tick * 0.28) * 9, coreY - 6 - (this.tick % 8), 1.5, 1.5);
           }
 
-          ctx.drawImage(this.kyogreImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + swimY, 42, 42);
+          const dir = b.orientation || 'W';
+          const pmdDrawn = this.pmdAnimator.draw(
+            ctx,
+            'kyogre',
+            'idle',
+            dir,
+            coreX,
+            b.y * TILE_SIZE + 16,
+            this.tick
+          );
+          if (!pmdDrawn && this.kyogreImg && this.kyogreImg.complete) {
+            ctx.drawImage(this.kyogreImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + swimY, 42, 42);
+          }
         } else if ((b.subType === 'latios' || b.id === 'latios') && this.latiosImg && this.latiosImg.complete) {
           const jetHover = Math.sin(this.tick * 0.055) * 2.2;
           const coreX = b.x * TILE_SIZE + 8;
@@ -11763,6 +11791,7 @@ export class TownEngine {
         });
       }
     } else if (id.includes('kyogre')) {
+      this.kyogreAttackTick = 26;
       for (let i = 0; i < 50; i++) {
         const ang = Math.random() * Math.PI * 2;
         const spd = 3.0 + Math.random() * 5.0;
@@ -12437,18 +12466,49 @@ export class TownEngine {
         ctx.drawImage(this.groudonImg, drawX - 13, drawY - 20 + stepBob, 42, 42);
       }
     } else if (fid === 'kyogre') {
-      if (this.kyogreImg && this.kyogreImg.complete) {
-        const coreX = drawX + 8;
-        const coreY = drawY + 2 + stepBob + idleBob * 1.4;
-        const aquaGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 16);
-        aquaGrad.addColorStop(0, 'rgba(186, 230, 253, 0.6)');
-        aquaGrad.addColorStop(0.6, 'rgba(14, 165, 233, 0.35)');
-        aquaGrad.addColorStop(1, 'rgba(3, 105, 161, 0)');
-        ctx.fillStyle = aquaGrad;
-        ctx.beginPath();
-        ctx.arc(coreX, coreY, 16, 0, Math.PI * 2);
-        ctx.fill();
+      const coreX = drawX + 8;
+      const coreY = drawY + 16;
+      const aquaPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
+      const aquaGrad = ctx.createRadialGradient(coreX, coreY - 10, 2, coreX, coreY - 10, 18);
+      aquaGrad.addColorStop(0, `rgba(186, 230, 253, ${aquaPulse + 0.3})`);
+      aquaGrad.addColorStop(0.5, `rgba(14, 165, 233, ${aquaPulse})`);
+      aquaGrad.addColorStop(1, 'rgba(3, 105, 161, 0)');
+      ctx.fillStyle = aquaGrad;
+      ctx.beginPath();
+      ctx.arc(coreX, coreY - 10, 18, 0, Math.PI * 2);
+      ctx.fill();
 
+      // Hydro droplet & bioluminescent mist bubbles
+      if (this.tick % 16 < 11) {
+        ctx.fillStyle = '#7dd3fc';
+        ctx.fillRect(coreX + Math.sin(this.tick * 0.22) * 12, coreY - 12 - (this.tick % 10), 1.5, 1.5);
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillRect(coreX - 6 + Math.cos(this.tick * 0.17) * 10, coreY - 6 - (this.tick % 8), 2, 2);
+      }
+
+      // Determine action, direction, and animation frame tick
+      let action: 'idle' | 'walk' | 'shoot' = 'idle';
+      let animTick = this.tick;
+      if (this.kyogreAttackTick > 0) {
+        action = 'shoot';
+        animTick = 26 - this.kyogreAttackTick;
+      } else if (isFollowerWalking) {
+        action = 'walk';
+        animTick = this.followerWalkTick;
+      }
+      const dir = this.followerDir || 'down';
+
+      const pmdDrawn = this.pmdAnimator.draw(
+        ctx,
+        'kyogre',
+        action,
+        dir,
+        coreX,
+        coreY,
+        animTick
+      );
+
+      if (!pmdDrawn && this.kyogreImg && this.kyogreImg.complete) {
         ctx.drawImage(this.kyogreImg, drawX - 13, drawY - 20 + stepBob + idleBob * 1.4, 42, 42);
       }
     } else if (fid === 'latios') {
@@ -12876,6 +12936,9 @@ export class TownEngine {
     } else if (fid === 'groudon' && this.groudonAttackTick > 0) {
       action = 'shoot';
       attackTick = 28 - this.groudonAttackTick;
+    } else if (fid === 'kyogre' && this.kyogreAttackTick > 0) {
+      action = 'shoot';
+      attackTick = 26 - this.kyogreAttackTick;
     }
 
     const curAnimTick = attackTick > 0 ? attackTick : animTick;
@@ -12962,6 +13025,16 @@ export class TownEngine {
       ctx.beginPath();
       ctx.arc(coreX, coreY - 10, 20, 0, Math.PI * 2);
       ctx.fill();
+    } else if (fid === 'kyogre') {
+      const aquaPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
+      const aquaGrad = ctx.createRadialGradient(coreX, coreY - 10, 2, coreX, coreY - 10, 20);
+      aquaGrad.addColorStop(0, `rgba(186, 230, 253, ${aquaPulse + 0.35})`);
+      aquaGrad.addColorStop(0.5, `rgba(14, 165, 233, ${aquaPulse * 0.8})`);
+      aquaGrad.addColorStop(1, 'rgba(3, 105, 161, 0)');
+      ctx.fillStyle = aquaGrad;
+      ctx.beginPath();
+      ctx.arc(coreX, coreY - 10, 20, 0, Math.PI * 2);
+      ctx.fill();
     }
 
     // Anatomical per-species and per-direction saddle offsets relative to (coreX, coreY)
@@ -12982,7 +13055,7 @@ export class TownEngine {
       reshiram: { down: { dx: 0, dy: -19 }, side: { dx: -5, dy: -17 }, up: { dx: 0, dy: -17 } },
       zekrom:   { down: { dx: 0, dy: -19 }, side: { dx: -5, dy: -17 }, up: { dx: 0, dy: -17 } },
       groudon:  { down: { dx: 0, dy: -22 }, side: { dx: -4, dy: -20 }, up: { dx: 0, dy: -21 } },
-      kyogre:   { down: { dx: 0, dy: -17 }, side: { dx: -2, dy: -16 }, up: { dx: 0, dy: -17 } },
+      kyogre:   { down: { dx: 0, dy: -18 }, side: { dx: -3, dy: -17 }, up: { dx: 0, dy: -18 } },
       charizard:{ down: { dx: 0, dy: -18 }, side: { dx: -3, dy: -17 }, up: { dx: 0, dy: -17 } },
       garchomp: { down: { dx: 0, dy: -17 }, side: { dx: -3, dy: -16 }, up: { dx: 0, dy: -16 } },
       tyranitar:{ down: { dx: 0, dy: -19 }, side: { dx: -3, dy: -18 }, up: { dx: 0, dy: -18 } },
