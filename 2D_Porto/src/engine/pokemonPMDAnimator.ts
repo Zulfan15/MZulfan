@@ -214,6 +214,47 @@ export const PMD_POKEMON_CONFIGS: Record<string, PMDPokemonConfig> = {
       anchorY: 50,
     },
   },
+  palkia: {
+    id: 'palkia',
+    name: 'Palkia',
+    scale: 0.66,
+    idle: {
+      src: '/assets/pokemon/palkia/Idle-Anim.png',
+      frameWidth: 72,
+      frameHeight: 104,
+      frameCount: 2,
+      durations: [40, 30],
+      anchorX: 36,
+      anchorY: 58,
+    },
+    walk: {
+      src: '/assets/pokemon/palkia/Walk-Anim.png',
+      frameWidth: 80,
+      frameHeight: 104,
+      frameCount: 4,
+      durations: [8, 12, 8, 12],
+      anchorX: 40,
+      anchorY: 58,
+    },
+    shoot: {
+      src: '/assets/pokemon/palkia/Shoot-Anim.png',
+      frameWidth: 104,
+      frameHeight: 152,
+      frameCount: 15,
+      durations: [2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2],
+      anchorX: 52,
+      anchorY: 88,
+    },
+    attack: {
+      src: '/assets/pokemon/palkia/Attack-Anim.png',
+      frameWidth: 104,
+      frameHeight: 160,
+      frameCount: 15,
+      durations: [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+      anchorX: 52,
+      anchorY: 90,
+    },
+  },
 };
 
 export class PokemonPMDAnimator {

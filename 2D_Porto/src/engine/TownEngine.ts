@@ -304,6 +304,7 @@ export class TownEngine {
   public activeFollower: FollowerPokemon | null = null;
   private followerPos: Vec = { x: 18, y: 13 };
   private followerTarget: Vec = { x: 18, y: 13 };
+  private followerTrail: Vec[] = [];
   private followerDir: Dir = 'down';
   private followerFacing: 'left' | 'right' = 'right';
   private followerEmoteTime = 0;
@@ -314,6 +315,7 @@ export class TownEngine {
   private reshiramAttackTick = 0;
   private zekromAttackTick = 0;
   private giratinaAttackTick = 0;
+  private palkiaAttackTick = 0;
   private pmdAnimator = new PokemonPMDAnimator();
 
   // Signature Move Visual FX & Camera Shake
@@ -1328,9 +1330,10 @@ export class TownEngine {
     this.playerPos = { x: clampedX, y: clampedY };
     this.playerTarget = { x: clampedX, y: clampedY };
     if (this.activeFollower) {
-      const behind = this.getTileBehind(clampedX, clampedY, this.playerDir);
-      this.followerPos = { ...behind };
-      this.followerTarget = { ...behind };
+      const init = this.getFollowerInitialPos(clampedX, clampedY, this.playerDir);
+      this.followerPos = { ...init.pos };
+      this.followerTarget = { ...init.pos };
+      this.followerTrail = [...init.trail];
       this.followerDir = this.playerDir;
       this.followerFacing = this.playerDir === 'left' ? 'left' : 'right';
     }
@@ -3167,6 +3170,9 @@ export class TownEngine {
     }
     if (this.giratinaAttackTick > 0) {
       this.giratinaAttackTick--;
+    }
+    if (this.palkiaAttackTick > 0) {
+      this.palkiaAttackTick--;
     }
 
     // Update dynamic weather particles
@@ -8977,8 +8983,21 @@ export class TownEngine {
           ctx.fillRect(pearlX - 6 + Math.cos(this.tick * 0.16) * 10, pearlY + 4 - (this.tick % 10), 2, 2);
         }
 
-        // Draw Palkia sprite
-        if (this.palkiaImg && this.palkiaImg.complete && this.palkiaImg.naturalWidth > 0) {
+        // Draw PMD Animated Palkia
+        const dir = (cfg?.orientation === 'E' || cfg?.orientation === 'SE' || cfg?.orientation === 'NE') ? 'E' : (cfg?.orientation || 'W');
+        const coreX = drawX + 8;
+        const pmdDrawn = this.pmdAnimator.draw(
+          ctx,
+          'palkia',
+          'idle',
+          dir,
+          coreX,
+          drawY + 16,
+          this.tick
+        );
+
+        // Fallback to static sprite if PMD not yet loaded
+        if (!pmdDrawn && this.palkiaImg && this.palkiaImg.complete && this.palkiaImg.naturalWidth > 0) {
           const isFlipped = (cfg?.orientation || 'W') === 'E';
           if (isFlipped) {
             ctx.save();
@@ -10050,9 +10069,24 @@ export class TownEngine {
         } else if ((b.subType === 'dialga' || b.id === 'dialga') && this.dialgaImg && this.dialgaImg.complete) {
           const lev = Math.sin(this.tick * 0.04) * 1.5;
           ctx.drawImage(this.dialgaImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + lev, 42, 42);
-        } else if ((b.subType === 'palkia' || b.id === 'palkia') && this.palkiaImg && this.palkiaImg.complete) {
+        } else if (b.subType === 'palkia' || b.id === 'palkia') {
+          const coreX = b.x * TILE_SIZE + 8;
+          const coreY = b.y * TILE_SIZE + 16;
           const lev = Math.sin(this.tick * 0.04) * 1.6;
-          ctx.drawImage(this.palkiaImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + lev, 42, 42);
+
+          const dir = b.orientation || 'W';
+          const pmdDrawn = this.pmdAnimator.draw(
+            ctx,
+            'palkia',
+            'idle',
+            dir,
+            coreX,
+            coreY,
+            this.tick
+          );
+          if (!pmdDrawn && this.palkiaImg && this.palkiaImg.complete) {
+            ctx.drawImage(this.palkiaImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + lev, 42, 42);
+          }
         } else if (b.subType === 'giratina' || b.id === 'giratina') {
           const coreX = b.x * TILE_SIZE + 8;
           const coreY = b.y * TILE_SIZE + 16;
@@ -10510,8 +10544,12 @@ export class TownEngine {
     }
 
     // 9. Follower & Player
-    const followerY = this.followerTarget.y;
-    const playerY = this.playerPos.y;
+    const followerY = this.isMoving
+      ? this.followerPos.y + (this.followerTarget.y - this.followerPos.y) * this.moveProgress
+      : this.followerPos.y;
+    const playerY = this.isMoving
+      ? this.playerPos.y + (this.playerTarget.y - this.playerPos.y) * this.moveProgress
+      : this.playerPos.y;
 
     if (this.activeFollower && followerY <= playerY) {
       this.drawFollower(ctx);
@@ -10733,36 +10771,110 @@ export class TownEngine {
   }
 
   private onPlayerStepStart(newTarget: Vec) {
-    if (this.activeFollower) {
-      this.followerPos = { ...this.followerTarget };
-      this.followerTarget = { ...this.playerPos };
-      const dx = this.followerTarget.x - this.followerPos.x;
-      const dy = this.followerTarget.y - this.followerPos.y;
-      if (dx > 0) {
-        this.followerDir = 'right';
-        this.followerFacing = 'right';
-      } else if (dx < 0) {
-        this.followerDir = 'left';
-        this.followerFacing = 'left';
-      } else if (dy > 0) {
-        this.followerDir = 'down';
-        if (this.playerDir === 'right' || this.playerDir === 'left') {
-          this.followerFacing = this.playerDir;
+    if (!this.activeFollower) return;
+
+    this.followerPos = { ...this.followerTarget };
+
+    // Check if player is reversing direction towards the follower (into the gap tile or follower's tile)
+    const isReversing =
+      (newTarget.x === this.followerPos.x && newTarget.y === this.followerPos.y) ||
+      (this.followerTrail.length > 0 &&
+        newTarget.x === this.followerTrail[0].x &&
+        newTarget.y === this.followerTrail[0].y);
+
+    if (isReversing) {
+      // Step follower backwards away from player to maintain the 1-tile gap
+      const dx = this.followerPos.x - newTarget.x;
+      const dy = this.followerPos.y - newTarget.y;
+      const backupX = this.followerPos.x + dx;
+      const backupY = this.followerPos.y + dy;
+
+      if (this.canWalk(backupX, backupY)) {
+        this.followerTarget = { x: backupX, y: backupY };
+      } else {
+        // Wall behind: follower holds position
+        this.followerTarget = { ...this.followerPos };
+      }
+      this.followerTrail = [{ ...newTarget }];
+    } else {
+      // Normal movement along the breadcrumb trail (1-tile gap behind player)
+      if (this.followerTrail.length > 0) {
+        this.followerTarget = { ...this.followerTrail[0] };
+        this.followerTrail.shift();
+      } else {
+        this.followerTarget = { ...this.playerPos };
+      }
+      this.followerTrail.push({ ...this.playerPos });
+    }
+
+    const dx = this.followerTarget.x - this.followerPos.x;
+    const dy = this.followerTarget.y - this.followerPos.y;
+    if (dx > 0) {
+      this.followerDir = 'right';
+      this.followerFacing = 'right';
+    } else if (dx < 0) {
+      this.followerDir = 'left';
+      this.followerFacing = 'left';
+    } else if (dy > 0) {
+      this.followerDir = 'down';
+      if (this.playerDir === 'right' || this.playerDir === 'left') {
+        this.followerFacing = this.playerDir;
+      }
+    } else if (dy < 0) {
+      this.followerDir = 'up';
+      if (this.playerDir === 'right' || this.playerDir === 'left') {
+        this.followerFacing = this.playerDir;
+      }
+    } else {
+      // Stationary: face towards the player
+      const pdx = this.playerPos.x - this.followerPos.x;
+      const pdy = this.playerPos.y - this.followerPos.y;
+      if (Math.abs(pdx) >= Math.abs(pdy)) {
+        if (pdx !== 0) {
+          this.followerDir = pdx > 0 ? 'right' : 'left';
+          this.followerFacing = pdx > 0 ? 'right' : 'left';
         }
-      } else if (dy < 0) {
-        this.followerDir = 'up';
-        if (this.playerDir === 'right' || this.playerDir === 'left') {
-          this.followerFacing = this.playerDir;
+      } else {
+        if (pdy !== 0) {
+          this.followerDir = pdy > 0 ? 'down' : 'up';
         }
       }
     }
   }
 
-  private getTileBehind(x: number, y: number, dir: Dir): Vec {
-    if (dir === 'up') return { x, y: y + 1 };
-    if (dir === 'down') return { x, y: y - 1 };
-    if (dir === 'left') return { x: x + 1, y };
-    return { x: x - 1, y };
+  private getTileBehind(x: number, y: number, dir: Dir, dist = 1): Vec {
+    if (dir === 'up') return { x, y: y + dist };
+    if (dir === 'down') return { x, y: y - dist };
+    if (dir === 'left') return { x: x + dist, y };
+    return { x: x - dist, y };
+  }
+
+  private getFollowerInitialPos(playerX: number, playerY: number, dir: Dir): { pos: Vec; trail: Vec[] } {
+    const behind1 = this.getTileBehind(playerX, playerY, dir, 1);
+    const behind2 = this.getTileBehind(playerX, playerY, dir, 2);
+
+    // Prefer 2-tile distance (1-tile empty gap between player and follower)
+    if (this.canWalk(behind2.x, behind2.y) && this.canWalk(behind1.x, behind1.y)) {
+      return { pos: behind2, trail: [behind1] };
+    }
+    // If 2 tiles straight behind is blocked, check adjacent walkable tiles of behind1
+    const alts: Vec[] = [
+      { x: behind1.x + 1, y: behind1.y },
+      { x: behind1.x - 1, y: behind1.y },
+      { x: behind1.x, y: behind1.y + 1 },
+      { x: behind1.x, y: behind1.y - 1 },
+    ];
+    for (const alt of alts) {
+      if (alt.x === playerX && alt.y === playerY) continue;
+      if (this.canWalk(alt.x, alt.y) && this.canWalk(behind1.x, behind1.y)) {
+        return { pos: alt, trail: [behind1] };
+      }
+    }
+    // Fallback: 1-tile distance if tight space
+    if (this.canWalk(behind1.x, behind1.y)) {
+      return { pos: behind1, trail: [behind1] };
+    }
+    return { pos: { x: playerX, y: playerY }, trail: [{ x: playerX, y: playerY }] };
   }
 
   public getActiveFollower(): FollowerPokemon | null {
@@ -10830,9 +10942,10 @@ export class TownEngine {
       icon: data.icon,
     };
 
-    const behind = this.getTileBehind(this.playerPos.x, this.playerPos.y, this.playerDir);
-    this.followerPos = { ...behind };
-    this.followerTarget = { ...behind };
+    const init = this.getFollowerInitialPos(this.playerPos.x, this.playerPos.y, this.playerDir);
+    this.followerPos = { ...init.pos };
+    this.followerTarget = { ...init.pos };
+    this.followerTrail = [...init.trail];
     this.followerDir = this.playerDir;
     this.followerFacing = this.playerDir === 'left' ? 'left' : 'right';
     this.followerEmoteTime = 90;
@@ -11028,6 +11141,7 @@ export class TownEngine {
         });
       }
     } else if (id.includes('palkia')) {
+      this.palkiaAttackTick = 28;
       for (let i = 0; i < 45; i++) {
         const ang = Math.random() * Math.PI * 2;
         const spd = 2.5 + Math.random() * 4.5;
@@ -11285,7 +11399,10 @@ export class TownEngine {
         ? this.followerPos.y + (this.followerTarget.y - this.followerPos.y) * this.moveProgress
         : this.followerPos.y) * TILE_SIZE;
 
-    const stepBob = this.isMoving ? Math.sin(this.moveProgress * Math.PI * 2) * 1.5 : 0;
+    const isFollowerWalking =
+      this.isMoving &&
+      (this.followerPos.x !== this.followerTarget.x || this.followerPos.y !== this.followerTarget.y);
+    const stepBob = isFollowerWalking ? Math.sin(this.moveProgress * Math.PI * 2) * 1.5 : 0;
     const idleBob = Math.sin(this.tick * 0.08) * 1.2;
 
     const fid = this.activeFollower.id;
@@ -11391,7 +11508,7 @@ export class TownEngine {
       if (this.rayquazaAttackTick > 0) {
         action = 'shoot';
         animTick = 26 - this.rayquazaAttackTick;
-      } else if (this.isMoving) {
+      } else if (isFollowerWalking) {
         action = 'walk';
         animTick = this.followerWalkTick;
       }
@@ -11438,7 +11555,7 @@ export class TownEngine {
       if (this.arceusAttackTick > 0) {
         action = 'shoot';
         animTick = 37 - this.arceusAttackTick;
-      } else if (this.isMoving) {
+      } else if (isFollowerWalking) {
         action = 'walk';
         animTick = this.followerWalkTick;
       }
@@ -11474,19 +11591,57 @@ export class TownEngine {
         ctx.drawImage(this.dialgaImg, drawX - 13, drawY - 20 + stepBob + idleBob, 42, 42);
       }
     } else if (fid === 'palkia') {
-      if (this.palkiaImg && this.palkiaImg.complete) {
-        const spatialPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
-        const pearlX = drawX + 8;
-        const pearlY = drawY - 2 + stepBob + idleBob;
-        const spatGrad = ctx.createRadialGradient(pearlX, pearlY, 3, pearlX, pearlY, 18);
-        spatGrad.addColorStop(0, `rgba(240, 171, 252, ${spatialPulse + 0.3})`);
-        spatGrad.addColorStop(0.5, `rgba(192, 38, 211, ${spatialPulse})`);
-        spatGrad.addColorStop(1, 'rgba(192, 38, 211, 0)');
-        ctx.fillStyle = spatGrad;
-        ctx.beginPath();
-        ctx.arc(pearlX, pearlY, 18, 0, Math.PI * 2);
-        ctx.fill();
+      const coreX = drawX + 8;
+      const coreY = drawY + 16;
+      const spatialPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
+      const spatGrad = ctx.createRadialGradient(coreX, coreY, 3, coreX, coreY, 18);
+      spatGrad.addColorStop(0, `rgba(240, 171, 252, ${spatialPulse + 0.3})`);
+      spatGrad.addColorStop(0.5, `rgba(192, 38, 211, ${spatialPulse})`);
+      spatGrad.addColorStop(1, 'rgba(192, 38, 211, 0)');
+      ctx.fillStyle = spatGrad;
+      ctx.beginPath();
+      ctx.arc(coreX, coreY, 18, 0, Math.PI * 2);
+      ctx.fill();
 
+      // Spacial Rend dimensional space-warp slice lines
+      const rendAngle = this.tick * 0.03;
+      for (let r = 0; r < 2; r++) {
+        const angle = rendAngle + (r * Math.PI) / 2;
+        const rx1 = coreX + Math.cos(angle) * 14;
+        const ry1 = coreY + Math.sin(angle) * 8;
+        const rx2 = coreX - Math.cos(angle) * 14;
+        const ry2 = coreY - Math.sin(angle) * 8;
+        ctx.strokeStyle = 'rgba(244, 114, 182, 0.7)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(rx1, ry1);
+        ctx.lineTo(rx2, ry2);
+        ctx.stroke();
+      }
+
+      // Determine action, direction, and animation frame tick
+      let action: 'idle' | 'walk' | 'shoot' = 'idle';
+      let animTick = this.tick;
+      if (this.palkiaAttackTick > 0) {
+        action = 'shoot';
+        animTick = 28 - this.palkiaAttackTick;
+      } else if (isFollowerWalking) {
+        action = 'walk';
+        animTick = this.followerWalkTick;
+      }
+      const dir = this.followerDir || 'down';
+
+      const pmdDrawn = this.pmdAnimator.draw(
+        ctx,
+        'palkia',
+        action,
+        dir,
+        coreX,
+        coreY,
+        animTick
+      );
+
+      if (!pmdDrawn && this.palkiaImg && this.palkiaImg.complete) {
         ctx.drawImage(this.palkiaImg, drawX - 13, drawY - 20 + stepBob + idleBob, 42, 42);
       }
     } else if (fid === 'reshiram') {
@@ -11510,7 +11665,7 @@ export class TownEngine {
       if (this.reshiramAttackTick > 0) {
         action = 'shoot';
         animTick = 30 - this.reshiramAttackTick;
-      } else if (this.isMoving) {
+      } else if (isFollowerWalking) {
         action = 'walk';
         animTick = this.followerWalkTick;
       }
@@ -11561,7 +11716,7 @@ export class TownEngine {
       if (this.zekromAttackTick > 0) {
         action = 'shoot';
         animTick = 28 - this.zekromAttackTick;
-      } else if (this.isMoving) {
+      } else if (isFollowerWalking) {
         action = 'walk';
         animTick = this.followerWalkTick;
       }
@@ -11598,7 +11753,7 @@ export class TownEngine {
       if (this.giratinaAttackTick > 0) {
         action = 'shoot';
         animTick = 27 - this.giratinaAttackTick;
-      } else if (this.isMoving) {
+      } else if (isFollowerWalking) {
         action = 'walk';
         animTick = this.followerWalkTick;
       }
@@ -11760,7 +11915,9 @@ export class TownEngine {
 
     // Cute thought emote bubble (heart or music note)
     if (this.followerEmoteTime > 0) {
-      const emoteY = drawY - 16;
+      const pmdCfg = this.pmdAnimator.getConfig(fid);
+      const topOffset = pmdCfg ? Math.round(pmdCfg.idle.anchorY * pmdCfg.scale + 8) : 18;
+      const emoteY = drawY + 16 - topOffset;
       ctx.save();
       ctx.font = '10px monospace';
       ctx.textAlign = 'center';
