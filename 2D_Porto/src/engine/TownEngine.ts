@@ -302,6 +302,7 @@ export class TownEngine {
   private followerPos: Vec = { x: 18, y: 13 };
   private followerTarget: Vec = { x: 18, y: 13 };
   private followerDir: Dir = 'down';
+  private followerFacing: 'left' | 'right' = 'right';
   private followerEmoteTime = 0;
   private followerEmote = '❤️';
 
@@ -1319,6 +1320,7 @@ export class TownEngine {
       this.followerPos = { ...behind };
       this.followerTarget = { ...behind };
       this.followerDir = this.playerDir;
+      this.followerFacing = this.playerDir === 'left' ? 'left' : 'right';
     }
     this.cameraX = (clampedX + 0.5) * TILE_SIZE;
     this.cameraY = (clampedY + 0.5) * TILE_SIZE;
@@ -8737,7 +8739,7 @@ export class TownEngine {
       const curTileY = cfg ? cfg.y : (npc.id === 'ace' && arenaCfg ? arenaCfg.y + 1 : npc.y);
 
       if (npc.id === 'twin') {
-        const isFlipped = cfg?.orientation === 'W';
+        const isFlipped = (cfg?.orientation || 'W') === 'E';
         if (isFlipped) {
           ctx.save();
           ctx.translate(curTileX * TILE_SIZE + 8, 0);
@@ -8757,7 +8759,7 @@ export class TownEngine {
         ctx.ellipse(drawX + 8, drawY + 15, 12, 4.5, 0, 0, Math.PI * 2);
         ctx.fill();
 
-        const isFlipped = cfg?.orientation === 'W';
+        const isFlipped = (cfg?.orientation || 'W') === 'E';
         if (isFlipped) {
           ctx.save();
           ctx.translate(drawX + 8, 0);
@@ -8838,7 +8840,7 @@ export class TownEngine {
 
         // Draw Dialga sprite
         if (this.dialgaImg && this.dialgaImg.complete && this.dialgaImg.naturalWidth > 0) {
-          const isFlipped = (cfg?.orientation || 'E') === 'W';
+          const isFlipped = (cfg?.orientation || 'W') === 'E';
           if (isFlipped) {
             ctx.save();
             ctx.translate(drawX + 8, 0);
@@ -8899,7 +8901,7 @@ export class TownEngine {
 
         // Draw Palkia sprite
         if (this.palkiaImg && this.palkiaImg.complete && this.palkiaImg.naturalWidth > 0) {
-          const isFlipped = (cfg?.orientation || 'E') === 'W';
+          const isFlipped = (cfg?.orientation || 'W') === 'E';
           if (isFlipped) {
             ctx.save();
             ctx.translate(drawX + 8, 0);
@@ -8947,7 +8949,7 @@ export class TownEngine {
 
         // Draw Giratina sprite
         if (this.giratinaImg && this.giratinaImg.complete && this.giratinaImg.naturalWidth > 0) {
-          const isFlipped = (cfg?.orientation || 'E') === 'W';
+          const isFlipped = (cfg?.orientation || 'W') === 'E';
           if (isFlipped) {
             ctx.save();
             ctx.translate(drawX + 8, 0);
@@ -8968,6 +8970,14 @@ export class TownEngine {
         ctx.beginPath();
         ctx.ellipse(drawX + 8, drawY + 16, 14, 5, 0, 0, Math.PI * 2);
         ctx.fill();
+
+        const isFlipped = (cfg?.orientation || 'W') === 'E';
+        if (isFlipped) {
+          ctx.save();
+          ctx.translate(drawX + 8, 0);
+          ctx.scale(-1, 1);
+          ctx.translate(-(drawX + 8), 0);
+        }
 
         // Electric Lightning Turbine Glow behind tail (Fusion Bolt)
         const turbineGlow = 0.35 + Math.sin(this.tick * 0.09) * 0.15;
@@ -8995,16 +9005,9 @@ export class TownEngine {
 
         // Draw Zekrom sprite
         if (this.zekromImg && this.zekromImg.complete && this.zekromImg.naturalWidth > 0) {
-          const isFlipped = (cfg?.orientation || 'E') === 'W';
-          if (isFlipped) {
-            ctx.save();
-            ctx.translate(drawX + 8, 0);
-            ctx.scale(-1, 1);
-            ctx.translate(-(drawX + 8), 0);
-          }
           ctx.drawImage(this.zekromImg, drawX - 13, drawY - 20 + levitate, 42, 42);
-          if (isFlipped) ctx.restore();
         }
+        if (isFlipped) ctx.restore();
       } else if (npc.id === 'reshiram' || (npc as any).subType === 'reshiram') {
         // Authentic Reshiram (Vast White Pokémon) Overworld Sprite with Jet Turbine Fusion Flare
         const drawX = curTileX * TILE_SIZE;
@@ -9016,6 +9019,14 @@ export class TownEngine {
         ctx.beginPath();
         ctx.ellipse(drawX + 8, drawY + 16, 14, 5, 0, 0, Math.PI * 2);
         ctx.fill();
+
+        const isFlipped = (cfg?.orientation || 'W') === 'E';
+        if (isFlipped) {
+          ctx.save();
+          ctx.translate(drawX + 8, 0);
+          ctx.scale(-1, 1);
+          ctx.translate(-(drawX + 8), 0);
+        }
 
         // Fiery Jet Turbine Glow behind tail (Fusion Flare)
         const turbineGlow = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
@@ -9042,16 +9053,9 @@ export class TownEngine {
 
         // Draw Reshiram sprite
         if (this.reshiramImg && this.reshiramImg.complete && this.reshiramImg.naturalWidth > 0) {
-          const isFlipped = (cfg?.orientation || 'E') === 'W';
-          if (isFlipped) {
-            ctx.save();
-            ctx.translate(drawX + 8, 0);
-            ctx.scale(-1, 1);
-            ctx.translate(-(drawX + 8), 0);
-          }
           ctx.drawImage(this.reshiramImg, drawX - 13, drawY - 20 + levitate, 42, 42);
-          if (isFlipped) ctx.restore();
         }
+        if (isFlipped) ctx.restore();
       } else if (npc.id === 'arceus' || (npc as any).subType === 'arceus') {
         // Divine Arceus Overworld Sprite with Golden Judgment Ring
         const drawX = curTileX * TILE_SIZE;
@@ -9098,7 +9102,7 @@ export class TownEngine {
 
         // Draw Arceus sprite with levitation
         if (this.arceusImg && this.arceusImg.complete && this.arceusImg.naturalWidth > 0) {
-          const isFlipped = (cfg?.orientation || 'E') === 'W';
+          const isFlipped = (cfg?.orientation || 'W') === 'E';
           if (isFlipped) {
             ctx.save();
             ctx.translate(drawX + 8, 0);
@@ -9120,7 +9124,7 @@ export class TownEngine {
         ctx.ellipse(drawX + 8, drawY + 16, 13, 5, 0, 0, Math.PI * 2);
         ctx.fill();
 
-        const isFlipped = (cfg?.orientation || 'E') === 'W';
+        const isFlipped = (cfg?.orientation || 'W') === 'E';
         if (isFlipped) {
           ctx.save();
           ctx.translate(drawX + 8, 0);
@@ -9162,7 +9166,7 @@ export class TownEngine {
         ctx.ellipse(drawX + 8, drawY + 16, 13, 4.5, 0, 0, Math.PI * 2);
         ctx.fill();
 
-        const isFlipped = (cfg?.orientation || 'E') === 'W';
+        const isFlipped = (cfg?.orientation || 'W') === 'E';
         if (isFlipped) {
           ctx.save();
           ctx.translate(drawX + 8, 0);
@@ -9197,7 +9201,7 @@ export class TownEngine {
         ctx.ellipse(drawX + 8, drawY + 16, 16, 5.5, 0, 0, Math.PI * 2);
         ctx.fill();
 
-        const isFlipped = (cfg?.orientation || 'E') === 'W';
+        const isFlipped = (cfg?.orientation || 'W') === 'E';
         if (isFlipped) {
           ctx.save();
           ctx.translate(drawX + 8, 0);
@@ -9267,7 +9271,7 @@ export class TownEngine {
         }
 
         if (this.mewtwoImg && this.mewtwoImg.complete && this.mewtwoImg.naturalWidth > 0) {
-          const isFlipped = (cfg?.orientation || 'E') === 'W';
+          const isFlipped = (cfg?.orientation || 'W') === 'E';
           if (isFlipped) {
             ctx.save();
             ctx.translate(drawX + 8, 0);
@@ -9312,7 +9316,7 @@ export class TownEngine {
 
         // Draw Rayquaza sprite
         if (this.rayquazaImg && this.rayquazaImg.complete && this.rayquazaImg.naturalWidth > 0) {
-          const isFlipped = (cfg?.orientation || 'E') === 'W';
+          const isFlipped = (cfg?.orientation || 'W') === 'E';
           if (isFlipped) {
             ctx.save();
             ctx.translate(drawX + 8, 0);
@@ -9359,7 +9363,7 @@ export class TownEngine {
 
         // Draw Groudon sprite
         if (this.groudonImg && this.groudonImg.complete && this.groudonImg.naturalWidth > 0) {
-          const isFlipped = (cfg?.orientation || 'E') === 'W';
+          const isFlipped = (cfg?.orientation || 'W') === 'E';
           if (isFlipped) {
             ctx.save();
             ctx.translate(drawX + 8, 0);
@@ -9406,7 +9410,7 @@ export class TownEngine {
 
         // Draw Kyogre sprite
         if (this.kyogreImg && this.kyogreImg.complete && this.kyogreImg.naturalWidth > 0) {
-          const isFlipped = (cfg?.orientation || 'E') === 'W';
+          const isFlipped = (cfg?.orientation || 'W') === 'E';
           if (isFlipped) {
             ctx.save();
             ctx.translate(drawX + 8, 0);
@@ -9453,7 +9457,7 @@ export class TownEngine {
 
         // Draw Latios sprite
         if (this.latiosImg && this.latiosImg.complete && this.latiosImg.naturalWidth > 0) {
-          const isFlipped = (cfg?.orientation || 'E') === 'W';
+          const isFlipped = (cfg?.orientation || 'W') === 'E';
           if (isFlipped) {
             ctx.save();
             ctx.translate(drawX + 8, 0);
@@ -9500,7 +9504,7 @@ export class TownEngine {
 
         // Draw Latias sprite
         if (this.latiasImg && this.latiasImg.complete && this.latiasImg.naturalWidth > 0) {
-          const isFlipped = (cfg?.orientation || 'E') === 'W';
+          const isFlipped = (cfg?.orientation || 'W') === 'E';
           if (isFlipped) {
             ctx.save();
             ctx.translate(drawX + 8, 0);
@@ -9548,7 +9552,7 @@ export class TownEngine {
 
         // Draw Darkrai sprite
         if (this.darkraiImg && this.darkraiImg.complete && this.darkraiImg.naturalWidth > 0) {
-          const isFlipped = (cfg?.orientation || 'E') === 'W';
+          const isFlipped = (cfg?.orientation || 'W') === 'E';
           if (isFlipped) {
             ctx.save();
             ctx.translate(drawX + 8, 0);
@@ -9596,7 +9600,7 @@ export class TownEngine {
 
         // Draw Necrozma Dusk Mane sprite (120x112 scaled to 46x43)
         if (this.necrozmaImg && this.necrozmaImg.complete && this.necrozmaImg.naturalWidth > 0) {
-          const isFlipped = (cfg?.orientation || 'E') === 'W';
+          const isFlipped = (cfg?.orientation || 'W') === 'E';
           if (isFlipped) {
             ctx.save();
             ctx.translate(drawX + 8, 0);
@@ -9644,7 +9648,7 @@ export class TownEngine {
 
         // Draw Lunala sprite (256x256 scaled to 46x46)
         if (this.lunalaImg && this.lunalaImg.complete && this.lunalaImg.naturalWidth > 0) {
-          const isFlipped = (cfg?.orientation || 'E') === 'W';
+          const isFlipped = (cfg?.orientation || 'W') === 'E';
           if (isFlipped) {
             ctx.save();
             ctx.translate(drawX + 8, 0);
@@ -9692,7 +9696,7 @@ export class TownEngine {
 
         // Draw Solgaleo sprite (120x112 scaled to 46x43)
         if (this.solgaleoImg && this.solgaleoImg.complete && this.solgaleoImg.naturalWidth > 0) {
-          const isFlipped = (cfg?.orientation || 'E') === 'W';
+          const isFlipped = (cfg?.orientation || 'W') === 'E';
           if (isFlipped) {
             ctx.save();
             ctx.translate(drawX + 8, 0);
@@ -9784,7 +9788,13 @@ export class TownEngine {
     for (const b of townConfig.getBuildings()) {
       if (b.kind === 'npc' && !this.map.npcs.some((n) => n.id === b.id)) {
         if (b.hidden) continue;
-        const isFlipped = b.orientation === 'W';
+        const isPokemon = [
+          'charizard', 'tyranitar', 'blastoise', 'garchomp', 'urshifu', 'rayquaza',
+          'mewtwo', 'arceus', 'dialga', 'palkia', 'reshiram', 'zekrom',
+          'giratina', 'groudon', 'kyogre', 'latios', 'latias', 'darkrai',
+          'necrozma', 'lunala', 'solgaleo', 'lucario', 'pikachu'
+        ].includes(b.subType || b.id);
+        const isFlipped = isPokemon ? b.orientation === 'E' : false;
         const centerX = b.x * TILE_SIZE + 8;
         if (isFlipped) {
           ctx.save();
@@ -10429,10 +10439,23 @@ export class TownEngine {
       this.followerTarget = { ...this.playerPos };
       const dx = this.followerTarget.x - this.followerPos.x;
       const dy = this.followerTarget.y - this.followerPos.y;
-      if (dx > 0) this.followerDir = 'right';
-      else if (dx < 0) this.followerDir = 'left';
-      else if (dy > 0) this.followerDir = 'down';
-      else if (dy < 0) this.followerDir = 'up';
+      if (dx > 0) {
+        this.followerDir = 'right';
+        this.followerFacing = 'right';
+      } else if (dx < 0) {
+        this.followerDir = 'left';
+        this.followerFacing = 'left';
+      } else if (dy > 0) {
+        this.followerDir = 'down';
+        if (this.playerDir === 'right' || this.playerDir === 'left') {
+          this.followerFacing = this.playerDir;
+        }
+      } else if (dy < 0) {
+        this.followerDir = 'up';
+        if (this.playerDir === 'right' || this.playerDir === 'left') {
+          this.followerFacing = this.playerDir;
+        }
+      }
     }
   }
 
@@ -10511,6 +10534,7 @@ export class TownEngine {
     this.followerPos = { ...behind };
     this.followerTarget = { ...behind };
     this.followerDir = this.playerDir;
+    this.followerFacing = this.playerDir === 'left' ? 'left' : 'right';
     this.followerEmoteTime = 90;
     this.followerEmote = '❤️';
 
@@ -10943,7 +10967,7 @@ export class TownEngine {
     const idleBob = Math.sin(this.tick * 0.08) * 1.2;
 
     const fid = this.activeFollower.id;
-    const isFlipped = this.followerDir === 'left';
+    const isFlipped = this.followerFacing === 'right';
 
     ctx.save();
     // Shadow
