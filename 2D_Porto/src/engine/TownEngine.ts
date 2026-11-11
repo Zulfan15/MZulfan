@@ -326,6 +326,7 @@ export class TownEngine {
   private tyranitarAttackTick = 0;
   private gyaradosAttackTick = 0;
   private snorlaxAttackTick = 0;
+  private latiasAttackTick = 0;
   private pmdAnimator = new PokemonPMDAnimator();
 
   // Signature Move Visual FX & Camera Shake
@@ -2012,8 +2013,8 @@ export class TownEngine {
           const cfg = townConfig.getBuilding(n.id);
           const nx = cfg ? cfg.x : (n.id === 'ace' ? aceX : n.x);
           const ny = cfg ? cfg.y : (n.id === 'ace' ? aceY : n.y);
-          const nw = cfg?.w ?? (['charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar', 'garchomp', 'urshifu', 'groudon', 'kyogre', 'reshiram', 'zekrom', 'samurott', 'gyarados', 'snorlax'].includes(n.id) ? 2 : 1);
-          const nh = cfg?.h ?? (['charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar', 'garchomp', 'urshifu', 'groudon', 'kyogre', 'reshiram', 'zekrom', 'samurott', 'gyarados', 'snorlax'].includes(n.id) ? 2 : 1);
+          const nw = cfg?.w ?? (['charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar', 'garchomp', 'urshifu', 'groudon', 'kyogre', 'reshiram', 'zekrom', 'samurott', 'gyarados', 'snorlax', 'latias'].includes(n.id) ? 2 : 1);
+          const nh = cfg?.h ?? (['charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar', 'garchomp', 'urshifu', 'groudon', 'kyogre', 'reshiram', 'zekrom', 'samurott', 'gyarados', 'snorlax', 'latias'].includes(n.id) ? 2 : 1);
           return targetTileX >= nx && targetTileX < nx + nw && targetTileY >= ny && targetTileY < ny + nh;
         }) ||
         townConfig.getBuildings().find((b) => {
@@ -2025,8 +2026,8 @@ export class TownEngine {
         const cfg = townConfig.getBuilding(hitNpc.id);
         const nx = cfg ? cfg.x : (hitNpc.id === 'ace' ? aceX : hitNpc.x);
         const ny = cfg ? cfg.y : (hitNpc.id === 'ace' ? aceY : hitNpc.y);
-        const nw = (hitNpc as any).w ?? cfg?.w ?? (['charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar', 'garchomp', 'urshifu', 'groudon', 'kyogre', 'reshiram', 'zekrom', 'samurott', 'gyarados', 'snorlax'].includes(hitNpc.id) ? 2 : 1);
-        const nh = (hitNpc as any).h ?? cfg?.h ?? (['charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar', 'garchomp', 'urshifu', 'groudon', 'kyogre', 'reshiram', 'zekrom', 'samurott', 'gyarados', 'snorlax'].includes(hitNpc.id) ? 2 : 1);
+        const nw = (hitNpc as any).w ?? cfg?.w ?? (['charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar', 'garchomp', 'urshifu', 'groudon', 'kyogre', 'reshiram', 'zekrom', 'samurott', 'gyarados', 'snorlax', 'latias'].includes(hitNpc.id) ? 2 : 1);
+        const nh = (hitNpc as any).h ?? cfg?.h ?? (['charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar', 'garchomp', 'urshifu', 'groudon', 'kyogre', 'reshiram', 'zekrom', 'samurott', 'gyarados', 'snorlax', 'latias'].includes(hitNpc.id) ? 2 : 1);
 
         // If player is already adjacent to this NPC, interact immediately!
         const isAdjacent = (
@@ -3528,6 +3529,9 @@ export class TownEngine {
     }
     if (this.snorlaxAttackTick > 0) {
       this.snorlaxAttackTick--;
+    }
+    if (this.latiasAttackTick > 0) {
+      this.latiasAttackTick--;
     }
 
     // Update dynamic weather particles
@@ -6523,8 +6527,8 @@ export class TownEngine {
         const cfg = townConfig.getBuilding(n.id);
         const nx = cfg ? cfg.x : (n.id === 'ace' ? aceX : n.x);
         const ny = cfg ? cfg.y : (n.id === 'ace' ? aceY : n.y);
-        const nw = cfg?.w ?? (['charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar', 'garchomp', 'urshifu', 'groudon', 'kyogre', 'reshiram', 'zekrom', 'samurott', 'gyarados', 'snorlax'].includes(n.id) ? 2 : 1);
-        const nh = cfg?.h ?? (['charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar', 'garchomp', 'urshifu', 'groudon', 'kyogre', 'reshiram', 'zekrom', 'samurott', 'gyarados', 'snorlax'].includes(n.id) ? 2 : 1);
+        const nw = cfg?.w ?? (['charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar', 'garchomp', 'urshifu', 'groudon', 'kyogre', 'reshiram', 'zekrom', 'samurott', 'gyarados', 'snorlax', 'latias'].includes(n.id) ? 2 : 1);
+        const nh = cfg?.h ?? (['charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar', 'garchomp', 'urshifu', 'groudon', 'kyogre', 'reshiram', 'zekrom', 'samurott', 'gyarados', 'snorlax', 'latias'].includes(n.id) ? 2 : 1);
         const inFacing = fx >= nx && fx < nx + nw && fy >= ny && fy < ny + nh;
         const isAdjacent = (
           this.playerPos.x >= nx - 1 &&
@@ -10134,8 +10138,18 @@ export class TownEngine {
           ctx.fillRect(coreX + 4 + Math.sin(this.tick * 0.3) * 8, coreY - 5 - (this.tick % 7), 1.5, 1.5);
         }
 
-        // Draw Latias sprite
-        if (this.latiasImg && this.latiasImg.complete && this.latiasImg.naturalWidth > 0) {
+        // Draw Latias PMD animated sprite (8 directions) or fallback
+        const dir = cfg?.orientation || 'S';
+        const pmdDrawn = this.pmdAnimator.draw(
+          ctx,
+          'latias',
+          'idle',
+          dir,
+          coreX,
+          drawY + 16,
+          this.tick
+        );
+        if (!pmdDrawn && this.latiasImg && this.latiasImg.complete && this.latiasImg.naturalWidth > 0) {
           const isFlipped = (cfg?.orientation || 'W') === 'E';
           if (isFlipped) {
             ctx.save();
@@ -10863,7 +10877,7 @@ export class TownEngine {
           }
 
           ctx.drawImage(this.latiosImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + jetHover, 42, 42);
-        } else if ((b.subType === 'latias' || b.id === 'latias') && this.latiasImg && this.latiasImg.complete) {
+        } else if ((b.subType === 'latias' || b.id === 'latias') && (this.pmdAnimator.isSupported('latias') || (this.latiasImg && this.latiasImg.complete))) {
           const floatY = Math.sin(this.tick * 0.055 + 1.2) * 2.2;
           const coreX = b.x * TILE_SIZE + 8;
           const coreY = b.y * TILE_SIZE + 1 + floatY;
@@ -10895,7 +10909,19 @@ export class TownEngine {
             ctx.fillRect(coreX + 4 + Math.sin(this.tick * 0.3) * 8, coreY - 5 - (this.tick % 7), 1.5, 1.5);
           }
 
-          ctx.drawImage(this.latiasImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + floatY, 42, 42);
+          const dir = b.orientation || 'S';
+          const pmdDrawn = this.pmdAnimator.draw(
+            ctx,
+            'latias',
+            'idle',
+            dir,
+            coreX,
+            b.y * TILE_SIZE + 16,
+            this.tick
+          );
+          if (!pmdDrawn && this.latiasImg && this.latiasImg.complete) {
+            ctx.drawImage(this.latiasImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + floatY, 42, 42);
+          }
         } else if ((b.subType === 'darkrai' || b.id === 'darkrai') && this.darkraiImg && this.darkraiImg.complete) {
           const levitate = Math.sin(this.tick * 0.04) * 2.0;
           const coreX = b.x * TILE_SIZE + 8;
@@ -12005,6 +12031,9 @@ export class TownEngine {
         });
       }
     } else if (id.includes('latias')) {
+      this.latiasAttackTick = 25;
+      this.cameraShakeTime = 16;
+      this.cameraShakeIntensity = 3.5;
       for (let i = 0; i < 45; i++) {
         const ang = Math.random() * Math.PI * 2;
         const spd = 2.5 + Math.random() * 4.2;
@@ -12825,18 +12854,45 @@ export class TownEngine {
         ctx.drawImage(this.latiosImg, drawX - 13, drawY - 20 + stepBob + idleBob * 1.6, 42, 42);
       }
     } else if (fid === 'latias') {
-      if (this.latiasImg && this.latiasImg.complete) {
-        const coreX = drawX + 8;
-        const coreY = drawY + stepBob + idleBob * 1.6;
-        const roseGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 15);
-        roseGrad.addColorStop(0, 'rgba(254, 205, 211, 0.65)');
-        roseGrad.addColorStop(0.6, 'rgba(244, 63, 94, 0.35)');
-        roseGrad.addColorStop(1, 'rgba(190, 18, 60, 0)');
-        ctx.fillStyle = roseGrad;
-        ctx.beginPath();
-        ctx.arc(coreX, coreY, 15, 0, Math.PI * 2);
-        ctx.fill();
+      const coreX = drawX + 8;
+      const coreY = drawY + 16;
+      const rosePulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
+      const roseGrad = ctx.createRadialGradient(coreX, coreY - 10, 2, coreX, coreY - 10, 18);
+      roseGrad.addColorStop(0, `rgba(254, 205, 211, ${rosePulse + 0.35})`);
+      roseGrad.addColorStop(0.5, `rgba(244, 63, 94, ${rosePulse * 0.8})`);
+      roseGrad.addColorStop(1, 'rgba(190, 18, 60, 0)');
+      ctx.fillStyle = roseGrad;
+      ctx.beginPath();
+      ctx.arc(coreX, coreY - 10, 18, 0, Math.PI * 2);
+      ctx.fill();
 
+      // Refract Light sparkles
+      if (this.tick % 16 < 10) {
+        ctx.fillStyle = '#fecdd3';
+        ctx.fillRect(coreX + Math.sin(this.tick * 0.22) * 12, coreY - 12 - (this.tick % 8), 1.5, 1.5);
+      }
+
+      let action: 'idle' | 'walk' | 'shoot' = 'idle';
+      let animTick = this.tick;
+      if (this.latiasAttackTick > 0) {
+        action = 'shoot';
+        animTick = 25 - this.latiasAttackTick;
+      } else if (isFollowerWalking) {
+        action = 'walk';
+        animTick = this.followerWalkTick;
+      }
+      const dir = this.followerDir || 'down';
+
+      const pmdDrawn = this.pmdAnimator.draw(
+        ctx,
+        'latias',
+        action,
+        dir,
+        coreX,
+        coreY,
+        animTick
+      );
+      if (!pmdDrawn && this.latiasImg && this.latiasImg.complete) {
         ctx.drawImage(this.latiasImg, drawX - 13, drawY - 20 + stepBob + idleBob * 1.6, 42, 42);
       }
     } else if (fid === 'darkrai') {
@@ -13248,6 +13304,9 @@ export class TownEngine {
     } else if (fid === 'snorlax' && this.snorlaxAttackTick > 0) {
       action = 'shoot';
       attackTick = 26 - this.snorlaxAttackTick;
+    } else if (fid === 'latias' && this.latiasAttackTick > 0) {
+      action = 'shoot';
+      attackTick = 25 - this.latiasAttackTick;
     }
 
     const curAnimTick = attackTick > 0 ? attackTick : animTick;
@@ -13363,6 +13422,16 @@ export class TownEngine {
       ctx.fillStyle = aquaGrad;
       ctx.beginPath();
       ctx.arc(coreX, coreY - 10, 20, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (fid === 'latias') {
+      const rosePulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
+      const roseGrad = ctx.createRadialGradient(coreX, coreY - 10, 2, coreX, coreY - 10, 18);
+      roseGrad.addColorStop(0, `rgba(254, 205, 211, ${rosePulse + 0.35})`);
+      roseGrad.addColorStop(0.5, `rgba(244, 63, 94, ${rosePulse * 0.8})`);
+      roseGrad.addColorStop(1, 'rgba(190, 18, 60, 0)');
+      ctx.fillStyle = roseGrad;
+      ctx.beginPath();
+      ctx.arc(coreX, coreY - 10, 18, 0, Math.PI * 2);
       ctx.fill();
     }
 
