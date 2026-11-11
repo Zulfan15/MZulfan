@@ -45,6 +45,15 @@ import { COMPANIONS } from '../engine/pokemonCompanions';
     <div class="flex items-center gap-2">
       <button
         type="button"
+        id="btn-partner-toggle-ride"
+        class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border-2 border-indigo-700 bg-indigo-500 hover:bg-indigo-400 font-pixel text-xs font-bold text-white shadow-sm cursor-pointer transition-all active:translate-y-0.5"
+        title="Tunggangi / Naik Pokémon Partner (Tekan R)"
+      >
+        <span id="btn-partner-ride-icon">🏇</span>
+        <span id="btn-partner-ride-label">Tunggangi (R)</span>
+      </button>
+      <button
+        type="button"
         id="btn-partner-use-active-skill"
         class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border-2 border-amber-700 bg-amber-400 hover:bg-amber-300 font-pixel text-xs font-bold text-amber-950 shadow-sm cursor-pointer transition-all active:translate-y-0.5"
         title="Gunakan jurus partner aktif (Tekan X)"
@@ -143,12 +152,15 @@ import { COMPANIONS } from '../engine/pokemonCompanions';
 
   <!-- Modal Footer -->
   <div class="px-5 py-3 border-t-2 border-ink/20 bg-slate-50 flex items-center justify-between text-[11px] font-pixel text-ink/60">
-    <div class="flex items-center gap-2">
+    <div class="flex items-center gap-2 flex-wrap">
       <kbd class="font-mono bg-white border border-ink/40 px-1.5 py-0.5 rounded shadow-2xs font-bold">P</kbd>
-      <span>Buka / Tutup Hub Partner</span>
+      <span>Buka Hub Partner</span>
+      <span class="mx-1.5">•</span>
+      <kbd class="font-mono bg-white border border-ink/40 px-1.5 py-0.5 rounded shadow-2xs font-bold">R</kbd>
+      <span>Tunggangi Pokémon (Poké Ride)</span>
       <span class="mx-1.5">•</span>
       <kbd class="font-mono bg-white border border-ink/40 px-1.5 py-0.5 rounded shadow-2xs font-bold">X</kbd>
-      <span>Gunakan Skill Partner Aktif di Kanvas</span>
+      <span>Skill Partner</span>
     </div>
     <span class="hidden sm:inline font-mono">11 Pokémon Tersedia</span>
   </div>
@@ -162,11 +174,16 @@ import { COMPANIONS } from '../engine/pokemonCompanions';
     const closeBtn = document.getElementById('partner-hub-close');
     const dismissBtn = document.getElementById('btn-partner-dismiss');
     const useActiveSkillBtn = document.getElementById('btn-partner-use-active-skill');
+    const btnToggleRide = document.getElementById('btn-partner-toggle-ride');
+    const rideLabel = document.getElementById('btn-partner-ride-label');
+    const rideIcon = document.getElementById('btn-partner-ride-icon');
     const activeIcon = document.getElementById('active-partner-icon');
     const activeName = document.getElementById('active-partner-name');
     const activeSkillLabel = document.getElementById('btn-active-skill-label');
 
     if (!modal) return;
+
+    let isRidingActive = false;
 
     const getStoredFollower = (): string | null => {
       if (typeof window === 'undefined') return null;
@@ -190,11 +207,13 @@ import { COMPANIONS } from '../engine/pokemonCompanions';
         if (activeName) activeName.textContent = `${comp.name} (${comp.title})`;
         if (activeSkillLabel) activeSkillLabel.textContent = `Skill: ${comp.skillName} (X)`;
         if (useActiveSkillBtn) useActiveSkillBtn.classList.remove('hidden');
+        if (btnToggleRide) btnToggleRide.classList.remove('hidden');
       } else {
         if (activeIcon) activeIcon.textContent = '👟';
         if (activeName) activeName.textContent = 'Solo (Tanpa Partner)';
         if (activeSkillLabel) activeSkillLabel.textContent = 'Gunakan Skill (X)';
         if (useActiveSkillBtn) useActiveSkillBtn.classList.add('hidden');
+        if (btnToggleRide) btnToggleRide.classList.add('hidden');
       }
     };
 
@@ -211,6 +230,12 @@ import { COMPANIONS } from '../engine/pokemonCompanions';
     closeBtn?.addEventListener('click', closeModal);
     modal.addEventListener('click', (e) => {
       if (e.target === modal) closeModal();
+    });
+
+    // Toggle Poké Ride
+    btnToggleRide?.addEventListener('click', () => {
+      window.dispatchEvent(new CustomEvent('town:toggle-pokeride'));
+      closeModal();
     });
 
     // Dismiss follower (Walk Solo)
@@ -268,6 +293,27 @@ import { COMPANIONS } from '../engine/pokemonCompanions';
       const custom = e as CustomEvent<{ follower: { id: string } | null }>;
       const fid = custom.detail?.follower?.id || null;
       updateModalActiveState(fid);
+    });
+
+    // Poké Ride changed event
+    window.addEventListener('town:pokeride-changed', (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      const active = detail?.active ?? false;
+      isRidingActive = active;
+      if (rideLabel) {
+        rideLabel.textContent = active ? 'Turun (R)' : 'Tunggangi (R)';
+      }
+      if (rideIcon) {
+        rideIcon.textContent = active ? '👟' : '🏇';
+      }
+      if (btnToggleRide) {
+        btnToggleRide.classList.toggle('bg-emerald-600', active);
+        btnToggleRide.classList.toggle('hover:bg-emerald-500', active);
+        btnToggleRide.classList.toggle('border-emerald-800', active);
+        btnToggleRide.classList.toggle('bg-indigo-500', !active);
+        btnToggleRide.classList.toggle('hover:bg-indigo-400', !active);
+        btnToggleRide.classList.toggle('border-indigo-700', !active);
+      }
     });
 
     // Open event

@@ -222,6 +222,15 @@ const dataPlaceRooms = {
             <kbd class="town-burger-dropdown__kbd">X</kbd>
           </button>
 
+          <button type="button" class="town-burger-dropdown__item" id="burger-item-pokeride" role="menuitem">
+            <span class="town-burger-dropdown__item-icon" id="burger-pokeride-icon">🏇</span>
+            <div class="town-burger-dropdown__item-info">
+              <span class="town-burger-dropdown__item-title">Poké Ride</span>
+              <span class="town-burger-dropdown__item-sub" id="burger-pokeride-sub">Tunggangi Pokémon partner</span>
+            </div>
+            <kbd class="town-burger-dropdown__kbd">R</kbd>
+          </button>
+
           <button type="button" class="town-burger-dropdown__item" id="burger-item-time" role="menuitem">
             <span class="town-burger-dropdown__item-icon" id="burger-time-icon">☀️</span>
             <div class="town-burger-dropdown__item-info">
@@ -2036,6 +2045,36 @@ const dataPlaceRooms = {
     window.addEventListener('town:follower-changed', (e: Event) => {
       const fid = (e as CustomEvent).detail?.followerId ?? null;
       updatePartnerUI(fid);
+    });
+
+    // ─── 🏇 Poké Ride Visitor Controls ───
+    const burgerItemPokeRide = document.getElementById('burger-item-pokeride');
+    const burgerPokeRideSub = document.getElementById('burger-pokeride-sub');
+    const burgerPokeRideIcon = document.getElementById('burger-pokeride-icon');
+
+    const togglePokeRide = () => {
+      if (engine) {
+        engine.togglePokeRide();
+        toggleBurger(false);
+      }
+    };
+    burgerItemPokeRide?.addEventListener('click', togglePokeRide);
+
+    window.addEventListener('town:pokeride-changed', (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      const active = detail?.active ?? false;
+      const follower = detail?.follower;
+      if (burgerItemPokeRide) {
+        burgerItemPokeRide.classList.toggle('is-active', active);
+      }
+      if (burgerPokeRideSub) {
+        burgerPokeRideSub.textContent = active
+          ? `Sedang menunggangi ${follower?.name || 'Pokémon'} (Tekan R untuk turun)`
+          : 'Tunggangi Pokémon partner (Tekan R)';
+      }
+      if (burgerPokeRideIcon) {
+        burgerPokeRideIcon.textContent = active ? '🏇' : '🐾';
+      }
     });
 
     // ─── 🌤️ Atmosphere (Day / Sunset / Night), 🌸 Cuaca & 🎵 BGM Controls ───

@@ -141,7 +141,7 @@ import { CHARIZARD_IMAGE_SRC } from './charizardSprite';
 import { TYRANITAR_IMAGE_SRC } from './tyranitarSprite';
 import { GARCHOMP_IMAGE_SRC } from './garchompSprite';
 import { URSHIFU_IMAGE_SRC } from './urshifuSprite';
-import { PokemonPMDAnimator } from './pokemonPMDAnimator';
+import { PokemonPMDAnimator, type PMDAction } from './pokemonPMDAnimator';
 
 export interface BubbleAction {
   label: string;
@@ -295,6 +295,7 @@ export class TownEngine {
   private bufferedDir: Dir | null = null;
   private isShiftHeld = false;
   private isBikeActive = false;
+  private isRidingPokemon = false;
   private coffeeBoostTimer = 0;
   private dustPuffs: DustPuff[] = [];
   private flyBurstParticles: FlyParticle[] = [];
@@ -1280,7 +1281,19 @@ export class TownEngine {
     return this.isBikeActive;
   }
 
+  public isRiding(): boolean {
+    return this.isRidingPokemon;
+  }
+
   public toggleBike(): boolean {
+    if (this.isRidingPokemon) {
+      this.isRidingPokemon = false;
+      window.dispatchEvent(
+        new CustomEvent('town:pokeride-changed', {
+          detail: { active: false, follower: this.activeFollower },
+        })
+      );
+    }
     this.isBikeActive = !this.isBikeActive;
     if (this.isBikeActive) {
       sfx.bikeBell();
@@ -1296,6 +1309,14 @@ export class TownEngine {
 
   public setBike(active: boolean) {
     if (this.isBikeActive !== active) {
+      if (active && this.isRidingPokemon) {
+        this.isRidingPokemon = false;
+        window.dispatchEvent(
+          new CustomEvent('town:pokeride-changed', {
+            detail: { active: false, follower: this.activeFollower },
+          })
+        );
+      }
       this.isBikeActive = active;
       if (this.isBikeActive) {
         sfx.bikeBell();
@@ -1306,6 +1327,87 @@ export class TownEngine {
         })
       );
       this.wake();
+    }
+  }
+
+  public togglePokeRide(): boolean {
+    if (!this.activeFollower) {
+      sfx.select();
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(
+          new CustomEvent('town:editor-toast', {
+            detail: '🐾 Pilih Pokémon partner terlebih dahulu (Tekan P) untuk menunggangi!',
+          })
+        );
+      }
+      return false;
+    }
+
+    this.isRidingPokemon = !this.isRidingPokemon;
+    if (this.isRidingPokemon) {
+      if (this.isBikeActive) {
+        this.isBikeActive = false;
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(
+            new CustomEvent('town:bike-changed', {
+              detail: { active: false },
+            })
+          );
+        }
+      }
+      this.followerPos = { ...this.playerPos };
+      this.followerTarget = { ...this.playerTarget };
+      this.followerTrail = [];
+      sfx.confirm();
+
+      const fid = this.activeFollower.id;
+      const isFlying = ['rayquaza', 'lunala', 'reshiram', 'zekrom', 'giratina', 'charizard', 'latios', 'latias'].includes(fid);
+      const toastMsg = fid === 'pikachu'
+        ? '⚡ Pikachu melompat riang ke pundak Red! Siap bertualang bersama! (Tekan R untuk turun)'
+        : isFlying
+        ? `✨ Terbang mengarungi angkasa bersama ${this.activeFollower.name}! (Tekan R untuk turun)`
+        : `🏇 Menunggangi ${this.activeFollower.name}! Kecepatan berlari meningkat! (Tekan R untuk turun)`;
+
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(
+          new CustomEvent('town:editor-toast', {
+            detail: toastMsg,
+          })
+        );
+      }
+      this.spawnRideMountFX();
+    } else {
+      sfx.step();
+      const init = this.getFollowerInitialPos(this.playerPos.x, this.playerPos.y, this.playerDir);
+      this.followerPos = { ...init.pos };
+      this.followerTarget = { ...init.pos };
+      this.followerTrail = [...init.trail];
+      this.followerDir = this.playerDir;
+      this.followerFacing = this.playerDir === 'left' ? 'left' : 'right';
+
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(
+          new CustomEvent('town:editor-toast', {
+            detail: `👟 Turun dari ${this.activeFollower.name}. Partner kembali berjalan mengiringi.`,
+          })
+        );
+      }
+    }
+
+    this.wake();
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(
+        new CustomEvent('town:pokeride-changed', {
+          detail: { active: this.isRidingPokemon, follower: this.activeFollower },
+        })
+      );
+    }
+    return this.isRidingPokemon;
+  }
+
+  public setPokeRide(active: boolean) {
+    if (this.isRidingPokemon !== active) {
+      this.togglePokeRide();
     }
   }
 
@@ -1332,10 +1434,16 @@ export class TownEngine {
     this.playerPos = { x: clampedX, y: clampedY };
     this.playerTarget = { x: clampedX, y: clampedY };
     if (this.activeFollower) {
-      const init = this.getFollowerInitialPos(clampedX, clampedY, this.playerDir);
-      this.followerPos = { ...init.pos };
-      this.followerTarget = { ...init.pos };
-      this.followerTrail = [...init.trail];
+      if (this.isRidingPokemon) {
+        this.followerPos = { x: clampedX, y: clampedY };
+        this.followerTarget = { x: clampedX, y: clampedY };
+        this.followerTrail = [];
+      } else {
+        const init = this.getFollowerInitialPos(clampedX, clampedY, this.playerDir);
+        this.followerPos = { ...init.pos };
+        this.followerTarget = { ...init.pos };
+        this.followerTrail = [...init.trail];
+      }
       this.followerDir = this.playerDir;
       this.followerFacing = this.playerDir === 'left' ? 'left' : 'right';
     }
@@ -1613,6 +1721,13 @@ export class TownEngine {
         return;
       }
 
+      // Poké Ride toggle
+      if (e.code === 'KeyR') {
+        e.preventDefault();
+        this.togglePokeRide();
+        return;
+      }
+
       // Radar mini-map toggle
       if (e.code === 'KeyM') {
         e.preventDefault();
@@ -1841,6 +1956,25 @@ export class TownEngine {
         }
       }
 
+      // Click on active follower to mount, or click on player to mount/dismount Poké Ride
+      if (this.isRidingPokemon) {
+        const isPlayerHit =
+          (targetTileX === this.playerPos.x && targetTileY === this.playerPos.y) ||
+          Math.hypot(worldX - (this.playerPos.x * TILE_SIZE + 8), worldY - (this.playerPos.y * TILE_SIZE + 8)) <= 20;
+        if (isPlayerHit) {
+          this.togglePokeRide();
+          return;
+        }
+      } else if (this.activeFollower) {
+        const isFollowerHit =
+          (targetTileX === this.followerPos.x && targetTileY === this.followerPos.y) ||
+          Math.hypot(worldX - (this.followerPos.x * TILE_SIZE + 8), worldY - (this.followerPos.y * TILE_SIZE + 8)) <= 20;
+        if (isFollowerHit) {
+          this.togglePokeRide();
+          return;
+        }
+      }
+
       this.pendingTarget = null;
       this.walkTo(targetTileX, targetTileY);
     };
@@ -2040,6 +2174,10 @@ export class TownEngine {
       const custom = e as CustomEvent<{ followerId: string | null }>;
       if (custom.detail !== undefined) this.setActiveFollower(custom.detail.followerId);
     };
+    const onTogglePokeRide = () => {
+      this.togglePokeRide();
+    };
+    window.addEventListener('town:toggle-pokeride', onTogglePokeRide);
     const onTriggerMove = (e: Event) => {
       const custom = e as CustomEvent<{ pokemonId: string; originX?: number; originY?: number }>;
       if (custom.detail?.pokemonId) {
@@ -3295,12 +3433,18 @@ export class TownEngine {
     }
 
     if (this.isMoving) {
-      const baseSpeed = this.isBikeActive ? 12.1 : this.isShiftHeld ? 8.8 : 5.5; // tiles per second (Shift = running shoes, Bike = Mach bike!)
+      const baseSpeed = this.isRidingPokemon
+        ? 13.5 // Fast Poké Ride velocity!
+        : this.isBikeActive
+        ? 12.1
+        : this.isShiftHeld
+        ? 8.8
+        : 5.5; // tiles per second (Shift = running shoes, Bike = Mach bike!)
       const speed = this.coffeeBoostTimer > 0 ? baseSpeed * 1.5 : baseSpeed;
       this.moveProgress += dt * speed;
 
-      // Emit footstep / tire dust puffs when running or biking or coffee overclocked
-      if ((this.isShiftHeld || this.isBikeActive || this.coffeeBoostTimer > 0) && this.tick % (this.isBikeActive ? 3 : 5) === 0) {
+      // Emit footstep / tire dust puffs when running or biking or riding or coffee overclocked
+      if ((this.isShiftHeld || this.isBikeActive || this.isRidingPokemon || this.coffeeBoostTimer > 0) && this.tick % (this.isRidingPokemon ? 3 : this.isBikeActive ? 3 : 5) === 0) {
         const curDrawX = (this.playerPos.x + (this.playerTarget.x - this.playerPos.x) * this.moveProgress) * TILE_SIZE;
         const curDrawY = (this.playerPos.y + (this.playerTarget.y - this.playerPos.y) * this.moveProgress) * TILE_SIZE;
         this.spawnDustPuff(curDrawX, curDrawY);
@@ -10610,27 +10754,31 @@ export class TownEngine {
       ? this.playerPos.y + (this.playerTarget.y - this.playerPos.y) * this.moveProgress
       : this.playerPos.y;
 
-    if (this.activeFollower && followerY <= playerY) {
-      this.drawFollower(ctx);
-    }
-
     const drawX =
       (this.playerPos.x + (this.playerTarget.x - this.playerPos.x) * this.moveProgress) * TILE_SIZE;
     const drawY =
       (this.playerPos.y + (this.playerTarget.y - this.playerPos.y) * this.moveProgress) * TILE_SIZE;
     const stepFrame = this.isMoving ? Math.floor(this.moveProgress * 4) : 0;
 
-    if (this.isBikeActive) {
-      // Sitting on Mach Bike: render Ash slightly raised
-      const bikeYOffset = -2;
-      drawCharacter(ctx, this.playerPalette, this.playerDir, 0, drawX, drawY + bikeYOffset, 1);
-      this.drawMachBike(ctx, this.playerDir, drawX, drawY, this.tick, this.isMoving);
+    if (this.isRidingPokemon && this.activeFollower) {
+      this.drawPokeRide(ctx, drawX, drawY, stepFrame);
     } else {
-      drawCharacter(ctx, this.playerPalette, this.playerDir, stepFrame, drawX, drawY, 1);
-    }
+      if (this.activeFollower && followerY <= playerY) {
+        this.drawFollower(ctx);
+      }
 
-    if (this.activeFollower && followerY > playerY) {
-      this.drawFollower(ctx);
+      if (this.isBikeActive) {
+        // Sitting on Mach Bike: render Ash slightly raised
+        const bikeYOffset = -2;
+        drawCharacter(ctx, this.playerPalette, this.playerDir, 0, drawX, drawY + bikeYOffset, 1);
+        this.drawMachBike(ctx, this.playerDir, drawX, drawY, this.tick, this.isMoving);
+      } else {
+        drawCharacter(ctx, this.playerPalette, this.playerDir, stepFrame, drawX, drawY, 1);
+      }
+
+      if (this.activeFollower && followerY > playerY) {
+        this.drawFollower(ctx);
+      }
     }
 
     // Signature move visual burst particles
@@ -10832,6 +10980,14 @@ export class TownEngine {
   private onPlayerStepStart(newTarget: Vec) {
     if (!this.activeFollower) return;
 
+    if (this.isRidingPokemon) {
+      this.followerPos = { ...this.playerPos };
+      this.followerTarget = { ...newTarget };
+      this.followerDir = this.playerDir;
+      this.followerFacing = this.playerDir === 'left' ? 'left' : 'right';
+      return;
+    }
+
     this.followerPos = { ...this.followerTarget };
 
     // Check if player is reversing direction towards the follower (into the gap tile or follower's tile)
@@ -10942,6 +11098,16 @@ export class TownEngine {
 
   public setActiveFollower(id: string | null, announce = true) {
     if (!id || id === 'none' || id === 'dismiss') {
+      if (this.isRidingPokemon) {
+        this.isRidingPokemon = false;
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(
+            new CustomEvent('town:pokeride-changed', {
+              detail: { active: false, follower: null },
+            })
+          );
+        }
+      }
       this.activeFollower = null;
       if (typeof window !== 'undefined') {
         localStorage.removeItem('town:active_follower');
@@ -12066,6 +12232,255 @@ export class TownEngine {
       ctx.fillText(this.followerEmote, drawX + 8, emoteY + 0.5);
       ctx.restore();
     }
+  }
+
+  private spawnRideMountFX() {
+    const ox = this.playerPos.x * TILE_SIZE + 8;
+    const oy = this.playerPos.y * TILE_SIZE + 16;
+    for (let i = 0; i < 24; i++) {
+      const ang = Math.random() * Math.PI * 2;
+      const spd = 1.5 + Math.random() * 3;
+      this.moveParticles.push({
+        x: ox,
+        y: oy,
+        vx: Math.cos(ang) * spd,
+        vy: Math.sin(ang) * spd - 1,
+        size: 2.5 + Math.random() * 2,
+        color: ['#facc15', '#38bdf8', '#c084fc', '#ffffff', '#4ade80'][Math.floor(Math.random() * 5)],
+        alpha: 0.9,
+        life: 0,
+        maxLife: 20 + Math.floor(Math.random() * 10),
+        type: 'cosmic',
+      });
+    }
+  }
+
+  private drawPokeRide(
+    ctx: CanvasRenderingContext2D,
+    drawX: number,
+    drawY: number,
+    stepFrame: number
+  ) {
+    if (!this.activeFollower) return;
+    const fid = this.activeFollower.id;
+    const isMoving = this.isMoving;
+    const animTick = isMoving ? Math.floor(this.tick * 1.3) : this.tick;
+    const dir = this.playerDir;
+    const coreX = drawX + 8;
+    const coreY = drawY + 16;
+
+    // Special case: Pikachu rides on Red's shoulder!
+    if (fid === 'pikachu') {
+      drawCharacter(ctx, this.playerPalette, this.playerDir, stepFrame, drawX, drawY, 1);
+      const pikaOffset = this.playerDir === 'left' ? 7 : -5;
+      const pikaBob = isMoving ? Math.sin(this.moveProgress * Math.PI * 2) * 1.5 : Math.sin(this.tick * 0.08) * 1.0;
+      drawPikachu(ctx, drawX + pikaOffset, drawY - 14 + pikaBob);
+      return;
+    }
+
+    // Ground shadow beneath mount
+    const shadowMap: Record<string, { rx: number; ry: number; yOff: number }> = {
+      urshifu: { rx: 16, ry: 5.5, yOff: 16 },
+      lunala: { rx: 17, ry: 5, yOff: 16 },
+      solgaleo: { rx: 16, ry: 6, yOff: 16 },
+      samurott: { rx: 14, ry: 5, yOff: 16 },
+      necrozma: { rx: 16, ry: 6, yOff: 16 },
+      groudon: { rx: 15, ry: 6, yOff: 16 },
+      kyogre: { rx: 15, ry: 5.5, yOff: 16 },
+      dialga: { rx: 14, ry: 5, yOff: 16 },
+      palkia: { rx: 14, ry: 5, yOff: 16 },
+      giratina: { rx: 14, ry: 5, yOff: 16 },
+      zekrom: { rx: 14, ry: 5, yOff: 16 },
+      reshiram: { rx: 14, ry: 5, yOff: 16 },
+      rayquaza: { rx: 14, ry: 5, yOff: 16 },
+      darkrai: { rx: 14, ry: 5.5, yOff: 16 },
+      garchomp: { rx: 13, ry: 4.5, yOff: 16 },
+      tyranitar: { rx: 13, ry: 5, yOff: 16 },
+      charizard: { rx: 12, ry: 4.5, yOff: 15 },
+      arceus: { rx: 12, ry: 4.5, yOff: 16 },
+      mewtwo: { rx: 12, ry: 4.5, yOff: 16 },
+      latios: { rx: 12, ry: 4.5, yOff: 16 },
+      latias: { rx: 12, ry: 4.5, yOff: 16 },
+    };
+    const s = shadowMap[fid];
+    if (s) {
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.4)';
+      ctx.beginPath();
+      ctx.ellipse(coreX, drawY + s.yOff, s.rx, s.ry, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Determine attack tick and action
+    let action: PMDAction = isMoving ? 'walk' : 'idle';
+    let attackTick = 0;
+    if (fid === 'rayquaza' && this.rayquazaAttackTick > 0) {
+      action = 'shoot';
+      attackTick = 26 - this.rayquazaAttackTick;
+    } else if (fid === 'arceus' && this.arceusAttackTick > 0) {
+      action = 'shoot';
+      attackTick = 30 - this.arceusAttackTick;
+    } else if (fid === 'reshiram' && this.reshiramAttackTick > 0) {
+      action = 'shoot';
+      attackTick = 28 - this.reshiramAttackTick;
+    } else if (fid === 'zekrom' && this.zekromAttackTick > 0) {
+      action = 'shoot';
+      attackTick = 26 - this.zekromAttackTick;
+    } else if (fid === 'giratina' && this.giratinaAttackTick > 0) {
+      action = 'shoot';
+      attackTick = 24 - this.giratinaAttackTick;
+    } else if (fid === 'palkia' && this.palkiaAttackTick > 0) {
+      action = 'shoot';
+      attackTick = 28 - this.palkiaAttackTick;
+    } else if (fid === 'dialga' && this.dialgaAttackTick > 0) {
+      action = 'shoot';
+      attackTick = 28 - this.dialgaAttackTick;
+    } else if (fid === 'lunala' && this.lunalaAttackTick > 0) {
+      action = 'shoot';
+      attackTick = 25 - this.lunalaAttackTick;
+    }
+
+    const curAnimTick = attackTick > 0 ? attackTick : animTick;
+
+    // Draw background visual aura for PMD/legendary Pokémon
+    if (fid === 'rayquaza') {
+      const ozonePulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
+      const ozoneGrad = ctx.createRadialGradient(coreX, coreY - 10, 3, coreX, coreY - 10, 20);
+      ozoneGrad.addColorStop(0, `rgba(52, 211, 153, ${ozonePulse + 0.3})`);
+      ozoneGrad.addColorStop(0.5, `rgba(16, 185, 129, ${ozonePulse})`);
+      ozoneGrad.addColorStop(1, 'rgba(16, 185, 129, 0)');
+      ctx.fillStyle = ozoneGrad;
+      ctx.beginPath();
+      ctx.arc(coreX, coreY - 10, 20, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (fid === 'arceus') {
+      const cosPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
+      const cosGrad = ctx.createRadialGradient(coreX, coreY - 10, 3, coreX, coreY - 10, 18);
+      cosGrad.addColorStop(0, `rgba(254, 240, 138, ${cosPulse + 0.3})`);
+      cosGrad.addColorStop(0.5, `rgba(234, 179, 8, ${cosPulse})`);
+      cosGrad.addColorStop(1, 'rgba(234, 179, 8, 0)');
+      ctx.fillStyle = cosGrad;
+      ctx.beginPath();
+      ctx.arc(coreX, coreY - 10, 18, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (fid === 'dialga') {
+      const corePulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
+      const coreGrad = ctx.createRadialGradient(coreX, coreY - 8, 2, coreX, coreY - 8, 18);
+      coreGrad.addColorStop(0, `rgba(224, 242, 254, ${corePulse + 0.35})`);
+      coreGrad.addColorStop(0.45, `rgba(56, 189, 248, ${corePulse + 0.1})`);
+      coreGrad.addColorStop(1, 'rgba(2, 132, 199, 0)');
+      ctx.fillStyle = coreGrad;
+      ctx.beginPath();
+      ctx.arc(coreX, coreY - 8, 18, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (fid === 'palkia') {
+      const spatialPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
+      const spatGrad = ctx.createRadialGradient(coreX, coreY - 8, 3, coreX, coreY - 8, 18);
+      spatGrad.addColorStop(0, `rgba(240, 171, 252, ${spatialPulse + 0.3})`);
+      spatGrad.addColorStop(0.5, `rgba(192, 38, 211, ${spatialPulse})`);
+      spatGrad.addColorStop(1, 'rgba(192, 38, 211, 0)');
+      ctx.fillStyle = spatGrad;
+      ctx.beginPath();
+      ctx.arc(coreX, coreY - 8, 18, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (fid === 'lunala') {
+      const moonPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
+      const moonGrad = ctx.createRadialGradient(coreX, coreY - 12, 2, coreX, coreY - 12, 20);
+      moonGrad.addColorStop(0, `rgba(224, 231, 255, ${moonPulse + 0.3})`);
+      moonGrad.addColorStop(0.5, `rgba(129, 140, 248, ${moonPulse})`);
+      moonGrad.addColorStop(1, 'rgba(15, 23, 42, 0)');
+      ctx.fillStyle = moonGrad;
+      ctx.beginPath();
+      ctx.arc(coreX, coreY - 12, 20, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Step bob / ride bobbing
+    const rideBob = isMoving ? Math.sin(this.moveProgress * Math.PI * 2) * 1.5 : Math.sin(this.tick * 0.08) * 1.0;
+
+    // Ride Y offset per Pokémon species
+    const rideOffsets: Record<string, number> = {
+      rayquaza: 10,
+      dialga: 8,
+      palkia: 8,
+      arceus: 8,
+      lunala: 6,
+      giratina: 6,
+      reshiram: 7,
+      zekrom: 7,
+      garchomp: 7,
+      charizard: 7,
+      tyranitar: 7,
+      groudon: 9,
+      kyogre: 7,
+      urshifu: 6,
+      solgaleo: 7,
+      necrozma: 6,
+      samurott: 6,
+    };
+    const rideYOff = rideOffsets[fid] ?? 6;
+
+    // Draw the Pokémon mount sprite first
+    const pmdDrawn = this.pmdAnimator.draw(
+      ctx,
+      fid,
+      action,
+      dir,
+      coreX,
+      coreY,
+      curAnimTick
+    );
+
+    // Fallback to static sprite if PMD not available or not yet loaded
+    if (!pmdDrawn) {
+      const isFlipped = this.playerDir === 'left';
+      if (isFlipped) {
+        ctx.save();
+        ctx.translate(drawX + 8, 0);
+        ctx.scale(-1, 1);
+        ctx.translate(-(drawX + 8), 0);
+      }
+      if (fid === 'charizard' && this.charizardImg?.complete) {
+        ctx.drawImage(this.charizardImg, drawX - 14, drawY - 21 + rideBob, 44, 44);
+      } else if (fid === 'garchomp' && this.garchompImg?.complete) {
+        ctx.drawImage(this.garchompImg, drawX - 14, drawY - 20 + rideBob, 44, 44);
+      } else if (fid === 'tyranitar' && this.tyranitarImg?.complete) {
+        ctx.drawImage(this.tyranitarImg, drawX - 14, drawY - 20 + rideBob, 44, 44);
+      } else if (fid === 'urshifu' && this.urshifuImg?.complete) {
+        ctx.drawImage(this.urshifuImg, drawX - 16, drawY - 23 + rideBob, 48, 45);
+      } else if (fid === 'mewtwo' && this.mewtwoImg?.complete) {
+        ctx.drawImage(this.mewtwoImg, drawX - 12, drawY - 18 + rideBob, 40, 40);
+      } else if (fid === 'groudon' && this.groudonImg?.complete) {
+        ctx.drawImage(this.groudonImg, drawX - 15, drawY - 21 + rideBob, 46, 45);
+      } else if (fid === 'kyogre' && this.kyogreImg?.complete) {
+        ctx.drawImage(this.kyogreImg, drawX - 16, drawY - 20 + rideBob, 48, 44);
+      } else if (fid === 'latios' && this.latiosImg?.complete) {
+        ctx.drawImage(this.latiosImg, drawX - 14, drawY - 18 + rideBob, 44, 40);
+      } else if (fid === 'latias' && this.latiasImg?.complete) {
+        ctx.drawImage(this.latiasImg, drawX - 14, drawY - 18 + rideBob, 44, 40);
+      } else if (fid === 'darkrai' && this.darkraiImg?.complete) {
+        ctx.drawImage(this.darkraiImg, drawX - 13, drawY - 20 + rideBob, 42, 42);
+      } else if (fid === 'necrozma' && this.necrozmaImg?.complete) {
+        ctx.drawImage(this.necrozmaImg, drawX - 15, drawY - 21 + rideBob, 46, 43);
+      } else if (fid === 'solgaleo' && this.solgaleoImg?.complete) {
+        ctx.drawImage(this.solgaleoImg, drawX - 15, drawY - 21 + rideBob, 46, 43);
+      } else if (fid === 'samurott' && this.samurottImg?.complete) {
+        ctx.drawImage(this.samurottImg, drawX - 14, drawY - 20 + rideBob, 44, 42);
+      } else if (fid === 'lucario') {
+        drawLucario(ctx, drawX, drawY + rideBob, this.tick, 1);
+      }
+      if (isFlipped) ctx.restore();
+    }
+
+    // Draw Red riding atop the Pokémon saddle/back!
+    drawCharacter(
+      ctx,
+      this.playerPalette,
+      this.playerDir,
+      0, // Riding seated pose
+      drawX,
+      drawY - rideYOff + rideBob,
+      1
+    );
   }
 
   private renderMoveParticles(ctx: CanvasRenderingContext2D) {
