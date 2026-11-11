@@ -9,13 +9,23 @@ interface PaletteItem {
   icon: string;
   desc: string;
   keywords: string;
-  actionType: 'navigate' | 'download' | 'copy' | 'fly' | 'modal' | 'toggle-bike' | 'toggle-minimap' | 'set-atmosphere' | 'set-weather' | 'toggle-bgm';
+  actionType: 'navigate' | 'download' | 'copy' | 'fly' | 'modal' | 'toggle-bike' | 'toggle-minimap' | 'set-atmosphere' | 'set-weather' | 'toggle-bgm' | 'toggle-editor';
   target?: string;
   flyCoords?: { x: number; y: number };
 }
 
 // 1. Quick Actions for Recruiter & Visitors
 const actionItems: PaletteItem[] = [
+  {
+    id: 'act-town-editor',
+    title: 'Town Editor 3.0 (Kustomisasi Tata Letak Kota)',
+    category: 'action',
+    categoryLabel: 'Aksi Cepat',
+    icon: '🛠️',
+    desc: 'Buka palet editor visual untuk memindahkan gedung, dekorasi, NPC & ubin kota (Tekan E).',
+    keywords: 'editor builder town desain peta gedung kustomisasi custom layout petak hotkey e ubah bangun',
+    actionType: 'toggle-editor',
+  },
   {
     id: 'act-cv',
     title: 'Unduh CV / Résumé Zulfan (PDF)',
@@ -723,6 +733,8 @@ const allPaletteItems: PaletteItem[] = [
               ? 'Toggle 🚲'
               : item.actionType === 'toggle-minimap'
               ? 'Radar 🧭'
+              : item.actionType === 'toggle-editor'
+              ? 'Editor 🛠️'
               : 'Buka ↵'}
           </span>
         </div>
@@ -971,6 +983,8 @@ const allPaletteItems: PaletteItem[] = [
         if (target) {
           window.dispatchEvent(new CustomEvent('town:set-follower', { detail: { followerId: target } }));
         }
+      } else if (actionType === 'toggle-editor') {
+        window.dispatchEvent(new CustomEvent('town:toggle-editor'));
       }
     };
 

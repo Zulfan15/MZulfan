@@ -108,8 +108,21 @@ const dataPlaceRooms = {
       <span class="town-hud-badge">LIVE 2D</span>
     </div>
 
-    <!-- Burger Menu Button & Dropdown -->
-    <div class="town-hud-burger-wrap">
+    <div class="town-hud-right-actions flex items-center gap-1.5 sm:gap-2">
+      <!-- Quick Town Editor Toggle Button -->
+      <button
+        type="button"
+        class="town-hud-btn town-hud-btn--editor"
+        id="btn-toggle-editor"
+        aria-label="Toggle Town Editor"
+        title="Town Editor 3.0 (Kustomisasi Kota / Tekan E)"
+      >
+        <span class="town-hud-btn__icon" aria-hidden="true">🛠️</span>
+        <span class="town-hud-btn__label">Editor</span>
+      </button>
+
+      <!-- Burger Menu Button & Dropdown -->
+      <div class="town-hud-burger-wrap">
       <button
         type="button"
         class="town-hud-btn town-hud-burger-btn"
@@ -325,6 +338,7 @@ const dataPlaceRooms = {
         </div>
       </div>
     </div>
+  </div>
   </header>
 
   <!-- Floating Minimized HUD Pill (Muncul saat bar atas diminimalkan) -->
@@ -1247,6 +1261,22 @@ const dataPlaceRooms = {
     const bubble = document.querySelector('[data-town-bubble]') as HTMLDivElement | null;
     let bubbleActionLink: HTMLAnchorElement | HTMLButtonElement | null = null;
 
+    const editorToast = document.getElementById('town-editor-toast');
+    const showToast = (msg: string) => {
+      if (!editorToast) return;
+      editorToast.textContent = msg;
+      editorToast.classList.remove('hidden');
+      editorToast.classList.add('is-visible');
+      window.setTimeout(() => {
+        editorToast.classList.remove('is-visible');
+        editorToast.classList.add('hidden');
+      }, 3000);
+    };
+
+    window.addEventListener('town:editor-toast', ((e: CustomEvent<string>) => {
+      if (e?.detail) showToast(e.detail);
+    }) as EventListener);
+
     const showBubble = (
       title: string,
       text: string,
@@ -1626,6 +1656,32 @@ const dataPlaceRooms = {
     const burgerItemEditor = document.getElementById('burger-item-editor');
     const canAccessEditor = true;
 
+    const toggleTownEditor = () => {
+      if (!engine) return;
+      if (engine.getScene() !== 'town') {
+        showToast('🛠️ Town Editor hanya aktif di Peta Kota. Mengalihkan ke Kota...');
+        sfx.select();
+        setTimeout(() => {
+          sessionStorage.setItem('town:respawn', '22,28');
+          sessionStorage.setItem('town:open-editor', 'true');
+          window.location.href = '/';
+        }, 350);
+        return;
+      }
+      const editor = engine.getEditor();
+      if (!editor) return;
+      if (editor.isPlaytesting()) {
+        editor.togglePlaytest();
+        sfx.select();
+        return;
+      }
+      editor.toggleEnabled();
+      sfx.select();
+    };
+
+    btnToggleEditor?.addEventListener('click', toggleTownEditor);
+    window.addEventListener('town:toggle-editor', toggleTownEditor);
+
     // ─── Retro Hamburger Navigation Menu (Menu Burger) ───
     const btnTownBurger = document.getElementById('btn-town-burger');
     const burgerDropdown = document.getElementById('town-burger-dropdown');
@@ -1654,7 +1710,7 @@ const dataPlaceRooms = {
       burgerItemLabels?.classList.toggle('is-active', !!isLabelsActive);
       const isXrayActive = engine?.isXray();
       burgerItemXray?.classList.toggle('is-active', !!isXrayActive);
-      const isEditorActive = btnToggleEditor?.classList.contains('is-active');
+      const isEditorActive = engine?.getEditor()?.isEnabled();
       burgerItemEditor?.classList.toggle('is-active', !!isEditorActive);
 
       sfx.select();
@@ -1696,7 +1752,7 @@ const dataPlaceRooms = {
     });
 
     burgerItemEditor?.addEventListener('click', () => {
-      btnToggleEditor?.click();
+      toggleTownEditor();
       closeBurgerMenu();
     });
 
@@ -1852,18 +1908,6 @@ const dataPlaceRooms = {
     const btnCloseExportModal = document.getElementById('btn-close-export-modal');
     const btnCopyCode = document.getElementById('btn-copy-code');
     const codeOutput = document.getElementById('town-editor-code-output');
-    const editorToast = document.getElementById('town-editor-toast');
-
-    const showToast = (msg: string) => {
-      if (!editorToast) return;
-      editorToast.textContent = msg;
-      editorToast.classList.remove('hidden');
-      editorToast.classList.add('is-visible');
-      window.setTimeout(() => {
-        editorToast.classList.remove('is-visible');
-        editorToast.classList.add('hidden');
-      }, 3000);
-    };
 
     const minimapWidget = document.getElementById('town-editor-minimap');
     const minimapCanvas = document.getElementById('town-minimap-canvas') as HTMLCanvasElement | null;
@@ -2291,6 +2335,15 @@ const dataPlaceRooms = {
 
     if (engine) {
       const editor = engine.getEditor();
+
+      if (sessionStorage.getItem('town:open-editor') === 'true' && engine.getScene() === 'town') {
+        sessionStorage.removeItem('town:open-editor');
+        setTimeout(() => {
+          if (!editor.isEnabled()) {
+            editor.toggleEnabled();
+          }
+        }, 250);
+      }
 
       const btnEditorMinimize = document.getElementById('btn-editor-minimize');
       const iconEditorMinimize = document.getElementById('icon-editor-minimize');
@@ -2958,11 +3011,6 @@ const dataPlaceRooms = {
         }
       });
 
-      // Handle toast dispatched from hotkeys
-      window.addEventListener('town:editor-toast', ((e: CustomEvent<string>) => {
-        showToast(e.detail);
-      }) as EventListener);
-
       btnEditorMinimize?.addEventListener('click', () => {
         isMinimized = !isMinimized;
         if (editorBody) {
@@ -2983,14 +3031,6 @@ const dataPlaceRooms = {
 
       btnEditorQuickClose?.addEventListener('click', closeEditor);
       btnEditorClose?.addEventListener('click', closeEditor);
-
-      btnToggleEditor?.addEventListener('click', () => {
-        townDevPopover?.classList.add('hidden');
-        if (townDevPopover) townDevPopover.style.display = 'none';
-        btnToggleDevMenu?.classList.remove('is-active');
-        editor.toggleEnabled();
-        sfx.select();
-      });
 
       toolBtnMove?.addEventListener('click', () => {
         editor.setTool('move');
@@ -3173,7 +3213,7 @@ const dataPlaceRooms = {
       if (e.key === 'f' || e.key === 'F') {
         toggleFullscreen();
       } else if ((e.key === 'e' || e.key === 'E') && canAccessEditor) {
-        btnToggleEditor?.click();
+        toggleTownEditor();
       } else if (e.key === 'h' || e.key === 'H') {
         toggleMinimizeHud();
       }
