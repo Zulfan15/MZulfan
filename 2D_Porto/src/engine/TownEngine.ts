@@ -319,6 +319,7 @@ export class TownEngine {
   private palkiaAttackTick = 0;
   private dialgaAttackTick = 0;
   private lunalaAttackTick = 0;
+  private solgaleoAttackTick = 0;
   private pmdAnimator = new PokemonPMDAnimator();
 
   // Signature Move Visual FX & Camera Shake
@@ -3500,6 +3501,9 @@ export class TownEngine {
     }
     if (this.lunalaAttackTick > 0) {
       this.lunalaAttackTick--;
+    }
+    if (this.solgaleoAttackTick > 0) {
+      this.solgaleoAttackTick--;
     }
 
     // Update dynamic weather particles
@@ -10233,8 +10237,20 @@ export class TownEngine {
           ctx.fillRect(coreX + 4 + Math.sin(this.tick * 0.28) * 10, coreY + 2 - (this.tick % 13), 1.5, 1.5);
         }
 
-        // Draw Solgaleo sprite (120x112 scaled to 46x43)
-        if (this.solgaleoImg && this.solgaleoImg.complete && this.solgaleoImg.naturalWidth > 0) {
+        // Draw Solgaleo 8-direction PMD animated sprite (with fallback)
+        const dir = (cfg?.orientation || 'S').toLowerCase();
+        const pmdDir = dir === 'w' ? 'left' : dir === 'e' ? 'right' : dir === 'n' ? 'up' : 'down';
+        const pmdDrawn = this.pmdAnimator.draw(
+          ctx,
+          'solgaleo',
+          'idle',
+          pmdDir,
+          coreX,
+          drawY + 16,
+          this.tick
+        );
+
+        if (!pmdDrawn && this.solgaleoImg && this.solgaleoImg.complete && this.solgaleoImg.naturalWidth > 0) {
           const isFlipped = (cfg?.orientation || 'W') === 'E';
           if (isFlipped) {
             ctx.save();
@@ -10876,7 +10892,18 @@ export class TownEngine {
             ctx.fillRect(coreX + 4 + Math.sin(this.tick * 0.28) * 10, coreY + 2 - (this.tick % 13), 1.5, 1.5);
           }
 
-          ctx.drawImage(this.solgaleoImg, b.x * TILE_SIZE - 15, b.y * TILE_SIZE - 21 + breath, 46, 43);
+          const pmdDrawn = this.pmdAnimator.draw(
+            ctx,
+            'solgaleo',
+            'idle',
+            'down',
+            coreX,
+            b.y * TILE_SIZE + 16,
+            this.tick
+          );
+          if (!pmdDrawn && this.solgaleoImg && this.solgaleoImg.complete) {
+            ctx.drawImage(this.solgaleoImg, b.x * TILE_SIZE - 15, b.y * TILE_SIZE - 21 + breath, 46, 43);
+          }
         } else if ((b.subType === 'samurott' || b.id === 'samurott') && this.samurottImg && this.samurottImg.complete) {
           const breath = Math.sin(this.tick * 0.05) * 0.8;
           const coreX = b.x * TILE_SIZE + 8;
@@ -12398,19 +12425,41 @@ export class TownEngine {
         ctx.drawImage(this.lunalaImg, drawX - 15, drawY - 21 + stepBob + idleBob * 1.5, 46, 46);
       }
     } else if (fid === 'solgaleo') {
-      if (this.solgaleoImg && this.solgaleoImg.complete) {
-        const coreX = drawX + 8;
-        const coreY = drawY + 4 + stepBob;
-        const sunGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 17);
-        sunGrad.addColorStop(0, 'rgba(255, 255, 255, 0.7)');
-        sunGrad.addColorStop(0.4, 'rgba(254, 240, 138, 0.45)');
-        sunGrad.addColorStop(0.8, 'rgba(245, 158, 11, 0.25)');
-        sunGrad.addColorStop(1, 'rgba(234, 88, 12, 0)');
-        ctx.fillStyle = sunGrad;
-        ctx.beginPath();
-        ctx.arc(coreX, coreY, 17, 0, Math.PI * 2);
-        ctx.fill();
+      const coreX = drawX + 8;
+      const coreY = drawY + 16;
+      const sunGrad = ctx.createRadialGradient(coreX, coreY - 10, 2, coreX, coreY - 10, 18);
+      sunGrad.addColorStop(0, 'rgba(255, 255, 255, 0.7)');
+      sunGrad.addColorStop(0.4, 'rgba(254, 240, 138, 0.45)');
+      sunGrad.addColorStop(0.8, 'rgba(245, 158, 11, 0.25)');
+      sunGrad.addColorStop(1, 'rgba(234, 88, 12, 0)');
+      ctx.fillStyle = sunGrad;
+      ctx.beginPath();
+      ctx.arc(coreX, coreY - 10, 18, 0, Math.PI * 2);
+      ctx.fill();
 
+      // Determine action, direction, and animation frame tick
+      let action: 'idle' | 'walk' | 'shoot' = 'idle';
+      let animTick = this.tick;
+      if (this.solgaleoAttackTick > 0) {
+        action = 'shoot';
+        animTick = 25 - this.solgaleoAttackTick;
+      } else if (isFollowerWalking) {
+        action = 'walk';
+        animTick = this.followerWalkTick;
+      }
+      const dir = this.followerDir || 'down';
+
+      const pmdDrawn = this.pmdAnimator.draw(
+        ctx,
+        'solgaleo',
+        action,
+        dir,
+        coreX,
+        coreY,
+        animTick
+      );
+
+      if (!pmdDrawn && this.solgaleoImg && this.solgaleoImg.complete) {
         ctx.drawImage(this.solgaleoImg, drawX - 15, drawY - 21 + stepBob, 46, 43);
       }
     } else if (fid === 'samurott') {
@@ -12684,6 +12733,9 @@ export class TownEngine {
     } else if (fid === 'lunala' && this.lunalaAttackTick > 0) {
       action = 'shoot';
       attackTick = 25 - this.lunalaAttackTick;
+    } else if (fid === 'solgaleo' && this.solgaleoAttackTick > 0) {
+      action = 'shoot';
+      attackTick = 25 - this.solgaleoAttackTick;
     }
 
     const curAnimTick = attackTick > 0 ? attackTick : animTick;
@@ -12739,6 +12791,17 @@ export class TownEngine {
       ctx.beginPath();
       ctx.arc(coreX, coreY - 14, 22, 0, Math.PI * 2);
       ctx.fill();
+    } else if (fid === 'solgaleo') {
+      const sunPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
+      const sunGrad = ctx.createRadialGradient(coreX, coreY - 10, 2, coreX, coreY - 10, 20);
+      sunGrad.addColorStop(0, `rgba(255, 255, 255, ${sunPulse + 0.35})`);
+      sunGrad.addColorStop(0.35, `rgba(254, 240, 138, ${sunPulse + 0.2})`);
+      sunGrad.addColorStop(0.7, `rgba(245, 158, 11, ${sunPulse * 0.7})`);
+      sunGrad.addColorStop(1, 'rgba(234, 88, 12, 0)');
+      ctx.fillStyle = sunGrad;
+      ctx.beginPath();
+      ctx.arc(coreX, coreY - 10, 20, 0, Math.PI * 2);
+      ctx.fill();
     }
 
     // Anatomical per-species and per-direction saddle offsets relative to (coreX, coreY)
@@ -12764,7 +12827,7 @@ export class TownEngine {
       garchomp: { down: { dx: 0, dy: -18 }, side: { dx: -3, dy: -17 }, up: { dx: 0, dy: -17 } },
       tyranitar:{ down: { dx: 0, dy: -19 }, side: { dx: -3, dy: -18 }, up: { dx: 0, dy: -18 } },
       urshifu:  { down: { dx: 0, dy: -19 }, side: { dx: -3, dy: -18 }, up: { dx: 0, dy: -18 } },
-      solgaleo: { down: { dx: 0, dy: -19 }, side: { dx: -3, dy: -18 }, up: { dx: 0, dy: -18 } },
+      solgaleo: { down: { dx: 0, dy: -18 }, side: { dx: -4, dy: -17 }, up: { dx: 0, dy: -17 } },
       necrozma: { down: { dx: 0, dy: -19 }, side: { dx: -3, dy: -18 }, up: { dx: 0, dy: -18 } },
       samurott: { down: { dx: 0, dy: -17 }, side: { dx: -3, dy: -16 }, up: { dx: 0, dy: -17 } },
       latios:   { down: { dx: 0, dy: -16 }, side: { dx: -2, dy: -15 }, up: { dx: 0, dy: -16 } },

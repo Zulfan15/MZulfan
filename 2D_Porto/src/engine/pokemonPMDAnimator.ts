@@ -337,6 +337,47 @@ export const PMD_POKEMON_CONFIGS: Record<string, PMDPokemonConfig> = {
       anchorY: 73,
     },
   },
+  solgaleo: {
+    id: 'solgaleo',
+    name: 'Solgaleo',
+    scale: 0.85,
+    idle: {
+      src: '/assets/pokemon/solgaleo/Idle-Anim.png',
+      frameWidth: 48,
+      frameHeight: 72,
+      frameCount: 8,
+      durations: [60, 6, 6, 6, 6, 6, 6, 12],
+      anchorX: 24,
+      anchorY: 40,
+    },
+    walk: {
+      src: '/assets/pokemon/solgaleo/Walk-Anim.png',
+      frameWidth: 48,
+      frameHeight: 72,
+      frameCount: 4,
+      durations: [10, 10, 10, 10],
+      anchorX: 24,
+      anchorY: 40,
+    },
+    shoot: {
+      src: '/assets/pokemon/solgaleo/Swing-Anim.png',
+      frameWidth: 96,
+      frameHeight: 120,
+      frameCount: 9,
+      durations: [2, 1, 2, 2, 3, 2, 2, 1, 1],
+      anchorX: 48,
+      anchorY: 64,
+    },
+    attack: {
+      src: '/assets/pokemon/solgaleo/Attack-Anim.png',
+      frameWidth: 80,
+      frameHeight: 112,
+      frameCount: 14,
+      durations: [2, 2, 6, 1, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2],
+      anchorX: 40,
+      anchorY: 60,
+    },
+  },
 };
 
 export class PokemonPMDAnimator {
