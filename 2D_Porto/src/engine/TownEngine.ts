@@ -321,6 +321,7 @@ export class TownEngine {
   private lunalaAttackTick = 0;
   private solgaleoAttackTick = 0;
   private garchompAttackTick = 0;
+  private groudonAttackTick = 0;
   private pmdAnimator = new PokemonPMDAnimator();
 
   // Signature Move Visual FX & Camera Shake
@@ -3508,6 +3509,9 @@ export class TownEngine {
     }
     if (this.garchompAttackTick > 0) {
       this.garchompAttackTick--;
+    }
+    if (this.groudonAttackTick > 0) {
+      this.groudonAttackTick--;
     }
 
     // Update dynamic weather particles
@@ -9908,8 +9912,20 @@ export class TownEngine {
           ctx.fillRect(coreX + 4 + Math.sin(this.tick * 0.3) * 10, coreY + 6 - (this.tick % 14), 1.5, 1.5);
         }
 
-        // Draw Groudon sprite
-        if (this.groudonImg && this.groudonImg.complete && this.groudonImg.naturalWidth > 0) {
+        // Draw Groudon 8-direction PMD animated sprite (with fallback)
+        const dir = (cfg?.orientation || 'W').toLowerCase();
+        const pmdDir = dir === 'w' ? 'left' : dir === 'e' ? 'right' : dir === 'n' ? 'up' : 'down';
+        const pmdDrawn = this.pmdAnimator.draw(
+          ctx,
+          'groudon',
+          'idle',
+          pmdDir,
+          coreX,
+          drawY + 16,
+          this.tick
+        );
+
+        if (!pmdDrawn && this.groudonImg && this.groudonImg.complete && this.groudonImg.naturalWidth > 0) {
           const isFlipped = (cfg?.orientation || 'W') === 'E';
           if (isFlipped) {
             ctx.save();
@@ -10642,7 +10658,7 @@ export class TownEngine {
           if (!pmdDrawn && this.rayquazaImg && this.rayquazaImg.complete) {
             ctx.drawImage(this.rayquazaImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + lev, 42, 42);
           }
-        } else if ((b.subType === 'groudon' || b.id === 'groudon') && this.groudonImg && this.groudonImg.complete) {
+        } else if ((b.subType === 'groudon' || b.id === 'groudon') && (this.pmdAnimator.isSupported('groudon') || (this.groudonImg && this.groudonImg.complete))) {
           const breath = Math.sin(this.tick * 0.04) * 0.8;
           const coreX = b.x * TILE_SIZE + 8;
           const coreY = b.y * TILE_SIZE + 8;
@@ -10674,7 +10690,19 @@ export class TownEngine {
             ctx.fillRect(coreX + 4 + Math.sin(this.tick * 0.3) * 10, coreY + 6 - (this.tick % 14), 1.5, 1.5);
           }
 
-          ctx.drawImage(this.groudonImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + breath, 42, 42);
+          const dir = b.orientation || 'W';
+          const pmdDrawn = this.pmdAnimator.draw(
+            ctx,
+            'groudon',
+            'idle',
+            dir,
+            coreX,
+            b.y * TILE_SIZE + 16,
+            this.tick
+          );
+          if (!pmdDrawn && this.groudonImg && this.groudonImg.complete) {
+            ctx.drawImage(this.groudonImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + breath, 42, 42);
+          }
         } else if ((b.subType === 'kyogre' || b.id === 'kyogre') && this.kyogreImg && this.kyogreImg.complete) {
           const swimY = Math.sin(this.tick * 0.04) * 1.8;
           const coreX = b.x * TILE_SIZE + 8;
@@ -11717,6 +11745,7 @@ export class TownEngine {
         });
       }
     } else if (id.includes('groudon')) {
+      this.groudonAttackTick = 28;
       for (let i = 0; i < 50; i++) {
         const ang = -Math.PI / 2 + (Math.random() - 0.5) * 1.5;
         const spd = 3.5 + Math.random() * 5.5;
@@ -12363,18 +12392,48 @@ export class TownEngine {
         ctx.drawImage(this.giratinaImg, drawX - 13, drawY - 20 + stepBob + idleBob * 1.5, 42, 42);
       }
     } else if (fid === 'groudon') {
-      if (this.groudonImg && this.groudonImg.complete) {
-        const coreX = drawX + 8;
-        const coreY = drawY + 8 + stepBob;
-        const heatGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 16);
-        heatGrad.addColorStop(0, 'rgba(239, 68, 68, 0.5)');
-        heatGrad.addColorStop(0.6, 'rgba(249, 115, 22, 0.3)');
-        heatGrad.addColorStop(1, 'rgba(180, 83, 9, 0)');
-        ctx.fillStyle = heatGrad;
-        ctx.beginPath();
-        ctx.arc(coreX, coreY, 16, 0, Math.PI * 2);
-        ctx.fill();
+      const coreX = drawX + 8;
+      const coreY = drawY + 16;
+      const heatGrad = ctx.createRadialGradient(coreX, coreY - 10, 2, coreX, coreY - 10, 18);
+      heatGrad.addColorStop(0, 'rgba(239, 68, 68, 0.55)');
+      heatGrad.addColorStop(0.5, 'rgba(249, 115, 22, 0.35)');
+      heatGrad.addColorStop(1, 'rgba(180, 83, 9, 0)');
+      ctx.fillStyle = heatGrad;
+      ctx.beginPath();
+      ctx.arc(coreX, coreY - 10, 18, 0, Math.PI * 2);
+      ctx.fill();
 
+      // Volcanic embers & magma sparks
+      if (this.tick % 16 < 11) {
+        ctx.fillStyle = '#f59e0b';
+        ctx.fillRect(coreX + Math.sin(this.tick * 0.25) * 12, coreY - 12 - (this.tick % 10), 1.5, 1.5);
+        ctx.fillStyle = '#ef4444';
+        ctx.fillRect(coreX - 6 + Math.cos(this.tick * 0.18) * 10, coreY - 6 - (this.tick % 8), 2, 2);
+      }
+
+      // Determine action, direction, and animation frame tick
+      let action: 'idle' | 'walk' | 'shoot' = 'idle';
+      let animTick = this.tick;
+      if (this.groudonAttackTick > 0) {
+        action = 'shoot';
+        animTick = 28 - this.groudonAttackTick;
+      } else if (isFollowerWalking) {
+        action = 'walk';
+        animTick = this.followerWalkTick;
+      }
+      const dir = this.followerDir || 'down';
+
+      const pmdDrawn = this.pmdAnimator.draw(
+        ctx,
+        'groudon',
+        action,
+        dir,
+        coreX,
+        coreY,
+        animTick
+      );
+
+      if (!pmdDrawn && this.groudonImg && this.groudonImg.complete) {
         ctx.drawImage(this.groudonImg, drawX - 13, drawY - 20 + stepBob, 42, 42);
       }
     } else if (fid === 'kyogre') {
@@ -12814,6 +12873,9 @@ export class TownEngine {
     } else if (fid === 'garchomp' && this.garchompAttackTick > 0) {
       action = 'shoot';
       attackTick = 26 - this.garchompAttackTick;
+    } else if (fid === 'groudon' && this.groudonAttackTick > 0) {
+      action = 'shoot';
+      attackTick = 28 - this.groudonAttackTick;
     }
 
     const curAnimTick = attackTick > 0 ? attackTick : animTick;
@@ -12890,6 +12952,16 @@ export class TownEngine {
       ctx.beginPath();
       ctx.arc(coreX, coreY - 10, 20, 0, Math.PI * 2);
       ctx.fill();
+    } else if (fid === 'groudon') {
+      const magmaPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
+      const magmaGrad = ctx.createRadialGradient(coreX, coreY - 10, 2, coreX, coreY - 10, 20);
+      magmaGrad.addColorStop(0, `rgba(239, 68, 68, ${magmaPulse + 0.35})`);
+      magmaGrad.addColorStop(0.5, `rgba(249, 115, 22, ${magmaPulse * 0.8})`);
+      magmaGrad.addColorStop(1, 'rgba(180, 83, 9, 0)');
+      ctx.fillStyle = magmaGrad;
+      ctx.beginPath();
+      ctx.arc(coreX, coreY - 10, 20, 0, Math.PI * 2);
+      ctx.fill();
     }
 
     // Anatomical per-species and per-direction saddle offsets relative to (coreX, coreY)
@@ -12909,7 +12981,7 @@ export class TownEngine {
       arceus:   { down: { dx: 0, dy: -20 }, side: { dx: -4, dy: -18 }, up: { dx: 0, dy: -19 } },
       reshiram: { down: { dx: 0, dy: -19 }, side: { dx: -5, dy: -17 }, up: { dx: 0, dy: -17 } },
       zekrom:   { down: { dx: 0, dy: -19 }, side: { dx: -5, dy: -17 }, up: { dx: 0, dy: -17 } },
-      groudon:  { down: { dx: 0, dy: -20 }, side: { dx: -3, dy: -18 }, up: { dx: 0, dy: -19 } },
+      groudon:  { down: { dx: 0, dy: -22 }, side: { dx: -4, dy: -20 }, up: { dx: 0, dy: -21 } },
       kyogre:   { down: { dx: 0, dy: -17 }, side: { dx: -2, dy: -16 }, up: { dx: 0, dy: -17 } },
       charizard:{ down: { dx: 0, dy: -18 }, side: { dx: -3, dy: -17 }, up: { dx: 0, dy: -17 } },
       garchomp: { down: { dx: 0, dy: -17 }, side: { dx: -3, dy: -16 }, up: { dx: 0, dy: -16 } },

@@ -428,6 +428,47 @@ export const PMD_POKEMON_CONFIGS: Record<string, PMDPokemonConfig> = {
       anchorY: 38,
     },
   },
+  groudon: {
+    id: 'groudon',
+    name: 'Groudon',
+    scale: 0.72,
+    idle: {
+      src: '/assets/pokemon/groudon/Idle-Anim.png',
+      frameWidth: 64,
+      frameHeight: 80,
+      frameCount: 14,
+      durations: [60, 10, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 10],
+      anchorX: 32,
+      anchorY: 44,
+    },
+    walk: {
+      src: '/assets/pokemon/groudon/Walk-Anim.png',
+      frameWidth: 64,
+      frameHeight: 88,
+      frameCount: 4,
+      durations: [10, 12, 10, 12],
+      anchorX: 32,
+      anchorY: 48,
+    },
+    shoot: {
+      src: '/assets/pokemon/groudon/Shoot-Anim.png',
+      frameWidth: 80,
+      frameHeight: 88,
+      frameCount: 12,
+      durations: [2, 2, 6, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+      anchorX: 40,
+      anchorY: 46,
+    },
+    attack: {
+      src: '/assets/pokemon/groudon/Attack-Anim.png',
+      frameWidth: 88,
+      frameHeight: 104,
+      frameCount: 10,
+      durations: [2, 6, 1, 1, 2, 2, 2, 2, 2, 2],
+      anchorX: 44,
+      anchorY: 55,
+    },
+  },
 };
 
 export class PokemonPMDAnimator {
