@@ -318,7 +318,8 @@ export function drawCharacter(
   stepFrame: number,
   x: number,
   y: number,
-  scale = 1
+  scale = 1,
+  noShadow = false
 ) {
   if (palette.isAsh) {
     let matrix = ASH_SPRITES.down_idle;
@@ -364,11 +365,13 @@ export function drawCharacter(
       ctx.shadowBlur = 6;
     }
 
-    // Oval ground shadow centered under Ash's feet
-    ctx.fillStyle = 'rgba(28, 23, 38, 0.35)';
-    ctx.beginPath();
-    ctx.ellipse(x + 7 * scale, y + 15 * scale, 7 * scale, 3.5 * scale, 0, 0, Math.PI * 2);
-    ctx.fill();
+    if (!noShadow) {
+      // Oval ground shadow centered under Ash's feet
+      ctx.fillStyle = 'rgba(28, 23, 38, 0.35)';
+      ctx.beginPath();
+      ctx.ellipse(x + 7 * scale, y + 15 * scale, 7 * scale, 3.5 * scale, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
 
     drawPixelMatrix(ctx, matrix, ASH_PALETTE, x - 1 * scale, y - 4 * scale, scale, flip);
 
@@ -410,11 +413,13 @@ export function drawCharacter(
     ctx.shadowBlur = 6;
   }
 
-  // Draw shadow
-  ctx.fillStyle = 'rgba(28, 23, 38, 0.35)';
-  ctx.beginPath();
-  ctx.ellipse(x + 8 * scale, y + 15 * scale, 6 * scale, 3 * scale, 0, 0, Math.PI * 2);
-  ctx.fill();
+  if (!noShadow) {
+    // Draw shadow
+    ctx.fillStyle = 'rgba(28, 23, 38, 0.35)';
+    ctx.beginPath();
+    ctx.ellipse(x + 8 * scale, y + 15 * scale, 6 * scale, 3 * scale, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
 
   drawPixelMatrix(ctx, matrix, pMap, x + 3 * scale, y + 1 * scale, scale, flip);
 
@@ -424,182 +429,33 @@ export function drawCharacter(
 }
 
 /**
- * Centered seated riding sprites for Poké Ride (no standing legs dangling down,
- * no duplicate shoulder Pikachu, and no floating ground shadow over the Pokémon's body).
- */
-const ASH_RIDE_SPRITES: Record<string, string[]> = {
-  down: [
-    '....bbbbbb....',
-    '...bwwwwwwb...',
-    '...bwggwwwwb..',
-    '..brrrrrrrrrb.',
-    '..bbrsssssrbb.',
-    '..bbbsbsbsbbb.',
-    '...bbsssssbb..',
-    '....bsssssb...',
-    '...bwccbccwb..',
-    '..bwccccccwb..',
-    '..bggcccccggb.',
-    '..bppbbbbbbppb',
-    '...bb......bb.',
-  ],
-  up: [
-    '....bbbbbb....',
-    '...bbrrrrrbb..',
-    '..brrrrrrrrrb.',
-    '..bwwwwwwwwwb.',
-    '..bbbbbbbbbbb.',
-    '..bbbbbbbbbbb.',
-    '...bbbbbbbbb..',
-    '....bbbbbbb...',
-    '...bwccccccwb.',
-    '..bwccccccccwb',
-    '..bggccccccggb',
-    '..bpppbbbbpppb',
-    '..bwb......bwb',
-  ],
-  side: [
-    '..bbbbbb....',
-    '.bbrrrrrb...',
-    '.bwwwwrrrb..',
-    '.brrrrrrrrb.',
-    '.bbsssssbb..',
-    '.bbbsssbbs..',
-    '..bbsssss...',
-    '...bwccccb..',
-    '..bwccccccb.',
-    '..bccccggggb',
-    '..bpppppbbb.',
-    '...bppppb...',
-    '....bwwwb...',
-    '....bbbbb...',
-  ],
-};
-
-const CHAR_RIDE_SPRITES: Record<string, string[]> = {
-  down: [
-    '....bbbb....',
-    '...bhhhhb...',
-    '..bhhhhhhb..',
-    '..bhssssshb.',
-    '..bsbsbsbsb.',
-    '...bsssssb..',
-    '..bcccccccb.',
-    '.bscccccccsb',
-    '.bppbbbbbbpp',
-    '..bb......bb',
-  ],
-  up: [
-    '....bbbb....',
-    '...bhhhhb...',
-    '..bhhhhhhb..',
-    '..bhhhhhhhb.',
-    '..bhhhhhhhb.',
-    '...bhhhhhb..',
-    '..bcccccccb.',
-    '.bscccccccsb',
-    '.bppbbbbbbpp',
-    '..bb......bb',
-  ],
-  side: [
-    '...bbbb...',
-    '..bhhhhb..',
-    '.bhhhhhhb.',
-    '.bhhssssb.',
-    '.bhhssbsb.',
-    '..bsssssb.',
-    '..bccccccb',
-    '..bcccsssb',
-    '..bppppbb.',
-    '...baab...',
-  ],
-};
-
-/**
- * Draw the player seated on a Pokémon mount (Poké Ride).
- * Specifically omits the floating ground shadow, omits standing legs, and centers the rider on (centerX, topY).
+ * Draw the rider character on a Poké Ride mount using the authentic Ash / player sprite (no ground shadow).
+ * Accurately centers the rider horizontally on targetCenterX and vertically at targetSeatY.
  */
 export function drawRiderCharacter(
   ctx: CanvasRenderingContext2D,
   palette: CharacterPalette,
   dir: Dir,
-  centerX: number,
-  topY: number,
-  scale = 0.78
+  stepFrame: number,
+  targetCenterX: number,
+  targetSeatY: number,
+  scale = 0.86
 ) {
+  let riderX: number;
+  let riderY: number;
+
   if (palette.isAsh) {
-    let matrix = ASH_RIDE_SPRITES.down;
-    let flip = false;
-
-    if (dir === 'down') {
-      matrix = ASH_RIDE_SPRITES.down;
-    } else if (dir === 'up') {
-      matrix = ASH_RIDE_SPRITES.up;
-    } else if (dir === 'right') {
-      matrix = ASH_RIDE_SPRITES.side;
-      flip = false;
-    } else if (dir === 'left') {
-      matrix = ASH_RIDE_SPRITES.side;
-      flip = true;
-    }
-
-    if (palette.holo) {
-      ctx.save();
-      ctx.globalAlpha = 0.85;
-      ctx.shadowColor = '#4cc9f0';
-      ctx.shadowBlur = 6;
-    }
-
-    const cols = matrix[0].length;
-    const drawX = Math.round(centerX - (cols * scale) / 2);
-    const drawY = Math.round(topY);
-    drawPixelMatrix(ctx, matrix, ASH_PALETTE, drawX, drawY, scale, flip);
-
-    if (palette.holo) {
-      ctx.restore();
-    }
-    return;
+    const isLeft = dir === 'left';
+    riderX = isLeft
+      ? Math.round(targetCenterX - 10 * scale)
+      : Math.round(targetCenterX - 5 * scale);
+    riderY = Math.round(targetSeatY - 14 * scale);
+  } else {
+    riderX = Math.round(targetCenterX - 8 * scale);
+    riderY = Math.round(targetSeatY - 13 * scale);
   }
 
-  const pMap: Record<string, string> = {
-    b: '#1c1726',
-    s: palette.skin,
-    h: palette.hair,
-    c: palette.shirt,
-    p: palette.pants,
-    a: palette.shoes,
-    e: palette.accent || palette.hair,
-  };
-
-  let matrix = CHAR_RIDE_SPRITES.down;
-  let flip = false;
-  if (dir === 'down') {
-    matrix = CHAR_RIDE_SPRITES.down;
-  } else if (dir === 'up') {
-    matrix = CHAR_RIDE_SPRITES.up;
-  } else if (dir === 'left') {
-    matrix = CHAR_RIDE_SPRITES.side;
-    flip = true;
-  } else if (dir === 'right') {
-    matrix = CHAR_RIDE_SPRITES.side;
-    flip = false;
-  }
-
-  if (palette.holo) {
-    ctx.save();
-    ctx.globalAlpha = 0.85;
-    ctx.shadowColor = '#4cc9f0';
-    ctx.shadowBlur = 6;
-  }
-
-  const cols = matrix[0].length;
-  const drawX = Math.round(centerX - (cols * scale) / 2);
-  const drawY = Math.round(topY);
-  drawPixelMatrix(ctx, matrix, pMap, drawX, drawY, scale, flip);
-
-  if (palette.holo) {
-    ctx.restore();
-  }
+  drawCharacter(ctx, palette, dir, stepFrame, riderX, riderY, scale, true);
 }
 
 
