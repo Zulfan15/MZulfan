@@ -9316,7 +9316,7 @@ export class TownEngine {
         }
 
         // Draw PMD Animated Dialga
-        const dir = (cfg?.orientation === 'E' || cfg?.orientation === 'SE' || cfg?.orientation === 'NE') ? 'E' : (cfg?.orientation || 'W');
+        const dir = cfg?.orientation || npc.dir || 'S';
         const pmdDrawn = this.pmdAnimator.draw(
           ctx,
           'dialga',
@@ -9389,7 +9389,7 @@ export class TownEngine {
         }
 
         // Draw PMD Animated Palkia
-        const dir = (cfg?.orientation === 'E' || cfg?.orientation === 'SE' || cfg?.orientation === 'NE') ? 'E' : (cfg?.orientation || 'W');
+        const dir = cfg?.orientation || npc.dir || 'S';
         const coreX = drawX + 8;
         const pmdDrawn = this.pmdAnimator.draw(
           ctx,
@@ -9450,7 +9450,7 @@ export class TownEngine {
         }
 
         // Draw PMD Animated Giratina
-        const dir = (cfg?.orientation === 'E' || cfg?.orientation === 'SE' || cfg?.orientation === 'NE') ? 'E' : 'W';
+        const dir = cfg?.orientation || npc.dir || 'S';
         const coreX = drawX + 8;
         const pmdDrawn = this.pmdAnimator.draw(
           ctx,
@@ -9488,7 +9488,8 @@ export class TownEngine {
 
         // Electric Lightning Turbine Glow behind tail (Fusion Bolt)
         const turbineGlow = 0.35 + Math.sin(this.tick * 0.09) * 0.15;
-        const tailX = drawX - 3;
+        const tailDir = cfg?.orientation || npc.dir || 'S';
+        const tailX = tailDir === 'W' ? drawX + 16 : (tailDir === 'E' ? drawX : drawX + 8);
         const tailY = drawY + 8 + levitate;
         const elecGrad = ctx.createRadialGradient(tailX, tailY, 2, tailX, tailY, 15);
         elecGrad.addColorStop(0, `rgba(56, 189, 248, ${turbineGlow + 0.3})`);
@@ -9511,7 +9512,7 @@ export class TownEngine {
         }
 
         // Draw PMD Animated Zekrom
-        const dir = (cfg?.orientation === 'E' || cfg?.orientation === 'SE' || cfg?.orientation === 'NE') ? 'E' : 'W';
+        const dir = cfg?.orientation || npc.dir || 'S';
         const coreX = drawX + 8;
         const pmdDrawn = this.pmdAnimator.draw(
           ctx,
@@ -9573,7 +9574,7 @@ export class TownEngine {
         }
 
         // Draw PMD Animated Reshiram
-        const dir = cfg?.orientation || npc.dir || 'W';
+        const dir = cfg?.orientation || npc.dir || 'S';
         const pmdDrawn = this.pmdAnimator.draw(
           ctx,
           'reshiram',
@@ -9641,7 +9642,7 @@ export class TownEngine {
         }
 
         // Draw PMD Animated Arceus
-        const dir = cfg?.orientation || npc.dir || 'W';
+        const dir = cfg?.orientation || npc.dir || 'S';
         const pmdDrawn = this.pmdAnimator.draw(
           ctx,
           'arceus',
@@ -9893,7 +9894,7 @@ export class TownEngine {
         }
 
         // Draw PMD Animated Rayquaza
-        const dir = cfg?.orientation || npc.dir || 'W';
+        const dir = cfg?.orientation || npc.dir || 'S';
         const pmdDrawn = this.pmdAnimator.draw(
           ctx,
           'rayquaza',
@@ -10261,7 +10262,7 @@ export class TownEngine {
         }
 
         // Draw PMD Animated Lunala
-        const dir = (cfg?.orientation === 'E' || cfg?.orientation === 'SE' || cfg?.orientation === 'NE') ? 'E' : (cfg?.orientation || 'W');
+        const dir = cfg?.orientation || npc.dir || 'S';
         const pmdDrawn = this.pmdAnimator.draw(
           ctx,
           'lunala',
@@ -10496,7 +10497,7 @@ export class TownEngine {
         } else if ((b.subType === 'tyranitar' || b.id === 'tyranitar' || b.subType === 'blastoise' || b.id === 'blastoise') && (this.pmdAnimator.isSupported('tyranitar') || this.tyranitarImg || this.blastoiseImg)) {
           const stomp = Math.sin(this.tick * 0.04) * 0.8;
           const coreX = b.x * TILE_SIZE + 8;
-          const dir = b.orientation || 'W';
+          const dir = b.orientation || 'S';
           const pmdDrawn = this.pmdAnimator.draw(
             ctx,
             'tyranitar',
@@ -10532,7 +10533,7 @@ export class TownEngine {
             ctx.fillRect(coreX - 5 + Math.sin(this.tick * 0.2) * 10, drawY + 14 - (this.tick % 8), 1.5, 1.5);
           }
 
-          const dir = b.orientation || 'W';
+          const dir = b.orientation || 'S';
           const pmdDrawn = this.pmdAnimator.draw(
             ctx,
             'garchomp',
@@ -10576,7 +10577,7 @@ export class TownEngine {
           const coreY = b.y * TILE_SIZE + 16;
           const lev = Math.sin(this.tick * 0.04) * 1.5;
 
-          const dir = b.orientation || 'W';
+          const dir = b.orientation || 'S';
           const pmdDrawn = this.pmdAnimator.draw(
             ctx,
             'dialga',
@@ -10594,7 +10595,7 @@ export class TownEngine {
           const coreY = b.y * TILE_SIZE + 16;
           const lev = Math.sin(this.tick * 0.04) * 1.6;
 
-          const dir = b.orientation || 'W';
+          const dir = b.orientation || 'S';
           const pmdDrawn = this.pmdAnimator.draw(
             ctx,
             'palkia',
@@ -10612,7 +10613,7 @@ export class TownEngine {
           const coreY = b.y * TILE_SIZE + 16;
           const lev = Math.sin(this.tick * 0.04) * 1.8;
 
-          const dir = b.orientation || 'W';
+          const dir = b.orientation || 'S';
           const pmdDrawn = this.pmdAnimator.draw(
             ctx,
             'giratina',
@@ -10630,7 +10631,7 @@ export class TownEngine {
           const coreY = b.y * TILE_SIZE + 16;
           const lev = Math.sin(this.tick * 0.035) * 1.5;
 
-          const dir = b.orientation || 'W';
+          const dir = b.orientation || 'S';
           const pmdDrawn = this.pmdAnimator.draw(
             ctx,
             'zekrom',
@@ -10648,7 +10649,7 @@ export class TownEngine {
           const coreY = b.y * TILE_SIZE + 16;
           const lev = Math.sin(this.tick * 0.035) * 1.5;
 
-          const dir = b.orientation || 'W';
+          const dir = b.orientation || 'S';
           const pmdDrawn = this.pmdAnimator.draw(
             ctx,
             'reshiram',
@@ -10667,7 +10668,7 @@ export class TownEngine {
           const coreY = b.y * TILE_SIZE + 16;
           const lev = Math.sin(this.tick * 0.04) * 2;
 
-          const dir = b.orientation || 'W';
+          const dir = b.orientation || 'S';
           const pmdDrawn = this.pmdAnimator.draw(
             ctx,
             'arceus',
@@ -10708,7 +10709,7 @@ export class TownEngine {
             ctx.fillRect(coreX - 6 + Math.cos(this.tick * 0.16) * 10, b.y * TILE_SIZE + 2 - (this.tick % 10), 2, 2);
           }
 
-          const dir = b.orientation || 'W';
+          const dir = b.orientation || 'S';
           const pmdDrawn = this.pmdAnimator.draw(
             ctx,
             'rayquaza',
@@ -10754,7 +10755,7 @@ export class TownEngine {
             ctx.fillRect(coreX + 4 + Math.sin(this.tick * 0.3) * 10, coreY + 6 - (this.tick % 14), 1.5, 1.5);
           }
 
-          const dir = b.orientation || 'W';
+          const dir = b.orientation || 'S';
           const pmdDrawn = this.pmdAnimator.draw(
             ctx,
             'groudon',
@@ -10799,7 +10800,7 @@ export class TownEngine {
             ctx.fillRect(coreX + 5 + Math.sin(this.tick * 0.28) * 9, coreY - 6 - (this.tick % 8), 1.5, 1.5);
           }
 
-          const dir = b.orientation || 'W';
+          const dir = b.orientation || 'S';
           const pmdDrawn = this.pmdAnimator.draw(
             ctx,
             'kyogre',
@@ -10979,7 +10980,7 @@ export class TownEngine {
             ctx.fillRect(coreX + 5 + Math.sin(this.tick * 0.28) * 10, coreY - 6 - (this.tick % 7), 1.5, 1.5);
           }
 
-          const dir = b.orientation || 'W';
+          const dir = b.orientation || 'S';
           const pmdDrawn = this.pmdAnimator.draw(
             ctx,
             'lunala',
@@ -11101,7 +11102,7 @@ export class TownEngine {
             ctx.fillRect(coreX - 7 + Math.cos(this.tick * 0.17) * 11, coreY + 4 + Math.sin(this.tick * 0.17) * 7, 2, 2);
           }
 
-          const dir = b.orientation || 'W';
+          const dir = b.orientation || 'S';
           this.pmdAnimator.draw(
             ctx,
             'gyarados',

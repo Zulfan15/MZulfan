@@ -1546,7 +1546,12 @@ class TownConfigManager {
               existing.hidden = !!b.hidden;
               if (b.kind) existing.kind = b.kind;
               if (b.subType) existing.subType = b.subType;
-              if (b.orientation) existing.orientation = b.orientation;
+              if ((b.id === 'giratina' || b.id === 'zekrom') && b.orientation === 'W') {
+                existing.orientation = 'S';
+                purgedLegacyFound = true;
+              } else if (b.orientation) {
+                existing.orientation = b.orientation;
+              }
               if (b.name) existing.name = b.name;
               if (b.w !== undefined) existing.w = b.w;
               if (b.h !== undefined) existing.h = b.h;

@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updatedAt": "2026-11-04T08:49:24.100Z",
+  "updatedAt": "2026-11-11T08:45:26.638Z",
   "buildings": [
     {
       "id": "dev",
@@ -232,7 +232,7 @@
       "hidden": false,
       "labelX": 19,
       "labelY": 30.2,
-      "orientation": "N"
+      "orientation": "S"
     },
     {
       "id": "zekrom",
@@ -247,7 +247,7 @@
       "hidden": false,
       "labelX": 13,
       "labelY": 30.2,
-      "orientation": "W"
+      "orientation": "S"
     },
     {
       "id": "giratina",
@@ -261,7 +261,8 @@
       "dialogue": "GIRATINA: 'Gyaaa-shhhooo...!' 👻🌌 (Enam sayap hitam Giratina memancarkan kabut antimateri dari Dunia Distorsi. Sang Renegade Pokémon mengawasi keseimbangan Zulfan's Town dari batas antar dimensi.)",
       "hidden": false,
       "labelX": 19,
-      "labelY": 24.2
+      "labelY": 24.2,
+      "orientation": "S"
     },
     {
       "id": "palkia",
@@ -275,7 +276,8 @@
       "dialogue": "PALKIA: 'Gyaaa-ooohhn...!' 🌌💧 (Mutiara kosmik di pundak Palkia berpendar dengan riak pemecah ruang Spacial Rend. Sang Spatial Pokémon mengamati pelataran Zulfan's Town dengan aura megah penjaga dimensi.)",
       "hidden": false,
       "labelX": 19,
-      "labelY": 27.2
+      "labelY": 27.2,
+      "orientation": "S"
     },
     {
       "id": "vending",
@@ -557,7 +559,7 @@
       "hidden": false,
       "labelX": 12.5,
       "labelY": 46,
-      "orientation": "W",
+      "orientation": "S",
       "subType": "tyranitar"
     },
     {
@@ -620,7 +622,7 @@
       "hidden": false,
       "labelX": 13,
       "labelY": 27.2,
-      "orientation": "W"
+      "orientation": "S"
     },
     {
       "id": "tree_town_mvyw7gak",
@@ -644,7 +646,7 @@
       "h": 2,
       "kind": "npc",
       "subType": "rayquaza",
-      "orientation": "W",
+      "orientation": "S",
       "dialogue": "RAYQUAZA: 'Kyyyaaaarrrr-shooo...!' 🐉⚡ Aura zamrud naga langit berputar megah di angkasa. Rayquaza melayang gagah menjaga keseimbangan atmosfer dan kedamaian Zulfan's Town.",
       "hidden": false
     },
@@ -657,7 +659,7 @@
       "h": 2,
       "kind": "npc",
       "subType": "groudon",
-      "orientation": "W",
+      "orientation": "S",
       "dialogue": "GROUDON: 'Gwoooaaarrr-ghuuu...!' 🌋🔥 Kerak bumi bergetar saat sang Penguasa Magma melangkah. Groudon berdiri kokoh dengan aura kekeringan purba (Desolate Land), menjaga kestabilan benua dan kekuatan bumi di Zulfan's Town.",
       "hidden": false
     },
@@ -670,7 +672,7 @@
       "h": 2,
       "kind": "npc",
       "subType": "kyogre",
-      "orientation": "N",
+      "orientation": "S",
       "dialogue": "KYOGRE: 'Gyaaa-oooh-shuuu...!' 🌊💧 Deru ombak raksasa dan hujan lebat membuncah dari aura samudra purba (Primordial Sea). Kyogre melayang anggun menjaga kedalaman lautan dan kemurnian air di Zulfan's Town.",
       "hidden": false
     },
@@ -735,7 +737,7 @@
       "h": 2,
       "kind": "npc",
       "subType": "lunala",
-      "orientation": "N",
+      "orientation": "S",
       "dialogue": "LUNALA: 'Mahaaalo-laaa...!' 🌙✨ Sayap bulan sabit membentang lebar menyerap cahaya malam. Lunala Sang Utusan Rembulan memasuki fase Full Moon (Moongeist Beam), menaburkan debu kosmik starlight yang melindungi kedamaian Zulfan's Town.",
       "hidden": false
     },
@@ -762,7 +764,8 @@
       "kind": "npc",
       "subType": "garchomp",
       "orientation": "N",
-      "dialogue": "GARCHOMP: 'Gyaaa-shhh...!' 🦈🌪️ Sayap sirip tajam Garchomp berdesir membelah angin. Sang Mach Pokémon berdiri sigap dengan kecepatan supersonik menjaga ketertiban Zulfan's Town."
+      "dialogue": "GARCHOMP: 'Gyaaa-shhh...!' 🦈🌪️ Sayap sirip tajam Garchomp berdesir membelah angin. Sang Mach Pokémon berdiri sigap dengan kecepatan supersonik menjaga ketertiban Zulfan's Town.",
+      "hidden": false
     },
     {
       "id": "urshifu_mw1vkr24",
@@ -774,7 +777,21 @@
       "kind": "npc",
       "subType": "urshifu",
       "orientation": "W",
-      "dialogue": "URSHIFU: 'Hssshaaarrr-kwooo...!' 🥋🌊 Aliran deras jurus Rapid Strike bergemuruh di sekitar Urshifu Gigantamax. Sang Master Wushu berdiri tegak memancarkan energi petarung legendaris di Zulfan's Town."
+      "dialogue": "URSHIFU: 'Hssshaaarrr-kwooo...!' 🥋🌊 Aliran deras jurus Rapid Strike bergemuruh di sekitar Urshifu Gigantamax. Sang Master Wushu berdiri tegak memancarkan energi petarung legendaris di Zulfan's Town.",
+      "hidden": false
+    },
+    {
+      "id": "samurott_mwbvfl00",
+      "name": "Samurott Ahli Seamitar #1",
+      "x": 7,
+      "y": 39,
+      "w": 2,
+      "h": 2,
+      "kind": "npc",
+      "subType": "samurott",
+      "orientation": "S",
+      "dialogue": "SAMUROTT: 'Rrrwooon-kllliiinggg...!' ⚔️🌊 Samurott menghunus bilah pedang kerang Seamitar dari pelindung kakinya dengan kecepatan kilat. Sang Master Seamitar berdiri gagah membelah ombak dan menjaga kedaulatan Zulfan's Town.",
+      "hidden": false
     }
   ],
   "tiles": [
