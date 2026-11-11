@@ -312,6 +312,7 @@ export class TownEngine {
   private rayquazaAttackTick = 0;
   private arceusAttackTick = 0;
   private reshiramAttackTick = 0;
+  private zekromAttackTick = 0;
   private pmdAnimator = new PokemonPMDAnimator();
 
   // Signature Move Visual FX & Camera Shake
@@ -3159,6 +3160,9 @@ export class TownEngine {
     }
     if (this.reshiramAttackTick > 0) {
       this.reshiramAttackTick--;
+    }
+    if (this.zekromAttackTick > 0) {
+      this.zekromAttackTick--;
     }
 
     // Update dynamic weather particles
@@ -9030,7 +9034,7 @@ export class TownEngine {
           if (isFlipped) ctx.restore();
         }
       } else if (npc.id === 'zekrom' || (npc as any).subType === 'zekrom') {
-        // Authentic Zekrom (Deep Black Pokémon) Overworld Sprite with Lightning Generator Turbine
+        // Authentic Zekrom (Deep Black Pokémon) PMD Animated Sprite with Lightning Generator Turbine
         const drawX = curTileX * TILE_SIZE;
         const drawY = curTileY * TILE_SIZE;
         const levitate = Math.sin(this.tick * 0.035) * 1.5;
@@ -9040,14 +9044,6 @@ export class TownEngine {
         ctx.beginPath();
         ctx.ellipse(drawX + 8, drawY + 16, 14, 5, 0, 0, Math.PI * 2);
         ctx.fill();
-
-        const isFlipped = (cfg?.orientation || 'W') === 'E';
-        if (isFlipped) {
-          ctx.save();
-          ctx.translate(drawX + 8, 0);
-          ctx.scale(-1, 1);
-          ctx.translate(-(drawX + 8), 0);
-        }
 
         // Electric Lightning Turbine Glow behind tail (Fusion Bolt)
         const turbineGlow = 0.35 + Math.sin(this.tick * 0.09) * 0.15;
@@ -9073,11 +9069,31 @@ export class TownEngine {
           ctx.fillRect(tailX + 3 - Math.sin(this.tick * 0.15) * 8, tailY - 7 - (this.tick % 12), 1.5, 1.5);
         }
 
-        // Draw Zekrom sprite
-        if (this.zekromImg && this.zekromImg.complete && this.zekromImg.naturalWidth > 0) {
+        // Draw PMD Animated Zekrom
+        const dir = (cfg?.orientation === 'E' || cfg?.orientation === 'SE' || cfg?.orientation === 'NE') ? 'E' : 'W';
+        const coreX = drawX + 8;
+        const pmdDrawn = this.pmdAnimator.draw(
+          ctx,
+          'zekrom',
+          'idle',
+          dir,
+          coreX,
+          drawY + 16,
+          this.tick
+        );
+
+        // Fallback to static sprite if PMD not yet loaded
+        if (!pmdDrawn && this.zekromImg && this.zekromImg.complete && this.zekromImg.naturalWidth > 0) {
+          const isFlipped = (cfg?.orientation || 'W') === 'E';
+          if (isFlipped) {
+            ctx.save();
+            ctx.translate(drawX + 8, 0);
+            ctx.scale(-1, 1);
+            ctx.translate(-(drawX + 8), 0);
+          }
           ctx.drawImage(this.zekromImg, drawX - 13, drawY - 20 + levitate, 42, 42);
+          if (isFlipped) ctx.restore();
         }
-        if (isFlipped) ctx.restore();
       } else if (npc.id === 'reshiram' || (npc as any).subType === 'reshiram') {
         // Authentic Reshiram (Vast White Pokémon) PMD Animated Sprite with Jet Turbine Fusion Flare
         const drawX = curTileX * TILE_SIZE;
@@ -10023,9 +10039,24 @@ export class TownEngine {
         } else if ((b.subType === 'giratina' || b.id === 'giratina') && this.giratinaImg && this.giratinaImg.complete) {
           const lev = Math.sin(this.tick * 0.04) * 1.8;
           ctx.drawImage(this.giratinaImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + lev, 42, 42);
-        } else if ((b.subType === 'zekrom' || b.id === 'zekrom') && this.zekromImg && this.zekromImg.complete) {
+        } else if (b.subType === 'zekrom' || b.id === 'zekrom') {
+          const coreX = b.x * TILE_SIZE + 8;
+          const coreY = b.y * TILE_SIZE + 16;
           const lev = Math.sin(this.tick * 0.035) * 1.5;
-          ctx.drawImage(this.zekromImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + lev, 42, 42);
+
+          const dir = b.orientation || 'W';
+          const pmdDrawn = this.pmdAnimator.draw(
+            ctx,
+            'zekrom',
+            'idle',
+            dir,
+            coreX,
+            coreY,
+            this.tick
+          );
+          if (!pmdDrawn && this.zekromImg && this.zekromImg.complete) {
+            ctx.drawImage(this.zekromImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + lev, 42, 42);
+          }
         } else if (b.subType === 'reshiram' || b.id === 'reshiram') {
           const coreX = b.x * TILE_SIZE + 8;
           const coreY = b.y * TILE_SIZE + 16;
@@ -11000,6 +11031,7 @@ export class TownEngine {
         });
       }
     } else if (id.includes('zekrom')) {
+      this.zekromAttackTick = 28;
       for (let i = 0; i < 50; i++) {
         const ang = Math.random() * Math.PI * 2;
         const spd = 3.2 + Math.random() * 5.2;
@@ -11465,19 +11497,54 @@ export class TownEngine {
         ctx.drawImage(this.reshiramImg, drawX - 13, drawY - 20 + stepBob + idleBob, 42, 42);
       }
     } else if (fid === 'zekrom') {
-      if (this.zekromImg && this.zekromImg.complete) {
-        const turbineGlow = 0.35 + Math.sin(this.tick * 0.09) * 0.15;
-        const tailX = drawX - 3;
-        const tailY = drawY + 8 + stepBob + idleBob;
-        const elecGrad = ctx.createRadialGradient(tailX, tailY, 2, tailX, tailY, 15);
-        elecGrad.addColorStop(0, `rgba(56, 189, 248, ${turbineGlow + 0.3})`);
-        elecGrad.addColorStop(0.5, `rgba(2, 132, 199, ${turbineGlow})`);
-        elecGrad.addColorStop(1, 'rgba(2, 132, 199, 0)');
-        ctx.fillStyle = elecGrad;
-        ctx.beginPath();
-        ctx.arc(tailX, tailY, 15, 0, Math.PI * 2);
-        ctx.fill();
+      const coreX = drawX + 8;
+      const coreY = drawY + 16;
+      const turbineGlow = 0.35 + Math.sin(this.tick * 0.09) * 0.15;
+      const tailX = drawX - 3;
+      const tailY = drawY + 8 + stepBob + idleBob;
+      const elecGrad = ctx.createRadialGradient(tailX, tailY, 2, tailX, tailY, 15);
+      elecGrad.addColorStop(0, `rgba(56, 189, 248, ${turbineGlow + 0.3})`);
+      elecGrad.addColorStop(0.5, `rgba(2, 132, 199, ${turbineGlow})`);
+      elecGrad.addColorStop(1, 'rgba(2, 132, 199, 0)');
+      ctx.fillStyle = elecGrad;
+      ctx.beginPath();
+      ctx.arc(tailX, tailY, 15, 0, Math.PI * 2);
+      ctx.fill();
 
+      // Dynamic blue/cyan lightning discharges surging from the tail
+      const sparkPhase = Math.floor(this.tick / 3) % 4;
+      if (this.tick % 20 < 14) {
+        ctx.fillStyle = sparkPhase % 2 === 0 ? '#38bdf8' : '#e0f2fe';
+        ctx.fillRect(tailX + Math.sin(this.tick * 0.25) * 8, tailY - 5 - (this.tick % 14), 2, 2);
+        ctx.fillStyle = '#0284c7';
+        ctx.fillRect(tailX - 3 + Math.cos(this.tick * 0.2) * 9, tailY - 2 - (this.tick % 10), 1.5, 1.5);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(tailX + 3 - Math.sin(this.tick * 0.15) * 8, tailY - 7 - (this.tick % 12), 1.5, 1.5);
+      }
+
+      // Determine action, direction, and animation frame tick
+      let action: 'idle' | 'walk' | 'shoot' = 'idle';
+      let animTick = this.tick;
+      if (this.zekromAttackTick > 0) {
+        action = 'shoot';
+        animTick = 28 - this.zekromAttackTick;
+      } else if (this.isMoving) {
+        action = 'walk';
+        animTick = this.followerWalkTick;
+      }
+      const dir = this.followerDir || 'down';
+
+      const pmdDrawn = this.pmdAnimator.draw(
+        ctx,
+        'zekrom',
+        action,
+        dir,
+        coreX,
+        coreY,
+        animTick
+      );
+
+      if (!pmdDrawn && this.zekromImg && this.zekromImg.complete) {
         ctx.drawImage(this.zekromImg, drawX - 13, drawY - 20 + stepBob + idleBob, 42, 42);
       }
     } else if (fid === 'giratina') {

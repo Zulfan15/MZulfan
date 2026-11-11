@@ -22,6 +22,7 @@ export interface PMDPokemonConfig {
   idle: PMDAnimSpec;
   walk: PMDAnimSpec;
   shoot?: PMDAnimSpec;
+  attack?: PMDAnimSpec;
   rearUp?: PMDAnimSpec;
 }
 
@@ -131,6 +132,47 @@ export const PMD_POKEMON_CONFIGS: Record<string, PMDPokemonConfig> = {
       anchorY: 44,
     },
   },
+  zekrom: {
+    id: 'zekrom',
+    name: 'Zekrom',
+    scale: 0.68,
+    idle: {
+      src: '/assets/pokemon/zekrom/Idle-Anim.png',
+      frameWidth: 72,
+      frameHeight: 96,
+      frameCount: 14,
+      durations: [60, 10, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 10],
+      anchorX: 36,
+      anchorY: 52,
+    },
+    walk: {
+      src: '/assets/pokemon/zekrom/Walk-Anim.png',
+      frameWidth: 72,
+      frameHeight: 104,
+      frameCount: 6,
+      durations: [10, 10, 15, 20, 10, 15],
+      anchorX: 36,
+      anchorY: 55,
+    },
+    shoot: {
+      src: '/assets/pokemon/zekrom/Shoot-Anim.png',
+      frameWidth: 96,
+      frameHeight: 88,
+      frameCount: 15,
+      durations: [2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2],
+      anchorX: 48,
+      anchorY: 48,
+    },
+    attack: {
+      src: '/assets/pokemon/zekrom/Attack-Anim.png',
+      frameWidth: 88,
+      frameHeight: 136,
+      frameCount: 15,
+      durations: [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+      anchorX: 44,
+      anchorY: 71,
+    },
+  },
 };
 
 export class PokemonPMDAnimator {
@@ -147,6 +189,7 @@ export class PokemonPMDAnimator {
       this.loadImage(cfg.idle.src);
       this.loadImage(cfg.walk.src);
       if (cfg.shoot) this.loadImage(cfg.shoot.src);
+      if (cfg.attack) this.loadImage(cfg.attack.src);
       if (cfg.rearUp) this.loadImage(cfg.rearUp.src);
     }
   }
@@ -256,8 +299,8 @@ export class PokemonPMDAnimator {
     let spec: PMDAnimSpec | undefined = cfg.idle;
     if (action === 'walk') spec = cfg.walk;
     else if (action === 'shoot' && cfg.shoot) spec = cfg.shoot;
+    else if (action === 'attack' && (cfg.attack || cfg.shoot || cfg.rearUp)) spec = cfg.attack || cfg.shoot || cfg.rearUp;
     else if (action === 'rearUp' && cfg.rearUp) spec = cfg.rearUp;
-    else if (action === 'attack' && (cfg.shoot || cfg.rearUp)) spec = cfg.shoot || cfg.rearUp;
 
     if (!spec) spec = cfg.idle;
 
