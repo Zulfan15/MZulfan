@@ -296,6 +296,47 @@ export const PMD_POKEMON_CONFIGS: Record<string, PMDPokemonConfig> = {
       anchorY: 76,
     },
   },
+  lunala: {
+    id: 'lunala',
+    name: 'Lunala',
+    scale: 0.65,
+    idle: {
+      src: '/assets/pokemon/lunala/Idle-Anim.png',
+      frameWidth: 80,
+      frameHeight: 96,
+      frameCount: 4,
+      durations: [12, 14, 12, 14],
+      anchorX: 40,
+      anchorY: 54,
+    },
+    walk: {
+      src: '/assets/pokemon/lunala/Walk-Anim.png',
+      frameWidth: 80,
+      frameHeight: 104,
+      frameCount: 4,
+      durations: [8, 12, 8, 12],
+      anchorX: 40,
+      anchorY: 58,
+    },
+    shoot: {
+      src: '/assets/pokemon/lunala/Shoot-Anim.png',
+      frameWidth: 80,
+      frameHeight: 136,
+      frameCount: 11,
+      durations: [2, 6, 1, 2, 2, 2, 2, 2, 2, 2, 2],
+      anchorX: 40,
+      anchorY: 72,
+    },
+    attack: {
+      src: '/assets/pokemon/lunala/Attack-Anim.png',
+      frameWidth: 104,
+      frameHeight: 136,
+      frameCount: 10,
+      durations: [2, 4, 1, 1, 1, 2, 2, 2, 2, 2],
+      anchorX: 52,
+      anchorY: 73,
+    },
+  },
 };
 
 export class PokemonPMDAnimator {
