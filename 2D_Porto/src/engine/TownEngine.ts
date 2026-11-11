@@ -141,6 +141,7 @@ import { CHARIZARD_IMAGE_SRC } from './charizardSprite';
 import { TYRANITAR_IMAGE_SRC } from './tyranitarSprite';
 import { GARCHOMP_IMAGE_SRC } from './garchompSprite';
 import { URSHIFU_IMAGE_SRC } from './urshifuSprite';
+import { PokemonPMDAnimator } from './pokemonPMDAnimator';
 
 export interface BubbleAction {
   label: string;
@@ -307,6 +308,9 @@ export class TownEngine {
   private followerFacing: 'left' | 'right' = 'right';
   private followerEmoteTime = 0;
   private followerEmote = '❤️';
+  private followerWalkTick = 0;
+  private rayquazaAttackTick = 0;
+  private pmdAnimator = new PokemonPMDAnimator();
 
   // Signature Move Visual FX & Camera Shake
   private moveParticles: MoveParticle[] = [];
@@ -3142,6 +3146,12 @@ export class TownEngine {
 
   private update(dt: number) {
     this.tick++;
+    if (this.isMoving) {
+      this.followerWalkTick++;
+    }
+    if (this.rayquazaAttackTick > 0) {
+      this.rayquazaAttackTick--;
+    }
 
     // Update dynamic weather particles
     const totalW = this.map.w * TILE_SIZE;
@@ -9366,8 +9376,20 @@ export class TownEngine {
           ctx.fillRect(coreX - 6 + Math.cos(this.tick * 0.16) * 10, coreY + 4 - (this.tick % 10), 2, 2);
         }
 
-        // Draw Rayquaza sprite
-        if (this.rayquazaImg && this.rayquazaImg.complete && this.rayquazaImg.naturalWidth > 0) {
+        // Draw PMD Animated Rayquaza
+        const dir = cfg?.orientation || npc.dir || 'W';
+        const pmdDrawn = this.pmdAnimator.draw(
+          ctx,
+          'rayquaza',
+          'idle',
+          dir,
+          coreX,
+          drawY + 16,
+          this.tick
+        );
+
+        // Fallback to static sprite if PMD image not loaded yet
+        if (!pmdDrawn && this.rayquazaImg && this.rayquazaImg.complete && this.rayquazaImg.naturalWidth > 0) {
           const isFlipped = (cfg?.orientation || 'W') === 'E';
           if (isFlipped) {
             ctx.save();
@@ -9896,7 +9918,7 @@ export class TownEngine {
           'giratina', 'groudon', 'kyogre', 'latios', 'latias', 'darkrai',
           'necrozma', 'lunala', 'solgaleo', 'samurott', 'lucario', 'pikachu'
         ].includes(b.subType || b.id);
-        const isFlipped = isPokemon ? b.orientation === 'E' : false;
+        const isFlipped = (isPokemon && b.subType !== 'rayquaza' && b.id !== 'rayquaza') ? b.orientation === 'E' : false;
         const centerX = b.x * TILE_SIZE + 8;
         if (isFlipped) {
           ctx.save();
@@ -9980,31 +10002,44 @@ export class TownEngine {
         } else if ((b.subType === 'mewtwo' || b.id === 'mewtwo') && this.mewtwoImg && this.mewtwoImg.complete) {
           const lev = Math.sin(this.tick * 0.045) * 2.2;
           ctx.drawImage(this.mewtwoImg, b.x * TILE_SIZE - 11, b.y * TILE_SIZE - 16 + lev, 38, 38);
-        } else if ((b.subType === 'rayquaza' || b.id === 'rayquaza') && this.rayquazaImg && this.rayquazaImg.complete) {
+        } else if (b.subType === 'rayquaza' || b.id === 'rayquaza') {
+          const coreX = b.x * TILE_SIZE + 8;
+          const coreY = b.y * TILE_SIZE + 16;
           const lev = Math.sin(this.tick * 0.04) * 2.0;
 
           // Atmospheric Ozone Emerald Aura
           const auraPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
-          const coreX = b.x * TILE_SIZE + 8;
-          const coreY = b.y * TILE_SIZE - 2 + lev;
-          const spatGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 18);
+          const spatGrad = ctx.createRadialGradient(coreX, b.y * TILE_SIZE - 2 + lev, 2, coreX, b.y * TILE_SIZE - 2 + lev, 18);
           spatGrad.addColorStop(0, `rgba(167, 243, 208, ${auraPulse + 0.3})`);
           spatGrad.addColorStop(0.5, `rgba(16, 185, 129, ${auraPulse})`);
           spatGrad.addColorStop(1, 'rgba(5, 150, 105, 0)');
           ctx.fillStyle = spatGrad;
           ctx.beginPath();
-          ctx.arc(coreX, coreY, 18, 0, Math.PI * 2);
+          ctx.arc(coreX, b.y * TILE_SIZE - 2 + lev, 18, 0, Math.PI * 2);
           ctx.fill();
 
           // Stardust & Delta Stream wind sparkles
           if (this.tick % 24 < 14) {
             ctx.fillStyle = '#fef08a';
-            ctx.fillRect(coreX + Math.sin(this.tick * 0.2) * 12, coreY - 4 - (this.tick % 14), 1.5, 1.5);
+            ctx.fillRect(coreX + Math.sin(this.tick * 0.2) * 12, b.y * TILE_SIZE - 6 - (this.tick % 14), 1.5, 1.5);
             ctx.fillStyle = '#34d399';
-            ctx.fillRect(coreX - 6 + Math.cos(this.tick * 0.16) * 10, coreY + 4 - (this.tick % 10), 2, 2);
+            ctx.fillRect(coreX - 6 + Math.cos(this.tick * 0.16) * 10, b.y * TILE_SIZE + 2 - (this.tick % 10), 2, 2);
           }
 
-          ctx.drawImage(this.rayquazaImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + lev, 42, 42);
+          const dir = b.orientation || 'W';
+          const pmdDrawn = this.pmdAnimator.draw(
+            ctx,
+            'rayquaza',
+            'idle',
+            dir,
+            coreX,
+            coreY,
+            this.tick
+          );
+
+          if (!pmdDrawn && this.rayquazaImg && this.rayquazaImg.complete) {
+            ctx.drawImage(this.rayquazaImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + lev, 42, 42);
+          }
         } else if ((b.subType === 'groudon' || b.id === 'groudon') && this.groudonImg && this.groudonImg.complete) {
           const breath = Math.sin(this.tick * 0.04) * 0.8;
           const coreX = b.x * TILE_SIZE + 8;
@@ -10829,6 +10864,7 @@ export class TownEngine {
         });
       }
     } else if (id.includes('rayquaza')) {
+      this.rayquazaAttackTick = 26;
       for (let i = 0; i < 45; i++) {
         const ang = Math.random() * Math.PI * 2;
         const spd = 3 + Math.random() * 5;
@@ -11161,7 +11197,8 @@ export class TownEngine {
       ctx.fill();
     }
 
-    if (isFlipped) {
+    const shouldFlip = isFlipped && !this.pmdAnimator.isSupported(fid);
+    if (shouldFlip) {
       ctx.translate(drawX + 8, 0);
       ctx.scale(-1, 1);
       ctx.translate(-(drawX + 8), 0);
@@ -11201,19 +11238,44 @@ export class TownEngine {
         ctx.drawImage(this.urshifuImg, drawX - 16, drawY - 24 + stepBob, 48, 45);
       }
     } else if (fid === 'rayquaza') {
-      if (this.rayquazaImg && this.rayquazaImg.complete) {
-        const auraPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
-        const coreX = drawX + 8;
-        const coreY = drawY - 2 + idleBob * 1.8;
-        const spatGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 18);
-        spatGrad.addColorStop(0, `rgba(167, 243, 208, ${auraPulse + 0.3})`);
-        spatGrad.addColorStop(0.5, `rgba(16, 185, 129, ${auraPulse})`);
-        spatGrad.addColorStop(1, 'rgba(5, 150, 105, 0)');
-        ctx.fillStyle = spatGrad;
-        ctx.beginPath();
-        ctx.arc(coreX, coreY, 18, 0, Math.PI * 2);
-        ctx.fill();
+      const coreX = drawX + 8;
+      const coreY = drawY + 16;
+      const auraCoreY = drawY - 2 + idleBob * 1.8;
 
+      // Atmospheric Ozone Emerald Aura
+      const auraPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
+      const spatGrad = ctx.createRadialGradient(coreX, auraCoreY, 2, coreX, auraCoreY, 18);
+      spatGrad.addColorStop(0, `rgba(167, 243, 208, ${auraPulse + 0.3})`);
+      spatGrad.addColorStop(0.5, `rgba(16, 185, 129, ${auraPulse})`);
+      spatGrad.addColorStop(1, 'rgba(5, 150, 105, 0)');
+      ctx.fillStyle = spatGrad;
+      ctx.beginPath();
+      ctx.arc(coreX, auraCoreY, 18, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Determine action, direction, and animation frame tick
+      let action: 'idle' | 'walk' | 'shoot' = 'idle';
+      let animTick = this.tick;
+      if (this.rayquazaAttackTick > 0) {
+        action = 'shoot';
+        animTick = 26 - this.rayquazaAttackTick;
+      } else if (this.isMoving) {
+        action = 'walk';
+        animTick = this.followerWalkTick;
+      }
+      const dir = this.followerDir || 'down';
+
+      const pmdDrawn = this.pmdAnimator.draw(
+        ctx,
+        'rayquaza',
+        action,
+        dir,
+        coreX,
+        coreY,
+        animTick
+      );
+
+      if (!pmdDrawn && this.rayquazaImg && this.rayquazaImg.complete) {
         ctx.drawImage(this.rayquazaImg, drawX - 13, drawY - 20 + idleBob * 1.8, 42, 42);
       }
     } else if (fid === 'mewtwo') {
