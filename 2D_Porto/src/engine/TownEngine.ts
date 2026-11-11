@@ -310,6 +310,7 @@ export class TownEngine {
   private followerEmote = '❤️';
   private followerWalkTick = 0;
   private rayquazaAttackTick = 0;
+  private arceusAttackTick = 0;
   private pmdAnimator = new PokemonPMDAnimator();
 
   // Signature Move Visual FX & Camera Shake
@@ -3151,6 +3152,9 @@ export class TownEngine {
     }
     if (this.rayquazaAttackTick > 0) {
       this.rayquazaAttackTick--;
+    }
+    if (this.arceusAttackTick > 0) {
+      this.arceusAttackTick--;
     }
 
     // Update dynamic weather particles
@@ -9162,8 +9166,20 @@ export class TownEngine {
           ctx.fillRect(drawX + 8 - Math.sin(this.tick * 0.12) * 14, drawY - 4 + levitate - Math.cos(this.tick * 0.12) * 14, 1.5, 1.5);
         }
 
-        // Draw Arceus sprite with levitation
-        if (this.arceusImg && this.arceusImg.complete && this.arceusImg.naturalWidth > 0) {
+        // Draw PMD Animated Arceus
+        const dir = cfg?.orientation || npc.dir || 'W';
+        const pmdDrawn = this.pmdAnimator.draw(
+          ctx,
+          'arceus',
+          'idle',
+          dir,
+          drawX + 8,
+          drawY + 16,
+          this.tick
+        );
+
+        // Fallback to static sprite if PMD image not loaded yet
+        if (!pmdDrawn && this.arceusImg && this.arceusImg.complete && this.arceusImg.naturalWidth > 0) {
           const isFlipped = (cfg?.orientation || 'W') === 'E';
           if (isFlipped) {
             ctx.save();
@@ -9918,7 +9934,7 @@ export class TownEngine {
           'giratina', 'groudon', 'kyogre', 'latios', 'latias', 'darkrai',
           'necrozma', 'lunala', 'solgaleo', 'samurott', 'lucario', 'pikachu'
         ].includes(b.subType || b.id);
-        const isFlipped = (isPokemon && b.subType !== 'rayquaza' && b.id !== 'rayquaza') ? b.orientation === 'E' : false;
+        const isFlipped = (isPokemon && !this.pmdAnimator.isSupported(b.subType || b.id)) ? b.orientation === 'E' : false;
         const centerX = b.x * TILE_SIZE + 8;
         if (isFlipped) {
           ctx.save();
@@ -9996,9 +10012,25 @@ export class TownEngine {
         } else if ((b.subType === 'reshiram' || b.id === 'reshiram') && this.reshiramImg && this.reshiramImg.complete) {
           const lev = Math.sin(this.tick * 0.035) * 1.5;
           ctx.drawImage(this.reshiramImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + lev, 42, 42);
-        } else if (b.subType === 'arceus' && this.arceusImg && this.arceusImg.complete) {
+        } else if (b.subType === 'arceus' || b.id === 'arceus') {
+          const coreX = b.x * TILE_SIZE + 8;
+          const coreY = b.y * TILE_SIZE + 16;
           const lev = Math.sin(this.tick * 0.04) * 2;
-          ctx.drawImage(this.arceusImg, b.x * TILE_SIZE - 12, b.y * TILE_SIZE - 18 + lev, 40, 40);
+
+          const dir = b.orientation || 'W';
+          const pmdDrawn = this.pmdAnimator.draw(
+            ctx,
+            'arceus',
+            'idle',
+            dir,
+            coreX,
+            coreY,
+            this.tick
+          );
+
+          if (!pmdDrawn && this.arceusImg && this.arceusImg.complete) {
+            ctx.drawImage(this.arceusImg, b.x * TILE_SIZE - 12, b.y * TILE_SIZE - 18 + lev, 40, 40);
+          }
         } else if ((b.subType === 'mewtwo' || b.id === 'mewtwo') && this.mewtwoImg && this.mewtwoImg.complete) {
           const lev = Math.sin(this.tick * 0.045) * 2.2;
           ctx.drawImage(this.mewtwoImg, b.x * TILE_SIZE - 11, b.y * TILE_SIZE - 16 + lev, 38, 38);
@@ -10849,6 +10881,7 @@ export class TownEngine {
         });
       }
     } else if (id.includes('arceus')) {
+      this.arceusAttackTick = 37;
       for (let i = 0; i < 45; i++) {
         this.moveParticles.push({
           x: ox + (Math.random() - 0.5) * 50,
@@ -11290,14 +11323,39 @@ export class TownEngine {
         ctx.drawImage(this.mewtwoImg, drawX - 11, drawY - 16 + stepBob + idleBob, 38, 38);
       }
     } else if (fid === 'arceus') {
-      if (this.arceusImg && this.arceusImg.complete) {
-        const haloR = 14 + Math.sin(this.tick * 0.05) * 2;
-        ctx.strokeStyle = 'rgba(250, 204, 21, 0.45)';
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.arc(drawX + 8, drawY - 4 + stepBob + idleBob, haloR, 0, Math.PI * 2);
-        ctx.stroke();
+      const coreX = drawX + 8;
+      const coreY = drawY + 16;
 
+      const haloR = 14 + Math.sin(this.tick * 0.05) * 2;
+      ctx.strokeStyle = 'rgba(250, 204, 21, 0.45)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(coreX, drawY - 4 + stepBob + idleBob, haloR, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Determine action, direction, and animation frame tick
+      let action: 'idle' | 'walk' | 'shoot' = 'idle';
+      let animTick = this.tick;
+      if (this.arceusAttackTick > 0) {
+        action = 'shoot';
+        animTick = 37 - this.arceusAttackTick;
+      } else if (this.isMoving) {
+        action = 'walk';
+        animTick = this.followerWalkTick;
+      }
+      const dir = this.followerDir || 'down';
+
+      const pmdDrawn = this.pmdAnimator.draw(
+        ctx,
+        'arceus',
+        action,
+        dir,
+        coreX,
+        coreY,
+        animTick
+      );
+
+      if (!pmdDrawn && this.arceusImg && this.arceusImg.complete) {
         ctx.drawImage(this.arceusImg, drawX - 12, drawY - 18 + stepBob + idleBob, 40, 40);
       }
     } else if (fid === 'dialga') {

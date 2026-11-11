@@ -67,6 +67,38 @@ export const PMD_POKEMON_CONFIGS: Record<string, PMDPokemonConfig> = {
       anchorY: 65,
     },
   },
+  arceus: {
+    id: 'arceus',
+    name: 'Arceus',
+    scale: 0.88,
+    idle: {
+      src: '/assets/pokemon/arceus/Idle-Anim.png',
+      frameWidth: 48,
+      frameHeight: 88,
+      frameCount: 6,
+      durations: [12, 12, 12, 12, 12, 12],
+      anchorX: 24,
+      anchorY: 48,
+    },
+    walk: {
+      src: '/assets/pokemon/arceus/Walk-Anim.png',
+      frameWidth: 48,
+      frameHeight: 88,
+      frameCount: 8,
+      durations: [8, 10, 8, 10, 8, 10, 8, 10],
+      anchorX: 24,
+      anchorY: 48,
+    },
+    shoot: {
+      src: '/assets/pokemon/arceus/SpAttack-Anim.png',
+      frameWidth: 56,
+      frameHeight: 128,
+      frameCount: 11,
+      durations: [2, 4, 2, 4, 8, 3, 3, 3, 3, 6, 4],
+      anchorX: 28,
+      anchorY: 65,
+    },
+  },
 };
 
 export class PokemonPMDAnimator {
@@ -227,3 +259,4 @@ export class PokemonPMDAnimator {
     return true;
   }
 }
+
