@@ -10970,11 +10970,41 @@ export class TownEngine {
     const isFlipped = this.followerFacing === 'right';
 
     ctx.save();
-    // Shadow
-    ctx.fillStyle = 'rgba(15, 23, 42, 0.35)';
-    ctx.beginPath();
-    ctx.ellipse(drawX + 8, drawY + 14, 7, 3, 0, 0, Math.PI * 2);
-    ctx.fill();
+    // Authentic ground contact shadow matching placed NPC scale
+    const shadowMap: Record<string, { rx: number; ry: number; yOff: number }> = {
+      urshifu: { rx: 16, ry: 5.5, yOff: 16 },
+      lunala: { rx: 17, ry: 5, yOff: 16 },
+      solgaleo: { rx: 16, ry: 6, yOff: 16 },
+      necrozma: { rx: 16, ry: 6, yOff: 16 },
+      groudon: { rx: 15, ry: 6, yOff: 16 },
+      kyogre: { rx: 15, ry: 5.5, yOff: 16 },
+      dialga: { rx: 14, ry: 5, yOff: 16 },
+      palkia: { rx: 14, ry: 5, yOff: 16 },
+      giratina: { rx: 14, ry: 5, yOff: 16 },
+      zekrom: { rx: 14, ry: 5, yOff: 16 },
+      reshiram: { rx: 14, ry: 5, yOff: 16 },
+      rayquaza: { rx: 14, ry: 5, yOff: 16 },
+      darkrai: { rx: 14, ry: 5.5, yOff: 16 },
+      garchomp: { rx: 13, ry: 4.5, yOff: 16 },
+      tyranitar: { rx: 13, ry: 5, yOff: 16 },
+      charizard: { rx: 12, ry: 4.5, yOff: 15 },
+      arceus: { rx: 12, ry: 4.5, yOff: 16 },
+      mewtwo: { rx: 12, ry: 4.5, yOff: 16 },
+      latios: { rx: 12, ry: 4.5, yOff: 16 },
+      latias: { rx: 12, ry: 4.5, yOff: 16 },
+    };
+    const s = shadowMap[fid];
+    if (s) {
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.4)';
+      ctx.beginPath();
+      ctx.ellipse(drawX + 8, drawY + s.yOff, s.rx, s.ry, 0, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (fid !== 'lucario' && fid !== 'pikachu') {
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.35)';
+      ctx.beginPath();
+      ctx.ellipse(drawX + 8, drawY + 14, 7, 3, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
 
     if (isFlipped) {
       ctx.translate(drawX + 8, 0);
@@ -10985,72 +11015,137 @@ export class TownEngine {
     if (fid === 'pikachu') {
       drawPikachu(ctx, drawX, drawY + stepBob + idleBob);
     } else if (fid === 'lucario') {
-      drawLucario(ctx, drawX, drawY + stepBob, this.tick, 0.9);
+      drawLucario(ctx, drawX, drawY + stepBob, this.tick, 1);
     } else if (fid === 'charizard') {
       if (this.charizardImg && this.charizardImg.complete) {
-        ctx.drawImage(this.charizardImg, drawX - 10, drawY - 18 + stepBob + idleBob, 36, 36);
+        // Fire Dragon tail flame ember glow
+        const flamePulse = 0.45 + Math.sin(this.tick * 0.15) * 0.2;
+        const flameX = drawX + 5;
+        const flameY = drawY - 11 + stepBob + idleBob;
+        const flameGrad = ctx.createRadialGradient(flameX, flameY, 1, flameX, flameY, 8);
+        flameGrad.addColorStop(0, `rgba(255, 245, 150, ${flamePulse + 0.3})`);
+        flameGrad.addColorStop(0.4, `rgba(249, 115, 22, ${flamePulse})`);
+        flameGrad.addColorStop(1, 'rgba(239, 68, 68, 0)');
+        ctx.fillStyle = flameGrad;
+        ctx.beginPath();
+        ctx.arc(flameX, flameY, 8, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.drawImage(this.charizardImg, drawX - 13, drawY - 20 + stepBob + idleBob, 42, 42);
       }
     } else if (fid === 'tyranitar') {
       if (this.tyranitarImg && this.tyranitarImg.complete) {
-        ctx.drawImage(this.tyranitarImg, drawX - 7, drawY - 13 + stepBob, 30, 30);
+        ctx.drawImage(this.tyranitarImg, drawX - 13, drawY - 20 + stepBob, 42, 42);
       }
     } else if (fid === 'garchomp') {
       if (this.garchompImg && this.garchompImg.complete) {
-        ctx.drawImage(this.garchompImg, drawX - 10, drawY - 18 + stepBob + idleBob, 36, 36);
+        ctx.drawImage(this.garchompImg, drawX - 13, drawY - 20 + stepBob + idleBob, 42, 42);
       }
     } else if (fid === 'urshifu') {
       if (this.urshifuImg && this.urshifuImg.complete) {
-        ctx.drawImage(this.urshifuImg, drawX - 8, drawY - 15 + stepBob, 32, 32);
+        ctx.drawImage(this.urshifuImg, drawX - 16, drawY - 24 + stepBob, 48, 45);
       }
     } else if (fid === 'rayquaza') {
       if (this.rayquazaImg && this.rayquazaImg.complete) {
-        ctx.drawImage(this.rayquazaImg, drawX - 15, drawY - 24 + idleBob * 1.8, 46, 44);
+        const auraPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
+        const coreX = drawX + 8;
+        const coreY = drawY - 2 + idleBob * 1.8;
+        const spatGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 18);
+        spatGrad.addColorStop(0, `rgba(167, 243, 208, ${auraPulse + 0.3})`);
+        spatGrad.addColorStop(0.5, `rgba(16, 185, 129, ${auraPulse})`);
+        spatGrad.addColorStop(1, 'rgba(5, 150, 105, 0)');
+        ctx.fillStyle = spatGrad;
+        ctx.beginPath();
+        ctx.arc(coreX, coreY, 18, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.drawImage(this.rayquazaImg, drawX - 13, drawY - 20 + idleBob * 1.8, 42, 42);
       }
     } else if (fid === 'mewtwo') {
       if (this.mewtwoImg && this.mewtwoImg.complete) {
-        ctx.drawImage(this.mewtwoImg, drawX - 7, drawY - 14 + stepBob + idleBob, 30, 30);
+        const auraR = 14 + Math.sin(this.tick * 0.06) * 2;
+        ctx.strokeStyle = 'rgba(168, 85, 247, 0.45)';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(drawX + 8, drawY - 2 + stepBob + idleBob, auraR, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.drawImage(this.mewtwoImg, drawX - 11, drawY - 16 + stepBob + idleBob, 38, 38);
       }
     } else if (fid === 'arceus') {
       if (this.arceusImg && this.arceusImg.complete) {
-        ctx.drawImage(this.arceusImg, drawX - 7, drawY - 14 + stepBob + idleBob, 30, 30);
+        const haloR = 14 + Math.sin(this.tick * 0.05) * 2;
+        ctx.strokeStyle = 'rgba(250, 204, 21, 0.45)';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(drawX + 8, drawY - 4 + stepBob + idleBob, haloR, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.drawImage(this.arceusImg, drawX - 12, drawY - 18 + stepBob + idleBob, 40, 40);
       }
     } else if (fid === 'dialga') {
       if (this.dialgaImg && this.dialgaImg.complete) {
-        ctx.drawImage(this.dialgaImg, drawX - 10, drawY - 18 + stepBob + idleBob, 36, 36);
+        const corePulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
+        const coreX = drawX + 8;
+        const coreY = drawY - 2 + stepBob + idleBob;
+        const coreGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 18);
+        coreGrad.addColorStop(0, `rgba(224, 242, 254, ${corePulse + 0.35})`);
+        coreGrad.addColorStop(0.45, `rgba(56, 189, 248, ${corePulse + 0.1})`);
+        coreGrad.addColorStop(1, 'rgba(2, 132, 199, 0)');
+        ctx.fillStyle = coreGrad;
+        ctx.beginPath();
+        ctx.arc(coreX, coreY, 18, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.drawImage(this.dialgaImg, drawX - 13, drawY - 20 + stepBob + idleBob, 42, 42);
       }
     } else if (fid === 'palkia') {
       if (this.palkiaImg && this.palkiaImg.complete) {
-        ctx.drawImage(this.palkiaImg, drawX - 10, drawY - 18 + stepBob + idleBob, 36, 36);
+        const spatialPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
+        const pearlX = drawX + 8;
+        const pearlY = drawY - 2 + stepBob + idleBob;
+        const spatGrad = ctx.createRadialGradient(pearlX, pearlY, 3, pearlX, pearlY, 18);
+        spatGrad.addColorStop(0, `rgba(240, 171, 252, ${spatialPulse + 0.3})`);
+        spatGrad.addColorStop(0.5, `rgba(192, 38, 211, ${spatialPulse})`);
+        spatGrad.addColorStop(1, 'rgba(192, 38, 211, 0)');
+        ctx.fillStyle = spatGrad;
+        ctx.beginPath();
+        ctx.arc(pearlX, pearlY, 18, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.drawImage(this.palkiaImg, drawX - 13, drawY - 20 + stepBob + idleBob, 42, 42);
       }
     } else if (fid === 'reshiram') {
       if (this.reshiramImg && this.reshiramImg.complete) {
-        const tailX = drawX + 8;
-        const tailY = drawY - 2 + stepBob + idleBob;
-        const fireGrad = ctx.createRadialGradient(tailX, tailY, 2, tailX, tailY, 15);
-        fireGrad.addColorStop(0, 'rgba(255, 237, 213, 0.7)');
-        fireGrad.addColorStop(0.5, 'rgba(249, 115, 22, 0.4)');
+        const turbineGlow = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
+        const tailX = drawX - 3;
+        const tailY = drawY + 8 + stepBob + idleBob;
+        const fireGrad = ctx.createRadialGradient(tailX, tailY, 2, tailX, tailY, 14);
+        fireGrad.addColorStop(0, `rgba(255, 165, 0, ${turbineGlow + 0.25})`);
+        fireGrad.addColorStop(0.5, `rgba(239, 68, 68, ${turbineGlow})`);
         fireGrad.addColorStop(1, 'rgba(239, 68, 68, 0)');
         ctx.fillStyle = fireGrad;
         ctx.beginPath();
-        ctx.arc(tailX, tailY, 15, 0, Math.PI * 2);
+        ctx.arc(tailX, tailY, 14, 0, Math.PI * 2);
         ctx.fill();
 
-        ctx.drawImage(this.reshiramImg, drawX - 12, drawY - 18 + stepBob + idleBob, 40, 40);
+        ctx.drawImage(this.reshiramImg, drawX - 13, drawY - 20 + stepBob + idleBob, 42, 42);
       }
     } else if (fid === 'zekrom') {
       if (this.zekromImg && this.zekromImg.complete) {
-        const tailX = drawX + 8;
-        const tailY = drawY - 2 + stepBob + idleBob;
-        const sparkGrad = ctx.createRadialGradient(tailX, tailY, 2, tailX, tailY, 15);
-        sparkGrad.addColorStop(0, 'rgba(165, 243, 252, 0.75)');
-        sparkGrad.addColorStop(0.5, 'rgba(6, 182, 212, 0.45)');
-        sparkGrad.addColorStop(1, 'rgba(15, 23, 42, 0)');
-        ctx.fillStyle = sparkGrad;
+        const turbineGlow = 0.35 + Math.sin(this.tick * 0.09) * 0.15;
+        const tailX = drawX - 3;
+        const tailY = drawY + 8 + stepBob + idleBob;
+        const elecGrad = ctx.createRadialGradient(tailX, tailY, 2, tailX, tailY, 15);
+        elecGrad.addColorStop(0, `rgba(56, 189, 248, ${turbineGlow + 0.3})`);
+        elecGrad.addColorStop(0.5, `rgba(2, 132, 199, ${turbineGlow})`);
+        elecGrad.addColorStop(1, 'rgba(2, 132, 199, 0)');
+        ctx.fillStyle = elecGrad;
         ctx.beginPath();
         ctx.arc(tailX, tailY, 15, 0, Math.PI * 2);
         ctx.fill();
 
-        ctx.drawImage(this.zekromImg, drawX - 12, drawY - 18 + stepBob + idleBob, 40, 40);
+        ctx.drawImage(this.zekromImg, drawX - 13, drawY - 20 + stepBob + idleBob, 42, 42);
       }
     } else if (fid === 'giratina') {
       if (this.giratinaImg && this.giratinaImg.complete) {
@@ -11070,7 +11165,7 @@ export class TownEngine {
     } else if (fid === 'groudon') {
       if (this.groudonImg && this.groudonImg.complete) {
         const coreX = drawX + 8;
-        const coreY = drawY + 4 + stepBob;
+        const coreY = drawY + 8 + stepBob;
         const heatGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 16);
         heatGrad.addColorStop(0, 'rgba(239, 68, 68, 0.5)');
         heatGrad.addColorStop(0.6, 'rgba(249, 115, 22, 0.3)');
@@ -11080,7 +11175,7 @@ export class TownEngine {
         ctx.arc(coreX, coreY, 16, 0, Math.PI * 2);
         ctx.fill();
 
-        ctx.drawImage(this.groudonImg, drawX - 12, drawY - 18 + stepBob, 40, 40);
+        ctx.drawImage(this.groudonImg, drawX - 13, drawY - 20 + stepBob, 42, 42);
       }
     } else if (fid === 'kyogre') {
       if (this.kyogreImg && this.kyogreImg.complete) {
@@ -11095,7 +11190,7 @@ export class TownEngine {
         ctx.arc(coreX, coreY, 16, 0, Math.PI * 2);
         ctx.fill();
 
-        ctx.drawImage(this.kyogreImg, drawX - 13, drawY - 19 + stepBob + idleBob * 1.4, 42, 42);
+        ctx.drawImage(this.kyogreImg, drawX - 13, drawY - 20 + stepBob + idleBob * 1.4, 42, 42);
       }
     } else if (fid === 'latios') {
       if (this.latiosImg && this.latiosImg.complete) {
@@ -11110,7 +11205,7 @@ export class TownEngine {
         ctx.arc(coreX, coreY, 15, 0, Math.PI * 2);
         ctx.fill();
 
-        ctx.drawImage(this.latiosImg, drawX - 12, drawY - 18 + stepBob + idleBob * 1.6, 40, 40);
+        ctx.drawImage(this.latiosImg, drawX - 13, drawY - 20 + stepBob + idleBob * 1.6, 42, 42);
       }
     } else if (fid === 'latias') {
       if (this.latiasImg && this.latiasImg.complete) {
@@ -11125,7 +11220,7 @@ export class TownEngine {
         ctx.arc(coreX, coreY, 15, 0, Math.PI * 2);
         ctx.fill();
 
-        ctx.drawImage(this.latiasImg, drawX - 12, drawY - 18 + stepBob + idleBob * 1.6, 40, 40);
+        ctx.drawImage(this.latiasImg, drawX - 13, drawY - 20 + stepBob + idleBob * 1.6, 42, 42);
       }
     } else if (fid === 'darkrai') {
       if (this.darkraiImg && this.darkraiImg.complete) {
@@ -11140,7 +11235,7 @@ export class TownEngine {
         ctx.arc(coreX, coreY, 16, 0, Math.PI * 2);
         ctx.fill();
 
-        ctx.drawImage(this.darkraiImg, drawX - 12, drawY - 18 + stepBob + idleBob * 1.4, 40, 40);
+        ctx.drawImage(this.darkraiImg, drawX - 13, drawY - 20 + stepBob + idleBob * 1.4, 42, 42);
       }
     } else if (fid === 'necrozma') {
       if (this.necrozmaImg && this.necrozmaImg.complete) {
@@ -11155,7 +11250,7 @@ export class TownEngine {
         ctx.arc(coreX, coreY, 17, 0, Math.PI * 2);
         ctx.fill();
 
-        ctx.drawImage(this.necrozmaImg, drawX - 14, drawY - 20 + stepBob, 44, 42);
+        ctx.drawImage(this.necrozmaImg, drawX - 15, drawY - 21 + stepBob, 46, 43);
       }
     } else if (fid === 'lunala') {
       if (this.lunalaImg && this.lunalaImg.complete) {
@@ -11170,7 +11265,7 @@ export class TownEngine {
         ctx.arc(coreX, coreY, 17, 0, Math.PI * 2);
         ctx.fill();
 
-        ctx.drawImage(this.lunalaImg, drawX - 14, drawY - 20 + stepBob + idleBob * 1.5, 44, 44);
+        ctx.drawImage(this.lunalaImg, drawX - 15, drawY - 21 + stepBob + idleBob * 1.5, 46, 46);
       }
     } else if (fid === 'solgaleo') {
       if (this.solgaleoImg && this.solgaleoImg.complete) {
@@ -11186,7 +11281,7 @@ export class TownEngine {
         ctx.arc(coreX, coreY, 17, 0, Math.PI * 2);
         ctx.fill();
 
-        ctx.drawImage(this.solgaleoImg, drawX - 14, drawY - 20 + stepBob, 44, 42);
+        ctx.drawImage(this.solgaleoImg, drawX - 15, drawY - 21 + stepBob, 46, 43);
       }
     }
 
