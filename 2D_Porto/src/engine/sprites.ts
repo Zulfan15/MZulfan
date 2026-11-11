@@ -431,6 +431,7 @@ export function drawCharacter(
 /**
  * Draw the rider character on a Poké Ride mount using the authentic Ash / player sprite (no ground shadow).
  * Accurately centers the rider horizontally on targetCenterX and vertically at targetSeatY.
+ * Scaled down to realistic mount proportion (0.70x) with softened opacity (alpha ~0.82) so the mount remains the focus.
  */
 export function drawRiderCharacter(
   ctx: CanvasRenderingContext2D,
@@ -439,7 +440,8 @@ export function drawRiderCharacter(
   stepFrame: number,
   targetCenterX: number,
   targetSeatY: number,
-  scale = 0.86
+  scale = 0.70,
+  alpha = 0.82
 ) {
   let riderX: number;
   let riderY: number;
@@ -455,7 +457,10 @@ export function drawRiderCharacter(
     riderY = Math.round(targetSeatY - 13 * scale);
   }
 
+  ctx.save();
+  ctx.globalAlpha = (ctx.globalAlpha ?? 1) * alpha;
   drawCharacter(ctx, palette, dir, stepFrame, riderX, riderY, scale, true);
+  ctx.restore();
 }
 
 

@@ -12750,38 +12750,38 @@ export class TownEngine {
         up: { dx: number; dy: number };
       }
     > = {
-      dialga:   { down: { dx: 0, dy: -22 }, side: { dx: -4, dy: -21 }, up: { dx: 0, dy: -20 } },
-      giratina: { down: { dx: 0, dy: -24 }, side: { dx: -8, dy: -20 }, up: { dx: 0, dy: -20 } },
-      palkia:   { down: { dx: 0, dy: -22 }, side: { dx: -3, dy: -20 }, up: { dx: 0, dy: -20 } },
-      rayquaza: { down: { dx: 0, dy: -22 }, side: { dx: -4, dy: -20 }, up: { dx: 0, dy: -20 } },
-      lunala:   { down: { dx: 0, dy: -18 }, side: { dx: -2, dy: -17 }, up: { dx: 0, dy: -17 } },
-      arceus:   { down: { dx: 0, dy: -21 }, side: { dx: -4, dy: -19 }, up: { dx: 0, dy: -20 } },
-      reshiram: { down: { dx: 0, dy: -20 }, side: { dx: -5, dy: -18 }, up: { dx: 0, dy: -18 } },
-      zekrom:   { down: { dx: 0, dy: -20 }, side: { dx: -5, dy: -18 }, up: { dx: 0, dy: -18 } },
-      groudon:  { down: { dx: 0, dy: -21 }, side: { dx: -3, dy: -19 }, up: { dx: 0, dy: -20 } },
-      kyogre:   { down: { dx: 0, dy: -18 }, side: { dx: -2, dy: -17 }, up: { dx: 0, dy: -18 } },
-      charizard:{ down: { dx: 0, dy: -19 }, side: { dx: -3, dy: -18 }, up: { dx: 0, dy: -18 } },
-      garchomp: { down: { dx: 0, dy: -19 }, side: { dx: -3, dy: -18 }, up: { dx: 0, dy: -18 } },
-      tyranitar:{ down: { dx: 0, dy: -20 }, side: { dx: -3, dy: -19 }, up: { dx: 0, dy: -19 } },
-      urshifu:  { down: { dx: 0, dy: -20 }, side: { dx: -3, dy: -19 }, up: { dx: 0, dy: -19 } },
-      solgaleo: { down: { dx: 0, dy: -20 }, side: { dx: -3, dy: -19 }, up: { dx: 0, dy: -19 } },
-      necrozma: { down: { dx: 0, dy: -20 }, side: { dx: -3, dy: -19 }, up: { dx: 0, dy: -19 } },
-      samurott: { down: { dx: 0, dy: -18 }, side: { dx: -3, dy: -17 }, up: { dx: 0, dy: -18 } },
-      latios:   { down: { dx: 0, dy: -17 }, side: { dx: -2, dy: -16 }, up: { dx: 0, dy: -17 } },
-      latias:   { down: { dx: 0, dy: -17 }, side: { dx: -2, dy: -16 }, up: { dx: 0, dy: -17 } },
-      darkrai:  { down: { dx: 0, dy: -19 }, side: { dx: -3, dy: -18 }, up: { dx: 0, dy: -18 } },
-      mewtwo:   { down: { dx: 0, dy: -18 }, side: { dx: -3, dy: -17 }, up: { dx: 0, dy: -18 } },
-      lucario:  { down: { dx: 0, dy: -14 }, side: { dx: -2, dy: -13 }, up: { dx: 0, dy: -14 } },
+      dialga:   { down: { dx: 0, dy: -21 }, side: { dx: -4, dy: -20 }, up: { dx: 0, dy: -19 } },
+      giratina: { down: { dx: 0, dy: -23 }, side: { dx: -8, dy: -19 }, up: { dx: 0, dy: -19 } },
+      palkia:   { down: { dx: 0, dy: -21 }, side: { dx: -3, dy: -19 }, up: { dx: 0, dy: -19 } },
+      rayquaza: { down: { dx: 0, dy: -21 }, side: { dx: -4, dy: -19 }, up: { dx: 0, dy: -19 } },
+      lunala:   { down: { dx: 0, dy: -17 }, side: { dx: -2, dy: -16 }, up: { dx: 0, dy: -16 } },
+      arceus:   { down: { dx: 0, dy: -20 }, side: { dx: -4, dy: -18 }, up: { dx: 0, dy: -19 } },
+      reshiram: { down: { dx: 0, dy: -19 }, side: { dx: -5, dy: -17 }, up: { dx: 0, dy: -17 } },
+      zekrom:   { down: { dx: 0, dy: -19 }, side: { dx: -5, dy: -17 }, up: { dx: 0, dy: -17 } },
+      groudon:  { down: { dx: 0, dy: -20 }, side: { dx: -3, dy: -18 }, up: { dx: 0, dy: -19 } },
+      kyogre:   { down: { dx: 0, dy: -17 }, side: { dx: -2, dy: -16 }, up: { dx: 0, dy: -17 } },
+      charizard:{ down: { dx: 0, dy: -18 }, side: { dx: -3, dy: -17 }, up: { dx: 0, dy: -17 } },
+      garchomp: { down: { dx: 0, dy: -18 }, side: { dx: -3, dy: -17 }, up: { dx: 0, dy: -17 } },
+      tyranitar:{ down: { dx: 0, dy: -19 }, side: { dx: -3, dy: -18 }, up: { dx: 0, dy: -18 } },
+      urshifu:  { down: { dx: 0, dy: -19 }, side: { dx: -3, dy: -18 }, up: { dx: 0, dy: -18 } },
+      solgaleo: { down: { dx: 0, dy: -19 }, side: { dx: -3, dy: -18 }, up: { dx: 0, dy: -18 } },
+      necrozma: { down: { dx: 0, dy: -19 }, side: { dx: -3, dy: -18 }, up: { dx: 0, dy: -18 } },
+      samurott: { down: { dx: 0, dy: -17 }, side: { dx: -3, dy: -16 }, up: { dx: 0, dy: -17 } },
+      latios:   { down: { dx: 0, dy: -16 }, side: { dx: -2, dy: -15 }, up: { dx: 0, dy: -16 } },
+      latias:   { down: { dx: 0, dy: -16 }, side: { dx: -2, dy: -15 }, up: { dx: 0, dy: -16 } },
+      darkrai:  { down: { dx: 0, dy: -18 }, side: { dx: -3, dy: -17 }, up: { dx: 0, dy: -17 } },
+      mewtwo:   { down: { dx: 0, dy: -17 }, side: { dx: -3, dy: -16 }, up: { dx: 0, dy: -17 } },
+      lucario:  { down: { dx: 0, dy: -13 }, side: { dx: -2, dy: -12 }, up: { dx: 0, dy: -13 } },
     };
 
     const saddle = saddleConfigs[fid] ?? {
-      down: { dx: 0, dy: -20 },
-      side: { dx: -3, dy: -18 },
-      up: { dx: 0, dy: -18 },
+      down: { dx: 0, dy: -19 },
+      side: { dx: -3, dy: -17 },
+      up: { dx: 0, dy: -17 },
     };
 
     let riderDx = 0;
-    let riderDy = -20;
+    let riderDy = -19;
     if (dir === 'down') {
       riderDx = saddle.down.dx;
       riderDy = saddle.down.dy;
@@ -12849,7 +12849,7 @@ export class TownEngine {
       if (isFlipped) ctx.restore();
     }
 
-    // Draw seated rider on the Pokémon's anatomical saddle (authentic Ash Ketchum sprite with shoulder Pikachu)
+    // Draw seated rider on the Pokémon's anatomical saddle (authentic Ash Ketchum sprite, realistic mount scale & soft blending)
     drawRiderCharacter(
       ctx,
       this.playerPalette,
@@ -12857,7 +12857,8 @@ export class TownEngine {
       isMoving ? stepFrame : 0,
       coreX + riderDx,
       coreY + riderDy + rideBob * 0.75,
-      0.86
+      0.70,
+      0.82
     );
   }
 
