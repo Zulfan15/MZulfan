@@ -455,7 +455,8 @@ export class PokemonPMDAnimator {
     dir: string,
     coreX: number,
     coreY: number,
-    tick: number
+    tick: number,
+    scaleMultiplier = 1
   ): boolean {
     const cfg = this.getConfig(pokemonId);
     if (!cfg) return false;
@@ -479,10 +480,11 @@ export class PokemonPMDAnimator {
     const sw = spec.frameWidth;
     const sh = spec.frameHeight;
 
-    const destW = spec.frameWidth * cfg.scale;
-    const destH = spec.frameHeight * cfg.scale;
-    const destX = coreX - spec.anchorX * cfg.scale;
-    const destY = coreY - spec.anchorY * cfg.scale;
+    const effectiveScale = cfg.scale * scaleMultiplier;
+    const destW = spec.frameWidth * effectiveScale;
+    const destH = spec.frameHeight * effectiveScale;
+    const destX = coreX - spec.anchorX * effectiveScale;
+    const destY = coreY - spec.anchorY * effectiveScale;
 
     ctx.drawImage(
       img,

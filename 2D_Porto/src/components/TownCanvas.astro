@@ -1161,6 +1161,47 @@ const dataPlaceRooms = {
   <!-- Toast Notification -->
   <div id="town-editor-toast" class="town-editor-toast hidden" role="status" aria-live="polite"></div>
 
+  <!-- Floating Poké Ride Active Control Pill -->
+  <div
+    id="town-pokeride-hud"
+    class="hidden fixed bottom-16 left-1/2 -translate-x-1/2 z-30 items-center gap-2 px-3 py-1.5 rounded-full bg-slate-950/90 border border-amber-400/50 shadow-[0_6px_24px_rgba(245,158,11,0.28)] backdrop-blur-md text-xs font-mono text-white"
+    style="display: none;"
+    role="region"
+    aria-label="Kontrol Poké Ride Aktif"
+  >
+    <span id="pokeride-hud-icon" class="text-sm">🏇</span>
+    <div class="flex flex-col leading-tight pr-1">
+      <div class="flex items-center gap-1.5">
+        <span id="pokeride-hud-name" class="font-bold text-amber-300 text-[11px]">Poké Ride</span>
+        <span
+          id="pokeride-hud-badge"
+          class="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-amber-500/20 text-amber-200 border border-amber-400/40"
+        >
+          ⚡ Terra Charge
+        </span>
+      </div>
+      <span id="pokeride-hud-sub" class="text-[9px] text-slate-300 hidden sm:inline">
+        Kecepatan Tinggi Aktif
+      </span>
+    </div>
+    <button
+      type="button"
+      id="btn-pokeride-skill"
+      class="px-2 py-1 rounded-full bg-cyan-500/20 hover:bg-cyan-500/35 text-cyan-200 border border-cyan-400/40 text-[10px] font-bold transition cursor-pointer"
+      title="Gunakan Skill Visual Burst (Tekan X)"
+    >
+      ⚡ Skill (X)
+    </button>
+    <button
+      type="button"
+      id="btn-pokeride-dismount"
+      class="px-2.5 py-1 rounded-full bg-rose-500/25 hover:bg-rose-500/40 text-rose-200 border border-rose-400/40 text-[10px] font-bold transition cursor-pointer"
+      title="Turun dari Pokémon (Tekan R)"
+    >
+      👟 Turun (R)
+    </button>
+  </div>
+
   <!-- Floating Mini-Map Radar Widget -->
   <div id="town-editor-minimap" class="town-editor-minimap hidden" style="display: none;" role="region" aria-label="Radar Kota 2D">
     <div class="town-editor-minimap__header">
@@ -2051,6 +2092,13 @@ const dataPlaceRooms = {
     const burgerItemPokeRide = document.getElementById('burger-item-pokeride');
     const burgerPokeRideSub = document.getElementById('burger-pokeride-sub');
     const burgerPokeRideIcon = document.getElementById('burger-pokeride-icon');
+    const pokeRideHud = document.getElementById('town-pokeride-hud');
+    const pokeRideHudIcon = document.getElementById('pokeride-hud-icon');
+    const pokeRideHudName = document.getElementById('pokeride-hud-name');
+    const pokeRideHudBadge = document.getElementById('pokeride-hud-badge');
+    const pokeRideHudSub = document.getElementById('pokeride-hud-sub');
+    const btnPokeRideSkill = document.getElementById('btn-pokeride-skill');
+    const btnPokeRideDismount = document.getElementById('btn-pokeride-dismount');
 
     const togglePokeRide = () => {
       if (engine) {
@@ -2059,11 +2107,21 @@ const dataPlaceRooms = {
       }
     };
     burgerItemPokeRide?.addEventListener('click', togglePokeRide);
+    btnPokeRideDismount?.addEventListener('click', () => {
+      if (engine && engine.isRiding()) {
+        engine.togglePokeRide();
+      }
+    });
+    btnPokeRideSkill?.addEventListener('click', () => {
+      castPartnerSkill();
+    });
 
     window.addEventListener('town:pokeride-changed', (e: Event) => {
       const detail = (e as CustomEvent).detail;
       const active = detail?.active ?? false;
       const follower = detail?.follower;
+      const rideClass = detail?.rideClass || (engine ? engine.getRideClass(follower?.id) : 'charge');
+
       if (burgerItemPokeRide) {
         burgerItemPokeRide.classList.toggle('is-active', active);
       }
@@ -2074,6 +2132,41 @@ const dataPlaceRooms = {
       }
       if (burgerPokeRideIcon) {
         burgerPokeRideIcon.textContent = active ? '🏇' : '🐾';
+      }
+
+      if (pokeRideHud) {
+        if (active && follower) {
+          pokeRideHud.classList.remove('hidden');
+          pokeRideHud.style.display = 'inline-flex';
+          if (pokeRideHudIcon) pokeRideHudIcon.textContent = follower.icon || '🏇';
+          if (pokeRideHudName) pokeRideHudName.textContent = follower.name;
+          if (pokeRideHudBadge) {
+            if (rideClass === 'sky') {
+              pokeRideHudBadge.textContent = '✈️ Sky Soar';
+              pokeRideHudBadge.className =
+                'px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-indigo-500/25 text-indigo-200 border border-indigo-400/50';
+            } else if (rideClass === 'surf') {
+              pokeRideHudBadge.textContent = '🌊 Aqua Surf';
+              pokeRideHudBadge.className =
+                'px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-cyan-500/25 text-cyan-200 border border-cyan-400/50';
+            } else {
+              pokeRideHudBadge.textContent = '⚡ Terra Charge';
+              pokeRideHudBadge.className =
+                'px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-amber-500/25 text-amber-200 border border-amber-400/50';
+            }
+          }
+          if (pokeRideHudSub) {
+            pokeRideHudSub.textContent =
+              rideClass === 'sky'
+                ? 'Terbang Lintas Air & Pagar'
+                : rideClass === 'surf'
+                ? 'Selancar Lintas Perairan'
+                : 'Kecepatan Sprint Darat';
+          }
+        } else {
+          pokeRideHud.classList.add('hidden');
+          pokeRideHud.style.display = 'none';
+        }
       }
     });
 

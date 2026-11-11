@@ -1,7 +1,7 @@
 import { DIRS, Tile, type CharacterPalette, type Dir, type Lamp, type TownData, type TownMap, type Vec } from './types';
 import { createTownMap } from './map';
 import { createTownBackgroundCanvas, drawPikachu } from './townBackground';
-import { TILE_SIZE, drawCharacter, drawLucario, drawPixelMatrix } from './sprites';
+import { TILE_SIZE, drawCharacter, drawRiderCharacter, drawLucario, drawPixelMatrix } from './sprites';
 import { renderLighting } from './tiles';
 import { findPath } from './pathfinding';
 import { sfx } from '../game/sfx';
@@ -1285,12 +1285,93 @@ export class TownEngine {
     return this.isRidingPokemon;
   }
 
+  public getRideClass(pokemonId?: string): 'sky' | 'surf' | 'charge' {
+    const fid = (pokemonId ?? this.activeFollower?.id ?? '').toLowerCase();
+    if (
+      [
+        'rayquaza',
+        'lunala',
+        'giratina',
+        'reshiram',
+        'zekrom',
+        'charizard',
+        'latios',
+        'latias',
+        'mewtwo',
+        'darkrai',
+        'necrozma',
+      ].includes(fid)
+    ) {
+      return 'sky';
+    }
+    if (['kyogre', 'palkia', 'samurott', 'urshifu'].includes(fid)) {
+      return 'surf';
+    }
+    return 'charge';
+  }
+
+  private findNearestWalkableLandTile(originX: number, originY: number, maxRadius = 2): Vec | null {
+    if (this.currentScene !== 'town' || this.isTileWalkableOnFoot(originX, originY)) {
+      return { x: originX, y: originY };
+    }
+    for (let r = 1; r <= maxRadius; r++) {
+      const candidates: Vec[] = [];
+      for (let dy = -r; dy <= r; dy++) {
+        for (let dx = -r; dx <= r; dx++) {
+          if (Math.abs(dx) !== r && Math.abs(dy) !== r) continue;
+          const nx = originX + dx;
+          const ny = originY + dy;
+          if (this.isTileWalkableOnFoot(nx, ny)) {
+            candidates.push({ x: nx, y: ny });
+          }
+        }
+      }
+      if (candidates.length > 0) {
+        const dirVec = DIRS[this.playerDir];
+        candidates.sort((a, b) => {
+          const da = Math.hypot(a.x - (originX + dirVec.x), a.y - (originY + dirVec.y));
+          const db = Math.hypot(b.x - (originX + dirVec.x), b.y - (originY + dirVec.y));
+          return da - db;
+        });
+        return candidates[0];
+      }
+    }
+    return null;
+  }
+
+  private ensureSafeFootPosition() {
+    if (this.currentScene !== 'town') return;
+    if (!this.isTileWalkableOnFoot(this.playerPos.x, this.playerPos.y)) {
+      const land = this.findNearestWalkableLandTile(this.playerPos.x, this.playerPos.y, 12);
+      if (land) {
+        this.playerPos = { ...land };
+        this.playerTarget = { ...land };
+        this.isMoving = false;
+        this.moveProgress = 0;
+      }
+    }
+  }
+
   public toggleBike(): boolean {
     if (this.isRidingPokemon) {
+      const land = this.findNearestWalkableLandTile(this.playerPos.x, this.playerPos.y, 2);
+      if (!land) {
+        sfx.bump();
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(
+            new CustomEvent('town:editor-toast', {
+              detail: '🌊 Tidak bisa ganti ke Mach Bike di tengah perairan! Menepi ke daratan terlebih dahulu.',
+            })
+          );
+        }
+        return false;
+      }
+      this.playerPos = { ...land };
+      this.playerTarget = { ...land };
       this.isRidingPokemon = false;
       window.dispatchEvent(
         new CustomEvent('town:pokeride-changed', {
-          detail: { active: false, follower: this.activeFollower },
+          detail: { active: false, follower: this.activeFollower, rideClass: this.getRideClass() },
         })
       );
     }
@@ -1311,9 +1392,10 @@ export class TownEngine {
     if (this.isBikeActive !== active) {
       if (active && this.isRidingPokemon) {
         this.isRidingPokemon = false;
+        this.ensureSafeFootPosition();
         window.dispatchEvent(
           new CustomEvent('town:pokeride-changed', {
-            detail: { active: false, follower: this.activeFollower },
+            detail: { active: false, follower: this.activeFollower, rideClass: this.getRideClass() },
           })
         );
       }
@@ -1343,7 +1425,31 @@ export class TownEngine {
       return false;
     }
 
+    // If currently riding and attempting to dismount, verify safe land tile
+    if (this.isRidingPokemon && this.currentScene === 'town') {
+      const land = this.findNearestWalkableLandTile(this.playerPos.x, this.playerPos.y, 2);
+      if (!land) {
+        sfx.bump();
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(
+            new CustomEvent('town:editor-toast', {
+              detail: '🌊 Tidak bisa turun di tengah perairan/rintangan! Arahkan tunggangan ke tepi daratan dahulu.',
+            })
+          );
+        }
+        return true;
+      }
+      if (land.x !== this.playerPos.x || land.y !== this.playerPos.y) {
+        this.playerPos = { ...land };
+        this.playerTarget = { ...land };
+        this.isMoving = false;
+        this.moveProgress = 0;
+      }
+    }
+
     this.isRidingPokemon = !this.isRidingPokemon;
+    const rideClass = this.getRideClass(this.activeFollower.id);
+
     if (this.isRidingPokemon) {
       if (this.isBikeActive) {
         this.isBikeActive = false;
@@ -1361,12 +1467,14 @@ export class TownEngine {
       sfx.confirm();
 
       const fid = this.activeFollower.id;
-      const isFlying = ['rayquaza', 'lunala', 'reshiram', 'zekrom', 'giratina', 'charizard', 'latios', 'latias'].includes(fid);
-      const toastMsg = fid === 'pikachu'
-        ? '⚡ Pikachu melompat riang ke pundak Red! Siap bertualang bersama! (Tekan R untuk turun)'
-        : isFlying
-        ? `✨ Terbang mengarungi angkasa bersama ${this.activeFollower.name}! (Tekan R untuk turun)`
-        : `🏇 Menunggangi ${this.activeFollower.name}! Kecepatan berlari meningkat! (Tekan R untuk turun)`;
+      const toastMsg =
+        fid === 'pikachu'
+          ? '⚡ Pikachu melompat ke pundak Red! Mode Sprint Aktif! (Tekan R untuk turun)'
+          : rideClass === 'sky'
+          ? `✈️ Sky Soar bersama ${this.activeFollower.name}! Bisa terbang melintasi air & pagar! (R: Turun)`
+          : rideClass === 'surf'
+          ? `🌊 Aqua Surf bersama ${this.activeFollower.name}! Bisa berselancar di atas perairan! (R: Turun)`
+          : `⚡ Terra Charge bersama ${this.activeFollower.name}! Kecepatan tinggi aktif! (R: Turun)`;
 
       if (typeof window !== 'undefined') {
         window.dispatchEvent(
@@ -1398,7 +1506,7 @@ export class TownEngine {
     if (typeof window !== 'undefined') {
       window.dispatchEvent(
         new CustomEvent('town:pokeride-changed', {
-          detail: { active: this.isRidingPokemon, follower: this.activeFollower },
+          detail: { active: this.isRidingPokemon, follower: this.activeFollower, rideClass },
         })
       );
     }
@@ -2403,7 +2511,7 @@ export class TownEngine {
     }
   }
 
-  public isTileWalkable(x: number, y: number): boolean {
+  public isTileWalkableOnFoot(x: number, y: number): boolean {
     if (x < 0 || x >= this.map.w || y < 0 || y >= this.map.h) return false;
 
     // 1. Explicit tile brush overrides
@@ -2469,6 +2577,79 @@ export class TownEngine {
 
     // 4. Base map terrain collision (island boundaries, cliffs, water)
     return this.map.collision[y * this.map.w + x] === 0;
+  }
+
+  public isTileWalkable(x: number, y: number): boolean {
+    if (this.isTileWalkableOnFoot(x, y)) return true;
+
+    // Poké Ride All-Terrain Traversal (Sky Soar & Aqua Surf)
+    if (
+      this.isRidingPokemon &&
+      this.activeFollower &&
+      this.currentScene === 'town' &&
+      (!this.editor || !this.editor.isEnabled())
+    ) {
+      // Keep mount inside map bounds (prevent flying off the edge of the canvas)
+      if (x < 1 || x >= this.map.w - 1 || y < 1 || y >= this.map.h - 1) return false;
+
+      const rideClass = this.getRideClass(this.activeFollower.id);
+      if (rideClass === 'charge') return false;
+
+      const override = townConfig.getTileOverride(x, y);
+      if (override === 'solid_override') return false;
+
+      // Check dynamic entities: Buildings, Trees, and NPCs remain solid even when flying/surfing
+      for (const b of townConfig.getBuildings()) {
+        if (b.hidden) continue;
+        if (b.id === 'arena' || b.id === 'garden' || b.id === 'contest') continue;
+
+        if (b.kind === 'tree') {
+          const trunkY = b.y + b.h - 1;
+          if (x >= b.x && x < b.x + b.w && y >= trunkY && y < b.y + b.h) {
+            return false;
+          }
+          continue;
+        }
+
+        if (x >= b.x && x < b.x + b.w && y >= b.y && y < b.y + b.h) {
+          if (b.kind === 'building') {
+            const doorX = b.doorX !== undefined ? b.doorX : b.x + Math.floor(b.w / 2);
+            const doorY = b.doorY !== undefined ? b.doorY : b.y + b.h - 1;
+            const isDoor =
+              ((x === doorX || (b.w >= 6 && (x === doorX - 1 || x === doorX + 1))) &&
+               (y === doorY || y === b.y + b.h - 1));
+            if (isDoor) continue;
+            return false;
+          }
+          // Sky mounts can soar over low fences/hedges, but not NPCs or large props
+          const sub = b.subType || b.id;
+          if (rideClass === 'sky' && (sub.includes('fence') || sub.includes('hedge'))) {
+            continue;
+          }
+          return false;
+        }
+      }
+
+      const baseGround = this.map.ground[y * this.map.w + x];
+      if (rideClass === 'sky') {
+        if (
+          override === 'water' ||
+          override === 'fence' ||
+          override === 'hedge' ||
+          override === 'fence_water' ||
+          baseGround === Tile.WATER ||
+          baseGround === Tile.FENCE
+        ) {
+          return true;
+        }
+      } else if (rideClass === 'surf') {
+        if (override === 'water' || baseGround === Tile.WATER) {
+          return true;
+        }
+      }
+    }
+
+    return false;
   }
 
   private getEffectiveCollisionMap(): Uint8Array {
@@ -3433,8 +3614,13 @@ export class TownEngine {
     }
 
     if (this.isMoving) {
+      const rideClass = this.isRidingPokemon ? this.getRideClass() : null;
       const baseSpeed = this.isRidingPokemon
-        ? 13.5 // Fast Poké Ride velocity!
+        ? rideClass === 'charge'
+          ? 14.5
+          : rideClass === 'sky'
+          ? 14.2
+          : 13.5 // Fast Poké Ride velocity!
         : this.isBikeActive
         ? 12.1
         : this.isShiftHeld
@@ -3443,11 +3629,15 @@ export class TownEngine {
       const speed = this.coffeeBoostTimer > 0 ? baseSpeed * 1.5 : baseSpeed;
       this.moveProgress += dt * speed;
 
-      // Emit footstep / tire dust puffs when running or biking or riding or coffee overclocked
+      // Emit footstep / tire dust puffs or Poké Ride elemental trails when moving
       if ((this.isShiftHeld || this.isBikeActive || this.isRidingPokemon || this.coffeeBoostTimer > 0) && this.tick % (this.isRidingPokemon ? 3 : this.isBikeActive ? 3 : 5) === 0) {
         const curDrawX = (this.playerPos.x + (this.playerTarget.x - this.playerPos.x) * this.moveProgress) * TILE_SIZE;
         const curDrawY = (this.playerPos.y + (this.playerTarget.y - this.playerPos.y) * this.moveProgress) * TILE_SIZE;
-        this.spawnDustPuff(curDrawX, curDrawY);
+        if (this.isRidingPokemon) {
+          this.spawnRideTrailFX(curDrawX, curDrawY);
+        } else {
+          this.spawnDustPuff(curDrawX, curDrawY);
+        }
       }
 
       if (this.moveProgress >= 1) {
@@ -7569,6 +7759,20 @@ export class TownEngine {
           ];
         }
 
+        if (Array.isArray(action) && customPlaced.subType) {
+          const rideId =
+            customPlaced.subType === 'blastoise'
+              ? 'tyranitar'
+              : customPlaced.subType.replace('_gmax', '').replace('_dusk_mane', '');
+          action.push({
+            label: '🏇 Tunggangi (Poké Ride)',
+            onClick: () => {
+              this.setActiveFollower(rideId, false);
+              this.setPokeRide(true);
+            },
+          });
+        }
+
         if (this.callbacks.onBubble) {
           this.callbacks.onBubble(customPlaced.name, dialogueText, action);
         } else {
@@ -11100,10 +11304,11 @@ export class TownEngine {
     if (!id || id === 'none' || id === 'dismiss') {
       if (this.isRidingPokemon) {
         this.isRidingPokemon = false;
+        this.ensureSafeFootPosition();
         if (typeof window !== 'undefined') {
           window.dispatchEvent(
             new CustomEvent('town:pokeride-changed', {
-              detail: { active: false, follower: null },
+              detail: { active: false, follower: null, rideClass: 'charge' },
             })
           );
         }
@@ -11167,10 +11372,26 @@ export class TownEngine {
       icon: data.icon,
     };
 
-    const init = this.getFollowerInitialPos(this.playerPos.x, this.playerPos.y, this.playerDir);
-    this.followerPos = { ...init.pos };
-    this.followerTarget = { ...init.pos };
-    this.followerTrail = [...init.trail];
+    if (this.isRidingPokemon) {
+      if (this.getRideClass(matchedKey) === 'charge') {
+        this.ensureSafeFootPosition();
+      }
+      this.followerPos = { ...this.playerPos };
+      this.followerTarget = { ...this.playerTarget };
+      this.followerTrail = [];
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(
+          new CustomEvent('town:pokeride-changed', {
+            detail: { active: true, follower: this.activeFollower, rideClass: this.getRideClass(matchedKey) },
+          })
+        );
+      }
+    } else {
+      const init = this.getFollowerInitialPos(this.playerPos.x, this.playerPos.y, this.playerDir);
+      this.followerPos = { ...init.pos };
+      this.followerTarget = { ...init.pos };
+      this.followerTrail = [...init.trail];
+    }
     this.followerDir = this.playerDir;
     this.followerFacing = this.playerDir === 'left' ? 'left' : 'right';
     this.followerEmoteTime = 90;
@@ -12255,6 +12476,100 @@ export class TownEngine {
     }
   }
 
+  private spawnRideTrailFX(drawX: number, drawY: number) {
+    if (!this.activeFollower) return;
+    const fid = this.activeFollower.id;
+    const rideClass = this.getRideClass(fid);
+    const tileX = Math.max(0, Math.min(this.map.w - 1, Math.round(drawX / TILE_SIZE)));
+    const tileY = Math.max(0, Math.min(this.map.h - 1, Math.round(drawY / TILE_SIZE)));
+    const override = townConfig.getTileOverride(tileX, tileY);
+    const baseGround = this.map.ground[tileY * this.map.w + tileX];
+    const isOverWater = this.currentScene === 'town' && (override === 'water' || baseGround === Tile.WATER);
+
+    const cx = drawX + 8;
+    const cy = drawY + 14;
+
+    if (isOverWater && rideClass === 'surf') {
+      // Aqua Surf water wake ripples & splash droplets
+      this.particles.push({
+        x: cx + (Math.random() - 0.5) * 6,
+        y: cy,
+        vx: 0,
+        vy: 0,
+        size: 2.5,
+        alpha: 0.65,
+        color: 'rgba(125, 211, 252, 0.85)',
+        type: 'ripple',
+        life: 0,
+        maxLife: 16,
+      });
+      this.moveParticles.push({
+        x: cx + (Math.random() - 0.5) * 10,
+        y: cy,
+        vx: (Math.random() - 0.5) * 1.4,
+        vy: -0.8 - Math.random() * 1.2,
+        size: 2,
+        color: Math.random() < 0.5 ? '#38bdf8' : '#e0f2fe',
+        alpha: 0.85,
+        life: 0,
+        maxLife: 14,
+        type: 'water',
+      });
+      return;
+    }
+
+    if (rideClass === 'sky') {
+      // Sky Soar wind / starlight slipstream particles
+      const colorMap: Record<string, string[]> = {
+        rayquaza: ['#34d399', '#a7f3d0', '#fef08a'],
+        lunala: ['#818cf8', '#e0e7ff', '#38bdf8'],
+        giratina: ['#c084fc', '#f43f5e', '#fde047'],
+        reshiram: ['#fb923c', '#fef08a', '#ffffff'],
+        zekrom: ['#38bdf8', '#93c5fd', '#e0f2fe'],
+        charizard: ['#f97316', '#facc15', '#fed7aa'],
+      };
+      const palette = colorMap[fid] || ['#38bdf8', '#e0f2fe', '#c084fc'];
+      this.moveParticles.push({
+        x: cx + (Math.random() - 0.5) * 12,
+        y: cy - 6 + (Math.random() - 0.5) * 6,
+        vx: -DIRS[this.playerDir].x * (1.2 + Math.random()) + (Math.random() - 0.5) * 0.6,
+        vy: -DIRS[this.playerDir].y * (1.2 + Math.random()) + (Math.random() - 0.5) * 0.6,
+        size: 2 + Math.random() * 1.5,
+        color: palette[Math.floor(Math.random() * palette.length)],
+        alpha: 0.8,
+        life: 0,
+        maxLife: 15,
+        type: 'cosmic',
+      });
+      return;
+    }
+
+    // Terra Charge high-speed ground dash sparks + dust puff
+    this.spawnDustPuff(drawX, drawY);
+    if (this.tick % 6 === 0) {
+      const sparkColors: Record<string, string> = {
+        dialga: '#38bdf8',
+        arceus: '#facc15',
+        groudon: '#f97316',
+        solgaleo: '#fde047',
+        lucario: '#60a5fa',
+        pikachu: '#facc15',
+      };
+      this.moveParticles.push({
+        x: cx + (Math.random() - 0.5) * 10,
+        y: cy,
+        vx: -DIRS[this.playerDir].x * 1.5 + (Math.random() - 0.5),
+        vy: -0.6 - Math.random() * 0.8,
+        size: 2,
+        color: sparkColors[fid] || '#cbd5e1',
+        alpha: 0.85,
+        life: 0,
+        maxLife: 12,
+        type: 'aura',
+      });
+    }
+  }
+
   private drawPokeRide(
     ctx: CanvasRenderingContext2D,
     drawX: number,
@@ -12264,21 +12579,35 @@ export class TownEngine {
     if (!this.activeFollower) return;
     const fid = this.activeFollower.id;
     const isMoving = this.isMoving;
-    const animTick = isMoving ? Math.floor(this.tick * 1.3) : this.tick;
+    const animTick = isMoving ? Math.floor(this.tick * 1.35) : this.tick;
     const dir = this.playerDir;
     const coreX = drawX + 8;
     const coreY = drawY + 16;
 
-    // Special case: Pikachu rides on Red's shoulder!
+    // Special case: Pikachu sprints alongside / on Ash's shoulder with lightning aura!
     if (fid === 'pikachu') {
       drawCharacter(ctx, this.playerPalette, this.playerDir, stepFrame, drawX, drawY, 1);
-      const pikaOffset = this.playerDir === 'left' ? 7 : -5;
-      const pikaBob = isMoving ? Math.sin(this.moveProgress * Math.PI * 2) * 1.5 : Math.sin(this.tick * 0.08) * 1.0;
-      drawPikachu(ctx, drawX + pikaOffset, drawY - 14 + pikaBob);
+      if (!this.playerPalette.isAsh) {
+        const pikaOffset = this.playerDir === 'left' ? 7 : -5;
+        const pikaBob = isMoving ? Math.sin(this.moveProgress * Math.PI * 2) * 1.5 : Math.sin(this.tick * 0.08) * 1.0;
+        drawPikachu(ctx, drawX + pikaOffset, drawY - 14 + pikaBob);
+      }
       return;
     }
 
-    // Ground shadow beneath mount
+    const rideClass = this.getRideClass(fid);
+    const tileX = Math.max(0, Math.min(this.map.w - 1, Math.round(drawX / TILE_SIZE)));
+    const tileY = Math.max(0, Math.min(this.map.h - 1, Math.round(drawY / TILE_SIZE)));
+    const override = townConfig.getTileOverride(tileX, tileY);
+    const baseGround = this.map.ground[tileY * this.map.w + tileX];
+    const isOverWater = this.currentScene === 'town' && (override === 'water' || baseGround === Tile.WATER);
+
+    // Step bob / ride bobbing
+    const rideBob = isMoving
+      ? Math.sin(this.moveProgress * Math.PI * 2) * (rideClass === 'sky' ? 2.0 : 1.5)
+      : Math.sin(this.tick * 0.08) * (rideClass === 'sky' ? 1.8 : 1.0);
+
+    // Ground shadow or water wake beneath the Pokémon mount (never on top of the Pokémon!)
     const shadowMap: Record<string, { rx: number; ry: number; yOff: number }> = {
       urshifu: { rx: 16, ry: 5.5, yOff: 16 },
       lunala: { rx: 17, ry: 5, yOff: 16 },
@@ -12287,27 +12616,45 @@ export class TownEngine {
       necrozma: { rx: 16, ry: 6, yOff: 16 },
       groudon: { rx: 15, ry: 6, yOff: 16 },
       kyogre: { rx: 15, ry: 5.5, yOff: 16 },
-      dialga: { rx: 14, ry: 5, yOff: 16 },
-      palkia: { rx: 14, ry: 5, yOff: 16 },
-      giratina: { rx: 14, ry: 5, yOff: 16 },
-      zekrom: { rx: 14, ry: 5, yOff: 16 },
-      reshiram: { rx: 14, ry: 5, yOff: 16 },
-      rayquaza: { rx: 14, ry: 5, yOff: 16 },
+      dialga: { rx: 15, ry: 5.5, yOff: 16 },
+      palkia: { rx: 15, ry: 5.5, yOff: 16 },
+      giratina: { rx: 15, ry: 5.5, yOff: 16 },
+      zekrom: { rx: 15, ry: 5.5, yOff: 16 },
+      reshiram: { rx: 15, ry: 5.5, yOff: 16 },
+      rayquaza: { rx: 15, ry: 5.5, yOff: 16 },
       darkrai: { rx: 14, ry: 5.5, yOff: 16 },
-      garchomp: { rx: 13, ry: 4.5, yOff: 16 },
-      tyranitar: { rx: 13, ry: 5, yOff: 16 },
-      charizard: { rx: 12, ry: 4.5, yOff: 15 },
-      arceus: { rx: 12, ry: 4.5, yOff: 16 },
-      mewtwo: { rx: 12, ry: 4.5, yOff: 16 },
-      latios: { rx: 12, ry: 4.5, yOff: 16 },
-      latias: { rx: 12, ry: 4.5, yOff: 16 },
+      garchomp: { rx: 14, ry: 5, yOff: 16 },
+      tyranitar: { rx: 14, ry: 5.5, yOff: 16 },
+      charizard: { rx: 14, ry: 5, yOff: 15 },
+      arceus: { rx: 14, ry: 5, yOff: 16 },
+      mewtwo: { rx: 13, ry: 4.5, yOff: 16 },
+      latios: { rx: 13, ry: 4.5, yOff: 16 },
+      latias: { rx: 13, ry: 4.5, yOff: 16 },
     };
-    const s = shadowMap[fid];
-    if (s) {
-      ctx.fillStyle = 'rgba(15, 23, 42, 0.4)';
+    const s = shadowMap[fid] ?? { rx: 14, ry: 5, yOff: 16 };
+    ctx.fillStyle = rideClass === 'sky' ? 'rgba(15, 23, 42, 0.28)' : 'rgba(15, 23, 42, 0.42)';
+    ctx.beginPath();
+    ctx.ellipse(
+      coreX,
+      drawY + s.yOff,
+      rideClass === 'sky' ? s.rx * 0.85 : s.rx,
+      rideClass === 'sky' ? s.ry * 0.85 : s.ry,
+      0,
+      0,
+      Math.PI * 2
+    );
+    ctx.fill();
+
+    // Water surf wake ring when surfing on water
+    if (isOverWater && rideClass === 'surf') {
+      const wavePulse = 0.5 + 0.5 * Math.sin(this.tick * 0.14);
+      ctx.save();
+      ctx.strokeStyle = `rgba(186, 230, 253, ${0.55 + wavePulse * 0.3})`;
+      ctx.lineWidth = 1.5;
       ctx.beginPath();
-      ctx.ellipse(coreX, drawY + s.yOff, s.rx, s.ry, 0, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.ellipse(coreX, drawY + 15, s.rx + 2 + wavePulse * 2, s.ry + 1, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
     }
 
     // Determine attack tick and action
@@ -12344,82 +12691,112 @@ export class TownEngine {
     // Draw background visual aura for PMD/legendary Pokémon
     if (fid === 'rayquaza') {
       const ozonePulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
-      const ozoneGrad = ctx.createRadialGradient(coreX, coreY - 10, 3, coreX, coreY - 10, 20);
+      const ozoneGrad = ctx.createRadialGradient(coreX, coreY - 12, 3, coreX, coreY - 12, 22);
       ozoneGrad.addColorStop(0, `rgba(52, 211, 153, ${ozonePulse + 0.3})`);
       ozoneGrad.addColorStop(0.5, `rgba(16, 185, 129, ${ozonePulse})`);
       ozoneGrad.addColorStop(1, 'rgba(16, 185, 129, 0)');
       ctx.fillStyle = ozoneGrad;
       ctx.beginPath();
-      ctx.arc(coreX, coreY - 10, 20, 0, Math.PI * 2);
+      ctx.arc(coreX, coreY - 12, 22, 0, Math.PI * 2);
       ctx.fill();
     } else if (fid === 'arceus') {
       const cosPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
-      const cosGrad = ctx.createRadialGradient(coreX, coreY - 10, 3, coreX, coreY - 10, 18);
+      const cosGrad = ctx.createRadialGradient(coreX, coreY - 12, 3, coreX, coreY - 12, 20);
       cosGrad.addColorStop(0, `rgba(254, 240, 138, ${cosPulse + 0.3})`);
       cosGrad.addColorStop(0.5, `rgba(234, 179, 8, ${cosPulse})`);
       cosGrad.addColorStop(1, 'rgba(234, 179, 8, 0)');
       ctx.fillStyle = cosGrad;
       ctx.beginPath();
-      ctx.arc(coreX, coreY - 10, 18, 0, Math.PI * 2);
+      ctx.arc(coreX, coreY - 12, 20, 0, Math.PI * 2);
       ctx.fill();
     } else if (fid === 'dialga') {
       const corePulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
-      const coreGrad = ctx.createRadialGradient(coreX, coreY - 8, 2, coreX, coreY - 8, 18);
+      const coreGrad = ctx.createRadialGradient(coreX, coreY - 10, 2, coreX, coreY - 10, 20);
       coreGrad.addColorStop(0, `rgba(224, 242, 254, ${corePulse + 0.35})`);
       coreGrad.addColorStop(0.45, `rgba(56, 189, 248, ${corePulse + 0.1})`);
       coreGrad.addColorStop(1, 'rgba(2, 132, 199, 0)');
       ctx.fillStyle = coreGrad;
       ctx.beginPath();
-      ctx.arc(coreX, coreY - 8, 18, 0, Math.PI * 2);
+      ctx.arc(coreX, coreY - 10, 20, 0, Math.PI * 2);
       ctx.fill();
     } else if (fid === 'palkia') {
       const spatialPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
-      const spatGrad = ctx.createRadialGradient(coreX, coreY - 8, 3, coreX, coreY - 8, 18);
+      const spatGrad = ctx.createRadialGradient(coreX, coreY - 10, 3, coreX, coreY - 10, 20);
       spatGrad.addColorStop(0, `rgba(240, 171, 252, ${spatialPulse + 0.3})`);
       spatGrad.addColorStop(0.5, `rgba(192, 38, 211, ${spatialPulse})`);
       spatGrad.addColorStop(1, 'rgba(192, 38, 211, 0)');
       ctx.fillStyle = spatGrad;
       ctx.beginPath();
-      ctx.arc(coreX, coreY - 8, 18, 0, Math.PI * 2);
+      ctx.arc(coreX, coreY - 10, 20, 0, Math.PI * 2);
       ctx.fill();
     } else if (fid === 'lunala') {
       const moonPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
-      const moonGrad = ctx.createRadialGradient(coreX, coreY - 12, 2, coreX, coreY - 12, 20);
+      const moonGrad = ctx.createRadialGradient(coreX, coreY - 14, 2, coreX, coreY - 14, 22);
       moonGrad.addColorStop(0, `rgba(224, 231, 255, ${moonPulse + 0.3})`);
       moonGrad.addColorStop(0.5, `rgba(129, 140, 248, ${moonPulse})`);
       moonGrad.addColorStop(1, 'rgba(15, 23, 42, 0)');
       ctx.fillStyle = moonGrad;
       ctx.beginPath();
-      ctx.arc(coreX, coreY - 12, 20, 0, Math.PI * 2);
+      ctx.arc(coreX, coreY - 14, 22, 0, Math.PI * 2);
       ctx.fill();
     }
 
-    // Step bob / ride bobbing
-    const rideBob = isMoving ? Math.sin(this.moveProgress * Math.PI * 2) * 1.5 : Math.sin(this.tick * 0.08) * 1.0;
-
-    // Ride Y offset per Pokémon species
-    const rideOffsets: Record<string, number> = {
-      rayquaza: 10,
-      dialga: 8,
-      palkia: 8,
-      arceus: 8,
-      lunala: 6,
-      giratina: 6,
-      reshiram: 7,
-      zekrom: 7,
-      garchomp: 7,
-      charizard: 7,
-      tyranitar: 7,
-      groudon: 9,
-      kyogre: 7,
-      urshifu: 6,
-      solgaleo: 7,
-      necrozma: 6,
-      samurott: 6,
+    // Anatomical per-species and per-direction saddle offsets relative to (coreX, coreY)
+    const saddleConfigs: Record<
+      string,
+      {
+        down: { dx: number; dy: number };
+        side: { dx: number; dy: number };
+        up: { dx: number; dy: number };
+      }
+    > = {
+      dialga:   { down: { dx: 0, dy: -41 }, side: { dx: -4, dy: -33 }, up: { dx: 0, dy: -35 } },
+      palkia:   { down: { dx: 0, dy: -40 }, side: { dx: -3, dy: -32 }, up: { dx: 0, dy: -34 } },
+      rayquaza: { down: { dx: 0, dy: -39 }, side: { dx: -3, dy: -31 }, up: { dx: 0, dy: -33 } },
+      lunala:   { down: { dx: 0, dy: -33 }, side: { dx: -2, dy: -31 }, up: { dx: 0, dy: -31 } },
+      arceus:   { down: { dx: 0, dy: -38 }, side: { dx: -3, dy: -31 }, up: { dx: 0, dy: -33 } },
+      giratina: { down: { dx: 0, dy: -39 }, side: { dx: -3, dy: -32 }, up: { dx: 0, dy: -34 } },
+      reshiram: { down: { dx: 0, dy: -36 }, side: { dx: -5, dy: -27 }, up: { dx: 0, dy: -30 } },
+      zekrom:   { down: { dx: 0, dy: -36 }, side: { dx: -5, dy: -27 }, up: { dx: 0, dy: -30 } },
+      groudon:  { down: { dx: 0, dy: -36 }, side: { dx: -4, dy: -33 }, up: { dx: 0, dy: -34 } },
+      kyogre:   { down: { dx: 0, dy: -32 }, side: { dx: -2, dy: -30 }, up: { dx: 0, dy: -31 } },
+      charizard:{ down: { dx: 0, dy: -34 }, side: { dx: -3, dy: -31 }, up: { dx: 0, dy: -32 } },
+      garchomp: { down: { dx: 0, dy: -34 }, side: { dx: -3, dy: -31 }, up: { dx: 0, dy: -32 } },
+      tyranitar:{ down: { dx: 0, dy: -35 }, side: { dx: -3, dy: -32 }, up: { dx: 0, dy: -33 } },
+      urshifu:  { down: { dx: 0, dy: -36 }, side: { dx: -3, dy: -33 }, up: { dx: 0, dy: -34 } },
+      solgaleo: { down: { dx: 0, dy: -35 }, side: { dx: -3, dy: -32 }, up: { dx: 0, dy: -33 } },
+      necrozma: { down: { dx: 0, dy: -35 }, side: { dx: -3, dy: -32 }, up: { dx: 0, dy: -33 } },
+      samurott: { down: { dx: 0, dy: -33 }, side: { dx: -3, dy: -30 }, up: { dx: 0, dy: -31 } },
+      latios:   { down: { dx: 0, dy: -31 }, side: { dx: -2, dy: -29 }, up: { dx: 0, dy: -30 } },
+      latias:   { down: { dx: 0, dy: -31 }, side: { dx: -2, dy: -29 }, up: { dx: 0, dy: -30 } },
+      darkrai:  { down: { dx: 0, dy: -34 }, side: { dx: -3, dy: -31 }, up: { dx: 0, dy: -32 } },
+      mewtwo:   { down: { dx: 0, dy: -33 }, side: { dx: -3, dy: -30 }, up: { dx: 0, dy: -31 } },
+      lucario:  { down: { dx: 0, dy: -26 }, side: { dx: -2, dy: -24 }, up: { dx: 0, dy: -25 } },
     };
-    const rideYOff = rideOffsets[fid] ?? 6;
 
-    // Draw the Pokémon mount sprite first
+    const saddle = saddleConfigs[fid] ?? {
+      down: { dx: 0, dy: -34 },
+      side: { dx: -3, dy: -31 },
+      up: { dx: 0, dy: -32 },
+    };
+
+    let riderDx = 0;
+    let riderDy = -34;
+    if (dir === 'down') {
+      riderDx = saddle.down.dx;
+      riderDy = saddle.down.dy;
+    } else if (dir === 'up') {
+      riderDx = saddle.up.dx;
+      riderDy = saddle.up.dy;
+    } else if (dir === 'right') {
+      riderDx = saddle.side.dx;
+      riderDy = saddle.side.dy;
+    } else if (dir === 'left') {
+      riderDx = -saddle.side.dx;
+      riderDy = saddle.side.dy;
+    }
+
+    // Draw the Pokémon mount sprite at majestic 1.18x mount scale
     const pmdDrawn = this.pmdAnimator.draw(
       ctx,
       fid,
@@ -12427,7 +12804,8 @@ export class TownEngine {
       dir,
       coreX,
       coreY,
-      curAnimTick
+      curAnimTick,
+      1.18
     );
 
     // Fallback to static sprite if PMD not available or not yet loaded
@@ -12440,46 +12818,45 @@ export class TownEngine {
         ctx.translate(-(drawX + 8), 0);
       }
       if (fid === 'charizard' && this.charizardImg?.complete) {
-        ctx.drawImage(this.charizardImg, drawX - 14, drawY - 21 + rideBob, 44, 44);
+        ctx.drawImage(this.charizardImg, drawX - 16, drawY - 24 + rideBob, 48, 48);
       } else if (fid === 'garchomp' && this.garchompImg?.complete) {
-        ctx.drawImage(this.garchompImg, drawX - 14, drawY - 20 + rideBob, 44, 44);
+        ctx.drawImage(this.garchompImg, drawX - 16, drawY - 23 + rideBob, 48, 48);
       } else if (fid === 'tyranitar' && this.tyranitarImg?.complete) {
-        ctx.drawImage(this.tyranitarImg, drawX - 14, drawY - 20 + rideBob, 44, 44);
+        ctx.drawImage(this.tyranitarImg, drawX - 16, drawY - 23 + rideBob, 48, 48);
       } else if (fid === 'urshifu' && this.urshifuImg?.complete) {
-        ctx.drawImage(this.urshifuImg, drawX - 16, drawY - 23 + rideBob, 48, 45);
+        ctx.drawImage(this.urshifuImg, drawX - 18, drawY - 25 + rideBob, 52, 48);
       } else if (fid === 'mewtwo' && this.mewtwoImg?.complete) {
-        ctx.drawImage(this.mewtwoImg, drawX - 12, drawY - 18 + rideBob, 40, 40);
+        ctx.drawImage(this.mewtwoImg, drawX - 14, drawY - 21 + rideBob, 44, 44);
       } else if (fid === 'groudon' && this.groudonImg?.complete) {
-        ctx.drawImage(this.groudonImg, drawX - 15, drawY - 21 + rideBob, 46, 45);
+        ctx.drawImage(this.groudonImg, drawX - 17, drawY - 24 + rideBob, 50, 48);
       } else if (fid === 'kyogre' && this.kyogreImg?.complete) {
-        ctx.drawImage(this.kyogreImg, drawX - 16, drawY - 20 + rideBob, 48, 44);
+        ctx.drawImage(this.kyogreImg, drawX - 18, drawY - 22 + rideBob, 52, 46);
       } else if (fid === 'latios' && this.latiosImg?.complete) {
-        ctx.drawImage(this.latiosImg, drawX - 14, drawY - 18 + rideBob, 44, 40);
+        ctx.drawImage(this.latiosImg, drawX - 16, drawY - 21 + rideBob, 48, 44);
       } else if (fid === 'latias' && this.latiasImg?.complete) {
-        ctx.drawImage(this.latiasImg, drawX - 14, drawY - 18 + rideBob, 44, 40);
+        ctx.drawImage(this.latiasImg, drawX - 16, drawY - 21 + rideBob, 48, 44);
       } else if (fid === 'darkrai' && this.darkraiImg?.complete) {
-        ctx.drawImage(this.darkraiImg, drawX - 13, drawY - 20 + rideBob, 42, 42);
+        ctx.drawImage(this.darkraiImg, drawX - 15, drawY - 23 + rideBob, 46, 46);
       } else if (fid === 'necrozma' && this.necrozmaImg?.complete) {
-        ctx.drawImage(this.necrozmaImg, drawX - 15, drawY - 21 + rideBob, 46, 43);
+        ctx.drawImage(this.necrozmaImg, drawX - 17, drawY - 24 + rideBob, 50, 46);
       } else if (fid === 'solgaleo' && this.solgaleoImg?.complete) {
-        ctx.drawImage(this.solgaleoImg, drawX - 15, drawY - 21 + rideBob, 46, 43);
+        ctx.drawImage(this.solgaleoImg, drawX - 17, drawY - 24 + rideBob, 50, 46);
       } else if (fid === 'samurott' && this.samurottImg?.complete) {
-        ctx.drawImage(this.samurottImg, drawX - 14, drawY - 20 + rideBob, 44, 42);
+        ctx.drawImage(this.samurottImg, drawX - 16, drawY - 23 + rideBob, 48, 46);
       } else if (fid === 'lucario') {
-        drawLucario(ctx, drawX, drawY + rideBob, this.tick, 1);
+        drawLucario(ctx, drawX, drawY + rideBob, this.tick, 1.1);
       }
       if (isFlipped) ctx.restore();
     }
 
-    // Draw Red riding atop the Pokémon saddle/back!
-    drawCharacter(
+    // Draw seated rider on the Pokémon's anatomical saddle (no floating ground shadow, no dangling legs, no duplicate Pikachu)
+    drawRiderCharacter(
       ctx,
       this.playerPalette,
-      this.playerDir,
-      0, // Riding seated pose
-      drawX,
-      drawY - rideYOff + rideBob,
-      1
+      dir,
+      coreX + riderDx,
+      coreY + riderDy + rideBob * 0.75,
+      0.78
     );
   }
 
