@@ -323,6 +323,7 @@ export class TownEngine {
   private garchompAttackTick = 0;
   private groudonAttackTick = 0;
   private kyogreAttackTick = 0;
+  private tyranitarAttackTick = 0;
   private pmdAnimator = new PokemonPMDAnimator();
 
   // Signature Move Visual FX & Camera Shake
@@ -3516,6 +3517,9 @@ export class TownEngine {
     }
     if (this.kyogreAttackTick > 0) {
       this.kyogreAttackTick--;
+    }
+    if (this.tyranitarAttackTick > 0) {
+      this.tyranitarAttackTick--;
     }
 
     // Update dynamic weather particles
@@ -9679,10 +9683,24 @@ export class TownEngine {
           }
         }
 
-        // Authentic Pokémon Black & White Tyranitar Sprite
-        const img = this.tyranitarImg || this.blastoiseImg;
-        if (img && img.complete && img.naturalWidth > 0) {
-          ctx.drawImage(img, drawX - 13, drawY - 20 + stomp, 42, 42);
+        // Draw Tyranitar 8-direction PMD animated sprite (with fallback)
+        const dir = (cfg?.orientation || 'W').toLowerCase();
+        const pmdDir = dir === 'w' ? 'left' : dir === 'e' ? 'right' : dir === 'n' ? 'up' : 'down';
+        const pmdDrawn = this.pmdAnimator.draw(
+          ctx,
+          'tyranitar',
+          'idle',
+          pmdDir,
+          drawX + 8,
+          drawY + 16,
+          this.tick
+        );
+
+        if (!pmdDrawn) {
+          const img = this.tyranitarImg || this.blastoiseImg;
+          if (img && img.complete && img.naturalWidth > 0) {
+            ctx.drawImage(img, drawX - 13, drawY - 20 + stomp, 42, 42);
+          }
         }
         if (isFlipped) ctx.restore();
       } else if (npc.id === 'garchomp' || (npc as any).subType === 'garchomp') {
@@ -10458,11 +10476,24 @@ export class TownEngine {
         if ((b.subType === 'charizard' || b.id === 'charizard') && this.charizardImg && this.charizardImg.complete) {
           const breath = Math.sin(this.tick * 0.05) * 0.8;
           ctx.drawImage(this.charizardImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + breath, 42, 42);
-        } else if ((b.subType === 'tyranitar' || b.id === 'tyranitar' || b.subType === 'blastoise' || b.id === 'blastoise') && (this.tyranitarImg || this.blastoiseImg)) {
+        } else if ((b.subType === 'tyranitar' || b.id === 'tyranitar' || b.subType === 'blastoise' || b.id === 'blastoise') && (this.pmdAnimator.isSupported('tyranitar') || this.tyranitarImg || this.blastoiseImg)) {
           const stomp = Math.sin(this.tick * 0.04) * 0.8;
-          const img = this.tyranitarImg || this.blastoiseImg;
-          if (img && img.complete) {
-            ctx.drawImage(img, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + stomp, 42, 42);
+          const coreX = b.x * TILE_SIZE + 8;
+          const dir = b.orientation || 'W';
+          const pmdDrawn = this.pmdAnimator.draw(
+            ctx,
+            'tyranitar',
+            'idle',
+            dir,
+            coreX,
+            b.y * TILE_SIZE + 16,
+            this.tick
+          );
+          if (!pmdDrawn) {
+            const img = this.tyranitarImg || this.blastoiseImg;
+            if (img && img.complete) {
+              ctx.drawImage(img, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + stomp, 42, 42);
+            }
           }
         } else if ((b.subType === 'garchomp' || b.id === 'garchomp') && (this.pmdAnimator.isSupported('garchomp') || (this.garchompImg && this.garchompImg.complete))) {
           const machBob = Math.sin(this.tick * 0.05) * 0.9;
@@ -11563,6 +11594,7 @@ export class TownEngine {
         });
       }
     } else if (id.includes('tyranitar') || id.includes('blastoise')) {
+      this.tyranitarAttackTick = 26;
       for (let i = 0; i < 45; i++) {
         const r = 8 + Math.random() * 32;
         const ang = Math.random() * Math.PI * 2;
@@ -12039,7 +12071,51 @@ export class TownEngine {
         ctx.drawImage(this.charizardImg, drawX - 13, drawY - 20 + stepBob + idleBob, 42, 42);
       }
     } else if (fid === 'tyranitar') {
-      if (this.tyranitarImg && this.tyranitarImg.complete) {
+      const coreX = drawX + 8;
+      const coreY = drawY + 16;
+
+      // Sand Stream & armored rock dust aura
+      const sandPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
+      const sandGrad = ctx.createRadialGradient(coreX, coreY - 10, 2, coreX, coreY - 10, 18);
+      sandGrad.addColorStop(0, `rgba(217, 119, 6, ${sandPulse + 0.3})`);
+      sandGrad.addColorStop(0.5, `rgba(180, 83, 9, ${sandPulse * 0.7})`);
+      sandGrad.addColorStop(1, 'rgba(15, 23, 42, 0)');
+      ctx.fillStyle = sandGrad;
+      ctx.beginPath();
+      ctx.arc(coreX, coreY - 10, 18, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Sand swirl & rock armor fragments
+      if (this.tick % 16 < 11) {
+        ctx.fillStyle = '#d4b182';
+        ctx.fillRect(coreX + Math.cos(this.tick * 0.15) * 12, coreY - 12 - (this.tick % 10), 1.5, 1.5);
+        ctx.fillStyle = '#4b5563';
+        ctx.fillRect(coreX - 6 + Math.sin(this.tick * 0.2) * 10, coreY - 6 - (this.tick % 8), 2, 2);
+      }
+
+      // Determine action, direction, and animation frame tick
+      let action: 'idle' | 'walk' | 'shoot' = 'idle';
+      let animTick = this.tick;
+      if (this.tyranitarAttackTick > 0) {
+        action = 'shoot';
+        animTick = 26 - this.tyranitarAttackTick;
+      } else if (isFollowerWalking) {
+        action = 'walk';
+        animTick = this.followerWalkTick;
+      }
+      const dir = this.followerDir || 'down';
+
+      const pmdDrawn = this.pmdAnimator.draw(
+        ctx,
+        'tyranitar',
+        action,
+        dir,
+        coreX,
+        coreY,
+        animTick
+      );
+
+      if (!pmdDrawn && this.tyranitarImg && this.tyranitarImg.complete) {
         ctx.drawImage(this.tyranitarImg, drawX - 13, drawY - 20 + stepBob, 42, 42);
       }
     } else if (fid === 'garchomp') {
@@ -12939,6 +13015,9 @@ export class TownEngine {
     } else if (fid === 'kyogre' && this.kyogreAttackTick > 0) {
       action = 'shoot';
       attackTick = 26 - this.kyogreAttackTick;
+    } else if (fid === 'tyranitar' && this.tyranitarAttackTick > 0) {
+      action = 'shoot';
+      attackTick = 26 - this.tyranitarAttackTick;
     }
 
     const curAnimTick = attackTick > 0 ? attackTick : animTick;
@@ -13032,6 +13111,16 @@ export class TownEngine {
       aquaGrad.addColorStop(0.5, `rgba(14, 165, 233, ${aquaPulse * 0.8})`);
       aquaGrad.addColorStop(1, 'rgba(3, 105, 161, 0)');
       ctx.fillStyle = aquaGrad;
+      ctx.beginPath();
+      ctx.arc(coreX, coreY - 10, 20, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (fid === 'tyranitar') {
+      const sandPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
+      const sandGrad = ctx.createRadialGradient(coreX, coreY - 10, 2, coreX, coreY - 10, 20);
+      sandGrad.addColorStop(0, `rgba(217, 119, 6, ${sandPulse + 0.35})`);
+      sandGrad.addColorStop(0.5, `rgba(180, 83, 9, ${sandPulse * 0.8})`);
+      sandGrad.addColorStop(1, 'rgba(15, 23, 42, 0)');
+      ctx.fillStyle = sandGrad;
       ctx.beginPath();
       ctx.arc(coreX, coreY - 10, 20, 0, Math.PI * 2);
       ctx.fill();

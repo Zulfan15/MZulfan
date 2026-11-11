@@ -510,6 +510,47 @@ export const PMD_POKEMON_CONFIGS: Record<string, PMDPokemonConfig> = {
       anchorY: 39,
     },
   },
+  tyranitar: {
+    id: 'tyranitar',
+    name: 'Tyranitar',
+    scale: 0.92,
+    idle: {
+      src: '/assets/pokemon/tyranitar/Idle-Anim.png',
+      frameWidth: 40,
+      frameHeight: 48,
+      frameCount: 4,
+      durations: [14, 24, 14, 24],
+      anchorX: 20,
+      anchorY: 28,
+    },
+    walk: {
+      src: '/assets/pokemon/tyranitar/Walk-Anim.png',
+      frameWidth: 40,
+      frameHeight: 48,
+      frameCount: 4,
+      durations: [10, 16, 10, 16],
+      anchorX: 20,
+      anchorY: 28,
+    },
+    shoot: {
+      src: '/assets/pokemon/tyranitar/Shoot-Anim.png',
+      frameWidth: 48,
+      frameHeight: 56,
+      frameCount: 13,
+      durations: [2, 3, 6, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+      anchorX: 24,
+      anchorY: 30,
+    },
+    attack: {
+      src: '/assets/pokemon/tyranitar/Attack-Anim.png',
+      frameWidth: 80,
+      frameHeight: 80,
+      frameCount: 11,
+      durations: [2, 2, 2, 6, 2, 2, 2, 2, 2, 2, 2],
+      anchorX: 40,
+      anchorY: 43,
+    },
+  },
 };
 
 export class PokemonPMDAnimator {
