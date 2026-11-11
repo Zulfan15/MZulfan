@@ -199,7 +199,7 @@ const dataPlaceRooms = {
             <span class="town-burger-dropdown__item-icon" id="burger-partner-icon">🐾</span>
             <div class="town-burger-dropdown__item-info">
               <span class="town-burger-dropdown__item-title">Poké-Partner Hub</span>
-              <span class="town-burger-dropdown__item-sub" id="burger-partner-sub">Pilih pendamping & skill (11 Pokémon)</span>
+              <span class="town-burger-dropdown__item-sub" id="burger-partner-sub">Pilih pendamping & skill (22 Pokémon)</span>
             </div>
             <kbd class="town-burger-dropdown__kbd">P</kbd>
           </button>
@@ -1978,7 +1978,7 @@ const dataPlaceRooms = {
       } else {
         if (hudPartnerIcon) hudPartnerIcon.textContent = '🐾';
         if (hudPartnerLabel) hudPartnerLabel.textContent = 'Partner';
-        if (burgerPartnerSub) burgerPartnerSub.textContent = 'Pilih pendamping & skill (11 Pokémon)';
+        if (burgerPartnerSub) burgerPartnerSub.textContent = 'Pilih pendamping & skill (22 Pokémon)';
         if (burgerSkillSub) burgerSkillSub.textContent = 'Pilih Pokémon terlebih dahulu';
         if (btnCastPartnerSkill) {
           btnCastPartnerSkill.style.display = 'none';
@@ -1989,10 +1989,11 @@ const dataPlaceRooms = {
 
     const getActivePartnerId = (): string | null => {
       if (typeof localStorage !== 'undefined') {
-        const stored = localStorage.getItem('town:activeFollower');
+        const stored = localStorage.getItem('town:active_follower') || localStorage.getItem('town:activeFollower');
         if (stored) return stored;
       }
-      return engine?.getActiveFollower() ?? 'twin';
+      const follower = engine?.getActiveFollower();
+      return follower?.id ?? null;
     };
 
     updatePartnerUI(getActivePartnerId());

@@ -6505,14 +6505,21 @@ export class TownEngine {
           'Aura panas Desolate Land memancar dari alur garis hitam di tubuh merah crimsonnya, mengeringkan kabut dan memadatkan magma menjadi daratan kokoh.',
           'Dalam mitologi Hoenn purba, Groudon adalah Pokémon Legendaris yang menciptakan dan memperluas benua alam semesta.',
         ];
+        const groudonActions: BubbleAction[] = [
+          {
+            label: '⚡ Gemuruh Magma Precipice Blades',
+            onClick: () => this.triggerSignatureMove('groudon', npc.x, npc.y),
+          },
+          {
+            label: '🤝 Ajak Jalan Bersama',
+            onClick: () => this.setActiveFollower('groudon'),
+          },
+        ];
         if (this.callbacks.onBubble) {
           this.callbacks.onBubble(
             'Groudon (The Continent Pokémon) 🌋🔥',
             'Gwoooaaarrr-ghuuu...! 🌋🔥 (Kerak bumi bergetar dan gelombang panas Desolate Land memancar dari tubuh Groudon. Sang Penguasa Daratan menjaga kestabilan pondasi benua di Zulfan\'s Town.)',
-            {
-              label: 'Gemuruh Magma Precipice Blades 🌋',
-              onClick: () => sfx.encounter(),
-            }
+            groudonActions
           );
         } else {
           this.callbacks.onDialogue('Groudon Sang Penguasa Daratan 🌋🔥', groudonLines);
@@ -6529,14 +6536,21 @@ export class TownEngine {
           'Aura hujan lebat Primordial Sea memancar dari guratan merah di sirip lebarnya, mengisi sumber mata air dan menjaga kedalaman samudra tanpa batas.',
           'Dalam mitologi Hoenn purba, Kyogre dipuja sebagai pencipta lautan luas yang mempertemukan pulau-pulau di alam semesta.',
         ];
+        const kyogreActions: BubbleAction[] = [
+          {
+            label: '⚡ Gelombang Samudra Origin Pulse',
+            onClick: () => this.triggerSignatureMove('kyogre', npc.x, npc.y),
+          },
+          {
+            label: '🤝 Ajak Jalan Bersama',
+            onClick: () => this.setActiveFollower('kyogre'),
+          },
+        ];
         if (this.callbacks.onBubble) {
           this.callbacks.onBubble(
             'Kyogre (The Sea Basin Pokémon) 🌊💧',
             'Gyaaa-oooh-shuuu...! 🌊💧 (Deru ombak samudra dan rintik hujan Primordial Sea memancar dari sirip Kyogre. Sang Penguasa Samudra menjaga kemurnian aliran air di Zulfan\'s Town.)',
-            {
-              label: 'Gelombang Samudra Origin Pulse 🌊',
-              onClick: () => sfx.encounter(),
-            }
+            kyogreActions
           );
         } else {
           this.callbacks.onDialogue('Kyogre Sang Penguasa Samudra 🌊💧', kyogreLines);
@@ -6553,14 +6567,21 @@ export class TownEngine {
           'Bentuk tubuhnya yang ramping seperti pesawat jet memungkinkannya melesat melebihi kecepatan suara sambil memproyeksikan telepati kedamaian.',
           'Dalam legenda Hoenn dan Alto Mare, Latios adalah pelindung berhati murni yang menjaga Soul Dew demi keselamatan seluruh kota.',
         ];
+        const latiosActions: BubbleAction[] = [
+          {
+            label: '⚡ Kecepatan Jet Luster Purge',
+            onClick: () => this.triggerSignatureMove('latios', npc.x, npc.y),
+          },
+          {
+            label: '🤝 Ajak Jalan Bersama',
+            onClick: () => this.setActiveFollower('latios'),
+          },
+        ];
         if (this.callbacks.onBubble) {
           this.callbacks.onBubble(
             'Latios (The Eon Pokémon) ✈️🔷',
             'Shwiii-shooo...! ✈️🔷 (Sayap jet Latios berpendar memancarkan gelombang psikis aerodinamis. Sang Penjaga Jiwa dan Cahaya mengawasi Zulfan\'s Town dengan kecepatan kilat.)',
-            {
-              label: 'Kecepatan Jet Luster Purge 🔷',
-              onClick: () => sfx.encounter(),
-            }
+            latiosActions
           );
         } else {
           this.callbacks.onDialogue('Latios Sang Penjelajah Angkasa ✈️🔷', latiosLines);
@@ -6577,14 +6598,21 @@ export class TownEngine {
           'Bulu halusnya dapat membiaskan cahaya untuk berkamuflase, memancarkan telepati kehangatan dan empati kepada setiap orang.',
           'Dalam legenda Hoenn dan Alto Mare, Latias adalah pelindung lembut nan pemberani yang menjaga keharmonisan kota.',
         ];
+        const latiasActions: BubbleAction[] = [
+          {
+            label: '⚡ Cahaya Mistik Mist Ball',
+            onClick: () => this.triggerSignatureMove('latias', npc.x, npc.y),
+          },
+          {
+            label: '🤝 Ajak Jalan Bersama',
+            onClick: () => this.setActiveFollower('latias'),
+          },
+        ];
         if (this.callbacks.onBubble) {
           this.callbacks.onBubble(
             'Latias (The Eon Pokémon) 💖✨',
             'Kyuuu-wiiin...! 💖✨ (Sayap kemerahan Latias berpendar membiaskan kilau cahaya Refract Light. Sang Pelindung Jiwa menyebarkan aura kedamaian dan kehangatan di Zulfan\'s Town.)',
-            {
-              label: 'Cahaya Mistik Mist Ball 💖',
-              onClick: () => sfx.encounter(),
-            }
+            latiasActions
           );
         } else {
           this.callbacks.onDialogue('Latias Sang Pelindung Hati 💖✨', latiasLines);
@@ -6601,14 +6629,21 @@ export class TownEngine {
           'Kabut bayangan hitam pekat berputar di bawah mantelnya. Konon saat bulan baru muncul, Darkrai dapat memicu tidur lelap dan mimpi buruk tak berujung (Dark Void).',
           'Namun di balik reputasinya yang menakutkan, Darkrai bertindak sebagai pelindung tersembunyi yang mengusir marabahaya dari dimensi bayangan.',
         ];
+        const darkraiActions: BubbleAction[] = [
+          {
+            label: '⚡ Dimensi Bayangan Dark Void',
+            onClick: () => this.triggerSignatureMove('darkrai', npc.x, npc.y),
+          },
+          {
+            label: '🤝 Ajak Jalan Bersama',
+            onClick: () => this.setActiveFollower('darkrai'),
+          },
+        ];
         if (this.callbacks.onBubble) {
           this.callbacks.onBubble(
             'Darkrai (The Pitch-Black Pokémon) 🌑💤',
             'Zzzz-shhhwaaaddd...! 🌑💤 (Kabut bayangan hitam berputar di bawah mantel Darkrai. Sang Penguasa Dimensi Mimpi Buruk mengawasi perbatasan Zulfan\'s Town dari balik tirai kegelapan.)',
-            {
-              label: 'Dimensi Bayangan Dark Void 🌑',
-              onClick: () => sfx.encounter(),
-            }
+            darkraiActions
           );
         } else {
           this.callbacks.onDialogue('Darkrai Sang Penguasa Mimpi Buruk 🌑💤', darkraiLines);
@@ -6625,14 +6660,21 @@ export class TownEngine {
           'Prisma kristal hitam di kepalanya menyerap dan membiaskan energi matahari dari Solgaleo menjadi pancaran daya tak terbatas.',
           'Dalam legenda Alola dan Ultra Megalopolis, Necrozma adalah Pembawa Cahaya legendaris yang menguasai ruang antar-dimensi Ultra Space.',
         ];
+        const necrozmaActions: BubbleAction[] = [
+          {
+            label: '⚡ Cahaya Surya Sunsteel Strike',
+            onClick: () => this.triggerSignatureMove('necrozma', npc.x, npc.y),
+          },
+          {
+            label: '🤝 Ajak Jalan Bersama',
+            onClick: () => this.setActiveFollower('necrozma'),
+          },
+        ];
         if (this.callbacks.onBubble) {
           this.callbacks.onBubble(
             'Necrozma Dusk Mane (The Prism Pokémon) 🦁☀️',
             'Ggg-rraaa-shhh-kzzzt...! 🦁☀️ (Prisma kristal hitam beresonansi dengan surya terang Solgaleo. Necrozma Dusk Mane memancarkan kekuatan cahaya murni Sunsteel Strike yang menerangi Zulfan\'s Town.)',
-            {
-              label: 'Cahaya Surya Sunsteel Strike ☀️',
-              onClick: () => sfx.encounter(),
-            }
+            necrozmaActions
           );
         } else {
           this.callbacks.onDialogue('Necrozma Dusk Mane Sang Prisma Surya 🦁☀️', necrozmaLines);
@@ -6649,14 +6691,21 @@ export class TownEngine {
           'Sayapnya menyerap dan membiaskan cahaya malam menjadi energi kosmik penenang jiwa.',
           'Dalam legenda Alola dan mitologi Ultra Space, Lunala dipuja sebagai pelindung malam yang membawa berkah kedamaian.',
         ];
+        const lunalaActions: BubbleAction[] = [
+          {
+            label: '⚡ Sinar Rembulan Moongeist Beam',
+            onClick: () => this.triggerSignatureMove('lunala', npc.x, npc.y),
+          },
+          {
+            label: '🤝 Ajak Jalan Bersama',
+            onClick: () => this.setActiveFollower('lunala'),
+          },
+        ];
         if (this.callbacks.onBubble) {
           this.callbacks.onBubble(
             'Lunala (The Moone Pokémon) 🌙✨',
             'Mahaaalo-laaa...! 🌙✨ (Sayap bulan sabit Lunala membentang menyerap cahaya malam dalam fase Full Moon. Sang Utusan Rembulan menaburkan debu kosmik starlight yang melindungi Zulfan\'s Town.)',
-            {
-              label: 'Sinar Rembulan Moongeist Beam 🌙',
-              onClick: () => sfx.encounter(),
-            }
+            lunalaActions
           );
         } else {
           this.callbacks.onDialogue('Lunala Sang Utusan Rembulan 🌙✨', lunalaLines);
@@ -6673,14 +6722,21 @@ export class TownEngine {
           'Surai dan tubuhnya memancarkan energi matahari berlimpah yang menghangatkan seluruh penjuru kota.',
           'Dalam mitologi Alola dan peradaban kuno, Solgaleo disembah sebagai Sang Pemangsa Mentari yang membawa cahaya kehidupan abadi.',
         ];
+        const solgaleoActions: BubbleAction[] = [
+          {
+            label: '⚡ Kilau Surya Sunsteel Corona',
+            onClick: () => this.triggerSignatureMove('solgaleo', npc.x, npc.y),
+          },
+          {
+            label: '🤝 Ajak Jalan Bersama',
+            onClick: () => this.setActiveFollower('solgaleo'),
+          },
+        ];
         if (this.callbacks.onBubble) {
           this.callbacks.onBubble(
             'Solgaleo (The Sunne Pokémon) ☀️🦁',
             'Laaa-lionnn-shooo...! ☀️🦁 (Surai keemasan Solgaleo berkobar terang benderang dalam fase Radiant Sun. Sang Utusan Mentari memancarkan kehangatan surya Sunsteel Strike yang melindungi Zulfan\'s Town.)',
-            {
-              label: 'Cahaya Surya Sunsteel Strike ☀️',
-              onClick: () => sfx.encounter(),
-            }
+            solgaleoActions
           );
         } else {
           this.callbacks.onDialogue('Solgaleo Sang Utusan Mentari ☀️🦁', solgaleoLines);
@@ -7011,6 +7067,7 @@ export class TownEngine {
             },
           };
         } else if (customPlaced.subType === 'groudon') {
+          dialogueText = "GROUDON: 'Gwoooaaarrr-ghuuu...!' 🌋🔥 [Tech Guardian: Rock-Solid Storage & Database Partitioning] Menjaga kestabilan pondasi benua dan data persisten tak tergoyahkan.";
           action = [
             {
               label: '⚡ Gemuruh Magma Precipice Blades',
@@ -7022,6 +7079,7 @@ export class TownEngine {
             },
           ];
         } else if (customPlaced.subType === 'kyogre') {
+          dialogueText = "KYOGRE: 'Gyaaa-oooh-shuuu...!' 🌊💧 [Tech Guardian: Streaming Data Pipelines & Event-Driven Architecture] Mengalirkan jutaan pesan data secara kontinu tanpa hambatan.";
           action = [
             {
               label: '⚡ Gelombang Samudra Origin Pulse',
@@ -7033,6 +7091,7 @@ export class TownEngine {
             },
           ];
         } else if (customPlaced.subType === 'latios') {
+          dialogueText = "LATIOS: 'Shwiii-shooo...!' ✈️🔷 [Tech Guardian: High-Speed Telemetry & API Edge Gateways] Mengarahkan arus komputasi supersonik dengan latensi paling rendah.";
           action = [
             {
               label: '⚡ Kecepatan Jet Luster Purge',
@@ -7044,6 +7103,7 @@ export class TownEngine {
             },
           ];
         } else if (customPlaced.subType === 'latias') {
+          dialogueText = "LATIAS: 'Kyuuu-wiiin...!' 💖✨ [Tech Guardian: Responsive Frontend & Empathetic UX] Membiaskan antarmuka digital yang memikat dan bersahabat di segala platform.";
           action = [
             {
               label: '⚡ Cahaya Mistik Mist Ball',
@@ -7055,6 +7115,7 @@ export class TownEngine {
             },
           ];
         } else if (customPlaced.subType === 'darkrai') {
+          dialogueText = "DARKRAI: 'Zzzz-shhhwaaaddd...!' 🌑💤 [Tech Guardian: Cyber Security, Encryption & Penetration Testing] Mengunci celah ilegal dan menjaga sistem dari dimensi bayangan.";
           action = [
             {
               label: '⚡ Dimensi Bayangan Dark Void',
@@ -7066,6 +7127,7 @@ export class TownEngine {
             },
           ];
         } else if (customPlaced.subType === 'necrozma' || customPlaced.subType === 'necrozma_dusk_mane') {
+          dialogueText = "NECROZMA: 'Ggg-rraaa-shhh-kzzzt...!' 🦁☀️ [Tech Guardian: Multi-Modal AI & Cross-Platform Convergence] Membiaskan cahaya komputasi surya tak terbatas Sunsteel Strike.";
           action = [
             {
               label: '⚡ Cahaya Surya Sunsteel Strike',
@@ -7077,6 +7139,7 @@ export class TownEngine {
             },
           ];
         } else if (customPlaced.subType === 'lunala') {
+          dialogueText = "LUNALA: 'Mahaaalo-laaa...!' 🌙✨ [Tech Guardian: Dark Mode Aesthetics & Night-Shift Reliability] Menjaga keandalan operasional sistem 24/7 di bawah sinar kosmik.";
           action = [
             {
               label: '⚡ Sinar Rembulan Moongeist Beam',
@@ -7088,9 +7151,10 @@ export class TownEngine {
             },
           ];
         } else if (customPlaced.subType === 'solgaleo') {
+          dialogueText = "SOLGALEO: 'Laaa-lionnn-shooo...!' ☀️🦁 [Tech Guardian: High-Performance GPU Computing & Radiant Power Delivery] Menyalurkan daya komputasi grafis dan inferensi model tercepat.";
           action = [
             {
-              label: '⚡ Kilau Surya Sunsteel Strike',
+              label: '⚡ Kilau Surya Sunsteel Corona',
               onClick: () => this.triggerSignatureMove('solgaleo', customPlaced.x, customPlaced.y),
             },
             {
@@ -7216,6 +7280,54 @@ export class TownEngine {
             {
               label: '🤝 Ajak Jalan Bersama',
               onClick: () => this.setActiveFollower('palkia'),
+            },
+          ];
+        } else if (customPlaced.subType === 'reshiram') {
+          dialogueText = "RESHIRAM: 'Vaaa-zhooom...!' 🤍🔥 [Tech Guardian: Code Integrity, Rigorous Testing & Clean Architecture] Memastikan setiap baris kode terverifikasi bersih dan bebas kerentanan.";
+          action = [
+            {
+              label: '⚡ Kobaran Fusion Flare',
+              onClick: () => this.triggerSignatureMove('reshiram', customPlaced.x, customPlaced.y),
+            },
+            {
+              label: '🤝 Ajak Jalan Bersama',
+              onClick: () => this.setActiveFollower('reshiram'),
+            },
+          ];
+        } else if (customPlaced.subType === 'zekrom') {
+          dialogueText = "ZEKROM: 'Bzzzz-Vrrrooom...!' 🖤⚡ [Tech Guardian: Scalable Cloud Architecture & High-Voltage Compute] Memberikan daya komputasi raksasa untuk memproses data masif tanpa jeda.";
+          action = [
+            {
+              label: '⚡ Kilatan Fusion Bolt',
+              onClick: () => this.triggerSignatureMove('zekrom', customPlaced.x, customPlaced.y),
+            },
+            {
+              label: '🤝 Ajak Jalan Bersama',
+              onClick: () => this.setActiveFollower('zekrom'),
+            },
+          ];
+        } else if (customPlaced.subType === 'giratina') {
+          dialogueText = "GIRATINA: 'Gyaaa-shhhooo...!' 👻🌌 [Tech Guardian: Fault Tolerance, Chaos Engineering & Resilient Rollback] Menguji ketangguhan sistem dari celah dimensi yang tak terduga.";
+          action = [
+            {
+              label: '⚡ Gemuruh Shadow Force',
+              onClick: () => this.triggerSignatureMove('giratina', customPlaced.x, customPlaced.y),
+            },
+            {
+              label: '🤝 Ajak Jalan Bersama',
+              onClick: () => this.setActiveFollower('giratina'),
+            },
+          ];
+        } else if (customPlaced.subType === 'pikachu') {
+          dialogueText = "PIKACHU: 'Pika-Pikaaa-Chuuu!' ⚡ [Tech Guardian: Community Engagement & Interactive Web Experiences] Maskot setia penyemangat petualangan di Zulfan's Town!";
+          action = [
+            {
+              label: '⚡ Sambaran Kilat (Thunderbolt)',
+              onClick: () => this.triggerSignatureMove('pikachu', customPlaced.x, customPlaced.y),
+            },
+            {
+              label: '🤝 Ajak Jalan Bersama',
+              onClick: () => this.setActiveFollower('pikachu'),
             },
           ];
         }
@@ -10340,6 +10452,7 @@ export class TownEngine {
       this.activeFollower = null;
       if (typeof window !== 'undefined') {
         localStorage.removeItem('town:active_follower');
+        localStorage.removeItem('town:activeFollower');
       }
       this.wake();
       if (announce && typeof window !== 'undefined') {
@@ -10350,7 +10463,7 @@ export class TownEngine {
         );
         window.dispatchEvent(
           new CustomEvent('town:follower-changed', {
-            detail: { follower: null },
+            detail: { follower: null, followerId: null },
           })
         );
       }
@@ -10369,6 +10482,17 @@ export class TownEngine {
       dialga: { name: 'Dialga', title: 'Temporal Dragon', icon: '⏳' },
       palkia: { name: 'Palkia', title: 'Spatial Dragon', icon: '🌌' },
       pikachu: { name: 'Pikachu', title: 'Electric Mascot', icon: '⚡' },
+      reshiram: { name: 'Reshiram', title: 'Vast White Dragon', icon: '🤍' },
+      zekrom: { name: 'Zekrom', title: 'Deep Black Dragon', icon: '🖤' },
+      giratina: { name: 'Giratina', title: 'Renegade Shadow', icon: '👻' },
+      groudon: { name: 'Groudon', title: 'Continent Titan', icon: '🌋' },
+      kyogre: { name: 'Kyogre', title: 'Sea Basin Titan', icon: '🌊' },
+      latios: { name: 'Latios', title: 'Eon Jet Guardian', icon: '✈️' },
+      latias: { name: 'Latias', title: 'Eon Mist Guardian', icon: '💖' },
+      darkrai: { name: 'Darkrai', title: 'Pitch-Black Shadow', icon: '🌑' },
+      necrozma: { name: 'Necrozma', title: 'Prism Solar Light', icon: '🦁' },
+      lunala: { name: 'Lunala', title: 'Moone Lunar Beast', icon: '🌙' },
+      solgaleo: { name: 'Solgaleo', title: 'Sunne Solar Beast', icon: '☀️' },
     };
 
     const cleanId = id.toLowerCase().replace(/[^a-z]/g, '');
@@ -10392,6 +10516,7 @@ export class TownEngine {
 
     if (typeof window !== 'undefined') {
       localStorage.setItem('town:active_follower', matchedKey);
+      localStorage.setItem('town:activeFollower', matchedKey);
     }
     sfx.confirm();
     this.wake();
@@ -10404,7 +10529,7 @@ export class TownEngine {
       );
       window.dispatchEvent(
         new CustomEvent('town:follower-changed', {
-          detail: { follower: this.activeFollower },
+          detail: { follower: this.activeFollower, followerId: this.activeFollower.id },
         })
       );
     }
@@ -10593,6 +10718,193 @@ export class TownEngine {
           type: 'cosmic',
         });
       }
+    } else if (id.includes('reshiram')) {
+      for (let i = 0; i < 50; i++) {
+        const angle = -Math.PI / 2 + (Math.random() - 0.5) * 1.6;
+        const spd = 3.0 + Math.random() * 5.0;
+        this.moveParticles.push({
+          x: ox + (Math.random() - 0.5) * 12,
+          y: oy,
+          vx: Math.cos(angle) * spd,
+          vy: Math.sin(angle) * spd,
+          size: 3 + Math.random() * 4,
+          color: ['#ffffff', '#ffedd5', '#f97316', '#ef4444'][Math.floor(Math.random() * 4)],
+          alpha: 0.95,
+          life: 0,
+          maxLife: 28 + Math.floor(Math.random() * 18),
+          type: 'flame',
+        });
+      }
+    } else if (id.includes('zekrom')) {
+      for (let i = 0; i < 50; i++) {
+        const ang = Math.random() * Math.PI * 2;
+        const spd = 3.2 + Math.random() * 5.2;
+        this.moveParticles.push({
+          x: ox,
+          y: oy,
+          vx: Math.cos(ang) * spd,
+          vy: Math.sin(ang) * spd,
+          size: 2.5 + Math.random() * 3.5,
+          color: ['#06b6d4', '#22d3ee', '#38bdf8', '#0284c7', '#ffffff'][Math.floor(Math.random() * 5)],
+          alpha: 0.95,
+          life: 0,
+          maxLife: 26 + Math.floor(Math.random() * 16),
+          type: 'shockwave',
+        });
+      }
+    } else if (id.includes('giratina')) {
+      for (let i = 0; i < 50; i++) {
+        const ang = Math.random() * Math.PI * 2;
+        const spd = 2.4 + Math.random() * 4.2;
+        this.moveParticles.push({
+          x: ox,
+          y: oy,
+          vx: Math.cos(ang) * spd,
+          vy: Math.sin(ang) * spd,
+          size: 3 + Math.random() * 3.5,
+          color: ['#701a75', '#a21caf', '#c026d3', '#3b0764', '#18181b'][Math.floor(Math.random() * 5)],
+          alpha: 0.95,
+          life: 0,
+          maxLife: 32 + Math.floor(Math.random() * 16),
+          type: 'psychic',
+        });
+      }
+    } else if (id.includes('groudon')) {
+      for (let i = 0; i < 50; i++) {
+        const ang = -Math.PI / 2 + (Math.random() - 0.5) * 1.5;
+        const spd = 3.5 + Math.random() * 5.5;
+        this.moveParticles.push({
+          x: ox + (Math.random() - 0.5) * 30,
+          y: oy + 10,
+          vx: Math.cos(ang) * spd,
+          vy: Math.sin(ang) * spd,
+          size: 3.5 + Math.random() * 4,
+          color: ['#dc2626', '#ea580c', '#b45309', '#fde047'][Math.floor(Math.random() * 4)],
+          alpha: 0.95,
+          life: 0,
+          maxLife: 28 + Math.floor(Math.random() * 16),
+          type: 'sand',
+        });
+      }
+    } else if (id.includes('kyogre')) {
+      for (let i = 0; i < 50; i++) {
+        const ang = Math.random() * Math.PI * 2;
+        const spd = 3.0 + Math.random() * 5.0;
+        this.moveParticles.push({
+          x: ox,
+          y: oy,
+          vx: Math.cos(ang) * spd,
+          vy: Math.sin(ang) * spd,
+          size: 3 + Math.random() * 3.5,
+          color: ['#0284c7', '#0ea5e9', '#38bdf8', '#bae6fd', '#ffffff'][Math.floor(Math.random() * 5)],
+          alpha: 0.95,
+          life: 0,
+          maxLife: 30 + Math.floor(Math.random() * 16),
+          type: 'water',
+        });
+      }
+    } else if (id.includes('latios')) {
+      for (let i = 0; i < 45; i++) {
+        const ang = Math.PI * 0.25 + (Math.random() - 0.5) * 1.0;
+        const spd = 4.0 + Math.random() * 5.5;
+        this.moveParticles.push({
+          x: ox + (Math.random() - 0.5) * 20,
+          y: oy + (Math.random() - 0.5) * 20,
+          vx: Math.cos(ang) * spd,
+          vy: Math.sin(ang) * spd,
+          size: 2.5 + Math.random() * 3,
+          color: ['#2563eb', '#3b82f6', '#60a5fa', '#93c5fd', '#ffffff'][Math.floor(Math.random() * 5)],
+          alpha: 0.95,
+          life: 0,
+          maxLife: 26 + Math.floor(Math.random() * 14),
+          type: 'shockwave',
+        });
+      }
+    } else if (id.includes('latias')) {
+      for (let i = 0; i < 45; i++) {
+        const ang = Math.random() * Math.PI * 2;
+        const spd = 2.5 + Math.random() * 4.2;
+        this.moveParticles.push({
+          x: ox,
+          y: oy,
+          vx: Math.cos(ang) * spd,
+          vy: Math.sin(ang) * spd,
+          size: 3 + Math.random() * 3,
+          color: ['#e11d48', '#f43f5e', '#fb7185', '#fda4af', '#ffffff'][Math.floor(Math.random() * 5)],
+          alpha: 0.95,
+          life: 0,
+          maxLife: 28 + Math.floor(Math.random() * 15),
+          type: 'aura',
+        });
+      }
+    } else if (id.includes('darkrai')) {
+      for (let i = 0; i < 50; i++) {
+        const ang = Math.random() * Math.PI * 2;
+        const r = 6 + Math.random() * 28;
+        this.moveParticles.push({
+          x: ox + Math.cos(ang) * r,
+          y: oy + Math.sin(ang) * r,
+          vx: -Math.sin(ang) * 3.2,
+          vy: Math.cos(ang) * 3.2,
+          size: 2.5 + Math.random() * 3.5,
+          color: ['#3b0764', '#581c87', '#7e22ce', '#a855f7', '#0f172a'][Math.floor(Math.random() * 5)],
+          alpha: 0.95,
+          life: 0,
+          maxLife: 32 + Math.floor(Math.random() * 16),
+          type: 'psychic',
+        });
+      }
+    } else if (id.includes('necrozma')) {
+      for (let i = 0; i < 50; i++) {
+        const ang = Math.random() * Math.PI * 2;
+        const spd = 3.5 + Math.random() * 5.0;
+        this.moveParticles.push({
+          x: ox,
+          y: oy,
+          vx: Math.cos(ang) * spd,
+          vy: Math.sin(ang) * spd,
+          size: 3 + Math.random() * 3.5,
+          color: ['#f59e0b', '#fbbf24', '#fde047', '#818cf8', '#ffffff'][Math.floor(Math.random() * 5)],
+          alpha: 0.95,
+          life: 0,
+          maxLife: 28 + Math.floor(Math.random() * 15),
+          type: 'cosmic',
+        });
+      }
+    } else if (id.includes('lunala')) {
+      for (let i = 0; i < 50; i++) {
+        const ang = Math.random() * Math.PI * 2;
+        const spd = 2.8 + Math.random() * 4.6;
+        this.moveParticles.push({
+          x: ox,
+          y: oy,
+          vx: Math.cos(ang) * spd,
+          vy: Math.sin(ang) * spd,
+          size: 3 + Math.random() * 3.5,
+          color: ['#4338ca', '#6366f1', '#818cf8', '#c7d2fe', '#e0e7ff'][Math.floor(Math.random() * 5)],
+          alpha: 0.95,
+          life: 0,
+          maxLife: 30 + Math.floor(Math.random() * 16),
+          type: 'cosmic',
+        });
+      }
+    } else if (id.includes('solgaleo')) {
+      for (let i = 0; i < 50; i++) {
+        const ang = Math.random() * Math.PI * 2;
+        const spd = 3.2 + Math.random() * 5.2;
+        this.moveParticles.push({
+          x: ox,
+          y: oy,
+          vx: Math.cos(ang) * spd,
+          vy: Math.sin(ang) * spd,
+          size: 3 + Math.random() * 4,
+          color: ['#ea580c', '#f59e0b', '#fbbf24', '#fef08a', '#ffffff'][Math.floor(Math.random() * 5)],
+          alpha: 0.95,
+          life: 0,
+          maxLife: 28 + Math.floor(Math.random() * 16),
+          type: 'flame',
+        });
+      }
     } else {
       for (let i = 0; i < 40; i++) {
         const ang = Math.random() * Math.PI * 2;
@@ -10685,6 +10997,172 @@ export class TownEngine {
     } else if (fid === 'palkia') {
       if (this.palkiaImg && this.palkiaImg.complete) {
         ctx.drawImage(this.palkiaImg, drawX - 10, drawY - 18 + stepBob + idleBob, 36, 36);
+      }
+    } else if (fid === 'reshiram') {
+      if (this.reshiramImg && this.reshiramImg.complete) {
+        const tailX = drawX + 8;
+        const tailY = drawY - 2 + stepBob + idleBob;
+        const fireGrad = ctx.createRadialGradient(tailX, tailY, 2, tailX, tailY, 15);
+        fireGrad.addColorStop(0, 'rgba(255, 237, 213, 0.7)');
+        fireGrad.addColorStop(0.5, 'rgba(249, 115, 22, 0.4)');
+        fireGrad.addColorStop(1, 'rgba(239, 68, 68, 0)');
+        ctx.fillStyle = fireGrad;
+        ctx.beginPath();
+        ctx.arc(tailX, tailY, 15, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.drawImage(this.reshiramImg, drawX - 12, drawY - 18 + stepBob + idleBob, 40, 40);
+      }
+    } else if (fid === 'zekrom') {
+      if (this.zekromImg && this.zekromImg.complete) {
+        const tailX = drawX + 8;
+        const tailY = drawY - 2 + stepBob + idleBob;
+        const sparkGrad = ctx.createRadialGradient(tailX, tailY, 2, tailX, tailY, 15);
+        sparkGrad.addColorStop(0, 'rgba(165, 243, 252, 0.75)');
+        sparkGrad.addColorStop(0.5, 'rgba(6, 182, 212, 0.45)');
+        sparkGrad.addColorStop(1, 'rgba(15, 23, 42, 0)');
+        ctx.fillStyle = sparkGrad;
+        ctx.beginPath();
+        ctx.arc(tailX, tailY, 15, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.drawImage(this.zekromImg, drawX - 12, drawY - 18 + stepBob + idleBob, 40, 40);
+      }
+    } else if (fid === 'giratina') {
+      if (this.giratinaImg && this.giratinaImg.complete) {
+        const coreX = drawX + 8;
+        const coreY = drawY - 2 + stepBob + idleBob * 1.5;
+        const shadowGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 17);
+        shadowGrad.addColorStop(0, 'rgba(232, 121, 249, 0.5)');
+        shadowGrad.addColorStop(0.6, 'rgba(112, 26, 117, 0.35)');
+        shadowGrad.addColorStop(1, 'rgba(15, 23, 42, 0)');
+        ctx.fillStyle = shadowGrad;
+        ctx.beginPath();
+        ctx.arc(coreX, coreY, 17, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.drawImage(this.giratinaImg, drawX - 13, drawY - 20 + stepBob + idleBob * 1.5, 42, 42);
+      }
+    } else if (fid === 'groudon') {
+      if (this.groudonImg && this.groudonImg.complete) {
+        const coreX = drawX + 8;
+        const coreY = drawY + 4 + stepBob;
+        const heatGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 16);
+        heatGrad.addColorStop(0, 'rgba(239, 68, 68, 0.5)');
+        heatGrad.addColorStop(0.6, 'rgba(249, 115, 22, 0.3)');
+        heatGrad.addColorStop(1, 'rgba(180, 83, 9, 0)');
+        ctx.fillStyle = heatGrad;
+        ctx.beginPath();
+        ctx.arc(coreX, coreY, 16, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.drawImage(this.groudonImg, drawX - 12, drawY - 18 + stepBob, 40, 40);
+      }
+    } else if (fid === 'kyogre') {
+      if (this.kyogreImg && this.kyogreImg.complete) {
+        const coreX = drawX + 8;
+        const coreY = drawY + 2 + stepBob + idleBob * 1.4;
+        const aquaGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 16);
+        aquaGrad.addColorStop(0, 'rgba(186, 230, 253, 0.6)');
+        aquaGrad.addColorStop(0.6, 'rgba(14, 165, 233, 0.35)');
+        aquaGrad.addColorStop(1, 'rgba(3, 105, 161, 0)');
+        ctx.fillStyle = aquaGrad;
+        ctx.beginPath();
+        ctx.arc(coreX, coreY, 16, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.drawImage(this.kyogreImg, drawX - 13, drawY - 19 + stepBob + idleBob * 1.4, 42, 42);
+      }
+    } else if (fid === 'latios') {
+      if (this.latiosImg && this.latiosImg.complete) {
+        const coreX = drawX + 8;
+        const coreY = drawY + stepBob + idleBob * 1.6;
+        const jetGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 15);
+        jetGrad.addColorStop(0, 'rgba(191, 219, 254, 0.6)');
+        jetGrad.addColorStop(0.6, 'rgba(59, 130, 246, 0.35)');
+        jetGrad.addColorStop(1, 'rgba(29, 78, 216, 0)');
+        ctx.fillStyle = jetGrad;
+        ctx.beginPath();
+        ctx.arc(coreX, coreY, 15, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.drawImage(this.latiosImg, drawX - 12, drawY - 18 + stepBob + idleBob * 1.6, 40, 40);
+      }
+    } else if (fid === 'latias') {
+      if (this.latiasImg && this.latiasImg.complete) {
+        const coreX = drawX + 8;
+        const coreY = drawY + stepBob + idleBob * 1.6;
+        const roseGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 15);
+        roseGrad.addColorStop(0, 'rgba(254, 205, 211, 0.65)');
+        roseGrad.addColorStop(0.6, 'rgba(244, 63, 94, 0.35)');
+        roseGrad.addColorStop(1, 'rgba(190, 18, 60, 0)');
+        ctx.fillStyle = roseGrad;
+        ctx.beginPath();
+        ctx.arc(coreX, coreY, 15, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.drawImage(this.latiasImg, drawX - 12, drawY - 18 + stepBob + idleBob * 1.6, 40, 40);
+      }
+    } else if (fid === 'darkrai') {
+      if (this.darkraiImg && this.darkraiImg.complete) {
+        const coreX = drawX + 8;
+        const coreY = drawY + 2 + stepBob + idleBob * 1.4;
+        const voidGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 16);
+        voidGrad.addColorStop(0, 'rgba(192, 132, 252, 0.55)');
+        voidGrad.addColorStop(0.6, 'rgba(88, 28, 135, 0.4)');
+        voidGrad.addColorStop(1, 'rgba(15, 23, 42, 0)');
+        ctx.fillStyle = voidGrad;
+        ctx.beginPath();
+        ctx.arc(coreX, coreY, 16, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.drawImage(this.darkraiImg, drawX - 12, drawY - 18 + stepBob + idleBob * 1.4, 40, 40);
+      }
+    } else if (fid === 'necrozma') {
+      if (this.necrozmaImg && this.necrozmaImg.complete) {
+        const coreX = drawX + 8;
+        const coreY = drawY + 4 + stepBob;
+        const sunGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 17);
+        sunGrad.addColorStop(0, 'rgba(254, 240, 138, 0.65)');
+        sunGrad.addColorStop(0.5, 'rgba(245, 158, 11, 0.35)');
+        sunGrad.addColorStop(1, 'rgba(30, 27, 75, 0)');
+        ctx.fillStyle = sunGrad;
+        ctx.beginPath();
+        ctx.arc(coreX, coreY, 17, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.drawImage(this.necrozmaImg, drawX - 14, drawY - 20 + stepBob, 44, 42);
+      }
+    } else if (fid === 'lunala') {
+      if (this.lunalaImg && this.lunalaImg.complete) {
+        const coreX = drawX + 8;
+        const coreY = drawY + 2 + stepBob + idleBob * 1.5;
+        const moonGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 17);
+        moonGrad.addColorStop(0, 'rgba(224, 231, 255, 0.65)');
+        moonGrad.addColorStop(0.5, 'rgba(129, 140, 248, 0.35)');
+        moonGrad.addColorStop(1, 'rgba(15, 23, 42, 0)');
+        ctx.fillStyle = moonGrad;
+        ctx.beginPath();
+        ctx.arc(coreX, coreY, 17, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.drawImage(this.lunalaImg, drawX - 14, drawY - 20 + stepBob + idleBob * 1.5, 44, 44);
+      }
+    } else if (fid === 'solgaleo') {
+      if (this.solgaleoImg && this.solgaleoImg.complete) {
+        const coreX = drawX + 8;
+        const coreY = drawY + 4 + stepBob;
+        const sunGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 17);
+        sunGrad.addColorStop(0, 'rgba(255, 255, 255, 0.7)');
+        sunGrad.addColorStop(0.4, 'rgba(254, 240, 138, 0.45)');
+        sunGrad.addColorStop(0.8, 'rgba(245, 158, 11, 0.25)');
+        sunGrad.addColorStop(1, 'rgba(234, 88, 12, 0)');
+        ctx.fillStyle = sunGrad;
+        ctx.beginPath();
+        ctx.arc(coreX, coreY, 17, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.drawImage(this.solgaleoImg, drawX - 14, drawY - 20 + stepBob, 44, 42);
       }
     }
 
