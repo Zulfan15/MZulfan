@@ -12849,7 +12849,7 @@ export class TownEngine {
       if (isFlipped) ctx.restore();
     }
 
-    // Draw seated rider on the Pokémon's anatomical saddle (authentic Ash Ketchum sprite, realistic mount scale & soft blending)
+    // Draw seated rider on the Pokémon's anatomical saddle (authentic Ash Ketchum sprite, realistic 0.40x mount scale & soft blending)
     drawRiderCharacter(
       ctx,
       this.playerPalette,
@@ -12857,7 +12857,7 @@ export class TownEngine {
       isMoving ? stepFrame : 0,
       coreX + riderDx,
       coreY + riderDy + rideBob * 0.75,
-      0.70,
+      0.40,
       0.82
     );
   }
