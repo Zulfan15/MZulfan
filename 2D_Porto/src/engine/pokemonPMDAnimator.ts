@@ -381,7 +381,7 @@ export const PMD_POKEMON_CONFIGS: Record<string, PMDPokemonConfig> = {
   garchomp: {
     id: 'garchomp',
     name: 'Garchomp',
-    scale: 0.88,
+    scale: 1.3,
     idle: {
       src: '/assets/pokemon/garchomp/Idle-Anim.png',
       frameWidth: 48,
@@ -513,7 +513,7 @@ export const PMD_POKEMON_CONFIGS: Record<string, PMDPokemonConfig> = {
   tyranitar: {
     id: 'tyranitar',
     name: 'Tyranitar',
-    scale: 0.92,
+    scale: 1.42,
     idle: {
       src: '/assets/pokemon/tyranitar/Idle-Anim.png',
       frameWidth: 40,
@@ -1022,6 +1022,47 @@ export const PMD_POKEMON_CONFIGS: Record<string, PMDPokemonConfig> = {
       durations: [4, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
       anchorX: 52,
       anchorY: 68,
+    },
+  },
+  urshifu: {
+    id: 'urshifu',
+    name: 'Urshifu',
+    scale: 1.1,
+    idle: {
+      src: '/assets/pokemon/urshifu/Idle-Anim.png',
+      frameWidth: 32,
+      frameHeight: 64,
+      frameCount: 4,
+      durations: [10, 10, 10, 10],
+      anchorX: 16,
+      anchorY: 39,
+    },
+    walk: {
+      src: '/assets/pokemon/urshifu/Walk-Anim.png',
+      frameWidth: 32,
+      frameHeight: 56,
+      frameCount: 4,
+      durations: [8, 10, 8, 10],
+      anchorX: 16,
+      anchorY: 35,
+    },
+    shoot: {
+      src: '/assets/pokemon/urshifu/Shoot-Anim.png',
+      frameWidth: 40,
+      frameHeight: 72,
+      frameCount: 13,
+      durations: [2, 2, 2, 6, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+      anchorX: 20,
+      anchorY: 41,
+    },
+    attack: {
+      src: '/assets/pokemon/urshifu/Attack-Anim.png',
+      frameWidth: 72,
+      frameHeight: 96,
+      frameCount: 11,
+      durations: [2, 6, 2, 2, 2, 2, 2, 2, 2, 2, 4],
+      anchorX: 36,
+      anchorY: 53,
     },
   },
 };

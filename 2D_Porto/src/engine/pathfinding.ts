@@ -3,7 +3,7 @@ import type { Vec } from './types';
 export function findPath(
   start: Vec,
   target: Vec,
-  collision: Uint8Array,
+  collision: Uint8Array | number[],
   mapW: number,
   mapH: number
 ): Vec[] | null {

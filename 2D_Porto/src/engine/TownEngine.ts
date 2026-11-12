@@ -196,7 +196,7 @@ export interface MoveParticle {
   alpha: number;
   life: number;
   maxLife: number;
-  type: 'flame' | 'sand' | 'claw' | 'water' | 'aura' | 'psychic' | 'cosmic' | 'shockwave';
+  type: 'flame' | 'sand' | 'claw' | 'water' | 'aura' | 'psychic' | 'cosmic' | 'shockwave' | 'spark';
   rot?: number;
   rotSpeed?: number;
 }
@@ -358,6 +358,7 @@ export class TownEngine {
   private regigigasAttackTick = 0;
   private koraidonAttackTick = 0;
   private eternatusAttackTick = 0;
+  private urshifuAttackTick = 0;
   private darkraiAttackTick = 0;
   private latiosAttackTick = 0;
   private latiasAttackTick = 0;
@@ -2092,6 +2093,7 @@ export class TownEngine {
       // If clicking inside a building footprint, redirect target to its door
       for (const b of this.map.buildings) {
         const cfg = townConfig.getBuilding(b.id) || b;
+        if ((cfg as any).hidden) continue;
         const bx = cfg.x;
         const by = cfg.y;
         const bw = cfg.w;
@@ -3743,6 +3745,9 @@ export class TownEngine {
     if (this.eternatusAttackTick > 0) {
       this.eternatusAttackTick--;
     }
+    if (this.urshifuAttackTick > 0) {
+      this.urshifuAttackTick--;
+    }
     if (this.darkraiAttackTick > 0) {
       this.darkraiAttackTick--;
     }
@@ -4808,6 +4813,7 @@ export class TownEngine {
     // 1. Dynamic building door triggers from townConfig (door tile or entrance step walking up)
     for (const b of this.map.buildings) {
       const cfg = townConfig.getBuilding(b.id);
+      if (cfg?.hidden) continue;
       const doorX = cfg?.doorX ?? b.doors?.[0]?.x;
       const doorY = cfg?.doorY ?? b.doors?.[0]?.y;
       const route = cfg?.link ?? b.route;
@@ -4821,7 +4827,15 @@ export class TownEngine {
           return;
         }
       }
-      if (Array.isArray(b.doors)) {
+      // Check static b.doors only if the building has not been moved or given a custom door in townConfig
+      const hasMovedOrCustomDoor = Boolean(
+        cfg &&
+          (cfg.x !== b.x ||
+            cfg.y !== b.y ||
+            cfg.doorX !== undefined ||
+            cfg.doorY !== undefined)
+      );
+      if (!hasMovedOrCustomDoor && Array.isArray(b.doors)) {
         for (const d of b.doors) {
           if (
             (d.x === this.playerPos.x && d.y === this.playerPos.y) ||
@@ -4835,15 +4849,22 @@ export class TownEngine {
       }
     }
 
-    // Static door fallback (including Town <-> Digi-Sanctuary portal gates)
+    // Static door fallback (Town <-> Digi-Sanctuary portal gates or non-town scenes; skip stale town building doors)
     const route = this.map.doors.get(tileIdx);
     if (route) {
-      sfx.door();
-      if (this.currentScene === 'digimon' && route.startsWith('/?from=digimon') && typeof sessionStorage !== 'undefined') {
-        sessionStorage.setItem('town:respawn', '22,58,up');
+      const isTownPortal =
+        this.currentScene === 'town' &&
+        this.playerPos.y === DIGI_GATE_PORTAL.triggerY &&
+        this.playerPos.x >= DIGI_GATE_PORTAL.xMin &&
+        this.playerPos.x <= DIGI_GATE_PORTAL.xMax;
+      if (this.currentScene !== 'town' || isTownPortal) {
+        sfx.door();
+        if (this.currentScene === 'digimon' && route.startsWith('/?from=digimon') && typeof sessionStorage !== 'undefined') {
+          sessionStorage.setItem('town:respawn', '22,58,up');
+        }
+        this.callbacks.onNavigate(route);
+        return;
       }
-      this.callbacks.onNavigate(route);
-      return;
     }
 
     // 2. Tall grass encounter (Map ground or custom tall_grass override)
@@ -8327,8 +8348,11 @@ export class TownEngine {
       return;
     }
 
-    // 4. Check Shop (Depop stall)
-    const shop = this.map.buildings.find((b) => b.id === 'shop' && fx >= b.x && fx < b.x + b.w && fy >= b.y && fy < b.y + b.h);
+    // 4. Check Shop (Depop stall) using active townConfig bounds if moved/hidden
+    const shopBase = this.map.buildings.find((b) => b.id === 'shop');
+    const shopCfg = townConfig.getBuilding('shop');
+    const shopBounds = shopCfg?.hidden ? null : (shopCfg || shopBase);
+    const shop = shopBounds && fx >= shopBounds.x && fx < shopBounds.x + shopBounds.w && fy >= shopBounds.y && fy < shopBounds.y + shopBounds.h;
     if (shop) {
       sfx.select();
       if (this.callbacks.onBubble) {
@@ -10122,16 +10146,8 @@ export class TownEngine {
         // Ground shadow beneath heavy armor body
         ctx.fillStyle = 'rgba(25, 20, 15, 0.45)';
         ctx.beginPath();
-        ctx.ellipse(drawX + 8, drawY + 16, 13, 5, 0, 0, Math.PI * 2);
+        ctx.ellipse(drawX + 8, drawY + 16, 15, 5.5, 0, 0, Math.PI * 2);
         ctx.fill();
-
-        const isFlipped = (cfg?.orientation || 'W') === 'E';
-        if (isFlipped) {
-          ctx.save();
-          ctx.translate(drawX + 8, 0);
-          ctx.scale(-1, 1);
-          ctx.translate(-(drawX + 8), 0);
-        }
 
         // Sand Stream & Earth particles swirling around Tyranitar
         if (this.tick % 18 < 12) {
@@ -10163,12 +10179,19 @@ export class TownEngine {
         );
 
         if (!pmdDrawn) {
+          const isFlipped = (cfg?.orientation || 'W') === 'E';
+          if (isFlipped) {
+            ctx.save();
+            ctx.translate(drawX + 8, 0);
+            ctx.scale(-1, 1);
+            ctx.translate(-(drawX + 8), 0);
+          }
           const img = this.tyranitarImg || this.blastoiseImg;
           if (img && img.complete && img.naturalWidth > 0) {
             ctx.drawImage(img, drawX - 13, drawY - 20 + stomp, 42, 42);
           }
+          if (isFlipped) ctx.restore();
         }
-        if (isFlipped) ctx.restore();
       } else if (npc.id === 'garchomp' || (npc as any).subType === 'garchomp') {
         // Authentic Garchomp Dragon/Ground Mach Pokémon Overworld Sprite
         const drawX = curTileX * TILE_SIZE;
@@ -10179,7 +10202,7 @@ export class TownEngine {
         // Ground contact shadow
         ctx.fillStyle = 'rgba(20, 20, 30, 0.4)';
         ctx.beginPath();
-        ctx.ellipse(coreX, drawY + 16, 13, 4.5, 0, 0, Math.PI * 2);
+        ctx.ellipse(coreX, drawY + 16, 15, 5, 0, 0, Math.PI * 2);
         ctx.fill();
 
         // Dragon Claw & Supersonic Mach Slipstream particles
@@ -10217,46 +10240,45 @@ export class TownEngine {
           if (isFlipped) ctx.restore();
         }
       } else if (npc.id === 'urshifu' || (npc as any).subType === 'urshifu' || (npc as any).subType === 'urshifu_gmax') {
-        // Authentic Urshifu Gigantamax Rapid Strike Overworld Sprite with G-Max Torrent Aura
+        // Authentic Urshifu Rapid Strike PMD Overworld Sprite with G-Max Torrent Aura
         const drawX = curTileX * TILE_SIZE;
         const drawY = curTileY * TILE_SIZE;
+        const coreX = drawX + 8;
+        const coreY = drawY + 16;
         const stanceBob = Math.sin(this.tick * 0.04) * 0.8;
 
-        // Ground shadow beneath colossal Gigantamax stance
+        // Ground shadow beneath colossal martial stance
         ctx.fillStyle = 'rgba(15, 23, 42, 0.45)';
         ctx.beginPath();
-        ctx.ellipse(drawX + 8, drawY + 16, 16, 5.5, 0, 0, Math.PI * 2);
+        ctx.ellipse(coreX, coreY, 16, 5.5, 0, 0, Math.PI * 2);
         ctx.fill();
 
-        const isFlipped = (cfg?.orientation || 'W') === 'E';
-        if (isFlipped) {
-          ctx.save();
-          ctx.translate(drawX + 8, 0);
-          ctx.scale(-1, 1);
-          ctx.translate(-(drawX + 8), 0);
-        }
+        this.drawUrshifuTorrentAura(ctx, coreX, coreY - 12, true);
 
-        // Gigantamax Crimson Dynamax clouds & Rapid Strike water torrent swirls
-        const dynPhase = (this.tick * 0.05) % (Math.PI * 2);
-        const cloudX = drawX + 8 + Math.cos(dynPhase) * 14;
-        const cloudY = drawY - 14 + Math.sin(dynPhase) * 4;
-        ctx.fillStyle = 'rgba(239, 68, 68, 0.75)'; // G-Max red
-        ctx.fillRect(cloudX, cloudY, 2.5, 2);
-        ctx.fillStyle = 'rgba(244, 63, 94, 0.65)';
-        ctx.fillRect(cloudX - 2, cloudY + 1, 2, 1.5);
+        const dir = (cfg?.orientation || 'W').toLowerCase();
+        const pmdDir = dir === 'w' ? 'left' : dir === 'e' ? 'right' : dir === 'n' ? 'up' : 'down';
+        const pmdDrawn = this.pmdAnimator.draw(
+          ctx,
+          'urshifu',
+          'idle',
+          pmdDir,
+          coreX,
+          coreY,
+          this.tick
+        );
 
-        if (this.tick % 16 < 11) {
-          ctx.fillStyle = '#38bdf8'; // Rapid Strike hydro blue
-          ctx.fillRect(drawX + 8 + Math.sin(this.tick * 0.1) * 13, drawY + 8 + Math.cos(this.tick * 0.1) * 4, 2, 2);
-          ctx.fillStyle = '#bae6fd'; // Water mist splash
-          ctx.fillRect(drawX + 4 + Math.cos(this.tick * 0.15) * 10, drawY + 12 - (this.tick % 8), 1.5, 1.5);
-        }
-
-        // Authentic Pokémon Urshifu Gigantamax Rapid Strike Sprite
-        if (this.urshifuImg && this.urshifuImg.complete && this.urshifuImg.naturalWidth > 0) {
+        // Static fallback if PMD sprite is still loading
+        if (!pmdDrawn && this.urshifuImg && this.urshifuImg.complete && this.urshifuImg.naturalWidth > 0) {
+          const isFlipped = (cfg?.orientation || 'W') === 'E';
+          if (isFlipped) {
+            ctx.save();
+            ctx.translate(drawX + 8, 0);
+            ctx.scale(-1, 1);
+            ctx.translate(-(drawX + 8), 0);
+          }
           ctx.drawImage(this.urshifuImg, drawX - 16, drawY - 24 + stanceBob, 48, 45);
+          if (isFlipped) ctx.restore();
         }
-        if (isFlipped) ctx.restore();
       } else if (npc.id === 'ace' || npc.id === 'mewtwo' || (npc as any).subType === 'mewtwo') {
         // Authentic Mewtwo Pokémon Overworld Sprite with Psychic Aura & Telekinesis
         const drawX = curTileX * TILE_SIZE;
@@ -10976,32 +10998,35 @@ export class TownEngine {
           if (!pmdDrawn && this.garchompImg && this.garchompImg.complete) {
             ctx.drawImage(this.garchompImg, drawX - 13, drawY - 20 + machBob, 42, 42);
           }
-        } else if ((b.subType === 'urshifu' || b.id === 'urshifu' || b.subType === 'urshifu_gmax') && this.urshifuImg && this.urshifuImg.complete) {
+        } else if (b.subType === 'urshifu' || b.id === 'urshifu' || b.subType === 'urshifu_gmax') {
           const stanceBob = Math.sin(this.tick * 0.04) * 0.8;
           const drawX = b.x * TILE_SIZE;
           const drawY = b.y * TILE_SIZE;
+          const coreX = drawX + 8;
+          const coreY = drawY + 16;
 
           // Ground shadow
           ctx.fillStyle = 'rgba(15, 23, 42, 0.45)';
           ctx.beginPath();
-          ctx.ellipse(drawX + 8, drawY + 16, 16, 5.5, 0, 0, Math.PI * 2);
+          ctx.ellipse(coreX, coreY, 16, 5.5, 0, 0, Math.PI * 2);
           ctx.fill();
 
-          // Gigantamax Crimson Dynamax clouds & Rapid Strike water torrent
-          const dynPhase = (this.tick * 0.05) % (Math.PI * 2);
-          const cloudX = drawX + 8 + Math.cos(dynPhase) * 14;
-          const cloudY = drawY - 14 + Math.sin(dynPhase) * 4;
-          ctx.fillStyle = 'rgba(239, 68, 68, 0.75)';
-          ctx.fillRect(cloudX, cloudY, 2.5, 2);
+          this.drawUrshifuTorrentAura(ctx, coreX, coreY - 12, true);
 
-          if (this.tick % 16 < 11) {
-            ctx.fillStyle = '#38bdf8';
-            ctx.fillRect(drawX + 8 + Math.sin(this.tick * 0.1) * 13, drawY + 8 + Math.cos(this.tick * 0.1) * 4, 2, 2);
-            ctx.fillStyle = '#bae6fd';
-            ctx.fillRect(drawX + 4 + Math.cos(this.tick * 0.15) * 10, drawY + 12 - (this.tick % 8), 1.5, 1.5);
+          const dir = (b.orientation || 'S').toLowerCase();
+          const pmdDir = dir === 'w' ? 'left' : dir === 'e' ? 'right' : dir === 'n' ? 'up' : 'down';
+          const pmdDrawn = this.pmdAnimator.draw(
+            ctx,
+            'urshifu',
+            'idle',
+            pmdDir,
+            coreX,
+            coreY,
+            this.tick
+          );
+          if (!pmdDrawn && this.urshifuImg && this.urshifuImg.complete) {
+            ctx.drawImage(this.urshifuImg, drawX - 16, drawY - 24 + stanceBob, 48, 45);
           }
-
-          ctx.drawImage(this.urshifuImg, drawX - 16, drawY - 24 + stanceBob, 48, 45);
         } else if (b.subType === 'dialga' || b.id === 'dialga') {
           const coreX = b.x * TILE_SIZE + 8;
           const coreY = b.y * TILE_SIZE + 16;
@@ -12472,6 +12497,7 @@ export class TownEngine {
         });
       }
     } else if (id.includes('urshifu')) {
+      this.urshifuAttackTick = 28;
       for (let i = 0; i < 45; i++) {
         const spd = 3 + Math.random() * 5;
         const ang = Math.random() * Math.PI * 2;
@@ -12999,8 +13025,8 @@ export class TownEngine {
       reshiram: { rx: 14, ry: 5, yOff: 16 },
       rayquaza: { rx: 14, ry: 5, yOff: 16 },
       darkrai: { rx: 14, ry: 5.5, yOff: 16 },
-      garchomp: { rx: 13, ry: 4.5, yOff: 16 },
-      tyranitar: { rx: 13, ry: 5, yOff: 16 },
+      garchomp: { rx: 15, ry: 5, yOff: 16 },
+      tyranitar: { rx: 15, ry: 5.5, yOff: 16 },
       charizard: { rx: 12, ry: 4.5, yOff: 15 },
       arceus: { rx: 12, ry: 4.5, yOff: 16 },
       mewtwo: { rx: 12, ry: 4.5, yOff: 16 },
@@ -13181,7 +13207,32 @@ export class TownEngine {
         ctx.drawImage(this.garchompImg, drawX - 13, drawY - 20 + stepBob + idleBob, 42, 42);
       }
     } else if (fid === 'urshifu') {
-      if (this.urshifuImg && this.urshifuImg.complete) {
+      const coreX = drawX + 8;
+      const coreY = drawY + 16;
+      this.drawUrshifuTorrentAura(ctx, coreX, coreY - 12, true);
+
+      let action: 'idle' | 'walk' | 'attack' = 'idle';
+      let animTick = this.tick;
+      if (this.urshifuAttackTick > 0) {
+        action = 'attack';
+        animTick = 28 - this.urshifuAttackTick;
+      } else if (isFollowerWalking) {
+        action = 'walk';
+        animTick = this.followerWalkTick;
+      }
+      const dir = this.followerDir || 'down';
+
+      const pmdDrawn = this.pmdAnimator.draw(
+        ctx,
+        'urshifu',
+        action,
+        dir,
+        coreX,
+        coreY,
+        animTick
+      );
+
+      if (!pmdDrawn && this.urshifuImg && this.urshifuImg.complete) {
         ctx.drawImage(this.urshifuImg, drawX - 16, drawY - 24 + stepBob, 48, 45);
       }
     } else if (fid === 'rayquaza') {
@@ -14148,6 +14199,42 @@ export class TownEngine {
     }
   }
 
+  private drawUrshifuTorrentAura(
+    ctx: CanvasRenderingContext2D,
+    coreX: number,
+    coreY: number,
+    withSparkles: boolean
+  ) {
+    // G-Max Rapid Strike dual aura: crimson Dynamax glow + hydro azure mist
+    const torrentPulse = 0.3 + Math.sin(this.tick * 0.08) * 0.14;
+    const auraGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 18);
+    auraGrad.addColorStop(0, `rgba(186, 230, 253, ${torrentPulse + 0.28})`);
+    auraGrad.addColorStop(0.45, `rgba(56, 189, 248, ${torrentPulse + 0.1})`);
+    auraGrad.addColorStop(0.8, `rgba(239, 68, 68, ${torrentPulse * 0.6})`);
+    auraGrad.addColorStop(1, 'rgba(15, 23, 42, 0)');
+    ctx.fillStyle = auraGrad;
+    ctx.beginPath();
+    ctx.arc(coreX, coreY, 18, 0, Math.PI * 2);
+    ctx.fill();
+
+    if (withSparkles) {
+      const dynPhase = (this.tick * 0.05) % (Math.PI * 2);
+      const cloudX = coreX + Math.cos(dynPhase) * 14;
+      const cloudY = coreY - 18 + Math.sin(dynPhase) * 4;
+      ctx.fillStyle = 'rgba(239, 68, 68, 0.75)';
+      ctx.fillRect(cloudX, cloudY, 2.5, 2);
+      ctx.fillStyle = 'rgba(244, 63, 94, 0.65)';
+      ctx.fillRect(cloudX - 2, cloudY + 1, 2, 1.5);
+
+      if (this.tick % 16 < 11) {
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillRect(coreX + Math.sin(this.tick * 0.1) * 13, coreY - 2 + Math.cos(this.tick * 0.1) * 4, 2, 2);
+        ctx.fillStyle = '#bae6fd';
+        ctx.fillRect(coreX - 4 + Math.cos(this.tick * 0.15) * 10, coreY + 2 - (this.tick % 8), 1.5, 1.5);
+      }
+    }
+  }
+
   private drawEmpoleonTridentAura(
     ctx: CanvasRenderingContext2D,
     coreX: number,
@@ -14402,8 +14489,8 @@ export class TownEngine {
       reshiram: { rx: 15, ry: 5.5, yOff: 16 },
       rayquaza: { rx: 15, ry: 5.5, yOff: 16 },
       darkrai: { rx: 14, ry: 5.5, yOff: 16 },
-      garchomp: { rx: 14, ry: 5, yOff: 16 },
-      tyranitar: { rx: 14, ry: 5.5, yOff: 16 },
+      garchomp: { rx: 15, ry: 5.5, yOff: 16 },
+      tyranitar: { rx: 15, ry: 5.5, yOff: 16 },
       charizard: { rx: 14, ry: 5, yOff: 15 },
       arceus: { rx: 14, ry: 5, yOff: 16 },
       mewtwo: { rx: 13, ry: 4.5, yOff: 16 },
@@ -14508,6 +14595,9 @@ export class TownEngine {
     } else if (fid === 'darkrai' && this.darkraiAttackTick > 0) {
       action = 'shoot';
       attackTick = 30 - this.darkraiAttackTick;
+    } else if (fid === 'urshifu' && this.urshifuAttackTick > 0) {
+      action = 'attack';
+      attackTick = 28 - this.urshifuAttackTick;
     }
 
     const curAnimTick = attackTick > 0 ? attackTick : animTick;
@@ -14648,6 +14738,8 @@ export class TownEngine {
       ctx.fill();
     } else if (fid === 'darkrai') {
       this.drawDarkraiVoidAura(ctx, coreX, coreY - 10, false);
+    } else if (fid === 'urshifu') {
+      this.drawUrshifuTorrentAura(ctx, coreX, coreY - 12, false);
     }
 
     // Anatomical per-species and per-direction saddle offsets relative to (coreX, coreY)
@@ -14670,8 +14762,8 @@ export class TownEngine {
       groudon:  { down: { dx: 0, dy: -22 }, side: { dx: -4, dy: -20 }, up: { dx: 0, dy: -21 } },
       kyogre:   { down: { dx: 0, dy: -18 }, side: { dx: -3, dy: -17 }, up: { dx: 0, dy: -18 } },
       charizard:{ down: { dx: 0, dy: -18 }, side: { dx: -3, dy: -17 }, up: { dx: 0, dy: -17 } },
-      garchomp: { down: { dx: 0, dy: -17 }, side: { dx: -3, dy: -16 }, up: { dx: 0, dy: -16 } },
-      tyranitar:{ down: { dx: 0, dy: -19 }, side: { dx: -3, dy: -18 }, up: { dx: 0, dy: -18 } },
+      garchomp: { down: { dx: 0, dy: -20 }, side: { dx: -4, dy: -19 }, up: { dx: 0, dy: -19 } },
+      tyranitar:{ down: { dx: 0, dy: -22 }, side: { dx: -4, dy: -20 }, up: { dx: 0, dy: -20 } },
       gyarados: { down: { dx: 0, dy: -22 }, side: { dx: -5, dy: -20 }, up: { dx: 0, dy: -21 } },
       snorlax:  { down: { dx: 0, dy: -18 }, side: { dx: -3, dy: -17 }, up: { dx: 0, dy: -17 } },
       urshifu:  { down: { dx: 0, dy: -19 }, side: { dx: -3, dy: -18 }, up: { dx: 0, dy: -18 } },

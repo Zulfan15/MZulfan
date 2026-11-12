@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updatedAt": "2026-11-12T06:24:03.354Z",
+  "updatedAt": "2026-11-12T07:11:51.181Z",
   "buildings": [
     {
       "id": "dev",
@@ -805,6 +805,70 @@
       "orientation": "S",
       "dialogue": "GYARADOS: 'Gwoooaaargh... Roaaar!' 🌊🐉 Deru ombak raksasa dan badai air bergemuruh saat Gyarados meliuk gagah. Sang Naga Lautan pantang menyerah menembus arus dan menjaga perairan Zulfan's Town.",
       "hidden": false
+    },
+    {
+      "id": "empoleon_mwd7ivhi",
+      "name": "Empoleon Sang Kaisar Samudra #1",
+      "x": 7,
+      "y": 42,
+      "w": 2,
+      "h": 2,
+      "kind": "npc",
+      "subType": "empoleon",
+      "orientation": "S",
+      "dialogue": "EMPOLEON: 'Gwooon-piiinggg...!' 🐧👑 Sayap baja berkilau membelah ombak dingin lautan utara saat Empoleon mengangkat mahkota trisulanya. Sang Kaisar Samudra memimpin ketertiban dan pertahanan baja di Zulfan's Town.",
+      "hidden": false
+    },
+    {
+      "id": "regigigas_mwd7j4xy",
+      "name": "Regigigas Sang Penggerak Benua #1",
+      "x": 7,
+      "y": 46,
+      "w": 2,
+      "h": 2,
+      "kind": "npc",
+      "subType": "regigigas",
+      "orientation": "S",
+      "dialogue": "REGIGIGAS: 'Zuuugii-giiigaaas...!' 🗿⚡ Enam bola mata rune kuno berpendar bergantian saat Sang Penggerak Benua melangkah mantap menjaga stabilitas fondasi Zulfan's Town.",
+      "hidden": false
+    },
+    {
+      "id": "koraidon_mwd7jp0g",
+      "name": "Koraidon Sang Raja Bersayap #1",
+      "x": 7,
+      "y": 50,
+      "w": 2,
+      "h": 2,
+      "kind": "npc",
+      "subType": "koraidon",
+      "orientation": "S",
+      "dialogue": "KORAIDON: 'Gyaaaas-krrrooo...!' 🦖🔥 Bulu emas bersinar dan energi Orichalcum Pulse menyala saat Koraidon menghentakkan kakinya siap melaju menembus batas.",
+      "hidden": false
+    },
+    {
+      "id": "eternatus_mwd7jv0u",
+      "name": "Eternatus Sang Naga Inti Kosmik #1",
+      "x": 7,
+      "y": 54,
+      "w": 2,
+      "h": 2,
+      "kind": "npc",
+      "subType": "eternatus",
+      "orientation": "S",
+      "dialogue": "ETERNATUS: 'Krrr-shhhwaaazzz...!' ☄️⚡ Inti plasma di dadanya berpendar menyalurkan energi Dynamax tak terbatas melindungi Zulfan's Town dari ketinggian.",
+      "hidden": false
+    },
+    {
+      "id": "snorlax_mwd7lo15",
+      "name": "Snorlax Sang Raksasa Santai #1",
+      "x": 12,
+      "y": 52,
+      "w": 2,
+      "h": 2,
+      "kind": "npc",
+      "subType": "snorlax",
+      "orientation": "S",
+      "dialogue": "SNORLAX: 'Yaaawnnn... Gaaarrr!' 😴💤 Snorlax menguap lebar sambil menepuk perutnya yang kenyang. Sang Raksasa Santai menjaga ketenangan dan stabilitas memori Zulfan's Town."
     }
   ],
   "tiles": [
