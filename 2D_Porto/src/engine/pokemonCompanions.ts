@@ -17,7 +17,11 @@ import { NECROZMA_IMAGE_SRC } from './necrozmaSprite';
 import { LUNALA_IMAGE_SRC } from './lunalaSprite';
 import { SOLGALEO_IMAGE_SRC } from './solgaleoSprite';
 import { SAMUROTT_IMAGE_SRC } from './samurottSprite';
+import { EMPOLEON_IMAGE_SRC } from './empoleonSprite';
 import { GYARADOS_IMAGE_SRC } from './gyaradosSprite';
+import { REGIGIGAS_IMAGE_SRC } from './regigigasSprite';
+import { KORAIDON_IMAGE_SRC } from './koraidonSprite';
+import { ETERNATUS_IMAGE_SRC } from './eternatusSprite';
 import { SNORLAX_IMAGE_SRC } from './snorlaxSprite';
 
 export const MEWTWO_IMAGE_SRC =
@@ -350,6 +354,58 @@ export const COMPANIONS: CompanionInfo[] = [
     lore: 'Tech Guardian: Precision Systems & Clean Code Mastery. Menghunus pedang Seamitar untuk memotong bug rumit, refactoring bersih, dan performa kode yang tangguh.',
     imageSrc: SAMUROTT_IMAGE_SRC,
     tagline: 'Tebasan Seamitar presisi tinggi & arsitektur tangguh',
+  },
+  {
+    id: 'empoleon',
+    name: 'Empoleon',
+    title: 'Emperor Hydro Trident',
+    icon: '🐧',
+    element: 'Air / Baja',
+    badgeClass: 'bg-sky-100 text-sky-950 border-sky-400',
+    skillName: 'Meriam Air Kaisar (Hydro Cannon)',
+    skillDesc: 'Mahkota trisula emas memancarkan ledakan meriam air bertekanan ekstrem dengan sayap baja tajam sekeras permata.',
+    lore: 'Tech Guardian: Enterprise Architecture, Marine-Grade Infrastructure & Security Hardening. Berdiri gagah memimpin orkestrasi sistem skala besar dengan presisi besi.',
+    imageSrc: EMPOLEON_IMAGE_SRC,
+    tagline: 'Arsitektur enterprise baja & meriam trafik air deras',
+  },
+  {
+    id: 'regigigas',
+    name: 'Regigigas',
+    title: 'Colossal Continent Mover',
+    icon: '🗿',
+    element: 'Normal (Titan Kuno)',
+    badgeClass: 'bg-amber-100 text-amber-950 border-amber-400',
+    skillName: 'Kehancuran Kolosal (Crush Grip)',
+    skillDesc: 'Raksasa legendaris penggeser benua melepaskan hantaman gravitasi bumi masif dengan kilauan rune kuno keemasan.',
+    lore: 'Tech Guardian: Legacy Core Systems, Monolith Migration & High-Capacity Compute. Menggerakkan infrastruktur inti raksasa dan menjaga fondasi tetap kokoh bagai benua.',
+    imageSrc: REGIGIGAS_IMAGE_SRC,
+    tagline: 'Migrasi monolit raksasa & fondasi sistem kelas benua',
+  },
+  {
+    id: 'koraidon',
+    name: 'Koraidon',
+    title: 'Winged King Apex Rider',
+    icon: '🦖',
+    element: 'Petarung / Naga',
+    badgeClass: 'bg-rose-100 text-rose-950 border-rose-400',
+    skillName: 'Tabrakan Kosmik (Collision Course)',
+    skillDesc: 'Raja Bersayap purba dari Paldea melesat berputar dengan hentaman tenaga solar merah membara yang menghancurkan segala penghalang.',
+    lore: 'Tech Guardian: Low-Latency Kernel Engines, Concurrent Runtime & Blazing Execution Speed. Melaju melintasi medan terjal dengan tenaga akselerasi purba Paldea.',
+    imageSrc: KORAIDON_IMAGE_SRC,
+    tagline: 'Akselerasi runtime berkecepatan tinggi & eksekusi purba',
+  },
+  {
+    id: 'eternatus',
+    name: 'Eternatus',
+    title: 'Dynamax Core Sovereign',
+    icon: '☄️',
+    element: 'Racun / Naga',
+    badgeClass: 'bg-fuchsia-100 text-fuchsia-950 border-fuchsia-400',
+    skillName: 'Meriam Dynamax (Dynamax Cannon)',
+    skillDesc: 'Inti plasma Galar memancarkan sinar energi Dynamax raksasa berwarna magenta-cyan yang menggetarkan ruang kota.',
+    lore: 'Tech Guardian: High-Density GPU Clusters, Distributed Compute & Infinite Power Scaling. Menyalurkan tenaga tak terbatas untuk pipeline AI dan backend terdistribusi.',
+    imageSrc: ETERNATUS_IMAGE_SRC,
+    tagline: 'Klaster komputasi GPU masif & skala energi tak terbatas',
   },
   {
     id: 'snorlax',

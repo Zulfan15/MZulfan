@@ -154,6 +154,10 @@ import { NECROZMA_IMAGE_SRC } from './necrozmaSprite';
 import { LUNALA_IMAGE_SRC } from './lunalaSprite';
 import { SOLGALEO_IMAGE_SRC } from './solgaleoSprite';
 import { SAMUROTT_IMAGE_SRC } from './samurottSprite';
+import { EMPOLEON_IMAGE_SRC } from './empoleonSprite';
+import { REGIGIGAS_IMAGE_SRC } from './regigigasSprite';
+import { KORAIDON_IMAGE_SRC } from './koraidonSprite';
+import { ETERNATUS_IMAGE_SRC } from './eternatusSprite';
 import { CHARIZARD_IMAGE_SRC } from './charizardSprite';
 import { TYRANITAR_IMAGE_SRC } from './tyranitarSprite';
 import { GARCHOMP_IMAGE_SRC } from './garchompSprite';
@@ -280,6 +284,10 @@ export class TownEngine {
   private lunalaImg: HTMLImageElement | null = null;
   private solgaleoImg: HTMLImageElement | null = null;
   private samurottImg: HTMLImageElement | null = null;
+  private empoleonImg: HTMLImageElement | null = null;
+  private regigigasImg: HTMLImageElement | null = null;
+  private koraidonImg: HTMLImageElement | null = null;
+  private eternatusImg: HTMLImageElement | null = null;
   private receptionBackgroundCanvas: HTMLCanvasElement | null = null;
   private martBackgroundCanvas: HTMLCanvasElement | null = null;
   private towerBackgroundCanvas: HTMLCanvasElement | null = null;
@@ -345,6 +353,13 @@ export class TownEngine {
   private tyranitarAttackTick = 0;
   private gyaradosAttackTick = 0;
   private snorlaxAttackTick = 0;
+  private samurottAttackTick = 0;
+  private empoleonAttackTick = 0;
+  private regigigasAttackTick = 0;
+  private koraidonAttackTick = 0;
+  private eternatusAttackTick = 0;
+  private darkraiAttackTick = 0;
+  private latiosAttackTick = 0;
   private latiasAttackTick = 0;
   private pmdAnimator = new PokemonPMDAnimator();
 
@@ -566,6 +581,14 @@ export class TownEngine {
       this.solgaleoImg.src = SOLGALEO_IMAGE_SRC;
       this.samurottImg = new Image();
       this.samurottImg.src = SAMUROTT_IMAGE_SRC;
+      this.empoleonImg = new Image();
+      this.empoleonImg.src = EMPOLEON_IMAGE_SRC;
+      this.regigigasImg = new Image();
+      this.regigigasImg.src = REGIGIGAS_IMAGE_SRC;
+      this.koraidonImg = new Image();
+      this.koraidonImg.src = KORAIDON_IMAGE_SRC;
+      this.eternatusImg = new Image();
+      this.eternatusImg.src = ETERNATUS_IMAGE_SRC;
       this.charizardImg = new Image();
       this.charizardImg.src = CHARIZARD_IMAGE_SRC;
       this.garchompImg = new Image();
@@ -1358,6 +1381,7 @@ export class TownEngine {
         'mewtwo',
         'darkrai',
         'necrozma',
+        'eternatus',
         'wargreymon',
         'omnimon',
         'gallantmon',
@@ -1383,7 +1407,7 @@ export class TownEngine {
       return 'sky';
     }
     if (
-      ['kyogre', 'palkia', 'samurott', 'urshifu', 'gyarados', 'neptunemon', 'leviamon', 'vikemon'].includes(
+      ['kyogre', 'palkia', 'samurott', 'empoleon', 'urshifu', 'gyarados', 'neptunemon', 'leviamon', 'vikemon'].includes(
         fid
       )
     ) {
@@ -2119,7 +2143,7 @@ export class TownEngine {
         const defaultNpcSize = [
           'charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar',
           'garchomp', 'urshifu', 'groudon', 'kyogre', 'reshiram', 'zekrom', 'samurott',
-          'gyarados', 'snorlax', 'latias',
+          'empoleon', 'regigigas', 'koraidon', 'eternatus', 'gyarados', 'snorlax', 'latias',
         ].includes(hitNpc.id)
           ? 2
           : 1;
@@ -3703,6 +3727,27 @@ export class TownEngine {
     }
     if (this.snorlaxAttackTick > 0) {
       this.snorlaxAttackTick--;
+    }
+    if (this.samurottAttackTick > 0) {
+      this.samurottAttackTick--;
+    }
+    if (this.empoleonAttackTick > 0) {
+      this.empoleonAttackTick--;
+    }
+    if (this.regigigasAttackTick > 0) {
+      this.regigigasAttackTick--;
+    }
+    if (this.koraidonAttackTick > 0) {
+      this.koraidonAttackTick--;
+    }
+    if (this.eternatusAttackTick > 0) {
+      this.eternatusAttackTick--;
+    }
+    if (this.darkraiAttackTick > 0) {
+      this.darkraiAttackTick--;
+    }
+    if (this.latiosAttackTick > 0) {
+      this.latiosAttackTick--;
     }
     if (this.latiasAttackTick > 0) {
       this.latiasAttackTick--;
@@ -7916,6 +7961,54 @@ export class TownEngine {
               onClick: () => this.setActiveFollower('samurott'),
             },
           ];
+        } else if (customPlaced.subType === 'empoleon') {
+          dialogueText = "EMPOLEON: 'Gwooon-piiinggg...!' 🐧👑 [Tech Guardian: Enterprise Architecture, Marine-Grade Infrastructure & Security Hardening] Berdiri gagah memimpin orkestrasi sistem skala besar dengan pertahanan baja!";
+          action = [
+            {
+              label: '🌊 Meriam Air Kaisar (Hydro Cannon)',
+              onClick: () => this.triggerSignatureMove('empoleon', customPlaced.x, customPlaced.y),
+            },
+            {
+              label: '🤝 Ajak Jalan Bersama',
+              onClick: () => this.setActiveFollower('empoleon'),
+            },
+          ];
+        } else if (customPlaced.subType === 'regigigas') {
+          dialogueText = "REGIGIGAS: 'Zuuugii-giiigaaas...!' 🗿⚡ [Tech Guardian: Legacy Core Systems, Monolith Migration & High-Capacity Compute] Menggerakkan infrastruktur raksasa dengan ketahanan kolosal!";
+          action = [
+            {
+              label: '🗿 Kehancuran Kolosal (Crush Grip)',
+              onClick: () => this.triggerSignatureMove('regigigas', customPlaced.x, customPlaced.y),
+            },
+            {
+              label: '🤝 Ajak Jalan Bersama',
+              onClick: () => this.setActiveFollower('regigigas'),
+            },
+          ];
+        } else if (customPlaced.subType === 'koraidon') {
+          dialogueText = "KORAIDON: 'Gyaaaas-krrrooo...!' 🦖🔥 [Tech Guardian: Low-Latency Kernel Engines, Concurrent Runtime & Blazing Execution Speed] Melaju kencang melampaui batas komputasi!";
+          action = [
+            {
+              label: '⚡ Tabrakan Kosmik (Collision Course)',
+              onClick: () => this.triggerSignatureMove('koraidon', customPlaced.x, customPlaced.y),
+            },
+            {
+              label: '🤝 Ajak Jalan Bersama',
+              onClick: () => this.setActiveFollower('koraidon'),
+            },
+          ];
+        } else if (customPlaced.subType === 'eternatus') {
+          dialogueText = "ETERNATUS: 'Krrr-shhhwaaazzz...!' ☄️⚡ [Tech Guardian: High-Density GPU Clusters, Distributed Compute & Infinite Power Scaling] Menyalurkan energi Dynamax tak terbatas ke seluruh infrastruktur AI!";
+          action = [
+            {
+              label: '☄️ Meriam Dynamax (Dynamax Cannon)',
+              onClick: () => this.triggerSignatureMove('eternatus', customPlaced.x, customPlaced.y),
+            },
+            {
+              label: '🤝 Ajak Jalan Bersama',
+              onClick: () => this.setActiveFollower('eternatus'),
+            },
+          ];
         } else if (customPlaced.subType === 'rayquaza') {
           dialogueText = "RAYQUAZA: 'Krrr-shhhwaaahh...!' 🐉 [Tech Guardian: DevOps, CI/CD Cloud Pipelines & High-Availability] Mengarungi stratosfer awan menjaga stabilitas uptime sistem 99.99%!";
           action = [
@@ -8771,6 +8864,10 @@ export class TownEngine {
       'lunala',
       'solgaleo',
       'samurott',
+      'empoleon',
+      'regigigas',
+      'koraidon',
+      'eternatus',
       'arceus',
       'ranger',
       'tyranitar',
@@ -10400,29 +10497,20 @@ export class TownEngine {
         ctx.ellipse(coreX, drawY + 16, 13, 4.5, 0, 0, Math.PI * 2);
         ctx.fill();
 
-        // Eon Psychic / Jet Stream Azure Radiant Aura
-        const jetPulse = 0.35 + Math.sin(this.tick * 0.09) * 0.15;
-        const auraGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 18);
-        auraGrad.addColorStop(0, `rgba(191, 219, 254, ${jetPulse + 0.3})`);
-        auraGrad.addColorStop(0.5, `rgba(59, 130, 246, ${jetPulse})`);
-        auraGrad.addColorStop(1, 'rgba(29, 78, 216, 0)');
-        ctx.fillStyle = auraGrad;
-        ctx.beginPath();
-        ctx.arc(coreX, coreY, 18, 0, Math.PI * 2);
-        ctx.fill();
+        this.drawLatiosJetAura(ctx, coreX, coreY, true);
 
-        // Jet stream vapor trails & psychic stardust
-        if (this.tick % 20 < 12) {
-          ctx.fillStyle = '#93c5fd';
-          ctx.fillRect(coreX + Math.sin(this.tick * 0.24) * 12, coreY - 4 + Math.cos(this.tick * 0.24) * 8, 1.5, 1.5);
-          ctx.fillStyle = '#60a5fa';
-          ctx.fillRect(coreX - 8 + Math.cos(this.tick * 0.18) * 10, coreY + 3 + Math.sin(this.tick * 0.18) * 6, 2, 2);
-          ctx.fillStyle = '#ffffff';
-          ctx.fillRect(coreX + 4 + Math.sin(this.tick * 0.3) * 8, coreY - 5 - (this.tick % 7), 1.5, 1.5);
-        }
-
-        // Draw Latios sprite
-        if (this.latiosImg && this.latiosImg.complete && this.latiosImg.naturalWidth > 0) {
+        // Draw Latios PMD animated sprite (8 directions) or fallback
+        const dir = cfg?.orientation || 'W';
+        const pmdDrawn = this.pmdAnimator.draw(
+          ctx,
+          'latios',
+          'idle',
+          dir,
+          coreX,
+          drawY + 16,
+          this.tick
+        );
+        if (!pmdDrawn && this.latiosImg && this.latiosImg.complete && this.latiosImg.naturalWidth > 0) {
           const isFlipped = (cfg?.orientation || 'W') === 'E';
           if (isFlipped) {
             ctx.save();
@@ -10505,29 +10593,20 @@ export class TownEngine {
         ctx.ellipse(coreX, drawY + 16, 14, 5.5, 0, 0, Math.PI * 2);
         ctx.fill();
 
-        // Pitch-Black / Nightmare Dark Void Aura
-        const voidPulse = 0.35 + Math.sin(this.tick * 0.07) * 0.15;
-        const voidGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 19);
-        voidGrad.addColorStop(0, `rgba(192, 132, 252, ${voidPulse + 0.25})`);
-        voidGrad.addColorStop(0.5, `rgba(88, 28, 135, ${voidPulse})`);
-        voidGrad.addColorStop(1, 'rgba(15, 23, 42, 0)');
-        ctx.fillStyle = voidGrad;
-        ctx.beginPath();
-        ctx.arc(coreX, coreY, 19, 0, Math.PI * 2);
-        ctx.fill();
+        this.drawDarkraiVoidAura(ctx, coreX, coreY, true);
 
-        // Shadow mist wisps & nightmare sparks
-        if (this.tick % 22 < 14) {
-          ctx.fillStyle = '#a855f7';
-          ctx.fillRect(coreX + Math.sin(this.tick * 0.2) * 12, coreY + 6 - ((this.tick * 1.3) % 18), 1.5, 1.5);
-          ctx.fillStyle = '#1e1b4b';
-          ctx.fillRect(coreX - 8 + Math.cos(this.tick * 0.16) * 10, coreY + 8 - ((this.tick * 1.1) % 16), 2, 2);
-          ctx.fillStyle = '#f3e8ff';
-          ctx.fillRect(coreX + 4 + Math.sin(this.tick * 0.28) * 8, coreY - 4 - (this.tick % 10), 1.5, 1.5);
-        }
-
-        // Draw Darkrai sprite
-        if (this.darkraiImg && this.darkraiImg.complete && this.darkraiImg.naturalWidth > 0) {
+        // Draw Darkrai PMD animated sprite (8 directions) or fallback
+        const dir = cfg?.orientation || 'W';
+        const pmdDrawn = this.pmdAnimator.draw(
+          ctx,
+          'darkrai',
+          'idle',
+          dir,
+          coreX,
+          drawY + 16,
+          this.tick
+        );
+        if (!pmdDrawn && this.darkraiImg && this.darkraiImg.complete && this.darkraiImg.naturalWidth > 0) {
           const isFlipped = (cfg?.orientation || 'W') === 'E';
           if (isFlipped) {
             ctx.save();
@@ -10720,30 +10799,20 @@ export class TownEngine {
         ctx.ellipse(coreX, drawY + 16, 14, 5, 0, 0, Math.PI * 2);
         ctx.fill();
 
-        // Hydro Seamitar Aura
-        const waterPulse = 0.3 + Math.sin(this.tick * 0.08) * 0.15;
-        const waterGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 18);
-        waterGrad.addColorStop(0, `rgba(255, 255, 255, ${waterPulse + 0.3})`);
-        waterGrad.addColorStop(0.4, `rgba(56, 189, 248, ${waterPulse + 0.15})`);
-        waterGrad.addColorStop(0.75, `rgba(14, 165, 233, ${waterPulse * 0.7})`);
-        waterGrad.addColorStop(1, 'rgba(2, 132, 199, 0)');
-        ctx.fillStyle = waterGrad;
-        ctx.beginPath();
-        ctx.arc(coreX, coreY, 18, 0, Math.PI * 2);
-        ctx.fill();
+        this.drawSamurottHydroAura(ctx, coreX, coreY, true);
 
-        // Water splash sparks & seamitar glint
-        if (this.tick % 20 < 12) {
-          ctx.fillStyle = '#38bdf8';
-          ctx.fillRect(coreX + Math.sin(this.tick * 0.22) * 12, coreY + 4 - ((this.tick * 1.2) % 14), 1.5, 1.5);
-          ctx.fillStyle = '#0284c7';
-          ctx.fillRect(coreX - 6 + Math.cos(this.tick * 0.17) * 10, coreY + 5 - ((this.tick * 1.0) % 13), 2, 2);
-          ctx.fillStyle = '#ffffff';
-          ctx.fillRect(coreX + 4 + Math.sin(this.tick * 0.28) * 8, coreY + 2 - (this.tick % 11), 1.5, 1.5);
-        }
-
-        // Draw Samurott sprite (96x96 scaled to 42x42)
-        if (this.samurottImg && this.samurottImg.complete && this.samurottImg.naturalWidth > 0) {
+        // Draw Samurott PMD animated sprite (8 directions) or fallback
+        const dir = cfg?.orientation || 'W';
+        const pmdDrawn = this.pmdAnimator.draw(
+          ctx,
+          'samurott',
+          'idle',
+          dir,
+          coreX,
+          drawY + 16,
+          this.tick
+        );
+        if (!pmdDrawn && this.samurottImg && this.samurottImg.complete && this.samurottImg.naturalWidth > 0) {
           const isFlipped = (cfg?.orientation || 'W') === 'E';
           if (isFlipped) {
             ctx.save();
@@ -10842,7 +10911,7 @@ export class TownEngine {
           'charizard', 'tyranitar', 'blastoise', 'garchomp', 'urshifu', 'rayquaza',
           'mewtwo', 'arceus', 'dialga', 'palkia', 'reshiram', 'zekrom',
           'giratina', 'groudon', 'kyogre', 'gyarados', 'snorlax', 'latios', 'latias', 'darkrai',
-          'necrozma', 'lunala', 'solgaleo', 'samurott', 'lucario', 'pikachu'
+          'necrozma', 'lunala', 'solgaleo', 'samurott', 'empoleon', 'regigigas', 'koraidon', 'eternatus', 'lucario', 'pikachu'
         ].includes(b.subType || b.id);
         const isFlipped = (isPokemon && !this.pmdAnimator.isSupported(b.subType || b.id)) ? b.orientation === 'E' : false;
         const centerX = b.x * TILE_SIZE + 8;
@@ -11174,7 +11243,7 @@ export class TownEngine {
           if (!pmdDrawn && this.kyogreImg && this.kyogreImg.complete) {
             ctx.drawImage(this.kyogreImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + swimY, 42, 42);
           }
-        } else if ((b.subType === 'latios' || b.id === 'latios') && this.latiosImg && this.latiosImg.complete) {
+        } else if ((b.subType === 'latios' || b.id === 'latios') && (this.pmdAnimator.isSupported('latios') || (this.latiosImg && this.latiosImg.complete))) {
           const jetHover = Math.sin(this.tick * 0.055) * 2.2;
           const coreX = b.x * TILE_SIZE + 8;
           const coreY = b.y * TILE_SIZE + 1 + jetHover;
@@ -11185,28 +11254,21 @@ export class TownEngine {
           ctx.ellipse(coreX, b.y * TILE_SIZE + 16, 13, 4.5, 0, 0, Math.PI * 2);
           ctx.fill();
 
-          // Eon Psychic / Jet Stream Azure Radiant Aura
-          const jetPulse = 0.35 + Math.sin(this.tick * 0.09) * 0.15;
-          const auraGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 18);
-          auraGrad.addColorStop(0, `rgba(191, 219, 254, ${jetPulse + 0.3})`);
-          auraGrad.addColorStop(0.5, `rgba(59, 130, 246, ${jetPulse})`);
-          auraGrad.addColorStop(1, 'rgba(29, 78, 216, 0)');
-          ctx.fillStyle = auraGrad;
-          ctx.beginPath();
-          ctx.arc(coreX, coreY, 18, 0, Math.PI * 2);
-          ctx.fill();
+          this.drawLatiosJetAura(ctx, coreX, coreY, true);
 
-          // Jet stream vapor trails & psychic stardust
-          if (this.tick % 20 < 12) {
-            ctx.fillStyle = '#93c5fd';
-            ctx.fillRect(coreX + Math.sin(this.tick * 0.24) * 12, coreY - 4 + Math.cos(this.tick * 0.24) * 8, 1.5, 1.5);
-            ctx.fillStyle = '#60a5fa';
-            ctx.fillRect(coreX - 8 + Math.cos(this.tick * 0.18) * 10, coreY + 3 + Math.sin(this.tick * 0.18) * 6, 2, 2);
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(coreX + 4 + Math.sin(this.tick * 0.3) * 8, coreY - 5 - (this.tick % 7), 1.5, 1.5);
+          const dir = b.orientation || 'S';
+          const pmdDrawn = this.pmdAnimator.draw(
+            ctx,
+            'latios',
+            'idle',
+            dir,
+            coreX,
+            b.y * TILE_SIZE + 16,
+            this.tick
+          );
+          if (!pmdDrawn && this.latiosImg && this.latiosImg.complete) {
+            ctx.drawImage(this.latiosImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + jetHover, 42, 42);
           }
-
-          ctx.drawImage(this.latiosImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + jetHover, 42, 42);
         } else if ((b.subType === 'latias' || b.id === 'latias') && (this.pmdAnimator.isSupported('latias') || (this.latiasImg && this.latiasImg.complete))) {
           const floatY = Math.sin(this.tick * 0.055 + 1.2) * 2.2;
           const coreX = b.x * TILE_SIZE + 8;
@@ -11252,7 +11314,7 @@ export class TownEngine {
           if (!pmdDrawn && this.latiasImg && this.latiasImg.complete) {
             ctx.drawImage(this.latiasImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + floatY, 42, 42);
           }
-        } else if ((b.subType === 'darkrai' || b.id === 'darkrai') && this.darkraiImg && this.darkraiImg.complete) {
+        } else if ((b.subType === 'darkrai' || b.id === 'darkrai') && (this.pmdAnimator.isSupported('darkrai') || (this.darkraiImg && this.darkraiImg.complete))) {
           const levitate = Math.sin(this.tick * 0.04) * 2.0;
           const coreX = b.x * TILE_SIZE + 8;
           const coreY = b.y * TILE_SIZE + 2 + levitate;
@@ -11264,28 +11326,21 @@ export class TownEngine {
           ctx.ellipse(coreX, b.y * TILE_SIZE + 16, 14, 5.5, 0, 0, Math.PI * 2);
           ctx.fill();
 
-          // Pitch-Black / Nightmare Dark Void Aura
-          const voidPulse = 0.35 + Math.sin(this.tick * 0.07) * 0.15;
-          const voidGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 19);
-          voidGrad.addColorStop(0, `rgba(192, 132, 252, ${voidPulse + 0.25})`);
-          voidGrad.addColorStop(0.5, `rgba(88, 28, 135, ${voidPulse})`);
-          voidGrad.addColorStop(1, 'rgba(15, 23, 42, 0)');
-          ctx.fillStyle = voidGrad;
-          ctx.beginPath();
-          ctx.arc(coreX, coreY, 19, 0, Math.PI * 2);
-          ctx.fill();
+          this.drawDarkraiVoidAura(ctx, coreX, coreY, true);
 
-          // Shadow mist wisps & nightmare sparks
-          if (this.tick % 22 < 14) {
-            ctx.fillStyle = '#a855f7';
-            ctx.fillRect(coreX + Math.sin(this.tick * 0.2) * 12, coreY + 6 - ((this.tick * 1.3) % 18), 1.5, 1.5);
-            ctx.fillStyle = '#1e1b4b';
-            ctx.fillRect(coreX - 8 + Math.cos(this.tick * 0.16) * 10, coreY + 8 - ((this.tick * 1.1) % 16), 2, 2);
-            ctx.fillStyle = '#f3e8ff';
-            ctx.fillRect(coreX + 4 + Math.sin(this.tick * 0.28) * 8, coreY - 4 - (this.tick % 10), 1.5, 1.5);
+          const dir = b.orientation || 'S';
+          const pmdDrawn = this.pmdAnimator.draw(
+            ctx,
+            'darkrai',
+            'idle',
+            dir,
+            coreX,
+            b.y * TILE_SIZE + 16,
+            this.tick
+          );
+          if (!pmdDrawn && this.darkraiImg && this.darkraiImg.complete) {
+            ctx.drawImage(this.darkraiImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + levitate, 42, 42);
           }
-
-          ctx.drawImage(this.darkraiImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + levitate, 42, 42);
         } else if ((b.subType === 'necrozma' || b.subType === 'necrozma_dusk_mane' || b.id === 'necrozma' || b.id === 'necrozma_dusk_mane') && this.necrozmaImg && this.necrozmaImg.complete) {
           const breath = Math.sin(this.tick * 0.04) * 0.9;
           const coreX = b.x * TILE_SIZE + 8;
@@ -11411,7 +11466,7 @@ export class TownEngine {
           if (!pmdDrawn && this.solgaleoImg && this.solgaleoImg.complete) {
             ctx.drawImage(this.solgaleoImg, b.x * TILE_SIZE - 15, b.y * TILE_SIZE - 21 + breath, 46, 43);
           }
-        } else if ((b.subType === 'samurott' || b.id === 'samurott') && this.samurottImg && this.samurottImg.complete) {
+        } else if ((b.subType === 'samurott' || b.id === 'samurott') && (this.pmdAnimator.isSupported('samurott') || (this.samurottImg && this.samurottImg.complete))) {
           const breath = Math.sin(this.tick * 0.05) * 0.8;
           const coreX = b.x * TILE_SIZE + 8;
           const coreY = b.y * TILE_SIZE + 6;
@@ -11422,29 +11477,122 @@ export class TownEngine {
           ctx.ellipse(coreX, b.y * TILE_SIZE + 16, 14, 5, 0, 0, Math.PI * 2);
           ctx.fill();
 
-          // Hydro Seamitar Aura
-          const waterPulse = 0.3 + Math.sin(this.tick * 0.08) * 0.15;
-          const waterGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 18);
-          waterGrad.addColorStop(0, `rgba(255, 255, 255, ${waterPulse + 0.3})`);
-          waterGrad.addColorStop(0.4, `rgba(56, 189, 248, ${waterPulse + 0.15})`);
-          waterGrad.addColorStop(0.75, `rgba(14, 165, 233, ${waterPulse * 0.7})`);
-          waterGrad.addColorStop(1, 'rgba(2, 132, 199, 0)');
-          ctx.fillStyle = waterGrad;
+          this.drawSamurottHydroAura(ctx, coreX, coreY, true);
+
+          const dir = b.orientation || 'S';
+          const pmdDrawn = this.pmdAnimator.draw(
+            ctx,
+            'samurott',
+            'idle',
+            dir,
+            coreX,
+            b.y * TILE_SIZE + 16,
+            this.tick
+          );
+          if (!pmdDrawn && this.samurottImg && this.samurottImg.complete) {
+            ctx.drawImage(this.samurottImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + breath, 42, 42);
+          }
+        } else if ((b.subType === 'empoleon' || b.id === 'empoleon') && (this.pmdAnimator.isSupported('empoleon') || (this.empoleonImg && this.empoleonImg.complete))) {
+          const breath = Math.sin(this.tick * 0.045) * 0.8;
+          const coreX = b.x * TILE_SIZE + 8;
+          const coreY = b.y * TILE_SIZE + 5;
+
+          // Ground shadow
+          ctx.fillStyle = 'rgba(10, 25, 45, 0.45)';
           ctx.beginPath();
-          ctx.arc(coreX, coreY, 18, 0, Math.PI * 2);
+          ctx.ellipse(coreX, b.y * TILE_SIZE + 16, 13, 5, 0, 0, Math.PI * 2);
           ctx.fill();
 
-          // Water splash sparks & seamitar glint
-          if (this.tick % 20 < 12) {
-            ctx.fillStyle = '#38bdf8';
-            ctx.fillRect(coreX + Math.sin(this.tick * 0.22) * 12, coreY + 4 - ((this.tick * 1.2) % 14), 1.5, 1.5);
-            ctx.fillStyle = '#0284c7';
-            ctx.fillRect(coreX - 6 + Math.cos(this.tick * 0.17) * 10, coreY + 5 - ((this.tick * 1.0) % 13), 2, 2);
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(coreX + 4 + Math.sin(this.tick * 0.28) * 8, coreY + 2 - (this.tick % 11), 1.5, 1.5);
-          }
+          this.drawEmpoleonTridentAura(ctx, coreX, coreY, true);
 
-          ctx.drawImage(this.samurottImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + breath, 42, 42);
+          const dir = b.orientation || 'S';
+          const pmdDrawn = this.pmdAnimator.draw(
+            ctx,
+            'empoleon',
+            'idle',
+            dir,
+            coreX,
+            b.y * TILE_SIZE + 16,
+            this.tick
+          );
+          if (!pmdDrawn && this.empoleonImg && this.empoleonImg.complete) {
+            ctx.drawImage(this.empoleonImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + breath, 42, 42);
+          }
+        } else if ((b.subType === 'regigigas' || b.id === 'regigigas') && (this.pmdAnimator.isSupported('regigigas') || (this.regigigasImg && this.regigigasImg.complete))) {
+          const coreX = b.x * TILE_SIZE + 8;
+          const coreY = b.y * TILE_SIZE + 4;
+
+          // Heavy colossal ground shadow
+          ctx.fillStyle = 'rgba(20, 25, 15, 0.48)';
+          ctx.beginPath();
+          ctx.ellipse(coreX, b.y * TILE_SIZE + 16, 16, 6, 0, 0, Math.PI * 2);
+          ctx.fill();
+
+          this.drawRegigigasRuneAura(ctx, coreX, coreY, true);
+
+          const dir = b.orientation || 'S';
+          const pmdDrawn = this.pmdAnimator.draw(
+            ctx,
+            'regigigas',
+            'idle',
+            dir,
+            coreX,
+            b.y * TILE_SIZE + 16,
+            this.tick
+          );
+          if (!pmdDrawn && this.regigigasImg && this.regigigasImg.complete) {
+            ctx.drawImage(this.regigigasImg, b.x * TILE_SIZE - 16, b.y * TILE_SIZE - 24, 48, 48);
+          }
+        } else if ((b.subType === 'koraidon' || b.id === 'koraidon') && (this.pmdAnimator.isSupported('koraidon') || (this.koraidonImg && this.koraidonImg.complete))) {
+          const coreX = b.x * TILE_SIZE + 8;
+          const coreY = b.y * TILE_SIZE + 4;
+
+          // Ground shadow
+          ctx.fillStyle = 'rgba(25, 10, 12, 0.45)';
+          ctx.beginPath();
+          ctx.ellipse(coreX, b.y * TILE_SIZE + 16, 15, 5.5, 0, 0, Math.PI * 2);
+          ctx.fill();
+
+          this.drawKoraidonApexAura(ctx, coreX, coreY, true);
+
+          const dir = b.orientation || 'S';
+          const pmdDrawn = this.pmdAnimator.draw(
+            ctx,
+            'koraidon',
+            'idle',
+            dir,
+            coreX,
+            b.y * TILE_SIZE + 16,
+            this.tick
+          );
+          if (!pmdDrawn && this.koraidonImg && this.koraidonImg.complete) {
+            ctx.drawImage(this.koraidonImg, b.x * TILE_SIZE - 16, b.y * TILE_SIZE - 24, 48, 48);
+          }
+        } else if ((b.subType === 'eternatus' || b.id === 'eternatus') && (this.pmdAnimator.isSupported('eternatus') || (this.eternatusImg && this.eternatusImg.complete))) {
+          const coreX = b.x * TILE_SIZE + 8;
+          const coreY = b.y * TILE_SIZE + 3;
+
+          // Cosmic Dynamax ground shadow
+          ctx.fillStyle = 'rgba(20, 10, 35, 0.45)';
+          ctx.beginPath();
+          ctx.ellipse(coreX, b.y * TILE_SIZE + 16, 16, 5.5, 0, 0, Math.PI * 2);
+          ctx.fill();
+
+          this.drawEternatusDynamoAura(ctx, coreX, coreY, true);
+
+          const dir = b.orientation || 'S';
+          const pmdDrawn = this.pmdAnimator.draw(
+            ctx,
+            'eternatus',
+            'idle',
+            dir,
+            coreX,
+            b.y * TILE_SIZE + 16,
+            this.tick
+          );
+          if (!pmdDrawn && this.eternatusImg && this.eternatusImg.complete) {
+            ctx.drawImage(this.eternatusImg, b.x * TILE_SIZE - 16, b.y * TILE_SIZE - 24, 48, 48);
+          }
         } else if ((b.subType === 'gyarados' || b.id === 'gyarados') && this.pmdAnimator.isSupported('gyarados')) {
           const swimY = Math.sin(this.tick * 0.04) * 1.5;
           const coreX = b.x * TILE_SIZE + 8;
@@ -12170,6 +12318,10 @@ export class TownEngine {
       lunala: { name: 'Lunala', title: 'Moone Lunar Beast', icon: '🌙' },
       solgaleo: { name: 'Solgaleo', title: 'Sunne Solar Beast', icon: '☀️' },
       samurott: { name: 'Samurott', title: 'Formidable Seamitar', icon: '⚔️' },
+      empoleon: { name: 'Empoleon', title: 'Emperor Hydro Trident', icon: '🐧' },
+      regigigas: { name: 'Regigigas', title: 'Colossal Continent Mover', icon: '🗿' },
+      koraidon: { name: 'Koraidon', title: 'Winged King Apex Rider', icon: '🦖' },
+      eternatus: { name: 'Eternatus', title: 'Dynamax Core Sovereign', icon: '☄️' },
     };
 
     const cleanId = id.toLowerCase().replace(/[^a-z]/g, '');
@@ -12569,6 +12721,9 @@ export class TownEngine {
         });
       }
     } else if (id.includes('latios')) {
+      this.latiosAttackTick = 25;
+      this.cameraShakeTime = 16;
+      this.cameraShakeIntensity = 3.5;
       for (let i = 0; i < 45; i++) {
         const ang = Math.PI * 0.25 + (Math.random() - 0.5) * 1.0;
         const spd = 4.0 + Math.random() * 5.5;
@@ -12606,6 +12761,9 @@ export class TownEngine {
         });
       }
     } else if (id.includes('darkrai')) {
+      this.darkraiAttackTick = 30;
+      this.cameraShakeTime = 16;
+      this.cameraShakeIntensity = 3.5;
       for (let i = 0; i < 50; i++) {
         const ang = Math.random() * Math.PI * 2;
         const r = 6 + Math.random() * 28;
@@ -12676,6 +12834,9 @@ export class TownEngine {
         });
       }
     } else if (id.includes('samurott')) {
+      this.samurottAttackTick = 27;
+      this.cameraShakeTime = 16;
+      this.cameraShakeIntensity = 3.5;
       for (let i = 0; i < 50; i++) {
         const ang = Math.random() * Math.PI * 2;
         const spd = 3.5 + Math.random() * 5.0;
@@ -12690,6 +12851,86 @@ export class TownEngine {
           life: 0,
           maxLife: 28 + Math.floor(Math.random() * 16),
           type: 'water',
+        });
+      }
+    } else if (id.includes('empoleon')) {
+      this.empoleonAttackTick = 26;
+      this.cameraShakeTime = 16;
+      this.cameraShakeIntensity = 3.6;
+      for (let i = 0; i < 50; i++) {
+        const ang = Math.random() * Math.PI * 2;
+        const spd = 3.6 + Math.random() * 5.2;
+        this.moveParticles.push({
+          x: ox,
+          y: oy,
+          vx: Math.cos(ang) * spd,
+          vy: Math.sin(ang) * spd,
+          size: 2.8 + Math.random() * 3.6,
+          color: ['#0284c7', '#38bdf8', '#93c5fd', '#facc15', '#ffffff'][Math.floor(Math.random() * 5)],
+          alpha: 0.95,
+          life: 0,
+          maxLife: 28 + Math.floor(Math.random() * 16),
+          type: 'water',
+        });
+      }
+    } else if (id.includes('regigigas')) {
+      this.regigigasAttackTick = 29;
+      this.cameraShakeTime = 24;
+      this.cameraShakeIntensity = 5.0;
+      for (let i = 0; i < 50; i++) {
+        const ang = Math.random() * Math.PI * 2;
+        const spd = 2.6 + Math.random() * 4.8;
+        this.moveParticles.push({
+          x: ox + Math.cos(ang) * 10,
+          y: oy + Math.sin(ang) * 10,
+          vx: Math.cos(ang) * spd,
+          vy: Math.sin(ang) * spd,
+          size: 3.2 + Math.random() * 3.8,
+          color: ['#facc15', '#22c55e', '#f8fafc', '#94a3b8', '#ef4444'][Math.floor(Math.random() * 5)],
+          alpha: 0.95,
+          life: 0,
+          maxLife: 30 + Math.floor(Math.random() * 16),
+          type: 'shockwave',
+        });
+      }
+    } else if (id.includes('koraidon')) {
+      this.koraidonAttackTick = 26;
+      this.cameraShakeTime = 18;
+      this.cameraShakeIntensity = 4.2;
+      for (let i = 0; i < 50; i++) {
+        const ang = Math.random() * Math.PI * 2;
+        const spd = 3.5 + Math.random() * 5.2;
+        this.moveParticles.push({
+          x: ox + Math.cos(ang) * 8,
+          y: oy + Math.sin(ang) * 8,
+          vx: Math.cos(ang) * spd,
+          vy: Math.sin(ang) * spd,
+          size: 2.8 + Math.random() * 3.6,
+          color: ['#ef4444', '#f97316', '#facc15', '#38bdf8', '#ffffff'][Math.floor(Math.random() * 5)],
+          alpha: 0.95,
+          life: 0,
+          maxLife: 28 + Math.floor(Math.random() * 15),
+          type: 'flame',
+        });
+      }
+    } else if (id.includes('eternatus')) {
+      this.eternatusAttackTick = 29;
+      this.cameraShakeTime = 22;
+      this.cameraShakeIntensity = 4.6;
+      for (let i = 0; i < 55; i++) {
+        const ang = Math.random() * Math.PI * 2;
+        const spd = 3.2 + Math.random() * 5.6;
+        this.moveParticles.push({
+          x: ox + Math.cos(ang) * 10,
+          y: oy + Math.sin(ang) * 10,
+          vx: Math.cos(ang) * spd,
+          vy: Math.sin(ang) * spd,
+          size: 3.0 + Math.random() * 3.8,
+          color: ['#e11d48', '#ec4899', '#a855f7', '#06b6d4', '#ffffff'][Math.floor(Math.random() * 5)],
+          alpha: 0.95,
+          life: 0,
+          maxLife: 30 + Math.floor(Math.random() * 16),
+          type: 'cosmic',
         });
       }
     } else {
@@ -12742,6 +12983,10 @@ export class TownEngine {
       lunala: { rx: 17, ry: 5, yOff: 16 },
       solgaleo: { rx: 16, ry: 6, yOff: 16 },
       samurott: { rx: 14, ry: 5, yOff: 16 },
+      empoleon: { rx: 13, ry: 5, yOff: 16 },
+      regigigas: { rx: 16, ry: 6, yOff: 16 },
+      koraidon: { rx: 15, ry: 5.5, yOff: 16 },
+      eternatus: { rx: 16, ry: 5.5, yOff: 16 },
       necrozma: { rx: 16, ry: 6, yOff: 16 },
       groudon: { rx: 15, ry: 6, yOff: 16 },
       kyogre: { rx: 15, ry: 5.5, yOff: 16 },
@@ -13430,18 +13675,31 @@ export class TownEngine {
         animTick
       );
     } else if (fid === 'latios') {
-      if (this.latiosImg && this.latiosImg.complete) {
-        const coreX = drawX + 8;
-        const coreY = drawY + stepBob + idleBob * 1.6;
-        const jetGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 15);
-        jetGrad.addColorStop(0, 'rgba(191, 219, 254, 0.6)');
-        jetGrad.addColorStop(0.6, 'rgba(59, 130, 246, 0.35)');
-        jetGrad.addColorStop(1, 'rgba(29, 78, 216, 0)');
-        ctx.fillStyle = jetGrad;
-        ctx.beginPath();
-        ctx.arc(coreX, coreY, 15, 0, Math.PI * 2);
-        ctx.fill();
+      const coreX = drawX + 8;
+      const coreY = drawY + 16;
+      this.drawLatiosJetAura(ctx, coreX, coreY - 10, true);
 
+      let action: 'idle' | 'walk' | 'shoot' = 'idle';
+      let animTick = this.tick;
+      if (this.latiosAttackTick > 0) {
+        action = 'shoot';
+        animTick = 25 - this.latiosAttackTick;
+      } else if (isFollowerWalking) {
+        action = 'walk';
+        animTick = this.followerWalkTick;
+      }
+      const dir = this.followerDir || 'down';
+
+      const pmdDrawn = this.pmdAnimator.draw(
+        ctx,
+        'latios',
+        action,
+        dir,
+        coreX,
+        coreY,
+        animTick
+      );
+      if (!pmdDrawn && this.latiosImg && this.latiosImg.complete) {
         ctx.drawImage(this.latiosImg, drawX - 13, drawY - 20 + stepBob + idleBob * 1.6, 42, 42);
       }
     } else if (fid === 'latias') {
@@ -13487,18 +13745,31 @@ export class TownEngine {
         ctx.drawImage(this.latiasImg, drawX - 13, drawY - 20 + stepBob + idleBob * 1.6, 42, 42);
       }
     } else if (fid === 'darkrai') {
-      if (this.darkraiImg && this.darkraiImg.complete) {
-        const coreX = drawX + 8;
-        const coreY = drawY + 2 + stepBob + idleBob * 1.4;
-        const voidGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 16);
-        voidGrad.addColorStop(0, 'rgba(192, 132, 252, 0.55)');
-        voidGrad.addColorStop(0.6, 'rgba(88, 28, 135, 0.4)');
-        voidGrad.addColorStop(1, 'rgba(15, 23, 42, 0)');
-        ctx.fillStyle = voidGrad;
-        ctx.beginPath();
-        ctx.arc(coreX, coreY, 16, 0, Math.PI * 2);
-        ctx.fill();
+      const coreX = drawX + 8;
+      const coreY = drawY + 16;
+      this.drawDarkraiVoidAura(ctx, coreX, coreY - 10, true);
 
+      let action: 'idle' | 'walk' | 'shoot' = 'idle';
+      let animTick = this.tick;
+      if (this.darkraiAttackTick > 0) {
+        action = 'shoot';
+        animTick = 30 - this.darkraiAttackTick;
+      } else if (isFollowerWalking) {
+        action = 'walk';
+        animTick = this.followerWalkTick;
+      }
+      const dir = this.followerDir || 'down';
+
+      const pmdDrawn = this.pmdAnimator.draw(
+        ctx,
+        'darkrai',
+        action,
+        dir,
+        coreX,
+        coreY,
+        animTick
+      );
+      if (!pmdDrawn && this.darkraiImg && this.darkraiImg.complete) {
         ctx.drawImage(this.darkraiImg, drawX - 13, drawY - 20 + stepBob + idleBob * 1.4, 42, 42);
       }
     } else if (fid === 'necrozma') {
@@ -13602,20 +13873,144 @@ export class TownEngine {
         ctx.drawImage(this.solgaleoImg, drawX - 15, drawY - 21 + stepBob, 46, 43);
       }
     } else if (fid === 'samurott') {
-      if (this.samurottImg && this.samurottImg.complete) {
-        const coreX = drawX + 8;
-        const coreY = drawY + 4 + stepBob;
-        const waterGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 16);
-        waterGrad.addColorStop(0, 'rgba(255, 255, 255, 0.7)');
-        waterGrad.addColorStop(0.4, 'rgba(56, 189, 248, 0.45)');
-        waterGrad.addColorStop(0.8, 'rgba(14, 165, 233, 0.25)');
-        waterGrad.addColorStop(1, 'rgba(2, 132, 199, 0)');
-        ctx.fillStyle = waterGrad;
-        ctx.beginPath();
-        ctx.arc(coreX, coreY, 16, 0, Math.PI * 2);
-        ctx.fill();
+      const coreX = drawX + 8;
+      const coreY = drawY + 16;
+      this.drawSamurottHydroAura(ctx, coreX, coreY - 10, true);
 
+      let action: 'idle' | 'walk' | 'attack' = 'idle';
+      let animTick = this.tick;
+      if (this.samurottAttackTick > 0) {
+        action = 'attack';
+        animTick = 27 - this.samurottAttackTick;
+      } else if (isFollowerWalking) {
+        action = 'walk';
+        animTick = this.followerWalkTick;
+      }
+      const dir = this.followerDir || 'down';
+
+      const pmdDrawn = this.pmdAnimator.draw(
+        ctx,
+        'samurott',
+        action,
+        dir,
+        coreX,
+        coreY,
+        animTick
+      );
+      if (!pmdDrawn && this.samurottImg && this.samurottImg.complete) {
         ctx.drawImage(this.samurottImg, drawX - 13, drawY - 20 + stepBob + idleBob, 42, 42);
+      }
+    } else if (fid === 'empoleon') {
+      const coreX = drawX + 8;
+      const coreY = drawY + 16;
+      this.drawEmpoleonTridentAura(ctx, coreX, coreY - 10, true);
+
+      let action: 'idle' | 'walk' | 'shoot' = 'idle';
+      let animTick = this.tick;
+      if (this.empoleonAttackTick > 0) {
+        action = 'shoot';
+        animTick = 26 - this.empoleonAttackTick;
+      } else if (isFollowerWalking) {
+        action = 'walk';
+        animTick = this.followerWalkTick;
+      }
+      const dir = this.followerDir || 'down';
+
+      const pmdDrawn = this.pmdAnimator.draw(
+        ctx,
+        'empoleon',
+        action,
+        dir,
+        coreX,
+        coreY,
+        animTick
+      );
+      if (!pmdDrawn && this.empoleonImg && this.empoleonImg.complete) {
+        ctx.drawImage(this.empoleonImg, drawX - 13, drawY - 20 + stepBob + idleBob, 42, 42);
+      }
+    } else if (fid === 'regigigas') {
+      const coreX = drawX + 8;
+      const coreY = drawY + 16;
+      this.drawRegigigasRuneAura(ctx, coreX, coreY - 12, true);
+
+      let action: 'idle' | 'walk' | 'shoot' = 'idle';
+      let animTick = this.tick;
+      if (this.regigigasAttackTick > 0) {
+        action = 'shoot';
+        animTick = 29 - this.regigigasAttackTick;
+      } else if (isFollowerWalking) {
+        action = 'walk';
+        animTick = this.followerWalkTick;
+      }
+      const dir = this.followerDir || 'down';
+
+      const pmdDrawn = this.pmdAnimator.draw(
+        ctx,
+        'regigigas',
+        action,
+        dir,
+        coreX,
+        coreY,
+        animTick
+      );
+      if (!pmdDrawn && this.regigigasImg && this.regigigasImg.complete) {
+        ctx.drawImage(this.regigigasImg, drawX - 16, drawY - 24 + stepBob, 48, 48);
+      }
+    } else if (fid === 'koraidon') {
+      const coreX = drawX + 8;
+      const coreY = drawY + 16;
+      this.drawKoraidonApexAura(ctx, coreX, coreY - 12, true);
+
+      let action: 'idle' | 'walk' | 'attack' = 'idle';
+      let animTick = this.tick;
+      if (this.koraidonAttackTick > 0) {
+        action = 'attack';
+        animTick = 26 - this.koraidonAttackTick;
+      } else if (isFollowerWalking) {
+        action = 'walk';
+        animTick = this.followerWalkTick;
+      }
+      const dir = this.followerDir || 'down';
+
+      const pmdDrawn = this.pmdAnimator.draw(
+        ctx,
+        'koraidon',
+        action,
+        dir,
+        coreX,
+        coreY,
+        animTick
+      );
+      if (!pmdDrawn && this.koraidonImg && this.koraidonImg.complete) {
+        ctx.drawImage(this.koraidonImg, drawX - 16, drawY - 24 + stepBob, 48, 48);
+      }
+    } else if (fid === 'eternatus') {
+      const coreX = drawX + 8;
+      const coreY = drawY + 16;
+      this.drawEternatusDynamoAura(ctx, coreX, coreY - 12, true);
+
+      let action: 'idle' | 'walk' | 'shoot' = 'idle';
+      let animTick = this.tick;
+      if (this.eternatusAttackTick > 0) {
+        action = 'shoot';
+        animTick = 29 - this.eternatusAttackTick;
+      } else if (isFollowerWalking) {
+        action = 'walk';
+        animTick = this.followerWalkTick;
+      }
+      const dir = this.followerDir || 'down';
+
+      const pmdDrawn = this.pmdAnimator.draw(
+        ctx,
+        'eternatus',
+        action,
+        dir,
+        coreX,
+        coreY,
+        animTick
+      );
+      if (!pmdDrawn && this.eternatusImg && this.eternatusImg.complete) {
+        ctx.drawImage(this.eternatusImg, drawX - 16, drawY - 24 + stepBob + idleBob * 1.4, 48, 48);
       }
     }
 
@@ -13644,6 +14039,192 @@ export class TownEngine {
       ctx.fillStyle = '#000000';
       ctx.fillText(this.followerEmote, drawX + 8, emoteY + 0.5);
       ctx.restore();
+    }
+  }
+
+  private drawEternatusDynamoAura(
+    ctx: CanvasRenderingContext2D,
+    coreX: number,
+    coreY: number,
+    withSparkles: boolean
+  ) {
+    const dynamoPulse = 0.34 + Math.sin(this.tick * 0.08) * 0.14;
+    const auraGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 21);
+    auraGrad.addColorStop(0, `rgba(244, 114, 182, ${dynamoPulse + 0.3})`);
+    auraGrad.addColorStop(0.45, `rgba(225, 29, 72, ${dynamoPulse + 0.1})`);
+    auraGrad.addColorStop(0.8, `rgba(6, 182, 212, ${dynamoPulse * 0.65})`);
+    auraGrad.addColorStop(1, 'rgba(30, 27, 75, 0)');
+    ctx.fillStyle = auraGrad;
+    ctx.beginPath();
+    ctx.arc(coreX, coreY, 21, 0, Math.PI * 2);
+    ctx.fill();
+
+    if (withSparkles && this.tick % 20 < 12) {
+      ctx.fillStyle = '#f43f5e';
+      ctx.fillRect(coreX + Math.sin(this.tick * 0.22) * 13, coreY - 4 + Math.cos(this.tick * 0.22) * 8, 2, 2);
+      ctx.fillStyle = '#06b6d4';
+      ctx.fillRect(coreX - 8 + Math.cos(this.tick * 0.18) * 11, coreY + 3 - (this.tick % 10), 1.5, 1.5);
+      ctx.fillStyle = '#f5d0fe';
+      ctx.fillRect(coreX + 5 + Math.sin(this.tick * 0.26) * 8, coreY - 6 - (this.tick % 9), 1.5, 1.5);
+    }
+  }
+
+  private drawKoraidonApexAura(
+    ctx: CanvasRenderingContext2D,
+    coreX: number,
+    coreY: number,
+    withSparkles: boolean
+  ) {
+    const apexPulse = 0.34 + Math.sin(this.tick * 0.08) * 0.14;
+    const auraGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 20);
+    auraGrad.addColorStop(0, `rgba(254, 215, 170, ${apexPulse + 0.3})`);
+    auraGrad.addColorStop(0.45, `rgba(239, 68, 68, ${apexPulse + 0.12})`);
+    auraGrad.addColorStop(0.8, `rgba(234, 88, 12, ${apexPulse * 0.6})`);
+    auraGrad.addColorStop(1, 'rgba(127, 29, 29, 0)');
+    ctx.fillStyle = auraGrad;
+    ctx.beginPath();
+    ctx.arc(coreX, coreY, 20, 0, Math.PI * 2);
+    ctx.fill();
+
+    if (withSparkles && this.tick % 20 < 12) {
+      ctx.fillStyle = '#facc15';
+      ctx.fillRect(coreX + Math.sin(this.tick * 0.22) * 12, coreY - 4 + Math.cos(this.tick * 0.22) * 7, 1.5, 1.5);
+      ctx.fillStyle = '#ef4444';
+      ctx.fillRect(coreX - 7 + Math.cos(this.tick * 0.18) * 11, coreY + 4 - (this.tick % 10), 2, 2);
+      ctx.fillStyle = '#38bdf8';
+      ctx.fillRect(coreX + 4 + Math.sin(this.tick * 0.28) * 8, coreY + 1 - (this.tick % 9), 1.5, 1.5);
+    }
+  }
+
+  private drawRegigigasRuneAura(
+    ctx: CanvasRenderingContext2D,
+    coreX: number,
+    coreY: number,
+    withSparkles: boolean
+  ) {
+    const runePulse = 0.3 + Math.sin(this.tick * 0.06) * 0.14;
+    const auraGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 21);
+    auraGrad.addColorStop(0, `rgba(254, 240, 138, ${runePulse + 0.3})`);
+    auraGrad.addColorStop(0.45, `rgba(234, 179, 8, ${runePulse + 0.1})`);
+    auraGrad.addColorStop(0.8, `rgba(74, 222, 128, ${runePulse * 0.55})`);
+    auraGrad.addColorStop(1, 'rgba(20, 83, 45, 0)');
+    ctx.fillStyle = auraGrad;
+    ctx.beginPath();
+    ctx.arc(coreX, coreY, 21, 0, Math.PI * 2);
+    ctx.fill();
+
+    if (withSparkles && this.tick % 24 < 14) {
+      const colors = ['#facc15', '#38bdf8', '#ef4444'];
+      ctx.fillStyle = colors[Math.floor(this.tick / 12) % colors.length];
+      ctx.fillRect(coreX + Math.sin(this.tick * 0.16) * 13, coreY - 5 + Math.cos(this.tick * 0.16) * 7, 2, 2);
+      ctx.fillStyle = '#4ade80';
+      ctx.fillRect(coreX - 8 + Math.cos(this.tick * 0.14) * 11, coreY + 4 - (this.tick % 9), 1.5, 1.5);
+    }
+  }
+
+  private drawDarkraiVoidAura(
+    ctx: CanvasRenderingContext2D,
+    coreX: number,
+    coreY: number,
+    withSparkles: boolean
+  ) {
+    const voidPulse = 0.35 + Math.sin(this.tick * 0.07) * 0.15;
+    const voidGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 19);
+    voidGrad.addColorStop(0, `rgba(192, 132, 252, ${voidPulse + 0.25})`);
+    voidGrad.addColorStop(0.5, `rgba(88, 28, 135, ${voidPulse})`);
+    voidGrad.addColorStop(1, 'rgba(15, 23, 42, 0)');
+    ctx.fillStyle = voidGrad;
+    ctx.beginPath();
+    ctx.arc(coreX, coreY, 19, 0, Math.PI * 2);
+    ctx.fill();
+
+    if (withSparkles && this.tick % 22 < 14) {
+      ctx.fillStyle = '#a855f7';
+      ctx.fillRect(coreX + Math.sin(this.tick * 0.2) * 12, coreY + 6 - ((this.tick * 1.3) % 18), 1.5, 1.5);
+      ctx.fillStyle = '#1e1b4b';
+      ctx.fillRect(coreX - 8 + Math.cos(this.tick * 0.16) * 10, coreY + 8 - ((this.tick * 1.1) % 16), 2, 2);
+      ctx.fillStyle = '#f3e8ff';
+      ctx.fillRect(coreX + 4 + Math.sin(this.tick * 0.28) * 8, coreY - 4 - (this.tick % 10), 1.5, 1.5);
+    }
+  }
+
+  private drawEmpoleonTridentAura(
+    ctx: CanvasRenderingContext2D,
+    coreX: number,
+    coreY: number,
+    withSparkles: boolean
+  ) {
+    const tridentPulse = 0.32 + Math.sin(this.tick * 0.08) * 0.14;
+    const auraGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 18);
+    auraGrad.addColorStop(0, `rgba(224, 242, 254, ${tridentPulse + 0.3})`);
+    auraGrad.addColorStop(0.45, `rgba(56, 189, 248, ${tridentPulse + 0.12})`);
+    auraGrad.addColorStop(0.8, `rgba(29, 78, 216, ${tridentPulse * 0.65})`);
+    auraGrad.addColorStop(1, 'rgba(30, 58, 138, 0)');
+    ctx.fillStyle = auraGrad;
+    ctx.beginPath();
+    ctx.arc(coreX, coreY, 18, 0, Math.PI * 2);
+    ctx.fill();
+
+    if (withSparkles && this.tick % 20 < 12) {
+      ctx.fillStyle = '#fde047';
+      ctx.fillRect(coreX + Math.sin(this.tick * 0.2) * 11, coreY - 6 + Math.cos(this.tick * 0.2) * 6, 1.5, 1.5);
+      ctx.fillStyle = '#38bdf8';
+      ctx.fillRect(coreX - 6 + Math.cos(this.tick * 0.18) * 10, coreY + 4 - (this.tick % 10), 2, 2);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(coreX + 4 + Math.sin(this.tick * 0.26) * 8, coreY + 2 - (this.tick % 9), 1.5, 1.5);
+    }
+  }
+
+  private drawSamurottHydroAura(
+    ctx: CanvasRenderingContext2D,
+    coreX: number,
+    coreY: number,
+    withSparkles: boolean
+  ) {
+    const waterPulse = 0.3 + Math.sin(this.tick * 0.08) * 0.15;
+    const waterGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 18);
+    waterGrad.addColorStop(0, `rgba(255, 255, 255, ${waterPulse + 0.3})`);
+    waterGrad.addColorStop(0.4, `rgba(56, 189, 248, ${waterPulse + 0.15})`);
+    waterGrad.addColorStop(0.75, `rgba(14, 165, 233, ${waterPulse * 0.7})`);
+    waterGrad.addColorStop(1, 'rgba(2, 132, 199, 0)');
+    ctx.fillStyle = waterGrad;
+    ctx.beginPath();
+    ctx.arc(coreX, coreY, 18, 0, Math.PI * 2);
+    ctx.fill();
+
+    if (withSparkles && this.tick % 20 < 12) {
+      ctx.fillStyle = '#38bdf8';
+      ctx.fillRect(coreX + Math.sin(this.tick * 0.22) * 12, coreY + 4 - ((this.tick * 1.2) % 14), 1.5, 1.5);
+      ctx.fillStyle = '#0284c7';
+      ctx.fillRect(coreX - 6 + Math.cos(this.tick * 0.17) * 10, coreY + 5 - ((this.tick * 1.0) % 13), 2, 2);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(coreX + 4 + Math.sin(this.tick * 0.28) * 8, coreY + 2 - (this.tick % 11), 1.5, 1.5);
+    }
+  }
+
+  private drawLatiosJetAura(
+    ctx: CanvasRenderingContext2D,
+    coreX: number,
+    coreY: number,
+    withSparkles: boolean
+  ) {
+    const jetPulse = 0.35 + Math.sin(this.tick * 0.09) * 0.15;
+    const auraGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 18);
+    auraGrad.addColorStop(0, `rgba(191, 219, 254, ${jetPulse + 0.3})`);
+    auraGrad.addColorStop(0.5, `rgba(59, 130, 246, ${jetPulse})`);
+    auraGrad.addColorStop(1, 'rgba(29, 78, 216, 0)');
+    ctx.fillStyle = auraGrad;
+    ctx.beginPath();
+    ctx.arc(coreX, coreY, 18, 0, Math.PI * 2);
+    ctx.fill();
+
+    if (withSparkles && this.tick % 20 < 12) {
+      ctx.fillStyle = '#93c5fd';
+      ctx.fillRect(coreX + Math.sin(this.tick * 0.24) * 12, coreY - 4 + Math.cos(this.tick * 0.24) * 8, 1.5, 1.5);
+      ctx.fillStyle = '#60a5fa';
+      ctx.fillRect(coreX - 8 + Math.cos(this.tick * 0.18) * 10, coreY + 3 + Math.sin(this.tick * 0.18) * 6, 2, 2);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(coreX + 4 + Math.sin(this.tick * 0.3) * 8, coreY - 5 - (this.tick % 7), 1.5, 1.5);
     }
   }
 
@@ -13805,6 +14386,10 @@ export class TownEngine {
       lunala: { rx: 17, ry: 5, yOff: 16 },
       solgaleo: { rx: 16, ry: 6, yOff: 16 },
       samurott: { rx: 14, ry: 5, yOff: 16 },
+      empoleon: { rx: 13, ry: 5, yOff: 16 },
+      regigigas: { rx: 16, ry: 6, yOff: 16 },
+      koraidon: { rx: 15, ry: 5.5, yOff: 16 },
+      eternatus: { rx: 16, ry: 5.5, yOff: 16 },
       necrozma: { rx: 16, ry: 6, yOff: 16 },
       groudon: { rx: 15, ry: 6, yOff: 16 },
       kyogre: { rx: 15, ry: 5.5, yOff: 16 },
@@ -13899,9 +14484,30 @@ export class TownEngine {
     } else if (fid === 'snorlax' && this.snorlaxAttackTick > 0) {
       action = 'shoot';
       attackTick = 26 - this.snorlaxAttackTick;
+    } else if (fid === 'samurott' && this.samurottAttackTick > 0) {
+      action = 'attack';
+      attackTick = 27 - this.samurottAttackTick;
+    } else if (fid === 'empoleon' && this.empoleonAttackTick > 0) {
+      action = 'shoot';
+      attackTick = 26 - this.empoleonAttackTick;
+    } else if (fid === 'regigigas' && this.regigigasAttackTick > 0) {
+      action = 'shoot';
+      attackTick = 29 - this.regigigasAttackTick;
+    } else if (fid === 'koraidon' && this.koraidonAttackTick > 0) {
+      action = 'attack';
+      attackTick = 26 - this.koraidonAttackTick;
+    } else if (fid === 'eternatus' && this.eternatusAttackTick > 0) {
+      action = 'shoot';
+      attackTick = 29 - this.eternatusAttackTick;
+    } else if (fid === 'latios' && this.latiosAttackTick > 0) {
+      action = 'shoot';
+      attackTick = 25 - this.latiosAttackTick;
     } else if (fid === 'latias' && this.latiasAttackTick > 0) {
       action = 'shoot';
       attackTick = 25 - this.latiasAttackTick;
+    } else if (fid === 'darkrai' && this.darkraiAttackTick > 0) {
+      action = 'shoot';
+      attackTick = 30 - this.darkraiAttackTick;
     }
 
     const curAnimTick = attackTick > 0 ? attackTick : animTick;
@@ -14018,6 +14624,18 @@ export class TownEngine {
       ctx.beginPath();
       ctx.arc(coreX, coreY - 10, 20, 0, Math.PI * 2);
       ctx.fill();
+    } else if (fid === 'samurott') {
+      this.drawSamurottHydroAura(ctx, coreX, coreY - 10, false);
+    } else if (fid === 'empoleon') {
+      this.drawEmpoleonTridentAura(ctx, coreX, coreY - 10, false);
+    } else if (fid === 'regigigas') {
+      this.drawRegigigasRuneAura(ctx, coreX, coreY - 12, false);
+    } else if (fid === 'koraidon') {
+      this.drawKoraidonApexAura(ctx, coreX, coreY - 12, false);
+    } else if (fid === 'eternatus') {
+      this.drawEternatusDynamoAura(ctx, coreX, coreY - 12, false);
+    } else if (fid === 'latios') {
+      this.drawLatiosJetAura(ctx, coreX, coreY - 10, false);
     } else if (fid === 'latias') {
       const rosePulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
       const roseGrad = ctx.createRadialGradient(coreX, coreY - 10, 2, coreX, coreY - 10, 18);
@@ -14028,6 +14646,8 @@ export class TownEngine {
       ctx.beginPath();
       ctx.arc(coreX, coreY - 10, 18, 0, Math.PI * 2);
       ctx.fill();
+    } else if (fid === 'darkrai') {
+      this.drawDarkraiVoidAura(ctx, coreX, coreY - 10, false);
     }
 
     // Anatomical per-species and per-direction saddle offsets relative to (coreX, coreY)
@@ -14058,6 +14678,10 @@ export class TownEngine {
       solgaleo: { down: { dx: 0, dy: -18 }, side: { dx: -4, dy: -17 }, up: { dx: 0, dy: -17 } },
       necrozma: { down: { dx: 0, dy: -19 }, side: { dx: -3, dy: -18 }, up: { dx: 0, dy: -18 } },
       samurott: { down: { dx: 0, dy: -17 }, side: { dx: -3, dy: -16 }, up: { dx: 0, dy: -17 } },
+      empoleon: { down: { dx: 0, dy: -17 }, side: { dx: -2, dy: -16 }, up: { dx: 0, dy: -17 } },
+      regigigas:{ down: { dx: 0, dy: -22 }, side: { dx: -4, dy: -20 }, up: { dx: 0, dy: -21 } },
+      koraidon: { down: { dx: 0, dy: -20 }, side: { dx: -4, dy: -18 }, up: { dx: 0, dy: -19 } },
+      eternatus:{ down: { dx: 0, dy: -21 }, side: { dx: -5, dy: -19 }, up: { dx: 0, dy: -19 } },
       latios:   { down: { dx: 0, dy: -16 }, side: { dx: -2, dy: -15 }, up: { dx: 0, dy: -16 } },
       latias:   { down: { dx: 0, dy: -16 }, side: { dx: -2, dy: -15 }, up: { dx: 0, dy: -16 } },
       darkrai:  { down: { dx: 0, dy: -18 }, side: { dx: -3, dy: -17 }, up: { dx: 0, dy: -17 } },
@@ -14153,6 +14777,14 @@ export class TownEngine {
         ctx.drawImage(this.solgaleoImg, drawX - 17, drawY - 24 + rideBob, 50, 46);
       } else if (fid === 'samurott' && this.samurottImg?.complete) {
         ctx.drawImage(this.samurottImg, drawX - 16, drawY - 23 + rideBob, 48, 46);
+      } else if (fid === 'empoleon' && this.empoleonImg?.complete) {
+        ctx.drawImage(this.empoleonImg, drawX - 16, drawY - 23 + rideBob, 48, 46);
+      } else if (fid === 'regigigas' && this.regigigasImg?.complete) {
+        ctx.drawImage(this.regigigasImg, drawX - 17, drawY - 24 + rideBob, 50, 48);
+      } else if (fid === 'koraidon' && this.koraidonImg?.complete) {
+        ctx.drawImage(this.koraidonImg, drawX - 17, drawY - 24 + rideBob, 50, 48);
+      } else if (fid === 'eternatus' && this.eternatusImg?.complete) {
+        ctx.drawImage(this.eternatusImg, drawX - 17, drawY - 24 + rideBob, 50, 48);
       } else if (fid === 'lucario') {
         drawLucario(ctx, drawX, drawY + rideBob, this.tick, 1.1);
       }

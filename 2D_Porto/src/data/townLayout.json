@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updatedAt": "2026-11-11T09:47:14.364Z",
+  "updatedAt": "2026-11-12T06:24:03.354Z",
   "buildings": [
     {
       "id": "dev",
@@ -685,7 +685,7 @@
       "h": 2,
       "kind": "npc",
       "subType": "latios",
-      "orientation": "N",
+      "orientation": "S",
       "dialogue": "LATIOS: 'Shwiii-shooo...!' ✈️🔷 Latios melesat melebihi kecepatan suara dengan aerodinamika sayap jet kosmiknya. Sang Penjaga Jiwa dan Cahaya mengawasi Zulfan's Town dari ketinggian angkasa.",
       "hidden": false
     },
