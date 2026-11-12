@@ -1,6 +1,23 @@
 import { DIRS, Tile, type CharacterPalette, type Dir, type Lamp, type TownData, type TownMap, type Vec } from './types';
-import { createTownMap } from './map';
+import { createTownMap, DIGI_GATE_PORTAL } from './map';
 import { createTownBackgroundCanvas, drawPikachu } from './townBackground';
+import {
+  createDigiMap,
+  DIGI_COLS,
+  DIGI_PLAZA_CONSOLE,
+  DIGI_RETURN_GATE,
+  DIGI_ROWS,
+  DIGI_SPAWN,
+} from './digiMap';
+import { createDigiBackgroundCanvas } from './digiBackground';
+import { DigimonPatrolController } from './digimonAnimator';
+import {
+  DIGIMON_CATALOG,
+  DIGIMON_ZONE_COLORS,
+  getDigimonById,
+  type DigimonCatalogEntry,
+} from './digimonCatalog';
+import { requestDigimonSprites, selectDigimonOverworldFrame } from './digiSpriteLoader';
 import { TILE_SIZE, drawCharacter, drawRiderCharacter, drawLucario, drawPixelMatrix } from './sprites';
 import { renderLighting } from './tiles';
 import { findPath } from './pathfinding';
@@ -235,7 +252,7 @@ export class TownEngine {
   private ctx: CanvasRenderingContext2D;
   private map: TownMap;
   private callbacks: EngineCallbacks;
-  private currentScene: 'town' | 'home' | 'dev' | 'lab' | 'arcade' | 'reception' | 'mart' | 'tower' | 'cafe' | 'arena' | 'garden' | 'neighbour' = 'town';
+  private currentScene: 'town' | 'home' | 'dev' | 'lab' | 'arcade' | 'reception' | 'mart' | 'tower' | 'cafe' | 'arena' | 'garden' | 'neighbour' | 'digimon' = 'town';
   private homeFloor: '1F' | '2F' = '1F';
   public activeTowerFloor: '1F' | '2F' | '3F' | '4F' = '1F';
   private devBackgroundCanvas: HTMLCanvasElement | null = null;
@@ -271,6 +288,8 @@ export class TownEngine {
   private gardenBackgroundCanvas: HTMLCanvasElement | null = null;
   private neighbourBackgroundCanvas: HTMLCanvasElement | null = null;
   private townBackgroundCanvas: HTMLCanvasElement | null = null;
+  private digiBackgroundCanvas: HTMLCanvasElement | null = null;
+  private digimonPatrol = new DigimonPatrolController();
   public townAtmosphere: TownAtmosphere = 'day';
   public weather: TownWeather = 'petals';
   private editor: TownEditor;
@@ -370,7 +389,7 @@ export class TownEngine {
     if (!ctx) throw new Error('Could not get 2D context');
     this.ctx = ctx;
     this.callbacks = callbacks;
-    this.map = createTownMap(townData);
+    this.map = initialSpawn === 'digimon' ? createDigiMap(townData) : createTownMap(townData);
 
     if (initialSpawn === 'about' || initialSpawn === 'home') {
       this.currentScene = 'home';
@@ -455,6 +474,13 @@ export class TownEngine {
       this.playerDir = NEIGHBOUR_SPAWN.dir;
       this.cameraX = (NEIGHBOUR_COLS * TILE_SIZE) / 2;
       this.cameraY = (NEIGHBOUR_ROWS * TILE_SIZE) / 2;
+    } else if (initialSpawn === 'digimon') {
+      this.currentScene = 'digimon';
+      this.playerPos = { x: DIGI_SPAWN.x, y: DIGI_SPAWN.y };
+      this.playerTarget = { x: DIGI_SPAWN.x, y: DIGI_SPAWN.y };
+      this.playerDir = DIGI_SPAWN.dir;
+      this.cameraX = (DIGI_COLS * TILE_SIZE) / 2;
+      this.cameraY = (DIGI_ROWS * TILE_SIZE) / 2;
     } else {
       this.currentScene = 'town';
       let spawnX = 22;
@@ -464,11 +490,22 @@ export class TownEngine {
       const exitSpawn = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('town:respawn') : null;
       if (exitSpawn) {
         sessionStorage.removeItem('town:respawn');
-        const [sx, sy] = exitSpawn.split(',').map(Number);
+        const parts = exitSpawn.split(',');
+        const sx = Number(parts[0]);
+        const sy = Number(parts[1]);
+        const sdir = parts[2] as Dir | undefined;
         if (!isNaN(sx) && !isNaN(sy)) {
           spawnX = sx;
           spawnY = sy;
+          if (sdir === 'up' || sdir === 'down' || sdir === 'left' || sdir === 'right') {
+            spawnDir = sdir;
+          }
         }
+      } else if (typeof window !== 'undefined' && window.location.search.includes('from=digimon')) {
+        const digiReturn = this.map.spawns.digimon;
+        spawnX = digiReturn?.x ?? 22;
+        spawnY = digiReturn?.y ?? 58;
+        spawnDir = digiReturn?.dir ?? 'up';
       } else {
         const spawn = this.map.spawns[initialSpawn] || this.map.spawns.town;
         spawnX = spawn?.x ?? 22;
@@ -553,7 +590,15 @@ export class TownEngine {
       }
       sfx.setBgmTheme(this.townAtmosphere);
 
-      const savedFollower = localStorage.getItem('town:active_follower');
+      const savedFollower =
+        this.currentScene === 'digimon'
+          ? (() => {
+              const digiSaved = localStorage.getItem('digimon:active_companion');
+              return digiSaved === 'none'
+                ? null
+                : digiSaved || localStorage.getItem('town:active_follower');
+            })()
+          : localStorage.getItem('town:active_follower');
       if (savedFollower) {
         this.setActiveFollower(savedFollower, false);
       }
@@ -652,8 +697,13 @@ export class TownEngine {
     this.unbindEvents = [];
   }
 
+  private isWorldScene(): boolean {
+    return this.currentScene === 'town' || this.currentScene === 'digimon';
+  }
+
   public invalidateBackgroundCanvas() {
     this.townBackgroundCanvas = null;
+    this.digiBackgroundCanvas = null;
   }
 
   public getCanvas(): HTMLCanvasElement {
@@ -1022,7 +1072,7 @@ export class TownEngine {
   }
 
   public renderXrayOverlay(ctx: CanvasRenderingContext2D): void {
-    if (this.currentScene !== 'town') return;
+    if (!this.isWorldScene()) return;
 
     // Viewport bounds calculation in world tiles
     const viewW = this.canvas.width / this.zoom;
@@ -1308,18 +1358,42 @@ export class TownEngine {
         'mewtwo',
         'darkrai',
         'necrozma',
+        'wargreymon',
+        'omnimon',
+        'gallantmon',
+        'imperialdramon',
+        'imperialdramonpm',
+        'beelzemon',
+        'seraphimon',
+        'valkyrimon',
+        'ophanimon',
+        'azulongmon',
+        'zhuqiaomon',
+        'varodurumon',
+        'ravemon',
+        'ulforceveedramon',
+        'alphamon',
+        'darkdramon',
+        'dynasmon',
+        'crusadermon',
+        'chronomon',
+        'eaglemon',
       ].includes(fid)
     ) {
       return 'sky';
     }
-    if (['kyogre', 'palkia', 'samurott', 'urshifu', 'gyarados'].includes(fid)) {
+    if (
+      ['kyogre', 'palkia', 'samurott', 'urshifu', 'gyarados', 'neptunemon', 'leviamon', 'vikemon'].includes(
+        fid
+      )
+    ) {
       return 'surf';
     }
     return 'charge';
   }
 
   private findNearestWalkableLandTile(originX: number, originY: number, maxRadius = 2): Vec | null {
-    if (this.currentScene !== 'town' || this.isTileWalkableOnFoot(originX, originY)) {
+    if (!this.isWorldScene() || this.isTileWalkableOnFoot(originX, originY)) {
       return { x: originX, y: originY };
     }
     for (let r = 1; r <= maxRadius; r++) {
@@ -1348,7 +1422,7 @@ export class TownEngine {
   }
 
   private ensureSafeFootPosition() {
-    if (this.currentScene !== 'town') return;
+    if (!this.isWorldScene()) return;
     if (!this.isTileWalkableOnFoot(this.playerPos.x, this.playerPos.y)) {
       const land = this.findNearestWalkableLandTile(this.playerPos.x, this.playerPos.y, 12);
       if (land) {
@@ -1434,7 +1508,7 @@ export class TownEngine {
     }
 
     // If currently riding and attempting to dismount, verify safe land tile
-    if (this.isRidingPokemon && this.currentScene === 'town') {
+    if (this.isRidingPokemon && this.isWorldScene()) {
       const land = this.findNearestWalkableLandTile(this.playerPos.x, this.playerPos.y, 2);
       if (!land) {
         sfx.bump();
@@ -1618,6 +1692,9 @@ export class TownEngine {
           }
         }
       }
+      if (this.currentScene === 'digimon') {
+        return [...this.map.lamps, ...lamps];
+      }
       return lamps;
     }
     return this.map.lamps;
@@ -1630,8 +1707,9 @@ export class TownEngine {
     const rect = container.getBoundingClientRect();
     if (!rect.width || !rect.height) return;
 
-    if (this.currentScene === 'town') {
+    if (this.isWorldScene()) {
       this.townBackgroundCanvas = null;
+      this.digiBackgroundCanvas = null;
     }
 
     this.canvas.width = Math.round(rect.width * dpr);
@@ -1793,6 +1871,7 @@ export class TownEngine {
       this.currentScene !== 'arena' &&
       this.currentScene !== 'garden' &&
       this.currentScene !== 'neighbour' &&
+      this.currentScene !== 'digimon' &&
       !this.isMoving &&
       this.path.length === 0 &&
       !this.marker &&
@@ -1852,7 +1931,7 @@ export class TownEngine {
       }
 
       // If town editor is enabled and NOT in playtest mode, editor handles keys
-      if (this.currentScene === 'town' && this.editor.isEnabled() && !this.editor.isPlaytesting()) {
+      if (this.isWorldScene() && this.editor.isEnabled() && !this.editor.isPlaytesting()) {
         return;
       }
 
@@ -1884,7 +1963,7 @@ export class TownEngine {
     };
 
     const onClick = (e: MouseEvent) => {
-      if (this.currentScene === 'town' && this.editor.isEnabled()) {
+      if (this.isWorldScene() && this.editor.isEnabled()) {
         return;
       }
 
@@ -2018,16 +2097,36 @@ export class TownEngine {
           return targetTileX >= nx && targetTileX < nx + nw && targetTileY >= ny && targetTileY < ny + nh;
         }) ||
         townConfig.getBuildings().find((b) => {
-          if (b.hidden || b.kind !== 'npc') return false;
-          return targetTileX >= b.x && targetTileX < b.x + b.w && targetTileY >= b.y && targetTileY < b.y + b.h;
+          if (b.hidden || (b.kind !== 'npc' && b.kind !== 'digimon')) return false;
+          const anchor =
+            b.kind === 'digimon' && this.currentScene === 'digimon'
+              ? this.digimonPatrol.getInteractAnchor(b)
+              : { x: b.x, y: b.y, w: b.w, h: b.h };
+          return (
+            targetTileX >= anchor.x &&
+            targetTileX < anchor.x + anchor.w &&
+            targetTileY >= anchor.y &&
+            targetTileY < anchor.y + anchor.h
+          );
         });
 
       if (hitNpc) {
         const cfg = townConfig.getBuilding(hitNpc.id);
-        const nx = cfg ? cfg.x : (hitNpc.id === 'ace' ? aceX : hitNpc.x);
-        const ny = cfg ? cfg.y : (hitNpc.id === 'ace' ? aceY : hitNpc.y);
-        const nw = (hitNpc as any).w ?? cfg?.w ?? (['charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar', 'garchomp', 'urshifu', 'groudon', 'kyogre', 'reshiram', 'zekrom', 'samurott', 'gyarados', 'snorlax', 'latias'].includes(hitNpc.id) ? 2 : 1);
-        const nh = (hitNpc as any).h ?? cfg?.h ?? (['charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar', 'garchomp', 'urshifu', 'groudon', 'kyogre', 'reshiram', 'zekrom', 'samurott', 'gyarados', 'snorlax', 'latias'].includes(hitNpc.id) ? 2 : 1);
+        const anchor =
+          cfg?.kind === 'digimon' && this.currentScene === 'digimon'
+            ? this.digimonPatrol.getInteractAnchor(cfg)
+            : null;
+        const defaultNpcSize = [
+          'charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar',
+          'garchomp', 'urshifu', 'groudon', 'kyogre', 'reshiram', 'zekrom', 'samurott',
+          'gyarados', 'snorlax', 'latias',
+        ].includes(hitNpc.id)
+          ? 2
+          : 1;
+        const nx = anchor ? anchor.x : cfg ? cfg.x : (hitNpc.id === 'ace' ? aceX : hitNpc.x);
+        const ny = anchor ? anchor.y : cfg ? cfg.y : (hitNpc.id === 'ace' ? aceY : hitNpc.y);
+        const nw = anchor ? anchor.w : ((hitNpc as any).w ?? cfg?.w ?? defaultNpcSize);
+        const nh = anchor ? anchor.h : ((hitNpc as any).h ?? cfg?.h ?? defaultNpcSize);
 
         // If player is already adjacent to this NPC, interact immediately!
         const isAdjacent = (
@@ -2091,19 +2190,30 @@ export class TownEngine {
         }
       }
 
+      if (
+        this.currentScene === 'digimon' &&
+        targetTileX >= DIGI_PLAZA_CONSOLE.x &&
+        targetTileX < DIGI_PLAZA_CONSOLE.x + DIGI_PLAZA_CONSOLE.w &&
+        targetTileY >= DIGI_PLAZA_CONSOLE.y &&
+        targetTileY < DIGI_PLAZA_CONSOLE.y + DIGI_PLAZA_CONSOLE.h
+      ) {
+        this.walkToObject('digidex-console');
+        return;
+      }
+
       this.pendingTarget = null;
       this.walkTo(targetTileX, targetTileY);
     };
 
     const onMouseDown = (e: MouseEvent) => {
-      if (this.currentScene === 'town' && this.editor.isEnabled()) {
+      if (this.isWorldScene() && this.editor.isEnabled()) {
         this.editor.handleMouseDown(e);
         this.wake();
       }
     };
 
     const onMouseMove = (e: MouseEvent) => {
-      if (this.currentScene === 'town' && this.editor.isEnabled()) {
+      if (this.isWorldScene() && this.editor.isEnabled()) {
         this.editor.handleMouseMove(e);
         this.wake();
       } else if (this.xrayMode) {
@@ -2167,7 +2277,7 @@ export class TownEngine {
     };
 
     const onMouseUp = () => {
-      if (this.currentScene === 'town' && this.editor.isEnabled()) {
+      if (this.isWorldScene() && this.editor.isEnabled()) {
         this.editor.handleMouseUp();
         this.wake();
       }
@@ -2186,7 +2296,7 @@ export class TownEngine {
 
       if (Math.abs(newZoom - this.zoom) > 0.0001) {
         // Zoom centered around mouse pointer if in editor mode
-        if (this.currentScene === 'town' && this.editor.isEnabled() && !this.editor.isPlaytesting()) {
+        if (this.isWorldScene() && this.editor.isEnabled() && !this.editor.isPlaytesting()) {
           const rect = this.canvas.getBoundingClientRect();
           const mouseCanvasX = (e.clientX - rect.left) * dpr;
           const mouseCanvasY = (e.clientY - rect.top) * dpr;
@@ -2246,7 +2356,7 @@ export class TownEngine {
     };
 
     const onContextMenu = (e: MouseEvent) => {
-      if (this.currentScene === 'town' && this.editor.isEnabled()) {
+      if (this.isWorldScene() && this.editor.isEnabled()) {
         e.preventDefault();
       }
     };
@@ -2325,6 +2435,34 @@ export class TownEngine {
     window.addEventListener('town:coffee-boost', onCoffeeBoost);
     window.addEventListener('town:tower-floor', onTowerFloor);
 
+    const onSetDigiCompanion = (e: Event) => {
+      const custom = e as CustomEvent<{ companionId: string | null }>;
+      if (custom.detail !== undefined) {
+        this.setActiveFollower(custom.detail.companionId);
+      }
+    };
+    const onToggleDigiPatrol = (e: Event) => {
+      const custom = e as CustomEvent<{ enabled?: boolean }>;
+      const next =
+        typeof custom.detail?.enabled === 'boolean'
+          ? custom.detail.enabled
+          : !this.digimonPatrol.isEnabled();
+      this.digimonPatrol.setEnabled(next);
+      window.dispatchEvent(
+        new CustomEvent('digimon:patrol-changed', { detail: { enabled: next } })
+      );
+      window.dispatchEvent(
+        new CustomEvent('town:editor-toast', {
+          detail: next
+            ? '🚶 Patrol Digimon Otomatis: AKTIF (Digimon bebas berjalan di pulau)'
+            : '⏸️ Patrol Digimon Otomatis: NONAKTIF (Digimon kembali ke posisi asli)',
+        })
+      );
+      this.wake();
+    };
+    window.addEventListener('digimon:set-companion', onSetDigiCompanion);
+    window.addEventListener('digimon:toggle-patrol', onToggleDigiPatrol);
+
     const onReceptionHeal = () => {
       triggerHealAnimation();
       this.wake();
@@ -2402,7 +2540,9 @@ export class TownEngine {
       () => window.removeEventListener('town:cafe-brew-anim', onCafeBrewAnim),
       () => window.removeEventListener('town:arena-fx', onArenaFx),
       () => window.removeEventListener('town:garden-fx', onGardenFx),
-      () => window.removeEventListener('town:neighbour-fx', onNeighbourFx)
+      () => window.removeEventListener('town:neighbour-fx', onNeighbourFx),
+      () => window.removeEventListener('digimon:set-companion', onSetDigiCompanion),
+      () => window.removeEventListener('digimon:toggle-patrol', onToggleDigiPatrol)
     );
   }
 
@@ -2520,6 +2660,10 @@ export class TownEngine {
   }
 
   public isTileWalkableOnFoot(x: number, y: number): boolean {
+    return this.checkTileWalkableOnFoot(x, y, false);
+  }
+
+  private checkTileWalkableOnFoot(x: number, y: number, ignoreDigimon = false): boolean {
     if (x < 0 || x >= this.map.w || y < 0 || y >= this.map.h) return false;
 
     // 1. Explicit tile brush overrides
@@ -2541,6 +2685,16 @@ export class TownEngine {
 
       // Open-air walkable zones (arenas, gardens, contest grounds)
       if (b.id === 'arena' || b.id === 'garden' || b.id === 'contest') continue;
+
+      // Patrol Digimon occupy their active patrol footprint (ignored during own terrain sampling)
+      if (b.kind === 'digimon' && this.currentScene === 'digimon') {
+        if (ignoreDigimon) continue;
+        const anchor = this.digimonPatrol.getInteractAnchor(b);
+        if (x >= anchor.x && x < anchor.x + anchor.w && y >= anchor.y && y < anchor.y + anchor.h) {
+          return false;
+        }
+        continue;
+      }
 
       // Tree collision: trunk row at bottom of tree footprint
       if (b.kind === 'tree') {
@@ -2569,16 +2723,24 @@ export class TownEngine {
       }
     }
 
-    // 3. Tile override clearing base fence/obstacle
+    // 3. Tile override clearing base fence/obstacle (or extending Digi-Sanctuary bridges over Digital Ocean)
     if (
       override === 'grass' ||
       override === 'cobble' ||
       override === 'lab_paver' ||
       override === 'dev_paver' ||
-      override === 'tall_grass'
+      override === 'tall_grass' ||
+      override === 'cyber_grid' ||
+      override === 'lava_rock' ||
+      override === 'cryo_ice' ||
+      override === 'holy_marble'
     ) {
       const baseGround = this.map.ground[y * this.map.w + x];
-      if (baseGround === Tile.FENCE || ((x === 38 || x === 39) && y === 30)) {
+      if (
+        baseGround === Tile.FENCE ||
+        (this.currentScene === 'digimon' && baseGround === Tile.WATER) ||
+        ((x === 38 || x === 39) && y === 30)
+      ) {
         return true;
       }
     }
@@ -2594,7 +2756,7 @@ export class TownEngine {
     if (
       this.isRidingPokemon &&
       this.activeFollower &&
-      this.currentScene === 'town' &&
+      this.isWorldScene() &&
       (!this.editor || !this.editor.isEnabled())
     ) {
       // Keep mount inside map bounds (prevent flying off the edge of the canvas)
@@ -3356,6 +3518,18 @@ export class TownEngine {
         this.pendingTarget = 'ace';
         this.walkTo(28, 18);
         break;
+      case 'digi-gate':
+        this.pendingTarget = null;
+        this.walkTo(22, 60);
+        break;
+      case 'digi-return':
+        this.pendingTarget = null;
+        this.walkTo(20, 4);
+        break;
+      case 'digidex-console':
+        this.pendingTarget = 'digidex-console';
+        this.walkTo(19, 22);
+        break;
     }
   }
 
@@ -3532,6 +3706,20 @@ export class TownEngine {
     }
     if (this.latiasAttackTick > 0) {
       this.latiasAttackTick--;
+    }
+
+    if (this.currentScene === 'digimon') {
+      const patrolMoving = this.digimonPatrol.update(
+        dt,
+        townConfig.getBuildings(),
+        this.playerPos.x,
+        this.playerPos.y,
+        Boolean(this.editor?.isEnabled()),
+        (tx, ty) => this.checkTileWalkableOnFoot(tx, ty, true)
+      );
+      if (patrolMoving) {
+        this.wake();
+      }
     }
 
     // Update dynamic weather particles
@@ -4435,6 +4623,7 @@ export class TownEngine {
       case 'telemetry':
       case 'radar':
       case 'timeline':
+      case 'digidex-console':
         this.playerDir = 'up';
         this.interactFacing(id);
         break;
@@ -4601,10 +4790,13 @@ export class TownEngine {
       }
     }
 
-    // Static door fallback
+    // Static door fallback (including Town <-> Digi-Sanctuary portal gates)
     const route = this.map.doors.get(tileIdx);
     if (route) {
       sfx.door();
+      if (this.currentScene === 'digimon' && route.startsWith('/?from=digimon') && typeof sessionStorage !== 'undefined') {
+        sessionStorage.setItem('town:respawn', '22,58,up');
+      }
       this.callbacks.onNavigate(route);
       return;
     }
@@ -7231,9 +7423,46 @@ export class TownEngine {
     }
 
     // 2. Check Sign
-    const sign = this.map.signs.find((s) => s.x === fx && s.y === fy);
+    const sign =
+      (activeTarget ? this.map.signs.find((s) => s.id === activeTarget) : undefined) ||
+      this.map.signs.find((s) => {
+        if (s.id === 'digidex-console' && this.currentScene === 'digimon') {
+          return (
+            fx >= DIGI_PLAZA_CONSOLE.x &&
+            fx < DIGI_PLAZA_CONSOLE.x + DIGI_PLAZA_CONSOLE.w &&
+            fy >= DIGI_PLAZA_CONSOLE.y &&
+            fy < DIGI_PLAZA_CONSOLE.y + DIGI_PLAZA_CONSOLE.h
+          );
+        }
+        return s.x === fx && s.y === fy;
+      });
     if (sign) {
       sfx.select();
+      if (sign.id === 'digidex-console') {
+        const placedDigi = townConfig.getBuildings().filter((b) => b.kind === 'digimon' && !b.hidden);
+        const liveText = `DIGIDEX MASTER CONSOLE — Digi-Sanctuary Island (40×45). Terdeteksi ${placedDigi.length} entitas Digimon terpasang di pulau & ${DIGIMON_CATALOG.length} Digimon aktif di Katalog (Tier 1–4).`;
+        const consoleActions = [
+          {
+            label: '📖 Buka DigiDex Showcase & Roster',
+            onClick: () => {
+              window.dispatchEvent(
+                new CustomEvent('digimon:open-modal', { detail: { mode: 'roster' } })
+              );
+            },
+          },
+          {
+            label: '🛠️ Buka Town Editor (E)',
+            onClick: () => document.getElementById('btn-toggle-editor')?.click(),
+          },
+        ];
+        if (this.callbacks.onBubble) {
+          this.callbacks.onBubble(sign.name, liveText, consoleActions);
+        } else {
+          this.callbacks.onDialogue(sign.name, [liveText]);
+        }
+        this.wake();
+        return;
+      }
       if (this.callbacks.onBubble) {
         let action:
           | { label: string; href?: string; onClick?: () => void }
@@ -7325,12 +7554,16 @@ export class TownEngine {
         if (b.hidden) return false;
         // Skip major indoor buildings which have their own doors
         if (['dev', 'lab', 'home', 'shop', 'arcade', 'reception', 'office', 'tower'].includes(b.id)) return false;
-        const inFacing = fx >= b.x && fx < b.x + b.w && fy >= b.y && fy < b.y + b.h;
+        const anchor =
+          b.kind === 'digimon' && this.currentScene === 'digimon'
+            ? this.digimonPatrol.getInteractAnchor(b)
+            : { x: b.x, y: b.y, w: b.w, h: b.h };
+        const inFacing = fx >= anchor.x && fx < anchor.x + anchor.w && fy >= anchor.y && fy < anchor.y + anchor.h;
         const isAdjacent = (
-          this.playerPos.x >= b.x - 1 &&
-          this.playerPos.x <= b.x + b.w &&
-          this.playerPos.y >= b.y - 1 &&
-          this.playerPos.y <= b.y + b.h
+          this.playerPos.x >= anchor.x - 1 &&
+          this.playerPos.x <= anchor.x + anchor.w &&
+          this.playerPos.y >= anchor.y - 1 &&
+          this.playerPos.y <= anchor.y + anchor.h
         );
         return inFacing || isAdjacent;
       });
@@ -7482,15 +7715,53 @@ export class TownEngine {
       const tpl = SPAWNABLE_TEMPLATES.find(
         (t) => t.id === customPlaced.id || t.id === 'tpl_' + customPlaced.id || t.subType === customPlaced.subType || t.subType === customPlaced.id
       );
-      if (customPlaced.dialogue || tpl?.defaultDialogue || customPlaced.kind === 'npc' || customPlaced.kind === 'sign') {
+      if (customPlaced.dialogue || tpl?.defaultDialogue || customPlaced.kind === 'npc' || customPlaced.kind === 'digimon' || customPlaced.kind === 'sign') {
         sfx.select();
-        const text = customPlaced.dialogue || tpl?.defaultDialogue || `${customPlaced.name} berdiri di koordinat (${customPlaced.x}, ${customPlaced.y}).`;
 
         let action: BubbleAction | BubbleAction[] | undefined;
         let dialogueText = customPlaced.dialogue || tpl?.defaultDialogue || `${customPlaced.name} berdiri di koordinat (${customPlaced.x}, ${customPlaced.y}).`;
 
         if (customPlaced.link) {
           action = { label: 'Buka / Kunjungi ↗', href: customPlaced.link };
+        } else if (customPlaced.kind === 'digimon') {
+          const entry = getDigimonById(customPlaced.subType || customPlaced.id);
+          if (entry) {
+            requestDigimonSprites(entry.id, () => this.wake());
+            const modalEl = typeof document !== 'undefined' ? document.getElementById('digidex-modal') : null;
+            if (modalEl) {
+              const anchor =
+                this.currentScene === 'digimon'
+                  ? this.digimonPatrol.getInteractAnchor(customPlaced)
+                  : { x: customPlaced.x, y: customPlaced.y, w: customPlaced.w, h: customPlaced.h };
+              this.spawnFlyBurst(anchor.x + 1, anchor.y + 1);
+              this.wake();
+              window.dispatchEvent(
+                new CustomEvent('digimon:open-modal', {
+                  detail: {
+                    id: customPlaced.id,
+                    subType: entry.id,
+                    x: customPlaced.x,
+                    y: customPlaced.y,
+                    name: customPlaced.name,
+                    customDialogue: customPlaced.dialogue,
+                    mode: 'inspect',
+                  },
+                })
+              );
+              return;
+            }
+            dialogueText =
+              customPlaced.dialogue ||
+              `[${entry.stage} • ${entry.attribute} • Jurus: ${entry.signatureMove}] ${entry.lore} (${entry.credit})`;
+            action = {
+              label: `⚡ ${entry.signatureMove.split('&')[0].trim()} Aura`,
+              onClick: () => {
+                sfx.fly();
+                this.spawnFlyBurst(customPlaced.x + 1, customPlaced.y + 1);
+                this.wake();
+              },
+            };
+          }
         } else if (customPlaced.subType === 'pokeball_item') {
           action = {
             label: '🎁 Ambil Item (+2 Poké Ball)',
@@ -8428,6 +8699,44 @@ export class TownEngine {
       return;
     }
 
+    if (this.currentScene === 'digimon') {
+      const digiLabels: Record<string, { x: number; y: number; w: number; h: number; lift?: number }> = {
+        'digi-return': { x: DIGI_RETURN_GATE.xMin, y: DIGI_RETURN_GATE.yMin, w: 3, h: 2, lift: 0.35 },
+        'digidex-console': { x: DIGI_PLAZA_CONSOLE.x, y: DIGI_PLAZA_CONSOLE.y, w: DIGI_PLAZA_CONSOLE.w, h: DIGI_PLAZA_CONSOLE.h, lift: 0.4 },
+      };
+
+      const buttons = container.querySelectorAll<HTMLButtonElement>('.town-label');
+      buttons.forEach((btn) => {
+        const id = btn.getAttribute('data-id');
+        if (!id || !digiLabels[id]) {
+          btn.style.visibility = 'hidden';
+          btn.style.display = 'none';
+          return;
+        }
+
+        btn.style.display = '';
+        const obj = digiLabels[id];
+        const worldX = (obj.x + obj.w / 2) * TILE_SIZE;
+        const worldY = (obj.y - (obj.lift ?? 0)) * TILE_SIZE;
+
+        const canvasX = this.canvas.width / 2 + (worldX - this.cameraX) * this.zoom;
+        const canvasY = this.canvas.height / 2 + (worldY - this.cameraY) * this.zoom;
+
+        const cssX = canvasX / dpr;
+        let cssY = canvasY / dpr;
+        if (cssY < 24) cssY = 24;
+
+        const visible = cssX > -60 && cssX < rect.width + 60 && cssY > -40 && cssY < rect.height + 40;
+        btn.style.left = `${Math.round(cssX)}px`;
+        btn.style.top = `${Math.round(cssY)}px`;
+        btn.style.transform = '';
+        btn.style.visibility = visible ? 'visible' : 'hidden';
+      });
+
+      this.updateTransformBubble(dpr, rect);
+      return;
+    }
+
     const ALIAS_MAP: Record<string, string[]> = {
       depop: ['shop'],
       shop: ['depop'],
@@ -8442,7 +8751,7 @@ export class TownEngine {
       kiosk: ['cafe', 'bar'],
     };
 
-    const STATIC_LABELS = new Set(['linkedin', 'resume', 'github', 'email']);
+    const STATIC_LABELS = new Set(['linkedin', 'resume', 'github', 'email', 'digi-gate']);
     const POKEMON_LABEL_IDS = new Set([
       'charizard',
       'lebron',
@@ -8500,6 +8809,7 @@ export class TownEngine {
       berry: { x: 36, y: 17, w: 7, h: 9, kind: 'statue', lift: 0.1 },
       contest: { x: 36, y: 28, w: 7, h: 8, kind: 'statue', lift: 0.1 },
       hobby: { x: 6, y: 32, w: 3, h: 3, kind: 'board', lift: 0.25 },
+      'digi-gate': { x: DIGI_GATE_PORTAL.xMin, y: DIGI_GATE_PORTAL.yMin, w: 3, h: 2, kind: 'statue', lift: 0.3 },
     };
 
     const buttons = container.querySelectorAll<HTMLButtonElement>('.town-label');
@@ -8596,54 +8906,57 @@ export class TownEngine {
     });
 
     // Update Floating Transform Action Bubble position in editor mode
-    const transformBubble = document.getElementById('town-transform-bubble');
-    if (transformBubble) {
-      if (
-        this.currentScene === 'town' &&
-        this.editor &&
-        this.editor.isEnabled() &&
-        !this.editor.isPlaytesting()
-      ) {
-        const selected = this.editor.getSelectedBuilding();
-        if (selected) {
-          const worldX = (selected.x + selected.w / 2) * TILE_SIZE;
-          const worldY = selected.y * TILE_SIZE;
-          const pt = this.worldToScreen(worldX, worldY);
-          const rect = this.canvas.getBoundingClientRect();
-          const isTopClipped = pt.y < 85;
-          const topPos = isTopClipped
-            ? pt.y + (selected.h * TILE_SIZE * this.zoom) / dpr + 32
-            : pt.y - 14;
-          transformBubble.style.left = `${Math.round(
-            Math.max(120, Math.min(rect.width - 120, pt.x))
-          )}px`;
-          transformBubble.style.top = `${Math.round(topPos)}px`;
-          transformBubble.style.display = 'block';
-          transformBubble.classList.remove('hidden');
+    this.updateTransformBubble(dpr, rect);
+  }
 
-          const titleEl = document.getElementById('transform-bubble-title');
-          const badgeEl = document.getElementById(
-            'transform-bubble-orient-badge'
-          );
-          if (titleEl) titleEl.textContent = selected.name;
-          if (badgeEl) {
-            const orient = selected.orientation || 'N';
-            const orientLabels: Record<'N' | 'E' | 'S' | 'W', string> = {
-              W: '⬅️ Hadap Kiri',
-              E: '➡️ Hadap Kanan',
-              S: '⬇️ Hadap Depan',
-              N: '⬆️ Hadap Belakang',
-            };
-            badgeEl.textContent = orientLabels[orient] || orient;
-          }
-        } else {
-          transformBubble.style.display = 'none';
-          transformBubble.classList.add('hidden');
+  private updateTransformBubble(dpr: number, rect: DOMRect) {
+    const transformBubble = document.getElementById('town-transform-bubble');
+    if (!transformBubble) return;
+
+    if (
+      this.isWorldScene() &&
+      this.editor &&
+      this.editor.isEnabled() &&
+      !this.editor.isPlaytesting()
+    ) {
+      const selected = this.editor.getSelectedBuilding();
+      if (selected) {
+        const worldX = (selected.x + selected.w / 2) * TILE_SIZE;
+        const worldY = selected.y * TILE_SIZE;
+        const pt = this.worldToScreen(worldX, worldY);
+        const isTopClipped = pt.y < 85;
+        const topPos = isTopClipped
+          ? pt.y + (selected.h * TILE_SIZE * this.zoom) / dpr + 32
+          : pt.y - 14;
+        transformBubble.style.left = `${Math.round(
+          Math.max(120, Math.min(rect.width - 120, pt.x))
+        )}px`;
+        transformBubble.style.top = `${Math.round(topPos)}px`;
+        transformBubble.style.display = 'block';
+        transformBubble.classList.remove('hidden');
+
+        const titleEl = document.getElementById('transform-bubble-title');
+        const badgeEl = document.getElementById(
+          'transform-bubble-orient-badge'
+        );
+        if (titleEl) titleEl.textContent = selected.name;
+        if (badgeEl) {
+          const orient = selected.orientation || 'N';
+          const orientLabels: Record<'N' | 'E' | 'S' | 'W', string> = {
+            W: '⬅️ Hadap Kiri',
+            E: '➡️ Hadap Kanan',
+            S: '⬇️ Hadap Depan',
+            N: '⬆️ Hadap Belakang',
+          };
+          badgeEl.textContent = orientLabels[orient] || orient;
         }
       } else {
         transformBubble.style.display = 'none';
         transformBubble.classList.add('hidden');
       }
+    } else {
+      transformBubble.style.display = 'none';
+      transformBubble.classList.add('hidden');
     }
   }
 
@@ -9162,7 +9475,7 @@ export class TownEngine {
     // Horizontal camera positioning & boundary clamping
     if (mapPixelW <= viewW) {
       this.cameraX = mapPixelW / 2;
-    } else if (this.currentScene === 'town' && this.editor.isEnabled() && !this.editor.isPlaytesting()) {
+    } else if (this.isWorldScene() && this.editor.isEnabled() && !this.editor.isPlaytesting()) {
       this.cameraX = Math.max(viewW / 2, Math.min(mapPixelW - viewW / 2, this.cameraX));
     } else {
       this.cameraX = Math.max(viewW / 2, Math.min(mapPixelW - viewW / 2, targetCamX));
@@ -9171,7 +9484,7 @@ export class TownEngine {
     // Vertical camera positioning & boundary clamping
     if (mapPixelH <= viewH) {
       this.cameraY = mapPixelH / 2;
-    } else if (this.currentScene === 'town' && this.editor.isEnabled() && !this.editor.isPlaytesting()) {
+    } else if (this.isWorldScene() && this.editor.isEnabled() && !this.editor.isPlaytesting()) {
       this.cameraY = Math.max(viewH / 2, Math.min(mapPixelH - viewH / 2, this.cameraY));
     } else {
       this.cameraY = Math.max(viewH / 2, Math.min(mapPixelH - viewH / 2, targetCamY));
@@ -9180,8 +9493,8 @@ export class TownEngine {
     ctx.save();
     ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-    // Dark forest surround background
-    ctx.fillStyle = '#162e1d';
+    // Dark surround backdrop (Deep data sea on /digimon, dark forest on Town)
+    ctx.fillStyle = this.currentScene === 'digimon' ? '#040a18' : '#162e1d';
     ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
     // Apply zoom & center camera
@@ -9195,31 +9508,48 @@ export class TownEngine {
       ctx.translate(shakeX, shakeY);
     }
 
-    // 1. Procedural 2D Pixel-Art Background Canvas (Handcrafted Pokémon Gen 4/5 style)
-    if (!this.townBackgroundCanvas) {
-      this.townBackgroundCanvas = createTownBackgroundCanvas(this.map);
-    }
-    ctx.drawImage(this.townBackgroundCanvas, 0, 0);
+    if (this.currentScene === 'digimon') {
+      // 1. Procedural Digi-Sanctuary Island Background Canvas
+      if (!this.digiBackgroundCanvas) {
+        this.digiBackgroundCanvas = createDigiBackgroundCanvas(this.map);
+      }
+      ctx.drawImage(this.digiBackgroundCanvas, 0, 0);
 
-    // 2. Sparkling animated water reflection on the fountain pool & courtyard basin
-    const fountain = townConfig.getBuilding('fountain') || { x: 27, y: 29 };
-    const basin = townConfig.getBuilding('basin') || { x: 15, y: 15 };
-    const shimmer = Math.sin(this.tick * 0.08);
-    ctx.fillStyle = `rgba(180, 240, 255, ${0.28 + shimmer * 0.16})`;
-    ctx.beginPath();
-    ctx.arc((fountain.x + 2) * TILE_SIZE, (fountain.y + 2) * TILE_SIZE, 1.7 * TILE_SIZE, 0, Math.PI * 2);
-    ctx.fill();
+      // Animated Digital Return Gate & DigiDex Console holographic pulse
+      this.renderPortalPulseOverlay(ctx, DIGI_RETURN_GATE.xMin, DIGI_RETURN_GATE.yMin);
+      const pulse = 0.25 + 0.2 * Math.sin(this.tick * 0.08);
+      ctx.fillStyle = `rgba(0, 240, 255, ${pulse})`;
+      ctx.fillRect(DIGI_PLAZA_CONSOLE.x * TILE_SIZE + 8, DIGI_PLAZA_CONSOLE.y * TILE_SIZE + 6, 16, 2);
+    } else {
+      // 1. Procedural 2D Pixel-Art Background Canvas (Handcrafted Pokémon Gen 4/5 style)
+      if (!this.townBackgroundCanvas) {
+        this.townBackgroundCanvas = createTownBackgroundCanvas(this.map);
+      }
+      ctx.drawImage(this.townBackgroundCanvas, 0, 0);
 
-    ctx.beginPath();
-    ctx.arc((basin.x + 1) * TILE_SIZE, (basin.y + 1) * TILE_SIZE, 0.7 * TILE_SIZE, 0, Math.PI * 2);
-    ctx.fill();
+      // 2. Sparkling animated water reflection on the fountain pool & courtyard basin
+      const fountain = townConfig.getBuilding('fountain') || { x: 27, y: 29 };
+      const basin = townConfig.getBuilding('basin') || { x: 15, y: 15 };
+      const shimmer = Math.sin(this.tick * 0.08);
+      ctx.fillStyle = `rgba(180, 240, 255, ${0.28 + shimmer * 0.16})`;
+      ctx.beginPath();
+      ctx.arc((fountain.x + 2) * TILE_SIZE, (fountain.y + 2) * TILE_SIZE, 1.7 * TILE_SIZE, 0, Math.PI * 2);
+      ctx.fill();
 
-    // 3. Dynamic animated water wave foam on the ocean coast (left side)
-    const oceanShimmer = Math.sin(this.tick * 0.05);
-    ctx.fillStyle = `rgba(255, 255, 255, ${0.15 + oceanShimmer * 0.08})`;
-    for (let oy = 4; oy < 32; oy += 3) {
-      const ox = 2 + ((oy * 7 + Math.floor(this.tick / 18)) % 5);
-      ctx.fillRect(ox * TILE_SIZE, oy * TILE_SIZE, 14, 2);
+      ctx.beginPath();
+      ctx.arc((basin.x + 1) * TILE_SIZE, (basin.y + 1) * TILE_SIZE, 0.7 * TILE_SIZE, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 3. Dynamic animated water wave foam on the ocean coast (left side)
+      const oceanShimmer = Math.sin(this.tick * 0.05);
+      ctx.fillStyle = `rgba(255, 255, 255, ${0.15 + oceanShimmer * 0.08})`;
+      for (let oy = 4; oy < 32; oy += 3) {
+        const ox = 2 + ((oy * 7 + Math.floor(this.tick / 18)) % 5);
+        ctx.fillRect(ox * TILE_SIZE, oy * TILE_SIZE, 14, 2);
+      }
+
+      // 3b. Animated South Digi-Gate Portal rings & sunset/night halo at (21..23, 59..60)
+      this.renderPortalPulseOverlay(ctx, DIGI_GATE_PORTAL.xMin, DIGI_GATE_PORTAL.yMin);
     }
 
     // 4. Warm street lamp lighting pools on the ground (Dynamic from townConfig)
@@ -11220,6 +11550,9 @@ export class TownEngine {
       }
     }
 
+    // 8b. Custom spawned Digimon (Digimon World DS lazy sprite slicing + orientation)
+    this.renderCustomDigimonEntities(ctx);
+
     // 9. Dust puffs beneath player
     for (const p of this.dustPuffs) {
       ctx.fillStyle = `rgba(226, 232, 240, ${p.alpha * 0.75})`;
@@ -11274,7 +11607,7 @@ export class TownEngine {
     }
 
     // Authentic Pokémon tall grass immersion (grass blades rustle over trainer's feet)
-    if (this.currentScene === 'town') {
+    if (this.isWorldScene()) {
       const curTile = this.map.ground[this.playerPos.y * this.map.w + this.playerPos.x];
       if (curTile === 2) {
         ctx.fillStyle = '#458f2f';
@@ -11290,21 +11623,39 @@ export class TownEngine {
     }
 
     // 10. Day / Sunset / Night Atmosphere Overlay, Building Windows & Dynamic Lighting
-    if (this.currentScene === 'town') {
+    if (this.isWorldScene()) {
       if (this.townAtmosphere === 'sunset') {
-        ctx.fillStyle = 'rgba(255, 135, 45, 0.16)';
+        ctx.fillStyle = this.currentScene === 'digimon' ? 'rgba(99, 102, 241, 0.14)' : 'rgba(255, 135, 45, 0.16)';
         ctx.fillRect(0, 0, this.map.w * TILE_SIZE, this.map.h * TILE_SIZE);
         renderLighting(ctx, this.getActiveLamps());
       } else if (this.townAtmosphere === 'night') {
         // Deep indigo night atmosphere
-        ctx.fillStyle = 'rgba(12, 18, 50, 0.44)';
+        ctx.fillStyle = this.currentScene === 'digimon' ? 'rgba(4, 9, 26, 0.42)' : 'rgba(12, 18, 50, 0.44)';
         ctx.fillRect(0, 0, this.map.w * TILE_SIZE, this.map.h * TILE_SIZE);
 
         // Warm illuminated building windows at night
-        this.renderNightBuildingWindows(ctx);
+        if (this.currentScene === 'town') {
+          this.renderNightBuildingWindows(ctx);
+        }
 
         // Street lantern glowing pools
         renderLighting(ctx, this.getActiveLamps());
+      }
+
+      // Portal twilight/night halo on top of evening atmosphere
+      if (this.townAtmosphere === 'sunset' || this.townAtmosphere === 'night') {
+        const gateX = this.currentScene === 'digimon' ? DIGI_RETURN_GATE.xMin : DIGI_GATE_PORTAL.xMin;
+        const gateY = this.currentScene === 'digimon' ? DIGI_RETURN_GATE.yMin : DIGI_GATE_PORTAL.yMin;
+        const gcx = (gateX + 1.5) * TILE_SIZE;
+        const gcy = (gateY + 1) * TILE_SIZE;
+        const halo = ctx.createRadialGradient(gcx, gcy, 4, gcx, gcy, 38);
+        halo.addColorStop(0, 'rgba(0, 240, 255, 0.48)');
+        halo.addColorStop(0.55, 'rgba(251, 191, 36, 0.18)');
+        halo.addColorStop(1, 'rgba(0, 240, 255, 0)');
+        ctx.fillStyle = halo;
+        ctx.beginPath();
+        ctx.arc(gcx, gcy, 38, 0, Math.PI * 2);
+        ctx.fill();
       }
 
       // Rainy weather cool ambient wash
@@ -11318,7 +11669,7 @@ export class TownEngine {
     this.renderWeatherParticles(ctx);
 
     // 12. Town Editor Overlay (Grid, Building Dragging, Coordinates Tooltip)
-    if (this.currentScene === 'town' && this.editor.isEnabled()) {
+    if (this.isWorldScene() && this.editor.isEnabled()) {
       this.editor.renderOverlay(ctx);
     }
 
@@ -11331,6 +11682,35 @@ export class TownEngine {
 
     // Position HTML DOM labels
     this.updateDomLabels();
+  }
+
+  private renderPortalPulseOverlay(ctx: CanvasRenderingContext2D, startTileX: number, startTileY: number) {
+    const cx = (startTileX + 1.5) * TILE_SIZE;
+    const cy = (startTileY + 1) * TILE_SIZE;
+    const phase = (this.tick * 0.045) % 1;
+    const wave = 0.5 + 0.5 * Math.sin(this.tick * 0.08);
+
+    ctx.save();
+    // Pulsing expanding cyan energy wave
+    ctx.strokeStyle = `rgba(0, 240, 255, ${(1 - phase) * 0.65})`;
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, 8 + phase * 12, 5 + phase * 8, 0, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Soft golden core shimmer
+    ctx.fillStyle = `rgba(251, 191, 36, ${0.18 + wave * 0.22})`;
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, 7, 4.5, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Pylon beacon pulse
+    const px = startTileX * TILE_SIZE;
+    const py = startTileY * TILE_SIZE;
+    ctx.fillStyle = `rgba(103, 232, 249, ${0.35 + wave * 0.55})`;
+    ctx.fillRect(px - 2, py + 4, 4, 2);
+    ctx.fillRect(px + 46, py + 4, 4, 2);
+    ctx.restore();
   }
 
   private renderNightBuildingWindows(ctx: CanvasRenderingContext2D) {
@@ -11377,6 +11757,144 @@ export class TownEngine {
       }
     }
     ctx.restore();
+  }
+
+  /**
+   * Renders all placed `kind === 'digimon'` entities with lazy DS sprite slicing,
+   * elemental ground aura, N/S/W/E orientation mirroring, and digital speech indicator.
+   */
+  private renderCustomDigimonEntities(ctx: CanvasRenderingContext2D) {
+    const digiEntities = townConfig.getBuildings().filter((b) => b.kind === 'digimon' && !b.hidden);
+    if (digiEntities.length === 0) return;
+
+    const zoneAuraColors: Record<string, { inner: string; rim: string }> = {
+      flame: { inner: 'rgba(249, 115, 22, 0.30)', rim: 'rgba(251, 146, 60, 0.65)' },
+      cyber: { inner: 'rgba(14, 165, 233, 0.30)', rim: 'rgba(56, 189, 248, 0.65)' },
+      aqua: { inner: 'rgba(6, 182, 212, 0.30)', rim: 'rgba(103, 232, 249, 0.65)' },
+      holy: { inner: 'rgba(251, 191, 36, 0.28)', rim: 'rgba(253, 224, 71, 0.65)' },
+      plaza: { inner: 'rgba(0, 240, 255, 0.28)', rim: 'rgba(251, 191, 36, 0.65)' },
+    };
+
+    for (const b of digiEntities) {
+      const digiId = b.subType || b.id;
+      const entry = getDigimonById(digiId);
+      if (!entry) continue;
+
+      const pose =
+        this.currentScene === 'digimon'
+          ? this.digimonPatrol.getRenderPose(b)
+          : {
+              tileX: b.x,
+              tileY: b.y,
+              orientation: (b.orientation || 'S') as 'N' | 'S' | 'E' | 'W',
+              isWalking: false,
+            };
+      const bwPx = Math.max(TILE_SIZE, (b.w || 2) * TILE_SIZE);
+      const bhPx = Math.max(TILE_SIZE, (b.h || 2) * TILE_SIZE);
+      const centerX = pose.tileX * TILE_SIZE + bwPx / 2;
+      const footY = pose.tileY * TILE_SIZE + bhPx - 2;
+      const bob = pose.isWalking
+        ? Math.abs(Math.sin(this.tick * 0.28 + b.x)) * 1.4
+        : Math.sin(this.tick * 0.055 + b.x * 0.7) * 0.8;
+
+      const aura = zoneAuraColors[entry.elementZone] || zoneAuraColors.plaza;
+      ctx.save();
+      ctx.fillStyle = aura.inner;
+      ctx.beginPath();
+      ctx.ellipse(centerX, footY, 15, 5.5, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = aura.rim;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.ellipse(centerX, footY, 14, 4.8, 0, 0, Math.PI * 2);
+      ctx.stroke();
+
+      ctx.fillStyle = 'rgba(4, 10, 24, 0.48)';
+      ctx.beginPath();
+      ctx.ellipse(centerX, footY, 11, 3.6, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      this.drawDigimonOverworldSprite(
+        ctx,
+        entry,
+        pose.orientation,
+        this.tick,
+        pose.isWalking,
+        centerX,
+        footY + bob,
+        1,
+        true
+      );
+      ctx.restore();
+
+      const bx = pose.tileX * TILE_SIZE + bwPx - 8;
+      const by = pose.tileY * TILE_SIZE - 8 + Math.sin(this.tick * 0.08 + b.x * 0.5) * 1.4;
+      ctx.save();
+      ctx.fillStyle = '#091526';
+      ctx.beginPath();
+      ctx.roundRect(bx, by, 13, 9, 3);
+      ctx.fill();
+      ctx.strokeStyle = '#00f0ff';
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
+
+      ctx.fillStyle = '#67e8f9';
+      ctx.fillRect(bx + 2.5, by + 3.5, 1.5, 1.5);
+      ctx.fillRect(bx + 5.5, by + 3.5, 1.5, 1.5);
+      ctx.fillRect(bx + 8.5, by + 3.5, 1.5, 1.5);
+      ctx.restore();
+    }
+  }
+
+  private drawDigimonOverworldSprite(
+    ctx: CanvasRenderingContext2D,
+    entry: DigimonCatalogEntry,
+    orientation: 'N' | 'S' | 'E' | 'W',
+    animTick: number,
+    isWalking: boolean,
+    centerX: number,
+    footY: number,
+    heightScale = 1,
+    drawLoadingFallback = true
+  ): boolean {
+    const sprites = requestDigimonSprites(entry.id, () => this.wake());
+    if (!sprites) {
+      if (drawLoadingFallback) {
+        const pulse = 0.4 + 0.3 * Math.sin(this.tick * 0.12);
+        ctx.fillStyle = `rgba(0, 240, 255, ${pulse})`;
+        ctx.fillRect(centerX - 8, footY - 24, 16, 22);
+        ctx.strokeStyle = '#fbbf24';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(centerX - 8, footY - 24, 16, 22);
+      }
+      return false;
+    }
+
+    const { frame, flipX } = selectDigimonOverworldFrame(
+      entry,
+      sprites,
+      orientation,
+      animTick,
+      false,
+      isWalking
+    );
+    if (!frame) return false;
+
+    const targetH = Math.max(18, Math.round((entry.overworldTargetHeight || 34) * heightScale));
+    const scale = targetH / frame.height;
+    const drawW = Math.max(12, Math.round(frame.width * scale));
+    const drawH = Math.max(12, Math.round(frame.height * scale));
+
+    ctx.save();
+    ctx.translate(Math.round(centerX), Math.round(footY));
+    if (flipX) {
+      ctx.scale(-1, 1);
+    }
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(frame.canvas, -Math.round(drawW / 2), -drawH, drawW, drawH);
+    ctx.restore();
+    return true;
   }
 
   private renderWeatherParticles(ctx: CanvasRenderingContext2D) {
@@ -11591,19 +12109,35 @@ export class TownEngine {
       }
       this.activeFollower = null;
       if (typeof window !== 'undefined') {
-        localStorage.removeItem('town:active_follower');
-        localStorage.removeItem('town:activeFollower');
+        if (this.currentScene === 'digimon') {
+          if (localStorage.getItem('town:active_follower')) {
+            localStorage.setItem('digimon:active_companion', 'none');
+          } else {
+            localStorage.removeItem('digimon:active_companion');
+          }
+        } else {
+          localStorage.removeItem('town:active_follower');
+          localStorage.removeItem('town:activeFollower');
+        }
       }
       this.wake();
       if (announce && typeof window !== 'undefined') {
         window.dispatchEvent(
           new CustomEvent('town:editor-toast', {
-            detail: '👟 Pokémon partner diistirahatkan.',
+            detail:
+              this.currentScene === 'digimon'
+                ? '👟 Partner companion diistirahatkan.'
+                : '👟 Pokémon partner diistirahatkan.',
           })
         );
         window.dispatchEvent(
           new CustomEvent('town:follower-changed', {
             detail: { follower: null, followerId: null },
+          })
+        );
+        window.dispatchEvent(
+          new CustomEvent('digimon:companion-changed', {
+            detail: { companion: null, companionId: null },
           })
         );
       }
@@ -11640,18 +12174,29 @@ export class TownEngine {
 
     const cleanId = id.toLowerCase().replace(/[^a-z]/g, '');
     const matchedKey = Object.keys(followersMap).find((k) => cleanId.includes(k));
-    if (!matchedKey) return;
+    const digiMatch = !matchedKey ? getDigimonById(id) : undefined;
+    if (!matchedKey && !digiMatch) return;
 
-    const data = followersMap[matchedKey];
+    const companionId = matchedKey || digiMatch!.id;
+    const data = matchedKey
+      ? followersMap[matchedKey]
+      : {
+          name: digiMatch!.name,
+          title: `${digiMatch!.stage} · ${digiMatch!.attribute}`,
+          icon: digiMatch!.iconEmoji,
+        };
     this.activeFollower = {
-      id: matchedKey,
+      id: companionId,
       name: data.name,
       title: data.title,
       icon: data.icon,
     };
+    if (digiMatch) {
+      requestDigimonSprites(digiMatch.id, () => this.wake());
+    }
 
     if (this.isRidingPokemon) {
-      if (this.getRideClass(matchedKey) === 'charge') {
+      if (this.getRideClass(companionId) === 'charge') {
         this.ensureSafeFootPosition();
       }
       this.followerPos = { ...this.playerPos };
@@ -11660,7 +12205,7 @@ export class TownEngine {
       if (typeof window !== 'undefined') {
         window.dispatchEvent(
           new CustomEvent('town:pokeride-changed', {
-            detail: { active: true, follower: this.activeFollower, rideClass: this.getRideClass(matchedKey) },
+            detail: { active: true, follower: this.activeFollower, rideClass: this.getRideClass(companionId) },
           })
         );
       }
@@ -11676,8 +12221,13 @@ export class TownEngine {
     this.followerEmote = '❤️';
 
     if (typeof window !== 'undefined') {
-      localStorage.setItem('town:active_follower', matchedKey);
-      localStorage.setItem('town:activeFollower', matchedKey);
+      if (this.currentScene === 'digimon' || digiMatch) {
+        localStorage.setItem('digimon:active_companion', companionId);
+      }
+      if (this.currentScene !== 'digimon' && !digiMatch) {
+        localStorage.setItem('town:active_follower', companionId);
+        localStorage.setItem('town:activeFollower', companionId);
+      }
     }
     sfx.confirm();
     this.wake();
@@ -11691,6 +12241,11 @@ export class TownEngine {
       window.dispatchEvent(
         new CustomEvent('town:follower-changed', {
           detail: { follower: this.activeFollower, followerId: this.activeFollower.id },
+        })
+      );
+      window.dispatchEvent(
+        new CustomEvent('digimon:companion-changed', {
+          detail: { companion: this.activeFollower, companionId: this.activeFollower.id },
         })
       );
     }
@@ -12207,8 +12762,24 @@ export class TownEngine {
       latios: { rx: 12, ry: 4.5, yOff: 16 },
       latias: { rx: 12, ry: 4.5, yOff: 16 },
     };
+    const digiCompanion = getDigimonById(fid);
     const s = shadowMap[fid];
-    if (s) {
+    if (digiCompanion) {
+      const aura = DIGIMON_ZONE_COLORS[digiCompanion.elementZone] || DIGIMON_ZONE_COLORS.plaza;
+      ctx.fillStyle = aura.inner;
+      ctx.beginPath();
+      ctx.ellipse(drawX + 8, drawY + 15, 13, 4.6, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = aura.rim;
+      ctx.lineWidth = 0.9;
+      ctx.beginPath();
+      ctx.ellipse(drawX + 8, drawY + 15, 12, 4, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.42)';
+      ctx.beginPath();
+      ctx.ellipse(drawX + 8, drawY + 15, 9.5, 3.2, 0, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (s) {
       ctx.fillStyle = 'rgba(15, 23, 42, 0.4)';
       ctx.beginPath();
       ctx.ellipse(drawX + 8, drawY + s.yOff, s.rx, s.ry, 0, 0, Math.PI * 2);
@@ -12220,14 +12791,34 @@ export class TownEngine {
       ctx.fill();
     }
 
-    const shouldFlip = isFlipped && !this.pmdAnimator.isSupported(fid);
+    const shouldFlip = isFlipped && !this.pmdAnimator.isSupported(fid) && !digiCompanion;
     if (shouldFlip) {
       ctx.translate(drawX + 8, 0);
       ctx.scale(-1, 1);
       ctx.translate(-(drawX + 8), 0);
     }
 
-    if (fid === 'pikachu') {
+    if (digiCompanion) {
+      const orientMap: Record<Dir, 'N' | 'S' | 'E' | 'W'> = {
+        up: 'N',
+        down: 'S',
+        left: 'W',
+        right: 'E',
+      };
+      const orient = orientMap[this.followerDir] || 'S';
+      const bobOffset = isFollowerWalking ? stepBob * 0.45 : idleBob * 0.55;
+      this.drawDigimonOverworldSprite(
+        ctx,
+        digiCompanion,
+        orient,
+        this.tick,
+        isFollowerWalking,
+        drawX + 8,
+        drawY + 15 + bobOffset,
+        0.86,
+        true
+      );
+    } else if (fid === 'pikachu') {
       drawPikachu(ctx, drawX, drawY + stepBob + idleBob);
     } else if (fid === 'lucario') {
       drawLucario(ctx, drawX, drawY + stepBob, this.tick, 1);
@@ -13033,7 +13624,11 @@ export class TownEngine {
     // Cute thought emote bubble (heart or music note)
     if (this.followerEmoteTime > 0) {
       const pmdCfg = this.pmdAnimator.getConfig(fid);
-      const topOffset = pmdCfg ? Math.round(pmdCfg.idle.anchorY * pmdCfg.scale + 8) : 18;
+      const topOffset = getDigimonById(fid)
+        ? 26
+        : pmdCfg
+          ? Math.round(pmdCfg.idle.anchorY * pmdCfg.scale + 8)
+          : 18;
       const emoteY = drawY + 16 - topOffset;
       ctx.save();
       ctx.font = '10px monospace';
@@ -13081,7 +13676,7 @@ export class TownEngine {
     const tileY = Math.max(0, Math.min(this.map.h - 1, Math.round(drawY / TILE_SIZE)));
     const override = townConfig.getTileOverride(tileX, tileY);
     const baseGround = this.map.ground[tileY * this.map.w + tileX];
-    const isOverWater = this.currentScene === 'town' && (override === 'water' || baseGround === Tile.WATER);
+    const isOverWater = this.isWorldScene() && (override === 'water' || baseGround === Tile.WATER);
 
     const cx = drawX + 8;
     const cy = drawY + 14;
@@ -13197,7 +13792,7 @@ export class TownEngine {
     const tileY = Math.max(0, Math.min(this.map.h - 1, Math.round(drawY / TILE_SIZE)));
     const override = townConfig.getTileOverride(tileX, tileY);
     const baseGround = this.map.ground[tileY * this.map.w + tileX];
-    const isOverWater = this.currentScene === 'town' && (override === 'water' || baseGround === Tile.WATER);
+    const isOverWater = this.isWorldScene() && (override === 'water' || baseGround === Tile.WATER);
 
     // Step bob / ride bobbing
     const rideBob = isMoving
@@ -13492,20 +14087,39 @@ export class TownEngine {
       riderDy = saddle.side.dy;
     }
 
-    // Draw the Pokémon mount sprite at majestic 1.18x mount scale
-    const pmdDrawn = this.pmdAnimator.draw(
-      ctx,
-      fid,
-      action,
-      dir,
-      coreX,
-      coreY,
-      curAnimTick,
-      1.18
-    );
+    const digiMount = getDigimonById(fid);
+    const pmdDrawn = digiMount
+      ? false
+      : this.pmdAnimator.draw(
+          ctx,
+          fid,
+          action,
+          dir,
+          coreX,
+          coreY,
+          curAnimTick,
+          1.18
+        );
 
-    // Fallback to static sprite if PMD not available or not yet loaded
-    if (!pmdDrawn) {
+    if (digiMount) {
+      const orientMap: Record<Dir, 'N' | 'S' | 'E' | 'W'> = {
+        up: 'N',
+        down: 'S',
+        left: 'W',
+        right: 'E',
+      };
+      this.drawDigimonOverworldSprite(
+        ctx,
+        digiMount,
+        orientMap[dir] || 'S',
+        curAnimTick,
+        isMoving,
+        coreX,
+        coreY + 3 + rideBob,
+        1.14,
+        false
+      );
+    } else if (!pmdDrawn) {
       const isFlipped = this.playerDir === 'left';
       if (isFlipped) {
         ctx.save();

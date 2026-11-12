@@ -66,7 +66,9 @@ function getBresenhamLine(
   x0: number,
   y0: number,
   x1: number,
-  y1: number
+  y1: number,
+  mapW = 45,
+  mapH = 64
 ): { x: number; y: number }[] {
   const points: { x: number; y: number }[] = [];
   const dx = Math.abs(x1 - x0);
@@ -79,7 +81,7 @@ function getBresenhamLine(
   let currY = y0;
 
   while (true) {
-    if (currX >= 0 && currX < 45 && currY >= 0 && currY < 64) {
+    if (currX >= 0 && currX < mapW && currY >= 0 && currY < mapH) {
       points.push({ x: currX, y: currY });
     }
     if (currX === x1 && currY === y1) break;
@@ -101,13 +103,15 @@ function getRectPoints(
   x0: number,
   y0: number,
   x1: number,
-  y1: number
+  y1: number,
+  mapW = 45,
+  mapH = 64
 ): { x: number; y: number }[] {
   const points: { x: number; y: number }[] = [];
   const minX = Math.max(0, Math.min(x0, x1));
-  const maxX = Math.min(44, Math.max(x0, x1));
+  const maxX = Math.min(mapW - 1, Math.max(x0, x1));
   const minY = Math.max(0, Math.min(y0, y1));
-  const maxY = Math.min(63, Math.max(y0, y1));
+  const maxY = Math.min(mapH - 1, Math.max(y0, y1));
   for (let y = minY; y <= maxY; y++) {
     for (let x = minX; x <= maxX; x++) {
       points.push({ x, y });
@@ -120,17 +124,19 @@ function getRectPoints(
 function getBrushFootprint(
   cx: number,
   cy: number,
-  size: 1 | 2 | 3
+  size: 1 | 2 | 3,
+  mapW = 45,
+  mapH = 64
 ): { x: number; y: number }[] {
   const points: { x: number; y: number }[] = [];
   if (size === 1) {
-    if (cx >= 0 && cx < 45 && cy >= 0 && cy < 64) points.push({ x: cx, y: cy });
+    if (cx >= 0 && cx < mapW && cy >= 0 && cy < mapH) points.push({ x: cx, y: cy });
   } else if (size === 2) {
     for (let dy = 0; dy < 2; dy++) {
       for (let dx = 0; dx < 2; dx++) {
         const x = cx + dx;
         const y = cy + dy;
-        if (x >= 0 && x < 45 && y >= 0 && y < 64) points.push({ x, y });
+        if (x >= 0 && x < mapW && y >= 0 && y < mapH) points.push({ x, y });
       }
     }
   } else if (size === 3) {
@@ -138,7 +144,7 @@ function getBrushFootprint(
       for (let dx = -1; dx <= 1; dx++) {
         const x = cx + dx;
         const y = cy + dy;
-        if (x >= 0 && x < 45 && y >= 0 && y < 64) points.push({ x, y });
+        if (x >= 0 && x < mapW && y >= 0 && y < mapH) points.push({ x, y });
       }
     }
   }
@@ -151,7 +157,9 @@ function getFloodFillPoints(
   startY: number,
   getTargetType: (x: number, y: number) => string,
   newType: string,
-  maxTiles = 500
+  maxTiles = 500,
+  mapW = 45,
+  mapH = 64
 ): { x: number; y: number }[] {
   const targetType = getTargetType(startX, startY);
   if (targetType === newType) return [];
@@ -175,7 +183,7 @@ function getFloodFillPoints(
     for (const d of dirs) {
       const nx = curr.x + d.x;
       const ny = curr.y + d.y;
-      if (nx < 0 || nx >= 45 || ny < 0 || ny >= 64) continue;
+      if (nx < 0 || nx >= mapW || ny < 0 || ny >= mapH) continue;
       const key = `${nx},${ny}`;
       if (visited.has(key)) continue;
       visited.add(key);
@@ -719,7 +727,8 @@ export class TownEditor {
     unreachable: { name: string; x: number; y: number }[];
   } {
     const map = this.engine.getMap();
-    const spawn = { x: 18, y: 12 };
+    const isDigi = this.engine.getScene() === 'digimon';
+    const spawn = isDigi ? { x: 20, y: 6 } : { x: 18, y: 12 };
 
     const visited = new Set<string>();
     const queue: { x: number; y: number }[] = [spawn];
@@ -764,10 +773,16 @@ export class TownEditor {
         if (!reachable) {
           unreachable.push({ name: `Pintu ${b.name}`, x: dX, y: dY });
         }
-      } else if (b.kind === 'npc' || b.kind === 'sign') {
-        const reachable = dirs.some((d) =>
-          visited.has(`${b.x + d.x},${b.y + d.y}`)
-        );
+      } else if (b.kind === 'npc' || b.kind === 'digimon' || b.kind === 'sign') {
+        let reachable = false;
+        const bw = Math.max(1, b.w || 1);
+        const bh = Math.max(1, b.h || 1);
+        for (let dx = -1; dx <= bw && !reachable; dx++) {
+          for (let dy = -1; dy <= bh && !reachable; dy++) {
+            if (dx >= 0 && dx < bw && dy >= 0 && dy < bh) continue;
+            if (visited.has(`${b.x + dx},${b.y + dy}`)) reachable = true;
+          }
+        }
         if (!reachable) {
           unreachable.push({ name: b.name, x: b.x, y: b.y });
         }
@@ -838,15 +853,16 @@ export class TownEditor {
       y: Math.floor(this.engine.getCameraY() / TILE_SIZE),
     };
 
+    const map = this.engine.getMap();
     const newIds: string[] = [];
     for (const clip of this.clipboard) {
       const targetX = Math.max(
         0,
-        Math.min(45 - clip.item.w, target.x + clip.relX)
+        Math.min(map.w - clip.item.w, target.x + clip.relX)
       );
       const targetY = Math.max(
         0,
-        Math.min(64 - clip.item.h, target.y + clip.relY)
+        Math.min(map.h - clip.item.h, target.y + clip.relY)
       );
 
       const clone = townConfig.duplicateBuilding(clip.item.id);
@@ -895,14 +911,19 @@ export class TownEditor {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const scale = 2; // 45x64 tiles => 90x128 px
+    const map = this.engine.getMap();
+    const scale = 2; // 45x64 => 90x128 px; 40x45 => 80x90 px
+    if (canvas.width !== map.w * scale || canvas.height !== map.h * scale) {
+      canvas.width = map.w * scale;
+      canvas.height = map.h * scale;
+    }
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    const map = this.engine.getMap();
-    for (let y = 0; y < 64; y++) {
-      for (let x = 0; x < 45; x++) {
+    const isDigi = this.engine.getScene() === 'digimon';
+    for (let y = 0; y < map.h; y++) {
+      for (let x = 0; x < map.w; x++) {
         const override = townConfig.getTileOverride(x, y);
-        let color = '#5aa33a';
+        let color = isDigi ? '#162338' : '#5aa33a';
         if (override) {
           switch (override) {
             case 'cobble':
@@ -911,7 +932,7 @@ export class TownEditor {
               color = '#8b939c';
               break;
             case 'water':
-              color = '#38bdf8';
+              color = isDigi ? '#071428' : '#38bdf8';
               break;
             case 'hedge':
               color = '#255e2b';
@@ -925,6 +946,18 @@ export class TownEditor {
             case 'tall_grass':
               color = '#3f7c27';
               break;
+            case 'cyber_grid':
+              color = '#0ea5e9';
+              break;
+            case 'lava_rock':
+              color = '#ea580c';
+              break;
+            case 'cryo_ice':
+              color = '#7dd3fc';
+              break;
+            case 'holy_marble':
+              color = '#fde68a';
+              break;
             case 'solid_override':
               color = '#dc2626';
               break;
@@ -936,9 +969,18 @@ export class TownEditor {
           }
         } else {
           const g = map.ground[y * map.w + x];
-          if (g === 1 || g === 8) color = '#9ca3af';
-          else if (g === 3) color = '#38bdf8';
-          else if (g === 2) color = '#3f7c27';
+          if (isDigi) {
+            if (g === 3) color = '#071428';
+            else if (g === 4) color = '#0284c7';
+            else if (g === 1) color = '#1e304d';
+            else if (g === 8) color = '#1e293b';
+            else if (g === 7) color = y < 20 ? '#9a3412' : '#7dd3fc';
+            else if (g === 0) color = '#4d8c35';
+          } else {
+            if (g === 1 || g === 8) color = '#9ca3af';
+            else if (g === 3) color = '#38bdf8';
+            else if (g === 2) color = '#3f7c27';
+          }
         }
         ctx.fillStyle = color;
         ctx.fillRect(x * scale, y * scale, scale, scale);
@@ -951,6 +993,8 @@ export class TownEditor {
         ctx.fillStyle = '#b45309';
       } else if (b.kind === 'npc') {
         ctx.fillStyle = '#facc15';
+      } else if (b.kind === 'digimon') {
+        ctx.fillStyle = '#06b6d4';
       } else if (b.kind === 'tree' || b.kind === 'bush') {
         ctx.fillStyle = '#1e3a1f';
       } else {
@@ -1034,11 +1078,13 @@ export class TownEditor {
   public panFromMinimap(
     canvasX: number,
     canvasY: number,
-    minimapWidth = 90
+    minimapWidth?: number
   ) {
-    const scale = minimapWidth / 45;
-    const tileX = Math.max(0, Math.min(44, canvasX / scale));
-    const tileY = Math.max(0, Math.min(63, canvasY / scale));
+    const map = this.engine.getMap();
+    const effectiveWidth = minimapWidth ?? map.w * 2;
+    const scale = effectiveWidth / map.w;
+    const tileX = Math.max(0, Math.min(map.w - 1, canvasX / scale));
+    const tileY = Math.max(0, Math.min(map.h - 1, canvasY / scale));
     this.engine.setCameraPos(tileX * TILE_SIZE, tileY * TILE_SIZE);
   }
 
@@ -1070,6 +1116,7 @@ export class TownEditor {
 
   public eraseTilesBatch(points: { x: number; y: number }[]) {
     const map = this.engine.getMap();
+    const isDigi = this.engine.getScene() === 'digimon';
     const toSetGrass: { x: number; y: number; tile: TileTypeKey }[] = [];
     const toRemove: { x: number; y: number }[] = [];
 
@@ -1077,6 +1124,14 @@ export class TownEditor {
       if (pt.x < 0 || pt.x >= map.w || pt.y < 0 || pt.y >= map.h) continue;
       const baseVal = map.ground[pt.y * map.w + pt.x];
       const curOverride = townConfig.getTileOverride(pt.x, pt.y);
+
+      if (isDigi) {
+        // On Digi-Sanctuary, erasing restores the underlying Digital Sanctuary zone floor
+        if (curOverride) {
+          toRemove.push(pt);
+        }
+        continue;
+      }
 
       const isSpecialDecorativeTile =
         (pt.x === 39 && pt.y === 5) ||
@@ -1143,7 +1198,8 @@ export class TownEditor {
     const tileX = Math.floor(worldPixelX / TILE_SIZE);
     const tileY = Math.floor(worldPixelY / TILE_SIZE);
 
-    if (tileX < 0 || tileX >= 45 || tileY < 0 || tileY >= 64) {
+    const map = this.engine.getMap();
+    if (tileX < 0 || tileX >= map.w || tileY < 0 || tileY >= map.h) {
       return null;
     }
     return { x: tileX, y: tileY };
@@ -1342,9 +1398,10 @@ export class TownEditor {
       this.notify();
       this.engine.wake();
     } else if (this.state.tool === 'brush') {
+      const map = this.engine.getMap();
       this.preActionSnapshot = townConfig.captureSnapshot();
       this.hasModifiedDuringDrag = true;
-      const footprint = getBrushFootprint(tile.x, tile.y, this.state.brushSize);
+      const footprint = getBrushFootprint(tile.x, tile.y, this.state.brushSize, map.w, map.h);
       townConfig.setTileOverridesBatch(
         footprint.map((p) => ({ x: p.x, y: p.y, tile: this.state.brushTile }))
       );
@@ -1407,9 +1464,10 @@ export class TownEditor {
       }
       return;
     } else if (this.state.tool === 'erase') {
+      const map = this.engine.getMap();
       this.preActionSnapshot = townConfig.captureSnapshot();
       this.hasModifiedDuringDrag = true;
-      const footprint = getBrushFootprint(tile.x, tile.y, this.state.brushSize);
+      const footprint = getBrushFootprint(tile.x, tile.y, this.state.brushSize, map.w, map.h);
       this.eraseTilesBatch(footprint);
       this.engine.invalidateBackgroundCanvas();
       this.engine.wake();
@@ -1419,13 +1477,16 @@ export class TownEditor {
       this.state.shapeCurrentTile = { ...tile };
       this.engine.wake();
     } else if (this.state.tool === 'bucket') {
+      const map = this.engine.getMap();
       this.preActionSnapshot = townConfig.captureSnapshot();
       const points = getFloodFillPoints(
         tile.x,
         tile.y,
         (x, y) => this.getEffectiveTileType(x, y),
         this.state.brushTile,
-        500
+        500,
+        map.w,
+        map.h
       );
       if (points.length > 0) {
         townConfig.pushSnapshot(this.preActionSnapshot);
@@ -1557,13 +1618,14 @@ export class TownEditor {
             const ly = Number((worldPos.y / TILE_SIZE).toFixed(1));
             townConfig.setBuildingLabelPos(b.id, lx, ly);
           } else if (this.draggingSubPin.type === 'door') {
+            const map = this.engine.getMap();
             const dx = Math.max(
               0,
-              Math.min(44, Math.floor(worldPos.x / TILE_SIZE))
+              Math.min(map.w - 1, Math.floor(worldPos.x / TILE_SIZE))
             );
             const dy = Math.max(
               0,
-              Math.min(63, Math.floor(worldPos.y / TILE_SIZE))
+              Math.min(map.h - 1, Math.floor(worldPos.y / TILE_SIZE))
             );
             townConfig.setBuildingDoorPos(b.id, dx, dy);
           }
@@ -1579,6 +1641,7 @@ export class TownEditor {
         this.state.isDraggingBuilding &&
         this.state.dragStartMouseTile
       ) {
+        const map = this.engine.getMap();
         const dx = tile.x - this.state.dragStartMouseTile.x;
         const dy = tile.y - this.state.dragStartMouseTile.y;
 
@@ -1595,8 +1658,8 @@ export class TownEditor {
           const b = townConfig.getBuilding(id);
           const maxW = b ? b.w : 1;
           const maxH = b ? b.h : 1;
-          const nx = Math.max(0, Math.min(45 - maxW, orig.x + dx));
-          const ny = Math.max(0, Math.min(64 - maxH, orig.y + dy));
+          const nx = Math.max(0, Math.min(map.w - maxW, orig.x + dx));
+          const ny = Math.max(0, Math.min(map.h - maxH, orig.y + dy));
           const actualDx = nx - orig.x;
           const actualDy = ny - orig.y;
 
@@ -1628,22 +1691,28 @@ export class TownEditor {
       } else if (this.state.tool === 'move' && this.state.isMarqueeDragging) {
         this.state.marqueeCurrentTile = { ...tile };
       } else if (this.state.tool === 'brush') {
+        const map = this.engine.getMap();
         this.hasModifiedDuringDrag = true;
         const footprint = getBrushFootprint(
           tile.x,
           tile.y,
-          this.state.brushSize
+          this.state.brushSize,
+          map.w,
+          map.h
         );
         townConfig.setTileOverridesBatch(
           footprint.map((p) => ({ x: p.x, y: p.y, tile: this.state.brushTile }))
         );
         this.engine.invalidateBackgroundCanvas();
       } else if (this.state.tool === 'erase') {
+        const map = this.engine.getMap();
         this.hasModifiedDuringDrag = true;
         const footprint = getBrushFootprint(
           tile.x,
           tile.y,
-          this.state.brushSize
+          this.state.brushSize,
+          map.w,
+          map.h
         );
         this.eraseTilesBatch(footprint);
         this.engine.invalidateBackgroundCanvas();
@@ -1858,20 +1927,25 @@ export class TownEditor {
 
     // Finish shape line / rect tools
     if (this.state.shapeStartTile && this.state.shapeCurrentTile) {
+      const map = this.engine.getMap();
       let points: { x: number; y: number }[] = [];
       if (this.state.tool === 'line') {
         points = getBresenhamLine(
           this.state.shapeStartTile.x,
           this.state.shapeStartTile.y,
           this.state.shapeCurrentTile.x,
-          this.state.shapeCurrentTile.y
+          this.state.shapeCurrentTile.y,
+          map.w,
+          map.h
         );
       } else if (this.state.tool === 'rect') {
         points = getRectPoints(
           this.state.shapeStartTile.x,
           this.state.shapeStartTile.y,
           this.state.shapeCurrentTile.x,
-          this.state.shapeCurrentTile.y
+          this.state.shapeCurrentTile.y,
+          map.w,
+          map.h
         );
       }
 
@@ -2223,12 +2297,13 @@ export class TownEditor {
   public renderOverlay(ctx: CanvasRenderingContext2D) {
     if (!this.state.enabled || this.state.isPlaytesting) return;
 
+    const map = this.engine.getMap();
     ctx.save();
 
     // 1. Collision Overlay
     if (this.state.showCollisionOverlay) {
-      for (let y = 0; y < 64; y++) {
-        for (let x = 0; x < 45; x++) {
+      for (let y = 0; y < map.h; y++) {
+        for (let x = 0; x < map.w; x++) {
           const isWalk = this.engine.isWalkable(x, y);
           ctx.fillStyle = isWalk
             ? 'rgba(34, 197, 94, 0.22)'
@@ -2260,7 +2335,6 @@ export class TownEditor {
       }
 
       // NPC Interaction Markers (Blue)
-      const map = this.engine.getMap();
       if (map && map.npcs) {
         for (const npc of map.npcs) {
           const nx = npc.x * TILE_SIZE;
@@ -2308,18 +2382,18 @@ export class TownEditor {
       ctx.setLineDash([2, 4]);
 
       // Vertical lines
-      for (let x = 0; x <= 45; x++) {
+      for (let x = 0; x <= map.w; x++) {
         ctx.beginPath();
         ctx.moveTo(x * TILE_SIZE, 0);
-        ctx.lineTo(x * TILE_SIZE, 64 * TILE_SIZE);
+        ctx.lineTo(x * TILE_SIZE, map.h * TILE_SIZE);
         ctx.stroke();
       }
 
       // Horizontal lines
-      for (let y = 0; y <= 64; y++) {
+      for (let y = 0; y <= map.h; y++) {
         ctx.beginPath();
         ctx.moveTo(0, y * TILE_SIZE);
-        ctx.lineTo(45 * TILE_SIZE, y * TILE_SIZE);
+        ctx.lineTo(map.w * TILE_SIZE, y * TILE_SIZE);
         ctx.stroke();
       }
       ctx.setLineDash([]);
@@ -2336,11 +2410,11 @@ export class TownEditor {
         if (guide.type === 'x') {
           const px = guide.val * TILE_SIZE;
           ctx.moveTo(px, 0);
-          ctx.lineTo(px, 64 * TILE_SIZE);
+          ctx.lineTo(px, map.h * TILE_SIZE);
         } else {
           const py = guide.val * TILE_SIZE;
           ctx.moveTo(0, py);
-          ctx.lineTo(45 * TILE_SIZE, py);
+          ctx.lineTo(map.w * TILE_SIZE, py);
         }
         ctx.stroke();
       }
@@ -2444,14 +2518,18 @@ export class TownEditor {
           this.state.shapeStartTile.x,
           this.state.shapeStartTile.y,
           this.state.shapeCurrentTile.x,
-          this.state.shapeCurrentTile.y
+          this.state.shapeCurrentTile.y,
+          map.w,
+          map.h
         );
       } else if (this.state.tool === 'rect') {
         previewPoints = getRectPoints(
           this.state.shapeStartTile.x,
           this.state.shapeStartTile.y,
           this.state.shapeCurrentTile.x,
-          this.state.shapeCurrentTile.y
+          this.state.shapeCurrentTile.y,
+          map.w,
+          map.h
         );
       }
 
@@ -2476,7 +2554,9 @@ export class TownEditor {
         ? getBrushFootprint(
             this.state.hoverTile.x,
             this.state.hoverTile.y,
-            this.state.brushSize
+            this.state.brushSize,
+            map.w,
+            map.h
           )
         : [this.state.hoverTile];
 

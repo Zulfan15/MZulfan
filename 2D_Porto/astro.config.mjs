@@ -19,7 +19,12 @@ function townEditorDevPlugin() {
               body += chunk;
             }
             const data = JSON.parse(body);
-            const targetPath = fileURLToPath(new URL('./src/data/townLayout.json', import.meta.url));
+            const targetWorld = data?.target === 'digimon' ? 'digimon' : 'town';
+            const targetFile =
+              targetWorld === 'digimon'
+                ? './src/data/digimonLayout.json'
+                : './src/data/townLayout.json';
+            const targetPath = fileURLToPath(new URL(targetFile, import.meta.url));
             await fs.mkdir(path.dirname(targetPath), { recursive: true });
             const payload = {
               version: 2,
@@ -30,7 +35,13 @@ function townEditorDevPlugin() {
             await fs.writeFile(targetPath, JSON.stringify(payload, null, 2), 'utf-8');
             res.setHeader('Content-Type', 'application/json');
             res.statusCode = 200;
-            res.end(JSON.stringify({ success: true, message: 'Saved to disk successfully' }));
+            res.end(
+              JSON.stringify({
+                success: true,
+                target: targetWorld,
+                message: `Saved ${targetWorld} layout to disk successfully`,
+              })
+            );
           } catch (err) {
             res.setHeader('Content-Type', 'application/json');
             res.statusCode = 500;

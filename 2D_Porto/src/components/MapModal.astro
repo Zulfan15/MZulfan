@@ -187,6 +187,17 @@ const destinations: TownDestination[] = [
     tileY: 32,
     route: '/cafe',
   },
+  {
+    id: 'digimon',
+    name: 'Digi-Sanctuary Island',
+    category: 'landmark',
+    icon: '👾',
+    badge: 'Digital World',
+    blurb: 'Pulau Digital World (40×45) terhubung lewat South Digital Portal (22, 60) dengan 4 Zona Habitat Elemental & Town Editor mandiri.',
+    tileX: 22,
+    tileY: 59,
+    route: '/digimon',
+  },
 ];
 ---
 
@@ -211,10 +222,10 @@ const destinations: TownDestination[] = [
         Semua ({destinations.length})
       </button>
       <button type="button" class="map-tab-btn btn btn-xs btn-ghost" data-tab="building">
-        🏢 Gedung & Ruangan (10)
+        🏢 Gedung & Ruangan ({destinations.filter((d) => d.category === 'building').length})
       </button>
       <button type="button" class="map-tab-btn btn btn-xs btn-ghost" data-tab="landmark">
-        🌿 Landmark Terbuka (7)
+        🌿 Landmark Terbuka ({destinations.filter((d) => d.category === 'landmark').length})
       </button>
     </div>
 

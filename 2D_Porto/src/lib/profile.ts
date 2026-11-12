@@ -209,6 +209,7 @@ export const places: Place[] = [
   { id: 'arena', route: '/arena', name: 'Gladiator Arena', icon: '⚔️', blurb: '1v1 Gladiator Duel vs Mewtwo, Six Trials of Rome & Hall of Victors.' },
   { id: 'garden', route: '/garden', name: 'Berry Garden', icon: '🌸', blurb: 'Interactive 6-Bed Berry Plantation, Copper Berry Blender & Botanical Conservatory.' },
   { id: 'neighbour', route: '/neighbour', name: "Neighbour's House", icon: '🏡', blurb: 'Cozy Fellow Dev Cottage, Eevee Tech Vibe Matcher, PR Ping-Pong & Guestbook Corkboard.' },
+  { id: 'digimon', route: '/digimon', name: 'Digi-Sanctuary', icon: '👾', blurb: 'Digital Sanctuary Island & 4 Elemental Zones connected via Portal (22, 60).' },
 ];
 
 export const placeById = (id: string): Place => places.find((p) => p.id === id) ?? places[0];

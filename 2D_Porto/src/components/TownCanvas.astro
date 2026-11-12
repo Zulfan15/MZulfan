@@ -34,6 +34,7 @@ const dataPlaces = {
   arena: { name: 'Battle Arena', href: '/arena' },
   garden: { name: 'Berry Garden', href: '/garden' },
   neighbour: { name: "Neighbour's House", href: '/neighbour' },
+  digimon: { name: 'Digi-Sanctuary', href: '/digimon' },
 };
 
 const githubUrl = profile.socials.find((s) => s.label === 'GitHub')?.url || 'https://github.com/Zulfan15';
@@ -61,7 +62,7 @@ const dataPlaceRooms = {
   data-places={JSON.stringify(dataPlaces)}
   data-links={JSON.stringify(dataLinks)}
   data-place-rooms={JSON.stringify(dataPlaceRooms)}
-  data-scene={currentPlace === 'about' ? 'home' : currentPlace === 'dev' ? 'dev' : currentPlace === 'lab' ? 'lab' : currentPlace === 'arcade' ? 'arcade' : currentPlace === 'reception' ? 'reception' : currentPlace === 'mart' ? 'mart' : currentPlace === 'tower' ? 'tower' : currentPlace === 'cafe' ? 'cafe' : currentPlace === 'arena' ? 'arena' : currentPlace === 'garden' ? 'garden' : currentPlace === 'neighbour' ? 'neighbour' : 'town'}
+  data-scene={currentPlace === 'about' ? 'home' : currentPlace === 'dev' ? 'dev' : currentPlace === 'lab' ? 'lab' : currentPlace === 'arcade' ? 'arcade' : currentPlace === 'reception' ? 'reception' : currentPlace === 'mart' ? 'mart' : currentPlace === 'tower' ? 'tower' : currentPlace === 'cafe' ? 'cafe' : currentPlace === 'arena' ? 'arena' : currentPlace === 'garden' ? 'garden' : currentPlace === 'neighbour' ? 'neighbour' : currentPlace === 'digimon' ? 'digimon' : 'town'}
   data-retro={currentPlace === 'about' || currentPlace === 'dev' || currentPlace === 'lab' || currentPlace === 'arcade' || currentPlace === 'reception' || currentPlace === 'mart' || currentPlace === 'tower' || currentPlace === 'cafe' || currentPlace === 'arena' || currentPlace === 'garden' || currentPlace === 'neighbour' ? '' : undefined}
 >
   <h2 id="town-title" class="visually-hidden">Interactive Town Map</h2>
@@ -103,6 +104,8 @@ const dataPlaceRooms = {
           ? '🌸 Berry Garden'
           : currentPlace === 'neighbour'
           ? "🏡 Neighbour's House"
+          : currentPlace === 'digimon'
+          ? '👾 Digi-Sanctuary'
           : '📍 Town Square'}
       </span>
       <span class="town-hud-badge">LIVE 2D</span>
@@ -173,6 +176,8 @@ const dataPlaceRooms = {
                 ? '🌸 Berry Garden'
                 : currentPlace === 'neighbour'
                 ? "🏡 Neighbour's House"
+                : currentPlace === 'digimon'
+                ? '👾 Digi-Sanctuary'
                 : '📍 Town Square'}
             </span>
           </div>
@@ -371,6 +376,8 @@ const dataPlaceRooms = {
         ? '⚔️ Arena'
         : currentPlace === 'garden'
         ? '🌸 Garden'
+        : currentPlace === 'digimon'
+        ? '👾 Digi-World'
         : '📍 Town Square'}
     </span>
     <span class="town-hud-badge">LIVE 2D</span>
@@ -678,6 +685,17 @@ const dataPlaceRooms = {
           <span class="town-label__text">Guild Shelf</span>
         </button>
       </>
+    ) : currentPlace === 'digimon' ? (
+      <>
+        <button type="button" class="town-label town-label--portal" data-id="digi-return" aria-label="Return to Zulfan's Town">
+          <span class="town-label__icon" aria-hidden="true">🔙</span>
+          <span class="town-label__text">Kembali ke Kota</span>
+        </button>
+        <button type="button" class="town-label town-label--portal" data-id="digidex-console" aria-label="Inspect DigiDex Master Console">
+          <span class="town-label__icon" aria-hidden="true">📟</span>
+          <span class="town-label__text">DigiDex Console</span>
+        </button>
+      </>
     ) : (
       <>
         <button type="button" class="town-label town-label--building" data-id="home" aria-label="Walk to Home & Studio">
@@ -760,6 +778,10 @@ const dataPlaceRooms = {
           <span class="town-label__icon" aria-hidden="true">🚴</span>
           <span class="town-label__text">Off-Duty</span>
         </button>
+        <button type="button" class="town-label town-label--portal" data-id="digi-gate" aria-label="Enter Digi-Sanctuary World">
+          <span class="town-label__icon" aria-hidden="true">👾</span>
+          <span class="town-label__text">Digi-World</span>
+        </button>
       </>
     )}
   </div>
@@ -816,7 +838,7 @@ const dataPlaceRooms = {
     <button
       class="town-guide__toggle"
       type="button"
-      aria-expanded={currentPlace === 'dev' || currentPlace === 'lab' || currentPlace === 'reception' || currentPlace === 'mart' || currentPlace === 'tower' || currentPlace === 'cafe' || currentPlace === 'arena' || currentPlace === 'garden' || currentPlace === 'neighbour' ? 'true' : 'false'}
+      aria-expanded={currentPlace === 'dev' || currentPlace === 'lab' || currentPlace === 'reception' || currentPlace === 'mart' || currentPlace === 'tower' || currentPlace === 'cafe' || currentPlace === 'arena' || currentPlace === 'garden' || currentPlace === 'neighbour' || currentPlace === 'digimon' ? 'true' : 'false'}
       aria-controls="town-guide-card"
       data-town-guide-toggle=""
     >
@@ -828,12 +850,12 @@ const dataPlaceRooms = {
       id="town-guide-card"
       role="region"
       aria-labelledby="town-guide-title"
-      hidden={currentPlace === 'dev' || currentPlace === 'lab' || currentPlace === 'reception' || currentPlace === 'mart' || currentPlace === 'tower' || currentPlace === 'cafe' || currentPlace === 'arena' || currentPlace === 'garden' || currentPlace === 'neighbour' ? undefined : ''}
+      hidden={currentPlace === 'dev' || currentPlace === 'lab' || currentPlace === 'reception' || currentPlace === 'mart' || currentPlace === 'tower' || currentPlace === 'cafe' || currentPlace === 'arena' || currentPlace === 'garden' || currentPlace === 'neighbour' || currentPlace === 'digimon' ? undefined : ''}
       data-town-guide-card=""
     >
       <div class="town-guide__body">
         <strong id="town-guide-title" data-town-guide-title="">
-          {currentPlace === 'about' ? 'CRATE & CLOSET' : currentPlace === 'dev' ? 'DEV CENTER' : currentPlace === 'lab' ? 'RESEARCH LAB' : currentPlace === 'arcade' ? 'Arcade' : currentPlace === 'reception' ? 'POKÉ CENTER · FRONT DESK' : currentPlace === 'mart' ? 'POKÉ MART · SERVICES & INVENTORY' : currentPlace === 'tower' ? 'TECH TOWER · INNOVATION & ENTERPRISE HQ' : currentPlace === 'cafe' ? 'POKÉ-CAFÉ & DEVELOPER ROASTERY BAR' : currentPlace === 'arena' ? 'COLOSSEUM GLADIATORIA · ARENA GLADIATOR' : currentPlace === 'garden' ? 'BOTANICAL BERRY PLANTATION & SAKURA CONSERVATORY' : currentPlace === 'neighbour' ? "NEIGHBOUR'S COTTAGE · FELLOW DEV GUILD" : 'Town Square'}
+          {currentPlace === 'about' ? 'CRATE & CLOSET' : currentPlace === 'dev' ? 'DEV CENTER' : currentPlace === 'lab' ? 'RESEARCH LAB' : currentPlace === 'arcade' ? 'Arcade' : currentPlace === 'reception' ? 'POKÉ CENTER · FRONT DESK' : currentPlace === 'mart' ? 'POKÉ MART · SERVICES & INVENTORY' : currentPlace === 'tower' ? 'TECH TOWER · INNOVATION & ENTERPRISE HQ' : currentPlace === 'cafe' ? 'POKÉ-CAFÉ & DEVELOPER ROASTERY BAR' : currentPlace === 'arena' ? 'COLOSSEUM GLADIATORIA · ARENA GLADIATOR' : currentPlace === 'garden' ? 'BOTANICAL BERRY PLANTATION & SAKURA CONSERVATORY' : currentPlace === 'neighbour' ? "NEIGHBOUR'S COTTAGE · FELLOW DEV GUILD" : currentPlace === 'digimon' ? 'DIGI-SANCTUARY ISLAND · DIGITAL WORLD' : 'Town Square'}
         </strong>
         <p data-town-guide-text="">
           {currentPlace === 'about'
@@ -858,6 +880,8 @@ const dataPlaceRooms = {
             ? "Welcome to the Botanical Berry Plantation & Sakura Conservatory! Greet Master Botanist Flora and Shaymin, irrigate the soil beds from the Sprayduck Well, plant and harvest 6 heirloom berry strains, or spin the Copper Berry Blender. Step on the south garden gate to exit."
             : currentPlace === 'neighbour'
             ? "Welcome to Neighbour Maya's Cozy Dev Cottage! Greet Maya and Eevee, sip hot Oolong tea by the crackling fireplace, play PR Review Ping-Pong on the retro CRT, or pin a sticky note on the Neighbour Guestbook. Step on the south mat to exit."
+            : currentPlace === 'digimon'
+            ? "Selamat datang di Digi-Sanctuary Island (40×45)! Jelajahi Central Digi-Plaza, periksa DigiDex Master Console, atau kunjungi 4 Zona Habitat Elemental (Flame Canyon, Cyber Dome, Cryo Bay, Holy Sanctuary). Buka Town Editor (E) untuk mendesain lantai dan menyiapkan ruang Digimon! Masuk ke North Return Gate untuk kembali ke Town."
             : "An interactive pixel-art town. Walk into buildings to explore projects, lab research, and dev logs. Inspect social runes or talk to the Digital Twin."}
         </p>
       </div>
@@ -1044,7 +1068,7 @@ const dataPlaceRooms = {
           <button type="button" class="town-editor-btn town-editor-btn--validate" id="btn-editor-validate" title="Cek Jalur & Aksesibilitas Semua Gedung / NPC (BFS Reachability)">
             🔍 <span class="editor-btn-text">Cek Jalur</span>
           </button>
-          <button type="button" class="town-editor-btn town-editor-btn--save" id="btn-editor-save" title="Simpan permanen ke file proyek src/data/townLayout.json (Ctrl+S)">
+          <button type="button" class="town-editor-btn town-editor-btn--save" id="btn-editor-save" title={currentPlace === 'digimon' ? 'Simpan permanen ke file proyek src/data/digimonLayout.json (Ctrl+S)' : 'Simpan permanen ke file proyek src/data/townLayout.json (Ctrl+S)'}>
             💾 <span class="editor-btn-text">Simpan (Ctrl+S)</span>
           </button>
           <button type="button" class="town-editor-btn town-editor-btn--export" id="btn-editor-export" title="Salin kode / Ekspor data">
@@ -1083,6 +1107,10 @@ const dataPlaceRooms = {
             <button type="button" class="town-tile-btn" data-tile="dev_paver" title="Lantai Megah Dev Center">🏛️ Lantai Megah</button>
             <button type="button" class="town-tile-btn" data-tile="grass" title="Rumput Hijau (Grass)">🌿 Rumput</button>
             <button type="button" class="town-tile-btn" data-tile="tall_grass" title="Rumput Liar Pokémon (Tall Grass)">🌾 Rumput Liar</button>
+            <button type="button" class="town-tile-btn" data-tile="cyber_grid" title="Lantai Cyber Grid Digital World">💠 Cyber Grid</button>
+            <button type="button" class="town-tile-btn" data-tile="lava_rock" title="Batu Vulkanik Flame Canyon">🔥 Batu Lava</button>
+            <button type="button" class="town-tile-btn" data-tile="cryo_ice" title="Lantai Kristal Es Cryo Bay">❄️ Lantai Es</button>
+            <button type="button" class="town-tile-btn" data-tile="holy_marble" title="Marmer Suci Holy Sanctuary">✨ Marmer Suci</button>
             <button type="button" class="town-tile-btn" data-tile="hedge" title="Semak Boxwood (Hedge)">🌳 Semak</button>
             <button type="button" class="town-tile-btn" data-tile="fence" title="Pagar Besi (Fence)">🚧 Pagar</button>
             <button type="button" class="town-tile-btn" data-tile="fence_water" title="Pagar Pembatas Tepi Air (Water Edge Railing)">⚓ Pagar Air</button>
@@ -1140,6 +1168,7 @@ const dataPlaceRooms = {
         <button type="button" class="town-spawn-tab" data-cat="Foliage & Alam">🌳 Alam (<span id="cat-count-alam">0</span>)</button>
         <button type="button" class="town-spawn-tab" data-cat="Perabot & Lampu">🪑 Perabot & Lampu (<span id="cat-count-perabot">0</span>)</button>
         <button type="button" class="town-spawn-tab" data-cat="Dunia Pokémon">⚡ Pokémon (<span id="cat-count-pokemon">0</span>)</button>
+        <button type="button" class="town-spawn-tab" data-cat="Dunia Digimon">👾 Digimon (<span id="cat-count-digimon">0</span>)</button>
         <button type="button" class="town-spawn-tab" data-cat="Tech & AI">💻 Tech & AI (<span id="cat-count-tech">0</span>)</button>
         <button type="button" class="town-spawn-tab" data-cat="Fasilitas & Kota">⛲ Fasilitas & Kota (<span id="cat-count-fasilitas">0</span>)</button>
       </div>
@@ -1247,6 +1276,7 @@ const dataPlaceRooms = {
   import { TownEngine } from '../engine/TownEngine';
   import { sfx } from '../game/sfx';
   import { townConfig, type TileTypeKey, SPAWNABLE_TEMPLATES } from '../engine/townConfig';
+  import { requestDigimonSprites } from '../engine/digiSpriteLoader';
   import { COMPANIONS_MAP } from '../engine/pokemonCompanions';
   import { gameStore } from '../game/store';
 
@@ -1256,6 +1286,8 @@ const dataPlaceRooms = {
     const canvas = document.getElementById('town-canvas') as HTMLCanvasElement;
     if (!canvas) return;
 
+    const spawnPlace = (window as unknown as { __CURRENT_PLACE__: string }).__CURRENT_PLACE__ || 'town';
+    townConfig.setActiveWorld(spawnPlace === 'digimon' ? 'digimon' : 'town');
     townConfig.loadFromStorage();
 
     const bubble = document.querySelector('[data-town-bubble]') as HTMLDivElement | null;
@@ -1370,7 +1402,6 @@ const dataPlaceRooms = {
 
     // Initialize TownEngine
     const townData = (window as unknown as { __TOWN_DATA__: any }).__TOWN_DATA__;
-    const spawnPlace = (window as unknown as { __CURRENT_PLACE__: string }).__CURRENT_PLACE__ || 'town';
 
     engine = new TownEngine(canvas, townData, spawnPlace, {
       onDialogue: (name, lines) => {
@@ -1658,8 +1689,8 @@ const dataPlaceRooms = {
 
     const toggleTownEditor = () => {
       if (!engine) return;
-      if (engine.getScene() !== 'town') {
-        showToast('🛠️ Town Editor hanya aktif di Peta Kota. Mengalihkan ke Kota...');
+      if (engine.getScene() !== 'town' && engine.getScene() !== 'digimon') {
+        showToast('🛠️ Town Editor aktif di Peta Kota & Digi-Sanctuary. Mengalihkan ke Kota...');
         sfx.select();
         setTimeout(() => {
           sessionStorage.setItem('town:respawn', '22,28');
@@ -2017,9 +2048,10 @@ const dataPlaceRooms = {
       const rect = minimapCanvas.getBoundingClientRect();
       const clickX = (e.clientX - rect.left) * (minimapCanvas.width / rect.width);
       const clickY = (e.clientY - rect.top) * (minimapCanvas.height / rect.height);
-      const scale = 2; // 45x64 tiles => 90x128 px
-      const tileX = Math.max(0, Math.min(44, Math.floor(clickX / scale)));
-      const tileY = Math.max(0, Math.min(63, Math.floor(clickY / scale)));
+      const map = engine.getMap();
+      const scale = 2; // 2 px per tile
+      const tileX = Math.max(0, Math.min(map.w - 1, Math.floor(clickX / scale)));
+      const tileY = Math.max(0, Math.min(map.h - 1, Math.floor(clickY / scale)));
 
       if (e.shiftKey) {
         engine.flyTo(tileX, tileY, 'Radar Mini-Map');
@@ -2336,7 +2368,7 @@ const dataPlaceRooms = {
     if (engine) {
       const editor = engine.getEditor();
 
-      if (sessionStorage.getItem('town:open-editor') === 'true' && engine.getScene() === 'town') {
+      if (sessionStorage.getItem('town:open-editor') === 'true' && (engine.getScene() === 'town' || engine.getScene() === 'digimon')) {
         sessionStorage.removeItem('town:open-editor');
         setTimeout(() => {
           if (!editor.isEnabled()) {
@@ -2430,10 +2462,47 @@ const dataPlaceRooms = {
 
       let activeSpawnCategory = 'all';
       let spawnSearchQuery = '';
+      let spawnThumbObserver: IntersectionObserver | null = null;
+
+      const hydrateSpawnThumb = (iconEl: HTMLElement | null, digiSub: string, label: string) => {
+        if (!iconEl || iconEl.dataset.digiHydrated === 'true') return;
+        iconEl.dataset.digiHydrated = 'true';
+        const applyDigiThumb = (dataUrl: string | null) => {
+          if (!dataUrl) return;
+          iconEl.innerHTML = `<img src="${dataUrl}" alt="${label}" style="width:24px;height:24px;image-rendering:pixelated;object-fit:contain;" />`;
+        };
+        const cachedDigi = requestDigimonSprites(digiSub, () => {
+          const loaded = requestDigimonSprites(digiSub);
+          if (loaded?.iconDataUrl) applyDigiThumb(loaded.iconDataUrl);
+        });
+        if (cachedDigi?.iconDataUrl) {
+          applyDigiThumb(cachedDigi.iconDataUrl);
+        }
+      };
 
       const renderSpawnCatalog = () => {
         if (!spawnCatalog) return;
+        if (spawnThumbObserver) {
+          spawnThumbObserver.disconnect();
+          spawnThumbObserver = null;
+        }
         spawnCatalog.innerHTML = '';
+        const spawnRoot = spawnCatalog.closest('.town-spawn-modal__body') || spawnCatalog;
+        if (typeof IntersectionObserver !== 'undefined') {
+          spawnThumbObserver = new IntersectionObserver(
+            (entries) => {
+              for (const ent of entries) {
+                if (!ent.isIntersecting) continue;
+                const el = ent.target as HTMLElement;
+                const digiSub = el.getAttribute('data-digi-thumb');
+                const digiName = el.getAttribute('data-digi-name') || 'Digimon';
+                if (digiSub) hydrateSpawnThumb(el, digiSub, digiName);
+                spawnThumbObserver?.unobserve(el);
+              }
+            },
+            { root: spawnRoot, rootMargin: '80px' }
+          );
+        }
 
         const q = spawnSearchQuery.trim().toLowerCase();
         const matchesQuery = (t: (typeof SPAWNABLE_TEMPLATES)[0]) => {
@@ -2453,6 +2522,7 @@ const dataPlaceRooms = {
         const countAlam = document.getElementById('cat-count-alam');
         const countPerabot = document.getElementById('cat-count-perabot');
         const countPokemon = document.getElementById('cat-count-pokemon');
+        const countDigimon = document.getElementById('cat-count-digimon');
         const countTech = document.getElementById('cat-count-tech');
         const countFasilitas = document.getElementById('cat-count-fasilitas');
 
@@ -2460,11 +2530,12 @@ const dataPlaceRooms = {
         if (countAlam) countAlam.textContent = String(allMatching.filter((t) => t.category === 'Foliage & Alam').length);
         if (countPerabot) countPerabot.textContent = String(allMatching.filter((t) => t.category === 'Perabot & Lampu').length);
         if (countPokemon) countPokemon.textContent = String(allMatching.filter((t) => t.category === 'Dunia Pokémon').length);
+        if (countDigimon) countDigimon.textContent = String(allMatching.filter((t) => t.category === 'Dunia Digimon').length);
         if (countTech) countTech.textContent = String(allMatching.filter((t) => t.category === 'Tech & AI').length);
         if (countFasilitas) countFasilitas.textContent = String(allMatching.filter((t) => t.category === 'Fasilitas & Kota').length);
 
         const displayedCategories = activeSpawnCategory === 'all'
-          ? (['Foliage & Alam', 'Perabot & Lampu', 'Dunia Pokémon', 'Tech & AI', 'Fasilitas & Kota'] as const)
+          ? (['Foliage & Alam', 'Perabot & Lampu', 'Dunia Pokémon', 'Dunia Digimon', 'Tech & AI', 'Fasilitas & Kota'] as const)
           : ([activeSpawnCategory] as const);
 
         let totalDisplayed = 0;
@@ -2484,6 +2555,7 @@ const dataPlaceRooms = {
           if (cat === 'Foliage & Alam') catIcon = '🌳';
           else if (cat === 'Perabot & Lampu') catIcon = '🪑';
           else if (cat === 'Dunia Pokémon') catIcon = '⚡';
+          else if (cat === 'Dunia Digimon') catIcon = '👾';
           else if (cat === 'Tech & AI') catIcon = '💻';
           else if (cat === 'Fasilitas & Kota') catIcon = '⛲';
           catTitle.textContent = `${catIcon} ${cat} (${items.length})`;
@@ -2513,6 +2585,19 @@ const dataPlaceRooms = {
                 </button>
               </div>
             `;
+
+            if (item.kind === 'digimon' && item.subType && (spawnPlace === 'digimon' || activeSpawnCategory === 'Dunia Digimon')) {
+              const iconEl = card.querySelector('.town-spawn-card__icon') as HTMLElement | null;
+              if (iconEl) {
+                iconEl.setAttribute('data-digi-thumb', item.subType);
+                iconEl.setAttribute('data-digi-name', item.name);
+                if (spawnThumbObserver) {
+                  spawnThumbObserver.observe(iconEl);
+                } else {
+                  hydrateSpawnThumb(iconEl, item.subType, item.name);
+                }
+              }
+            }
 
             const btnPlace = card.querySelector('.town-spawn-card__btn--place') as HTMLButtonElement | null;
             const btnStamp = card.querySelector('.town-spawn-card__btn--stamp') as HTMLButtonElement | null;
@@ -2591,7 +2676,15 @@ const dataPlaceRooms = {
       // Initial catalog render
       renderSpawnCatalog();
 
+      let hasOpenedDigiSpawner = false;
       toolBtnSpawn?.addEventListener('click', () => {
+        if (!hasOpenedDigiSpawner && engine?.getScene() === 'digimon' && activeSpawnCategory === 'all') {
+          hasOpenedDigiSpawner = true;
+          activeSpawnCategory = 'Dunia Digimon';
+          spawnTabButtons.forEach((t) =>
+            t.classList.toggle('is-active', t.getAttribute('data-cat') === 'Dunia Digimon')
+          );
+        }
         renderSpawnCatalog();
         spawnModal?.showModal();
         sfx.select();

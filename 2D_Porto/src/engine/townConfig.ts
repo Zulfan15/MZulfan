@@ -3,6 +3,10 @@
  * Powers the interactive in-browser Town Editor.
  */
 import canonicalLayout from '../data/townLayout.json';
+import digimonCanonicalLayout from '../data/digimonLayout.json';
+import { DIGIMON_CATALOG } from './digimonCatalog';
+
+export type WorldTarget = 'town' | 'digimon';
 
 export interface BuildingLayout {
   id: string;
@@ -11,7 +15,7 @@ export interface BuildingLayout {
   y: number;
   w: number;
   h: number;
-  kind?: 'building' | 'object' | 'lamp' | 'tree' | 'bush' | 'bench' | 'flowerbed' | 'npc' | 'sign';
+  kind?: 'building' | 'object' | 'lamp' | 'tree' | 'bush' | 'bench' | 'flowerbed' | 'npc' | 'sign' | 'digimon';
   subType?: string;
   orientation?: 'N' | 'E' | 'S' | 'W';
   labelX?: number;
@@ -25,14 +29,48 @@ export interface BuildingLayout {
   hidden?: boolean;
 }
 
+export type EditorCategoryKey =
+  | 'Foliage & Alam'
+  | 'Perabot & Lampu'
+  | 'Dunia Pokémon'
+  | 'Dunia Digimon'
+  | 'Tech & AI'
+  | 'Fasilitas & Kota';
+
+export interface EditorCategoryMeta {
+  id: string;
+  label: EditorCategoryKey;
+  shortLabel: string;
+  icon: string;
+  defaultKind: BuildingLayout['kind'];
+}
+
+export const EDITOR_CATEGORY_META: Record<string, EditorCategoryMeta> = {
+  alam: { id: 'alam', label: 'Foliage & Alam', shortLabel: 'Alam', icon: '🌳', defaultKind: 'tree' },
+  perabot: { id: 'perabot', label: 'Perabot & Lampu', shortLabel: 'Perabot & Lampu', icon: '🪑', defaultKind: 'bench' },
+  pokemon: { id: 'pokemon', label: 'Dunia Pokémon', shortLabel: 'Pokémon', icon: '⚡', defaultKind: 'npc' },
+  digimon: { id: 'digimon', label: 'Dunia Digimon', shortLabel: 'Digimon', icon: '👾', defaultKind: 'npc' },
+  tech: { id: 'tech', label: 'Tech & AI', shortLabel: 'Tech & AI', icon: '💻', defaultKind: 'object' },
+  fasilitas: { id: 'fasilitas', label: 'Fasilitas & Kota', shortLabel: 'Fasilitas & Kota', icon: '⛲', defaultKind: 'object' },
+};
+
+export const SPAWNABLE_CATALOG_GROUPS: EditorCategoryKey[] = [
+  'Foliage & Alam',
+  'Perabot & Lampu',
+  'Dunia Pokémon',
+  'Dunia Digimon',
+  'Tech & AI',
+  'Fasilitas & Kota',
+];
+
 export interface SpawnableTemplate {
   id: string;
   name: string;
   icon: string;
-  category: 'Foliage & Alam' | 'Perabot & Lampu' | 'Dunia Pokémon' | 'Tech & AI' | 'Fasilitas & Kota';
+  category: EditorCategoryKey;
   w: number;
   h: number;
-  kind: 'tree' | 'bush' | 'bench' | 'lamp' | 'flowerbed' | 'object' | 'npc' | 'sign';
+  kind: 'tree' | 'bush' | 'bench' | 'lamp' | 'flowerbed' | 'object' | 'npc' | 'sign' | 'digimon';
   subType?: string;
   desc: string;
   defaultDialogue?: string;
@@ -693,6 +731,20 @@ export const SPAWNABLE_TEMPLATES: SpawnableTemplate[] = [
     defaultDialogue: 'Rumah singgah mungil beratap merah untuk Pokémon pendamping. Sangat nyaman dan hangat setelah lelah berpetualang seharian.',
   },
 
+  // 👾 3b. Dunia Digimon (Otomatis dari DIGIMON_CATALOG Tier 1+)
+  ...DIGIMON_CATALOG.map((d) => ({
+    id: `tpl_digi_${d.id}`,
+    name: d.title,
+    icon: d.iconEmoji,
+    category: 'Dunia Digimon' as const,
+    w: 2,
+    h: 2,
+    kind: 'digimon' as const,
+    subType: d.id,
+    desc: `${d.stage} • ${d.attribute} | Jurus: ${d.signatureMove} (2x2)`,
+    defaultDialogue: `${d.name.toUpperCase()} (${d.stage} · ${d.attribute}): "${d.lore}" Jurus Khas: ${d.signatureMove}.`,
+  })),
+
   // 💻 4. Teknologi, AI & Engineering (Tech & Dev Props)
   {
     id: 'tpl_server_rack',
@@ -924,6 +976,10 @@ export type TileTypeKey =
   | 'cobble'
   | 'lab_paver'
   | 'dev_paver'
+  | 'cyber_grid'
+  | 'lava_rock'
+  | 'cryo_ice'
+  | 'holy_marble'
   | 'water'
   | 'hedge'
   | 'fence'
@@ -936,6 +992,10 @@ export const TILE_BRUSH_TYPES: { id: TileTypeKey; name: string; icon: string; de
   { id: 'cobble', name: 'Jalan Batu', icon: '🪨', desc: 'Cobblestone Street' },
   { id: 'lab_paver', name: 'Paving Lab', icon: '🏢', desc: 'High-Tech Modern Pavers' },
   { id: 'dev_paver', name: 'Lantai Megah', icon: '🏛️', desc: 'Palace Manor Pavers' },
+  { id: 'cyber_grid', name: 'Lantai Siber', icon: '🧩', desc: 'Cyber & Steel Dome Circuit Grid' },
+  { id: 'lava_rock', name: 'Batu Vulkanik', icon: '🌋', desc: 'Flame & Dragon Canyon Magma Rock' },
+  { id: 'cryo_ice', name: 'Kristal Es', icon: '🧊', desc: 'Aqua & Cryo Bay Ice Crystal Tile' },
+  { id: 'holy_marble', name: 'Marmer Suci', icon: '🏛️', desc: 'Verdant & Holy Sanctuary Sacred Marble' },
   { id: 'grass', name: 'Rumput Hijau', icon: '🌿', desc: 'Lush Green Grass' },
   { id: 'tall_grass', name: 'Rumput Liar', icon: '🌾', desc: 'Tall Grass (Critterdex encounters)' },
   { id: 'hedge', name: 'Semak Hijau', icon: '🌳', desc: 'Boxwood Hedge' },
@@ -948,7 +1008,8 @@ export const TILE_BRUSH_TYPES: { id: TileTypeKey; name: string; icon: string; de
 
 export const DEFAULT_BUILDINGS: BuildingLayout[] = canonicalLayout.buildings as BuildingLayout[];
 
-const STORAGE_KEY = 'zulfan_town_custom_layout_v1';
+const STORAGE_KEY_TOWN = 'zulfan_town_custom_layout_v1';
+const STORAGE_KEY_DIGIMON = 'zulfan_digimon_custom_layout_v1';
 
 const PURGED_LEGACY_IDS = new Set([
   'lamp_cafe_1',
@@ -978,6 +1039,7 @@ const PURGED_LEGACY_IDS = new Set([
 ]);
 
 class TownConfigManager {
+  private activeWorld: WorldTarget = 'town';
   private buildings: Map<string, BuildingLayout> = new Map();
   private tileOverrides: Map<string, TileTypeKey> = new Map();
   private listeners: (() => void)[] = [];
@@ -989,15 +1051,50 @@ class TownConfigManager {
     this.populateDefaults();
   }
 
+  public getActiveWorld(): WorldTarget {
+    return this.activeWorld;
+  }
+
+  public getBounds(): { w: number; h: number } {
+    return this.activeWorld === 'digimon' ? { w: 40, h: 45 } : { w: 45, h: 64 };
+  }
+
+  private getStorageKey(): string {
+    return this.activeWorld === 'digimon' ? STORAGE_KEY_DIGIMON : STORAGE_KEY_TOWN;
+  }
+
+  private getCanonicalSource(): { buildings: BuildingLayout[]; tiles: [string, TileTypeKey][] } {
+    if (this.activeWorld === 'digimon') {
+      return {
+        buildings: (digimonCanonicalLayout.buildings || []) as BuildingLayout[],
+        tiles: (digimonCanonicalLayout.tiles || []) as [string, TileTypeKey][],
+      };
+    }
+    return {
+      buildings: (canonicalLayout.buildings || []) as BuildingLayout[],
+      tiles: (canonicalLayout.tiles || []) as [string, TileTypeKey][],
+    };
+  }
+
+  public setActiveWorld(world: WorldTarget) {
+    if (this.activeWorld === world) return;
+    this.activeWorld = world;
+    this.historyStack = [];
+    this.redoStack = [];
+    this.populateDefaults();
+    this.loadFromStorage();
+    this.notify();
+  }
+
   public populateDefaults() {
     this.buildings.clear();
-    const sourceBuildings = canonicalLayout.buildings as BuildingLayout[];
+    const { buildings: sourceBuildings, tiles: sourceTiles } = this.getCanonicalSource();
     for (const b of sourceBuildings) {
       this.buildings.set(b.id, { ...b });
     }
     this.tileOverrides.clear();
-    if (Array.isArray(canonicalLayout.tiles)) {
-      for (const [k, v] of (canonicalLayout.tiles as [string, TileTypeKey][])) {
+    if (Array.isArray(sourceTiles)) {
+      for (const [k, v] of sourceTiles) {
         this.tileOverrides.set(k, v);
       }
     }
@@ -1122,8 +1219,9 @@ class TownConfigManager {
     const count = Array.from(this.buildings.values()).filter((item) => item.id.startsWith(prefix)).length + 1;
     const newId = `${prefix}_copy_${Date.now().toString(36)}`;
     const newName = `${b.name} (Copy ${count})`;
-    const clampedX = Math.max(0, Math.min(45 - b.w, b.x + 1));
-    const clampedY = Math.max(0, Math.min(64 - b.h, b.y + 1));
+    const { w: mapW, h: mapH } = this.getBounds();
+    const clampedX = Math.max(0, Math.min(mapW - b.w, b.x + 1));
+    const clampedY = Math.max(0, Math.min(mapH - b.h, b.y + 1));
     const clone: BuildingLayout = {
       ...b,
       id: newId,
@@ -1146,6 +1244,7 @@ class TownConfigManager {
     if (ids.length === 0) return [];
     this.pushSnapshot(this.captureSnapshot());
     const cloned: BuildingLayout[] = [];
+    const { w: mapW, h: mapH } = this.getBounds();
     for (const id of ids) {
       const b = this.buildings.get(id);
       if (!b) continue;
@@ -1153,8 +1252,8 @@ class TownConfigManager {
       const count = Array.from(this.buildings.values()).filter((item) => item.id.startsWith(prefix)).length + 1;
       const newId = `${prefix}_copy_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 5)}`;
       const newName = `${b.name} (Copy ${count})`;
-      const clampedX = Math.max(0, Math.min(45 - b.w, b.x + 1));
-      const clampedY = Math.max(0, Math.min(64 - b.h, b.y + 1));
+      const clampedX = Math.max(0, Math.min(mapW - b.w, b.x + 1));
+      const clampedY = Math.max(0, Math.min(mapH - b.h, b.y + 1));
       const clone: BuildingLayout = {
         ...b,
         id: newId,
@@ -1209,11 +1308,12 @@ class TownConfigManager {
       const wasVertical = prevOrient === 'E' || prevOrient === 'W';
       const isVertical = orient === 'E' || orient === 'W';
       if (wasVertical !== isVertical) {
+        const { w: mapW, h: mapH } = this.getBounds();
         const temp = b.w;
         b.w = b.h;
         b.h = temp;
-        b.x = Math.max(0, Math.min(45 - b.w, b.x));
-        b.y = Math.max(0, Math.min(64 - b.h, b.y));
+        b.x = Math.max(0, Math.min(mapW - b.w, b.x));
+        b.y = Math.max(0, Math.min(mapH - b.h, b.y));
       }
     }
 
@@ -1233,8 +1333,9 @@ class TownConfigManager {
     const id = `${prefix}_${Date.now().toString(36)}`;
     const name = `${tpl.name} #${count}`;
 
-    const clampedX = Math.max(0, Math.min(45 - tpl.w, Math.round(x)));
-    const clampedY = Math.max(0, Math.min(64 - tpl.h, Math.round(y)));
+    const { w: mapW, h: mapH } = this.getBounds();
+    const clampedX = Math.max(0, Math.min(mapW - tpl.w, Math.round(x)));
+    const clampedY = Math.max(0, Math.min(mapH - tpl.h, Math.round(y)));
 
     const newObj: BuildingLayout = {
       id,
@@ -1245,7 +1346,13 @@ class TownConfigManager {
       h: tpl.h,
       kind: tpl.kind,
       subType: tpl.subType,
-      orientation: tpl.kind === 'npc' || tpl.category === 'Dunia Pokémon' ? 'S' : 'N',
+      orientation:
+        tpl.kind === 'npc' ||
+        tpl.kind === 'digimon' ||
+        tpl.category === 'Dunia Pokémon' ||
+        tpl.category === 'Dunia Digimon'
+          ? 'S'
+          : 'N',
       dialogue: tpl.defaultDialogue,
     };
 
@@ -1306,11 +1413,12 @@ class TownConfigManager {
       labelY?: number;
     }[]
   ) {
+    const { w: mapW, h: mapH } = this.getBounds();
     for (const m of moves) {
       const b = this.buildings.get(m.id);
       if (!b || b.locked) continue;
-      const nx = Math.max(0, Math.min(45 - b.w, Math.round(m.x)));
-      const ny = Math.max(0, Math.min(64 - b.h, Math.round(m.y)));
+      const nx = Math.max(0, Math.min(mapW - b.w, Math.round(m.x)));
+      const ny = Math.max(0, Math.min(mapH - b.h, Math.round(m.y)));
       const dx = nx - b.x;
       const dy = ny - b.y;
       b.x = nx;
@@ -1456,13 +1564,15 @@ class TownConfigManager {
     this.pushSnapshot(this.captureSnapshot());
     this.populateDefaults();
     if (typeof window !== 'undefined') {
-      try { localStorage.removeItem(STORAGE_KEY); } catch {}
+      try { localStorage.removeItem(this.getStorageKey()); } catch {}
     }
     if (notify) this.notify();
   }
 
   public async saveToDisk(): Promise<{ success: boolean; message: string }> {
+    const targetFile = this.activeWorld === 'digimon' ? 'src/data/digimonLayout.json' : 'src/data/townLayout.json';
     const data = {
+      target: this.activeWorld,
       buildings: Array.from(this.buildings.values()).filter((b) => !b.hidden),
       tiles: Array.from(this.tileOverrides.entries()),
     };
@@ -1474,7 +1584,7 @@ class TownConfigManager {
         body: JSON.stringify(data),
       });
       if (res.ok) {
-        return { success: true, message: 'Tersimpan permanen ke src/data/townLayout.json!' };
+        return { success: true, message: `Tersimpan permanen ke ${targetFile}!` };
       }
       return { success: false, message: `Server error (${res.status}): Tersimpan di cadangan browser.` };
     } catch {
@@ -1489,7 +1599,7 @@ class TownConfigManager {
         buildings: Array.from(this.buildings.values()),
         tiles: Array.from(this.tileOverrides.entries()),
       };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      localStorage.setItem(this.getStorageKey(), JSON.stringify(data));
     } catch (e) {
       console.warn('Failed to save town config to localStorage', e);
     }
@@ -1498,9 +1608,25 @@ class TownConfigManager {
   public loadFromStorage() {
     if (typeof window === 'undefined') return;
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
+      const raw = localStorage.getItem(this.getStorageKey());
       if (!raw) return;
       const parsed = JSON.parse(raw);
+
+      if (this.activeWorld === 'digimon') {
+        if (Array.isArray(parsed.buildings)) {
+          for (const b of parsed.buildings) {
+            if (!b.id) continue;
+            this.buildings.set(b.id, b);
+          }
+        }
+        if (Array.isArray(parsed.tiles)) {
+          for (const [k, v] of parsed.tiles) {
+            this.tileOverrides.set(k, v);
+          }
+        }
+        return;
+      }
+
       let purgedLegacyFound = false;
       if (Array.isArray(parsed.buildings)) {
         for (const b of parsed.buildings) {

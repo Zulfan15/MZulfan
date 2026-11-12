@@ -1,0 +1,346 @@
+---
+import TownLayout from '../layouts/TownLayout.astro';
+import WhereTo from '../components/WhereTo.astro';
+import { DIGIMON_CATALOG } from '../engine/digimonCatalog';
+import digimonLayout from '../data/digimonLayout.json';
+
+const habitatZones = [
+  {
+    id: 'flame-dragon',
+    icon: '🔥',
+    badge: 'ZONA I · BARAT LAUT',
+    title: 'Flame & Dragon Canyon',
+    coords: 'X: 4–16, Y: 7–17',
+    floor: 'lava_rock (Batu Vulkanik)',
+    accent: 'border-[#ea580c] bg-[#24120c] text-[#fed7aa]',
+    badgeClass: 'border-[#fb923c] bg-[#431407] text-[#fdba74]',
+    desc: 'Ngarai basalt retak dengan bara vulkanik hangat — zona ideal untuk Greymon-line, Agumon, Guilmon, dan Gallantmon.',
+  },
+  {
+    id: 'cyber-steel',
+    icon: '⚙️',
+    badge: 'ZONA II · TIMUR LAUT',
+    title: 'Cyber & Steel Dome',
+    coords: 'X: 24–36, Y: 7–17',
+    floor: 'cyber_grid (Cyber Grid)',
+    accent: 'border-[#0284c7] bg-[#09182e] text-[#bae6fd]',
+    badgeClass: 'border-[#38bdf8] bg-[#082f49] text-[#7dd3fc]',
+    desc: 'Dek sirkuit neon & pad baja digital untuk Omegamon, Machinedramon, MetalGarurumon, dan partner teknologi.',
+  },
+  {
+    id: 'aqua-cryo',
+    icon: '❄️',
+    badge: 'ZONA III · BARAT DAYA',
+    title: 'Aqua & Cryo Bay',
+    coords: 'X: 4–16, Y: 27–38',
+    floor: 'cryo_ice (Lantai Es)',
+    accent: 'border-[#06b6d4] bg-[#071f2c] text-[#cffafe]',
+    badgeClass: 'border-[#22d3ee] bg-[#083344] text-[#67e8f9]',
+    desc: 'Teluk kristal es berkilau di tepian Digital Ocean — dirancang untuk Gomamon, Seadramon, dan Vikemon.',
+  },
+  {
+    id: 'verdant-holy',
+    icon: '🌿',
+    badge: 'ZONA IV · TENGGARA',
+    title: 'Verdant & Holy Sanctuary',
+    coords: 'X: 24–36, Y: 27–38',
+    floor: 'holy_marble + Padang Suci',
+    accent: 'border-[#ca8a04] bg-[#132215] text-[#fef3c7]',
+    badgeClass: 'border-[#fbbf24] bg-[#422006] text-[#fde047]',
+    desc: 'Padang rumput suci dengan altar marmer keemasan — ruang bagi Patamon, Seraphimon, Angewomon, dan Palmon-line.',
+  },
+];
+---
+
+<TownLayout
+  title="Digi-Sanctuary Island — Digital World | Muhammad Zulfan"
+  description="Explore Digi-Sanctuary Island (40×45): a dedicated outdoor Digital World connected via Zulfan's Town Portal (22, 60), featuring 4 Elemental Habitat Zones, Central Digi-Plaza, and independent Town Editor 2.0 storage."
+  place="digimon"
+>
+  <div class="space-y-6 pb-10">
+    <!-- Hero Banner -->
+    <section
+      class="relative overflow-hidden rounded-2xl border-[3px] border-[#0284c7] bg-gradient-to-br from-[#040d1d] via-[#091b34] to-[#0f172a] p-5 text-[#e2e8f0] shadow-[0_8px_0_#082f49,0_16px_32px_rgba(2,132,199,0.28)]"
+    >
+      <div class="pointer-events-none absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-[#00f0ff] via-[#38bdf8] to-[#fbbf24]"></div>
+
+      <div class="relative z-10 space-y-3">
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="inline-flex items-center gap-1.5 rounded-full border-2 border-[#00f0ff] bg-[#082f49]/90 px-3 py-0.5 font-mono text-[10px] font-extrabold uppercase tracking-[0.14em] text-[#67e8f9]">
+            <span>👾</span> DIGITAL WORLD · MAP 40×45
+          </span>
+          <span class="inline-flex items-center gap-1 rounded-full border-2 border-[#fbbf24] bg-[#422006]/85 px-2.5 py-0.5 font-mono text-[10px] font-black uppercase tracking-wider text-[#fde047]">
+            FASE 4 · 40 DIGIMON, PATROL &amp; COMPANION
+          </span>
+        </div>
+
+        <h1 class="font-['Press_Start_2P',monospace] text-base leading-snug text-[#f8fafc] drop-shadow-[0_2px_0_#0c4a6e] sm:text-lg">
+          🌐 DIGI-SANCTUARY ISLAND
+        </h1>
+
+        <p class="max-w-xl text-xs leading-relaxed text-[#cbd5e1] sm:text-sm">
+          Selamat datang di pulau Digital World berdimensi <strong class="text-[#67e8f9]">40 × 45 tile</strong>!
+          Terhubung langsung dari South Boulevard Portal <code class="rounded bg-[#0f172a] px-1.5 py-0.5 text-[#fde047]">(22, 60)</code> di Zulfan&apos;s Town.
+          Seluruh pulau bebas dikustomisasi memakai <strong class="text-[#fde047]">Town Editor 2.0</strong> — dilengkapi 40 Digimon Tier 1–4, 4-Direction Patrol AI, dan Companion Jalan Bersama.
+        </p>
+
+        <div class="flex flex-wrap gap-2 pt-1">
+          <button
+            type="button"
+            data-digi-action="showcase"
+            class="btn btn-sm border-2 border-[#00f0ff] bg-[#082f49] font-pixel text-[10px] text-[#e0f2fe] hover:bg-[#0284c7]"
+          >
+            📖 Buka DigiDex Showcase
+          </button>
+          <button
+            type="button"
+            data-digi-action="console"
+            class="btn btn-sm border-2 border-[#38bdf8] bg-[#0c4a6e] font-pixel text-[10px] text-[#e0f2fe] hover:bg-[#0284c7]"
+          >
+            📟 DigiDex Console
+          </button>
+          <button
+            type="button"
+            id="btn-digi-patrol"
+            data-digi-action="patrol"
+            class="btn btn-sm border-2 border-[#34d399] bg-[#064e3b] font-pixel text-[10px] text-[#d1fae5] hover:bg-[#065f46]"
+          >
+            🚶 Patrol Digimon: AKTIF
+          </button>
+          <button
+            type="button"
+            data-digi-action="editor"
+            class="btn btn-sm border-2 border-[#fbbf24] bg-[#451a03] font-pixel text-[10px] text-[#fef3c7] hover:bg-[#78350f]"
+          >
+            🛠️ Buka Town Editor 2.0 (E)
+          </button>
+          <a
+            href="/?from=digimon"
+            onclick="sessionStorage.setItem('town:respawn', '22,58,up')"
+            class="btn btn-sm border-2 border-[#475569] bg-[#1e293b] font-pixel text-[10px] text-[#f1f5f9] hover:bg-[#334155]"
+          >
+            🔙 Kembali ke Zulfan&apos;s Town
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Status Telemetry Card -->
+    <section class="card border-2 border-[#1e293b] bg-[#0b1324] p-4 text-[#e2e8f0]">
+      <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <h2 class="font-pixel text-xs uppercase tracking-wide text-[#67e8f9]">
+          📟 DigiDex Master Console — Telemetry Fase 4
+        </h2>
+        <span class="rounded border border-[#00f0ff]/40 bg-[#082f49] px-2 py-0.5 font-mono text-[10px] text-[#67e8f9]">
+          Save Target: src/data/digimonLayout.json
+        </span>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div class="rounded-lg border border-[#1e293b] bg-[#0f172a] p-2.5">
+          <div class="font-mono text-[10px] text-[#94a3b8]">DIMENSI PETA</div>
+          <div class="font-pixel text-xs text-[#67e8f9]">40 × 45 Tiles</div>
+        </div>
+        <div class="rounded-lg border border-[#1e293b] bg-[#0f172a] p-2.5">
+          <div class="font-mono text-[10px] text-[#94a3b8]">RETURN GATE</div>
+          <div class="font-pixel text-xs text-[#fde047]">(19..21, 3..4)</div>
+        </div>
+        <div class="rounded-lg border border-[#1e293b] bg-[#0f172a] p-2.5">
+          <div class="font-mono text-[10px] text-[#94a3b8]">KATALOG DIGIMON</div>
+          <div class="font-pixel text-xs text-[#86efac]" id="digi-placed-count">
+            {DIGIMON_CATALOG.length} Total Tier 1–4 ({digimonLayout.buildings.length} terpasang)
+          </div>
+        </div>
+        <div class="rounded-lg border border-[#1e293b] bg-[#0f172a] p-2.5">
+          <div class="font-mono text-[10px] text-[#94a3b8]">DIGIMON COMPANION</div>
+          <div class="flex items-center justify-between gap-2">
+            <span class="font-pixel text-[10px] text-[#fde047] truncate" id="digi-companion-status">
+              Belum dipilih
+            </span>
+            <button
+              type="button"
+              id="btn-rest-digi-companion"
+              class="hidden rounded border border-[#fb7185]/60 bg-[#4c0519] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#fecdd3] hover:bg-[#881337] cursor-pointer shrink-0"
+              title="Istirahatkan Digimon Companion"
+            >
+              👟 Rest
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-3 border-t border-[#1e293b] pt-3">
+        <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
+          <span class="font-mono text-[10px] uppercase tracking-wider text-[#94a3b8]">
+            Katalog Lengkap 40 Digimon Tier 1–4 (Klik untuk Showcase &amp; Ajak Companion)
+          </span>
+          <div class="flex flex-wrap gap-1.5" id="digi-page-tier-filters">
+            {[
+              { key: 'all', label: `Semua (${DIGIMON_CATALOG.length})` },
+              { key: '1', label: `Tier 1 (${DIGIMON_CATALOG.filter((d) => d.tier === 1).length})` },
+              { key: '2', label: `Tier 2 (${DIGIMON_CATALOG.filter((d) => d.tier === 2).length})` },
+              { key: '3', label: `Tier 3 (${DIGIMON_CATALOG.filter((d) => d.tier === 3).length})` },
+              { key: '4', label: `Tier 4 (${DIGIMON_CATALOG.filter((d) => d.tier === 4).length})` },
+            ].map((f, idx) => (
+              <button
+                type="button"
+                data-page-tier-filter={f.key}
+                class={`px-2 py-0.5 rounded border font-mono text-[9px] font-bold uppercase cursor-pointer transition-colors ${
+                  idx === 0
+                    ? 'border-[#00f0ff] bg-[#082f49] text-[#67e8f9]'
+                    : 'border-[#1e293b] bg-[#0f172a] text-[#94a3b8] hover:text-[#e2e8f0]'
+                }`}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-1.5 max-h-56 overflow-y-auto pr-1" id="digi-page-catalog-grid">
+          {DIGIMON_CATALOG.map((d) => (
+            <button
+              type="button"
+              data-open-digi={d.id}
+              data-digi-page-tier={d.tier}
+              class="inline-flex items-center gap-1 rounded-md border border-[#1e293b] hover:border-[#00f0ff] bg-[#0f172a] hover:bg-[#082f49] px-2.5 py-1 font-mono text-[10px] text-[#e2e8f0] cursor-pointer transition-colors"
+            >
+              <span>{d.iconEmoji}</span>
+              <span class="rounded bg-[#1e293b] px-1 text-[8px] font-bold text-[#94a3b8]">T{d.tier}</span>
+              <strong class="text-[#67e8f9]">{d.name}</strong>
+              <span class="text-[#94a3b8]">({d.attribute})</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- 4 Elemental Habitat Zones -->
+    <section class="space-y-3">
+      <div class="flex items-center justify-between">
+        <h2 class="font-pixel text-xs uppercase tracking-wider text-ink">
+          🏝️ Empat Zona Habitat Elemental
+        </h2>
+        <span class="font-mono text-[11px] text-ink-soft">Terhubung Cyber Bridges</span>
+      </div>
+
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        {habitatZones.map((zone) => (
+          <article class={`rounded-xl border-2 p-3.5 shadow-sm transition-transform hover:-translate-y-0.5 ${zone.accent}`}>
+            <div class="mb-2 flex items-center justify-between gap-2">
+              <span class={`inline-flex items-center gap-1 rounded border px-2 py-0.5 font-mono text-[9px] font-bold uppercase ${zone.badgeClass}`}>
+                {zone.icon} {zone.badge}
+              </span>
+              <code class="font-mono text-[10px] opacity-80">{zone.coords}</code>
+            </div>
+            <h3 class="font-pixel text-xs font-bold">{zone.title}</h3>
+            <p class="mt-1 text-xs leading-relaxed opacity-90">{zone.desc}</p>
+            <div class="mt-2 font-mono text-[10px] opacity-75">Lantai Default: {zone.floor}</div>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <WhereTo currentPath="/digimon" />
+  </div>
+
+  <script>
+    import { DIGIMON_CATALOG, getDigimonById } from '../engine/digimonCatalog';
+    import { townConfig } from '../engine/townConfig';
+
+    function refreshDigiCount() {
+      const countEl = document.getElementById('digi-placed-count');
+      if (!countEl) return;
+      const placed = townConfig
+        .getBuildings()
+        .filter((b) => b.kind === 'digimon' && !b.hidden).length;
+      countEl.textContent = `${DIGIMON_CATALOG.length} Total Tier 1–4 (${placed} terpasang)`;
+    }
+
+    function refreshCompanionBar() {
+      const statusEl = document.getElementById('digi-companion-status');
+      const restBtn = document.getElementById('btn-rest-digi-companion');
+      if (!statusEl) return;
+      const saved =
+        typeof localStorage !== 'undefined' ? localStorage.getItem('digimon:active_companion') : null;
+      const entry = saved && saved !== 'none' ? getDigimonById(saved) : undefined;
+      if (entry) {
+        statusEl.textContent = `${entry.iconEmoji} ${entry.name}`;
+        restBtn?.classList.remove('hidden');
+      } else {
+        statusEl.textContent = 'Belum dipilih';
+        restBtn?.classList.add('hidden');
+      }
+    }
+
+    function refreshPatrolButton(explicit?: boolean) {
+      const patrolBtn = document.getElementById('btn-digi-patrol');
+      if (!patrolBtn) return;
+      const enabled =
+        typeof explicit === 'boolean'
+          ? explicit
+          : typeof localStorage === 'undefined' || localStorage.getItem('digimon:patrol_enabled') !== 'false';
+      patrolBtn.textContent = enabled ? '🚶 Patrol Digimon: AKTIF' : '⏸️ Patrol Digimon: PAUSE';
+      patrolBtn.className = enabled
+        ? 'btn btn-sm border-2 border-[#34d399] bg-[#064e3b] font-pixel text-[10px] text-[#d1fae5] hover:bg-[#065f46]'
+        : 'btn btn-sm border-2 border-[#64748b] bg-[#1e293b] font-pixel text-[10px] text-[#cbd5e1] hover:bg-[#334155]';
+    }
+
+    document.querySelectorAll<HTMLButtonElement>('[data-digi-action]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const action = btn.getAttribute('data-digi-action');
+        if (action === 'showcase') {
+          window.dispatchEvent(new CustomEvent('digimon:open-modal', { detail: { mode: 'roster' } }));
+        } else if (action === 'console') {
+          const consoleBtn = document.querySelector<HTMLButtonElement>('.town-label[data-id="digidex-console"]');
+          consoleBtn?.click();
+        } else if (action === 'patrol') {
+          window.dispatchEvent(new CustomEvent('digimon:toggle-patrol', { detail: {} }));
+        } else if (action === 'editor') {
+          const editorBtn = document.getElementById('btn-toggle-editor');
+          editorBtn?.click();
+        }
+      });
+    });
+
+    document.getElementById('btn-rest-digi-companion')?.addEventListener('click', () => {
+      window.dispatchEvent(new CustomEvent('digimon:set-companion', { detail: { companionId: null } }));
+    });
+
+    document.querySelectorAll<HTMLButtonElement>('[data-page-tier-filter]').forEach((fBtn) => {
+      fBtn.addEventListener('click', () => {
+        const filter = fBtn.getAttribute('data-page-tier-filter') || 'all';
+        document.querySelectorAll<HTMLButtonElement>('[data-page-tier-filter]').forEach((b) => {
+          const active = b === fBtn;
+          b.className = `px-2 py-0.5 rounded border font-mono text-[9px] font-bold uppercase cursor-pointer transition-colors ${
+            active
+              ? 'border-[#00f0ff] bg-[#082f49] text-[#67e8f9]'
+              : 'border-[#1e293b] bg-[#0f172a] text-[#94a3b8] hover:text-[#e2e8f0]'
+          }`;
+        });
+        document.querySelectorAll<HTMLButtonElement>('[data-digi-page-tier]').forEach((cardBtn) => {
+          const tier = cardBtn.getAttribute('data-digi-page-tier');
+          cardBtn.classList.toggle('hidden', filter !== 'all' && tier !== filter);
+        });
+      });
+    });
+
+    document.querySelectorAll<HTMLButtonElement>('[data-open-digi]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const subType = btn.getAttribute('data-open-digi');
+        if (!subType) return;
+        window.dispatchEvent(new CustomEvent('digimon:open-modal', { detail: { subType, mode: 'inspect' } }));
+      });
+    });
+
+    window.addEventListener('digimon:companion-changed', refreshCompanionBar);
+    window.addEventListener('digimon:patrol-changed', ((e: CustomEvent<{ enabled?: boolean }>) => {
+      refreshPatrolButton(e.detail?.enabled);
+    }) as EventListener);
+
+    townConfig.subscribe(refreshDigiCount);
+    refreshCompanionBar();
+    refreshPatrolButton();
+    setTimeout(refreshDigiCount, 300);
+  </script>
+</TownLayout>
+

@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updatedAt": "2026-11-11T09:14:03.264Z",
+  "updatedAt": "2026-11-11T09:47:14.364Z",
   "buildings": [
     {
       "id": "dev",
@@ -698,7 +698,7 @@
       "h": 2,
       "kind": "npc",
       "subType": "latias",
-      "orientation": "W",
+      "orientation": "S",
       "dialogue": "LATIAS: 'Kyuuu-wiiin...!' 💖✨ Latias melayang lincah dengan bulu halus pembias cahaya (Refract Light) yang dapat membuatnya tak kasat mata. Sang Pelindung Jiwa menyebarkan kedamaian dan kehangatan di Zulfan's Town.",
       "hidden": false
     },
@@ -763,7 +763,7 @@
       "h": 2,
       "kind": "npc",
       "subType": "garchomp",
-      "orientation": "N",
+      "orientation": "S",
       "dialogue": "GARCHOMP: 'Gyaaa-shhh...!' 🦈🌪️ Sayap sirip tajam Garchomp berdesir membelah angin. Sang Mach Pokémon berdiri sigap dengan kecepatan supersonik menjaga ketertiban Zulfan's Town.",
       "hidden": false
     },
@@ -803,7 +803,8 @@
       "kind": "npc",
       "subType": "gyarados",
       "orientation": "S",
-      "dialogue": "GYARADOS: 'Gwoooaaargh... Roaaar!' 🌊🐉 Deru ombak raksasa dan badai air bergemuruh saat Gyarados meliuk gagah. Sang Naga Lautan pantang menyerah menembus arus dan menjaga perairan Zulfan's Town."
+      "dialogue": "GYARADOS: 'Gwoooaaargh... Roaaar!' 🌊🐉 Deru ombak raksasa dan badai air bergemuruh saat Gyarados meliuk gagah. Sang Naga Lautan pantang menyerah menembus arus dan menjaga perairan Zulfan's Town.",
+      "hidden": false
     }
   ],
   "tiles": [

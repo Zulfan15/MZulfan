@@ -17,6 +17,16 @@ import { Tile, type Building, type Lamp, type Npc, type Prop, type Sign, type To
 export const MAP_W = 45;
 export const MAP_H = 64;
 
+export const DIGI_GATE_PORTAL = {
+  xMin: 21,
+  xMax: 23,
+  yMin: 59,
+  yMax: 60,
+  triggerY: 60,
+  route: '/digimon',
+  returnSpawn: { x: 22, y: 58, dir: 'up' as const },
+};
+
 export function createTownMap(_data: TownData): TownMap {
   const w = MAP_W;
   const h = MAP_H;
@@ -878,6 +888,17 @@ export function createTownMap(_data: TownData): TownMap {
     ground[idx(35, y)] = Tile.PATH;
   }
 
+  // Digital Warp Gate corridor & pad at south end of Central Boulevard (X: 21..23, Y: 58..60)
+  for (let y = 58; y <= 60; y++) {
+    for (let x = DIGI_GATE_PORTAL.xMin; x <= DIGI_GATE_PORTAL.xMax; x++) {
+      collision[idx(x, y)] = 0;
+      ground[idx(x, y)] = Tile.PATH;
+    }
+  }
+  for (let x = DIGI_GATE_PORTAL.xMin; x <= DIGI_GATE_PORTAL.xMax; x++) {
+    doors.set(idx(x, DIGI_GATE_PORTAL.triggerY), DIGI_GATE_PORTAL.route);
+  }
+
   return {
     w,
     h,
@@ -891,6 +912,7 @@ export function createTownMap(_data: TownData): TownMap {
     doors,
     spawns: {
       town: { x: 22, y: 28, dir: 'down' },
+      digimon: { x: 22, y: 58, dir: 'up' },
       about: { x: 22, y: 28, dir: 'down' },
       home: { x: 22, y: 28, dir: 'down' },
       dev: { x: 22, y: 28, dir: 'down' },

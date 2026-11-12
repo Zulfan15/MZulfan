@@ -1,0 +1,783 @@
+---
+import { DIGIMON_CATALOG } from '../engine/digimonCatalog';
+---
+
+<dialog
+  id="digidex-modal"
+  class="town-modal digidex-modal p-0 rounded-2xl border-[3px] border-[#00f0ff] bg-[#040c1e] text-[#f8fafc] shadow-[0_0_40px_rgba(0,240,255,0.28)] backdrop:bg-slate-950/80 backdrop:backdrop-blur-xs max-w-3xl w-[94vw] max-h-[90vh] overflow-hidden select-none"
+  aria-labelledby="digidex-title"
+>
+  <!-- Top Cyber Accent Strip -->
+  <div class="h-1.5 w-full bg-gradient-to-r from-[#00f0ff] via-[#38bdf8] to-[#fbbf24]"></div>
+
+  <!-- Modal Header -->
+  <div class="px-4 sm:px-5 py-3.5 border-b border-[#1e293b] bg-gradient-to-r from-[#071630] via-[#0b1f3f] to-[#081529] flex items-center justify-between gap-3">
+    <div class="flex items-center gap-3 min-w-0">
+      <div
+        id="digidex-icon-box"
+        class="w-11 h-11 rounded-xl border-2 border-[#00f0ff]/80 bg-[#091526] flex items-center justify-center overflow-hidden shrink-0 shadow-[0_0_12px_rgba(0,240,255,0.3)] text-xl"
+      >
+        👾
+      </div>
+      <div class="min-w-0">
+        <div class="flex flex-wrap items-center gap-2">
+          <h2 id="digidex-title" class="font-['Press_Start_2P',monospace] text-xs sm:text-sm text-[#f8fafc] truncate">
+            DIGIDEX SHOWCASE
+          </h2>
+          <span
+            id="digidex-stage-badge"
+            class="px-2 py-0.5 rounded border border-[#fbbf24]/60 bg-[#422006] font-mono text-[10px] font-bold uppercase text-[#fde047]"
+          >
+            Mega
+          </span>
+          <span
+            id="digidex-attr-badge"
+            class="px-2 py-0.5 rounded border border-[#38bdf8]/60 bg-[#082f49] font-mono text-[10px] font-bold uppercase text-[#67e8f9]"
+          >
+            Vaccine
+          </span>
+        </div>
+        <p id="digidex-subtitle" class="font-mono text-[11px] text-[#94a3b8] truncate mt-0.5">
+          Digital World Sanctuary · Battle Animator
+        </p>
+      </div>
+    </div>
+
+    <button
+      type="button"
+      id="digidex-close"
+      class="w-8 h-8 rounded-lg border border-[#334155] bg-[#0f172a] hover:bg-rose-950/80 hover:border-rose-400 text-[#cbd5e1] hover:text-white font-bold text-sm cursor-pointer transition-colors flex items-center justify-center shrink-0"
+      aria-label="Tutup DigiDex Modal"
+    >
+      ✕
+    </button>
+  </div>
+
+  <!-- Body -->
+  <div class="p-4 sm:p-5 overflow-y-auto max-h-[calc(90vh-140px)] space-y-4">
+    <div class="grid grid-cols-1 md:grid-cols-[1.15fr_1fr] gap-4 items-stretch">
+      <!-- Left Column: Animated Battle Showcase Canvas -->
+      <div class="flex flex-col gap-2.5">
+        <div class="relative rounded-xl border-2 border-[#0284c7]/80 bg-[#030916] overflow-hidden shadow-[inset_0_0_24px_rgba(0,240,255,0.12)]">
+          <div class="absolute top-2.5 left-2.5 z-10 flex items-center gap-1.5">
+            <span
+              id="digidex-zone-pill"
+              class="px-2 py-0.5 rounded bg-[#091526]/90 border border-[#38bdf8]/50 font-mono text-[9px] font-bold uppercase text-[#bae6fd]"
+            >
+              🔥 Flame Canyon
+            </span>
+          </div>
+          <div class="absolute top-2.5 right-2.5 z-10">
+            <span
+              id="digidex-anim-pill"
+              class="px-2 py-0.5 rounded bg-[#091526]/90 border border-[#00f0ff]/60 font-mono text-[9px] font-bold uppercase text-[#67e8f9]"
+            >
+              ● IDLE (3F)
+            </span>
+          </div>
+
+          <canvas
+            id="digidex-stage-canvas"
+            width="320"
+            height="236"
+            class="w-full h-auto block"
+            style="image-rendering: pixelated;"
+          ></canvas>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-2">
+          <button
+            type="button"
+            id="btn-digidex-attack"
+            class="flex-1 py-2.5 px-3 rounded-xl border-2 border-[#fbbf24] bg-gradient-to-r from-[#b45309] via-[#d97706] to-[#ea580c] hover:from-[#d97706] hover:to-[#f97316] active:translate-y-0.5 text-[#fefce8] font-['Press_Start_2P',monospace] text-[9px] sm:text-[10px] tracking-wide shadow-[0_4px_0_#78350f,0_0_16px_rgba(251,191,36,0.3)] cursor-pointer transition-all flex items-center justify-center gap-1.5"
+          >
+            <span>⚡ Signature Attack</span>
+          </button>
+          <button
+            type="button"
+            id="btn-digidex-companion"
+            class="sm:w-auto py-2.5 px-3 rounded-xl border-2 border-[#38bdf8]/70 bg-[#082f49] hover:bg-[#0284c7] active:translate-y-0.5 text-[#e0f2fe] font-['Press_Start_2P',monospace] text-[9px] sm:text-[10px] tracking-wide shadow-[0_4px_0_#0c4a6e] cursor-pointer transition-all flex items-center justify-center gap-1.5"
+          >
+            <span>🤝 Ajak Jalan Bersama</span>
+          </button>
+        </div>
+        <p class="text-center font-mono text-[10px] text-[#64748b]">
+          Animasi Battle Idle (3 Frame · ~6 FPS) &amp; Serangan Khas (2 Frame) — Tekan Spasi / X untuk serang
+        </p>
+      </div>
+
+      <!-- Right Column: Metadata, Signature Move & Lore -->
+      <div class="flex flex-col justify-between gap-3">
+        <div class="space-y-3">
+          <div class="rounded-xl border border-[#f59e0b]/40 bg-[#1c1208]/75 p-3">
+            <div class="font-mono text-[10px] font-bold uppercase tracking-wider text-[#fbbf24] mb-1">
+              ⚡ Jurus Khas (Signature Move)
+            </div>
+            <div id="digidex-move-name" class="font-pixel text-xs sm:text-sm font-bold text-[#fef3c7]">
+              Terra Force &amp; Great Tornado
+            </div>
+          </div>
+
+          <div class="rounded-xl border border-[#1e293b] bg-[#0a162b] p-3 space-y-2">
+            <div class="font-mono text-[10px] font-bold uppercase tracking-wider text-[#38bdf8]">
+              📖 Arsip DigiDex
+            </div>
+            <p id="digidex-lore" class="text-xs leading-relaxed text-[#e2e8f0]">
+              Memuat catatan Digital World...
+            </p>
+            <div
+              id="digidex-custom-note"
+              class="hidden rounded-lg border border-[#00f0ff]/35 bg-[#082f49]/60 p-2 font-mono text-[11px] text-[#bae6fd] italic"
+            ></div>
+          </div>
+        </div>
+
+        <div class="rounded-xl border border-[#1e293b] bg-[#071020] p-3 space-y-1">
+          <div class="flex items-center justify-between gap-2 font-mono text-[10px]">
+            <span class="text-[#94a3b8]">STATUS PETA:</span>
+            <span id="digidex-coords-text" class="text-[#86efac] font-bold">Terpasang di Peta</span>
+          </div>
+          <div class="font-mono text-[9px] text-[#64748b] truncate" id="digidex-credit">
+            Credit: Digimon World DS Rip
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Roster Quick-Switcher -->
+    <div class="pt-3 border-t border-[#1e293b]">
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+        <span class="font-mono text-[10px] font-bold uppercase tracking-wider text-[#94a3b8]">
+          👾 Roster DigiDex Tier 1–4 ({DIGIMON_CATALOG.length})
+        </span>
+        <span class="font-mono text-[9px] text-[#64748b]">
+          Titik hijau = terpasang ·🤝 = partner aktif
+        </span>
+      </div>
+      <div class="flex flex-wrap gap-1.5 mb-2" id="digidex-tier-filters">
+        {[
+          { key: 'all', label: `Semua (${DIGIMON_CATALOG.length})` },
+          { key: '1', label: `Tier 1 (${DIGIMON_CATALOG.filter((d) => d.tier === 1).length})` },
+          { key: '2', label: `Tier 2 (${DIGIMON_CATALOG.filter((d) => d.tier === 2).length})` },
+          { key: '3', label: `Tier 3 (${DIGIMON_CATALOG.filter((d) => d.tier === 3).length})` },
+          { key: '4', label: `Tier 4 (${DIGIMON_CATALOG.filter((d) => d.tier === 4).length})` },
+        ].map((f, idx) => (
+          <button
+            type="button"
+            data-tier-filter={f.key}
+            class={`px-2 py-0.5 rounded border font-mono text-[9px] font-bold uppercase cursor-pointer transition-colors ${
+              idx === 0
+                ? 'border-[#00f0ff] bg-[#082f49] text-[#67e8f9]'
+                : 'border-[#1e293b] bg-[#071020] text-[#94a3b8] hover:text-[#e2e8f0]'
+            }`}
+          >
+            {f.label}
+          </button>
+        ))}
+      </div>
+      <div id="digidex-roster" class="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto pr-1">
+        {DIGIMON_CATALOG.map((d) => (
+          <button
+            type="button"
+            class="digidex-roster-btn flex items-center gap-1.5 px-2 py-1 rounded-lg border border-[#1e293b] bg-[#0a162b] hover:border-[#00f0ff]/70 text-left cursor-pointer transition-all"
+            data-digi-id={d.id}
+            data-digi-tier={d.tier}
+          >
+            <span
+              class="digidex-roster-icon w-6 h-6 rounded bg-[#040c1e] border border-[#334155] flex items-center justify-center text-xs overflow-hidden shrink-0"
+              data-roster-icon={d.id}
+            >
+              {d.iconEmoji}
+            </span>
+            <span class="font-mono text-[10px] font-bold text-[#e2e8f0]">{d.name}</span>
+            <span
+              class="digidex-placed-dot hidden w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_#34d399]"
+              data-placed-dot={d.id}
+              title="Terpasang di peta /digimon"
+            ></span>
+          </button>
+        ))}
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<script>
+  import { getDigimonById, DIGIMON_CATALOG, type DigimonCatalogEntry } from '../engine/digimonCatalog';
+  import {
+    getDigimonSpritesSync,
+    requestDigimonSprites,
+    type ProcessedSpriteFrame,
+  } from '../engine/digiSpriteLoader';
+  import { townConfig } from '../engine/townConfig';
+  import { sfx } from '../game/sfx';
+
+  interface DigiInspectDetail {
+    id?: string;
+    subType?: string;
+    x?: number;
+    y?: number;
+    name?: string;
+    customDialogue?: string;
+    mode?: 'inspect' | 'roster';
+  }
+
+  interface AttackParticle {
+    x: number;
+    y: number;
+    vx: number;
+    vy: number;
+    size: number;
+    color: string;
+    alpha: number;
+  }
+
+  const ZONE_THEMES: Record<
+    string,
+    { label: string; bgTop: string; bgBot: string; primary: string; secondary: string }
+  > = {
+    flame: {
+      label: '🔥 Flame & Dragon Canyon',
+      bgTop: '#1f0b07',
+      bgBot: '#0a0404',
+      primary: '#f97316',
+      secondary: '#fde047',
+    },
+    cyber: {
+      label: '⚙️ Cyber & Steel Dome',
+      bgTop: '#061a33',
+      bgBot: '#030a18',
+      primary: '#00f0ff',
+      secondary: '#38bdf8',
+    },
+    aqua: {
+      label: '❄️ Aqua & Cryo Bay',
+      bgTop: '#062030',
+      bgBot: '#030d16',
+      primary: '#22d3ee',
+      secondary: '#bae6fd',
+    },
+    holy: {
+      label: '✨ Verdant & Holy Sanctuary',
+      bgTop: '#1d1633',
+      bgBot: '#090916',
+      primary: '#fbbf24',
+      secondary: '#f472b6',
+    },
+    plaza: {
+      label: '🌐 Central Digi-Plaza',
+      bgTop: '#081b38',
+      bgBot: '#040a1a',
+      primary: '#00f0ff',
+      secondary: '#fbbf24',
+    },
+  };
+
+  function initDigiDexModal() {
+    const dialog = document.getElementById('digidex-modal') as HTMLDialogElement | null;
+    if (!dialog || dialog.dataset.digiInit === 'true') return;
+    dialog.dataset.digiInit = 'true';
+
+    const btnClose = document.getElementById('digidex-close');
+    const iconBox = document.getElementById('digidex-icon-box');
+    const titleEl = document.getElementById('digidex-title');
+    const stageBadge = document.getElementById('digidex-stage-badge');
+    const attrBadge = document.getElementById('digidex-attr-badge');
+    const subtitleEl = document.getElementById('digidex-subtitle');
+    const zonePill = document.getElementById('digidex-zone-pill');
+    const animPill = document.getElementById('digidex-anim-pill');
+    const moveNameEl = document.getElementById('digidex-move-name');
+    const loreEl = document.getElementById('digidex-lore');
+    const customNoteEl = document.getElementById('digidex-custom-note');
+    const coordsEl = document.getElementById('digidex-coords-text');
+    const creditEl = document.getElementById('digidex-credit');
+    const btnAttack = document.getElementById('btn-digidex-attack');
+    const btnCompanion = document.getElementById('btn-digidex-companion') as HTMLButtonElement | null;
+    const canvas = document.getElementById('digidex-stage-canvas') as HTMLCanvasElement | null;
+    const ctx = canvas?.getContext('2d') || null;
+    const rosterContainer = document.getElementById('digidex-roster');
+    const rosterButtons = dialog.querySelectorAll<HTMLButtonElement>('.digidex-roster-btn');
+    const tierFilterButtons = dialog.querySelectorAll<HTMLButtonElement>('[data-tier-filter]');
+
+    let activeEntry: DigimonCatalogEntry = DIGIMON_CATALOG[0];
+    let rafId: number | null = null;
+    let openedAt = performance.now();
+    let attackStartMs = 0;
+    let attackPhaseActive = false;
+    let particles: AttackParticle[] = [];
+    const hydratedRosterIds = new Set<string>();
+
+    const hydrateRosterIcon = (id: string) => {
+      if (hydratedRosterIds.has(id)) return;
+      hydratedRosterIds.add(id);
+      const entry = getDigimonById(id);
+      const iconSlot = dialog.querySelector<HTMLElement>(`[data-roster-icon="${id}"]`);
+      if (!entry || !iconSlot) return;
+      const applyMini = (url: string | null) => {
+        if (!url) return;
+        iconSlot.innerHTML = `<img src="${url}" alt="${entry.name}" class="w-5 h-5 object-contain" style="image-rendering:pixelated;" />`;
+      };
+      const cached = requestDigimonSprites(id, () => {
+        const loaded = getDigimonSpritesSync(id);
+        if (loaded?.iconDataUrl) applyMini(loaded.iconDataUrl);
+      });
+      if (cached?.iconDataUrl) applyMini(cached.iconDataUrl);
+    };
+
+    const rosterObserver =
+      typeof IntersectionObserver !== 'undefined' && rosterContainer
+        ? new IntersectionObserver(
+            (entries) => {
+              for (const ent of entries) {
+                if (!ent.isIntersecting) continue;
+                const id = (ent.target as HTMLElement).getAttribute('data-digi-id');
+                if (id) hydrateRosterIcon(id);
+                rosterObserver?.unobserve(ent.target);
+              }
+            },
+            { root: rosterContainer, rootMargin: '60px' }
+          )
+        : null;
+
+    if (rosterObserver) {
+      rosterButtons.forEach((btn) => rosterObserver.observe(btn));
+    }
+
+    const syncCompanionButton = () => {
+      if (!btnCompanion) return;
+      const activeCompanion =
+        typeof localStorage !== 'undefined' ? localStorage.getItem('digimon:active_companion') : null;
+      const isPartner = activeCompanion === activeEntry.id;
+      btnCompanion.innerHTML = isPartner
+        ? '<span>👟 Istirahatkan Partner</span>'
+        : '<span>🤝 Ajak Jalan Bersama</span>';
+      btnCompanion.className = isPartner
+        ? "sm:w-auto py-2.5 px-3 rounded-xl border-2 border-[#34d399] bg-[#064e3b] hover:bg-[#065f46] active:translate-y-0.5 text-[#d1fae5] font-['Press_Start_2P',monospace] text-[9px] sm:text-[10px] tracking-wide shadow-[0_4px_0_#022c22] cursor-pointer transition-all flex items-center justify-center gap-1.5"
+        : "sm:w-auto py-2.5 px-3 rounded-xl border-2 border-[#38bdf8]/70 bg-[#082f49] hover:bg-[#0284c7] active:translate-y-0.5 text-[#e0f2fe] font-['Press_Start_2P',monospace] text-[9px] sm:text-[10px] tracking-wide shadow-[0_4px_0_#0c4a6e] cursor-pointer transition-all flex items-center justify-center gap-1.5";
+    };
+
+    const updateRosterPlacedBadges = () => {
+      const placedIds = new Set(
+        townConfig
+          .getBuildings()
+          .filter((b) => b.kind === 'digimon' && !b.hidden)
+          .map((b) => b.subType || b.id)
+      );
+      const activeCompanion =
+        typeof localStorage !== 'undefined' ? localStorage.getItem('digimon:active_companion') : null;
+
+      dialog.querySelectorAll<HTMLElement>('[data-placed-dot]').forEach((dot) => {
+        const id = dot.getAttribute('data-placed-dot') || '';
+        dot.classList.toggle('hidden', !placedIds.has(id));
+      });
+
+      rosterButtons.forEach((btn) => {
+        const id = btn.getAttribute('data-digi-id');
+        const isCurrent = id === activeEntry.id;
+        const isCompanion = Boolean(id && activeCompanion === id);
+        btn.classList.toggle('border-[#00f0ff]', isCurrent);
+        btn.classList.toggle('bg-[#082f49]', isCurrent);
+        btn.classList.toggle('border-[#34d399]', !isCurrent && isCompanion);
+        btn.classList.toggle('border-[#1e293b]', !isCurrent && !isCompanion);
+        if (!rosterObserver && id) hydrateRosterIcon(id);
+      });
+      syncCompanionButton();
+    };
+
+    const syncHeaderIcon = (entry: DigimonCatalogEntry) => {
+      if (!iconBox) return;
+      const loaded = getDigimonSpritesSync(entry.id);
+      if (loaded?.iconDataUrl) {
+        iconBox.innerHTML = `<img src="${loaded.iconDataUrl}" alt="${entry.name}" class="w-9 h-9 object-contain" style="image-rendering:pixelated;" />`;
+      } else {
+        iconBox.textContent = entry.iconEmoji;
+      }
+    };
+
+    const setEntry = (entry: DigimonCatalogEntry, detail?: DigiInspectDetail) => {
+      activeEntry = entry;
+      attackStartMs = 0;
+      attackPhaseActive = false;
+      particles = [];
+      openedAt = performance.now();
+
+      const theme = ZONE_THEMES[entry.elementZone] || ZONE_THEMES.plaza;
+      if (titleEl) titleEl.textContent = entry.name.toUpperCase();
+      if (subtitleEl) subtitleEl.textContent = entry.title;
+      if (stageBadge) stageBadge.textContent = entry.stage;
+      if (attrBadge) attrBadge.textContent = entry.attribute;
+      if (zonePill) zonePill.textContent = theme.label;
+      if (moveNameEl) moveNameEl.textContent = entry.signatureMove;
+      if (loreEl) loreEl.textContent = entry.lore;
+      if (creditEl) creditEl.textContent = entry.credit;
+
+      const customDialog = detail?.customDialogue?.trim();
+      if (customNoteEl) {
+        if (customDialog && customDialog !== entry.lore) {
+          customNoteEl.textContent = `💬 "${customDialog}"`;
+          customNoteEl.classList.remove('hidden');
+        } else {
+          customNoteEl.classList.add('hidden');
+        }
+      }
+
+      const placedInst = townConfig
+        .getBuildings()
+        .find((b) => b.kind === 'digimon' && !b.hidden && (b.subType === entry.id || b.id === entry.id));
+
+      if (coordsEl) {
+        if (detail?.x !== undefined && detail?.y !== undefined) {
+          coordsEl.textContent = `Koordinat (${detail.x}, ${detail.y}) · Aktif di Peta`;
+        } else if (placedInst) {
+          coordsEl.textContent = `Koordinat (${placedInst.x}, ${placedInst.y}) · Aktif di Peta`;
+        } else {
+          coordsEl.textContent = 'Katalog Siap Pasang (Town Editor)';
+        }
+      }
+
+      syncHeaderIcon(entry);
+      requestDigimonSprites(entry.id, () => {
+        if (activeEntry.id === entry.id) {
+          syncHeaderIcon(entry);
+        }
+      });
+
+      if (animPill) {
+        animPill.textContent = '● BATTLE IDLE (3F)';
+        animPill.className =
+          'px-2 py-0.5 rounded bg-[#091526]/90 border border-[#00f0ff]/60 font-mono text-[9px] font-bold uppercase text-[#67e8f9]';
+      }
+
+      updateRosterPlacedBadges();
+    };
+
+    const triggerAttack = () => {
+      const theme = ZONE_THEMES[activeEntry.elementZone] || ZONE_THEMES.plaza;
+      attackStartMs = performance.now();
+      attackPhaseActive = true;
+      sfx.discSpin();
+      setTimeout(() => {
+        if (attackPhaseActive) sfx.fly();
+      }, 260);
+
+      // Spawn signature energy burst particles centered near strike impact
+      particles = Array.from({ length: 28 }, (_, idx) => {
+        const angle = (Math.PI * 2 * idx) / 28 + Math.random() * 0.25;
+        const speed = 1.6 + Math.random() * 3.4;
+        return {
+          x: 160,
+          y: 126,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed - 0.5,
+          size: 2 + Math.floor(Math.random() * 4),
+          color: idx % 2 === 0 ? theme.primary : theme.secondary,
+          alpha: 1,
+        };
+      });
+
+      if (animPill) {
+        animPill.textContent = '⚡ SIGNATURE ATTACK (2F)';
+        animPill.className =
+          'px-2 py-0.5 rounded bg-[#451a03]/95 border border-[#fbbf24] font-mono text-[9px] font-bold uppercase text-[#fde047]';
+      }
+    };
+
+    const renderStage = (now: number) => {
+      if (!dialog.open) {
+        rafId = null;
+        return;
+      }
+      if (!ctx || !canvas) {
+        rafId = requestAnimationFrame(renderStage);
+        return;
+      }
+
+      const w = canvas.width;
+      const h = canvas.height;
+      const theme = ZONE_THEMES[activeEntry.elementZone] || ZONE_THEMES.plaza;
+      ctx.imageSmoothingEnabled = false;
+
+      // Check attack phase expiry (~1.35s total)
+      const atkElapsed = attackPhaseActive ? now - attackStartMs : 0;
+      if (attackPhaseActive && atkElapsed >= 1350) {
+        attackPhaseActive = false;
+        particles = [];
+        if (animPill) {
+          animPill.textContent = '● BATTLE IDLE (3F)';
+          animPill.className =
+            'px-2 py-0.5 rounded bg-[#091526]/90 border border-[#00f0ff]/60 font-mono text-[9px] font-bold uppercase text-[#67e8f9]';
+        }
+      }
+
+      // Micro camera shake during blast segment (360..920ms)
+      let shakeX = 0;
+      let shakeY = 0;
+      if (attackPhaseActive && atkElapsed >= 360 && atkElapsed <= 920) {
+        const decay = 1 - (atkElapsed - 360) / 560;
+        shakeX = (Math.random() - 0.5) * 9 * decay;
+        shakeY = (Math.random() - 0.5) * 6 * decay;
+      }
+
+      ctx.save();
+      ctx.translate(shakeX, shakeY);
+
+      // 1. Cyber Arena Backdrop Gradient
+      const grad = ctx.createLinearGradient(0, 0, 0, h);
+      grad.addColorStop(0, theme.bgTop);
+      grad.addColorStop(1, theme.bgBot);
+      ctx.fillStyle = grad;
+      ctx.fillRect(-10, -10, w + 20, h + 20);
+
+      // Subtle holographic background scanlines & grid floor
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.03)';
+      for (let sy = 0; sy < h; sy += 4) {
+        ctx.fillRect(0, sy, w, 1);
+      }
+
+      const floorY = 198;
+      ctx.strokeStyle = `${theme.primary}38`;
+      ctx.lineWidth = 1;
+      for (let gx = -120; gx <= w + 120; gx += 40) {
+        ctx.beginPath();
+        ctx.moveTo(w / 2 + (gx - w / 2) * 0.35, floorY - 34);
+        ctx.lineTo(gx, h);
+        ctx.stroke();
+      }
+      for (let gy = floorY - 30; gy <= h; gy += 16) {
+        ctx.beginPath();
+        ctx.moveTo(0, gy);
+        ctx.lineTo(w, gy);
+        ctx.stroke();
+      }
+
+      // Rotating Digital Holo Pad under Digimon feet
+      const pulse = 0.5 + 0.5 * Math.sin(now * 0.005);
+      ctx.fillStyle = `${theme.primary}22`;
+      ctx.beginPath();
+      ctx.ellipse(w / 2, floorY, 82, 22, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = attackPhaseActive ? theme.secondary : theme.primary;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.ellipse(w / 2, floorY, 74 + pulse * 4, 18 + pulse * 1.5, 0, 0, Math.PI * 2);
+      ctx.stroke();
+
+      ctx.strokeStyle = `${theme.secondary}99`;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.ellipse(w / 2, floorY, 50, 12, 0, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // 2. Attack Charge Ring & Burst Flash
+      if (attackPhaseActive) {
+        if (atkElapsed < 360) {
+          const chargeR = Math.max(8, 76 * (1 - atkElapsed / 360));
+          ctx.strokeStyle = theme.secondary;
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.arc(w / 2, floorY - 72, chargeR, 0, Math.PI * 2);
+          ctx.stroke();
+        } else if (atkElapsed < 1100) {
+          const progress = (atkElapsed - 360) / 740;
+          const waveR = 16 + progress * 150;
+          ctx.strokeStyle = theme.primary;
+          ctx.globalAlpha = Math.max(0, 1 - progress);
+          ctx.lineWidth = 4;
+          ctx.beginPath();
+          ctx.arc(w / 2, floorY - 70, waveR, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.globalAlpha = 1;
+        }
+      }
+
+      // 3. Draw Battle Sprite Frame (3-Frame Idle OR 2-Frame Attack)
+      const sprites = getDigimonSpritesSync(activeEntry.id);
+      if (sprites) {
+        let frame: ProcessedSpriteFrame | null = null;
+        if (attackPhaseActive && sprites.largeAttack.length > 0) {
+          const atkIdx = atkElapsed < 360 ? 0 : Math.min(1, sprites.largeAttack.length - 1);
+          frame = sprites.largeAttack[atkIdx];
+        } else if (sprites.largeIdle.length > 0) {
+          const idleIdx = Math.floor((now - openedAt) / 165) % sprites.largeIdle.length;
+          frame = sprites.largeIdle[idleIdx];
+        } else if (sprites.overworld.length > 0) {
+          frame = sprites.overworld[0];
+        }
+
+        if (frame) {
+          const maxStageW = 240;
+          const maxStageH = 166;
+          const scale = Math.min(maxStageW / frame.width, maxStageH / frame.height);
+          const drawW = Math.round(frame.width * scale);
+          const drawH = Math.round(frame.height * scale);
+          const bobY = attackPhaseActive
+            ? atkElapsed >= 360 && atkElapsed < 820
+              ? -6
+              : 0
+            : Math.sin(now * 0.004) * 2;
+
+          ctx.fillStyle = 'rgba(2, 6, 23, 0.65)';
+          ctx.beginPath();
+          ctx.ellipse(w / 2, floorY, Math.min(62, drawW * 0.42), 10, 0, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.imageSmoothingEnabled = false;
+          ctx.drawImage(
+            frame.canvas,
+            Math.round((w - drawW) / 2),
+            Math.round(floorY - drawH + bobY),
+            drawW,
+            drawH
+          );
+        }
+      } else {
+        ctx.fillStyle = theme.primary;
+        ctx.font = 'bold 11px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('DECODING DIGIMON SPRITES...', w / 2, 120);
+      }
+
+      // 4. Render Signature Attack Burst Particles
+      if (attackPhaseActive && atkElapsed >= 340 && particles.length > 0) {
+        for (const p of particles) {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.05;
+          p.alpha = Math.max(0, p.alpha - 0.022);
+          if (p.alpha <= 0) continue;
+          ctx.globalAlpha = p.alpha;
+          ctx.fillStyle = p.color;
+          ctx.fillRect(Math.floor(p.x), Math.floor(p.y), p.size, p.size);
+        }
+        ctx.globalAlpha = 1;
+      }
+
+      // Subtle white flash on initial attack strike frame
+      if (attackPhaseActive && atkElapsed >= 355 && atkElapsed <= 445) {
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.28)';
+        ctx.fillRect(0, 0, w, h);
+      }
+
+      ctx.restore();
+      rafId = requestAnimationFrame(renderStage);
+    };
+
+    const startRenderLoop = () => {
+      if (rafId !== null) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(renderStage);
+    };
+
+    const openModalWithDetail = (detail?: DigiInspectDetail) => {
+      let entry = detail?.subType ? getDigimonById(detail.subType) : undefined;
+      if (!entry) {
+        const firstPlaced = townConfig
+          .getBuildings()
+          .find((b) => b.kind === 'digimon' && !b.hidden);
+        if (firstPlaced) {
+          entry = getDigimonById(firstPlaced.subType || firstPlaced.id);
+        }
+      }
+      if (!entry) entry = DIGIMON_CATALOG[0];
+
+      setEntry(entry, detail);
+      if (!dialog.open) {
+        dialog.showModal();
+      }
+      sfx.select();
+      startRenderLoop();
+    };
+
+    window.addEventListener('digimon:open-modal', ((e: CustomEvent<DigiInspectDetail>) => {
+      openModalWithDetail(e.detail);
+    }) as EventListener);
+
+    btnAttack?.addEventListener('click', () => {
+      triggerAttack();
+    });
+
+    btnCompanion?.addEventListener('click', () => {
+      const activeCompanion =
+        typeof localStorage !== 'undefined' ? localStorage.getItem('digimon:active_companion') : null;
+      const nextId = activeCompanion === activeEntry.id ? null : activeEntry.id;
+      window.dispatchEvent(
+        new CustomEvent('digimon:set-companion', { detail: { companionId: nextId } })
+      );
+    });
+
+    window.addEventListener('digimon:companion-changed', () => {
+      updateRosterPlacedBadges();
+    });
+
+    tierFilterButtons.forEach((fBtn) => {
+      fBtn.addEventListener('click', () => {
+        const filter = fBtn.getAttribute('data-tier-filter') || 'all';
+        tierFilterButtons.forEach((b) => {
+          const active = b === fBtn;
+          b.className = `px-2 py-0.5 rounded border font-mono text-[9px] font-bold uppercase cursor-pointer transition-colors ${
+            active
+              ? 'border-[#00f0ff] bg-[#082f49] text-[#67e8f9]'
+              : 'border-[#1e293b] bg-[#071020] text-[#94a3b8] hover:text-[#e2e8f0]'
+          }`;
+        });
+        rosterButtons.forEach((rBtn) => {
+          const tier = rBtn.getAttribute('data-digi-tier');
+          const show = filter === 'all' || tier === filter;
+          rBtn.classList.toggle('hidden', !show);
+        });
+        sfx.select();
+      });
+    });
+
+    rosterButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-digi-id');
+        if (!id) return;
+        const entry = getDigimonById(id);
+        if (entry) {
+          setEntry(entry);
+          sfx.select();
+        }
+      });
+    });
+
+    const closeModal = () => {
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
+      attackPhaseActive = false;
+      if (dialog.open) dialog.close();
+      sfx.select();
+    };
+
+    btnClose?.addEventListener('click', closeModal);
+
+    dialog.addEventListener('click', (e) => {
+      if (e.target === dialog) closeModal();
+    });
+
+    dialog.addEventListener('close', () => {
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
+      attackPhaseActive = false;
+    });
+
+    dialog.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' || e.code === 'KeyX') {
+        e.preventDefault();
+        triggerAttack();
+      }
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initDigiDexModal);
+  } else {
+    initDigiDexModal();
+  }
+  document.addEventListener('astro:page-load', initDigiDexModal);
+</script>
+

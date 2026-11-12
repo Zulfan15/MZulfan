@@ -1,7 +1,7 @@
 import { Tile, type TownMap } from './types';
 import { TILE_SIZE } from './sprites';
-import { MAP_W, MAP_H } from './map';
-import { townConfig } from './townConfig';
+import { MAP_W, MAP_H, DIGI_GATE_PORTAL } from './map';
+import { townConfig, type TileTypeKey } from './townConfig';
 
 /**
  * Procedural 2D Pixel-Art Town Map Generator.
@@ -816,12 +816,13 @@ function renderLushBoundaryForest(ctx: CanvasRenderingContext2D) {
     }
   }
 
-  // E. Unbroken Double-Layer South Boundary Forest Wall (Y: 61..63, strictly NO GAPS anywhere across X: 0..44!)
-  // Layer 1 (Back Canopy Row): Spans full width of the town across X: 0..44
+  // E. Unbroken Double-Layer South Boundary Forest Wall (Y: 61..63, keeping a clean gate alcove at X: 21..23 for the Digital Warp Pad!)
+  // Layer 1 (Back Canopy Row): Spans width of the town across X: 0..44 except at X: 22 where Digital Warp Pad (21..23, 59..60) sits
   for (let x = 0; x <= 44; x += 2) {
+    if (x === 22) continue;
     drawPokemonForestCanopyTree(ctx, x * TILE_SIZE - 4, 61 * TILE_SIZE - 4, true);
   }
-  // Layer 2 (Front Canopy Row): Interlocking full width across X: 1..43, perfectly closing all gaps!
+  // Layer 2 (Front Canopy Row): Interlocking full width across X: 1..43, perfectly sealing south boundary!
   for (let x = 1; x <= 43; x += 2) {
     drawPokemonForestCanopyTree(ctx, x * TILE_SIZE - 4, 61.5 * TILE_SIZE, true);
   }
@@ -1004,17 +1005,10 @@ function renderFoliageAndFences(ctx: CanvasRenderingContext2D) {
   renderAllConnectedHedges(ctx);
 
   // B. Flower Beds & Planters (Managed dynamically from townConfig):
-  const configuredFlowerbeds = townConfig.getBuildings().filter((b) => b.kind === 'flowerbed' && !b.hidden);
-  for (const fb of configuredFlowerbeds) {
-    if (fb.subType === 'sunflower_bed') {
-      drawSunflowerBed(ctx, fb.x * TILE_SIZE, fb.y * TILE_SIZE, fb.w * TILE_SIZE, fb.h * TILE_SIZE);
-    } else {
-      drawFlowerBed(ctx, fb.x * TILE_SIZE, fb.y * TILE_SIZE, fb.w * TILE_SIZE, fb.h * TILE_SIZE);
-    }
-  }
+  renderConfiguredFlowerBeds(ctx);
 
   // C. Manicured Pixel-Art Town Trees (Inside Plazas, Courtyards & Avenues)
-  renderManicuredTownTrees(ctx);
+  renderManicuredTownTrees(ctx, true);
 
   // Flagstone garden path leading through the gate to Studio Villa door
   // Only draw if Studio Villa is actually located at its original site (36, 9) and path is not erased/overridden
@@ -1035,7 +1029,18 @@ function renderFoliageAndFences(ctx: CanvasRenderingContext2D) {
   }
 }
 
-function renderManicuredTownTrees(ctx: CanvasRenderingContext2D) {
+export function renderConfiguredFlowerBeds(ctx: CanvasRenderingContext2D) {
+  const configuredFlowerbeds = townConfig.getBuildings().filter((b) => b.kind === 'flowerbed' && !b.hidden);
+  for (const fb of configuredFlowerbeds) {
+    if (fb.subType === 'sunflower_bed') {
+      drawSunflowerBed(ctx, fb.x * TILE_SIZE, fb.y * TILE_SIZE, fb.w * TILE_SIZE, fb.h * TILE_SIZE);
+    } else {
+      drawFlowerBed(ctx, fb.x * TILE_SIZE, fb.y * TILE_SIZE, fb.w * TILE_SIZE, fb.h * TILE_SIZE);
+    }
+  }
+}
+
+export function renderManicuredTownTrees(ctx: CanvasRenderingContext2D, useDefaultFallbacks = true) {
   const configuredTrees = townConfig.getBuildings().filter((b) => b.kind === 'tree' && !b.hidden);
   if (configuredTrees.length > 0) {
     for (const t of configuredTrees) {
@@ -1051,7 +1056,7 @@ function renderManicuredTownTrees(ctx: CanvasRenderingContext2D) {
         drawPokemonTownTree(ctx, t.x * TILE_SIZE - 4, t.y * TILE_SIZE - 8);
       }
     }
-  } else {
+  } else if (useDefaultFallbacks) {
     // Fallback default town trees
     const courtyardTrees = [
       { x: 12, y: 13 },
@@ -1069,13 +1074,13 @@ function renderManicuredTownTrees(ctx: CanvasRenderingContext2D) {
   }
 }
 
-export function isTileHedge(x: number, y: number): boolean {
-  if (x < 0 || x >= MAP_W || y < 0 || y >= MAP_H) return false;
+export function isTileHedge(x: number, y: number, mapW = MAP_W, mapH = MAP_H): boolean {
+  if (x < 0 || x >= mapW || y < 0 || y >= mapH) return false;
 
   // 1. Explicit tile override from editor
   const override = townConfig.getTileOverride(x, y);
   if (override === 'hedge') return true;
-  if (override !== null) return false;
+  if (override !== null && override !== undefined) return false;
 
   // 2. Custom placed or configured bushes from townConfig
   for (const b of townConfig.getBuildings()) {
@@ -1090,18 +1095,18 @@ export function isTileHedge(x: number, y: number): boolean {
   return false;
 }
 
-export function renderAllConnectedHedges(ctx: CanvasRenderingContext2D) {
-  for (let y = 0; y < MAP_H; y++) {
-    for (let x = 0; x < MAP_W; x++) {
-      if (!isTileHedge(x, y)) continue;
+export function renderAllConnectedHedges(ctx: CanvasRenderingContext2D, mapW = MAP_W, mapH = MAP_H) {
+  for (let y = 0; y < mapH; y++) {
+    for (let x = 0; x < mapW; x++) {
+      if (!isTileHedge(x, y, mapW, mapH)) continue;
 
       const px = x * TILE_SIZE;
       const py = y * TILE_SIZE;
 
-      const hasL = isTileHedge(x - 1, y);
-      const hasR = isTileHedge(x + 1, y);
-      const hasU = isTileHedge(x, y - 1);
-      const hasD = isTileHedge(x, y + 1);
+      const hasL = isTileHedge(x - 1, y, mapW, mapH);
+      const hasR = isTileHedge(x + 1, y, mapW, mapH);
+      const hasU = isTileHedge(x, y - 1, mapW, mapH);
+      const hasD = isTileHedge(x, y + 1, mapW, mapH);
 
       drawSingleConnectedHedgeTile(ctx, px, py, hasL, hasR, hasU, hasD);
     }
@@ -1670,33 +1675,112 @@ function renderCustomTileOverrides(ctx: CanvasRenderingContext2D) {
       continue;
     }
 
-    if (tileKey === 'grass') {
-      renderMeadowGrassTile(ctx, px, py, x, y);
-    } else if (tileKey === 'cobble') {
-      renderStreetCobbleTile(ctx, px, py, x, y);
-    } else if (tileKey === 'lab_paver') {
-      renderLabCampusTile(ctx, px, py, x, y);
-    } else if (tileKey === 'dev_paver') {
-      renderDevCourtyardTile(ctx, px, py, x, y);
-    } else if (tileKey === 'water') {
-      renderOceanTile(ctx, px, py, x, y);
-    } else if (tileKey === 'hedge') {
-      // Handled cleanly by renderAllConnectedHedges with full neighbor connections
-    } else if (tileKey === 'fence') {
-      // Handled cleanly by renderAllConnectedFences with full neighbor connections
-    } else if (tileKey === 'fence_water') {
-      drawMaritimeSeaRailing(ctx, px, py, 'N');
-    } else if (tileKey === 'tall_grass') {
-      ctx.fillStyle = '#458f2f';
-      ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
-      ctx.fillStyle = '#2b651b';
-      ctx.fillRect(px + 2, py + 8, 3, 6);
-      ctx.fillRect(px + 8, py + 6, 3, 8);
-      ctx.fillRect(px + 12, py + 9, 2, 5);
-      ctx.fillStyle = '#6ab84b';
-      ctx.fillRect(px + 3, py + 6, 2, 3);
-      ctx.fillRect(px + 9, py + 4, 2, 3);
-    }
+    renderTileOverrideByKey(ctx, px, py, x, y, tileKey);
+  }
+}
+
+/**
+ * Shared custom tile override renderer used by both Zulfan's Town and Digi-Sanctuary Island.
+ */
+export function renderTileOverrideByKey(
+  ctx: CanvasRenderingContext2D,
+  px: number,
+  py: number,
+  x: number,
+  y: number,
+  tileKey: TileTypeKey
+) {
+  if (tileKey === 'grass') {
+    renderMeadowGrassTile(ctx, px, py, x, y);
+  } else if (tileKey === 'cobble') {
+    renderStreetCobbleTile(ctx, px, py, x, y);
+  } else if (tileKey === 'lab_paver') {
+    renderLabCampusTile(ctx, px, py, x, y);
+  } else if (tileKey === 'dev_paver') {
+    renderDevCourtyardTile(ctx, px, py, x, y);
+  } else if (tileKey === 'water') {
+    renderOceanTile(ctx, px, py, x, y);
+  } else if (tileKey === 'hedge') {
+    // Handled cleanly by renderAllConnectedHedges with full neighbor connections
+  } else if (tileKey === 'fence') {
+    // Handled cleanly by renderAllConnectedFences with full neighbor connections
+  } else if (tileKey === 'fence_water') {
+    drawMaritimeSeaRailing(ctx, px, py, 'N');
+  } else if (tileKey === 'tall_grass') {
+    ctx.fillStyle = '#458f2f';
+    ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+    ctx.fillStyle = '#2b651b';
+    ctx.fillRect(px + 2, py + 8, 3, 6);
+    ctx.fillRect(px + 8, py + 6, 3, 8);
+    ctx.fillRect(px + 12, py + 9, 2, 5);
+    ctx.fillStyle = '#6ab84b';
+    ctx.fillRect(px + 3, py + 6, 2, 3);
+    ctx.fillRect(px + 9, py + 4, 2, 3);
+  } else if (tileKey === 'cyber_grid') {
+    renderCyberGridTile(ctx, px, py, x, y);
+  } else if (tileKey === 'lava_rock') {
+    renderLavaRockTile(ctx, px, py, x, y);
+  } else if (tileKey === 'cryo_ice') {
+    renderCryoIceTile(ctx, px, py, x, y);
+  } else if (tileKey === 'holy_marble') {
+    renderHolyMarbleTile(ctx, px, py, x, y);
+  }
+}
+
+function renderCyberGridTile(ctx: CanvasRenderingContext2D, px: number, py: number, x: number, y: number) {
+  ctx.fillStyle = (x + y) % 2 === 0 ? '#0d192b' : '#102036';
+  ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+  ctx.fillStyle = 'rgba(0, 240, 255, 0.16)';
+  ctx.fillRect(px, py, TILE_SIZE, 1);
+  ctx.fillRect(px, py, 1, TILE_SIZE);
+  if ((x * 3 + y * 5) % 4 === 0) {
+    ctx.fillStyle = 'rgba(56, 189, 248, 0.35)';
+    ctx.fillRect(px + 4, py + 6, 8, 1);
+    ctx.fillRect(px + 10, py + 6, 1, 5);
+    ctx.fillStyle = '#22d3ee';
+    ctx.fillRect(px + 10, py + 11, 2, 2);
+  }
+}
+
+function renderLavaRockTile(ctx: CanvasRenderingContext2D, px: number, py: number, x: number, y: number) {
+  ctx.fillStyle = (x + y) % 2 === 0 ? '#2b1918' : '#331d1b';
+  ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+  ctx.fillStyle = '#472722';
+  ctx.fillRect(px + 2, py + 2, 5, 4);
+  ctx.fillRect(px + 9, py + 9, 5, 5);
+  if ((x + y * 2) % 3 === 0) {
+    ctx.fillStyle = '#ea580c';
+    ctx.fillRect(px + 5, py + 7, 6, 1);
+    ctx.fillStyle = '#fb923c';
+    ctx.fillRect(px + 7, py + 7, 2, 1);
+  }
+}
+
+function renderCryoIceTile(ctx: CanvasRenderingContext2D, px: number, py: number, x: number, y: number) {
+  ctx.fillStyle = (x + y) % 2 === 0 ? '#bae6fd' : '#cdeeff';
+  ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+  ctx.fillStyle = '#e0f2fe';
+  ctx.fillRect(px + 2, py + 2, 4, 2);
+  ctx.fillStyle = '#7dd3fc';
+  ctx.fillRect(px, py + TILE_SIZE - 1, TILE_SIZE, 1);
+  if ((x * 7 + y) % 5 === 0) {
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(px + 10, py + 5, 3, 1);
+    ctx.fillRect(px + 11, py + 4, 1, 3);
+  }
+}
+
+function renderHolyMarbleTile(ctx: CanvasRenderingContext2D, px: number, py: number, x: number, y: number) {
+  ctx.fillStyle = (x + y) % 2 === 0 ? '#f4efe6' : '#ebe4d5';
+  ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+  ctx.fillStyle = '#d6cab4';
+  ctx.fillRect(px, py, TILE_SIZE, 1);
+  ctx.fillRect(px, py, 1, TILE_SIZE);
+  if ((x + y) % 4 === 0) {
+    ctx.fillStyle = 'rgba(251, 191, 36, 0.35)';
+    ctx.fillRect(px + 6, py + 6, 4, 4);
+    ctx.fillStyle = '#fef3c7';
+    ctx.fillRect(px + 7, py + 7, 2, 2);
   }
 }
 
@@ -3375,7 +3459,111 @@ function renderPropsAndStreetware(ctx: CanvasRenderingContext2D) {
     drawHeroStatue(ctx, statue.x * TILE_SIZE, statue.y * TILE_SIZE);
   }
 
+  // H2. Digital World Gate Warp Pad at South Boulevard (X: 21..23, Y: 59..60)
+  drawDigitalWarpPad(ctx, DIGI_GATE_PORTAL.xMin, DIGI_GATE_PORTAL.yMin, 'DIGI-GATE');
+
   // I. Dynamically Spawned Extra Entities (Objects, Signs, NPCs)
+  renderConfiguredExtraEntities(ctx);
+}
+
+/**
+ * Draws the 3x2 Hexagonal Cyber Digital Warp Pad with cyan/gold crest and flanking energy pillars.
+ * Used at Town South Gate (21..23, 59..60) and Digi-Sanctuary North Return Gate (19..21, 3..4).
+ */
+export function drawDigitalWarpPad(
+  ctx: CanvasRenderingContext2D,
+  startTileX: number = DIGI_GATE_PORTAL.xMin,
+  startTileY: number = DIGI_GATE_PORTAL.yMin,
+  label: string = 'DIGI-GATE'
+) {
+  const px = startTileX * TILE_SIZE;
+  const py = startTileY * TILE_SIZE;
+  const w = 3 * TILE_SIZE; // 48px
+  const h = 2 * TILE_SIZE; // 32px
+  const cx = px + w / 2;
+  const cy = py + h / 2;
+
+  ctx.save();
+
+  ctx.fillStyle = 'rgba(2, 6, 23, 0.72)';
+  ctx.fillRect(px + 2, py + 2, w - 4, h - 2);
+
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(px + 4, py + 1, w - 8, h - 2);
+  ctx.fillRect(px + 2, py + 4, w - 4, h - 8);
+  ctx.fillRect(px + 1, py + 8, w - 2, h - 16);
+
+  ctx.fillStyle = '#334155';
+  ctx.fillRect(px + 5, py + 2, w - 10, 2);
+  ctx.fillRect(px + 5, py + h - 4, w - 10, 2);
+  ctx.fillRect(px + 2, py + 6, 2, h - 12);
+  ctx.fillRect(px + w - 4, py + 6, 2, h - 12);
+
+  ctx.fillStyle = '#091122';
+  ctx.fillRect(px + 6, py + 5, w - 12, h - 10);
+
+  ctx.fillStyle = 'rgba(0, 240, 255, 0.45)';
+  ctx.fillRect(px + 6, cy, 8, 1);
+  ctx.fillRect(px + w - 14, cy, 8, 1);
+  ctx.fillRect(cx - 1, py + 5, 2, 4);
+  ctx.fillRect(cx - 1, py + h - 9, 2, 4);
+
+  ctx.fillStyle = '#fbbf24';
+  ctx.fillRect(px + 6, py + 5, 2, 2);
+  ctx.fillRect(px + w - 8, py + 5, 2, 2);
+  ctx.fillRect(px + 6, py + h - 7, 2, 2);
+  ctx.fillRect(px + w - 8, py + h - 7, 2, 2);
+
+  ctx.strokeStyle = '#00f0ff';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.ellipse(cx, cy, 12, 8, 0, 0, Math.PI * 2);
+  ctx.stroke();
+
+  ctx.strokeStyle = '#fbbf24';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.ellipse(cx, cy, 7.5, 5, 0, 0, Math.PI * 2);
+  ctx.stroke();
+
+  ctx.fillStyle = '#67e8f9';
+  ctx.fillRect(cx - 2, cy - 2, 4, 4);
+  ctx.fillStyle = '#fde68a';
+  ctx.fillRect(cx - 1, cy - 1, 2, 2);
+
+  for (const pillarX of [px - 3, px + w - 3]) {
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(pillarX, py + 6, 6, 22);
+    ctx.fillStyle = '#475569';
+    ctx.fillRect(pillarX + 1, py + 7, 4, 18);
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(pillarX - 1, py + 24, 8, 4);
+    ctx.fillStyle = '#00f0ff';
+    ctx.fillRect(pillarX + 1, py + 4, 4, 3);
+    ctx.fillStyle = '#fbbf24';
+    ctx.fillRect(pillarX + 2, py + 5, 2, 1);
+    ctx.fillStyle = 'rgba(0, 240, 255, 0.7)';
+    ctx.fillRect(pillarX + 2, py + 11, 2, 10);
+  }
+
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+  ctx.fillRect(cx - 17, py - 5, 34, 7);
+  ctx.strokeStyle = '#00f0ff';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(cx - 17, py - 5, 34, 7);
+  ctx.fillStyle = '#67e8f9';
+  ctx.font = 'bold 5px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText(label, cx, py);
+
+  ctx.restore();
+}
+
+/**
+ * Renders dynamically spawned extra entities (Objects, Signs, NPCs) from active townConfig.
+ * Shared cleanly between Town and Digi-Sanctuary scenes.
+ */
+export function renderConfiguredExtraEntities(ctx: CanvasRenderingContext2D) {
   const extraEntities = townConfig.getBuildings().filter(
     (b) => (b.kind === 'object' || b.kind === 'sign' || b.kind === 'npc') && !b.hidden
   );
@@ -3676,13 +3864,20 @@ function renderStreetLampsAndBenches(ctx: CanvasRenderingContext2D) {
     drawArcadeVendingMachine(ctx, vm.x * TILE_SIZE, vm.y * TILE_SIZE);
   }
 
+  renderConfiguredBenchesAndLamps(ctx, true);
+}
+
+/**
+ * Shared bench & lamp renderer used by both Town (with default fallback layout) and Digi-Sanctuary.
+ */
+export function renderConfiguredBenchesAndLamps(ctx: CanvasRenderingContext2D, useDefaultFallbacks = true) {
   // C. Master-planned Park Benches (Dynamic & Configurable!)
   const configuredBenches = townConfig.getBuildings().filter((b) => b.kind === 'bench' && !b.hidden);
   if (configuredBenches.length > 0) {
     for (const bn of configuredBenches) {
       drawParkBench(ctx, bn.x * TILE_SIZE, bn.y * TILE_SIZE, bn.orientation || 'N', bn.w, bn.h);
     }
-  } else {
+  } else if (useDefaultFallbacks) {
     drawParkBench(ctx, 12 * TILE_SIZE, 18 * TILE_SIZE); // Courtyard west garden bench
     drawParkBench(ctx, 9.5 * TILE_SIZE, 25 * TILE_SIZE); // Oceanview harbor promenade bench
     drawParkBench(ctx, 26 * TILE_SIZE, 28.5 * TILE_SIZE); // Plaza north-west bench (symmetric, 48px from center 29.0)
@@ -3696,7 +3891,7 @@ function renderStreetLampsAndBenches(ctx: CanvasRenderingContext2D) {
 
   // D. Symmetrical Master-planned Street Lamps (Dynamic & Configurable!)
   const allBuildings = townConfig.getBuildings(true);
-  if (allBuildings.length > 0) {
+  if (allBuildings.length > 0 || !useDefaultFallbacks) {
     const configuredLamps = townConfig.getBuildings().filter((b) => b.kind === 'lamp' && !b.hidden);
     for (const lp of configuredLamps) {
       if (lp.subType === 'stone_lantern') {
