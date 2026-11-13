@@ -46,6 +46,11 @@ export interface TownPokemonFxHost {
   gardevoirImg: HTMLImageElement | null;
   celebiImg: HTMLImageElement | null;
   lugiaImg: HTMLImageElement | null;
+  archaludonImg: HTMLImageElement | null;
+  gougingfireImg: HTMLImageElement | null;
+  greattuskImg: HTMLImageElement | null;
+  kyuremImg: HTMLImageElement | null;
+  salamenceImg: HTMLImageElement | null;
   charizardImg: HTMLImageElement | null;
   tyranitarImg: HTMLImageElement | null;
   garchompImg: HTMLImageElement | null;
@@ -99,6 +104,11 @@ export interface TownPokemonFxHost {
   gardevoirAttackTick: number;
   celebiAttackTick: number;
   lugiaAttackTick: number;
+  archaludonAttackTick: number;
+  gougingfireAttackTick: number;
+  greattuskAttackTick: number;
+  kyuremAttackTick: number;
+  salamenceAttackTick: number;
 }
 
 export function triggerSignatureMove(host: TownPokemonFxHost, pokemonId: string, originX?: number, originY?: number) {
@@ -689,6 +699,34 @@ export function triggerSignatureMove(host: TownPokemonFxHost, pokemonId: string,
         type: 'shockwave',
       });
     }
+  } else if (id.includes('archaludon') || id.includes('gougingfire') || id.includes('greattusk') || id.includes('kyurem') || id.includes('salamence')) {
+    const moveSpecs = [
+      { key: 'archaludon', field: 'archaludonAttackTick' as const, duration: 24, shake: 4.4, count: 55, speed: 3.4, colors: ['#38bdf8', '#e2e8f0', '#6366f1', '#facc15', '#ffffff'], type: 'shockwave' as const },
+      { key: 'gougingfire', field: 'gougingfireAttackTick' as const, duration: 22, shake: 4.5, count: 55, speed: 3.0, colors: ['#f97316', '#facc15', '#ef4444', '#dc2626', '#fef08a'], type: 'flame' as const },
+      { key: 'greattusk', field: 'greattuskAttackTick' as const, duration: 26, shake: 5.2, count: 50, speed: 2.8, colors: ['#ea580c', '#f59e0b', '#991b1b', '#d97706', '#fde68a'], type: 'sand' as const },
+      { key: 'kyurem', field: 'kyuremAttackTick' as const, duration: 26, shake: 4.2, count: 60, speed: 3.1, colors: ['#67e8f9', '#bae6fd', '#0284c7', '#e0f2fe', '#ffffff'], type: 'cosmic' as const },
+      { key: 'salamence', field: 'salamenceAttackTick' as const, duration: 24, shake: 4.5, count: 55, speed: 3.3, colors: ['#ef4444', '#38bdf8', '#fb7185', '#f97316', '#ffffff'], type: 'claw' as const },
+    ];
+    const spec = moveSpecs.find((m) => id.includes(m.key))!;
+    host[spec.field] = spec.duration;
+    host.cameraShakeTime = 22;
+    host.cameraShakeIntensity = spec.shake;
+    for (let i = 0; i < spec.count; i++) {
+      const ang = Math.random() * Math.PI * 2;
+      const spd = spec.speed + Math.random() * 4.5;
+      host.moveParticles.push({
+        x: ox + Math.cos(ang) * 8,
+        y: oy + Math.sin(ang) * 8,
+        vx: Math.cos(ang) * spd,
+        vy: Math.sin(ang) * spd,
+        size: 2.6 + Math.random() * 3.4,
+        color: spec.colors[Math.floor(Math.random() * spec.colors.length)],
+        alpha: 0.95,
+        life: 0,
+        maxLife: 26 + Math.floor(Math.random() * 16),
+        type: spec.type,
+      });
+    }
   } else {
     for (let i = 0; i < 40; i++) {
       const ang = Math.random() * Math.PI * 2;
@@ -744,6 +782,11 @@ export function drawFollower(host: TownPokemonFxHost, ctx: CanvasRenderingContex
     koraidon: { rx: 15, ry: 5.5, yOff: 16 },
     eternatus: { rx: 16, ry: 5.5, yOff: 16 },
     lugia: { rx: 16, ry: 5.5, yOff: 16 },
+    archaludon: { rx: 14, ry: 5, yOff: 16 },
+    gougingfire: { rx: 16, ry: 5.5, yOff: 16 },
+    greattusk: { rx: 16, ry: 5.5, yOff: 16 },
+    kyurem: { rx: 16, ry: 5.5, yOff: 16 },
+    salamence: { rx: 15, ry: 5.5, yOff: 16 },
     necrozma: { rx: 16, ry: 6, yOff: 16 },
     groudon: { rx: 15, ry: 6, yOff: 16 },
     kyogre: { rx: 15, ry: 5.5, yOff: 16 },
@@ -1895,6 +1938,75 @@ export function drawFollower(host: TownPokemonFxHost, ctx: CanvasRenderingContex
     if (!pmdDrawn && host.lugiaImg && host.lugiaImg.complete) {
       ctx.drawImage(host.lugiaImg, drawX - 16, drawY - 24 + stepBob + idleBob * 1.4, 48, 48);
     }
+  } else if (fid === 'archaludon' || fid === 'gougingfire' || fid === 'greattusk' || fid === 'kyurem' || fid === 'salamence') {
+    const coreX = drawX + 8;
+    const coreY = drawY + 16;
+    const followerSpecs: Record<string, {
+      attackTick: number;
+      attackDuration: number;
+      attackAction: 'shoot' | 'attack';
+      auraY: number;
+      drawAura: (c: CanvasRenderingContext2D, t: number, x: number, y: number, s?: boolean) => void;
+      fallbackImg: HTMLImageElement | null;
+    }> = {
+      archaludon: {
+        attackTick: host.archaludonAttackTick,
+        attackDuration: 24,
+        attackAction: 'shoot',
+        auraY: coreY - 12,
+        drawAura: drawArchaludonRailAura,
+        fallbackImg: host.archaludonImg,
+      },
+      gougingfire: {
+        attackTick: host.gougingfireAttackTick,
+        attackDuration: 22,
+        attackAction: 'attack',
+        auraY: coreY - 12,
+        drawAura: drawGougingFireMagmaAura,
+        fallbackImg: host.gougingfireImg,
+      },
+      greattusk: {
+        attackTick: host.greattuskAttackTick,
+        attackDuration: 26,
+        attackAction: 'attack',
+        auraY: coreY - 10,
+        drawAura: drawGreatTuskSeismicAura,
+        fallbackImg: host.greattuskImg,
+      },
+      kyurem: {
+        attackTick: host.kyuremAttackTick,
+        attackDuration: 26,
+        attackAction: 'shoot',
+        auraY: coreY - 12,
+        drawAura: drawKyuremGlaciateAura,
+        fallbackImg: host.kyuremImg,
+      },
+      salamence: {
+        attackTick: host.salamenceAttackTick,
+        attackDuration: 24,
+        attackAction: 'shoot',
+        auraY: coreY - 10,
+        drawAura: drawSalamenceSkyAura,
+        fallbackImg: host.salamenceImg,
+      },
+    };
+    const spec = followerSpecs[fid];
+    spec.drawAura(ctx, host.tick, coreX, spec.auraY, true);
+
+    let action: PMDAction = 'idle';
+    let animTick = host.tick;
+    if (spec.attackTick > 0) {
+      action = spec.attackAction;
+      animTick = spec.attackDuration - spec.attackTick;
+    } else if (isFollowerWalking) {
+      action = 'walk';
+      animTick = host.followerWalkTick;
+    }
+    const dir = host.followerDir || 'down';
+    const pmdDrawn = host.pmdAnimator.draw(ctx, fid, action, dir, coreX, coreY, animTick);
+    if (!pmdDrawn && spec.fallbackImg && spec.fallbackImg.complete) {
+      ctx.drawImage(spec.fallbackImg, drawX - 16, drawY - 24 + stepBob + idleBob * 1.2, 48, 48);
+    }
   }
 
   ctx.restore();
@@ -1951,6 +2063,59 @@ export function drawLugiaAeroblastAura(
     ctx.fillStyle = '#c7d2fe';
     ctx.fillRect(coreX + 5 + Math.sin(tick * 0.26) * 8, coreY - 6 - (tick % 9), 1.5, 1.5);
   }
+}
+
+function drawElementalAura(
+  ctx: CanvasRenderingContext2D,
+  tick: number,
+  coreX: number,
+  coreY: number,
+  radius: number,
+  rgbInner: string,
+  rgbMid: string,
+  rgbOuter: string,
+  sparkleColors: [string, string, string],
+  withSparkles: boolean
+) {
+  const pulse = 0.32 + Math.sin(tick * 0.08) * 0.14;
+  const grad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, radius);
+  grad.addColorStop(0, `rgba(${rgbInner}, ${pulse + 0.3})`);
+  grad.addColorStop(0.45, `rgba(${rgbMid}, ${pulse + 0.12})`);
+  grad.addColorStop(0.8, `rgba(${rgbOuter}, ${pulse * 0.6})`);
+  grad.addColorStop(1, `rgba(${rgbOuter}, 0)`);
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.arc(coreX, coreY, radius, 0, Math.PI * 2);
+  ctx.fill();
+
+  if (withSparkles && tick % 20 < 12) {
+    ctx.fillStyle = sparkleColors[0];
+    ctx.fillRect(coreX + Math.sin(tick * 0.22) * 12, coreY - 4 + Math.cos(tick * 0.22) * 7, 2, 2);
+    ctx.fillStyle = sparkleColors[1];
+    ctx.fillRect(coreX - 8 + Math.cos(tick * 0.18) * 10, coreY + 3 - (tick % 10), 1.5, 1.5);
+    ctx.fillStyle = sparkleColors[2];
+    ctx.fillRect(coreX + 4 + Math.sin(tick * 0.26) * 8, coreY - 5 - (tick % 9), 1.5, 1.5);
+  }
+}
+
+export function drawArchaludonRailAura(ctx: CanvasRenderingContext2D, tick: number, coreX: number, coreY: number, withSparkles = true) {
+  drawElementalAura(ctx, tick, coreX, coreY, 20, '224, 242, 254', '56, 189, 248', '79, 70, 229', ['#38bdf8', '#e2e8f0', '#facc15'], withSparkles);
+}
+
+export function drawGougingFireMagmaAura(ctx: CanvasRenderingContext2D, tick: number, coreX: number, coreY: number, withSparkles = true) {
+  drawElementalAura(ctx, tick, coreX, coreY, 21, '254, 240, 138', '249, 115, 22', '185, 28, 28', ['#facc15', '#f97316', '#fca5a5'], withSparkles);
+}
+
+export function drawGreatTuskSeismicAura(ctx: CanvasRenderingContext2D, tick: number, coreX: number, coreY: number, withSparkles = true) {
+  drawElementalAura(ctx, tick, coreX, coreY, 20, '254, 215, 170', '234, 88, 12', '124, 45, 18', ['#f59e0b', '#ea580c', '#fde68a'], withSparkles);
+}
+
+export function drawKyuremGlaciateAura(ctx: CanvasRenderingContext2D, tick: number, coreX: number, coreY: number, withSparkles = true) {
+  drawElementalAura(ctx, tick, coreX, coreY, 21, '224, 242, 254', '103, 232, 249', '3, 105, 161', ['#bae6fd', '#67e8f9', '#ffffff'], withSparkles);
+}
+
+export function drawSalamenceSkyAura(ctx: CanvasRenderingContext2D, tick: number, coreX: number, coreY: number, withSparkles = true) {
+  drawElementalAura(ctx, tick, coreX, coreY, 20, '254, 205, 211', '239, 68, 68', '14, 165, 233', ['#fb7185', '#38bdf8', '#fef08a'], withSparkles);
 }
 
 export function drawEternatusDynamoAura(
@@ -2340,6 +2505,8 @@ export function spawnRideTrailFX(host: TownPokemonFxHost, drawX: number, drawY: 
       zekrom: ['#38bdf8', '#93c5fd', '#e0f2fe'],
       charizard: ['#f97316', '#facc15', '#fed7aa'],
       lugia: ['#e0f2fe', '#7dd3fc', '#a5b4fc'],
+      kyurem: ['#67e8f9', '#bae6fd', '#e0f2fe'],
+      salamence: ['#ef4444', '#38bdf8', '#fb7185'],
     };
     const palette = colorMap[fid] || ['#38bdf8', '#e0f2fe', '#c084fc'];
     host.moveParticles.push({
@@ -2367,6 +2534,9 @@ export function spawnRideTrailFX(host: TownPokemonFxHost, drawX: number, drawY: 
       solgaleo: '#fde047',
       lucario: '#60a5fa',
       pikachu: '#facc15',
+      archaludon: '#38bdf8',
+      gougingfire: '#f97316',
+      greattusk: '#ea580c',
     };
     host.moveParticles.push({
       x: cx + (Math.random() - 0.5) * 10,
@@ -2432,6 +2602,11 @@ export function drawPokeRide(
     koraidon: { rx: 15, ry: 5.5, yOff: 16 },
     eternatus: { rx: 16, ry: 5.5, yOff: 16 },
     lugia: { rx: 16, ry: 5.5, yOff: 16 },
+    archaludon: { rx: 14, ry: 5, yOff: 16 },
+    gougingfire: { rx: 16, ry: 5.5, yOff: 16 },
+    greattusk: { rx: 16, ry: 5.5, yOff: 16 },
+    kyurem: { rx: 16, ry: 5.5, yOff: 16 },
+    salamence: { rx: 15, ry: 5.5, yOff: 16 },
     necrozma: { rx: 16, ry: 6, yOff: 16 },
     groudon: { rx: 15, ry: 6, yOff: 16 },
     kyogre: { rx: 15, ry: 5.5, yOff: 16 },
@@ -2567,6 +2742,21 @@ export function drawPokeRide(
   } else if (fid === 'lugia' && host.lugiaAttackTick > 0) {
     action = 'shoot';
     attackTick = 24 - host.lugiaAttackTick;
+  } else if (fid === 'archaludon' && host.archaludonAttackTick > 0) {
+    action = 'shoot';
+    attackTick = 24 - host.archaludonAttackTick;
+  } else if (fid === 'gougingfire' && host.gougingfireAttackTick > 0) {
+    action = 'attack';
+    attackTick = 22 - host.gougingfireAttackTick;
+  } else if (fid === 'greattusk' && host.greattuskAttackTick > 0) {
+    action = 'attack';
+    attackTick = 26 - host.greattuskAttackTick;
+  } else if (fid === 'kyurem' && host.kyuremAttackTick > 0) {
+    action = 'shoot';
+    attackTick = 26 - host.kyuremAttackTick;
+  } else if (fid === 'salamence' && host.salamenceAttackTick > 0) {
+    action = 'shoot';
+    attackTick = 24 - host.salamenceAttackTick;
   }
 
   const curAnimTick = attackTick > 0 ? attackTick : animTick;
@@ -2717,6 +2907,16 @@ export function drawPokeRide(
     drawCelebiForestAura(ctx, host.tick, coreX, coreY - 10, false);
   } else if (fid === 'lugia') {
     drawLugiaAeroblastAura(ctx, host.tick, coreX, coreY - 12, false);
+  } else if (fid === 'archaludon') {
+    drawArchaludonRailAura(ctx, host.tick, coreX, coreY - 12, false);
+  } else if (fid === 'gougingfire') {
+    drawGougingFireMagmaAura(ctx, host.tick, coreX, coreY - 12, false);
+  } else if (fid === 'greattusk') {
+    drawGreatTuskSeismicAura(ctx, host.tick, coreX, coreY - 10, false);
+  } else if (fid === 'kyurem') {
+    drawKyuremGlaciateAura(ctx, host.tick, coreX, coreY - 12, false);
+  } else if (fid === 'salamence') {
+    drawSalamenceSkyAura(ctx, host.tick, coreX, coreY - 10, false);
   }
 
   // Anatomical per-species and per-direction saddle offsets relative to (coreX, coreY)
@@ -2754,6 +2954,11 @@ export function drawPokeRide(
     koraidon: { down: { dx: 0, dy: -20 }, side: { dx: -4, dy: -18 }, up: { dx: 0, dy: -19 } },
     eternatus:{ down: { dx: 0, dy: -21 }, side: { dx: -5, dy: -19 }, up: { dx: 0, dy: -19 } },
     lugia:    { down: { dx: 0, dy: -20 }, side: { dx: -4, dy: -18 }, up: { dx: 0, dy: -19 } },
+    archaludon:{ down: { dx: 0, dy: -20 }, side: { dx: -4, dy: -18 }, up: { dx: 0, dy: -19 } },
+    gougingfire:{ down: { dx: 0, dy: -21 }, side: { dx: -4, dy: -19 }, up: { dx: 0, dy: -20 } },
+    greattusk:{ down: { dx: 0, dy: -19 }, side: { dx: -4, dy: -17 }, up: { dx: 0, dy: -18 } },
+    kyurem:   { down: { dx: 0, dy: -21 }, side: { dx: -4, dy: -19 }, up: { dx: 0, dy: -20 } },
+    salamence:{ down: { dx: 0, dy: -19 }, side: { dx: -4, dy: -17 }, up: { dx: 0, dy: -18 } },
     latios:   { down: { dx: 0, dy: -16 }, side: { dx: -2, dy: -15 }, up: { dx: 0, dy: -16 } },
     latias:   { down: { dx: 0, dy: -16 }, side: { dx: -2, dy: -15 }, up: { dx: 0, dy: -16 } },
     darkrai:  { down: { dx: 0, dy: -18 }, side: { dx: -3, dy: -17 }, up: { dx: 0, dy: -17 } },
@@ -2863,6 +3068,16 @@ export function drawPokeRide(
       ctx.drawImage(host.celebiImg, drawX - 16, drawY - 24 + rideBob, 48, 48);
     } else if (fid === 'lugia' && host.lugiaImg?.complete) {
       ctx.drawImage(host.lugiaImg, drawX - 17, drawY - 24 + rideBob, 50, 48);
+    } else if (fid === 'archaludon' && host.archaludonImg?.complete) {
+      ctx.drawImage(host.archaludonImg, drawX - 16, drawY - 24 + rideBob, 48, 48);
+    } else if (fid === 'gougingfire' && host.gougingfireImg?.complete) {
+      ctx.drawImage(host.gougingfireImg, drawX - 17, drawY - 24 + rideBob, 50, 48);
+    } else if (fid === 'greattusk' && host.greattuskImg?.complete) {
+      ctx.drawImage(host.greattuskImg, drawX - 17, drawY - 23 + rideBob, 50, 48);
+    } else if (fid === 'kyurem' && host.kyuremImg?.complete) {
+      ctx.drawImage(host.kyuremImg, drawX - 17, drawY - 24 + rideBob, 50, 48);
+    } else if (fid === 'salamence' && host.salamenceImg?.complete) {
+      ctx.drawImage(host.salamenceImg, drawX - 16, drawY - 24 + rideBob, 48, 48);
     } else if (fid === 'lucario') {
       drawLucario(ctx, drawX, drawY + rideBob, host.tick, 1.1);
     }

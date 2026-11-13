@@ -165,6 +165,11 @@ import { URSHIFU_IMAGE_SRC } from './urshifuSprite';
 import { GARDEVOIR_IMAGE_SRC } from './gardevoirSprite';
 import { CELEBI_IMAGE_SRC } from './celebiSprite';
 import { LUGIA_IMAGE_SRC } from './lugiaSprite';
+import { ARCHALUDON_IMAGE_SRC } from './archaludonSprite';
+import { GOUGINGFIRE_IMAGE_SRC } from './gougingfireSprite';
+import { GREATTUSK_IMAGE_SRC } from './greattuskSprite';
+import { KYUREM_IMAGE_SRC } from './kyuremSprite';
+import { SALAMENCE_IMAGE_SRC } from './salamenceSprite';
 import { PokemonPMDAnimator, type PMDAction } from './pokemonPMDAnimator';
 import {
   drawCelebiForestAura as drawCelebiForestAuraHelper,
@@ -283,6 +288,11 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
   gardevoirImg: HTMLImageElement | null = null;
   celebiImg: HTMLImageElement | null = null;
   lugiaImg: HTMLImageElement | null = null;
+  archaludonImg: HTMLImageElement | null = null;
+  gougingfireImg: HTMLImageElement | null = null;
+  greattuskImg: HTMLImageElement | null = null;
+  kyuremImg: HTMLImageElement | null = null;
+  salamenceImg: HTMLImageElement | null = null;
   charizardImg: HTMLImageElement | null = null;
   tyranitarImg: HTMLImageElement | null = null;
   garchompImg: HTMLImageElement | null = null;
@@ -387,6 +397,11 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
   gardevoirAttackTick = 0;
   celebiAttackTick = 0;
   lugiaAttackTick = 0;
+  archaludonAttackTick = 0;
+  gougingfireAttackTick = 0;
+  greattuskAttackTick = 0;
+  kyuremAttackTick = 0;
+  salamenceAttackTick = 0;
   pmdAnimator = new PokemonPMDAnimator();
 
   // Signature Move Visual FX & Camera Shake
@@ -627,6 +642,16 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
       this.celebiImg.src = CELEBI_IMAGE_SRC;
       this.lugiaImg = new Image();
       this.lugiaImg.src = LUGIA_IMAGE_SRC;
+      this.archaludonImg = new Image();
+      this.archaludonImg.src = ARCHALUDON_IMAGE_SRC;
+      this.gougingfireImg = new Image();
+      this.gougingfireImg.src = GOUGINGFIRE_IMAGE_SRC;
+      this.greattuskImg = new Image();
+      this.greattuskImg.src = GREATTUSK_IMAGE_SRC;
+      this.kyuremImg = new Image();
+      this.kyuremImg.src = KYUREM_IMAGE_SRC;
+      this.salamenceImg = new Image();
+      this.salamenceImg.src = SALAMENCE_IMAGE_SRC;
     }
     townConfig.subscribe(() => {
       this.invalidateBackgroundCanvas();
@@ -1410,6 +1435,8 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
         'charizard',
         'celebi',
         'lugia',
+        'kyurem',
+        'salamence',
         'latios',
         'latias',
         'mewtwo',
@@ -3803,6 +3830,21 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
     }
     if (this.lugiaAttackTick > 0) {
       this.lugiaAttackTick--;
+    }
+    if (this.archaludonAttackTick > 0) {
+      this.archaludonAttackTick--;
+    }
+    if (this.gougingfireAttackTick > 0) {
+      this.gougingfireAttackTick--;
+    }
+    if (this.greattuskAttackTick > 0) {
+      this.greattuskAttackTick--;
+    }
+    if (this.kyuremAttackTick > 0) {
+      this.kyuremAttackTick--;
+    }
+    if (this.salamenceAttackTick > 0) {
+      this.salamenceAttackTick--;
     }
 
     if (this.currentScene === 'digimon') {
@@ -8289,6 +8331,66 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
               onClick: () => this.setActiveFollower('lugia'),
             },
           ];
+        } else if (customPlaced.subType === 'archaludon') {
+          dialogueText = "ARCHALUDON: 'Zzzzt-CLANGGG...!' ⚡🌉 [Tech Guardian: Structural Steel Architecture & High-Voltage Data Pipelines] Mengisi daya railgun baja dan menembakkan Electro Shot berkecepatan tinggi melintasi jaringan.";
+          action = [
+            {
+              label: '⚡ Tembakan Elektro (Electro Shot)',
+              onClick: () => this.triggerSignatureMove('archaludon', customPlaced.x, customPlaced.y),
+            },
+            {
+              label: '🤝 Ajak Jalan Bersama',
+              onClick: () => this.setActiveFollower('archaludon'),
+            },
+          ];
+        } else if (customPlaced.subType === 'gougingfire') {
+          dialogueText = "GOUGING FIRE: 'Grrraa-OOOORRR!' 🔥🌋 [Tech Guardian: Hardened Firewall Bastion & Volcanic Compute Cores] Perisai api purba Burning Bulwark membakar tuntas setiap ancaman dan menjaga integritas sistem.";
+          action = [
+            {
+              label: '🔥 Benteng Membara (Burning Bulwark)',
+              onClick: () => this.triggerSignatureMove('gougingfire', customPlaced.x, customPlaced.y),
+            },
+            {
+              label: '🤝 Ajak Jalan Bersama',
+              onClick: () => this.setActiveFollower('gougingfire'),
+            },
+          ];
+        } else if (customPlaced.subType === 'greattusk') {
+          dialogueText = "GREAT TUSK: 'Brrrooo-THUDDD!' 🐘🪨 [Tech Guardian: Heavy Data Ingestion & Unstoppable Throughput] Menerjang rintangan teknis tanpa henti dengan gading purba dan kekuatan seismik Headlong Rush!";
+          action = [
+            {
+              label: '🐘 Terjangan Frontal (Headlong Rush)',
+              onClick: () => this.triggerSignatureMove('greattusk', customPlaced.x, customPlaced.y),
+            },
+            {
+              label: '🤝 Ajak Jalan Bersama',
+              onClick: () => this.setActiveFollower('greattusk'),
+            },
+          ];
+        } else if (customPlaced.subType === 'kyurem') {
+          dialogueText = "KYUREM: 'Krrrr-SHHHOOO...!' ❄️💎 [Tech Guardian: Sub-Zero Latency Optimization & Immutable State Snapshots] Membekukan bottleneck seketika lewat hembusan kristal es Glaciate.";
+          action = [
+            {
+              label: '❄️ Dunia Beku (Glaciate)',
+              onClick: () => this.triggerSignatureMove('kyurem', customPlaced.x, customPlaced.y),
+            },
+            {
+              label: '🤝 Ajak Jalan Bersama',
+              onClick: () => this.setActiveFollower('kyurem'),
+            },
+          ];
+        } else if (customPlaced.subType === 'salamence') {
+          dialogueText = "SALAMENCE: 'Gyaaa-RAAAHHH!' 🐲☄️ [Tech Guardian: Cloud Flight Orchestration & High-Altitude Scalability] Sayap merahnya membelah langit kota sambil menghujankan meteor energi Draco Meteor!";
+          action = [
+            {
+              label: '☄️ Hujan Meteor (Draco Meteor)',
+              onClick: () => this.triggerSignatureMove('salamence', customPlaced.x, customPlaced.y),
+            },
+            {
+              label: '🤝 Ajak Jalan Bersama',
+              onClick: () => this.setActiveFollower('salamence'),
+            },
+          ];
         }
 
         if (Array.isArray(action) && customPlaced.subType) {
@@ -8986,6 +9088,11 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
       'koraidon',
       'eternatus',
       'lugia',
+      'archaludon',
+      'gougingfire',
+      'greattusk',
+      'kyurem',
+      'salamence',
       'arceus',
       'ranger',
       'tyranitar',
@@ -10403,6 +10510,11 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
       koraidon: { name: 'Koraidon', title: 'Winged King Apex Rider', icon: '🦖' },
       eternatus: { name: 'Eternatus', title: 'Dynamax Core Sovereign', icon: '☄️' },
       lugia: { name: 'Lugia', title: 'Guardian of the Seas', icon: '🌊' },
+      archaludon: { name: 'Archaludon', title: 'Alloy Railgun Dragon', icon: '⚡' },
+      gougingfire: { name: 'Gouging Fire', title: 'Paradox Magma Sovereign', icon: '🔥' },
+      greattusk: { name: 'Great Tusk', title: 'Paradox Iron-Tusk Titan', icon: '🐘' },
+      kyurem: { name: 'Kyurem', title: 'Boundary Ice Dragon', icon: '❄️' },
+      salamence: { name: 'Salamence', title: 'Sky Crimson Wing', icon: '🐲' },
     };
 
     const cleanId = id.toLowerCase().replace(/[^a-z]/g, '');

@@ -4,14 +4,19 @@ import { TILE_SIZE, drawCharacter, drawLucario } from './sprites';
 import { townConfig } from './townConfig';
 import type { PokemonPMDAnimator } from './pokemonPMDAnimator';
 import {
+  drawArchaludonRailAura,
   drawCharizardFlameAura,
   drawDarkraiVoidAura,
   drawEmpoleonTridentAura,
   drawEternatusDynamoAura,
+  drawGougingFireMagmaAura,
+  drawGreatTuskSeismicAura,
   drawKoraidonApexAura,
+  drawKyuremGlaciateAura,
   drawLatiosJetAura,
   drawLugiaAeroblastAura,
   drawRegigigasRuneAura,
+  drawSalamenceSkyAura,
   drawSamurottHydroAura,
   drawUrshifuTorrentAura,
 } from './townPokemonFx';
@@ -22,6 +27,11 @@ export interface TownPokemonOverworldHost {
   playerPalette: CharacterPalette;
   pmdAnimator: PokemonPMDAnimator;
   lugiaImg: HTMLImageElement | null;
+  archaludonImg: HTMLImageElement | null;
+  gougingfireImg: HTMLImageElement | null;
+  greattuskImg: HTMLImageElement | null;
+  kyuremImg: HTMLImageElement | null;
+  salamenceImg: HTMLImageElement | null;
   charizardImg: HTMLImageElement | null;
   tyranitarImg: HTMLImageElement | null;
   garchompImg: HTMLImageElement | null;
@@ -1302,7 +1312,9 @@ export function renderOverworldPokemonNPCs(
         'charizard', 'tyranitar', 'blastoise', 'garchomp', 'urshifu', 'rayquaza',
         'mewtwo', 'arceus', 'dialga', 'palkia', 'reshiram', 'zekrom',
         'giratina', 'groudon', 'kyogre', 'gyarados', 'snorlax', 'latios', 'latias', 'darkrai',
-        'necrozma', 'lunala', 'solgaleo', 'samurott', 'empoleon', 'regigigas', 'koraidon', 'eternatus', 'lugia', 'lucario', 'pikachu'
+        'necrozma', 'lunala', 'solgaleo', 'samurott', 'empoleon', 'regigigas', 'koraidon', 'eternatus', 'lugia',
+        'archaludon', 'gougingfire', 'greattusk', 'kyurem', 'salamence',
+        'lucario', 'pikachu'
       ].includes(b.subType || b.id);
       const isFlipped = (isPokemon && !host.pmdAnimator.isSupported(b.subType || b.id)) ? b.orientation === 'E' : false;
       const centerX = b.x * TILE_SIZE + 8;
@@ -2096,6 +2108,91 @@ export function renderOverworldPokemonNPCs(
         );
         if (!pmdDrawn && host.lugiaImg && host.lugiaImg.complete) {
           ctx.drawImage(host.lugiaImg, b.x * TILE_SIZE - 16, b.y * TILE_SIZE - 24 + floatY, 48, 48);
+        }
+      } else if ((b.subType === 'archaludon' || b.id === 'archaludon') && (host.pmdAnimator.isSupported('archaludon') || (host.archaludonImg && host.archaludonImg.complete))) {
+        const breath = Math.sin(host.tick * 0.05) * 0.7;
+        const coreX = b.x * TILE_SIZE + 8;
+        const coreY = b.y * TILE_SIZE + 16;
+
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.42)';
+        ctx.beginPath();
+        ctx.ellipse(coreX, coreY, 14, 5, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        drawArchaludonRailAura(ctx, host.tick, coreX, coreY - 12, true);
+
+        const dir = b.orientation || 'S';
+        const pmdDrawn = host.pmdAnimator.draw(ctx, 'archaludon', 'idle', dir, coreX, coreY, host.tick);
+        if (!pmdDrawn && host.archaludonImg && host.archaludonImg.complete) {
+          ctx.drawImage(host.archaludonImg, b.x * TILE_SIZE - 15, b.y * TILE_SIZE - 22 + breath, 46, 46);
+        }
+      } else if ((b.subType === 'gougingfire' || b.id === 'gougingfire') && (host.pmdAnimator.isSupported('gougingfire') || (host.gougingfireImg && host.gougingfireImg.complete))) {
+        const breath = Math.sin(host.tick * 0.05) * 0.9;
+        const coreX = b.x * TILE_SIZE + 8;
+        const coreY = b.y * TILE_SIZE + 16;
+
+        ctx.fillStyle = 'rgba(40, 12, 5, 0.45)';
+        ctx.beginPath();
+        ctx.ellipse(coreX, coreY, 16, 5.5, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        drawGougingFireMagmaAura(ctx, host.tick, coreX, coreY - 12, true);
+
+        const dir = b.orientation || 'S';
+        const pmdDrawn = host.pmdAnimator.draw(ctx, 'gougingfire', 'idle', dir, coreX, coreY, host.tick);
+        if (!pmdDrawn && host.gougingfireImg && host.gougingfireImg.complete) {
+          ctx.drawImage(host.gougingfireImg, b.x * TILE_SIZE - 16, b.y * TILE_SIZE - 23 + breath, 48, 48);
+        }
+      } else if ((b.subType === 'greattusk' || b.id === 'greattusk') && (host.pmdAnimator.isSupported('greattusk') || (host.greattuskImg && host.greattuskImg.complete))) {
+        const stomp = Math.sin(host.tick * 0.04) * 0.7;
+        const coreX = b.x * TILE_SIZE + 8;
+        const coreY = b.y * TILE_SIZE + 16;
+
+        ctx.fillStyle = 'rgba(35, 18, 10, 0.45)';
+        ctx.beginPath();
+        ctx.ellipse(coreX, coreY, 16, 5.5, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        drawGreatTuskSeismicAura(ctx, host.tick, coreX, coreY - 10, true);
+
+        const dir = b.orientation || 'S';
+        const pmdDrawn = host.pmdAnimator.draw(ctx, 'greattusk', 'idle', dir, coreX, coreY, host.tick);
+        if (!pmdDrawn && host.greattuskImg && host.greattuskImg.complete) {
+          ctx.drawImage(host.greattuskImg, b.x * TILE_SIZE - 16, b.y * TILE_SIZE - 22 + stomp, 48, 48);
+        }
+      } else if ((b.subType === 'kyurem' || b.id === 'kyurem') && (host.pmdAnimator.isSupported('kyurem') || (host.kyuremImg && host.kyuremImg.complete))) {
+        const floatY = Math.sin(host.tick * 0.05) * 1.4;
+        const coreX = b.x * TILE_SIZE + 8;
+        const coreY = b.y * TILE_SIZE + 16;
+
+        ctx.fillStyle = 'rgba(12, 34, 56, 0.42)';
+        ctx.beginPath();
+        ctx.ellipse(coreX, coreY, 16, 5.5, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        drawKyuremGlaciateAura(ctx, host.tick, coreX, coreY - 12 + floatY, true);
+
+        const dir = b.orientation || 'S';
+        const pmdDrawn = host.pmdAnimator.draw(ctx, 'kyurem', 'idle', dir, coreX, coreY, host.tick);
+        if (!pmdDrawn && host.kyuremImg && host.kyuremImg.complete) {
+          ctx.drawImage(host.kyuremImg, b.x * TILE_SIZE - 16, b.y * TILE_SIZE - 24 + floatY, 48, 48);
+        }
+      } else if ((b.subType === 'salamence' || b.id === 'salamence') && (host.pmdAnimator.isSupported('salamence') || (host.salamenceImg && host.salamenceImg.complete))) {
+        const breath = Math.sin(host.tick * 0.055) * 0.9;
+        const coreX = b.x * TILE_SIZE + 8;
+        const coreY = b.y * TILE_SIZE + 16;
+
+        ctx.fillStyle = 'rgba(20, 20, 35, 0.42)';
+        ctx.beginPath();
+        ctx.ellipse(coreX, coreY, 15, 5.5, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        drawSalamenceSkyAura(ctx, host.tick, coreX, coreY - 10, true);
+
+        const dir = b.orientation || 'S';
+        const pmdDrawn = host.pmdAnimator.draw(ctx, 'salamence', 'idle', dir, coreX, coreY, host.tick);
+        if (!pmdDrawn && host.salamenceImg && host.salamenceImg.complete) {
+          ctx.drawImage(host.salamenceImg, b.x * TILE_SIZE - 15, b.y * TILE_SIZE - 22 + breath, 46, 46);
         }
       } else if (b.subType === 'lucario' || b.id === 'lucario') {
         drawLucario(ctx, b.x * TILE_SIZE, b.y * TILE_SIZE, host.tick, 1);

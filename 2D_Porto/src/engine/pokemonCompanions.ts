@@ -24,6 +24,11 @@ import { KORAIDON_IMAGE_SRC } from './koraidonSprite';
 import { ETERNATUS_IMAGE_SRC } from './eternatusSprite';
 import { SNORLAX_IMAGE_SRC } from './snorlaxSprite';
 import { LUGIA_IMAGE_SRC } from './lugiaSprite';
+import { ARCHALUDON_IMAGE_SRC } from './archaludonSprite';
+import { GOUGINGFIRE_IMAGE_SRC } from './gougingfireSprite';
+import { GREATTUSK_IMAGE_SRC } from './greattuskSprite';
+import { KYUREM_IMAGE_SRC } from './kyuremSprite';
+import { SALAMENCE_IMAGE_SRC } from './salamenceSprite';
 
 export const MEWTWO_IMAGE_SRC =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHAAAABwBAMAAAA0zul4AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAIVBMVEUAAAD4+Pjg4PC4sMi4iMCYiJh4gHiIWJBQWFBAQEAAAABuf+WbAAAAAXRSTlMAQObYZgAAAWxJREFUeNrt2DGtJDEQRdGi8Ck8Co+CKRSFT8EUmkJRuChX7vGMg81Wqk52bmjpSC+wHDi+ffv27dsz8TTEPAvxhvAgXASJp+CvBEg+MIBGqNWvfCCMMWmC6G/HWDVBtHvB4ybRDfWGzDGA6IHoZLPhntkNbXNcI7S82OUDiUYY3LCuHx9YdMJAyoufn+1u2QpJSYzlKs8F6ISSvILMa8sx6IOB064igkziyDYYVJXzNfXAQQ88Y6WrktjRDiVd3u5s7YJkZUp52WfqHLMNkllSpsHmuNEEwS5LEhFY3GdzLtcCKVd5zqkXUQHzrgdil1RjjCUJpJpv1wFxvtySKVEfSPTA5TYsSSq9JEQPDD6wrC1rsx4Y3NvGmKU3NBGNMJBdc25YSmUzDMisDV2iD54+0jZOoh9WJuDlAqIbcruIKNtFRDcklzsvJf3wdjvsfhhAPAtPID0KKaX0KJRSxIMwQI/BQ+Nf4f/7/fYHGujw6q4E2bwAAAAASUVORK5CYII=';
@@ -433,6 +438,71 @@ export const COMPANIONS: CompanionInfo[] = [
     lore: 'Tech Guardian: Full-Stack Calm in Storms, High-Traffic Sea Scale & Atmospheric Airflow. Kepakan sayap perak Lugia menjaga ketenangan dan stabilitas sistem saat menghadapi gelombang trafik tertinggi.',
     imageSrc: LUGIA_IMAGE_SRC,
     tagline: 'Ketenangan arsitektur & kendali arus trafik skala samudra',
+  },
+  {
+    id: 'archaludon',
+    name: 'Archaludon',
+    title: 'Alloy Railgun Dragon',
+    icon: '⚡',
+    element: 'Baja / Naga',
+    badgeClass: 'bg-indigo-100 text-indigo-950 border-indigo-400',
+    skillName: 'Tembakan Elektro (Electro Shot)',
+    skillDesc: 'Menyusun tubuh baja menyerupai jembatan rel raksasa dan melepaskan tembakan listrik bertegangan tinggi.',
+    lore: 'Tech Guardian: Structural Steel Architecture & High-Voltage Data Pipelines. Menjamin struktur jaringan tetap kokoh dan menyalurkan throughput data secepat kilat.',
+    imageSrc: ARCHALUDON_IMAGE_SRC,
+    tagline: 'Arsitektur jembatan baja & pipeline data bertegangan tinggi',
+  },
+  {
+    id: 'gougingfire',
+    name: 'Gouging Fire',
+    title: 'Paradox Magma Sovereign',
+    icon: '🔥',
+    element: 'Api / Naga',
+    badgeClass: 'bg-orange-100 text-orange-950 border-orange-400',
+    skillName: 'Benteng Membara (Burning Bulwark)',
+    skillDesc: 'Mengelilingi diri dengan perisai magma purba yang membakar setiap serangan dan memancarkan panas vulkanik.',
+    lore: 'Tech Guardian: Hardened Firewall Bastion & Volcanic Compute Cores. Melindungi sistem dari trafik berbahaya dengan pertahanan firewall yang tak tertembus.',
+    imageSrc: GOUGINGFIRE_IMAGE_SRC,
+    tagline: 'Benteng firewall vulkanik & komputasi inti bersuhu tinggi',
+  },
+  {
+    id: 'greattusk',
+    name: 'Great Tusk',
+    title: 'Paradox Iron-Tusk Titan',
+    icon: '🐘',
+    element: 'Tanah / Petarung',
+    badgeClass: 'bg-amber-100 text-amber-950 border-amber-500',
+    skillName: 'Terjangan Frontal (Headlong Rush)',
+    skillDesc: 'Menyerbu maju dengan tubuh berlapis gading purba raksasa dan menghantam tanah hingga memicu gempa tektonik.',
+    lore: 'Tech Guardian: Heavy Data Ingestion & Unstoppable Throughput. Mengolah beban kerja masif tanpa ragu menembus bottleneck infrastruktur.',
+    imageSrc: GREATTUSK_IMAGE_SRC,
+    tagline: 'Ingesti data skala berat & daya dobrak tanpa henti',
+  },
+  {
+    id: 'kyurem',
+    name: 'Kyurem',
+    title: 'Boundary Ice Dragon',
+    icon: '❄️',
+    element: 'Naga / Es',
+    badgeClass: 'bg-cyan-100 text-cyan-950 border-cyan-400',
+    skillName: 'Dunia Beku (Glaciate)',
+    skillDesc: 'Melepaskan gelombang es nol absolut dari celah batas energi Unova yang membekukan sekeliling dalam kristal beku.',
+    lore: 'Tech Guardian: Sub-Zero Latency Optimization & Immutable State Snapshots. Membekukan anomali sistem seketika dan menjaga konsistensi state absolut.',
+    imageSrc: KYUREM_IMAGE_SRC,
+    tagline: 'Optimasi latensi beku & snapshot state absolut',
+  },
+  {
+    id: 'salamence',
+    name: 'Salamence',
+    title: 'Sky Crimson Wing',
+    icon: '🐲',
+    element: 'Naga / Terbang',
+    badgeClass: 'bg-rose-100 text-rose-950 border-rose-400',
+    skillName: 'Hujan Meteor (Draco Meteor)',
+    skillDesc: 'Meluncur menembus awan dengan sayap merah menyala dan menghujankan meteor energi naga yang mengguncang langit.',
+    lore: 'Tech Guardian: Cloud Flight Orchestration & High-Altitude Scalability. Orkestrasi layanan cloud berkecepatan supersonik dengan skalabilitas bebas batas.',
+    imageSrc: SALAMENCE_IMAGE_SRC,
+    tagline: 'Orkestrasi cloud supersonik & sayap skalabilitas tinggi',
   },
 ];
 
