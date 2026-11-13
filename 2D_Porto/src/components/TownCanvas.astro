@@ -625,13 +625,13 @@ const dataPlaceRooms = {
       </>
     ) : currentPlace === 'garden' ? (
       <>
-        <button type="button" class="town-label town-label--npc" data-id="botanist-flora" aria-label="Talk to Master Botanist Flora">
-          <span class="town-label__icon" aria-hidden="true">👩‍🌾</span>
-          <span class="town-label__text">Botanist Flora</span>
+        <button type="button" class="town-label town-label--npc" data-id="gardevoir" aria-label="Talk to Gardevoir">
+          <span class="town-label__icon" aria-hidden="true">🧚</span>
+          <span class="town-label__text">Gardevoir</span>
         </button>
-        <button type="button" class="town-label town-label--npc" data-id="shaymin-npc" aria-label="Greet Shaymin Blossom Guardian">
-          <span class="town-label__icon" aria-hidden="true">🦔</span>
-          <span class="town-label__text">Shaymin</span>
+        <button type="button" class="town-label town-label--npc" data-id="celebi" aria-label="Greet Celebi Time Guardian">
+          <span class="town-label__icon" aria-hidden="true">🌿</span>
+          <span class="town-label__text">Celebi</span>
         </button>
         <button type="button" class="town-label" data-id="plot-oran" aria-label="Inspect Oran & Pecha Berry Bed">
           <span class="town-label__icon" aria-hidden="true">🍊</span>
@@ -877,7 +877,7 @@ const dataPlaceRooms = {
             : currentPlace === 'arena'
             ? "Ave, Challenger! Welcome to the Gladiator Colosseum. Choose your Gladiator from the Armory to duel Champion Mewtwo in the Sand Pit, conquer the Six Trials of Rome, or inspect the Hall of Victors. Step on the south gate mat to exit."
             : currentPlace === 'garden'
-            ? "Welcome to the Botanical Berry Plantation & Sakura Conservatory! Greet Master Botanist Flora and Shaymin, irrigate the soil beds from the Sprayduck Well, plant and harvest 6 heirloom berry strains, or spin the Copper Berry Blender. Step on the south garden gate to exit."
+            ? "Welcome to the Botanical Berry Plantation & Sakura Conservatory! Greet Gardevoir and Celebi, irrigate the soil beds from the Sprayduck Well, plant and harvest 6 heirloom berry strains, or spin the Copper Berry Blender. Step on the south garden gate to exit."
             : currentPlace === 'neighbour'
             ? "Welcome to Neighbour Maya's Cozy Dev Cottage! Greet Maya and Eevee, sip hot Oolong tea by the crackling fireplace, play PR Review Ping-Pong on the retro CRT, or pin a sticky note on the Neighbour Guestbook. Step on the south mat to exit."
             : currentPlace === 'digimon'
@@ -1207,41 +1207,52 @@ const dataPlaceRooms = {
   <!-- Floating Poké Ride Active Control Pill -->
   <div
     id="town-pokeride-hud"
-    class="hidden fixed bottom-16 left-1/2 -translate-x-1/2 z-30 items-center gap-2 px-3 py-1.5 rounded-full bg-slate-950/90 border border-amber-400/50 shadow-[0_6px_24px_rgba(245,158,11,0.28)] backdrop-blur-md text-xs font-mono text-white"
+    class="hidden fixed bottom-16 left-1/2 -translate-x-1/2 z-30 items-center gap-2 px-3 py-1.5 rounded-full bg-slate-950/90 border border-amber-400/50 shadow-[0_6px_24px_rgba(245,158,11,0.28)] backdrop-blur-md text-xs font-mono text-white select-none transition-all duration-200"
     style="display: none;"
     role="region"
     aria-label="Kontrol Poké Ride Aktif"
   >
-    <span id="pokeride-hud-icon" class="text-sm">🏇</span>
-    <div class="flex flex-col leading-tight pr-1">
-      <div class="flex items-center gap-1.5">
-        <span id="pokeride-hud-name" class="font-bold text-amber-300 text-[11px]">Poké Ride</span>
-        <span
-          id="pokeride-hud-badge"
-          class="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-amber-500/20 text-amber-200 border border-amber-400/40"
-        >
-          ⚡ Terra Charge
-        </span>
-      </div>
-      <span id="pokeride-hud-sub" class="text-[9px] text-slate-300 hidden sm:inline">
+    <div id="pokeride-hud-header" class="flex items-center gap-1.5 shrink-0">
+      <span id="pokeride-hud-icon" class="text-sm">🏇</span>
+      <span id="pokeride-hud-name" class="font-bold text-amber-300 text-[11px] whitespace-nowrap">Poké Ride</span>
+    </div>
+    <div id="pokeride-hud-details" class="flex flex-col leading-tight pr-1">
+      <span
+        id="pokeride-hud-badge"
+        class="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-amber-500/20 text-amber-200 border border-amber-400/40 w-fit whitespace-nowrap"
+      >
+        ⚡ Terra Charge
+      </span>
+      <span id="pokeride-hud-sub" class="text-[9px] text-slate-300 hidden sm:inline whitespace-nowrap">
         Kecepatan Tinggi Aktif
       </span>
     </div>
+    <div id="pokeride-hud-actions" class="flex items-center gap-2 shrink-0">
+      <button
+        type="button"
+        id="btn-pokeride-skill"
+        class="px-2 py-1 rounded-full bg-cyan-500/20 hover:bg-cyan-500/35 text-cyan-200 border border-cyan-400/40 text-[10px] font-bold transition cursor-pointer whitespace-nowrap"
+        title="Gunakan Skill Visual Burst (Tekan X)"
+      >
+        ⚡ Skill (X)
+      </button>
+      <button
+        type="button"
+        id="btn-pokeride-dismount"
+        class="px-2.5 py-1 rounded-full bg-rose-500/25 hover:bg-rose-500/40 text-rose-200 border border-rose-400/40 text-[10px] font-bold transition cursor-pointer whitespace-nowrap"
+        title="Turun dari Pokémon / Digimon (Tekan R)"
+      >
+        👟 Turun (R)
+      </button>
+    </div>
     <button
       type="button"
-      id="btn-pokeride-skill"
-      class="px-2 py-1 rounded-full bg-cyan-500/20 hover:bg-cyan-500/35 text-cyan-200 border border-cyan-400/40 text-[10px] font-bold transition cursor-pointer"
-      title="Gunakan Skill Visual Burst (Tekan X)"
+      id="btn-pokeride-toggle"
+      class="w-5 h-5 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 active:scale-90 text-[10px] text-slate-300 hover:text-white transition cursor-pointer border border-white/10 shrink-0"
+      title="Minimalkan Kontrol (Minimize)"
+      aria-label="Minimalkan atau maksimalkan kontrol Poké Ride"
     >
-      ⚡ Skill (X)
-    </button>
-    <button
-      type="button"
-      id="btn-pokeride-dismount"
-      class="px-2.5 py-1 rounded-full bg-rose-500/25 hover:bg-rose-500/40 text-rose-200 border border-rose-400/40 text-[10px] font-bold transition cursor-pointer"
-      title="Turun dari Pokémon (Tekan R)"
-    >
-      👟 Turun (R)
+      🔽
     </button>
   </div>
 
@@ -2175,6 +2186,50 @@ const dataPlaceRooms = {
     const pokeRideHudSub = document.getElementById('pokeride-hud-sub');
     const btnPokeRideSkill = document.getElementById('btn-pokeride-skill');
     const btnPokeRideDismount = document.getElementById('btn-pokeride-dismount');
+    const btnPokeRideToggle = document.getElementById('btn-pokeride-toggle');
+
+    let isPokeRideMinimized = false;
+    try {
+      isPokeRideMinimized = sessionStorage.getItem('town:pokeride-minimized') === 'true';
+    } catch {}
+
+    const applyPokeRideMinimizeState = () => {
+      if (!pokeRideHud) return;
+      pokeRideHud.classList.toggle('is-minimized', isPokeRideMinimized);
+      if (btnPokeRideToggle) {
+        btnPokeRideToggle.textContent = isPokeRideMinimized ? '🔼' : '🔽';
+        btnPokeRideToggle.title = isPokeRideMinimized
+          ? 'Maksimalkan Kontrol (Expand)'
+          : 'Minimalkan Kontrol (Minimize)';
+        btnPokeRideToggle.setAttribute('aria-expanded', String(!isPokeRideMinimized));
+      }
+      if (isPokeRideMinimized) {
+        pokeRideHud.setAttribute('title', 'Klik untuk maksimalkan kontrol (R: Turun, X: Skill)');
+      } else {
+        pokeRideHud.removeAttribute('title');
+      }
+    };
+
+    btnPokeRideToggle?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      isPokeRideMinimized = !isPokeRideMinimized;
+      try {
+        sessionStorage.setItem('town:pokeride-minimized', String(isPokeRideMinimized));
+      } catch {}
+      applyPokeRideMinimizeState();
+      try { sfx.select(); } catch {}
+    });
+
+    pokeRideHud?.addEventListener('click', () => {
+      if (isPokeRideMinimized) {
+        isPokeRideMinimized = false;
+        try {
+          sessionStorage.setItem('town:pokeride-minimized', 'false');
+        } catch {}
+        applyPokeRideMinimizeState();
+        try { sfx.select(); } catch {}
+      }
+    });
 
     const togglePokeRide = () => {
       if (engine) {
@@ -2214,6 +2269,7 @@ const dataPlaceRooms = {
         if (active && follower) {
           pokeRideHud.classList.remove('hidden');
           pokeRideHud.style.display = 'inline-flex';
+          applyPokeRideMinimizeState();
           if (pokeRideHudIcon) pokeRideHudIcon.textContent = follower.icon || '🏇';
           if (pokeRideHudName) pokeRideHudName.textContent = follower.name;
           if (pokeRideHudBadge) {
@@ -2845,6 +2901,7 @@ const dataPlaceRooms = {
                 regigigas: '🗿',
                 koraidon: '🦖',
                 eternatus: '☄️',
+                lugia: '🌊',
               };
               const pokeKey = Object.keys(pokeIcons).find(
                 (k) => selected.subType === k || selected.id.includes(k)

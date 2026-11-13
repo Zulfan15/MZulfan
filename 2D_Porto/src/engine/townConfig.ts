@@ -719,6 +719,18 @@ export const SPAWNABLE_TEMPLATES: SpawnableTemplate[] = [
     defaultDialogue: "SNORLAX: 'Yaaawnnn... Gaaarrr!' 😴💤 Snorlax menguap lebar sambil menepuk perutnya yang kenyang. Sang Raksasa Santai menjaga ketenangan dan stabilitas memori Zulfan's Town.",
   },
   {
+    id: 'tpl_lugia',
+    name: 'Lugia Sang Penjaga Samudra',
+    icon: '🌊',
+    category: 'Dunia Pokémon',
+    w: 2,
+    h: 2,
+    kind: 'npc',
+    subType: 'lugia',
+    desc: 'Pokémon Legendaris Psychic/Flying Penjaga Samudra & Pengendali Badai (2x2)',
+    defaultDialogue: "LUGIA: 'Gyaaa-oooor-shuuu...!' 🌊🌪️ [Tech Guardian: Full-Stack Calm in Storms, High-Traffic Sea Scale & Atmospheric Airflow] Kepakan sayap perak Lugia mampu meredakan badai dan menjaga kelancaran sistem di saat load tertinggi.",
+  },
+  {
     id: 'tpl_pikachu',
     name: 'Maskot Pikachu Ceria',
     icon: '⚡',

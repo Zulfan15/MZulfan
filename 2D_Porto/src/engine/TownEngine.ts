@@ -162,7 +162,25 @@ import { CHARIZARD_IMAGE_SRC } from './charizardSprite';
 import { TYRANITAR_IMAGE_SRC } from './tyranitarSprite';
 import { GARCHOMP_IMAGE_SRC } from './garchompSprite';
 import { URSHIFU_IMAGE_SRC } from './urshifuSprite';
+import { GARDEVOIR_IMAGE_SRC } from './gardevoirSprite';
+import { CELEBI_IMAGE_SRC } from './celebiSprite';
+import { LUGIA_IMAGE_SRC } from './lugiaSprite';
 import { PokemonPMDAnimator, type PMDAction } from './pokemonPMDAnimator';
+import {
+  drawCelebiForestAura as drawCelebiForestAuraHelper,
+  drawFollower as drawFollowerHelper,
+  drawGardevoirPsychicAura as drawGardevoirPsychicAuraHelper,
+  drawPokeRide as drawPokeRideHelper,
+  renderMoveParticles as renderMoveParticlesHelper,
+  spawnRideMountFX as spawnRideMountFXHelper,
+  spawnRideTrailFX as spawnRideTrailFXHelper,
+  triggerSignatureMove as triggerSignatureMoveHelper,
+  type TownPokemonFxHost,
+} from './townPokemonFx';
+import {
+  renderOverworldPokemonNPCs,
+  type TownPokemonOverworldHost,
+} from './townPokemonOverworld';
 
 export interface BubbleAction {
   label: string;
@@ -251,10 +269,10 @@ interface FlyParticle {
   maxLife: number;
 }
 
-export class TownEngine {
+export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
-  private map: TownMap;
+  map: TownMap;
   private callbacks: EngineCallbacks;
   private currentScene: 'town' | 'home' | 'dev' | 'lab' | 'arcade' | 'reception' | 'mart' | 'tower' | 'cafe' | 'arena' | 'garden' | 'neighbour' | 'digimon' = 'town';
   private homeFloor: '1F' | '2F' = '1F';
@@ -262,32 +280,35 @@ export class TownEngine {
   private devBackgroundCanvas: HTMLCanvasElement | null = null;
   private labBackgroundCanvas: HTMLCanvasElement | null = null;
   private arcadeBackgroundCanvas: HTMLCanvasElement | null = null;
-  private charizardImg: HTMLImageElement | null = null;
-  private tyranitarImg: HTMLImageElement | null = null;
-  private garchompImg: HTMLImageElement | null = null;
-  private urshifuImg: HTMLImageElement | null = null;
-  private blastoiseImg: HTMLImageElement | null = null;
-  private arceusImg: HTMLImageElement | null = null;
-  private mewtwoImg: HTMLImageElement | null = null;
-  private reshiramImg: HTMLImageElement | null = null;
-  private zekromImg: HTMLImageElement | null = null;
-  private giratinaImg: HTMLImageElement | null = null;
-  private palkiaImg: HTMLImageElement | null = null;
-  private dialgaImg: HTMLImageElement | null = null;
-  private rayquazaImg: HTMLImageElement | null = null;
-  private groudonImg: HTMLImageElement | null = null;
-  private kyogreImg: HTMLImageElement | null = null;
-  private latiosImg: HTMLImageElement | null = null;
-  private latiasImg: HTMLImageElement | null = null;
-  private darkraiImg: HTMLImageElement | null = null;
-  private necrozmaImg: HTMLImageElement | null = null;
-  private lunalaImg: HTMLImageElement | null = null;
-  private solgaleoImg: HTMLImageElement | null = null;
-  private samurottImg: HTMLImageElement | null = null;
-  private empoleonImg: HTMLImageElement | null = null;
-  private regigigasImg: HTMLImageElement | null = null;
-  private koraidonImg: HTMLImageElement | null = null;
-  private eternatusImg: HTMLImageElement | null = null;
+  gardevoirImg: HTMLImageElement | null = null;
+  celebiImg: HTMLImageElement | null = null;
+  lugiaImg: HTMLImageElement | null = null;
+  charizardImg: HTMLImageElement | null = null;
+  tyranitarImg: HTMLImageElement | null = null;
+  garchompImg: HTMLImageElement | null = null;
+  urshifuImg: HTMLImageElement | null = null;
+  blastoiseImg: HTMLImageElement | null = null;
+  arceusImg: HTMLImageElement | null = null;
+  mewtwoImg: HTMLImageElement | null = null;
+  reshiramImg: HTMLImageElement | null = null;
+  zekromImg: HTMLImageElement | null = null;
+  giratinaImg: HTMLImageElement | null = null;
+  palkiaImg: HTMLImageElement | null = null;
+  dialgaImg: HTMLImageElement | null = null;
+  rayquazaImg: HTMLImageElement | null = null;
+  groudonImg: HTMLImageElement | null = null;
+  kyogreImg: HTMLImageElement | null = null;
+  latiosImg: HTMLImageElement | null = null;
+  latiasImg: HTMLImageElement | null = null;
+  darkraiImg: HTMLImageElement | null = null;
+  necrozmaImg: HTMLImageElement | null = null;
+  lunalaImg: HTMLImageElement | null = null;
+  solgaleoImg: HTMLImageElement | null = null;
+  samurottImg: HTMLImageElement | null = null;
+  empoleonImg: HTMLImageElement | null = null;
+  regigigasImg: HTMLImageElement | null = null;
+  koraidonImg: HTMLImageElement | null = null;
+  eternatusImg: HTMLImageElement | null = null;
   private receptionBackgroundCanvas: HTMLCanvasElement | null = null;
   private martBackgroundCanvas: HTMLCanvasElement | null = null;
   private towerBackgroundCanvas: HTMLCanvasElement | null = null;
@@ -307,16 +328,16 @@ export class TownEngine {
   private xrayHoverTile: Vec | null = null;
 
   // Player state
-  private playerPos: Vec = { x: 18, y: 12 };
+  playerPos: Vec = { x: 18, y: 12 };
   private playerTarget: Vec = { x: 18, y: 12 };
-  private playerDir: Dir = 'down';
-  private isMoving = false;
-  private moveProgress = 0; // 0 to 1 between tiles
+  playerDir: Dir = 'down';
+  isMoving = false;
+  moveProgress = 0; // 0 to 1 between tiles
   private stepCount = 0;
   private path: Vec[] = [];
   private pendingTarget: string | null = null;
   private marker: Vec | null = null;
-  private particles: WeatherParticle[] = [];
+  particles: WeatherParticle[] = [];
   private fireflies: WeatherParticle[] = [];
   private heldDirs: Dir[] = [];
   private bufferedDir: Dir | null = null;
@@ -330,46 +351,50 @@ export class TownEngine {
 
   // Active Walking Follower Pokémon
   public activeFollower: FollowerPokemon | null = null;
-  private followerPos: Vec = { x: 18, y: 13 };
-  private followerTarget: Vec = { x: 18, y: 13 };
+  followerPos: Vec = { x: 18, y: 13 };
+  followerTarget: Vec = { x: 18, y: 13 };
   private followerTrail: Vec[] = [];
-  private followerDir: Dir = 'down';
-  private followerFacing: 'left' | 'right' = 'right';
-  private followerEmoteTime = 0;
-  private followerEmote = '❤️';
-  private followerWalkTick = 0;
-  private rayquazaAttackTick = 0;
-  private arceusAttackTick = 0;
-  private reshiramAttackTick = 0;
-  private zekromAttackTick = 0;
-  private giratinaAttackTick = 0;
-  private palkiaAttackTick = 0;
-  private dialgaAttackTick = 0;
-  private lunalaAttackTick = 0;
-  private solgaleoAttackTick = 0;
-  private garchompAttackTick = 0;
-  private groudonAttackTick = 0;
-  private kyogreAttackTick = 0;
-  private tyranitarAttackTick = 0;
-  private gyaradosAttackTick = 0;
-  private snorlaxAttackTick = 0;
-  private samurottAttackTick = 0;
-  private empoleonAttackTick = 0;
-  private regigigasAttackTick = 0;
-  private koraidonAttackTick = 0;
-  private eternatusAttackTick = 0;
-  private urshifuAttackTick = 0;
-  private darkraiAttackTick = 0;
-  private latiosAttackTick = 0;
-  private latiasAttackTick = 0;
-  private pmdAnimator = new PokemonPMDAnimator();
+  followerDir: Dir = 'down';
+  followerFacing: 'left' | 'right' = 'right';
+  followerEmoteTime = 0;
+  followerEmote = '❤️';
+  followerWalkTick = 0;
+  rayquazaAttackTick = 0;
+  arceusAttackTick = 0;
+  reshiramAttackTick = 0;
+  zekromAttackTick = 0;
+  giratinaAttackTick = 0;
+  palkiaAttackTick = 0;
+  dialgaAttackTick = 0;
+  lunalaAttackTick = 0;
+  solgaleoAttackTick = 0;
+  garchompAttackTick = 0;
+  groudonAttackTick = 0;
+  kyogreAttackTick = 0;
+  tyranitarAttackTick = 0;
+  gyaradosAttackTick = 0;
+  snorlaxAttackTick = 0;
+  samurottAttackTick = 0;
+  empoleonAttackTick = 0;
+  regigigasAttackTick = 0;
+  koraidonAttackTick = 0;
+  eternatusAttackTick = 0;
+  urshifuAttackTick = 0;
+  darkraiAttackTick = 0;
+  latiosAttackTick = 0;
+  latiasAttackTick = 0;
+  charizardAttackTick = 0;
+  gardevoirAttackTick = 0;
+  celebiAttackTick = 0;
+  lugiaAttackTick = 0;
+  pmdAnimator = new PokemonPMDAnimator();
 
   // Signature Move Visual FX & Camera Shake
-  private moveParticles: MoveParticle[] = [];
-  private cameraShakeTime = 0;
-  private cameraShakeIntensity = 0;
+  moveParticles: MoveParticle[] = [];
+  cameraShakeTime = 0;
+  cameraShakeIntensity = 0;
 
-  private playerPalette: CharacterPalette = {
+  playerPalette: CharacterPalette = {
     skin: '#fecda5',
     hair: '#000000',
     shirt: '#0665d9',
@@ -386,7 +411,7 @@ export class TownEngine {
   private zoomTimeout: number | null = null;
   private cameraX = 0;
   private cameraY = 0;
-  private tick = 0;
+  tick = 0;
   private isAwake = false;
   private rafId: number | null = null;
   private lastTime = 0;
@@ -596,6 +621,12 @@ export class TownEngine {
       this.garchompImg.src = GARCHOMP_IMAGE_SRC;
       this.urshifuImg = new Image();
       this.urshifuImg.src = URSHIFU_IMAGE_SRC;
+      this.gardevoirImg = new Image();
+      this.gardevoirImg.src = GARDEVOIR_IMAGE_SRC;
+      this.celebiImg = new Image();
+      this.celebiImg.src = CELEBI_IMAGE_SRC;
+      this.lugiaImg = new Image();
+      this.lugiaImg.src = LUGIA_IMAGE_SRC;
     }
     townConfig.subscribe(() => {
       this.invalidateBackgroundCanvas();
@@ -617,11 +648,11 @@ export class TownEngine {
       const savedFollower =
         this.currentScene === 'digimon'
           ? (() => {
-              const digiSaved = localStorage.getItem('digimon:active_companion');
-              return digiSaved === 'none'
-                ? null
-                : digiSaved || localStorage.getItem('town:active_follower');
-            })()
+            const digiSaved = localStorage.getItem('digimon:active_companion');
+            return digiSaved === 'none'
+              ? null
+              : digiSaved || localStorage.getItem('town:active_follower');
+          })()
           : localStorage.getItem('town:active_follower');
       if (savedFollower) {
         this.setActiveFollower(savedFollower, false);
@@ -721,7 +752,7 @@ export class TownEngine {
     this.unbindEvents = [];
   }
 
-  private isWorldScene(): boolean {
+  isWorldScene(): boolean {
     return this.currentScene === 'town' || this.currentScene === 'digimon';
   }
 
@@ -898,12 +929,12 @@ export class TownEngine {
         override === 'solid_override'
           ? 'Tembok Kustom (Solid Override)'
           : override === 'water'
-          ? 'Air / Kolam'
-          : override === 'hedge'
-          ? 'Semak Pagar'
-          : override === 'fence'
-          ? 'Pagar Kayu'
-          : 'Pagar Air';
+            ? 'Air / Kolam'
+            : override === 'hedge'
+              ? 'Semak Pagar'
+              : override === 'fence'
+                ? 'Pagar Kayu'
+                : 'Pagar Air';
       return { walkable: false, reason: label, override };
     }
 
@@ -932,7 +963,7 @@ export class TownEngine {
           const doorY = b.doorY !== undefined ? b.doorY : b.y + b.h - 1;
           const isDoor =
             ((x === doorX || (b.w >= 6 && (x === doorX - 1 || x === doorX + 1))) &&
-             (y === doorY || y === b.y + b.h - 1));
+              (y === doorY || y === b.y + b.h - 1));
           if (isDoor) {
             return {
               walkable: true,
@@ -980,10 +1011,10 @@ export class TownEngine {
         tileType === Tile.WATER
           ? 'Air / Sungai'
           : tileType === Tile.FENCE
-          ? 'Pagar Pembatas'
-          : tileType === Tile.TREE
-          ? 'Pohon Rindang'
-          : 'Tembok / Batas Medan Asli';
+            ? 'Pagar Pembatas'
+            : tileType === Tile.TREE
+              ? 'Pohon Rindang'
+              : 'Tembok / Batas Medan Asli';
       return { walkable: false, reason: groundDesc, isBaseBlocked: true };
     }
 
@@ -1270,8 +1301,8 @@ export class TownEngine {
       ctx.strokeStyle = info.isHidden
         ? 'rgba(192, 132, 252, 0.9)'
         : info.walkable
-        ? 'rgba(52, 211, 153, 0.8)'
-        : 'rgba(248, 113, 113, 0.8)';
+          ? 'rgba(52, 211, 153, 0.8)'
+          : 'rgba(248, 113, 113, 0.8)';
       ctx.lineWidth = 1.5 * dpr;
 
       ctx.beginPath();
@@ -1320,10 +1351,10 @@ export class TownEngine {
       const hint = info.isHidden
         ? '👉 Klik untuk HAPUS PERMANEN objek ini'
         : !info.walkable
-        ? '👉 Klik untuk HAPUS / BUKA JALAN'
-        : info.override === 'walkable_override'
-        ? '👉 Klik untuk reset kondisi asli'
-        : '👉 Koordinat bebas halangan';
+          ? '👉 Klik untuk HAPUS / BUKA JALAN'
+          : info.override === 'walkable_override'
+            ? '👉 Klik untuk reset kondisi asli'
+            : '👉 Koordinat bebas halangan';
       ctx.fillText(hint, cardX + 10 * dpr, cardY + 48 * dpr);
     }
 
@@ -1377,6 +1408,8 @@ export class TownEngine {
         'reshiram',
         'zekrom',
         'charizard',
+        'celebi',
+        'lugia',
         'latios',
         'latias',
         'mewtwo',
@@ -1578,10 +1611,10 @@ export class TownEngine {
         fid === 'pikachu'
           ? '⚡ Pikachu melompat ke pundak Red! Mode Sprint Aktif! (Tekan R untuk turun)'
           : rideClass === 'sky'
-          ? `✈️ Sky Soar bersama ${this.activeFollower.name}! Bisa terbang melintasi air & pagar! (R: Turun)`
-          : rideClass === 'surf'
-          ? `🌊 Aqua Surf bersama ${this.activeFollower.name}! Bisa berselancar di atas perairan! (R: Turun)`
-          : `⚡ Terra Charge bersama ${this.activeFollower.name}! Kecepatan tinggi aktif! (R: Turun)`;
+            ? `✈️ Sky Soar bersama ${this.activeFollower.name}! Bisa terbang melintasi air & pagar! (R: Turun)`
+            : rideClass === 'surf'
+              ? `🌊 Aqua Surf bersama ${this.activeFollower.name}! Bisa berselancar di atas perairan! (R: Turun)`
+              : `⚡ Terra Charge bersama ${this.activeFollower.name}! Kecepatan tinggi aktif! (R: Turun)`;
 
       if (typeof window !== 'undefined') {
         window.dispatchEvent(
@@ -2018,8 +2051,8 @@ export class TownEngine {
         const hitProp = isEternatusHit
           ? DEV_PROPS.find((p) => p.id === 'eternatus')
           : DEV_PROPS.find(
-              (p) => targetTileX >= p.x && targetTileX < p.x + p.w && targetTileY >= p.y && targetTileY < p.y + p.h
-            );
+            (p) => targetTileX >= p.x && targetTileX < p.x + p.w && targetTileY >= p.y && targetTileY < p.y + p.h
+          );
 
         if (hitProp) {
           const isAdjacent = (
@@ -2059,8 +2092,8 @@ export class TownEngine {
         const hitProp = isXurkitreeHit
           ? TOWER_PROPS.find((p) => p.id === 'xurkitree')
           : TOWER_PROPS.find(
-              (p) => targetTileX >= p.x && targetTileX < p.x + p.w && targetTileY >= p.y && targetTileY < p.y + p.h
-            );
+            (p) => targetTileX >= p.x && targetTileX < p.x + p.w && targetTileY >= p.y && targetTileY < p.y + p.h
+          );
 
         if (hitProp) {
           const isAdjacent = (
@@ -2118,8 +2151,8 @@ export class TownEngine {
           const cfg = townConfig.getBuilding(n.id);
           const nx = cfg ? cfg.x : (n.id === 'ace' ? aceX : n.x);
           const ny = cfg ? cfg.y : (n.id === 'ace' ? aceY : n.y);
-          const nw = cfg?.w ?? (['charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar', 'garchomp', 'urshifu', 'groudon', 'kyogre', 'reshiram', 'zekrom', 'samurott', 'gyarados', 'snorlax', 'latias'].includes(n.id) ? 2 : 1);
-          const nh = cfg?.h ?? (['charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar', 'garchomp', 'urshifu', 'groudon', 'kyogre', 'reshiram', 'zekrom', 'samurott', 'gyarados', 'snorlax', 'latias'].includes(n.id) ? 2 : 1);
+          const nw = cfg?.w ?? (['lugia', 'charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar', 'garchomp', 'urshifu', 'groudon', 'kyogre', 'reshiram', 'zekrom', 'samurott', 'gyarados', 'snorlax', 'latias'].includes(n.id) ? 2 : 1);
+          const nh = cfg?.h ?? (['lugia', 'charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar', 'garchomp', 'urshifu', 'groudon', 'kyogre', 'reshiram', 'zekrom', 'samurott', 'gyarados', 'snorlax', 'latias'].includes(n.id) ? 2 : 1);
           return targetTileX >= nx && targetTileX < nx + nw && targetTileY >= ny && targetTileY < ny + nh;
         }) ||
         townConfig.getBuildings().find((b) => {
@@ -2143,7 +2176,7 @@ export class TownEngine {
             ? this.digimonPatrol.getInteractAnchor(cfg)
             : null;
         const defaultNpcSize = [
-          'charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar',
+          'lugia', 'charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar',
           'garchomp', 'urshifu', 'groudon', 'kyogre', 'reshiram', 'zekrom', 'samurott',
           'empoleon', 'regigigas', 'koraidon', 'eternatus', 'gyarados', 'snorlax', 'latias',
         ].includes(hitNpc.id)
@@ -2739,7 +2772,7 @@ export class TownEngine {
           const doorY = b.doorY !== undefined ? b.doorY : b.y + b.h - 1;
           const isDoor =
             ((x === doorX || (b.w >= 6 && (x === doorX - 1 || x === doorX + 1))) &&
-             (y === doorY || y === b.y + b.h - 1));
+              (y === doorY || y === b.y + b.h - 1));
           if (isDoor) continue;
           return false;
         }
@@ -2813,7 +2846,7 @@ export class TownEngine {
             const doorY = b.doorY !== undefined ? b.doorY : b.y + b.h - 1;
             const isDoor =
               ((x === doorX || (b.w >= 6 && (x === doorX - 1 || x === doorX + 1))) &&
-               (y === doorY || y === b.y + b.h - 1));
+                (y === doorY || y === b.y + b.h - 1));
             if (isDoor) continue;
             return false;
           }
@@ -3074,9 +3107,11 @@ export class TownEngine {
     if (this.currentScene === 'garden') {
       this.pendingTarget = id;
       switch (id) {
+        case 'gardevoir':
         case 'botanist-flora':
           this.walkTo(6, 4);
           break;
+        case 'celebi':
         case 'shaymin-npc':
           this.walkTo(8, 4);
           break;
@@ -3757,6 +3792,18 @@ export class TownEngine {
     if (this.latiasAttackTick > 0) {
       this.latiasAttackTick--;
     }
+    if (this.charizardAttackTick > 0) {
+      this.charizardAttackTick--;
+    }
+    if (this.gardevoirAttackTick > 0) {
+      this.gardevoirAttackTick--;
+    }
+    if (this.celebiAttackTick > 0) {
+      this.celebiAttackTick--;
+    }
+    if (this.lugiaAttackTick > 0) {
+      this.lugiaAttackTick--;
+    }
 
     if (this.currentScene === 'digimon') {
       const patrolMoving = this.digimonPatrol.update(
@@ -3889,13 +3936,13 @@ export class TownEngine {
         ? rideClass === 'charge'
           ? 14.5
           : rideClass === 'sky'
-          ? 14.2
-          : 13.5 // Fast Poké Ride velocity!
+            ? 14.2
+            : 13.5 // Fast Poké Ride velocity!
         : this.isBikeActive
-        ? 12.1
-        : this.isShiftHeld
-        ? 8.8
-        : 5.5; // tiles per second (Shift = running shoes, Bike = Mach bike!)
+          ? 12.1
+          : this.isShiftHeld
+            ? 8.8
+            : 5.5; // tiles per second (Shift = running shoes, Bike = Mach bike!)
       const speed = this.coffeeBoostTimer > 0 ? baseSpeed * 1.5 : baseSpeed;
       this.moveProgress += dt * speed;
 
@@ -4036,7 +4083,7 @@ export class TownEngine {
     }
   }
 
-  private spawnDustPuff(x: number, y: number) {
+  spawnDustPuff(x: number, y: number) {
     const count = this.isBikeActive ? 2 : 1;
     for (let i = 0; i < count; i++) {
       let ox = 8;
@@ -4632,6 +4679,8 @@ export class TownEngine {
         this.interactFacing(id);
         break;
       // Botanical Berry Garden props
+      case 'gardevoir':
+      case 'celebi':
       case 'botanist-flora':
       case 'shaymin-npc':
       case 'plot-oran':
@@ -4830,10 +4879,10 @@ export class TownEngine {
       // Check static b.doors only if the building has not been moved or given a custom door in townConfig
       const hasMovedOrCustomDoor = Boolean(
         cfg &&
-          (cfg.x !== b.x ||
-            cfg.y !== b.y ||
-            cfg.doorX !== undefined ||
-            cfg.doorY !== undefined)
+        (cfg.x !== b.x ||
+          cfg.y !== b.y ||
+          cfg.doorX !== undefined ||
+          cfg.doorY !== undefined)
       );
       if (!hasMovedOrCustomDoor && Array.isArray(b.doors)) {
         for (const d of b.doors) {
@@ -4951,10 +5000,10 @@ export class TownEngine {
         floor === '1F'
           ? 'floor-1'
           : floor === '2F'
-          ? 'floor-2'
-          : floor === '3F'
-          ? 'floor-3'
-          : 'floor-4';
+            ? 'floor-2'
+            : floor === '3F'
+              ? 'floor-3'
+              : 'floor-4';
       window.dispatchEvent(
         new CustomEvent('town:tower-floor-changed', {
           detail: { floor, tabId },
@@ -5628,24 +5677,39 @@ export class TownEngine {
       if (prop) {
         sfx.select();
         if (prop.target.type === 'event' && prop.target.name) {
-          if (prop.target.name === 'botanist-flora') {
+          if (prop.target.name === 'gardevoir' || prop.target.name === 'botanist-flora') {
             sfx.heal();
-            triggerGardenHarvestAnimation('BOTANIST BLESSING! +3 POKE BALLS 🌸', '#f472b6');
+            triggerGardenHarvestAnimation('GARDEVOIR FAIRY BLESSING! +3 POKE BALLS 🌸', '#f472b6');
             this.harvestBerries();
             if (this.callbacks.onBubble) {
               this.callbacks.onBubble(
-                'Master Botanist Flora · Sakura Conservatory 👩‍🌾',
-                '"Welcome to our Botanical Berry Plantation! Under the shade of the Mother Sakura Tree, we cultivate 6 heirloom berry strains. Try planting, watering, and harvesting in the Live 6-Plot Farm!"',
+                'Gardevoir · Embracing Psychic/Fairy Guardian 🧚',
+                '"Gar-de-voir! 🌸" Gardevoir memancarkan kehangatan psikis dan berkah peri yang menyejukkan. Di bawah naungan Pohon Sakura Induk, Gardevoir merawat 6 petak kebun beri pusaka! [Tech Guardian: UI/UX Grace, Clean Architecture & Front-End Harmony]',
                 [
                   {
-                    label: '🌱 Open 6-Plot Berry Plantation',
+                    label: '⚡ Kekuatan Psikis (Moonblast / Psychic)',
+                    onClick: () => this.triggerSignatureMove('gardevoir', 6, 3),
+                  },
+                  {
+                    label: '🤝 Ajak Jalan Bersama',
+                    onClick: () => this.setActiveFollower('gardevoir'),
+                  },
+                  {
+                    label: '🏇 Tunggangi (Poké Ride)',
+                    onClick: () => {
+                      this.setActiveFollower('gardevoir', false);
+                      this.setPokeRide(true);
+                    },
+                  },
+                  {
+                    label: '🌱 Buka 6-Plot Berry Plantation',
                     onClick: () => {
                       const el = document.getElementById('plantation-sim-section');
                       el?.scrollIntoView({ behavior: 'smooth' });
                     },
                   },
                   {
-                    label: '🍯 Spin the Copper Berry Blender',
+                    label: '🍯 Putar Copper Berry Blender',
                     onClick: () => {
                       const el = document.getElementById('berry-blender-section');
                       el?.scrollIntoView({ behavior: 'smooth' });
@@ -5654,23 +5718,38 @@ export class TownEngine {
                 ]
               );
             }
-          } else if (prop.target.name === 'shaymin-npc') {
+          } else if (prop.target.name === 'celebi' || prop.target.name === 'shaymin-npc') {
             sfx.confirm();
-            triggerGardenHarvestAnimation('SHAYMIN SEED FLARE BLOOM! 🌺', '#4ade80');
+            triggerGardenHarvestAnimation('CELEBI TIME TRAVEL BLOOM! 🌿', '#4ade80');
             if (this.callbacks.onBubble) {
               this.callbacks.onBubble(
-                'Shaymin · Gratitude Blossom Guardian 🦔',
-                '"Shay-min! 🌸" Shaymin releases a warm Gracidea pollen breeze across the greenhouse! Your movement speed is boosted by +50% and all soil beds are enriched!',
+                'Celebi · Voice of the Forest & Time Guardian 🌿',
+                '"Bi-bi-biii! ✨" Celebi melayang anggun di atas mata air sakura! Sentuhan penjelajah waktu Celebi menyegarkan seluruh tanaman seketika dan memberi dorongan kecepatan +50%! [Tech Guardian: Time Travel Git History, Instant CI/CD Deploy & Timeless Resilience]',
                 [
                   {
-                    label: '✨ Receive Gracidea Speed Blessing (+50% Speed)',
+                    label: '⚡ Riak Waktu (Time Ripple / Leaf Storm)',
+                    onClick: () => this.triggerSignatureMove('celebi', 8, 3),
+                  },
+                  {
+                    label: '✨ Berkah Kecepatan Waktu (+50% Speed)',
                     onClick: () => {
                       this.activateCoffeeBoost(30);
                       window.dispatchEvent(new CustomEvent('garden:ripen-all'));
                     },
                   },
                   {
-                    label: '📖 Read Botanical Skill Compendium',
+                    label: '🤝 Ajak Jalan Bersama',
+                    onClick: () => this.setActiveFollower('celebi'),
+                  },
+                  {
+                    label: '🏇 Terbang Bersama (Poké Ride)',
+                    onClick: () => {
+                      this.setActiveFollower('celebi', false);
+                      this.setPokeRide(true);
+                    },
+                  },
+                  {
+                    label: '📖 Buka Botanical Skill Compendium',
                     onClick: () => {
                       const el = document.getElementById('berry-compendium-section');
                       el?.scrollIntoView({ behavior: 'smooth' });
@@ -6785,8 +6864,8 @@ export class TownEngine {
         const cfg = townConfig.getBuilding(n.id);
         const nx = cfg ? cfg.x : (n.id === 'ace' ? aceX : n.x);
         const ny = cfg ? cfg.y : (n.id === 'ace' ? aceY : n.y);
-        const nw = cfg?.w ?? (['charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar', 'garchomp', 'urshifu', 'groudon', 'kyogre', 'reshiram', 'zekrom', 'samurott', 'gyarados', 'snorlax', 'latias'].includes(n.id) ? 2 : 1);
-        const nh = cfg?.h ?? (['charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar', 'garchomp', 'urshifu', 'groudon', 'kyogre', 'reshiram', 'zekrom', 'samurott', 'gyarados', 'snorlax', 'latias'].includes(n.id) ? 2 : 1);
+        const nw = cfg?.w ?? (['lugia', 'charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar', 'garchomp', 'urshifu', 'groudon', 'kyogre', 'reshiram', 'zekrom', 'samurott', 'gyarados', 'snorlax', 'latias'].includes(n.id) ? 2 : 1);
+        const nh = cfg?.h ?? (['lugia', 'charizard', 'dialga', 'palkia', 'giratina', 'rayquaza', 'arceus', 'tyranitar', 'garchomp', 'urshifu', 'groudon', 'kyogre', 'reshiram', 'zekrom', 'samurott', 'gyarados', 'snorlax', 'latias'].includes(n.id) ? 2 : 1);
         const inFacing = fx >= nx && fx < nx + nw && fy >= ny && fy < ny + nh;
         const isAdjacent = (
           this.playerPos.x >= nx - 1 &&
@@ -8198,6 +8277,18 @@ export class TownEngine {
               onClick: () => this.setActiveFollower('pikachu'),
             },
           ];
+        } else if (customPlaced.subType === 'lugia') {
+          dialogueText = "LUGIA: 'Gyaaa-oooor-shuuu...!' 🌊🌪️ [Tech Guardian: Full-Stack Calm in Storms, High-Traffic Sea Scale & Atmospheric Airflow] Kepakan sayap perak Lugia mampu meredakan badai dan menjaga kelancaran sistem di saat load tertinggi.";
+          action = [
+            {
+              label: '⚡ Tembakan Udara (Aeroblast)',
+              onClick: () => this.triggerSignatureMove('lugia', customPlaced.x, customPlaced.y),
+            },
+            {
+              label: '🤝 Ajak Jalan Bersama',
+              onClick: () => this.setActiveFollower('lugia'),
+            },
+          ];
         }
 
         if (Array.isArray(action) && customPlaced.subType) {
@@ -8590,6 +8681,8 @@ export class TownEngine {
 
     if (this.currentScene === 'garden') {
       const gardenLabels: Record<string, { x: number; y: number; w: number; h: number; lift?: number }> = {
+        gardevoir: { x: 6, y: 3, w: 1, h: 1, lift: 1.1 },
+        celebi: { x: 8, y: 3, w: 1, h: 1, lift: 0.45 },
         'botanist-flora': { x: 6, y: 3, w: 1, h: 1, lift: 1.1 },
         'shaymin-npc': { x: 8, y: 3, w: 1, h: 1, lift: 0.45 },
         'plot-oran': { x: 1, y: 3, w: 3, h: 2, lift: 0.55 },
@@ -8892,6 +8985,7 @@ export class TownEngine {
       'regigigas',
       'koraidon',
       'eternatus',
+      'lugia',
       'arceus',
       'ranger',
       'tyranitar',
@@ -9103,11 +9197,11 @@ export class TownEngine {
       ctx.scale(this.zoom, this.zoom);
       ctx.translate(-this.cameraX, -this.cameraY);
 
-    if (this.cameraShakeTime > 0) {
-      const shakeX = (Math.random() - 0.5) * this.cameraShakeIntensity;
-      const shakeY = (Math.random() - 0.5) * this.cameraShakeIntensity;
-      ctx.translate(shakeX, shakeY);
-    }
+      if (this.cameraShakeTime > 0) {
+        const shakeX = (Math.random() - 0.5) * this.cameraShakeIntensity;
+        const shakeY = (Math.random() - 0.5) * this.cameraShakeIntensity;
+        ctx.translate(shakeX, shakeY);
+      }
 
       if (is2F) {
         // 1. Home 2F parquet wood floor & red rug
@@ -9162,11 +9256,11 @@ export class TownEngine {
       ctx.scale(this.zoom, this.zoom);
       ctx.translate(-this.cameraX, -this.cameraY);
 
-    if (this.cameraShakeTime > 0) {
-      const shakeX = (Math.random() - 0.5) * this.cameraShakeIntensity;
-      const shakeY = (Math.random() - 0.5) * this.cameraShakeIntensity;
-      ctx.translate(shakeX, shakeY);
-    }
+      if (this.cameraShakeTime > 0) {
+        const shakeX = (Math.random() - 0.5) * this.cameraShakeIntensity;
+        const shakeY = (Math.random() - 0.5) * this.cameraShakeIntensity;
+        ctx.translate(shakeX, shakeY);
+      }
 
       // 1. Static pre-rendered background canvas
       if (!this.devBackgroundCanvas) {
@@ -9209,11 +9303,11 @@ export class TownEngine {
       ctx.scale(this.zoom, this.zoom);
       ctx.translate(-this.cameraX, -this.cameraY);
 
-    if (this.cameraShakeTime > 0) {
-      const shakeX = (Math.random() - 0.5) * this.cameraShakeIntensity;
-      const shakeY = (Math.random() - 0.5) * this.cameraShakeIntensity;
-      ctx.translate(shakeX, shakeY);
-    }
+      if (this.cameraShakeTime > 0) {
+        const shakeX = (Math.random() - 0.5) * this.cameraShakeIntensity;
+        const shakeY = (Math.random() - 0.5) * this.cameraShakeIntensity;
+        ctx.translate(shakeX, shakeY);
+      }
 
       if (!this.towerBackgroundCanvas) {
         this.towerBackgroundCanvas = createTowerBackgroundCanvas();
@@ -9252,11 +9346,11 @@ export class TownEngine {
       ctx.scale(this.zoom, this.zoom);
       ctx.translate(-this.cameraX, -this.cameraY);
 
-    if (this.cameraShakeTime > 0) {
-      const shakeX = (Math.random() - 0.5) * this.cameraShakeIntensity;
-      const shakeY = (Math.random() - 0.5) * this.cameraShakeIntensity;
-      ctx.translate(shakeX, shakeY);
-    }
+      if (this.cameraShakeTime > 0) {
+        const shakeX = (Math.random() - 0.5) * this.cameraShakeIntensity;
+        const shakeY = (Math.random() - 0.5) * this.cameraShakeIntensity;
+        ctx.translate(shakeX, shakeY);
+      }
 
       if (!this.martBackgroundCanvas) {
         this.martBackgroundCanvas = createMartBackgroundCanvas();
@@ -9393,7 +9487,7 @@ export class TownEngine {
       }
       ctx.drawImage(this.gardenBackgroundCanvas, 0, 0);
 
-      renderGardenAnimations(ctx, this.tick);
+      renderGardenAnimations(ctx, this.tick, this.pmdAnimator);
 
       this.renderPathAndMarker(ctx);
 
@@ -9469,11 +9563,11 @@ export class TownEngine {
       ctx.scale(this.zoom, this.zoom);
       ctx.translate(-this.cameraX, -this.cameraY);
 
-    if (this.cameraShakeTime > 0) {
-      const shakeX = (Math.random() - 0.5) * this.cameraShakeIntensity;
-      const shakeY = (Math.random() - 0.5) * this.cameraShakeIntensity;
-      ctx.translate(shakeX, shakeY);
-    }
+      if (this.cameraShakeTime > 0) {
+        const shakeX = (Math.random() - 0.5) * this.cameraShakeIntensity;
+        const shakeY = (Math.random() - 0.5) * this.cameraShakeIntensity;
+        ctx.translate(shakeX, shakeY);
+      }
 
       if (!this.receptionBackgroundCanvas) {
         this.receptionBackgroundCanvas = createReceptionBackgroundCanvas();
@@ -9512,11 +9606,11 @@ export class TownEngine {
       ctx.scale(this.zoom, this.zoom);
       ctx.translate(-this.cameraX, -this.cameraY);
 
-    if (this.cameraShakeTime > 0) {
-      const shakeX = (Math.random() - 0.5) * this.cameraShakeIntensity;
-      const shakeY = (Math.random() - 0.5) * this.cameraShakeIntensity;
-      ctx.translate(shakeX, shakeY);
-    }
+      if (this.cameraShakeTime > 0) {
+        const shakeX = (Math.random() - 0.5) * this.cameraShakeIntensity;
+        const shakeY = (Math.random() - 0.5) * this.cameraShakeIntensity;
+        ctx.translate(shakeX, shakeY);
+      }
 
       if (!this.arcadeBackgroundCanvas) {
         this.arcadeBackgroundCanvas = createArcadeBackgroundCanvas();
@@ -9553,11 +9647,11 @@ export class TownEngine {
       ctx.scale(this.zoom, this.zoom);
       ctx.translate(-this.cameraX, -this.cameraY);
 
-    if (this.cameraShakeTime > 0) {
-      const shakeX = (Math.random() - 0.5) * this.cameraShakeIntensity;
-      const shakeY = (Math.random() - 0.5) * this.cameraShakeIntensity;
-      ctx.translate(shakeX, shakeY);
-    }
+      if (this.cameraShakeTime > 0) {
+        const shakeX = (Math.random() - 0.5) * this.cameraShakeIntensity;
+        const shakeY = (Math.random() - 0.5) * this.cameraShakeIntensity;
+        ctx.translate(shakeX, shakeY);
+      }
 
       if (!this.labBackgroundCanvas) {
         this.labBackgroundCanvas = createLabBackgroundCanvas();
@@ -9680,2048 +9774,7 @@ export class TownEngine {
     this.renderPathAndMarker(ctx);
 
     // 8. NPCs (Reading dynamic positions from townConfig)
-    for (const npc of this.map.npcs) {
-      const cfg = townConfig.getBuilding(npc.id);
-      if (cfg?.hidden) continue;
-      const arenaCfg = townConfig.getBuilding('arena');
-      const curTileX = cfg ? cfg.x : (npc.id === 'ace' && arenaCfg ? arenaCfg.x + Math.floor(arenaCfg.w / 2) - 1 : npc.x);
-      const curTileY = cfg ? cfg.y : (npc.id === 'ace' && arenaCfg ? arenaCfg.y + 1 : npc.y);
-
-      if (npc.id === 'twin') {
-        const isFlipped = (cfg?.orientation || 'W') === 'E';
-        if (isFlipped) {
-          ctx.save();
-          ctx.translate(curTileX * TILE_SIZE + 8, 0);
-          ctx.scale(-1, 1);
-          ctx.translate(-(curTileX * TILE_SIZE + 8), 0);
-        }
-        drawLucario(ctx, curTileX * TILE_SIZE, curTileY * TILE_SIZE, this.tick, 1);
-        if (isFlipped) ctx.restore();
-      } else if (npc.id === 'charizard' || npc.id === 'lebron' || (npc as any).subType === 'charizard') {
-        const drawX = curTileX * TILE_SIZE;
-        const drawY = curTileY * TILE_SIZE;
-        const breath = Math.sin(this.tick * 0.05) * 0.8;
-
-        // Ground contact shadow
-        ctx.fillStyle = 'rgba(20, 25, 30, 0.35)';
-        ctx.beginPath();
-        ctx.ellipse(drawX + 8, drawY + 15, 12, 4.5, 0, 0, Math.PI * 2);
-        ctx.fill();
-
-        const isFlipped = (cfg?.orientation || 'W') === 'E';
-        if (isFlipped) {
-          ctx.save();
-          ctx.translate(drawX + 8, 0);
-          ctx.scale(-1, 1);
-          ctx.translate(-(drawX + 8), 0);
-        }
-
-        // Fire Dragon tail flame ember glow & heat radiance
-        const flamePulse = 0.45 + Math.sin(this.tick * 0.15) * 0.2;
-        const flameX = drawX + 5;
-        const flameY = drawY - 11 + breath;
-
-        const flameGrad = ctx.createRadialGradient(flameX, flameY, 1, flameX, flameY, 8);
-        flameGrad.addColorStop(0, `rgba(255, 245, 150, ${flamePulse + 0.3})`);
-        flameGrad.addColorStop(0.4, `rgba(249, 115, 22, ${flamePulse})`);
-        flameGrad.addColorStop(1, 'rgba(239, 68, 68, 0)');
-        ctx.fillStyle = flameGrad;
-        ctx.beginPath();
-        ctx.arc(flameX, flameY, 8, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Fiery ember sparks rising into the air
-        if (this.tick % 16 < 10) {
-          ctx.fillStyle = '#fef08a';
-          ctx.fillRect(flameX + Math.sin(this.tick * 0.3) * 3, flameY - 2 - (this.tick % 8), 1.5, 1.5);
-          ctx.fillStyle = '#f97316';
-          ctx.fillRect(flameX - 1 + Math.cos(this.tick * 0.25) * 4, flameY - 1 - (this.tick % 6), 1.5, 1.5);
-        }
-
-        // Authentic Pokémon Black & White Charizard Sprite
-        if (this.charizardImg && this.charizardImg.complete && this.charizardImg.naturalWidth > 0) {
-          ctx.drawImage(this.charizardImg, drawX - 13, drawY - 20 + breath, 42, 42);
-        }
-
-        if (isFlipped) ctx.restore();
-      } else if (npc.id === 'dialga' || (npc as any).subType === 'dialga') {
-        // Authentic Dialga Temporal Steel/Dragon Overworld Sprite with Roar of Time Diamond Aura
-        const drawX = curTileX * TILE_SIZE;
-        const drawY = curTileY * TILE_SIZE;
-        const levitate = Math.sin(this.tick * 0.04) * 1.5;
-
-        // Ground contact shadow
-        ctx.fillStyle = 'rgba(15, 23, 42, 0.45)';
-        ctx.beginPath();
-        ctx.ellipse(drawX + 8, drawY + 16, 14, 5, 0, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Diamond Chest Core Temporal Energy Glow (pulsing cyan / cobalt / diamond blue)
-        const corePulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
-        const coreX = drawX + 8;
-        const coreY = drawY - 2 + levitate;
-        const coreGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 18);
-        coreGrad.addColorStop(0, `rgba(224, 242, 254, ${corePulse + 0.35})`);
-        coreGrad.addColorStop(0.45, `rgba(56, 189, 248, ${corePulse + 0.1})`);
-        coreGrad.addColorStop(1, 'rgba(2, 132, 199, 0)');
-        ctx.fillStyle = coreGrad;
-        ctx.beginPath();
-        ctx.arc(coreX, coreY, 18, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Roar of Time temporal distortion pulse ring (concentric expanding wave)
-        const timePhase = (this.tick * 0.045) % 1;
-        const ringRadius = 5 + timePhase * 16;
-        const ringAlpha = (1 - timePhase) * 0.65;
-        ctx.strokeStyle = `rgba(56, 189, 248, ${ringAlpha})`;
-        ctx.lineWidth = 1.2;
-        ctx.beginPath();
-        ctx.arc(coreX, coreY, ringRadius, 0, Math.PI * 2);
-        ctx.stroke();
-
-        // Diamond time-sparkles floating around Dialga
-        if (this.tick % 24 < 14) {
-          ctx.fillStyle = '#f0f9ff';
-          ctx.fillRect(coreX + Math.sin(this.tick * 0.2) * 12, coreY - 4 - (this.tick % 14), 1.5, 1.5);
-          ctx.fillStyle = '#38bdf8';
-          ctx.fillRect(coreX - 6 + Math.cos(this.tick * 0.16) * 10, coreY + 4 - (this.tick % 10), 2, 2);
-        }
-
-        // Draw PMD Animated Dialga
-        const dir = cfg?.orientation || npc.dir || 'S';
-        const pmdDrawn = this.pmdAnimator.draw(
-          ctx,
-          'dialga',
-          'idle',
-          dir,
-          coreX,
-          drawY + 16,
-          this.tick
-        );
-
-        // Fallback to static sprite if PMD not yet loaded
-        if (!pmdDrawn && this.dialgaImg && this.dialgaImg.complete && this.dialgaImg.naturalWidth > 0) {
-          const isFlipped = (cfg?.orientation || 'W') === 'E';
-          if (isFlipped) {
-            ctx.save();
-            ctx.translate(drawX + 8, 0);
-            ctx.scale(-1, 1);
-            ctx.translate(-(drawX + 8), 0);
-          }
-          ctx.drawImage(this.dialgaImg, drawX - 13, drawY - 20 + levitate, 42, 42);
-          if (isFlipped) ctx.restore();
-        }
-      } else if (npc.id === 'palkia' || (npc as any).subType === 'palkia') {
-        // Authentic Palkia Spatial Dragon/Water Overworld Sprite with Spacial Rend Pearl Aura
-        const drawX = curTileX * TILE_SIZE;
-        const drawY = curTileY * TILE_SIZE;
-        const levitate = Math.sin(this.tick * 0.04) * 1.6;
-
-        // Ground contact shadow
-        ctx.fillStyle = 'rgba(25, 20, 35, 0.4)';
-        ctx.beginPath();
-        ctx.ellipse(drawX + 8, drawY + 16, 14, 5, 0, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Dimensional Spatial Pearl Glow (rippling pink/magenta spacetime wave)
-        const spatialPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
-        const pearlX = drawX + 8;
-        const pearlY = drawY - 2 + levitate;
-        const spatGrad = ctx.createRadialGradient(pearlX, pearlY, 3, pearlX, pearlY, 18);
-        spatGrad.addColorStop(0, `rgba(240, 171, 252, ${spatialPulse + 0.3})`);
-        spatGrad.addColorStop(0.5, `rgba(192, 38, 211, ${spatialPulse})`);
-        spatGrad.addColorStop(1, 'rgba(192, 38, 211, 0)');
-        ctx.fillStyle = spatGrad;
-        ctx.beginPath();
-        ctx.arc(pearlX, pearlY, 18, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Spacial Rend dimensional space-warp slice lines
-        const rendAngle = this.tick * 0.03;
-        for (let r = 0; r < 2; r++) {
-          const angle = rendAngle + (r * Math.PI) / 2;
-          const rx1 = pearlX + Math.cos(angle) * 14;
-          const ry1 = pearlY + Math.sin(angle) * 8;
-          const rx2 = pearlX - Math.cos(angle) * 14;
-          const ry2 = pearlY - Math.sin(angle) * 8;
-          ctx.strokeStyle = 'rgba(244, 114, 182, 0.7)';
-          ctx.lineWidth = 1;
-          ctx.beginPath();
-          ctx.moveTo(rx1, ry1);
-          ctx.lineTo(rx2, ry2);
-          ctx.stroke();
-        }
-
-        // Pearlescent sparkles
-        if (this.tick % 24 < 14) {
-          ctx.fillStyle = '#fdf4ff';
-          ctx.fillRect(pearlX + Math.sin(this.tick * 0.2) * 12, pearlY - 4 - (this.tick % 14), 1.5, 1.5);
-          ctx.fillStyle = '#e879f9';
-          ctx.fillRect(pearlX - 6 + Math.cos(this.tick * 0.16) * 10, pearlY + 4 - (this.tick % 10), 2, 2);
-        }
-
-        // Draw PMD Animated Palkia
-        const dir = cfg?.orientation || npc.dir || 'S';
-        const coreX = drawX + 8;
-        const pmdDrawn = this.pmdAnimator.draw(
-          ctx,
-          'palkia',
-          'idle',
-          dir,
-          coreX,
-          drawY + 16,
-          this.tick
-        );
-
-        // Fallback to static sprite if PMD not yet loaded
-        if (!pmdDrawn && this.palkiaImg && this.palkiaImg.complete && this.palkiaImg.naturalWidth > 0) {
-          const isFlipped = (cfg?.orientation || 'W') === 'E';
-          if (isFlipped) {
-            ctx.save();
-            ctx.translate(drawX + 8, 0);
-            ctx.scale(-1, 1);
-            ctx.translate(-(drawX + 8), 0);
-          }
-          ctx.drawImage(this.palkiaImg, drawX - 13, drawY - 20 + levitate, 42, 42);
-          if (isFlipped) ctx.restore();
-        }
-      } else if (npc.id === 'giratina' || (npc as any).subType === 'giratina') {
-        // Authentic Giratina Altered Forme Overworld Sprite with Distortion World Antimatter Portal
-        const drawX = curTileX * TILE_SIZE;
-        const drawY = curTileY * TILE_SIZE;
-        const levitate = Math.sin(this.tick * 0.04) * 1.8;
-
-        // Distortion World Antimatter Ground Portal (swirling dark rift)
-        const portalPulse = 0.45 + Math.sin(this.tick * 0.07) * 0.15;
-        const portalX = drawX + 8;
-        const portalY = drawY + 16;
-        const portGrad = ctx.createRadialGradient(portalX, portalY, 3, portalX, portalY, 16);
-        portGrad.addColorStop(0, `rgba(88, 28, 135, ${portalPulse + 0.3})`);
-        portGrad.addColorStop(0.5, `rgba(24, 24, 27, ${portalPulse})`);
-        portGrad.addColorStop(1, 'rgba(24, 24, 27, 0)');
-        ctx.fillStyle = portGrad;
-        ctx.beginPath();
-        ctx.ellipse(portalX, portalY, 16, 6, 0, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Swirling antimatter rift orbit ring
-        ctx.strokeStyle = `rgba(220, 38, 38, ${portalPulse * 0.7})`;
-        ctx.lineWidth = 1.2;
-        ctx.beginPath();
-        ctx.ellipse(portalX, portalY, 13 + Math.sin(this.tick * 0.08) * 2, 4.5, this.tick * 0.02, 0, Math.PI * 2);
-        ctx.stroke();
-
-        // Floating ghost / dark antimatter wisps
-        if (this.tick % 22 < 14) {
-          ctx.fillStyle = '#c084fc';
-          ctx.fillRect(portalX + Math.sin(this.tick * 0.2) * 10, portalY - 6 - (this.tick % 16), 1.5, 1.5);
-          ctx.fillStyle = '#ef4444';
-          ctx.fillRect(portalX - 4 + Math.cos(this.tick * 0.18) * 12, portalY - 4 - (this.tick % 14), 2, 2);
-          ctx.fillStyle = '#f87171';
-          ctx.fillRect(portalX + 4 - Math.sin(this.tick * 0.15) * 8, portalY - 8 - (this.tick % 12), 1.5, 1.5);
-        }
-
-        // Draw PMD Animated Giratina
-        const dir = cfg?.orientation || npc.dir || 'S';
-        const coreX = drawX + 8;
-        const pmdDrawn = this.pmdAnimator.draw(
-          ctx,
-          'giratina',
-          'idle',
-          dir,
-          coreX,
-          drawY + 16,
-          this.tick
-        );
-
-        // Fallback to static sprite if PMD not yet loaded
-        if (!pmdDrawn && this.giratinaImg && this.giratinaImg.complete && this.giratinaImg.naturalWidth > 0) {
-          const isFlipped = (cfg?.orientation || 'W') === 'E';
-          if (isFlipped) {
-            ctx.save();
-            ctx.translate(drawX + 8, 0);
-            ctx.scale(-1, 1);
-            ctx.translate(-(drawX + 8), 0);
-          }
-          ctx.drawImage(this.giratinaImg, drawX - 13, drawY - 20 + levitate, 42, 42);
-          if (isFlipped) ctx.restore();
-        }
-      } else if (npc.id === 'zekrom' || (npc as any).subType === 'zekrom') {
-        // Authentic Zekrom (Deep Black Pokémon) PMD Animated Sprite with Lightning Generator Turbine
-        const drawX = curTileX * TILE_SIZE;
-        const drawY = curTileY * TILE_SIZE;
-        const levitate = Math.sin(this.tick * 0.035) * 1.5;
-
-        // Ground contact shadow
-        ctx.fillStyle = 'rgba(10, 15, 25, 0.45)';
-        ctx.beginPath();
-        ctx.ellipse(drawX + 8, drawY + 16, 14, 5, 0, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Electric Lightning Turbine Glow behind tail (Fusion Bolt)
-        const turbineGlow = 0.35 + Math.sin(this.tick * 0.09) * 0.15;
-        const tailDir = cfg?.orientation || npc.dir || 'S';
-        const tailX = tailDir === 'W' ? drawX + 16 : (tailDir === 'E' ? drawX : drawX + 8);
-        const tailY = drawY + 8 + levitate;
-        const elecGrad = ctx.createRadialGradient(tailX, tailY, 2, tailX, tailY, 15);
-        elecGrad.addColorStop(0, `rgba(56, 189, 248, ${turbineGlow + 0.3})`);
-        elecGrad.addColorStop(0.5, `rgba(2, 132, 199, ${turbineGlow})`);
-        elecGrad.addColorStop(1, 'rgba(2, 132, 199, 0)');
-        ctx.fillStyle = elecGrad;
-        ctx.beginPath();
-        ctx.arc(tailX, tailY, 15, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Dynamic blue/cyan lightning discharges surging from the tail
-        const sparkPhase = Math.floor(this.tick / 3) % 4;
-        if (this.tick % 20 < 14) {
-          ctx.fillStyle = sparkPhase % 2 === 0 ? '#38bdf8' : '#e0f2fe';
-          ctx.fillRect(tailX + Math.sin(this.tick * 0.25) * 8, tailY - 5 - (this.tick % 14), 2, 2);
-          ctx.fillStyle = '#0284c7';
-          ctx.fillRect(tailX - 3 + Math.cos(this.tick * 0.2) * 9, tailY - 2 - (this.tick % 10), 1.5, 1.5);
-          ctx.fillStyle = '#ffffff';
-          ctx.fillRect(tailX + 3 - Math.sin(this.tick * 0.15) * 8, tailY - 7 - (this.tick % 12), 1.5, 1.5);
-        }
-
-        // Draw PMD Animated Zekrom
-        const dir = cfg?.orientation || npc.dir || 'S';
-        const coreX = drawX + 8;
-        const pmdDrawn = this.pmdAnimator.draw(
-          ctx,
-          'zekrom',
-          'idle',
-          dir,
-          coreX,
-          drawY + 16,
-          this.tick
-        );
-
-        // Fallback to static sprite if PMD not yet loaded
-        if (!pmdDrawn && this.zekromImg && this.zekromImg.complete && this.zekromImg.naturalWidth > 0) {
-          const isFlipped = (cfg?.orientation || 'W') === 'E';
-          if (isFlipped) {
-            ctx.save();
-            ctx.translate(drawX + 8, 0);
-            ctx.scale(-1, 1);
-            ctx.translate(-(drawX + 8), 0);
-          }
-          ctx.drawImage(this.zekromImg, drawX - 13, drawY - 20 + levitate, 42, 42);
-          if (isFlipped) ctx.restore();
-        }
-      } else if (npc.id === 'reshiram' || (npc as any).subType === 'reshiram') {
-        // Authentic Reshiram (Vast White Pokémon) PMD Animated Sprite with Jet Turbine Fusion Flare
-        const drawX = curTileX * TILE_SIZE;
-        const drawY = curTileY * TILE_SIZE;
-        const coreX = drawX + 8;
-        const coreY = drawY + 16;
-        const levitate = Math.sin(this.tick * 0.035) * 1.5;
-
-        // Ground contact shadow
-        ctx.fillStyle = 'rgba(20, 25, 35, 0.4)';
-        ctx.beginPath();
-        ctx.ellipse(coreX, drawY + 16, 14, 5, 0, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Fiery Jet Turbine Glow behind tail (Fusion Flare)
-        const turbineGlow = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
-        const tailX = drawX - 3;
-        const tailY = drawY + 8 + levitate;
-        const fireGrad = ctx.createRadialGradient(tailX, tailY, 2, tailX, tailY, 14);
-        fireGrad.addColorStop(0, `rgba(255, 165, 0, ${turbineGlow + 0.25})`);
-        fireGrad.addColorStop(0.5, `rgba(239, 68, 68, ${turbineGlow})`);
-        fireGrad.addColorStop(1, 'rgba(239, 68, 68, 0)');
-        ctx.fillStyle = fireGrad;
-        ctx.beginPath();
-        ctx.arc(tailX, tailY, 14, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Fiery ember particles rising from tail turbine
-        if (this.tick % 24 < 16) {
-          ctx.fillStyle = '#ffedd5';
-          ctx.fillRect(tailX + Math.sin(this.tick * 0.2) * 6, tailY - 4 - (this.tick % 16), 1.5, 1.5);
-          ctx.fillStyle = '#f97316';
-          ctx.fillRect(tailX - 2 + Math.cos(this.tick * 0.15) * 8, tailY - 2 - (this.tick % 12), 2, 2);
-          ctx.fillStyle = '#ef4444';
-          ctx.fillRect(tailX + 2 - Math.sin(this.tick * 0.1) * 7, tailY - 6 - (this.tick % 14), 1.5, 1.5);
-        }
-
-        // Draw PMD Animated Reshiram
-        const dir = cfg?.orientation || npc.dir || 'S';
-        const pmdDrawn = this.pmdAnimator.draw(
-          ctx,
-          'reshiram',
-          'idle',
-          dir,
-          coreX,
-          coreY,
-          this.tick
-        );
-
-        // Fallback to static sprite if PMD image not loaded yet
-        if (!pmdDrawn && this.reshiramImg && this.reshiramImg.complete && this.reshiramImg.naturalWidth > 0) {
-          const isFlipped = (cfg?.orientation || 'W') === 'E';
-          if (isFlipped) {
-            ctx.save();
-            ctx.translate(drawX + 8, 0);
-            ctx.scale(-1, 1);
-            ctx.translate(-(drawX + 8), 0);
-          }
-          ctx.drawImage(this.reshiramImg, drawX - 13, drawY - 20 + levitate, 42, 42);
-          if (isFlipped) ctx.restore();
-        }
-      } else if (npc.id === 'arceus' || (npc as any).subType === 'arceus') {
-        // Divine Arceus Overworld Sprite with Golden Judgment Ring
-        const drawX = curTileX * TILE_SIZE;
-        const drawY = curTileY * TILE_SIZE;
-        const levitate = Math.sin(this.tick * 0.04) * 2;
-
-        // Ground shadow
-        ctx.fillStyle = 'rgba(20, 25, 30, 0.4)';
-        ctx.beginPath();
-        ctx.ellipse(drawX + 8, drawY + 16, 12, 4.5, 0, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Celestial Golden Halo Rings (Judgment Wheel Ring)
-        const haloR = 14 + Math.sin(this.tick * 0.05) * 2;
-        ctx.strokeStyle = 'rgba(250, 204, 21, 0.45)';
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.arc(drawX + 8, drawY - 4 + levitate, haloR, 0, Math.PI * 2);
-        ctx.stroke();
-
-        // Cross rays of the Wheel of Origin
-        const angle = this.tick * 0.015;
-        for (let a = 0; a < 4; a++) {
-          const rayAngle = angle + (a * Math.PI) / 2;
-          const rx1 = drawX + 8 + Math.cos(rayAngle) * (haloR - 4);
-          const ry1 = drawY - 4 + levitate + Math.sin(rayAngle) * (haloR - 4);
-          const rx2 = drawX + 8 + Math.cos(rayAngle) * (haloR + 4);
-          const ry2 = drawY - 4 + levitate + Math.sin(rayAngle) * (haloR + 4);
-          ctx.strokeStyle = '#fef08a';
-          ctx.lineWidth = 1;
-          ctx.beginPath();
-          ctx.moveTo(rx1, ry1);
-          ctx.lineTo(rx2, ry2);
-          ctx.stroke();
-        }
-
-        // Divine golden stardust sparkles
-        if (this.tick % 30 < 15) {
-          ctx.fillStyle = '#fef08a';
-          ctx.fillRect(drawX + 8 + Math.cos(this.tick * 0.1) * 16, drawY - 4 + levitate + Math.sin(this.tick * 0.1) * 16, 2, 2);
-          ctx.fillStyle = '#ffffff';
-          ctx.fillRect(drawX + 8 - Math.sin(this.tick * 0.12) * 14, drawY - 4 + levitate - Math.cos(this.tick * 0.12) * 14, 1.5, 1.5);
-        }
-
-        // Draw PMD Animated Arceus
-        const dir = cfg?.orientation || npc.dir || 'S';
-        const pmdDrawn = this.pmdAnimator.draw(
-          ctx,
-          'arceus',
-          'idle',
-          dir,
-          drawX + 8,
-          drawY + 16,
-          this.tick
-        );
-
-        // Fallback to static sprite if PMD image not loaded yet
-        if (!pmdDrawn && this.arceusImg && this.arceusImg.complete && this.arceusImg.naturalWidth > 0) {
-          const isFlipped = (cfg?.orientation || 'W') === 'E';
-          if (isFlipped) {
-            ctx.save();
-            ctx.translate(drawX + 8, 0);
-            ctx.scale(-1, 1);
-            ctx.translate(-(drawX + 8), 0);
-          }
-          ctx.drawImage(this.arceusImg, drawX - 12, drawY - 18 + levitate, 40, 40);
-          if (isFlipped) ctx.restore();
-        }
-      } else if (npc.id === 'ranger' || npc.id === 'blastoise' || npc.id === 'tyranitar' || (npc as any).subType === 'tyranitar') {
-        // Authentic Tyranitar Rock/Dark Armor Pokémon Overworld Sprite with Sand Stream Aura
-        const drawX = curTileX * TILE_SIZE;
-        const drawY = curTileY * TILE_SIZE;
-        const stomp = Math.sin(this.tick * 0.04) * 0.8;
-
-        // Ground shadow beneath heavy armor body
-        ctx.fillStyle = 'rgba(25, 20, 15, 0.45)';
-        ctx.beginPath();
-        ctx.ellipse(drawX + 8, drawY + 16, 15, 5.5, 0, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Sand Stream & Earth particles swirling around Tyranitar
-        if (this.tick % 18 < 12) {
-          const sandAngle = (this.tick * 0.08) % (Math.PI * 2);
-          const sandRadius = 11 + Math.sin(this.tick * 0.1) * 3;
-          const sandX = drawX + 8 + Math.cos(sandAngle) * sandRadius;
-          const sandY = drawY + 11 + Math.sin(sandAngle) * 3 + stomp;
-          ctx.fillStyle = '#d4b182'; // Desert sand grain
-          ctx.fillRect(sandX, sandY, 1.5, 1.5);
-
-          // Rocky dark armor dust
-          if (this.tick % 24 < 8) {
-            ctx.fillStyle = '#4b5563';
-            ctx.fillRect(drawX + 4 + Math.sin(this.tick * 0.2) * 8, drawY + 12 - (this.tick % 8), 1.5, 1.5);
-          }
-        }
-
-        // Draw Tyranitar 8-direction PMD animated sprite (with fallback)
-        const dir = (cfg?.orientation || 'W').toLowerCase();
-        const pmdDir = dir === 'w' ? 'left' : dir === 'e' ? 'right' : dir === 'n' ? 'up' : 'down';
-        const pmdDrawn = this.pmdAnimator.draw(
-          ctx,
-          'tyranitar',
-          'idle',
-          pmdDir,
-          drawX + 8,
-          drawY + 16,
-          this.tick
-        );
-
-        if (!pmdDrawn) {
-          const isFlipped = (cfg?.orientation || 'W') === 'E';
-          if (isFlipped) {
-            ctx.save();
-            ctx.translate(drawX + 8, 0);
-            ctx.scale(-1, 1);
-            ctx.translate(-(drawX + 8), 0);
-          }
-          const img = this.tyranitarImg || this.blastoiseImg;
-          if (img && img.complete && img.naturalWidth > 0) {
-            ctx.drawImage(img, drawX - 13, drawY - 20 + stomp, 42, 42);
-          }
-          if (isFlipped) ctx.restore();
-        }
-      } else if (npc.id === 'garchomp' || (npc as any).subType === 'garchomp') {
-        // Authentic Garchomp Dragon/Ground Mach Pokémon Overworld Sprite
-        const drawX = curTileX * TILE_SIZE;
-        const drawY = curTileY * TILE_SIZE;
-        const coreX = drawX + 8;
-        const machBob = Math.sin(this.tick * 0.05) * 0.9;
-
-        // Ground contact shadow
-        ctx.fillStyle = 'rgba(20, 20, 30, 0.4)';
-        ctx.beginPath();
-        ctx.ellipse(coreX, drawY + 16, 15, 5, 0, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Dragon Claw & Supersonic Mach Slipstream particles
-        if (this.tick % 16 < 11) {
-          ctx.fillStyle = '#38bdf8'; // Sky blue dragon aura
-          ctx.fillRect(coreX + Math.cos(this.tick * 0.15) * 12, drawY + 6 - (this.tick % 10) + machBob, 2, 1);
-          ctx.fillStyle = '#fde047'; // Sand dune speed spark
-          ctx.fillRect(coreX - 5 + Math.sin(this.tick * 0.2) * 10, drawY + 14 - (this.tick % 8), 1.5, 1.5);
-          ctx.fillStyle = '#f43f5e'; // Crimson star chest spark
-          ctx.fillRect(coreX + Math.cos(this.tick * 0.25) * 8, drawY - 2 + machBob, 1.5, 1.5);
-        }
-
-        // Draw Garchomp 8-direction PMD animated sprite (with fallback)
-        const dir = (cfg?.orientation || 'W').toLowerCase();
-        const pmdDir = dir === 'w' ? 'left' : dir === 'e' ? 'right' : dir === 'n' ? 'up' : 'down';
-        const pmdDrawn = this.pmdAnimator.draw(
-          ctx,
-          'garchomp',
-          'idle',
-          pmdDir,
-          coreX,
-          drawY + 16,
-          this.tick
-        );
-
-        if (!pmdDrawn && this.garchompImg && this.garchompImg.complete && this.garchompImg.naturalWidth > 0) {
-          const isFlipped = (cfg?.orientation || 'W') === 'E';
-          if (isFlipped) {
-            ctx.save();
-            ctx.translate(drawX + 8, 0);
-            ctx.scale(-1, 1);
-            ctx.translate(-(drawX + 8), 0);
-          }
-          ctx.drawImage(this.garchompImg, drawX - 13, drawY - 20 + machBob, 42, 42);
-          if (isFlipped) ctx.restore();
-        }
-      } else if (npc.id === 'urshifu' || (npc as any).subType === 'urshifu' || (npc as any).subType === 'urshifu_gmax') {
-        // Authentic Urshifu Rapid Strike PMD Overworld Sprite with G-Max Torrent Aura
-        const drawX = curTileX * TILE_SIZE;
-        const drawY = curTileY * TILE_SIZE;
-        const coreX = drawX + 8;
-        const coreY = drawY + 16;
-        const stanceBob = Math.sin(this.tick * 0.04) * 0.8;
-
-        // Ground shadow beneath colossal martial stance
-        ctx.fillStyle = 'rgba(15, 23, 42, 0.45)';
-        ctx.beginPath();
-        ctx.ellipse(coreX, coreY, 16, 5.5, 0, 0, Math.PI * 2);
-        ctx.fill();
-
-        this.drawUrshifuTorrentAura(ctx, coreX, coreY - 12, true);
-
-        const dir = (cfg?.orientation || 'W').toLowerCase();
-        const pmdDir = dir === 'w' ? 'left' : dir === 'e' ? 'right' : dir === 'n' ? 'up' : 'down';
-        const pmdDrawn = this.pmdAnimator.draw(
-          ctx,
-          'urshifu',
-          'idle',
-          pmdDir,
-          coreX,
-          coreY,
-          this.tick
-        );
-
-        // Static fallback if PMD sprite is still loading
-        if (!pmdDrawn && this.urshifuImg && this.urshifuImg.complete && this.urshifuImg.naturalWidth > 0) {
-          const isFlipped = (cfg?.orientation || 'W') === 'E';
-          if (isFlipped) {
-            ctx.save();
-            ctx.translate(drawX + 8, 0);
-            ctx.scale(-1, 1);
-            ctx.translate(-(drawX + 8), 0);
-          }
-          ctx.drawImage(this.urshifuImg, drawX - 16, drawY - 24 + stanceBob, 48, 45);
-          if (isFlipped) ctx.restore();
-        }
-      } else if (npc.id === 'ace' || npc.id === 'mewtwo' || (npc as any).subType === 'mewtwo') {
-        // Authentic Mewtwo Pokémon Overworld Sprite with Psychic Aura & Telekinesis
-        const drawX = curTileX * TILE_SIZE;
-        const drawY = curTileY * TILE_SIZE;
-        const levitate = Math.sin(this.tick * 0.045) * 2.2;
-
-        // Ground shadow (subtly pulses with levitation height)
-        const shadowScale = 1 - Math.sin(this.tick * 0.045) * 0.15;
-        ctx.fillStyle = 'rgba(25, 15, 35, 0.45)';
-        ctx.beginPath();
-        ctx.ellipse(drawX + 8, drawY + 16, 12 * shadowScale, 4.5 * shadowScale, 0, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Pulsing Psystrike / Psychic Aura Rings
-        const auraR = 14 + Math.sin(this.tick * 0.06) * 2;
-        ctx.strokeStyle = 'rgba(168, 85, 247, 0.45)';
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.arc(drawX + 8, drawY - 2 + levitate, auraR, 0, Math.PI * 2);
-        ctx.stroke();
-
-        // Orbiting telekinetic psychic energy orbs
-        for (let i = 0; i < 3; i++) {
-          const orbAngle = this.tick * 0.04 + (i * Math.PI * 2) / 3;
-          const ox = drawX + 8 + Math.cos(orbAngle) * (auraR - 2);
-          const oy = drawY - 2 + levitate + Math.sin(orbAngle) * (auraR - 4) * 0.5;
-          ctx.fillStyle = '#e9d5ff';
-          ctx.beginPath();
-          ctx.arc(ox, oy, 1.8, 0, Math.PI * 2);
-          ctx.fill();
-        }
-
-        // Ambient psychic sparkles
-        if (this.tick % 24 < 12) {
-          ctx.fillStyle = '#c084fc';
-          ctx.fillRect(drawX + 8 + Math.cos(this.tick * 0.1) * 14, drawY - 4 + levitate + Math.sin(this.tick * 0.1) * 14, 2, 2);
-          ctx.fillStyle = '#f3e8ff';
-          ctx.fillRect(drawX + 8 - Math.sin(this.tick * 0.15) * 12, drawY - 2 + levitate - Math.cos(this.tick * 0.15) * 12, 1.5, 1.5);
-        }
-
-        if (this.mewtwoImg && this.mewtwoImg.complete && this.mewtwoImg.naturalWidth > 0) {
-          const isFlipped = (cfg?.orientation || 'W') === 'E';
-          if (isFlipped) {
-            ctx.save();
-            ctx.translate(drawX + 8, 0);
-            ctx.scale(-1, 1);
-            ctx.translate(-(drawX + 8), 0);
-          }
-          ctx.drawImage(this.mewtwoImg, drawX - 11, drawY - 16 + levitate, 38, 38);
-          if (isFlipped) ctx.restore();
-        }
-      } else if (npc.id === 'rayquaza' || (npc as any).subType === 'rayquaza') {
-        // Authentic Rayquaza Sky High Dragon/Flying Overworld Sprite with Ozone Emerald Aura
-        const drawX = curTileX * TILE_SIZE;
-        const drawY = curTileY * TILE_SIZE;
-        const levitate = Math.sin(this.tick * 0.04) * 2.0;
-
-        // Ground shadow
-        ctx.fillStyle = 'rgba(10, 30, 20, 0.4)';
-        ctx.beginPath();
-        ctx.ellipse(drawX + 8, drawY + 16, 14, 5, 0, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Atmospheric Ozone Emerald Aura
-        const auraPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
-        const coreX = drawX + 8;
-        const coreY = drawY - 2 + levitate;
-        const spatGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 18);
-        spatGrad.addColorStop(0, `rgba(167, 243, 208, ${auraPulse + 0.3})`);
-        spatGrad.addColorStop(0.5, `rgba(16, 185, 129, ${auraPulse})`);
-        spatGrad.addColorStop(1, 'rgba(5, 150, 105, 0)');
-        ctx.fillStyle = spatGrad;
-        ctx.beginPath();
-        ctx.arc(coreX, coreY, 18, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Stardust & Delta Stream wind sparkles
-        if (this.tick % 24 < 14) {
-          ctx.fillStyle = '#fef08a';
-          ctx.fillRect(coreX + Math.sin(this.tick * 0.2) * 12, coreY - 4 - (this.tick % 14), 1.5, 1.5);
-          ctx.fillStyle = '#34d399';
-          ctx.fillRect(coreX - 6 + Math.cos(this.tick * 0.16) * 10, coreY + 4 - (this.tick % 10), 2, 2);
-        }
-
-        // Draw PMD Animated Rayquaza
-        const dir = cfg?.orientation || npc.dir || 'S';
-        const pmdDrawn = this.pmdAnimator.draw(
-          ctx,
-          'rayquaza',
-          'idle',
-          dir,
-          coreX,
-          drawY + 16,
-          this.tick
-        );
-
-        // Fallback to static sprite if PMD image not loaded yet
-        if (!pmdDrawn && this.rayquazaImg && this.rayquazaImg.complete && this.rayquazaImg.naturalWidth > 0) {
-          const isFlipped = (cfg?.orientation || 'W') === 'E';
-          if (isFlipped) {
-            ctx.save();
-            ctx.translate(drawX + 8, 0);
-            ctx.scale(-1, 1);
-            ctx.translate(-(drawX + 8), 0);
-          }
-          ctx.drawImage(this.rayquazaImg, drawX - 13, drawY - 20 + levitate, 42, 42);
-          if (isFlipped) ctx.restore();
-        }
-      } else if (npc.id === 'groudon' || (npc as any).subType === 'groudon') {
-        // Authentic Groudon Continent Ground Overworld Sprite with Primal Magma & Desolate Land Aura
-        const drawX = curTileX * TILE_SIZE;
-        const drawY = curTileY * TILE_SIZE;
-        const breath = Math.sin(this.tick * 0.04) * 0.8;
-        const coreX = drawX + 8;
-        const coreY = drawY + 8;
-
-        // Ground shadow beneath heavy continent body
-        ctx.fillStyle = 'rgba(25, 12, 6, 0.45)';
-        ctx.beginPath();
-        ctx.ellipse(coreX, drawY + 16, 15, 6, 0, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Primal Magma / Desolate Land Heat Radiance (ambient pulsing heat wave gradient)
-        const magmaPulse = 0.35 + Math.sin(this.tick * 0.07) * 0.15;
-        const heatGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 20);
-        heatGrad.addColorStop(0, `rgba(239, 68, 68, ${magmaPulse + 0.25})`);
-        heatGrad.addColorStop(0.5, `rgba(249, 115, 22, ${magmaPulse * 0.8})`);
-        heatGrad.addColorStop(1, 'rgba(180, 83, 9, 0)');
-        ctx.fillStyle = heatGrad;
-        ctx.beginPath();
-        ctx.arc(coreX, coreY, 20, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Volcanic embers & magma sparks rising upward from the scorched earth
-        if (this.tick % 20 < 12) {
-          ctx.fillStyle = '#f59e0b';
-          ctx.fillRect(coreX + Math.sin(this.tick * 0.25) * 14, coreY + 8 - ((this.tick * 1.5) % 18), 1.5, 1.5);
-          ctx.fillStyle = '#ef4444';
-          ctx.fillRect(coreX - 8 + Math.cos(this.tick * 0.18) * 12, coreY + 10 - ((this.tick * 1.2) % 16), 2, 2);
-          ctx.fillStyle = '#fde047';
-          ctx.fillRect(coreX + 4 + Math.sin(this.tick * 0.3) * 10, coreY + 6 - (this.tick % 14), 1.5, 1.5);
-        }
-
-        // Draw Groudon 8-direction PMD animated sprite (with fallback)
-        const dir = (cfg?.orientation || 'W').toLowerCase();
-        const pmdDir = dir === 'w' ? 'left' : dir === 'e' ? 'right' : dir === 'n' ? 'up' : 'down';
-        const pmdDrawn = this.pmdAnimator.draw(
-          ctx,
-          'groudon',
-          'idle',
-          pmdDir,
-          coreX,
-          drawY + 16,
-          this.tick
-        );
-
-        if (!pmdDrawn && this.groudonImg && this.groudonImg.complete && this.groudonImg.naturalWidth > 0) {
-          const isFlipped = (cfg?.orientation || 'W') === 'E';
-          if (isFlipped) {
-            ctx.save();
-            ctx.translate(drawX + 8, 0);
-            ctx.scale(-1, 1);
-            ctx.translate(-(drawX + 8), 0);
-          }
-          ctx.drawImage(this.groudonImg, drawX - 13, drawY - 20 + breath, 42, 42);
-          if (isFlipped) ctx.restore();
-        }
-      } else if (npc.id === 'kyogre' || (npc as any).subType === 'kyogre') {
-        // Authentic Kyogre Sea Basin Water Overworld Sprite with Primordial Sea Aqua Aura
-        const drawX = curTileX * TILE_SIZE;
-        const drawY = curTileY * TILE_SIZE;
-        const swimY = Math.sin(this.tick * 0.04) * 1.8;
-        const coreX = drawX + 8;
-        const coreY = drawY + 2 + swimY;
-
-        // Water ripple shadow
-        ctx.fillStyle = 'rgba(7, 43, 79, 0.4)';
-        ctx.beginPath();
-        ctx.ellipse(coreX, drawY + 16, 15, 5.5, 0, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Primordial Sea Oceanic Hydro Aura
-        const waterPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
-        const aquaGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 19);
-        aquaGrad.addColorStop(0, `rgba(186, 230, 253, ${waterPulse + 0.3})`);
-        aquaGrad.addColorStop(0.5, `rgba(14, 165, 233, ${waterPulse})`);
-        aquaGrad.addColorStop(1, 'rgba(3, 105, 161, 0)');
-        ctx.fillStyle = aquaGrad;
-        ctx.beginPath();
-        ctx.arc(coreX, coreY, 19, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Hydro droplet & bioluminescent mist bubbles
-        if (this.tick % 22 < 13) {
-          ctx.fillStyle = '#7dd3fc';
-          ctx.fillRect(coreX + Math.sin(this.tick * 0.22) * 13, coreY - 4 + Math.cos(this.tick * 0.22) * 8, 1.5, 1.5);
-          ctx.fillStyle = '#38bdf8';
-          ctx.fillRect(coreX - 7 + Math.cos(this.tick * 0.17) * 11, coreY + 4 + Math.sin(this.tick * 0.17) * 7, 2, 2);
-          ctx.fillStyle = '#f0f9ff';
-          ctx.fillRect(coreX + 5 + Math.sin(this.tick * 0.28) * 9, coreY - 6 - (this.tick % 8), 1.5, 1.5);
-        }
-
-        // Draw Kyogre 8-direction PMD animated sprite (with fallback)
-        const dir = (cfg?.orientation || 'W').toLowerCase();
-        const pmdDir = dir === 'w' ? 'left' : dir === 'e' ? 'right' : dir === 'n' ? 'up' : 'down';
-        const pmdDrawn = this.pmdAnimator.draw(
-          ctx,
-          'kyogre',
-          'idle',
-          pmdDir,
-          coreX,
-          drawY + 16,
-          this.tick
-        );
-
-        if (!pmdDrawn && this.kyogreImg && this.kyogreImg.complete && this.kyogreImg.naturalWidth > 0) {
-          const isFlipped = (cfg?.orientation || 'W') === 'E';
-          if (isFlipped) {
-            ctx.save();
-            ctx.translate(drawX + 8, 0);
-            ctx.scale(-1, 1);
-            ctx.translate(-(drawX + 8), 0);
-          }
-          ctx.drawImage(this.kyogreImg, drawX - 13, drawY - 20 + swimY, 42, 42);
-          if (isFlipped) ctx.restore();
-        }
-      } else if (npc.id === 'latios' || (npc as any).subType === 'latios') {
-        // Authentic Latios Eon Dragon/Psychic Overworld Sprite with Jet Stream Azure Aura
-        const drawX = curTileX * TILE_SIZE;
-        const drawY = curTileY * TILE_SIZE;
-        const jetHover = Math.sin(this.tick * 0.055) * 2.2;
-        const coreX = drawX + 8;
-        const coreY = drawY + 1 + jetHover;
-
-        // Aerodynamic ground shadow
-        ctx.fillStyle = 'rgba(15, 23, 42, 0.35)';
-        ctx.beginPath();
-        ctx.ellipse(coreX, drawY + 16, 13, 4.5, 0, 0, Math.PI * 2);
-        ctx.fill();
-
-        this.drawLatiosJetAura(ctx, coreX, coreY, true);
-
-        // Draw Latios PMD animated sprite (8 directions) or fallback
-        const dir = cfg?.orientation || 'W';
-        const pmdDrawn = this.pmdAnimator.draw(
-          ctx,
-          'latios',
-          'idle',
-          dir,
-          coreX,
-          drawY + 16,
-          this.tick
-        );
-        if (!pmdDrawn && this.latiosImg && this.latiosImg.complete && this.latiosImg.naturalWidth > 0) {
-          const isFlipped = (cfg?.orientation || 'W') === 'E';
-          if (isFlipped) {
-            ctx.save();
-            ctx.translate(drawX + 8, 0);
-            ctx.scale(-1, 1);
-            ctx.translate(-(drawX + 8), 0);
-          }
-          ctx.drawImage(this.latiosImg, drawX - 13, drawY - 20 + jetHover, 42, 42);
-          if (isFlipped) ctx.restore();
-        }
-      } else if (npc.id === 'latias' || (npc as any).subType === 'latias') {
-        // Authentic Latias Eon Dragon/Psychic Overworld Sprite with Crimson Rose Mist Aura
-        const drawX = curTileX * TILE_SIZE;
-        const drawY = curTileY * TILE_SIZE;
-        const floatY = Math.sin(this.tick * 0.055 + 1.2) * 2.2;
-        const coreX = drawX + 8;
-        const coreY = drawY + 1 + floatY;
-
-        // Aerodynamic ground shadow
-        ctx.fillStyle = 'rgba(15, 23, 42, 0.35)';
-        ctx.beginPath();
-        ctx.ellipse(coreX, drawY + 16, 12, 4.5, 0, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Eon Crimson / Rose Mist Radiant Aura
-        const rosePulse = 0.35 + Math.sin(this.tick * 0.09 + 1.0) * 0.15;
-        const auraGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 18);
-        auraGrad.addColorStop(0, `rgba(254, 205, 211, ${rosePulse + 0.3})`);
-        auraGrad.addColorStop(0.5, `rgba(244, 63, 94, ${rosePulse})`);
-        auraGrad.addColorStop(1, 'rgba(190, 18, 60, 0)');
-        ctx.fillStyle = auraGrad;
-        ctx.beginPath();
-        ctx.arc(coreX, coreY, 18, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Light refraction glass crystals & pink stardust
-        if (this.tick % 20 < 12) {
-          ctx.fillStyle = '#fda4af';
-          ctx.fillRect(coreX + Math.sin(this.tick * 0.24) * 12, coreY - 4 + Math.cos(this.tick * 0.24) * 8, 1.5, 1.5);
-          ctx.fillStyle = '#f43f5e';
-          ctx.fillRect(coreX - 7 + Math.cos(this.tick * 0.18) * 10, coreY + 3 + Math.sin(this.tick * 0.18) * 6, 2, 2);
-          ctx.fillStyle = '#ffffff';
-          ctx.fillRect(coreX + 4 + Math.sin(this.tick * 0.3) * 8, coreY - 5 - (this.tick % 7), 1.5, 1.5);
-        }
-
-        // Draw Latias PMD animated sprite (8 directions) or fallback
-        const dir = cfg?.orientation || 'S';
-        const pmdDrawn = this.pmdAnimator.draw(
-          ctx,
-          'latias',
-          'idle',
-          dir,
-          coreX,
-          drawY + 16,
-          this.tick
-        );
-        if (!pmdDrawn && this.latiasImg && this.latiasImg.complete && this.latiasImg.naturalWidth > 0) {
-          const isFlipped = (cfg?.orientation || 'W') === 'E';
-          if (isFlipped) {
-            ctx.save();
-            ctx.translate(drawX + 8, 0);
-            ctx.scale(-1, 1);
-            ctx.translate(-(drawX + 8), 0);
-          }
-          ctx.drawImage(this.latiasImg, drawX - 13, drawY - 20 + floatY, 42, 42);
-          if (isFlipped) ctx.restore();
-        }
-      } else if (npc.id === 'darkrai' || (npc as any).subType === 'darkrai') {
-        // Authentic Darkrai Pitch-Black Dark Overworld Sprite with Dark Void Nightmare Aura
-        const drawX = curTileX * TILE_SIZE;
-        const drawY = curTileY * TILE_SIZE;
-        const levitate = Math.sin(this.tick * 0.04) * 2.0;
-        const coreX = drawX + 8;
-        const coreY = drawY + 2 + levitate;
-
-        // Shadowy abyss portal pool
-        const portalPulse = 0.4 + Math.sin(this.tick * 0.08) * 0.15;
-        ctx.fillStyle = `rgba(15, 23, 42, ${portalPulse + 0.2})`;
-        ctx.beginPath();
-        ctx.ellipse(coreX, drawY + 16, 14, 5.5, 0, 0, Math.PI * 2);
-        ctx.fill();
-
-        this.drawDarkraiVoidAura(ctx, coreX, coreY, true);
-
-        // Draw Darkrai PMD animated sprite (8 directions) or fallback
-        const dir = cfg?.orientation || 'W';
-        const pmdDrawn = this.pmdAnimator.draw(
-          ctx,
-          'darkrai',
-          'idle',
-          dir,
-          coreX,
-          drawY + 16,
-          this.tick
-        );
-        if (!pmdDrawn && this.darkraiImg && this.darkraiImg.complete && this.darkraiImg.naturalWidth > 0) {
-          const isFlipped = (cfg?.orientation || 'W') === 'E';
-          if (isFlipped) {
-            ctx.save();
-            ctx.translate(drawX + 8, 0);
-            ctx.scale(-1, 1);
-            ctx.translate(-(drawX + 8), 0);
-          }
-          ctx.drawImage(this.darkraiImg, drawX - 13, drawY - 20 + levitate, 42, 42);
-          if (isFlipped) ctx.restore();
-        }
-      } else if (npc.id === 'necrozma' || (npc as any).subType === 'necrozma' || npc.id === 'necrozma_dusk_mane') {
-        // Authentic Necrozma Dusk Mane Prism Psychic/Steel Overworld Sprite with Solar Flare Aura
-        const drawX = curTileX * TILE_SIZE;
-        const drawY = curTileY * TILE_SIZE;
-        const breath = Math.sin(this.tick * 0.04) * 0.9;
-        const coreX = drawX + 8;
-        const coreY = drawY + 6;
-
-        // Ground shadow beneath heavy lion paws
-        ctx.fillStyle = 'rgba(25, 15, 10, 0.45)';
-        ctx.beginPath();
-        ctx.ellipse(coreX, drawY + 16, 16, 6, 0, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Radiant Solar Prism Aura
-        const solarPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
-        const sunGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 20);
-        sunGrad.addColorStop(0, `rgba(254, 240, 138, ${solarPulse + 0.3})`);
-        sunGrad.addColorStop(0.4, `rgba(245, 158, 11, ${solarPulse})`);
-        sunGrad.addColorStop(0.8, `rgba(79, 70, 229, ${solarPulse * 0.6})`);
-        sunGrad.addColorStop(1, 'rgba(30, 27, 75, 0)');
-        ctx.fillStyle = sunGrad;
-        ctx.beginPath();
-        ctx.arc(coreX, coreY, 20, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Solar flare / prism laser sparkles
-        if (this.tick % 20 < 12) {
-          ctx.fillStyle = '#fbbf24';
-          ctx.fillRect(coreX + Math.sin(this.tick * 0.25) * 14, coreY + 6 - ((this.tick * 1.4) % 18), 1.5, 1.5);
-          ctx.fillStyle = '#818cf8';
-          ctx.fillRect(coreX - 8 + Math.cos(this.tick * 0.18) * 12, coreY + 8 - ((this.tick * 1.2) % 16), 2, 2);
-          ctx.fillStyle = '#ffffff';
-          ctx.fillRect(coreX + 4 + Math.sin(this.tick * 0.3) * 10, coreY + 4 - (this.tick % 14), 1.5, 1.5);
-        }
-
-        // Draw Necrozma Dusk Mane sprite (120x112 scaled to 46x43)
-        if (this.necrozmaImg && this.necrozmaImg.complete && this.necrozmaImg.naturalWidth > 0) {
-          const isFlipped = (cfg?.orientation || 'W') === 'E';
-          if (isFlipped) {
-            ctx.save();
-            ctx.translate(drawX + 8, 0);
-            ctx.scale(-1, 1);
-            ctx.translate(-(drawX + 8), 0);
-          }
-          ctx.drawImage(this.necrozmaImg, drawX - 15, drawY - 21 + breath, 46, 43);
-          if (isFlipped) ctx.restore();
-        }
-      } else if (npc.id === 'lunala' || (npc as any).subType === 'lunala') {
-        // Authentic Lunala Moone Psychic/Ghost Overworld Sprite with Full Moon Starlight Aura
-        const drawX = curTileX * TILE_SIZE;
-        const drawY = curTileY * TILE_SIZE;
-        const levitate = Math.sin(this.tick * 0.045) * 2.2;
-        const coreX = drawX + 8;
-        const coreY = drawY + 2 + levitate;
-
-        // Crescent lunar ground shadow beneath wingspan
-        ctx.fillStyle = 'rgba(15, 23, 42, 0.35)';
-        ctx.beginPath();
-        ctx.ellipse(coreX, drawY + 16, 17, 5, 0, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Full Moon Cosmic Starlight Radiant Aura
-        const moonPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
-        const moonGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 20);
-        moonGrad.addColorStop(0, `rgba(224, 231, 255, ${moonPulse + 0.3})`);
-        moonGrad.addColorStop(0.5, `rgba(129, 140, 248, ${moonPulse})`);
-        moonGrad.addColorStop(0.8, `rgba(67, 56, 202, ${moonPulse * 0.5})`);
-        moonGrad.addColorStop(1, 'rgba(15, 23, 42, 0)');
-        ctx.fillStyle = moonGrad;
-        ctx.beginPath();
-        ctx.arc(coreX, coreY, 20, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Lunar dust sparkles & starlight constellation glints
-        if (this.tick % 20 < 12) {
-          ctx.fillStyle = '#c7d2fe';
-          ctx.fillRect(coreX + Math.sin(this.tick * 0.22) * 14, coreY - 4 + Math.cos(this.tick * 0.22) * 8, 1.5, 1.5);
-          ctx.fillStyle = '#38bdf8';
-          ctx.fillRect(coreX - 9 + Math.cos(this.tick * 0.16) * 12, coreY + 3 + Math.sin(this.tick * 0.16) * 6, 2, 2);
-          ctx.fillStyle = '#ffffff';
-          ctx.fillRect(coreX + 5 + Math.sin(this.tick * 0.28) * 10, coreY - 6 - (this.tick % 7), 1.5, 1.5);
-        }
-
-        // Draw PMD Animated Lunala
-        const dir = cfg?.orientation || npc.dir || 'S';
-        const pmdDrawn = this.pmdAnimator.draw(
-          ctx,
-          'lunala',
-          'idle',
-          dir,
-          coreX,
-          drawY + 16,
-          this.tick
-        );
-
-        // Fallback to static sprite if PMD not yet loaded
-        if (!pmdDrawn && this.lunalaImg && this.lunalaImg.complete && this.lunalaImg.naturalWidth > 0) {
-          const isFlipped = (cfg?.orientation || 'W') === 'E';
-          if (isFlipped) {
-            ctx.save();
-            ctx.translate(drawX + 8, 0);
-            ctx.scale(-1, 1);
-            ctx.translate(-(drawX + 8), 0);
-          }
-          ctx.drawImage(this.lunalaImg, drawX - 15, drawY - 21 + levitate, 46, 46);
-          if (isFlipped) ctx.restore();
-        }
-      } else if (npc.id === 'solgaleo' || (npc as any).subType === 'solgaleo') {
-        // Authentic Solgaleo Sunne Psychic/Steel Overworld Sprite with Radiant Sun Solar Corona Aura
-        const drawX = curTileX * TILE_SIZE;
-        const drawY = curTileY * TILE_SIZE;
-        const breath = Math.sin(this.tick * 0.04) * 0.9;
-        const coreX = drawX + 8;
-        const coreY = drawY + 6;
-
-        // Ground shadow beneath heavy lion paws
-        ctx.fillStyle = 'rgba(25, 15, 5, 0.45)';
-        ctx.beginPath();
-        ctx.ellipse(coreX, drawY + 16, 16, 6, 0, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Radiant Sun Solar Corona Aura (pure radiant gold / amber / white heat)
-        const sunPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
-        const sunGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 20);
-        sunGrad.addColorStop(0, `rgba(255, 255, 255, ${sunPulse + 0.35})`);
-        sunGrad.addColorStop(0.35, `rgba(254, 240, 138, ${sunPulse + 0.2})`);
-        sunGrad.addColorStop(0.7, `rgba(245, 158, 11, ${sunPulse * 0.7})`);
-        sunGrad.addColorStop(1, 'rgba(234, 88, 12, 0)');
-        ctx.fillStyle = sunGrad;
-        ctx.beginPath();
-        ctx.arc(coreX, coreY, 20, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Solar flare sparks & prism glints
-        if (this.tick % 20 < 12) {
-          ctx.fillStyle = '#fef08a';
-          ctx.fillRect(coreX + Math.sin(this.tick * 0.22) * 14, coreY + 4 - ((this.tick * 1.3) % 16), 1.5, 1.5);
-          ctx.fillStyle = '#f97316';
-          ctx.fillRect(coreX - 8 + Math.cos(this.tick * 0.17) * 12, coreY + 6 - ((this.tick * 1.1) % 15), 2, 2);
-          ctx.fillStyle = '#ffffff';
-          ctx.fillRect(coreX + 4 + Math.sin(this.tick * 0.28) * 10, coreY + 2 - (this.tick % 13), 1.5, 1.5);
-        }
-
-        // Draw Solgaleo 8-direction PMD animated sprite (with fallback)
-        const dir = (cfg?.orientation || 'S').toLowerCase();
-        const pmdDir = dir === 'w' ? 'left' : dir === 'e' ? 'right' : dir === 'n' ? 'up' : 'down';
-        const pmdDrawn = this.pmdAnimator.draw(
-          ctx,
-          'solgaleo',
-          'idle',
-          pmdDir,
-          coreX,
-          drawY + 16,
-          this.tick
-        );
-
-        if (!pmdDrawn && this.solgaleoImg && this.solgaleoImg.complete && this.solgaleoImg.naturalWidth > 0) {
-          const isFlipped = (cfg?.orientation || 'W') === 'E';
-          if (isFlipped) {
-            ctx.save();
-            ctx.translate(drawX + 8, 0);
-            ctx.scale(-1, 1);
-            ctx.translate(-(drawX + 8), 0);
-          }
-          ctx.drawImage(this.solgaleoImg, drawX - 15, drawY - 21 + breath, 46, 43);
-          if (isFlipped) ctx.restore();
-        }
-      } else if (npc.id === 'samurott' || (npc as any).subType === 'samurott') {
-        // Authentic Samurott Overworld Sprite with Seamitar Hydro Aura
-        const drawX = curTileX * TILE_SIZE;
-        const drawY = curTileY * TILE_SIZE;
-        const breath = Math.sin(this.tick * 0.05) * 0.8;
-        const coreX = drawX + 8;
-        const coreY = drawY + 6;
-
-        // Ground shadow
-        ctx.fillStyle = 'rgba(10, 25, 45, 0.45)';
-        ctx.beginPath();
-        ctx.ellipse(coreX, drawY + 16, 14, 5, 0, 0, Math.PI * 2);
-        ctx.fill();
-
-        this.drawSamurottHydroAura(ctx, coreX, coreY, true);
-
-        // Draw Samurott PMD animated sprite (8 directions) or fallback
-        const dir = cfg?.orientation || 'W';
-        const pmdDrawn = this.pmdAnimator.draw(
-          ctx,
-          'samurott',
-          'idle',
-          dir,
-          coreX,
-          drawY + 16,
-          this.tick
-        );
-        if (!pmdDrawn && this.samurottImg && this.samurottImg.complete && this.samurottImg.naturalWidth > 0) {
-          const isFlipped = (cfg?.orientation || 'W') === 'E';
-          if (isFlipped) {
-            ctx.save();
-            ctx.translate(drawX + 8, 0);
-            ctx.scale(-1, 1);
-            ctx.translate(-(drawX + 8), 0);
-          }
-          ctx.drawImage(this.samurottImg, drawX - 13, drawY - 20 + breath, 42, 42);
-          if (isFlipped) ctx.restore();
-        }
-      } else {
-        const drawX = curTileX * TILE_SIZE;
-        const drawY = curTileY * TILE_SIZE;
-        const dir =
-          cfg?.orientation === 'W'
-            ? 'left'
-            : cfg?.orientation === 'E'
-            ? 'right'
-            : cfg?.orientation === 'N'
-            ? 'up'
-            : cfg?.orientation === 'S'
-            ? 'down'
-            : npc.dir;
-        drawCharacter(
-          ctx,
-          npc.palette,
-          dir,
-          0,
-          drawX,
-          drawY,
-          1
-        );
-      }
-
-      // Floating speech bubble for interactive Pokémon & NPCs
-      const isTalkable = [
-        'twin',
-        'charizard',
-        'ranger',
-        'tyranitar',
-        'dialga',
-        'palkia',
-        'giratina',
-        'rayquaza',
-        'arceus',
-        'ace',
-        'mewtwo',
-        'reshiram',
-        'zekrom',
-        'groudon',
-        'kyogre',
-        'garchomp',
-        'urshifu',
-        'samurott',
-      ].includes(npc.id) || (npc as any).subType;
-
-      if (isTalkable) {
-        const isBig = [
-          'charizard',
-          'dialga',
-          'palkia',
-          'giratina',
-          'rayquaza',
-          'arceus',
-          'tyranitar',
-          'garchomp',
-          'urshifu',
-          'groudon',
-          'kyogre',
-          'reshiram',
-          'zekrom',
-          'samurott',
-        ].includes(npc.id);
-        const bx = curTileX * TILE_SIZE + (isBig ? 24 : 18);
-        const by = curTileY * TILE_SIZE - 10 + Math.sin(this.tick * 0.08 + curTileX * 0.5) * 1.5;
-        ctx.fillStyle = '#ffffff';
-        ctx.beginPath();
-        ctx.roundRect(bx, by, 13, 9, 3);
-        ctx.fill();
-        ctx.strokeStyle = '#1c1726';
-        ctx.lineWidth = 1.2;
-        ctx.stroke();
-
-        ctx.fillStyle = '#1c1726';
-        ctx.fillRect(bx + 2.5, by + 3.5, 1.5, 1.5);
-        ctx.fillRect(bx + 5.5, by + 3.5, 1.5, 1.5);
-        ctx.fillRect(bx + 8.5, by + 3.5, 1.5, 1.5);
-      }
-    }
-
-    // Custom spawned NPCs
-    for (const b of townConfig.getBuildings()) {
-      if (b.kind === 'npc' && !this.map.npcs.some((n) => n.id === b.id)) {
-        if (b.hidden) continue;
-        const isPokemon = [
-          'charizard', 'tyranitar', 'blastoise', 'garchomp', 'urshifu', 'rayquaza',
-          'mewtwo', 'arceus', 'dialga', 'palkia', 'reshiram', 'zekrom',
-          'giratina', 'groudon', 'kyogre', 'gyarados', 'snorlax', 'latios', 'latias', 'darkrai',
-          'necrozma', 'lunala', 'solgaleo', 'samurott', 'empoleon', 'regigigas', 'koraidon', 'eternatus', 'lucario', 'pikachu'
-        ].includes(b.subType || b.id);
-        const isFlipped = (isPokemon && !this.pmdAnimator.isSupported(b.subType || b.id)) ? b.orientation === 'E' : false;
-        const centerX = b.x * TILE_SIZE + 8;
-        if (isFlipped) {
-          ctx.save();
-          ctx.translate(centerX, 0);
-          ctx.scale(-1, 1);
-          ctx.translate(-centerX, 0);
-        }
-        if ((b.subType === 'charizard' || b.id === 'charizard') && this.charizardImg && this.charizardImg.complete) {
-          const breath = Math.sin(this.tick * 0.05) * 0.8;
-          ctx.drawImage(this.charizardImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + breath, 42, 42);
-        } else if ((b.subType === 'tyranitar' || b.id === 'tyranitar' || b.subType === 'blastoise' || b.id === 'blastoise') && (this.pmdAnimator.isSupported('tyranitar') || this.tyranitarImg || this.blastoiseImg)) {
-          const stomp = Math.sin(this.tick * 0.04) * 0.8;
-          const coreX = b.x * TILE_SIZE + 8;
-          const dir = b.orientation || 'S';
-          const pmdDrawn = this.pmdAnimator.draw(
-            ctx,
-            'tyranitar',
-            'idle',
-            dir,
-            coreX,
-            b.y * TILE_SIZE + 16,
-            this.tick
-          );
-          if (!pmdDrawn) {
-            const img = this.tyranitarImg || this.blastoiseImg;
-            if (img && img.complete) {
-              ctx.drawImage(img, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + stomp, 42, 42);
-            }
-          }
-        } else if ((b.subType === 'garchomp' || b.id === 'garchomp') && (this.pmdAnimator.isSupported('garchomp') || (this.garchompImg && this.garchompImg.complete))) {
-          const machBob = Math.sin(this.tick * 0.05) * 0.9;
-          const drawX = b.x * TILE_SIZE;
-          const drawY = b.y * TILE_SIZE;
-          const coreX = drawX + 8;
-
-          // Ground shadow
-          ctx.fillStyle = 'rgba(20, 20, 30, 0.4)';
-          ctx.beginPath();
-          ctx.ellipse(coreX, drawY + 16, 13, 4.5, 0, 0, Math.PI * 2);
-          ctx.fill();
-
-          // Dragon Claw & Mach slipstream particles
-          if (this.tick % 16 < 11) {
-            ctx.fillStyle = '#38bdf8';
-            ctx.fillRect(coreX + Math.cos(this.tick * 0.15) * 12, drawY + 6 - (this.tick % 10) + machBob, 2, 1);
-            ctx.fillStyle = '#fde047';
-            ctx.fillRect(coreX - 5 + Math.sin(this.tick * 0.2) * 10, drawY + 14 - (this.tick % 8), 1.5, 1.5);
-          }
-
-          const dir = b.orientation || 'S';
-          const pmdDrawn = this.pmdAnimator.draw(
-            ctx,
-            'garchomp',
-            'idle',
-            dir,
-            coreX,
-            b.y * TILE_SIZE + 16,
-            this.tick
-          );
-          if (!pmdDrawn && this.garchompImg && this.garchompImg.complete) {
-            ctx.drawImage(this.garchompImg, drawX - 13, drawY - 20 + machBob, 42, 42);
-          }
-        } else if (b.subType === 'urshifu' || b.id === 'urshifu' || b.subType === 'urshifu_gmax') {
-          const stanceBob = Math.sin(this.tick * 0.04) * 0.8;
-          const drawX = b.x * TILE_SIZE;
-          const drawY = b.y * TILE_SIZE;
-          const coreX = drawX + 8;
-          const coreY = drawY + 16;
-
-          // Ground shadow
-          ctx.fillStyle = 'rgba(15, 23, 42, 0.45)';
-          ctx.beginPath();
-          ctx.ellipse(coreX, coreY, 16, 5.5, 0, 0, Math.PI * 2);
-          ctx.fill();
-
-          this.drawUrshifuTorrentAura(ctx, coreX, coreY - 12, true);
-
-          const dir = (b.orientation || 'S').toLowerCase();
-          const pmdDir = dir === 'w' ? 'left' : dir === 'e' ? 'right' : dir === 'n' ? 'up' : 'down';
-          const pmdDrawn = this.pmdAnimator.draw(
-            ctx,
-            'urshifu',
-            'idle',
-            pmdDir,
-            coreX,
-            coreY,
-            this.tick
-          );
-          if (!pmdDrawn && this.urshifuImg && this.urshifuImg.complete) {
-            ctx.drawImage(this.urshifuImg, drawX - 16, drawY - 24 + stanceBob, 48, 45);
-          }
-        } else if (b.subType === 'dialga' || b.id === 'dialga') {
-          const coreX = b.x * TILE_SIZE + 8;
-          const coreY = b.y * TILE_SIZE + 16;
-          const lev = Math.sin(this.tick * 0.04) * 1.5;
-
-          const dir = b.orientation || 'S';
-          const pmdDrawn = this.pmdAnimator.draw(
-            ctx,
-            'dialga',
-            'idle',
-            dir,
-            coreX,
-            coreY,
-            this.tick
-          );
-          if (!pmdDrawn && this.dialgaImg && this.dialgaImg.complete) {
-            ctx.drawImage(this.dialgaImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + lev, 42, 42);
-          }
-        } else if (b.subType === 'palkia' || b.id === 'palkia') {
-          const coreX = b.x * TILE_SIZE + 8;
-          const coreY = b.y * TILE_SIZE + 16;
-          const lev = Math.sin(this.tick * 0.04) * 1.6;
-
-          const dir = b.orientation || 'S';
-          const pmdDrawn = this.pmdAnimator.draw(
-            ctx,
-            'palkia',
-            'idle',
-            dir,
-            coreX,
-            coreY,
-            this.tick
-          );
-          if (!pmdDrawn && this.palkiaImg && this.palkiaImg.complete) {
-            ctx.drawImage(this.palkiaImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + lev, 42, 42);
-          }
-        } else if (b.subType === 'giratina' || b.id === 'giratina') {
-          const coreX = b.x * TILE_SIZE + 8;
-          const coreY = b.y * TILE_SIZE + 16;
-          const lev = Math.sin(this.tick * 0.04) * 1.8;
-
-          const dir = b.orientation || 'S';
-          const pmdDrawn = this.pmdAnimator.draw(
-            ctx,
-            'giratina',
-            'idle',
-            dir,
-            coreX,
-            coreY,
-            this.tick
-          );
-          if (!pmdDrawn && this.giratinaImg && this.giratinaImg.complete) {
-            ctx.drawImage(this.giratinaImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + lev, 42, 42);
-          }
-        } else if (b.subType === 'zekrom' || b.id === 'zekrom') {
-          const coreX = b.x * TILE_SIZE + 8;
-          const coreY = b.y * TILE_SIZE + 16;
-          const lev = Math.sin(this.tick * 0.035) * 1.5;
-
-          const dir = b.orientation || 'S';
-          const pmdDrawn = this.pmdAnimator.draw(
-            ctx,
-            'zekrom',
-            'idle',
-            dir,
-            coreX,
-            coreY,
-            this.tick
-          );
-          if (!pmdDrawn && this.zekromImg && this.zekromImg.complete) {
-            ctx.drawImage(this.zekromImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + lev, 42, 42);
-          }
-        } else if (b.subType === 'reshiram' || b.id === 'reshiram') {
-          const coreX = b.x * TILE_SIZE + 8;
-          const coreY = b.y * TILE_SIZE + 16;
-          const lev = Math.sin(this.tick * 0.035) * 1.5;
-
-          const dir = b.orientation || 'S';
-          const pmdDrawn = this.pmdAnimator.draw(
-            ctx,
-            'reshiram',
-            'idle',
-            dir,
-            coreX,
-            coreY,
-            this.tick
-          );
-
-          if (!pmdDrawn && this.reshiramImg && this.reshiramImg.complete) {
-            ctx.drawImage(this.reshiramImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + lev, 42, 42);
-          }
-        } else if (b.subType === 'arceus' || b.id === 'arceus') {
-          const coreX = b.x * TILE_SIZE + 8;
-          const coreY = b.y * TILE_SIZE + 16;
-          const lev = Math.sin(this.tick * 0.04) * 2;
-
-          const dir = b.orientation || 'S';
-          const pmdDrawn = this.pmdAnimator.draw(
-            ctx,
-            'arceus',
-            'idle',
-            dir,
-            coreX,
-            coreY,
-            this.tick
-          );
-
-          if (!pmdDrawn && this.arceusImg && this.arceusImg.complete) {
-            ctx.drawImage(this.arceusImg, b.x * TILE_SIZE - 12, b.y * TILE_SIZE - 18 + lev, 40, 40);
-          }
-        } else if ((b.subType === 'mewtwo' || b.id === 'mewtwo') && this.mewtwoImg && this.mewtwoImg.complete) {
-          const lev = Math.sin(this.tick * 0.045) * 2.2;
-          ctx.drawImage(this.mewtwoImg, b.x * TILE_SIZE - 11, b.y * TILE_SIZE - 16 + lev, 38, 38);
-        } else if (b.subType === 'rayquaza' || b.id === 'rayquaza') {
-          const coreX = b.x * TILE_SIZE + 8;
-          const coreY = b.y * TILE_SIZE + 16;
-          const lev = Math.sin(this.tick * 0.04) * 2.0;
-
-          // Atmospheric Ozone Emerald Aura
-          const auraPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
-          const spatGrad = ctx.createRadialGradient(coreX, b.y * TILE_SIZE - 2 + lev, 2, coreX, b.y * TILE_SIZE - 2 + lev, 18);
-          spatGrad.addColorStop(0, `rgba(167, 243, 208, ${auraPulse + 0.3})`);
-          spatGrad.addColorStop(0.5, `rgba(16, 185, 129, ${auraPulse})`);
-          spatGrad.addColorStop(1, 'rgba(5, 150, 105, 0)');
-          ctx.fillStyle = spatGrad;
-          ctx.beginPath();
-          ctx.arc(coreX, b.y * TILE_SIZE - 2 + lev, 18, 0, Math.PI * 2);
-          ctx.fill();
-
-          // Stardust & Delta Stream wind sparkles
-          if (this.tick % 24 < 14) {
-            ctx.fillStyle = '#fef08a';
-            ctx.fillRect(coreX + Math.sin(this.tick * 0.2) * 12, b.y * TILE_SIZE - 6 - (this.tick % 14), 1.5, 1.5);
-            ctx.fillStyle = '#34d399';
-            ctx.fillRect(coreX - 6 + Math.cos(this.tick * 0.16) * 10, b.y * TILE_SIZE + 2 - (this.tick % 10), 2, 2);
-          }
-
-          const dir = b.orientation || 'S';
-          const pmdDrawn = this.pmdAnimator.draw(
-            ctx,
-            'rayquaza',
-            'idle',
-            dir,
-            coreX,
-            coreY,
-            this.tick
-          );
-
-          if (!pmdDrawn && this.rayquazaImg && this.rayquazaImg.complete) {
-            ctx.drawImage(this.rayquazaImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + lev, 42, 42);
-          }
-        } else if ((b.subType === 'groudon' || b.id === 'groudon') && (this.pmdAnimator.isSupported('groudon') || (this.groudonImg && this.groudonImg.complete))) {
-          const breath = Math.sin(this.tick * 0.04) * 0.8;
-          const coreX = b.x * TILE_SIZE + 8;
-          const coreY = b.y * TILE_SIZE + 8;
-
-          // Ground shadow beneath heavy continent body
-          ctx.fillStyle = 'rgba(25, 12, 6, 0.45)';
-          ctx.beginPath();
-          ctx.ellipse(coreX, b.y * TILE_SIZE + 16, 15, 6, 0, 0, Math.PI * 2);
-          ctx.fill();
-
-          // Primal Magma / Desolate Land Heat Radiance
-          const magmaPulse = 0.35 + Math.sin(this.tick * 0.07) * 0.15;
-          const heatGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 20);
-          heatGrad.addColorStop(0, `rgba(239, 68, 68, ${magmaPulse + 0.25})`);
-          heatGrad.addColorStop(0.5, `rgba(249, 115, 22, ${magmaPulse * 0.8})`);
-          heatGrad.addColorStop(1, 'rgba(180, 83, 9, 0)');
-          ctx.fillStyle = heatGrad;
-          ctx.beginPath();
-          ctx.arc(coreX, coreY, 20, 0, Math.PI * 2);
-          ctx.fill();
-
-          // Volcanic embers & magma sparks rising upward from the scorched earth
-          if (this.tick % 20 < 12) {
-            ctx.fillStyle = '#f59e0b';
-            ctx.fillRect(coreX + Math.sin(this.tick * 0.25) * 14, coreY + 8 - ((this.tick * 1.5) % 18), 1.5, 1.5);
-            ctx.fillStyle = '#ef4444';
-            ctx.fillRect(coreX - 8 + Math.cos(this.tick * 0.18) * 12, coreY + 10 - ((this.tick * 1.2) % 16), 2, 2);
-            ctx.fillStyle = '#fde047';
-            ctx.fillRect(coreX + 4 + Math.sin(this.tick * 0.3) * 10, coreY + 6 - (this.tick % 14), 1.5, 1.5);
-          }
-
-          const dir = b.orientation || 'S';
-          const pmdDrawn = this.pmdAnimator.draw(
-            ctx,
-            'groudon',
-            'idle',
-            dir,
-            coreX,
-            b.y * TILE_SIZE + 16,
-            this.tick
-          );
-          if (!pmdDrawn && this.groudonImg && this.groudonImg.complete) {
-            ctx.drawImage(this.groudonImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + breath, 42, 42);
-          }
-        } else if ((b.subType === 'kyogre' || b.id === 'kyogre') && (this.pmdAnimator.isSupported('kyogre') || (this.kyogreImg && this.kyogreImg.complete))) {
-          const swimY = Math.sin(this.tick * 0.04) * 1.8;
-          const coreX = b.x * TILE_SIZE + 8;
-          const coreY = b.y * TILE_SIZE + 2 + swimY;
-
-          // Water ripple shadow
-          ctx.fillStyle = 'rgba(7, 43, 79, 0.4)';
-          ctx.beginPath();
-          ctx.ellipse(coreX, b.y * TILE_SIZE + 16, 15, 5.5, 0, 0, Math.PI * 2);
-          ctx.fill();
-
-          // Primordial Sea Oceanic Hydro Aura
-          const waterPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
-          const aquaGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 19);
-          aquaGrad.addColorStop(0, `rgba(186, 230, 253, ${waterPulse + 0.3})`);
-          aquaGrad.addColorStop(0.5, `rgba(14, 165, 233, ${waterPulse})`);
-          aquaGrad.addColorStop(1, 'rgba(3, 105, 161, 0)');
-          ctx.fillStyle = aquaGrad;
-          ctx.beginPath();
-          ctx.arc(coreX, coreY, 19, 0, Math.PI * 2);
-          ctx.fill();
-
-          // Hydro droplet & bioluminescent mist bubbles
-          if (this.tick % 22 < 13) {
-            ctx.fillStyle = '#7dd3fc';
-            ctx.fillRect(coreX + Math.sin(this.tick * 0.22) * 13, coreY - 4 + Math.cos(this.tick * 0.22) * 8, 1.5, 1.5);
-            ctx.fillStyle = '#38bdf8';
-            ctx.fillRect(coreX - 7 + Math.cos(this.tick * 0.17) * 11, coreY + 4 + Math.sin(this.tick * 0.17) * 7, 2, 2);
-            ctx.fillStyle = '#f0f9ff';
-            ctx.fillRect(coreX + 5 + Math.sin(this.tick * 0.28) * 9, coreY - 6 - (this.tick % 8), 1.5, 1.5);
-          }
-
-          const dir = b.orientation || 'S';
-          const pmdDrawn = this.pmdAnimator.draw(
-            ctx,
-            'kyogre',
-            'idle',
-            dir,
-            coreX,
-            b.y * TILE_SIZE + 16,
-            this.tick
-          );
-          if (!pmdDrawn && this.kyogreImg && this.kyogreImg.complete) {
-            ctx.drawImage(this.kyogreImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + swimY, 42, 42);
-          }
-        } else if ((b.subType === 'latios' || b.id === 'latios') && (this.pmdAnimator.isSupported('latios') || (this.latiosImg && this.latiosImg.complete))) {
-          const jetHover = Math.sin(this.tick * 0.055) * 2.2;
-          const coreX = b.x * TILE_SIZE + 8;
-          const coreY = b.y * TILE_SIZE + 1 + jetHover;
-
-          // Aerodynamic ground shadow
-          ctx.fillStyle = 'rgba(15, 23, 42, 0.35)';
-          ctx.beginPath();
-          ctx.ellipse(coreX, b.y * TILE_SIZE + 16, 13, 4.5, 0, 0, Math.PI * 2);
-          ctx.fill();
-
-          this.drawLatiosJetAura(ctx, coreX, coreY, true);
-
-          const dir = b.orientation || 'S';
-          const pmdDrawn = this.pmdAnimator.draw(
-            ctx,
-            'latios',
-            'idle',
-            dir,
-            coreX,
-            b.y * TILE_SIZE + 16,
-            this.tick
-          );
-          if (!pmdDrawn && this.latiosImg && this.latiosImg.complete) {
-            ctx.drawImage(this.latiosImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + jetHover, 42, 42);
-          }
-        } else if ((b.subType === 'latias' || b.id === 'latias') && (this.pmdAnimator.isSupported('latias') || (this.latiasImg && this.latiasImg.complete))) {
-          const floatY = Math.sin(this.tick * 0.055 + 1.2) * 2.2;
-          const coreX = b.x * TILE_SIZE + 8;
-          const coreY = b.y * TILE_SIZE + 1 + floatY;
-
-          // Aerodynamic ground shadow
-          ctx.fillStyle = 'rgba(15, 23, 42, 0.35)';
-          ctx.beginPath();
-          ctx.ellipse(coreX, b.y * TILE_SIZE + 16, 12, 4.5, 0, 0, Math.PI * 2);
-          ctx.fill();
-
-          // Eon Crimson / Rose Mist Radiant Aura
-          const rosePulse = 0.35 + Math.sin(this.tick * 0.09 + 1.0) * 0.15;
-          const auraGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 18);
-          auraGrad.addColorStop(0, `rgba(254, 205, 211, ${rosePulse + 0.3})`);
-          auraGrad.addColorStop(0.5, `rgba(244, 63, 94, ${rosePulse})`);
-          auraGrad.addColorStop(1, 'rgba(190, 18, 60, 0)');
-          ctx.fillStyle = auraGrad;
-          ctx.beginPath();
-          ctx.arc(coreX, coreY, 18, 0, Math.PI * 2);
-          ctx.fill();
-
-          // Light refraction glass crystals & pink stardust
-          if (this.tick % 20 < 12) {
-            ctx.fillStyle = '#fda4af';
-            ctx.fillRect(coreX + Math.sin(this.tick * 0.24) * 12, coreY - 4 + Math.cos(this.tick * 0.24) * 8, 1.5, 1.5);
-            ctx.fillStyle = '#f43f5e';
-            ctx.fillRect(coreX - 7 + Math.cos(this.tick * 0.18) * 10, coreY + 3 + Math.sin(this.tick * 0.18) * 6, 2, 2);
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(coreX + 4 + Math.sin(this.tick * 0.3) * 8, coreY - 5 - (this.tick % 7), 1.5, 1.5);
-          }
-
-          const dir = b.orientation || 'S';
-          const pmdDrawn = this.pmdAnimator.draw(
-            ctx,
-            'latias',
-            'idle',
-            dir,
-            coreX,
-            b.y * TILE_SIZE + 16,
-            this.tick
-          );
-          if (!pmdDrawn && this.latiasImg && this.latiasImg.complete) {
-            ctx.drawImage(this.latiasImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + floatY, 42, 42);
-          }
-        } else if ((b.subType === 'darkrai' || b.id === 'darkrai') && (this.pmdAnimator.isSupported('darkrai') || (this.darkraiImg && this.darkraiImg.complete))) {
-          const levitate = Math.sin(this.tick * 0.04) * 2.0;
-          const coreX = b.x * TILE_SIZE + 8;
-          const coreY = b.y * TILE_SIZE + 2 + levitate;
-
-          // Shadowy abyss portal pool
-          const portalPulse = 0.4 + Math.sin(this.tick * 0.08) * 0.15;
-          ctx.fillStyle = `rgba(15, 23, 42, ${portalPulse + 0.2})`;
-          ctx.beginPath();
-          ctx.ellipse(coreX, b.y * TILE_SIZE + 16, 14, 5.5, 0, 0, Math.PI * 2);
-          ctx.fill();
-
-          this.drawDarkraiVoidAura(ctx, coreX, coreY, true);
-
-          const dir = b.orientation || 'S';
-          const pmdDrawn = this.pmdAnimator.draw(
-            ctx,
-            'darkrai',
-            'idle',
-            dir,
-            coreX,
-            b.y * TILE_SIZE + 16,
-            this.tick
-          );
-          if (!pmdDrawn && this.darkraiImg && this.darkraiImg.complete) {
-            ctx.drawImage(this.darkraiImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + levitate, 42, 42);
-          }
-        } else if ((b.subType === 'necrozma' || b.subType === 'necrozma_dusk_mane' || b.id === 'necrozma' || b.id === 'necrozma_dusk_mane') && this.necrozmaImg && this.necrozmaImg.complete) {
-          const breath = Math.sin(this.tick * 0.04) * 0.9;
-          const coreX = b.x * TILE_SIZE + 8;
-          const coreY = b.y * TILE_SIZE + 6;
-
-          // Ground shadow beneath heavy lion paws
-          ctx.fillStyle = 'rgba(25, 15, 10, 0.45)';
-          ctx.beginPath();
-          ctx.ellipse(coreX, b.y * TILE_SIZE + 16, 16, 6, 0, 0, Math.PI * 2);
-          ctx.fill();
-
-          // Radiant Solar Prism Aura
-          const solarPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
-          const sunGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 20);
-          sunGrad.addColorStop(0, `rgba(254, 240, 138, ${solarPulse + 0.3})`);
-          sunGrad.addColorStop(0.4, `rgba(245, 158, 11, ${solarPulse})`);
-          sunGrad.addColorStop(0.8, `rgba(79, 70, 229, ${solarPulse * 0.6})`);
-          sunGrad.addColorStop(1, 'rgba(30, 27, 75, 0)');
-          ctx.fillStyle = sunGrad;
-          ctx.beginPath();
-          ctx.arc(coreX, coreY, 20, 0, Math.PI * 2);
-          ctx.fill();
-
-          // Solar flare / prism laser sparkles
-          if (this.tick % 20 < 12) {
-            ctx.fillStyle = '#fbbf24';
-            ctx.fillRect(coreX + Math.sin(this.tick * 0.25) * 14, coreY + 6 - ((this.tick * 1.4) % 18), 1.5, 1.5);
-            ctx.fillStyle = '#818cf8';
-            ctx.fillRect(coreX - 8 + Math.cos(this.tick * 0.18) * 12, coreY + 8 - ((this.tick * 1.2) % 16), 2, 2);
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(coreX + 4 + Math.sin(this.tick * 0.3) * 10, coreY + 4 - (this.tick % 14), 1.5, 1.5);
-          }
-
-          ctx.drawImage(this.necrozmaImg, b.x * TILE_SIZE - 15, b.y * TILE_SIZE - 21 + breath, 46, 43);
-        } else if (b.subType === 'lunala' || b.id === 'lunala') {
-          const levitate = Math.sin(this.tick * 0.045) * 2.2;
-          const coreX = b.x * TILE_SIZE + 8;
-          const coreY = b.y * TILE_SIZE + 2 + levitate;
-
-          // Crescent lunar ground shadow beneath wingspan
-          ctx.fillStyle = 'rgba(15, 23, 42, 0.35)';
-          ctx.beginPath();
-          ctx.ellipse(coreX, b.y * TILE_SIZE + 16, 17, 5, 0, 0, Math.PI * 2);
-          ctx.fill();
-
-          // Full Moon Cosmic Starlight Radiant Aura
-          const moonPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
-          const moonGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 20);
-          moonGrad.addColorStop(0, `rgba(224, 231, 255, ${moonPulse + 0.3})`);
-          moonGrad.addColorStop(0.5, `rgba(129, 140, 248, ${moonPulse})`);
-          moonGrad.addColorStop(0.8, `rgba(67, 56, 202, ${moonPulse * 0.5})`);
-          moonGrad.addColorStop(1, 'rgba(15, 23, 42, 0)');
-          ctx.fillStyle = moonGrad;
-          ctx.beginPath();
-          ctx.arc(coreX, coreY, 20, 0, Math.PI * 2);
-          ctx.fill();
-
-          // Lunar dust sparkles & starlight constellation glints
-          if (this.tick % 20 < 12) {
-            ctx.fillStyle = '#c7d2fe';
-            ctx.fillRect(coreX + Math.sin(this.tick * 0.22) * 14, coreY - 4 + Math.cos(this.tick * 0.22) * 8, 1.5, 1.5);
-            ctx.fillStyle = '#38bdf8';
-            ctx.fillRect(coreX - 9 + Math.cos(this.tick * 0.16) * 12, coreY + 3 + Math.sin(this.tick * 0.16) * 6, 2, 2);
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(coreX + 5 + Math.sin(this.tick * 0.28) * 10, coreY - 6 - (this.tick % 7), 1.5, 1.5);
-          }
-
-          const dir = b.orientation || 'S';
-          const pmdDrawn = this.pmdAnimator.draw(
-            ctx,
-            'lunala',
-            'idle',
-            dir,
-            coreX,
-            b.y * TILE_SIZE + 16,
-            this.tick
-          );
-          if (!pmdDrawn && this.lunalaImg && this.lunalaImg.complete) {
-            ctx.drawImage(this.lunalaImg, b.x * TILE_SIZE - 15, b.y * TILE_SIZE - 21 + levitate, 46, 46);
-          }
-        } else if ((b.subType === 'solgaleo' || b.id === 'solgaleo') && this.solgaleoImg && this.solgaleoImg.complete) {
-          const breath = Math.sin(this.tick * 0.04) * 0.9;
-          const coreX = b.x * TILE_SIZE + 8;
-          const coreY = b.y * TILE_SIZE + 6;
-
-          // Ground shadow beneath heavy lion paws
-          ctx.fillStyle = 'rgba(25, 15, 5, 0.45)';
-          ctx.beginPath();
-          ctx.ellipse(coreX, b.y * TILE_SIZE + 16, 16, 6, 0, 0, Math.PI * 2);
-          ctx.fill();
-
-          // Radiant Sun Solar Corona Aura
-          const sunPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
-          const sunGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 20);
-          sunGrad.addColorStop(0, `rgba(255, 255, 255, ${sunPulse + 0.35})`);
-          sunGrad.addColorStop(0.35, `rgba(254, 240, 138, ${sunPulse + 0.2})`);
-          sunGrad.addColorStop(0.7, `rgba(245, 158, 11, ${sunPulse * 0.7})`);
-          sunGrad.addColorStop(1, 'rgba(234, 88, 12, 0)');
-          ctx.fillStyle = sunGrad;
-          ctx.beginPath();
-          ctx.arc(coreX, coreY, 20, 0, Math.PI * 2);
-          ctx.fill();
-
-          // Solar flare sparks & prism glints
-          if (this.tick % 20 < 12) {
-            ctx.fillStyle = '#fef08a';
-            ctx.fillRect(coreX + Math.sin(this.tick * 0.22) * 14, coreY + 4 - ((this.tick * 1.3) % 16), 1.5, 1.5);
-            ctx.fillStyle = '#f97316';
-            ctx.fillRect(coreX - 8 + Math.cos(this.tick * 0.17) * 12, coreY + 6 - ((this.tick * 1.1) % 15), 2, 2);
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(coreX + 4 + Math.sin(this.tick * 0.28) * 10, coreY + 2 - (this.tick % 13), 1.5, 1.5);
-          }
-
-          const pmdDrawn = this.pmdAnimator.draw(
-            ctx,
-            'solgaleo',
-            'idle',
-            'down',
-            coreX,
-            b.y * TILE_SIZE + 16,
-            this.tick
-          );
-          if (!pmdDrawn && this.solgaleoImg && this.solgaleoImg.complete) {
-            ctx.drawImage(this.solgaleoImg, b.x * TILE_SIZE - 15, b.y * TILE_SIZE - 21 + breath, 46, 43);
-          }
-        } else if ((b.subType === 'samurott' || b.id === 'samurott') && (this.pmdAnimator.isSupported('samurott') || (this.samurottImg && this.samurottImg.complete))) {
-          const breath = Math.sin(this.tick * 0.05) * 0.8;
-          const coreX = b.x * TILE_SIZE + 8;
-          const coreY = b.y * TILE_SIZE + 6;
-
-          // Ground shadow
-          ctx.fillStyle = 'rgba(10, 25, 45, 0.45)';
-          ctx.beginPath();
-          ctx.ellipse(coreX, b.y * TILE_SIZE + 16, 14, 5, 0, 0, Math.PI * 2);
-          ctx.fill();
-
-          this.drawSamurottHydroAura(ctx, coreX, coreY, true);
-
-          const dir = b.orientation || 'S';
-          const pmdDrawn = this.pmdAnimator.draw(
-            ctx,
-            'samurott',
-            'idle',
-            dir,
-            coreX,
-            b.y * TILE_SIZE + 16,
-            this.tick
-          );
-          if (!pmdDrawn && this.samurottImg && this.samurottImg.complete) {
-            ctx.drawImage(this.samurottImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + breath, 42, 42);
-          }
-        } else if ((b.subType === 'empoleon' || b.id === 'empoleon') && (this.pmdAnimator.isSupported('empoleon') || (this.empoleonImg && this.empoleonImg.complete))) {
-          const breath = Math.sin(this.tick * 0.045) * 0.8;
-          const coreX = b.x * TILE_SIZE + 8;
-          const coreY = b.y * TILE_SIZE + 5;
-
-          // Ground shadow
-          ctx.fillStyle = 'rgba(10, 25, 45, 0.45)';
-          ctx.beginPath();
-          ctx.ellipse(coreX, b.y * TILE_SIZE + 16, 13, 5, 0, 0, Math.PI * 2);
-          ctx.fill();
-
-          this.drawEmpoleonTridentAura(ctx, coreX, coreY, true);
-
-          const dir = b.orientation || 'S';
-          const pmdDrawn = this.pmdAnimator.draw(
-            ctx,
-            'empoleon',
-            'idle',
-            dir,
-            coreX,
-            b.y * TILE_SIZE + 16,
-            this.tick
-          );
-          if (!pmdDrawn && this.empoleonImg && this.empoleonImg.complete) {
-            ctx.drawImage(this.empoleonImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + breath, 42, 42);
-          }
-        } else if ((b.subType === 'regigigas' || b.id === 'regigigas') && (this.pmdAnimator.isSupported('regigigas') || (this.regigigasImg && this.regigigasImg.complete))) {
-          const coreX = b.x * TILE_SIZE + 8;
-          const coreY = b.y * TILE_SIZE + 4;
-
-          // Heavy colossal ground shadow
-          ctx.fillStyle = 'rgba(20, 25, 15, 0.48)';
-          ctx.beginPath();
-          ctx.ellipse(coreX, b.y * TILE_SIZE + 16, 16, 6, 0, 0, Math.PI * 2);
-          ctx.fill();
-
-          this.drawRegigigasRuneAura(ctx, coreX, coreY, true);
-
-          const dir = b.orientation || 'S';
-          const pmdDrawn = this.pmdAnimator.draw(
-            ctx,
-            'regigigas',
-            'idle',
-            dir,
-            coreX,
-            b.y * TILE_SIZE + 16,
-            this.tick
-          );
-          if (!pmdDrawn && this.regigigasImg && this.regigigasImg.complete) {
-            ctx.drawImage(this.regigigasImg, b.x * TILE_SIZE - 16, b.y * TILE_SIZE - 24, 48, 48);
-          }
-        } else if ((b.subType === 'koraidon' || b.id === 'koraidon') && (this.pmdAnimator.isSupported('koraidon') || (this.koraidonImg && this.koraidonImg.complete))) {
-          const coreX = b.x * TILE_SIZE + 8;
-          const coreY = b.y * TILE_SIZE + 4;
-
-          // Ground shadow
-          ctx.fillStyle = 'rgba(25, 10, 12, 0.45)';
-          ctx.beginPath();
-          ctx.ellipse(coreX, b.y * TILE_SIZE + 16, 15, 5.5, 0, 0, Math.PI * 2);
-          ctx.fill();
-
-          this.drawKoraidonApexAura(ctx, coreX, coreY, true);
-
-          const dir = b.orientation || 'S';
-          const pmdDrawn = this.pmdAnimator.draw(
-            ctx,
-            'koraidon',
-            'idle',
-            dir,
-            coreX,
-            b.y * TILE_SIZE + 16,
-            this.tick
-          );
-          if (!pmdDrawn && this.koraidonImg && this.koraidonImg.complete) {
-            ctx.drawImage(this.koraidonImg, b.x * TILE_SIZE - 16, b.y * TILE_SIZE - 24, 48, 48);
-          }
-        } else if ((b.subType === 'eternatus' || b.id === 'eternatus') && (this.pmdAnimator.isSupported('eternatus') || (this.eternatusImg && this.eternatusImg.complete))) {
-          const coreX = b.x * TILE_SIZE + 8;
-          const coreY = b.y * TILE_SIZE + 3;
-
-          // Cosmic Dynamax ground shadow
-          ctx.fillStyle = 'rgba(20, 10, 35, 0.45)';
-          ctx.beginPath();
-          ctx.ellipse(coreX, b.y * TILE_SIZE + 16, 16, 5.5, 0, 0, Math.PI * 2);
-          ctx.fill();
-
-          this.drawEternatusDynamoAura(ctx, coreX, coreY, true);
-
-          const dir = b.orientation || 'S';
-          const pmdDrawn = this.pmdAnimator.draw(
-            ctx,
-            'eternatus',
-            'idle',
-            dir,
-            coreX,
-            b.y * TILE_SIZE + 16,
-            this.tick
-          );
-          if (!pmdDrawn && this.eternatusImg && this.eternatusImg.complete) {
-            ctx.drawImage(this.eternatusImg, b.x * TILE_SIZE - 16, b.y * TILE_SIZE - 24, 48, 48);
-          }
-        } else if ((b.subType === 'gyarados' || b.id === 'gyarados') && this.pmdAnimator.isSupported('gyarados')) {
-          const swimY = Math.sin(this.tick * 0.04) * 1.5;
-          const coreX = b.x * TILE_SIZE + 8;
-          const coreY = b.y * TILE_SIZE + 4 + swimY;
-
-          // Ground shadow
-          ctx.fillStyle = 'rgba(7, 43, 79, 0.45)';
-          ctx.beginPath();
-          ctx.ellipse(coreX, b.y * TILE_SIZE + 16, 16, 5.5, 0, 0, Math.PI * 2);
-          ctx.fill();
-
-          // Surging Dragon Rage / Waterfall Hydro Aura
-          const waterPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
-          const aquaGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 20);
-          aquaGrad.addColorStop(0, `rgba(186, 230, 253, ${waterPulse + 0.3})`);
-          aquaGrad.addColorStop(0.5, `rgba(14, 165, 233, ${waterPulse})`);
-          aquaGrad.addColorStop(1, 'rgba(3, 105, 161, 0)');
-          ctx.fillStyle = aquaGrad;
-          ctx.beginPath();
-          ctx.arc(coreX, coreY, 20, 0, Math.PI * 2);
-          ctx.fill();
-
-          // Hydro droplets & dragon mist sparks
-          if (this.tick % 20 < 12) {
-            ctx.fillStyle = '#bae6fd';
-            ctx.fillRect(coreX + Math.sin(this.tick * 0.22) * 13, coreY - 4 + Math.cos(this.tick * 0.22) * 8, 1.5, 1.5);
-            ctx.fillStyle = '#0284c7';
-            ctx.fillRect(coreX - 7 + Math.cos(this.tick * 0.17) * 11, coreY + 4 + Math.sin(this.tick * 0.17) * 7, 2, 2);
-          }
-
-          const dir = b.orientation || 'S';
-          this.pmdAnimator.draw(
-            ctx,
-            'gyarados',
-            'idle',
-            dir,
-            coreX,
-            b.y * TILE_SIZE + 16,
-            this.tick
-          );
-        } else if ((b.subType === 'snorlax' || b.id === 'snorlax') && this.pmdAnimator.isSupported('snorlax')) {
-          const coreX = b.x * TILE_SIZE + 8;
-          const coreY = b.y * TILE_SIZE + 16;
-          const breath = Math.sin(this.tick * 0.035) * 0.8;
-
-          // Ground shadow
-          ctx.fillStyle = 'rgba(20, 25, 35, 0.45)';
-          ctx.beginPath();
-          ctx.ellipse(coreX, b.y * TILE_SIZE + 16, 15, 6, 0, 0, Math.PI * 2);
-          ctx.fill();
-
-          // Sleepy cozy floating 'z' particles
-          if (this.tick % 60 < 25) {
-            ctx.fillStyle = '#93c5fd';
-            ctx.font = '8px monospace';
-            ctx.fillText('z', coreX + 6 + (this.tick % 15) * 0.4, b.y * TILE_SIZE - 4 - ((this.tick * 0.6) % 12));
-          }
-
-          const dir = b.orientation || 'S';
-          this.pmdAnimator.draw(
-            ctx,
-            'snorlax',
-            'idle',
-            dir,
-            coreX,
-            b.y * TILE_SIZE + 16 + breath,
-            this.tick
-          );
-        } else if (b.subType === 'lucario' || b.id === 'lucario') {
-          drawLucario(ctx, b.x * TILE_SIZE, b.y * TILE_SIZE, this.tick, 1);
-        } else if (b.subType === 'pikachu' || b.id === 'pikachu') {
-          drawPikachu(ctx, b.x * TILE_SIZE, b.y * TILE_SIZE);
-        } else {
-          const dir =
-            b.orientation === 'W'
-              ? 'left'
-              : b.orientation === 'E'
-              ? 'right'
-              : b.orientation === 'N'
-              ? 'up'
-              : 'down';
-          drawCharacter(ctx, this.playerPalette, dir, 0, b.x * TILE_SIZE, b.y * TILE_SIZE, 1);
-        }
-        if (isFlipped) {
-          ctx.restore();
-        }
-
-        // Draw speech bubble for custom placed Pokémon & NPCs
-        const bx = b.x * TILE_SIZE + ((b.w || 1) >= 2 ? 24 : 18);
-        const by = b.y * TILE_SIZE - 10 + Math.sin(this.tick * 0.08 + b.x * 0.5) * 1.5;
-        ctx.fillStyle = '#ffffff';
-        ctx.beginPath();
-        ctx.roundRect(bx, by, 13, 9, 3);
-        ctx.fill();
-        ctx.strokeStyle = '#1c1726';
-        ctx.lineWidth = 1.2;
-        ctx.stroke();
-
-        ctx.fillStyle = '#1c1726';
-        ctx.fillRect(bx + 2.5, by + 3.5, 1.5, 1.5);
-        ctx.fillRect(bx + 5.5, by + 3.5, 1.5, 1.5);
-        ctx.fillRect(bx + 8.5, by + 3.5, 1.5, 1.5);
-      }
-    }
+    renderOverworldPokemonNPCs(this, ctx);
 
     // 8b. Custom spawned Digimon (Digimon World DS lazy sprite slicing + orientation)
     this.renderCustomDigimonEntities(ctx);
@@ -11957,11 +10010,11 @@ export class TownEngine {
         this.currentScene === 'digimon'
           ? this.digimonPatrol.getRenderPose(b)
           : {
-              tileX: b.x,
-              tileY: b.y,
-              orientation: (b.orientation || 'S') as 'N' | 'S' | 'E' | 'W',
-              isWalking: false,
-            };
+            tileX: b.x,
+            tileY: b.y,
+            orientation: (b.orientation || 'S') as 'N' | 'S' | 'E' | 'W',
+            isWalking: false,
+          };
       const bwPx = Math.max(TILE_SIZE, (b.w || 2) * TILE_SIZE);
       const bhPx = Math.max(TILE_SIZE, (b.h || 2) * TILE_SIZE);
       const centerX = pose.tileX * TILE_SIZE + bwPx / 2;
@@ -12020,7 +10073,7 @@ export class TownEngine {
     }
   }
 
-  private drawDigimonOverworldSprite(
+  drawDigimonOverworldSprite(
     ctx: CanvasRenderingContext2D,
     entry: DigimonCatalogEntry,
     orientation: 'N' | 'S' | 'E' | 'W',
@@ -12320,6 +10373,8 @@ export class TownEngine {
     const followersMap: Record<string, { name: string; title: string; icon: string }> = {
       lucario: { name: 'Lucario', title: 'Aura Guardian', icon: '🌀' },
       charizard: { name: 'Charizard', title: 'Flame Titan', icon: '🔥' },
+      gardevoir: { name: 'Gardevoir', title: 'Psychic/Fairy Guardian', icon: '🧚' },
+      celebi: { name: 'Celebi', title: 'Time Travel Forest Guardian', icon: '🌿' },
       tyranitar: { name: 'Tyranitar', title: 'Armor Rock', icon: '🪨' },
       garchomp: { name: 'Garchomp', title: 'Mach Dragon', icon: '🦈' },
       urshifu: { name: 'Urshifu', title: 'Rapid Strike', icon: '🌊' },
@@ -12347,6 +10402,7 @@ export class TownEngine {
       regigigas: { name: 'Regigigas', title: 'Colossal Continent Mover', icon: '🗿' },
       koraidon: { name: 'Koraidon', title: 'Winged King Apex Rider', icon: '🦖' },
       eternatus: { name: 'Eternatus', title: 'Dynamax Core Sovereign', icon: '☄️' },
+      lugia: { name: 'Lugia', title: 'Guardian of the Seas', icon: '🌊' },
     };
 
     const cleanId = id.toLowerCase().replace(/[^a-z]/g, '');
@@ -12358,10 +10414,10 @@ export class TownEngine {
     const data = matchedKey
       ? followersMap[matchedKey]
       : {
-          name: digiMatch!.name,
-          title: `${digiMatch!.stage} · ${digiMatch!.attribute}`,
-          icon: digiMatch!.iconEmoji,
-        };
+        name: digiMatch!.name,
+        title: `${digiMatch!.stage} · ${digiMatch!.attribute}`,
+        icon: digiMatch!.iconEmoji,
+      };
     this.activeFollower = {
       id: companionId,
       name: data.name,
@@ -12429,2005 +10485,37 @@ export class TownEngine {
   }
 
   public triggerSignatureMove(pokemonId: string, originX?: number, originY?: number) {
-    const id = pokemonId.toLowerCase();
-    const ox =
-      originX !== undefined
-        ? originX * TILE_SIZE + 8
-        : (this.activeFollower ? this.followerPos.x : this.playerPos.x) * TILE_SIZE + 8;
-    const oy =
-      originY !== undefined
-        ? originY * TILE_SIZE + 8
-        : (this.activeFollower ? this.followerPos.y : this.playerPos.y) * TILE_SIZE + 8;
-
-    this.cameraShakeTime = 28;
-    this.cameraShakeIntensity = 3.6;
-    sfx.encounter();
-
-    if (id.includes('charizard')) {
-      for (let i = 0; i < 45; i++) {
-        const angle = -Math.PI / 2 + (Math.random() - 0.5) * 1.8;
-        const spd = 2.5 + Math.random() * 4.5;
-        this.moveParticles.push({
-          x: ox,
-          y: oy,
-          vx: Math.cos(angle) * spd,
-          vy: Math.sin(angle) * spd,
-          size: 3 + Math.random() * 4,
-          color: ['#f97316', '#ef4444', '#fde047', '#ffedd5'][Math.floor(Math.random() * 4)],
-          alpha: 0.95,
-          life: 0,
-          maxLife: 25 + Math.floor(Math.random() * 20),
-          type: 'flame',
-        });
-      }
-    } else if (id.includes('tyranitar') || id.includes('blastoise')) {
-      this.tyranitarAttackTick = 26;
-      for (let i = 0; i < 45; i++) {
-        const r = 8 + Math.random() * 32;
-        const ang = Math.random() * Math.PI * 2;
-        this.moveParticles.push({
-          x: ox + Math.cos(ang) * r,
-          y: oy + Math.sin(ang) * r,
-          vx: -Math.sin(ang) * 3.5,
-          vy: Math.cos(ang) * 3.5,
-          size: 2 + Math.random() * 2.5,
-          color: ['#d97706', '#b45309', '#fde68a', '#78350f'][Math.floor(Math.random() * 4)],
-          alpha: 0.9,
-          life: 0,
-          maxLife: 30 + Math.floor(Math.random() * 15),
-          type: 'sand',
-        });
-      }
-    } else if (id.includes('garchomp')) {
-      this.garchompAttackTick = 26;
-      for (let i = 0; i < 35; i++) {
-        const spd = 3.5 + Math.random() * 4.5;
-        const ang = Math.PI * 0.25 + (Math.random() - 0.5) * 0.8;
-        this.moveParticles.push({
-          x: ox + (Math.random() - 0.5) * 20,
-          y: oy + (Math.random() - 0.5) * 20,
-          vx: Math.cos(ang) * spd,
-          vy: Math.sin(ang) * spd,
-          size: 3 + Math.random() * 3,
-          color: ['#06b6d4', '#22d3ee', '#38bdf8', '#ffffff'][Math.floor(Math.random() * 4)],
-          alpha: 0.95,
-          life: 0,
-          maxLife: 24 + Math.floor(Math.random() * 14),
-          type: 'claw',
-        });
-      }
-    } else if (id.includes('urshifu')) {
-      this.urshifuAttackTick = 28;
-      for (let i = 0; i < 45; i++) {
-        const spd = 3 + Math.random() * 5;
-        const ang = Math.random() * Math.PI * 2;
-        this.moveParticles.push({
-          x: ox,
-          y: oy,
-          vx: Math.cos(ang) * spd,
-          vy: Math.sin(ang) * spd,
-          size: 2.5 + Math.random() * 3.5,
-          color: ['#0284c7', '#38bdf8', '#7dd3fc', '#ffffff'][Math.floor(Math.random() * 4)],
-          alpha: 0.95,
-          life: 0,
-          maxLife: 26 + Math.floor(Math.random() * 18),
-          type: 'water',
-        });
-      }
-    } else if (id.includes('lucario')) {
-      for (let i = 0; i < 40; i++) {
-        const spd = 2 + Math.random() * 4;
-        const ang = Math.random() * Math.PI * 2;
-        this.moveParticles.push({
-          x: ox,
-          y: oy,
-          vx: Math.cos(ang) * spd,
-          vy: Math.sin(ang) * spd,
-          size: 3 + Math.random() * 3,
-          color: ['#38bdf8', '#6366f1', '#818cf8', '#e0e7ff'][Math.floor(Math.random() * 4)],
-          alpha: 0.95,
-          life: 0,
-          maxLife: 28 + Math.floor(Math.random() * 15),
-          type: 'aura',
-        });
-      }
-    } else if (id.includes('mewtwo')) {
-      for (let i = 0; i < 45; i++) {
-        const spd = 2.2 + Math.random() * 4.2;
-        const ang = Math.random() * Math.PI * 2;
-        this.moveParticles.push({
-          x: ox,
-          y: oy,
-          vx: Math.cos(ang) * spd,
-          vy: Math.sin(ang) * spd,
-          size: 3 + Math.random() * 3.5,
-          color: ['#a855f7', '#d946ef', '#ec4899', '#f0abfc'][Math.floor(Math.random() * 4)],
-          alpha: 0.95,
-          life: 0,
-          maxLife: 30 + Math.floor(Math.random() * 15),
-          type: 'psychic',
-        });
-      }
-    } else if (id.includes('arceus')) {
-      this.arceusAttackTick = 37;
-      for (let i = 0; i < 45; i++) {
-        this.moveParticles.push({
-          x: ox + (Math.random() - 0.5) * 50,
-          y: oy - 60 + Math.random() * 20,
-          vx: (Math.random() - 0.5) * 1.5,
-          vy: 4.5 + Math.random() * 3.5,
-          size: 3 + Math.random() * 3.5,
-          color: ['#fbbf24', '#fde047', '#fef08a', '#ffffff'][Math.floor(Math.random() * 4)],
-          alpha: 0.95,
-          life: 0,
-          maxLife: 26 + Math.floor(Math.random() * 14),
-          type: 'cosmic',
-        });
-      }
-    } else if (id.includes('rayquaza')) {
-      this.rayquazaAttackTick = 26;
-      for (let i = 0; i < 45; i++) {
-        const ang = Math.random() * Math.PI * 2;
-        const spd = 3 + Math.random() * 5;
-        this.moveParticles.push({
-          x: ox,
-          y: oy,
-          vx: Math.cos(ang) * spd,
-          vy: Math.sin(ang) * spd,
-          size: 3 + Math.random() * 3,
-          color: ['#10b981', '#34d399', '#6ee7b7', '#a7f3d0'][Math.floor(Math.random() * 4)],
-          alpha: 0.95,
-          life: 0,
-          maxLife: 28 + Math.floor(Math.random() * 16),
-          type: 'shockwave',
-        });
-      }
-    } else if (id.includes('dialga')) {
-      this.dialgaAttackTick = 28;
-      for (let i = 0; i < 45; i++) {
-        const ang = Math.random() * Math.PI * 2;
-        const spd = 2.5 + Math.random() * 4.5;
-        this.moveParticles.push({
-          x: ox,
-          y: oy,
-          vx: Math.cos(ang) * spd,
-          vy: Math.sin(ang) * spd,
-          size: 3 + Math.random() * 3,
-          color: ['#0284c7', '#38bdf8', '#bae6fd', '#ffffff'][Math.floor(Math.random() * 4)],
-          alpha: 0.95,
-          life: 0,
-          maxLife: 30 + Math.floor(Math.random() * 15),
-          type: 'cosmic',
-        });
-      }
-    } else if (id.includes('palkia')) {
-      this.palkiaAttackTick = 28;
-      for (let i = 0; i < 45; i++) {
-        const ang = Math.random() * Math.PI * 2;
-        const spd = 2.5 + Math.random() * 4.5;
-        this.moveParticles.push({
-          x: ox,
-          y: oy,
-          vx: Math.cos(ang) * spd,
-          vy: Math.sin(ang) * spd,
-          size: 3 + Math.random() * 3,
-          color: ['#e11d48', '#fb7185', '#f43f5e', '#ffffff'][Math.floor(Math.random() * 4)],
-          alpha: 0.95,
-          life: 0,
-          maxLife: 30 + Math.floor(Math.random() * 15),
-          type: 'cosmic',
-        });
-      }
-    } else if (id.includes('reshiram')) {
-      this.reshiramAttackTick = 30;
-      for (let i = 0; i < 50; i++) {
-        const angle = -Math.PI / 2 + (Math.random() - 0.5) * 1.6;
-        const spd = 3.0 + Math.random() * 5.0;
-        this.moveParticles.push({
-          x: ox + (Math.random() - 0.5) * 12,
-          y: oy,
-          vx: Math.cos(angle) * spd,
-          vy: Math.sin(angle) * spd,
-          size: 3 + Math.random() * 4,
-          color: ['#ffffff', '#ffedd5', '#f97316', '#ef4444'][Math.floor(Math.random() * 4)],
-          alpha: 0.95,
-          life: 0,
-          maxLife: 28 + Math.floor(Math.random() * 18),
-          type: 'flame',
-        });
-      }
-    } else if (id.includes('zekrom')) {
-      this.zekromAttackTick = 28;
-      for (let i = 0; i < 50; i++) {
-        const ang = Math.random() * Math.PI * 2;
-        const spd = 3.2 + Math.random() * 5.2;
-        this.moveParticles.push({
-          x: ox,
-          y: oy,
-          vx: Math.cos(ang) * spd,
-          vy: Math.sin(ang) * spd,
-          size: 2.5 + Math.random() * 3.5,
-          color: ['#06b6d4', '#22d3ee', '#38bdf8', '#0284c7', '#ffffff'][Math.floor(Math.random() * 5)],
-          alpha: 0.95,
-          life: 0,
-          maxLife: 26 + Math.floor(Math.random() * 16),
-          type: 'shockwave',
-        });
-      }
-    } else if (id.includes('giratina')) {
-      this.giratinaAttackTick = 27;
-      for (let i = 0; i < 50; i++) {
-        const ang = Math.random() * Math.PI * 2;
-        const spd = 2.4 + Math.random() * 4.2;
-        this.moveParticles.push({
-          x: ox,
-          y: oy,
-          vx: Math.cos(ang) * spd,
-          vy: Math.sin(ang) * spd,
-          size: 3 + Math.random() * 3.5,
-          color: ['#701a75', '#a21caf', '#c026d3', '#3b0764', '#18181b'][Math.floor(Math.random() * 5)],
-          alpha: 0.95,
-          life: 0,
-          maxLife: 32 + Math.floor(Math.random() * 16),
-          type: 'psychic',
-        });
-      }
-    } else if (id.includes('groudon')) {
-      this.groudonAttackTick = 28;
-      for (let i = 0; i < 50; i++) {
-        const ang = -Math.PI / 2 + (Math.random() - 0.5) * 1.5;
-        const spd = 3.5 + Math.random() * 5.5;
-        this.moveParticles.push({
-          x: ox + (Math.random() - 0.5) * 30,
-          y: oy + 10,
-          vx: Math.cos(ang) * spd,
-          vy: Math.sin(ang) * spd,
-          size: 3.5 + Math.random() * 4,
-          color: ['#dc2626', '#ea580c', '#b45309', '#fde047'][Math.floor(Math.random() * 4)],
-          alpha: 0.95,
-          life: 0,
-          maxLife: 28 + Math.floor(Math.random() * 16),
-          type: 'sand',
-        });
-      }
-    } else if (id.includes('kyogre')) {
-      this.kyogreAttackTick = 26;
-      for (let i = 0; i < 50; i++) {
-        const ang = Math.random() * Math.PI * 2;
-        const spd = 3.0 + Math.random() * 5.0;
-        this.moveParticles.push({
-          x: ox,
-          y: oy,
-          vx: Math.cos(ang) * spd,
-          vy: Math.sin(ang) * spd,
-          size: 3 + Math.random() * 3.5,
-          color: ['#0284c7', '#0ea5e9', '#38bdf8', '#bae6fd', '#ffffff'][Math.floor(Math.random() * 5)],
-          alpha: 0.95,
-          life: 0,
-          maxLife: 30 + Math.floor(Math.random() * 16),
-          type: 'water',
-        });
-      }
-    } else if (id.includes('gyarados')) {
-      this.gyaradosAttackTick = 25;
-      for (let i = 0; i < 45; i++) {
-        const ang = Math.random() * Math.PI * 2;
-        const spd = 2.5 + Math.random() * 4.5;
-        this.moveParticles.push({
-          x: ox + Math.cos(ang) * 12,
-          y: oy + Math.sin(ang) * 12,
-          vx: Math.cos(ang) * spd,
-          vy: Math.sin(ang) * spd,
-          size: 2.5 + Math.random() * 3,
-          color: ['#0284c7', '#38bdf8', '#0ea5e9', '#bae6fd', '#1d4ed8'][Math.floor(Math.random() * 5)],
-          alpha: 0.95,
-          life: 0,
-          maxLife: 28 + Math.floor(Math.random() * 15),
-          type: 'spark',
-        });
-      }
-    } else if (id.includes('snorlax')) {
-      this.snorlaxAttackTick = 26;
-      this.cameraShakeTime = 22;
-      this.cameraShakeIntensity = 4.8;
-      for (let i = 0; i < 45; i++) {
-        const ang = Math.random() * Math.PI * 2;
-        const spd = 2.2 + Math.random() * 4.2;
-        this.moveParticles.push({
-          x: ox + Math.cos(ang) * 10,
-          y: oy + Math.sin(ang) * 10,
-          vx: Math.cos(ang) * spd,
-          vy: Math.sin(ang) * spd,
-          size: 3 + Math.random() * 3.5,
-          color: ['#fbbf24', '#f59e0b', '#d97706', '#94a3b8', '#e2e8f0'][Math.floor(Math.random() * 5)],
-          alpha: 0.95,
-          life: 0,
-          maxLife: 28 + Math.floor(Math.random() * 14),
-          type: 'spark',
-        });
-      }
-    } else if (id.includes('latios')) {
-      this.latiosAttackTick = 25;
-      this.cameraShakeTime = 16;
-      this.cameraShakeIntensity = 3.5;
-      for (let i = 0; i < 45; i++) {
-        const ang = Math.PI * 0.25 + (Math.random() - 0.5) * 1.0;
-        const spd = 4.0 + Math.random() * 5.5;
-        this.moveParticles.push({
-          x: ox + (Math.random() - 0.5) * 20,
-          y: oy + (Math.random() - 0.5) * 20,
-          vx: Math.cos(ang) * spd,
-          vy: Math.sin(ang) * spd,
-          size: 2.5 + Math.random() * 3,
-          color: ['#2563eb', '#3b82f6', '#60a5fa', '#93c5fd', '#ffffff'][Math.floor(Math.random() * 5)],
-          alpha: 0.95,
-          life: 0,
-          maxLife: 26 + Math.floor(Math.random() * 14),
-          type: 'shockwave',
-        });
-      }
-    } else if (id.includes('latias')) {
-      this.latiasAttackTick = 25;
-      this.cameraShakeTime = 16;
-      this.cameraShakeIntensity = 3.5;
-      for (let i = 0; i < 45; i++) {
-        const ang = Math.random() * Math.PI * 2;
-        const spd = 2.5 + Math.random() * 4.2;
-        this.moveParticles.push({
-          x: ox,
-          y: oy,
-          vx: Math.cos(ang) * spd,
-          vy: Math.sin(ang) * spd,
-          size: 3 + Math.random() * 3,
-          color: ['#e11d48', '#f43f5e', '#fb7185', '#fda4af', '#ffffff'][Math.floor(Math.random() * 5)],
-          alpha: 0.95,
-          life: 0,
-          maxLife: 28 + Math.floor(Math.random() * 15),
-          type: 'aura',
-        });
-      }
-    } else if (id.includes('darkrai')) {
-      this.darkraiAttackTick = 30;
-      this.cameraShakeTime = 16;
-      this.cameraShakeIntensity = 3.5;
-      for (let i = 0; i < 50; i++) {
-        const ang = Math.random() * Math.PI * 2;
-        const r = 6 + Math.random() * 28;
-        this.moveParticles.push({
-          x: ox + Math.cos(ang) * r,
-          y: oy + Math.sin(ang) * r,
-          vx: -Math.sin(ang) * 3.2,
-          vy: Math.cos(ang) * 3.2,
-          size: 2.5 + Math.random() * 3.5,
-          color: ['#3b0764', '#581c87', '#7e22ce', '#a855f7', '#0f172a'][Math.floor(Math.random() * 5)],
-          alpha: 0.95,
-          life: 0,
-          maxLife: 32 + Math.floor(Math.random() * 16),
-          type: 'psychic',
-        });
-      }
-    } else if (id.includes('necrozma')) {
-      for (let i = 0; i < 50; i++) {
-        const ang = Math.random() * Math.PI * 2;
-        const spd = 3.5 + Math.random() * 5.0;
-        this.moveParticles.push({
-          x: ox,
-          y: oy,
-          vx: Math.cos(ang) * spd,
-          vy: Math.sin(ang) * spd,
-          size: 3 + Math.random() * 3.5,
-          color: ['#f59e0b', '#fbbf24', '#fde047', '#818cf8', '#ffffff'][Math.floor(Math.random() * 5)],
-          alpha: 0.95,
-          life: 0,
-          maxLife: 28 + Math.floor(Math.random() * 15),
-          type: 'cosmic',
-        });
-      }
-    } else if (id.includes('lunala')) {
-      this.lunalaAttackTick = 25;
-      for (let i = 0; i < 50; i++) {
-        const ang = Math.random() * Math.PI * 2;
-        const spd = 2.8 + Math.random() * 4.6;
-        this.moveParticles.push({
-          x: ox,
-          y: oy,
-          vx: Math.cos(ang) * spd,
-          vy: Math.sin(ang) * spd,
-          size: 3 + Math.random() * 3.5,
-          color: ['#4338ca', '#6366f1', '#818cf8', '#c7d2fe', '#e0e7ff'][Math.floor(Math.random() * 5)],
-          alpha: 0.95,
-          life: 0,
-          maxLife: 30 + Math.floor(Math.random() * 16),
-          type: 'cosmic',
-        });
-      }
-    } else if (id.includes('solgaleo')) {
-      this.solgaleoAttackTick = 25;
-      for (let i = 0; i < 50; i++) {
-        const ang = Math.random() * Math.PI * 2;
-        const spd = 3.2 + Math.random() * 5.2;
-        this.moveParticles.push({
-          x: ox,
-          y: oy,
-          vx: Math.cos(ang) * spd,
-          vy: Math.sin(ang) * spd,
-          size: 3 + Math.random() * 4,
-          color: ['#ea580c', '#f59e0b', '#fbbf24', '#fef08a', '#ffffff'][Math.floor(Math.random() * 5)],
-          alpha: 0.95,
-          life: 0,
-          maxLife: 28 + Math.floor(Math.random() * 16),
-          type: 'flame',
-        });
-      }
-    } else if (id.includes('samurott')) {
-      this.samurottAttackTick = 27;
-      this.cameraShakeTime = 16;
-      this.cameraShakeIntensity = 3.5;
-      for (let i = 0; i < 50; i++) {
-        const ang = Math.random() * Math.PI * 2;
-        const spd = 3.5 + Math.random() * 5.0;
-        this.moveParticles.push({
-          x: ox,
-          y: oy,
-          vx: Math.cos(ang) * spd,
-          vy: Math.sin(ang) * spd,
-          size: 2.8 + Math.random() * 3.8,
-          color: ['#0284c7', '#0ea5e9', '#38bdf8', '#7dd3fc', '#ffffff'][Math.floor(Math.random() * 5)],
-          alpha: 0.95,
-          life: 0,
-          maxLife: 28 + Math.floor(Math.random() * 16),
-          type: 'water',
-        });
-      }
-    } else if (id.includes('empoleon')) {
-      this.empoleonAttackTick = 26;
-      this.cameraShakeTime = 16;
-      this.cameraShakeIntensity = 3.6;
-      for (let i = 0; i < 50; i++) {
-        const ang = Math.random() * Math.PI * 2;
-        const spd = 3.6 + Math.random() * 5.2;
-        this.moveParticles.push({
-          x: ox,
-          y: oy,
-          vx: Math.cos(ang) * spd,
-          vy: Math.sin(ang) * spd,
-          size: 2.8 + Math.random() * 3.6,
-          color: ['#0284c7', '#38bdf8', '#93c5fd', '#facc15', '#ffffff'][Math.floor(Math.random() * 5)],
-          alpha: 0.95,
-          life: 0,
-          maxLife: 28 + Math.floor(Math.random() * 16),
-          type: 'water',
-        });
-      }
-    } else if (id.includes('regigigas')) {
-      this.regigigasAttackTick = 29;
-      this.cameraShakeTime = 24;
-      this.cameraShakeIntensity = 5.0;
-      for (let i = 0; i < 50; i++) {
-        const ang = Math.random() * Math.PI * 2;
-        const spd = 2.6 + Math.random() * 4.8;
-        this.moveParticles.push({
-          x: ox + Math.cos(ang) * 10,
-          y: oy + Math.sin(ang) * 10,
-          vx: Math.cos(ang) * spd,
-          vy: Math.sin(ang) * spd,
-          size: 3.2 + Math.random() * 3.8,
-          color: ['#facc15', '#22c55e', '#f8fafc', '#94a3b8', '#ef4444'][Math.floor(Math.random() * 5)],
-          alpha: 0.95,
-          life: 0,
-          maxLife: 30 + Math.floor(Math.random() * 16),
-          type: 'shockwave',
-        });
-      }
-    } else if (id.includes('koraidon')) {
-      this.koraidonAttackTick = 26;
-      this.cameraShakeTime = 18;
-      this.cameraShakeIntensity = 4.2;
-      for (let i = 0; i < 50; i++) {
-        const ang = Math.random() * Math.PI * 2;
-        const spd = 3.5 + Math.random() * 5.2;
-        this.moveParticles.push({
-          x: ox + Math.cos(ang) * 8,
-          y: oy + Math.sin(ang) * 8,
-          vx: Math.cos(ang) * spd,
-          vy: Math.sin(ang) * spd,
-          size: 2.8 + Math.random() * 3.6,
-          color: ['#ef4444', '#f97316', '#facc15', '#38bdf8', '#ffffff'][Math.floor(Math.random() * 5)],
-          alpha: 0.95,
-          life: 0,
-          maxLife: 28 + Math.floor(Math.random() * 15),
-          type: 'flame',
-        });
-      }
-    } else if (id.includes('eternatus')) {
-      this.eternatusAttackTick = 29;
-      this.cameraShakeTime = 22;
-      this.cameraShakeIntensity = 4.6;
-      for (let i = 0; i < 55; i++) {
-        const ang = Math.random() * Math.PI * 2;
-        const spd = 3.2 + Math.random() * 5.6;
-        this.moveParticles.push({
-          x: ox + Math.cos(ang) * 10,
-          y: oy + Math.sin(ang) * 10,
-          vx: Math.cos(ang) * spd,
-          vy: Math.sin(ang) * spd,
-          size: 3.0 + Math.random() * 3.8,
-          color: ['#e11d48', '#ec4899', '#a855f7', '#06b6d4', '#ffffff'][Math.floor(Math.random() * 5)],
-          alpha: 0.95,
-          life: 0,
-          maxLife: 30 + Math.floor(Math.random() * 16),
-          type: 'cosmic',
-        });
-      }
-    } else {
-      for (let i = 0; i < 40; i++) {
-        const ang = Math.random() * Math.PI * 2;
-        const spd = 3 + Math.random() * 4;
-        this.moveParticles.push({
-          x: ox,
-          y: oy,
-          vx: Math.cos(ang) * spd,
-          vy: Math.sin(ang) * spd,
-          size: 2.5 + Math.random() * 3,
-          color: ['#facc15', '#fde047', '#fef08a', '#ffffff'][Math.floor(Math.random() * 4)],
-          alpha: 0.95,
-          life: 0,
-          maxLife: 24 + Math.floor(Math.random() * 12),
-          type: 'shockwave',
-        });
-      }
-    }
-
-    this.wake();
+    triggerSignatureMoveHelper(this, pokemonId, originX, originY);
   }
 
   private drawFollower(ctx: CanvasRenderingContext2D) {
-    if (!this.activeFollower) return;
-
-    const drawX =
-      (this.isMoving
-        ? this.followerPos.x + (this.followerTarget.x - this.followerPos.x) * this.moveProgress
-        : this.followerPos.x) * TILE_SIZE;
-    const drawY =
-      (this.isMoving
-        ? this.followerPos.y + (this.followerTarget.y - this.followerPos.y) * this.moveProgress
-        : this.followerPos.y) * TILE_SIZE;
-
-    const isFollowerWalking =
-      this.isMoving &&
-      (this.followerPos.x !== this.followerTarget.x || this.followerPos.y !== this.followerTarget.y);
-    const stepBob = isFollowerWalking ? Math.sin(this.moveProgress * Math.PI * 2) * 1.5 : 0;
-    const idleBob = Math.sin(this.tick * 0.08) * 1.2;
-
-    const fid = this.activeFollower.id;
-    const isFlipped = this.followerFacing === 'right';
-
-    ctx.save();
-    // Authentic ground contact shadow matching placed NPC scale
-    const shadowMap: Record<string, { rx: number; ry: number; yOff: number }> = {
-      urshifu: { rx: 16, ry: 5.5, yOff: 16 },
-      lunala: { rx: 17, ry: 5, yOff: 16 },
-      solgaleo: { rx: 16, ry: 6, yOff: 16 },
-      samurott: { rx: 14, ry: 5, yOff: 16 },
-      empoleon: { rx: 13, ry: 5, yOff: 16 },
-      regigigas: { rx: 16, ry: 6, yOff: 16 },
-      koraidon: { rx: 15, ry: 5.5, yOff: 16 },
-      eternatus: { rx: 16, ry: 5.5, yOff: 16 },
-      necrozma: { rx: 16, ry: 6, yOff: 16 },
-      groudon: { rx: 15, ry: 6, yOff: 16 },
-      kyogre: { rx: 15, ry: 5.5, yOff: 16 },
-      gyarados: { rx: 16, ry: 5.5, yOff: 16 },
-      snorlax: { rx: 15, ry: 6, yOff: 15 },
-      dialga: { rx: 14, ry: 5, yOff: 16 },
-      palkia: { rx: 14, ry: 5, yOff: 16 },
-      giratina: { rx: 14, ry: 5, yOff: 16 },
-      zekrom: { rx: 14, ry: 5, yOff: 16 },
-      reshiram: { rx: 14, ry: 5, yOff: 16 },
-      rayquaza: { rx: 14, ry: 5, yOff: 16 },
-      darkrai: { rx: 14, ry: 5.5, yOff: 16 },
-      garchomp: { rx: 15, ry: 5, yOff: 16 },
-      tyranitar: { rx: 15, ry: 5.5, yOff: 16 },
-      charizard: { rx: 12, ry: 4.5, yOff: 15 },
-      arceus: { rx: 12, ry: 4.5, yOff: 16 },
-      mewtwo: { rx: 12, ry: 4.5, yOff: 16 },
-      latios: { rx: 12, ry: 4.5, yOff: 16 },
-      latias: { rx: 12, ry: 4.5, yOff: 16 },
-    };
-    const digiCompanion = getDigimonById(fid);
-    const s = shadowMap[fid];
-    if (digiCompanion) {
-      const aura = DIGIMON_ZONE_COLORS[digiCompanion.elementZone] || DIGIMON_ZONE_COLORS.plaza;
-      ctx.fillStyle = aura.inner;
-      ctx.beginPath();
-      ctx.ellipse(drawX + 8, drawY + 15, 13, 4.6, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.strokeStyle = aura.rim;
-      ctx.lineWidth = 0.9;
-      ctx.beginPath();
-      ctx.ellipse(drawX + 8, drawY + 15, 12, 4, 0, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.fillStyle = 'rgba(15, 23, 42, 0.42)';
-      ctx.beginPath();
-      ctx.ellipse(drawX + 8, drawY + 15, 9.5, 3.2, 0, 0, Math.PI * 2);
-      ctx.fill();
-    } else if (s) {
-      ctx.fillStyle = 'rgba(15, 23, 42, 0.4)';
-      ctx.beginPath();
-      ctx.ellipse(drawX + 8, drawY + s.yOff, s.rx, s.ry, 0, 0, Math.PI * 2);
-      ctx.fill();
-    } else if (fid !== 'lucario' && fid !== 'pikachu') {
-      ctx.fillStyle = 'rgba(15, 23, 42, 0.35)';
-      ctx.beginPath();
-      ctx.ellipse(drawX + 8, drawY + 14, 7, 3, 0, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    const shouldFlip = isFlipped && !this.pmdAnimator.isSupported(fid) && !digiCompanion;
-    if (shouldFlip) {
-      ctx.translate(drawX + 8, 0);
-      ctx.scale(-1, 1);
-      ctx.translate(-(drawX + 8), 0);
-    }
-
-    if (digiCompanion) {
-      const orientMap: Record<Dir, 'N' | 'S' | 'E' | 'W'> = {
-        up: 'N',
-        down: 'S',
-        left: 'W',
-        right: 'E',
-      };
-      const orient = orientMap[this.followerDir] || 'S';
-      const bobOffset = isFollowerWalking ? stepBob * 0.45 : idleBob * 0.55;
-      this.drawDigimonOverworldSprite(
-        ctx,
-        digiCompanion,
-        orient,
-        this.tick,
-        isFollowerWalking,
-        drawX + 8,
-        drawY + 15 + bobOffset,
-        0.86,
-        true
-      );
-    } else if (fid === 'pikachu') {
-      drawPikachu(ctx, drawX, drawY + stepBob + idleBob);
-    } else if (fid === 'lucario') {
-      drawLucario(ctx, drawX, drawY + stepBob, this.tick, 1);
-    } else if (fid === 'charizard') {
-      if (this.charizardImg && this.charizardImg.complete) {
-        // Fire Dragon tail flame ember glow
-        const flamePulse = 0.45 + Math.sin(this.tick * 0.15) * 0.2;
-        const flameX = drawX + 5;
-        const flameY = drawY - 11 + stepBob + idleBob;
-        const flameGrad = ctx.createRadialGradient(flameX, flameY, 1, flameX, flameY, 8);
-        flameGrad.addColorStop(0, `rgba(255, 245, 150, ${flamePulse + 0.3})`);
-        flameGrad.addColorStop(0.4, `rgba(249, 115, 22, ${flamePulse})`);
-        flameGrad.addColorStop(1, 'rgba(239, 68, 68, 0)');
-        ctx.fillStyle = flameGrad;
-        ctx.beginPath();
-        ctx.arc(flameX, flameY, 8, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.drawImage(this.charizardImg, drawX - 13, drawY - 20 + stepBob + idleBob, 42, 42);
-      }
-    } else if (fid === 'tyranitar') {
-      const coreX = drawX + 8;
-      const coreY = drawY + 16;
-
-      // Sand Stream & armored rock dust aura
-      const sandPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
-      const sandGrad = ctx.createRadialGradient(coreX, coreY - 10, 2, coreX, coreY - 10, 18);
-      sandGrad.addColorStop(0, `rgba(217, 119, 6, ${sandPulse + 0.3})`);
-      sandGrad.addColorStop(0.5, `rgba(180, 83, 9, ${sandPulse * 0.7})`);
-      sandGrad.addColorStop(1, 'rgba(15, 23, 42, 0)');
-      ctx.fillStyle = sandGrad;
-      ctx.beginPath();
-      ctx.arc(coreX, coreY - 10, 18, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Sand swirl & rock armor fragments
-      if (this.tick % 16 < 11) {
-        ctx.fillStyle = '#d4b182';
-        ctx.fillRect(coreX + Math.cos(this.tick * 0.15) * 12, coreY - 12 - (this.tick % 10), 1.5, 1.5);
-        ctx.fillStyle = '#4b5563';
-        ctx.fillRect(coreX - 6 + Math.sin(this.tick * 0.2) * 10, coreY - 6 - (this.tick % 8), 2, 2);
-      }
-
-      // Determine action, direction, and animation frame tick
-      let action: 'idle' | 'walk' | 'shoot' = 'idle';
-      let animTick = this.tick;
-      if (this.tyranitarAttackTick > 0) {
-        action = 'shoot';
-        animTick = 26 - this.tyranitarAttackTick;
-      } else if (isFollowerWalking) {
-        action = 'walk';
-        animTick = this.followerWalkTick;
-      }
-      const dir = this.followerDir || 'down';
-
-      const pmdDrawn = this.pmdAnimator.draw(
-        ctx,
-        'tyranitar',
-        action,
-        dir,
-        coreX,
-        coreY,
-        animTick
-      );
-
-      if (!pmdDrawn && this.tyranitarImg && this.tyranitarImg.complete) {
-        ctx.drawImage(this.tyranitarImg, drawX - 13, drawY - 20 + stepBob, 42, 42);
-      }
-    } else if (fid === 'garchomp') {
-      const coreX = drawX + 8;
-      const coreY = drawY + 16;
-
-      // Dragon Rush / Mach supersonic slipstream aura
-      const dragonPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
-      const dragonGrad = ctx.createRadialGradient(coreX, coreY - 10, 2, coreX, coreY - 10, 18);
-      dragonGrad.addColorStop(0, `rgba(56, 189, 248, ${dragonPulse + 0.3})`);
-      dragonGrad.addColorStop(0.5, `rgba(3, 105, 161, ${dragonPulse * 0.7})`);
-      dragonGrad.addColorStop(1, 'rgba(15, 23, 42, 0)');
-      ctx.fillStyle = dragonGrad;
-      ctx.beginPath();
-      ctx.arc(coreX, coreY - 10, 18, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Sandstorm sparks & dragon energy
-      if (this.tick % 16 < 11) {
-        ctx.fillStyle = '#38bdf8';
-        ctx.fillRect(coreX + Math.cos(this.tick * 0.15) * 12, coreY - 12 - (this.tick % 10), 2, 1);
-        ctx.fillStyle = '#fde047';
-        ctx.fillRect(coreX - 6 + Math.sin(this.tick * 0.2) * 10, coreY - 6 - (this.tick % 8), 1.5, 1.5);
-      }
-
-      // Determine action, direction, and animation frame tick
-      let action: 'idle' | 'walk' | 'shoot' = 'idle';
-      let animTick = this.tick;
-      if (this.garchompAttackTick > 0) {
-        action = 'shoot';
-        animTick = 26 - this.garchompAttackTick;
-      } else if (isFollowerWalking) {
-        action = 'walk';
-        animTick = this.followerWalkTick;
-      }
-      const dir = this.followerDir || 'down';
-
-      const pmdDrawn = this.pmdAnimator.draw(
-        ctx,
-        'garchomp',
-        action,
-        dir,
-        coreX,
-        coreY,
-        animTick
-      );
-
-      if (!pmdDrawn && this.garchompImg && this.garchompImg.complete) {
-        ctx.drawImage(this.garchompImg, drawX - 13, drawY - 20 + stepBob + idleBob, 42, 42);
-      }
-    } else if (fid === 'urshifu') {
-      const coreX = drawX + 8;
-      const coreY = drawY + 16;
-      this.drawUrshifuTorrentAura(ctx, coreX, coreY - 12, true);
-
-      let action: 'idle' | 'walk' | 'attack' = 'idle';
-      let animTick = this.tick;
-      if (this.urshifuAttackTick > 0) {
-        action = 'attack';
-        animTick = 28 - this.urshifuAttackTick;
-      } else if (isFollowerWalking) {
-        action = 'walk';
-        animTick = this.followerWalkTick;
-      }
-      const dir = this.followerDir || 'down';
-
-      const pmdDrawn = this.pmdAnimator.draw(
-        ctx,
-        'urshifu',
-        action,
-        dir,
-        coreX,
-        coreY,
-        animTick
-      );
-
-      if (!pmdDrawn && this.urshifuImg && this.urshifuImg.complete) {
-        ctx.drawImage(this.urshifuImg, drawX - 16, drawY - 24 + stepBob, 48, 45);
-      }
-    } else if (fid === 'rayquaza') {
-      const coreX = drawX + 8;
-      const coreY = drawY + 16;
-      const auraCoreY = drawY - 2 + idleBob * 1.8;
-
-      // Atmospheric Ozone Emerald Aura
-      const auraPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
-      const spatGrad = ctx.createRadialGradient(coreX, auraCoreY, 2, coreX, auraCoreY, 18);
-      spatGrad.addColorStop(0, `rgba(167, 243, 208, ${auraPulse + 0.3})`);
-      spatGrad.addColorStop(0.5, `rgba(16, 185, 129, ${auraPulse})`);
-      spatGrad.addColorStop(1, 'rgba(5, 150, 105, 0)');
-      ctx.fillStyle = spatGrad;
-      ctx.beginPath();
-      ctx.arc(coreX, auraCoreY, 18, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Determine action, direction, and animation frame tick
-      let action: 'idle' | 'walk' | 'shoot' = 'idle';
-      let animTick = this.tick;
-      if (this.rayquazaAttackTick > 0) {
-        action = 'shoot';
-        animTick = 26 - this.rayquazaAttackTick;
-      } else if (isFollowerWalking) {
-        action = 'walk';
-        animTick = this.followerWalkTick;
-      }
-      const dir = this.followerDir || 'down';
-
-      const pmdDrawn = this.pmdAnimator.draw(
-        ctx,
-        'rayquaza',
-        action,
-        dir,
-        coreX,
-        coreY,
-        animTick
-      );
-
-      if (!pmdDrawn && this.rayquazaImg && this.rayquazaImg.complete) {
-        ctx.drawImage(this.rayquazaImg, drawX - 13, drawY - 20 + idleBob * 1.8, 42, 42);
-      }
-    } else if (fid === 'mewtwo') {
-      if (this.mewtwoImg && this.mewtwoImg.complete) {
-        const auraR = 14 + Math.sin(this.tick * 0.06) * 2;
-        ctx.strokeStyle = 'rgba(168, 85, 247, 0.45)';
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.arc(drawX + 8, drawY - 2 + stepBob + idleBob, auraR, 0, Math.PI * 2);
-        ctx.stroke();
-
-        ctx.drawImage(this.mewtwoImg, drawX - 11, drawY - 16 + stepBob + idleBob, 38, 38);
-      }
-    } else if (fid === 'arceus') {
-      const coreX = drawX + 8;
-      const coreY = drawY + 16;
-
-      const haloR = 14 + Math.sin(this.tick * 0.05) * 2;
-      ctx.strokeStyle = 'rgba(250, 204, 21, 0.45)';
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.arc(coreX, drawY - 4 + stepBob + idleBob, haloR, 0, Math.PI * 2);
-      ctx.stroke();
-
-      // Determine action, direction, and animation frame tick
-      let action: 'idle' | 'walk' | 'shoot' = 'idle';
-      let animTick = this.tick;
-      if (this.arceusAttackTick > 0) {
-        action = 'shoot';
-        animTick = 37 - this.arceusAttackTick;
-      } else if (isFollowerWalking) {
-        action = 'walk';
-        animTick = this.followerWalkTick;
-      }
-      const dir = this.followerDir || 'down';
-
-      const pmdDrawn = this.pmdAnimator.draw(
-        ctx,
-        'arceus',
-        action,
-        dir,
-        coreX,
-        coreY,
-        animTick
-      );
-
-      if (!pmdDrawn && this.arceusImg && this.arceusImg.complete) {
-        ctx.drawImage(this.arceusImg, drawX - 12, drawY - 18 + stepBob + idleBob, 40, 40);
-      }
-    } else if (fid === 'dialga') {
-      const coreX = drawX + 8;
-      const coreY = drawY + 16;
-      const corePulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
-      const coreGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 18);
-      coreGrad.addColorStop(0, `rgba(224, 242, 254, ${corePulse + 0.35})`);
-      coreGrad.addColorStop(0.45, `rgba(56, 189, 248, ${corePulse + 0.1})`);
-      coreGrad.addColorStop(1, 'rgba(2, 132, 199, 0)');
-      ctx.fillStyle = coreGrad;
-      ctx.beginPath();
-      ctx.arc(coreX, coreY, 18, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Roar of Time temporal distortion pulse ring
-      const timePhase = (this.tick * 0.045) % 1;
-      const ringRadius = 5 + timePhase * 16;
-      const ringAlpha = (1 - timePhase) * 0.65;
-      ctx.strokeStyle = `rgba(56, 189, 248, ${ringAlpha})`;
-      ctx.lineWidth = 1.2;
-      ctx.beginPath();
-      ctx.arc(coreX, coreY, ringRadius, 0, Math.PI * 2);
-      ctx.stroke();
-
-      // Diamond time-sparkles floating around Dialga
-      if (this.tick % 24 < 14) {
-        ctx.fillStyle = '#f0f9ff';
-        ctx.fillRect(coreX + Math.sin(this.tick * 0.2) * 12, coreY - 4 - (this.tick % 14), 1.5, 1.5);
-        ctx.fillStyle = '#38bdf8';
-        ctx.fillRect(coreX - 6 + Math.cos(this.tick * 0.16) * 10, coreY + 4 - (this.tick % 10), 2, 2);
-      }
-
-      // Determine action, direction, and animation frame tick
-      let action: 'idle' | 'walk' | 'shoot' = 'idle';
-      let animTick = this.tick;
-      if (this.dialgaAttackTick > 0) {
-        action = 'shoot';
-        animTick = 28 - this.dialgaAttackTick;
-      } else if (isFollowerWalking) {
-        action = 'walk';
-        animTick = this.followerWalkTick;
-      }
-      const dir = this.followerDir || 'down';
-
-      const pmdDrawn = this.pmdAnimator.draw(
-        ctx,
-        'dialga',
-        action,
-        dir,
-        coreX,
-        coreY,
-        animTick
-      );
-
-      if (!pmdDrawn && this.dialgaImg && this.dialgaImg.complete) {
-        ctx.drawImage(this.dialgaImg, drawX - 13, drawY - 20 + stepBob + idleBob, 42, 42);
-      }
-    } else if (fid === 'palkia') {
-      const coreX = drawX + 8;
-      const coreY = drawY + 16;
-      const spatialPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
-      const spatGrad = ctx.createRadialGradient(coreX, coreY, 3, coreX, coreY, 18);
-      spatGrad.addColorStop(0, `rgba(240, 171, 252, ${spatialPulse + 0.3})`);
-      spatGrad.addColorStop(0.5, `rgba(192, 38, 211, ${spatialPulse})`);
-      spatGrad.addColorStop(1, 'rgba(192, 38, 211, 0)');
-      ctx.fillStyle = spatGrad;
-      ctx.beginPath();
-      ctx.arc(coreX, coreY, 18, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Spacial Rend dimensional space-warp slice lines
-      const rendAngle = this.tick * 0.03;
-      for (let r = 0; r < 2; r++) {
-        const angle = rendAngle + (r * Math.PI) / 2;
-        const rx1 = coreX + Math.cos(angle) * 14;
-        const ry1 = coreY + Math.sin(angle) * 8;
-        const rx2 = coreX - Math.cos(angle) * 14;
-        const ry2 = coreY - Math.sin(angle) * 8;
-        ctx.strokeStyle = 'rgba(244, 114, 182, 0.7)';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(rx1, ry1);
-        ctx.lineTo(rx2, ry2);
-        ctx.stroke();
-      }
-
-      // Determine action, direction, and animation frame tick
-      let action: 'idle' | 'walk' | 'shoot' = 'idle';
-      let animTick = this.tick;
-      if (this.palkiaAttackTick > 0) {
-        action = 'shoot';
-        animTick = 28 - this.palkiaAttackTick;
-      } else if (isFollowerWalking) {
-        action = 'walk';
-        animTick = this.followerWalkTick;
-      }
-      const dir = this.followerDir || 'down';
-
-      const pmdDrawn = this.pmdAnimator.draw(
-        ctx,
-        'palkia',
-        action,
-        dir,
-        coreX,
-        coreY,
-        animTick
-      );
-
-      if (!pmdDrawn && this.palkiaImg && this.palkiaImg.complete) {
-        ctx.drawImage(this.palkiaImg, drawX - 13, drawY - 20 + stepBob + idleBob, 42, 42);
-      }
-    } else if (fid === 'reshiram') {
-      const coreX = drawX + 8;
-      const coreY = drawY + 16;
-      const turbineGlow = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
-      const tailX = drawX - 3;
-      const tailY = drawY + 8 + stepBob + idleBob;
-      const fireGrad = ctx.createRadialGradient(tailX, tailY, 2, tailX, tailY, 14);
-      fireGrad.addColorStop(0, `rgba(255, 165, 0, ${turbineGlow + 0.25})`);
-      fireGrad.addColorStop(0.5, `rgba(239, 68, 68, ${turbineGlow})`);
-      fireGrad.addColorStop(1, 'rgba(239, 68, 68, 0)');
-      ctx.fillStyle = fireGrad;
-      ctx.beginPath();
-      ctx.arc(tailX, tailY, 14, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Determine action, direction, and animation frame tick
-      let action: 'idle' | 'walk' | 'shoot' = 'idle';
-      let animTick = this.tick;
-      if (this.reshiramAttackTick > 0) {
-        action = 'shoot';
-        animTick = 30 - this.reshiramAttackTick;
-      } else if (isFollowerWalking) {
-        action = 'walk';
-        animTick = this.followerWalkTick;
-      }
-      const dir = this.followerDir || 'down';
-
-      const pmdDrawn = this.pmdAnimator.draw(
-        ctx,
-        'reshiram',
-        action,
-        dir,
-        coreX,
-        coreY,
-        animTick
-      );
-
-      if (!pmdDrawn && this.reshiramImg && this.reshiramImg.complete) {
-        ctx.drawImage(this.reshiramImg, drawX - 13, drawY - 20 + stepBob + idleBob, 42, 42);
-      }
-    } else if (fid === 'zekrom') {
-      const coreX = drawX + 8;
-      const coreY = drawY + 16;
-      const turbineGlow = 0.35 + Math.sin(this.tick * 0.09) * 0.15;
-      const tailX = drawX - 3;
-      const tailY = drawY + 8 + stepBob + idleBob;
-      const elecGrad = ctx.createRadialGradient(tailX, tailY, 2, tailX, tailY, 15);
-      elecGrad.addColorStop(0, `rgba(56, 189, 248, ${turbineGlow + 0.3})`);
-      elecGrad.addColorStop(0.5, `rgba(2, 132, 199, ${turbineGlow})`);
-      elecGrad.addColorStop(1, 'rgba(2, 132, 199, 0)');
-      ctx.fillStyle = elecGrad;
-      ctx.beginPath();
-      ctx.arc(tailX, tailY, 15, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Dynamic blue/cyan lightning discharges surging from the tail
-      const sparkPhase = Math.floor(this.tick / 3) % 4;
-      if (this.tick % 20 < 14) {
-        ctx.fillStyle = sparkPhase % 2 === 0 ? '#38bdf8' : '#e0f2fe';
-        ctx.fillRect(tailX + Math.sin(this.tick * 0.25) * 8, tailY - 5 - (this.tick % 14), 2, 2);
-        ctx.fillStyle = '#0284c7';
-        ctx.fillRect(tailX - 3 + Math.cos(this.tick * 0.2) * 9, tailY - 2 - (this.tick % 10), 1.5, 1.5);
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(tailX + 3 - Math.sin(this.tick * 0.15) * 8, tailY - 7 - (this.tick % 12), 1.5, 1.5);
-      }
-
-      // Determine action, direction, and animation frame tick
-      let action: 'idle' | 'walk' | 'shoot' = 'idle';
-      let animTick = this.tick;
-      if (this.zekromAttackTick > 0) {
-        action = 'shoot';
-        animTick = 28 - this.zekromAttackTick;
-      } else if (isFollowerWalking) {
-        action = 'walk';
-        animTick = this.followerWalkTick;
-      }
-      const dir = this.followerDir || 'down';
-
-      const pmdDrawn = this.pmdAnimator.draw(
-        ctx,
-        'zekrom',
-        action,
-        dir,
-        coreX,
-        coreY,
-        animTick
-      );
-
-      if (!pmdDrawn && this.zekromImg && this.zekromImg.complete) {
-        ctx.drawImage(this.zekromImg, drawX - 13, drawY - 20 + stepBob + idleBob, 42, 42);
-      }
-    } else if (fid === 'giratina') {
-      const coreX = drawX + 8;
-      const coreY = drawY + 16;
-      const shadowGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 17);
-      shadowGrad.addColorStop(0, 'rgba(232, 121, 249, 0.5)');
-      shadowGrad.addColorStop(0.6, 'rgba(112, 26, 117, 0.35)');
-      shadowGrad.addColorStop(1, 'rgba(15, 23, 42, 0)');
-      ctx.fillStyle = shadowGrad;
-      ctx.beginPath();
-      ctx.arc(coreX, coreY, 17, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Determine action, direction, and animation frame tick
-      let action: 'idle' | 'walk' | 'shoot' = 'idle';
-      let animTick = this.tick;
-      if (this.giratinaAttackTick > 0) {
-        action = 'shoot';
-        animTick = 27 - this.giratinaAttackTick;
-      } else if (isFollowerWalking) {
-        action = 'walk';
-        animTick = this.followerWalkTick;
-      }
-      const dir = this.followerDir || 'down';
-
-      const pmdDrawn = this.pmdAnimator.draw(
-        ctx,
-        'giratina',
-        action,
-        dir,
-        coreX,
-        coreY,
-        animTick
-      );
-
-      if (!pmdDrawn && this.giratinaImg && this.giratinaImg.complete) {
-        ctx.drawImage(this.giratinaImg, drawX - 13, drawY - 20 + stepBob + idleBob * 1.5, 42, 42);
-      }
-    } else if (fid === 'groudon') {
-      const coreX = drawX + 8;
-      const coreY = drawY + 16;
-      const heatGrad = ctx.createRadialGradient(coreX, coreY - 10, 2, coreX, coreY - 10, 18);
-      heatGrad.addColorStop(0, 'rgba(239, 68, 68, 0.55)');
-      heatGrad.addColorStop(0.5, 'rgba(249, 115, 22, 0.35)');
-      heatGrad.addColorStop(1, 'rgba(180, 83, 9, 0)');
-      ctx.fillStyle = heatGrad;
-      ctx.beginPath();
-      ctx.arc(coreX, coreY - 10, 18, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Volcanic embers & magma sparks
-      if (this.tick % 16 < 11) {
-        ctx.fillStyle = '#f59e0b';
-        ctx.fillRect(coreX + Math.sin(this.tick * 0.25) * 12, coreY - 12 - (this.tick % 10), 1.5, 1.5);
-        ctx.fillStyle = '#ef4444';
-        ctx.fillRect(coreX - 6 + Math.cos(this.tick * 0.18) * 10, coreY - 6 - (this.tick % 8), 2, 2);
-      }
-
-      // Determine action, direction, and animation frame tick
-      let action: 'idle' | 'walk' | 'shoot' = 'idle';
-      let animTick = this.tick;
-      if (this.groudonAttackTick > 0) {
-        action = 'shoot';
-        animTick = 28 - this.groudonAttackTick;
-      } else if (isFollowerWalking) {
-        action = 'walk';
-        animTick = this.followerWalkTick;
-      }
-      const dir = this.followerDir || 'down';
-
-      const pmdDrawn = this.pmdAnimator.draw(
-        ctx,
-        'groudon',
-        action,
-        dir,
-        coreX,
-        coreY,
-        animTick
-      );
-
-      if (!pmdDrawn && this.groudonImg && this.groudonImg.complete) {
-        ctx.drawImage(this.groudonImg, drawX - 13, drawY - 20 + stepBob, 42, 42);
-      }
-    } else if (fid === 'kyogre') {
-      const coreX = drawX + 8;
-      const coreY = drawY + 16;
-      const aquaPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
-      const aquaGrad = ctx.createRadialGradient(coreX, coreY - 10, 2, coreX, coreY - 10, 18);
-      aquaGrad.addColorStop(0, `rgba(186, 230, 253, ${aquaPulse + 0.3})`);
-      aquaGrad.addColorStop(0.5, `rgba(14, 165, 233, ${aquaPulse})`);
-      aquaGrad.addColorStop(1, 'rgba(3, 105, 161, 0)');
-      ctx.fillStyle = aquaGrad;
-      ctx.beginPath();
-      ctx.arc(coreX, coreY - 10, 18, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Hydro droplet & bioluminescent mist bubbles
-      if (this.tick % 16 < 11) {
-        ctx.fillStyle = '#7dd3fc';
-        ctx.fillRect(coreX + Math.sin(this.tick * 0.22) * 12, coreY - 12 - (this.tick % 10), 1.5, 1.5);
-        ctx.fillStyle = '#38bdf8';
-        ctx.fillRect(coreX - 6 + Math.cos(this.tick * 0.17) * 10, coreY - 6 - (this.tick % 8), 2, 2);
-      }
-
-      // Determine action, direction, and animation frame tick
-      let action: 'idle' | 'walk' | 'shoot' = 'idle';
-      let animTick = this.tick;
-      if (this.kyogreAttackTick > 0) {
-        action = 'shoot';
-        animTick = 26 - this.kyogreAttackTick;
-      } else if (isFollowerWalking) {
-        action = 'walk';
-        animTick = this.followerWalkTick;
-      }
-      const dir = this.followerDir || 'down';
-
-      const pmdDrawn = this.pmdAnimator.draw(
-        ctx,
-        'kyogre',
-        action,
-        dir,
-        coreX,
-        coreY,
-        animTick
-      );
-
-      if (!pmdDrawn && this.kyogreImg && this.kyogreImg.complete) {
-        ctx.drawImage(this.kyogreImg, drawX - 13, drawY - 20 + stepBob + idleBob * 1.4, 42, 42);
-      }
-    } else if (fid === 'gyarados') {
-      const coreX = drawX + 8;
-      const coreY = drawY + 16;
-      const aquaPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
-      const aquaGrad = ctx.createRadialGradient(coreX, coreY - 10, 2, coreX, coreY - 10, 20);
-      aquaGrad.addColorStop(0, `rgba(186, 230, 253, ${aquaPulse + 0.35})`);
-      aquaGrad.addColorStop(0.5, `rgba(14, 165, 233, ${aquaPulse * 0.8})`);
-      aquaGrad.addColorStop(1, 'rgba(3, 105, 161, 0)');
-      ctx.fillStyle = aquaGrad;
-      ctx.beginPath();
-      ctx.arc(coreX, coreY - 10, 20, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Surging water spray & dragon mist droplets
-      if (this.tick % 16 < 11) {
-        ctx.fillStyle = '#bae6fd';
-        ctx.fillRect(coreX + Math.sin(this.tick * 0.22) * 13, coreY - 12 - (this.tick % 10), 1.5, 1.5);
-        ctx.fillStyle = '#0284c7';
-        ctx.fillRect(coreX - 7 + Math.cos(this.tick * 0.17) * 11, coreY - 6 - (this.tick % 8), 2, 2);
-      }
-
-      // Determine action, direction, and animation frame tick
-      let action: 'idle' | 'walk' | 'shoot' = 'idle';
-      let animTick = this.tick;
-      if (this.gyaradosAttackTick > 0) {
-        action = 'shoot';
-        animTick = 25 - this.gyaradosAttackTick;
-      } else if (isFollowerWalking) {
-        action = 'walk';
-        animTick = this.followerWalkTick;
-      }
-      const dir = this.followerDir || 'down';
-
-      this.pmdAnimator.draw(
-        ctx,
-        'gyarados',
-        action,
-        dir,
-        coreX,
-        coreY,
-        animTick
-      );
-    } else if (fid === 'snorlax') {
-      const coreX = drawX + 8;
-      const coreY = drawY + 16;
-
-      // Sleepy aura & subtle floating 'z' when idle
-      if (!isFollowerWalking && this.tick % 60 < 25) {
-        ctx.fillStyle = '#93c5fd';
-        ctx.font = '8px monospace';
-        ctx.fillText('z', coreX + 6 + (this.tick % 15) * 0.4, coreY - 14 - ((this.tick * 0.6) % 12));
-      }
-
-      let action: 'idle' | 'walk' | 'shoot' = 'idle';
-      let animTick = this.tick;
-      if (this.snorlaxAttackTick > 0) {
-        action = 'shoot';
-        animTick = 26 - this.snorlaxAttackTick;
-      } else if (isFollowerWalking) {
-        action = 'walk';
-        animTick = this.followerWalkTick;
-      }
-      const dir = this.followerDir || 'down';
-
-      this.pmdAnimator.draw(
-        ctx,
-        'snorlax',
-        action,
-        dir,
-        coreX,
-        coreY,
-        animTick
-      );
-    } else if (fid === 'latios') {
-      const coreX = drawX + 8;
-      const coreY = drawY + 16;
-      this.drawLatiosJetAura(ctx, coreX, coreY - 10, true);
-
-      let action: 'idle' | 'walk' | 'shoot' = 'idle';
-      let animTick = this.tick;
-      if (this.latiosAttackTick > 0) {
-        action = 'shoot';
-        animTick = 25 - this.latiosAttackTick;
-      } else if (isFollowerWalking) {
-        action = 'walk';
-        animTick = this.followerWalkTick;
-      }
-      const dir = this.followerDir || 'down';
-
-      const pmdDrawn = this.pmdAnimator.draw(
-        ctx,
-        'latios',
-        action,
-        dir,
-        coreX,
-        coreY,
-        animTick
-      );
-      if (!pmdDrawn && this.latiosImg && this.latiosImg.complete) {
-        ctx.drawImage(this.latiosImg, drawX - 13, drawY - 20 + stepBob + idleBob * 1.6, 42, 42);
-      }
-    } else if (fid === 'latias') {
-      const coreX = drawX + 8;
-      const coreY = drawY + 16;
-      const rosePulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
-      const roseGrad = ctx.createRadialGradient(coreX, coreY - 10, 2, coreX, coreY - 10, 18);
-      roseGrad.addColorStop(0, `rgba(254, 205, 211, ${rosePulse + 0.35})`);
-      roseGrad.addColorStop(0.5, `rgba(244, 63, 94, ${rosePulse * 0.8})`);
-      roseGrad.addColorStop(1, 'rgba(190, 18, 60, 0)');
-      ctx.fillStyle = roseGrad;
-      ctx.beginPath();
-      ctx.arc(coreX, coreY - 10, 18, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Refract Light sparkles
-      if (this.tick % 16 < 10) {
-        ctx.fillStyle = '#fecdd3';
-        ctx.fillRect(coreX + Math.sin(this.tick * 0.22) * 12, coreY - 12 - (this.tick % 8), 1.5, 1.5);
-      }
-
-      let action: 'idle' | 'walk' | 'shoot' = 'idle';
-      let animTick = this.tick;
-      if (this.latiasAttackTick > 0) {
-        action = 'shoot';
-        animTick = 25 - this.latiasAttackTick;
-      } else if (isFollowerWalking) {
-        action = 'walk';
-        animTick = this.followerWalkTick;
-      }
-      const dir = this.followerDir || 'down';
-
-      const pmdDrawn = this.pmdAnimator.draw(
-        ctx,
-        'latias',
-        action,
-        dir,
-        coreX,
-        coreY,
-        animTick
-      );
-      if (!pmdDrawn && this.latiasImg && this.latiasImg.complete) {
-        ctx.drawImage(this.latiasImg, drawX - 13, drawY - 20 + stepBob + idleBob * 1.6, 42, 42);
-      }
-    } else if (fid === 'darkrai') {
-      const coreX = drawX + 8;
-      const coreY = drawY + 16;
-      this.drawDarkraiVoidAura(ctx, coreX, coreY - 10, true);
-
-      let action: 'idle' | 'walk' | 'shoot' = 'idle';
-      let animTick = this.tick;
-      if (this.darkraiAttackTick > 0) {
-        action = 'shoot';
-        animTick = 30 - this.darkraiAttackTick;
-      } else if (isFollowerWalking) {
-        action = 'walk';
-        animTick = this.followerWalkTick;
-      }
-      const dir = this.followerDir || 'down';
-
-      const pmdDrawn = this.pmdAnimator.draw(
-        ctx,
-        'darkrai',
-        action,
-        dir,
-        coreX,
-        coreY,
-        animTick
-      );
-      if (!pmdDrawn && this.darkraiImg && this.darkraiImg.complete) {
-        ctx.drawImage(this.darkraiImg, drawX - 13, drawY - 20 + stepBob + idleBob * 1.4, 42, 42);
-      }
-    } else if (fid === 'necrozma') {
-      if (this.necrozmaImg && this.necrozmaImg.complete) {
-        const coreX = drawX + 8;
-        const coreY = drawY + 4 + stepBob;
-        const sunGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 17);
-        sunGrad.addColorStop(0, 'rgba(254, 240, 138, 0.65)');
-        sunGrad.addColorStop(0.5, 'rgba(245, 158, 11, 0.35)');
-        sunGrad.addColorStop(1, 'rgba(30, 27, 75, 0)');
-        ctx.fillStyle = sunGrad;
-        ctx.beginPath();
-        ctx.arc(coreX, coreY, 17, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.drawImage(this.necrozmaImg, drawX - 15, drawY - 21 + stepBob, 46, 43);
-      }
-    } else if (fid === 'lunala') {
-      const coreX = drawX + 8;
-      const coreY = drawY + 16;
-      const moonPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
-      const moonGrad = ctx.createRadialGradient(coreX, coreY - 14, 2, coreX, coreY - 14, 20);
-      moonGrad.addColorStop(0, `rgba(224, 231, 255, ${moonPulse + 0.3})`);
-      moonGrad.addColorStop(0.5, `rgba(129, 140, 248, ${moonPulse})`);
-      moonGrad.addColorStop(0.8, `rgba(67, 56, 202, ${moonPulse * 0.5})`);
-      moonGrad.addColorStop(1, 'rgba(15, 23, 42, 0)');
-      ctx.fillStyle = moonGrad;
-      ctx.beginPath();
-      ctx.arc(coreX, coreY - 14, 20, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Lunar dust sparkles & starlight constellation glints
-      if (this.tick % 20 < 12) {
-        ctx.fillStyle = '#c7d2fe';
-        ctx.fillRect(coreX + Math.sin(this.tick * 0.22) * 14, coreY - 18 + Math.cos(this.tick * 0.22) * 8, 1.5, 1.5);
-        ctx.fillStyle = '#38bdf8';
-        ctx.fillRect(coreX - 9 + Math.cos(this.tick * 0.16) * 12, coreY - 11 + Math.sin(this.tick * 0.16) * 6, 2, 2);
-      }
-
-      // Determine action, direction, and animation frame tick
-      let action: 'idle' | 'walk' | 'shoot' = 'idle';
-      let animTick = this.tick;
-      if (this.lunalaAttackTick > 0) {
-        action = 'shoot';
-        animTick = 25 - this.lunalaAttackTick;
-      } else if (isFollowerWalking) {
-        action = 'walk';
-        animTick = this.followerWalkTick;
-      }
-      const dir = this.followerDir || 'down';
-
-      const pmdDrawn = this.pmdAnimator.draw(
-        ctx,
-        'lunala',
-        action,
-        dir,
-        coreX,
-        coreY,
-        animTick
-      );
-
-      if (!pmdDrawn && this.lunalaImg && this.lunalaImg.complete) {
-        ctx.drawImage(this.lunalaImg, drawX - 15, drawY - 21 + stepBob + idleBob * 1.5, 46, 46);
-      }
-    } else if (fid === 'solgaleo') {
-      const coreX = drawX + 8;
-      const coreY = drawY + 16;
-      const sunGrad = ctx.createRadialGradient(coreX, coreY - 10, 2, coreX, coreY - 10, 18);
-      sunGrad.addColorStop(0, 'rgba(255, 255, 255, 0.7)');
-      sunGrad.addColorStop(0.4, 'rgba(254, 240, 138, 0.45)');
-      sunGrad.addColorStop(0.8, 'rgba(245, 158, 11, 0.25)');
-      sunGrad.addColorStop(1, 'rgba(234, 88, 12, 0)');
-      ctx.fillStyle = sunGrad;
-      ctx.beginPath();
-      ctx.arc(coreX, coreY - 10, 18, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Determine action, direction, and animation frame tick
-      let action: 'idle' | 'walk' | 'shoot' = 'idle';
-      let animTick = this.tick;
-      if (this.solgaleoAttackTick > 0) {
-        action = 'shoot';
-        animTick = 25 - this.solgaleoAttackTick;
-      } else if (isFollowerWalking) {
-        action = 'walk';
-        animTick = this.followerWalkTick;
-      }
-      const dir = this.followerDir || 'down';
-
-      const pmdDrawn = this.pmdAnimator.draw(
-        ctx,
-        'solgaleo',
-        action,
-        dir,
-        coreX,
-        coreY,
-        animTick
-      );
-
-      if (!pmdDrawn && this.solgaleoImg && this.solgaleoImg.complete) {
-        ctx.drawImage(this.solgaleoImg, drawX - 15, drawY - 21 + stepBob, 46, 43);
-      }
-    } else if (fid === 'samurott') {
-      const coreX = drawX + 8;
-      const coreY = drawY + 16;
-      this.drawSamurottHydroAura(ctx, coreX, coreY - 10, true);
-
-      let action: 'idle' | 'walk' | 'attack' = 'idle';
-      let animTick = this.tick;
-      if (this.samurottAttackTick > 0) {
-        action = 'attack';
-        animTick = 27 - this.samurottAttackTick;
-      } else if (isFollowerWalking) {
-        action = 'walk';
-        animTick = this.followerWalkTick;
-      }
-      const dir = this.followerDir || 'down';
-
-      const pmdDrawn = this.pmdAnimator.draw(
-        ctx,
-        'samurott',
-        action,
-        dir,
-        coreX,
-        coreY,
-        animTick
-      );
-      if (!pmdDrawn && this.samurottImg && this.samurottImg.complete) {
-        ctx.drawImage(this.samurottImg, drawX - 13, drawY - 20 + stepBob + idleBob, 42, 42);
-      }
-    } else if (fid === 'empoleon') {
-      const coreX = drawX + 8;
-      const coreY = drawY + 16;
-      this.drawEmpoleonTridentAura(ctx, coreX, coreY - 10, true);
-
-      let action: 'idle' | 'walk' | 'shoot' = 'idle';
-      let animTick = this.tick;
-      if (this.empoleonAttackTick > 0) {
-        action = 'shoot';
-        animTick = 26 - this.empoleonAttackTick;
-      } else if (isFollowerWalking) {
-        action = 'walk';
-        animTick = this.followerWalkTick;
-      }
-      const dir = this.followerDir || 'down';
-
-      const pmdDrawn = this.pmdAnimator.draw(
-        ctx,
-        'empoleon',
-        action,
-        dir,
-        coreX,
-        coreY,
-        animTick
-      );
-      if (!pmdDrawn && this.empoleonImg && this.empoleonImg.complete) {
-        ctx.drawImage(this.empoleonImg, drawX - 13, drawY - 20 + stepBob + idleBob, 42, 42);
-      }
-    } else if (fid === 'regigigas') {
-      const coreX = drawX + 8;
-      const coreY = drawY + 16;
-      this.drawRegigigasRuneAura(ctx, coreX, coreY - 12, true);
-
-      let action: 'idle' | 'walk' | 'shoot' = 'idle';
-      let animTick = this.tick;
-      if (this.regigigasAttackTick > 0) {
-        action = 'shoot';
-        animTick = 29 - this.regigigasAttackTick;
-      } else if (isFollowerWalking) {
-        action = 'walk';
-        animTick = this.followerWalkTick;
-      }
-      const dir = this.followerDir || 'down';
-
-      const pmdDrawn = this.pmdAnimator.draw(
-        ctx,
-        'regigigas',
-        action,
-        dir,
-        coreX,
-        coreY,
-        animTick
-      );
-      if (!pmdDrawn && this.regigigasImg && this.regigigasImg.complete) {
-        ctx.drawImage(this.regigigasImg, drawX - 16, drawY - 24 + stepBob, 48, 48);
-      }
-    } else if (fid === 'koraidon') {
-      const coreX = drawX + 8;
-      const coreY = drawY + 16;
-      this.drawKoraidonApexAura(ctx, coreX, coreY - 12, true);
-
-      let action: 'idle' | 'walk' | 'attack' = 'idle';
-      let animTick = this.tick;
-      if (this.koraidonAttackTick > 0) {
-        action = 'attack';
-        animTick = 26 - this.koraidonAttackTick;
-      } else if (isFollowerWalking) {
-        action = 'walk';
-        animTick = this.followerWalkTick;
-      }
-      const dir = this.followerDir || 'down';
-
-      const pmdDrawn = this.pmdAnimator.draw(
-        ctx,
-        'koraidon',
-        action,
-        dir,
-        coreX,
-        coreY,
-        animTick
-      );
-      if (!pmdDrawn && this.koraidonImg && this.koraidonImg.complete) {
-        ctx.drawImage(this.koraidonImg, drawX - 16, drawY - 24 + stepBob, 48, 48);
-      }
-    } else if (fid === 'eternatus') {
-      const coreX = drawX + 8;
-      const coreY = drawY + 16;
-      this.drawEternatusDynamoAura(ctx, coreX, coreY - 12, true);
-
-      let action: 'idle' | 'walk' | 'shoot' = 'idle';
-      let animTick = this.tick;
-      if (this.eternatusAttackTick > 0) {
-        action = 'shoot';
-        animTick = 29 - this.eternatusAttackTick;
-      } else if (isFollowerWalking) {
-        action = 'walk';
-        animTick = this.followerWalkTick;
-      }
-      const dir = this.followerDir || 'down';
-
-      const pmdDrawn = this.pmdAnimator.draw(
-        ctx,
-        'eternatus',
-        action,
-        dir,
-        coreX,
-        coreY,
-        animTick
-      );
-      if (!pmdDrawn && this.eternatusImg && this.eternatusImg.complete) {
-        ctx.drawImage(this.eternatusImg, drawX - 16, drawY - 24 + stepBob + idleBob * 1.4, 48, 48);
-      }
-    }
-
-    ctx.restore();
-
-    // Cute thought emote bubble (heart or music note)
-    if (this.followerEmoteTime > 0) {
-      const pmdCfg = this.pmdAnimator.getConfig(fid);
-      const topOffset = getDigimonById(fid)
-        ? 26
-        : pmdCfg
-          ? Math.round(pmdCfg.idle.anchorY * pmdCfg.scale + 8)
-          : 18;
-      const emoteY = drawY + 16 - topOffset;
-      ctx.save();
-      ctx.font = '10px monospace';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-      ctx.beginPath();
-      ctx.arc(drawX + 8, emoteY, 7, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.strokeStyle = '#0f172a';
-      ctx.lineWidth = 1;
-      ctx.stroke();
-      ctx.fillStyle = '#000000';
-      ctx.fillText(this.followerEmote, drawX + 8, emoteY + 0.5);
-      ctx.restore();
-    }
+    drawFollowerHelper(this, ctx);
   }
 
-  private drawEternatusDynamoAura(
+  public drawGardevoirPsychicAura(
     ctx: CanvasRenderingContext2D,
     coreX: number,
     coreY: number,
-    withSparkles: boolean
+    withSparkles: boolean = true
   ) {
-    const dynamoPulse = 0.34 + Math.sin(this.tick * 0.08) * 0.14;
-    const auraGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 21);
-    auraGrad.addColorStop(0, `rgba(244, 114, 182, ${dynamoPulse + 0.3})`);
-    auraGrad.addColorStop(0.45, `rgba(225, 29, 72, ${dynamoPulse + 0.1})`);
-    auraGrad.addColorStop(0.8, `rgba(6, 182, 212, ${dynamoPulse * 0.65})`);
-    auraGrad.addColorStop(1, 'rgba(30, 27, 75, 0)');
-    ctx.fillStyle = auraGrad;
-    ctx.beginPath();
-    ctx.arc(coreX, coreY, 21, 0, Math.PI * 2);
-    ctx.fill();
-
-    if (withSparkles && this.tick % 20 < 12) {
-      ctx.fillStyle = '#f43f5e';
-      ctx.fillRect(coreX + Math.sin(this.tick * 0.22) * 13, coreY - 4 + Math.cos(this.tick * 0.22) * 8, 2, 2);
-      ctx.fillStyle = '#06b6d4';
-      ctx.fillRect(coreX - 8 + Math.cos(this.tick * 0.18) * 11, coreY + 3 - (this.tick % 10), 1.5, 1.5);
-      ctx.fillStyle = '#f5d0fe';
-      ctx.fillRect(coreX + 5 + Math.sin(this.tick * 0.26) * 8, coreY - 6 - (this.tick % 9), 1.5, 1.5);
-    }
+    drawGardevoirPsychicAuraHelper(ctx, this.tick, coreX, coreY, withSparkles);
   }
 
-  private drawKoraidonApexAura(
+  public drawCelebiForestAura(
     ctx: CanvasRenderingContext2D,
     coreX: number,
     coreY: number,
-    withSparkles: boolean
+    withSparkles: boolean = true
   ) {
-    const apexPulse = 0.34 + Math.sin(this.tick * 0.08) * 0.14;
-    const auraGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 20);
-    auraGrad.addColorStop(0, `rgba(254, 215, 170, ${apexPulse + 0.3})`);
-    auraGrad.addColorStop(0.45, `rgba(239, 68, 68, ${apexPulse + 0.12})`);
-    auraGrad.addColorStop(0.8, `rgba(234, 88, 12, ${apexPulse * 0.6})`);
-    auraGrad.addColorStop(1, 'rgba(127, 29, 29, 0)');
-    ctx.fillStyle = auraGrad;
-    ctx.beginPath();
-    ctx.arc(coreX, coreY, 20, 0, Math.PI * 2);
-    ctx.fill();
-
-    if (withSparkles && this.tick % 20 < 12) {
-      ctx.fillStyle = '#facc15';
-      ctx.fillRect(coreX + Math.sin(this.tick * 0.22) * 12, coreY - 4 + Math.cos(this.tick * 0.22) * 7, 1.5, 1.5);
-      ctx.fillStyle = '#ef4444';
-      ctx.fillRect(coreX - 7 + Math.cos(this.tick * 0.18) * 11, coreY + 4 - (this.tick % 10), 2, 2);
-      ctx.fillStyle = '#38bdf8';
-      ctx.fillRect(coreX + 4 + Math.sin(this.tick * 0.28) * 8, coreY + 1 - (this.tick % 9), 1.5, 1.5);
-    }
-  }
-
-  private drawRegigigasRuneAura(
-    ctx: CanvasRenderingContext2D,
-    coreX: number,
-    coreY: number,
-    withSparkles: boolean
-  ) {
-    const runePulse = 0.3 + Math.sin(this.tick * 0.06) * 0.14;
-    const auraGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 21);
-    auraGrad.addColorStop(0, `rgba(254, 240, 138, ${runePulse + 0.3})`);
-    auraGrad.addColorStop(0.45, `rgba(234, 179, 8, ${runePulse + 0.1})`);
-    auraGrad.addColorStop(0.8, `rgba(74, 222, 128, ${runePulse * 0.55})`);
-    auraGrad.addColorStop(1, 'rgba(20, 83, 45, 0)');
-    ctx.fillStyle = auraGrad;
-    ctx.beginPath();
-    ctx.arc(coreX, coreY, 21, 0, Math.PI * 2);
-    ctx.fill();
-
-    if (withSparkles && this.tick % 24 < 14) {
-      const colors = ['#facc15', '#38bdf8', '#ef4444'];
-      ctx.fillStyle = colors[Math.floor(this.tick / 12) % colors.length];
-      ctx.fillRect(coreX + Math.sin(this.tick * 0.16) * 13, coreY - 5 + Math.cos(this.tick * 0.16) * 7, 2, 2);
-      ctx.fillStyle = '#4ade80';
-      ctx.fillRect(coreX - 8 + Math.cos(this.tick * 0.14) * 11, coreY + 4 - (this.tick % 9), 1.5, 1.5);
-    }
-  }
-
-  private drawDarkraiVoidAura(
-    ctx: CanvasRenderingContext2D,
-    coreX: number,
-    coreY: number,
-    withSparkles: boolean
-  ) {
-    const voidPulse = 0.35 + Math.sin(this.tick * 0.07) * 0.15;
-    const voidGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 19);
-    voidGrad.addColorStop(0, `rgba(192, 132, 252, ${voidPulse + 0.25})`);
-    voidGrad.addColorStop(0.5, `rgba(88, 28, 135, ${voidPulse})`);
-    voidGrad.addColorStop(1, 'rgba(15, 23, 42, 0)');
-    ctx.fillStyle = voidGrad;
-    ctx.beginPath();
-    ctx.arc(coreX, coreY, 19, 0, Math.PI * 2);
-    ctx.fill();
-
-    if (withSparkles && this.tick % 22 < 14) {
-      ctx.fillStyle = '#a855f7';
-      ctx.fillRect(coreX + Math.sin(this.tick * 0.2) * 12, coreY + 6 - ((this.tick * 1.3) % 18), 1.5, 1.5);
-      ctx.fillStyle = '#1e1b4b';
-      ctx.fillRect(coreX - 8 + Math.cos(this.tick * 0.16) * 10, coreY + 8 - ((this.tick * 1.1) % 16), 2, 2);
-      ctx.fillStyle = '#f3e8ff';
-      ctx.fillRect(coreX + 4 + Math.sin(this.tick * 0.28) * 8, coreY - 4 - (this.tick % 10), 1.5, 1.5);
-    }
-  }
-
-  private drawUrshifuTorrentAura(
-    ctx: CanvasRenderingContext2D,
-    coreX: number,
-    coreY: number,
-    withSparkles: boolean
-  ) {
-    // G-Max Rapid Strike dual aura: crimson Dynamax glow + hydro azure mist
-    const torrentPulse = 0.3 + Math.sin(this.tick * 0.08) * 0.14;
-    const auraGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 18);
-    auraGrad.addColorStop(0, `rgba(186, 230, 253, ${torrentPulse + 0.28})`);
-    auraGrad.addColorStop(0.45, `rgba(56, 189, 248, ${torrentPulse + 0.1})`);
-    auraGrad.addColorStop(0.8, `rgba(239, 68, 68, ${torrentPulse * 0.6})`);
-    auraGrad.addColorStop(1, 'rgba(15, 23, 42, 0)');
-    ctx.fillStyle = auraGrad;
-    ctx.beginPath();
-    ctx.arc(coreX, coreY, 18, 0, Math.PI * 2);
-    ctx.fill();
-
-    if (withSparkles) {
-      const dynPhase = (this.tick * 0.05) % (Math.PI * 2);
-      const cloudX = coreX + Math.cos(dynPhase) * 14;
-      const cloudY = coreY - 18 + Math.sin(dynPhase) * 4;
-      ctx.fillStyle = 'rgba(239, 68, 68, 0.75)';
-      ctx.fillRect(cloudX, cloudY, 2.5, 2);
-      ctx.fillStyle = 'rgba(244, 63, 94, 0.65)';
-      ctx.fillRect(cloudX - 2, cloudY + 1, 2, 1.5);
-
-      if (this.tick % 16 < 11) {
-        ctx.fillStyle = '#38bdf8';
-        ctx.fillRect(coreX + Math.sin(this.tick * 0.1) * 13, coreY - 2 + Math.cos(this.tick * 0.1) * 4, 2, 2);
-        ctx.fillStyle = '#bae6fd';
-        ctx.fillRect(coreX - 4 + Math.cos(this.tick * 0.15) * 10, coreY + 2 - (this.tick % 8), 1.5, 1.5);
-      }
-    }
-  }
-
-  private drawEmpoleonTridentAura(
-    ctx: CanvasRenderingContext2D,
-    coreX: number,
-    coreY: number,
-    withSparkles: boolean
-  ) {
-    const tridentPulse = 0.32 + Math.sin(this.tick * 0.08) * 0.14;
-    const auraGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 18);
-    auraGrad.addColorStop(0, `rgba(224, 242, 254, ${tridentPulse + 0.3})`);
-    auraGrad.addColorStop(0.45, `rgba(56, 189, 248, ${tridentPulse + 0.12})`);
-    auraGrad.addColorStop(0.8, `rgba(29, 78, 216, ${tridentPulse * 0.65})`);
-    auraGrad.addColorStop(1, 'rgba(30, 58, 138, 0)');
-    ctx.fillStyle = auraGrad;
-    ctx.beginPath();
-    ctx.arc(coreX, coreY, 18, 0, Math.PI * 2);
-    ctx.fill();
-
-    if (withSparkles && this.tick % 20 < 12) {
-      ctx.fillStyle = '#fde047';
-      ctx.fillRect(coreX + Math.sin(this.tick * 0.2) * 11, coreY - 6 + Math.cos(this.tick * 0.2) * 6, 1.5, 1.5);
-      ctx.fillStyle = '#38bdf8';
-      ctx.fillRect(coreX - 6 + Math.cos(this.tick * 0.18) * 10, coreY + 4 - (this.tick % 10), 2, 2);
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(coreX + 4 + Math.sin(this.tick * 0.26) * 8, coreY + 2 - (this.tick % 9), 1.5, 1.5);
-    }
-  }
-
-  private drawSamurottHydroAura(
-    ctx: CanvasRenderingContext2D,
-    coreX: number,
-    coreY: number,
-    withSparkles: boolean
-  ) {
-    const waterPulse = 0.3 + Math.sin(this.tick * 0.08) * 0.15;
-    const waterGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 18);
-    waterGrad.addColorStop(0, `rgba(255, 255, 255, ${waterPulse + 0.3})`);
-    waterGrad.addColorStop(0.4, `rgba(56, 189, 248, ${waterPulse + 0.15})`);
-    waterGrad.addColorStop(0.75, `rgba(14, 165, 233, ${waterPulse * 0.7})`);
-    waterGrad.addColorStop(1, 'rgba(2, 132, 199, 0)');
-    ctx.fillStyle = waterGrad;
-    ctx.beginPath();
-    ctx.arc(coreX, coreY, 18, 0, Math.PI * 2);
-    ctx.fill();
-
-    if (withSparkles && this.tick % 20 < 12) {
-      ctx.fillStyle = '#38bdf8';
-      ctx.fillRect(coreX + Math.sin(this.tick * 0.22) * 12, coreY + 4 - ((this.tick * 1.2) % 14), 1.5, 1.5);
-      ctx.fillStyle = '#0284c7';
-      ctx.fillRect(coreX - 6 + Math.cos(this.tick * 0.17) * 10, coreY + 5 - ((this.tick * 1.0) % 13), 2, 2);
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(coreX + 4 + Math.sin(this.tick * 0.28) * 8, coreY + 2 - (this.tick % 11), 1.5, 1.5);
-    }
-  }
-
-  private drawLatiosJetAura(
-    ctx: CanvasRenderingContext2D,
-    coreX: number,
-    coreY: number,
-    withSparkles: boolean
-  ) {
-    const jetPulse = 0.35 + Math.sin(this.tick * 0.09) * 0.15;
-    const auraGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 18);
-    auraGrad.addColorStop(0, `rgba(191, 219, 254, ${jetPulse + 0.3})`);
-    auraGrad.addColorStop(0.5, `rgba(59, 130, 246, ${jetPulse})`);
-    auraGrad.addColorStop(1, 'rgba(29, 78, 216, 0)');
-    ctx.fillStyle = auraGrad;
-    ctx.beginPath();
-    ctx.arc(coreX, coreY, 18, 0, Math.PI * 2);
-    ctx.fill();
-
-    if (withSparkles && this.tick % 20 < 12) {
-      ctx.fillStyle = '#93c5fd';
-      ctx.fillRect(coreX + Math.sin(this.tick * 0.24) * 12, coreY - 4 + Math.cos(this.tick * 0.24) * 8, 1.5, 1.5);
-      ctx.fillStyle = '#60a5fa';
-      ctx.fillRect(coreX - 8 + Math.cos(this.tick * 0.18) * 10, coreY + 3 + Math.sin(this.tick * 0.18) * 6, 2, 2);
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(coreX + 4 + Math.sin(this.tick * 0.3) * 8, coreY - 5 - (this.tick % 7), 1.5, 1.5);
-    }
+    drawCelebiForestAuraHelper(ctx, this.tick, coreX, coreY, withSparkles);
   }
 
   private spawnRideMountFX() {
-    const ox = this.playerPos.x * TILE_SIZE + 8;
-    const oy = this.playerPos.y * TILE_SIZE + 16;
-    for (let i = 0; i < 24; i++) {
-      const ang = Math.random() * Math.PI * 2;
-      const spd = 1.5 + Math.random() * 3;
-      this.moveParticles.push({
-        x: ox,
-        y: oy,
-        vx: Math.cos(ang) * spd,
-        vy: Math.sin(ang) * spd - 1,
-        size: 2.5 + Math.random() * 2,
-        color: ['#facc15', '#38bdf8', '#c084fc', '#ffffff', '#4ade80'][Math.floor(Math.random() * 5)],
-        alpha: 0.9,
-        life: 0,
-        maxLife: 20 + Math.floor(Math.random() * 10),
-        type: 'cosmic',
-      });
-    }
+    spawnRideMountFXHelper(this);
   }
 
   private spawnRideTrailFX(drawX: number, drawY: number) {
-    if (!this.activeFollower) return;
-    const fid = this.activeFollower.id;
-    const rideClass = this.getRideClass(fid);
-    const tileX = Math.max(0, Math.min(this.map.w - 1, Math.round(drawX / TILE_SIZE)));
-    const tileY = Math.max(0, Math.min(this.map.h - 1, Math.round(drawY / TILE_SIZE)));
-    const override = townConfig.getTileOverride(tileX, tileY);
-    const baseGround = this.map.ground[tileY * this.map.w + tileX];
-    const isOverWater = this.isWorldScene() && (override === 'water' || baseGround === Tile.WATER);
-
-    const cx = drawX + 8;
-    const cy = drawY + 14;
-
-    if (isOverWater && rideClass === 'surf') {
-      // Aqua Surf water wake ripples & splash droplets
-      this.particles.push({
-        x: cx + (Math.random() - 0.5) * 6,
-        y: cy,
-        vx: 0,
-        vy: 0,
-        size: 2.5,
-        alpha: 0.65,
-        color: 'rgba(125, 211, 252, 0.85)',
-        type: 'ripple',
-        life: 0,
-        maxLife: 16,
-      });
-      this.moveParticles.push({
-        x: cx + (Math.random() - 0.5) * 10,
-        y: cy,
-        vx: (Math.random() - 0.5) * 1.4,
-        vy: -0.8 - Math.random() * 1.2,
-        size: 2,
-        color: Math.random() < 0.5 ? '#38bdf8' : '#e0f2fe',
-        alpha: 0.85,
-        life: 0,
-        maxLife: 14,
-        type: 'water',
-      });
-      return;
-    }
-
-    if (rideClass === 'sky') {
-      // Sky Soar wind / starlight slipstream particles
-      const colorMap: Record<string, string[]> = {
-        rayquaza: ['#34d399', '#a7f3d0', '#fef08a'],
-        lunala: ['#818cf8', '#e0e7ff', '#38bdf8'],
-        giratina: ['#c084fc', '#f43f5e', '#fde047'],
-        reshiram: ['#fb923c', '#fef08a', '#ffffff'],
-        zekrom: ['#38bdf8', '#93c5fd', '#e0f2fe'],
-        charizard: ['#f97316', '#facc15', '#fed7aa'],
-      };
-      const palette = colorMap[fid] || ['#38bdf8', '#e0f2fe', '#c084fc'];
-      this.moveParticles.push({
-        x: cx + (Math.random() - 0.5) * 12,
-        y: cy - 6 + (Math.random() - 0.5) * 6,
-        vx: -DIRS[this.playerDir].x * (1.2 + Math.random()) + (Math.random() - 0.5) * 0.6,
-        vy: -DIRS[this.playerDir].y * (1.2 + Math.random()) + (Math.random() - 0.5) * 0.6,
-        size: 2 + Math.random() * 1.5,
-        color: palette[Math.floor(Math.random() * palette.length)],
-        alpha: 0.8,
-        life: 0,
-        maxLife: 15,
-        type: 'cosmic',
-      });
-      return;
-    }
-
-    // Terra Charge high-speed ground dash sparks + dust puff
-    this.spawnDustPuff(drawX, drawY);
-    if (this.tick % 6 === 0) {
-      const sparkColors: Record<string, string> = {
-        dialga: '#38bdf8',
-        arceus: '#facc15',
-        groudon: '#f97316',
-        solgaleo: '#fde047',
-        lucario: '#60a5fa',
-        pikachu: '#facc15',
-      };
-      this.moveParticles.push({
-        x: cx + (Math.random() - 0.5) * 10,
-        y: cy,
-        vx: -DIRS[this.playerDir].x * 1.5 + (Math.random() - 0.5),
-        vy: -0.6 - Math.random() * 0.8,
-        size: 2,
-        color: sparkColors[fid] || '#cbd5e1',
-        alpha: 0.85,
-        life: 0,
-        maxLife: 12,
-        type: 'aura',
-      });
-    }
+    spawnRideTrailFXHelper(this, drawX, drawY);
   }
 
   private drawPokeRide(
@@ -14436,476 +10524,10 @@ export class TownEngine {
     drawY: number,
     stepFrame: number
   ) {
-    if (!this.activeFollower) return;
-    const fid = this.activeFollower.id;
-    const isMoving = this.isMoving;
-    const animTick = isMoving ? Math.floor(this.tick * 1.35) : this.tick;
-    const dir = this.playerDir;
-    const coreX = drawX + 8;
-    const coreY = drawY + 16;
-
-    // Special case: Pikachu sprints alongside / on Ash's shoulder with lightning aura!
-    if (fid === 'pikachu') {
-      drawCharacter(ctx, this.playerPalette, this.playerDir, stepFrame, drawX, drawY, 1);
-      if (!this.playerPalette.isAsh) {
-        const pikaOffset = this.playerDir === 'left' ? 7 : -5;
-        const pikaBob = isMoving ? Math.sin(this.moveProgress * Math.PI * 2) * 1.5 : Math.sin(this.tick * 0.08) * 1.0;
-        drawPikachu(ctx, drawX + pikaOffset, drawY - 14 + pikaBob);
-      }
-      return;
-    }
-
-    const rideClass = this.getRideClass(fid);
-    const tileX = Math.max(0, Math.min(this.map.w - 1, Math.round(drawX / TILE_SIZE)));
-    const tileY = Math.max(0, Math.min(this.map.h - 1, Math.round(drawY / TILE_SIZE)));
-    const override = townConfig.getTileOverride(tileX, tileY);
-    const baseGround = this.map.ground[tileY * this.map.w + tileX];
-    const isOverWater = this.isWorldScene() && (override === 'water' || baseGround === Tile.WATER);
-
-    // Step bob / ride bobbing
-    const rideBob = isMoving
-      ? Math.sin(this.moveProgress * Math.PI * 2) * (rideClass === 'sky' ? 2.0 : 1.5)
-      : Math.sin(this.tick * 0.08) * (rideClass === 'sky' ? 1.8 : 1.0);
-
-    // Ground shadow or water wake beneath the Pokémon mount (never on top of the Pokémon!)
-    const shadowMap: Record<string, { rx: number; ry: number; yOff: number }> = {
-      urshifu: { rx: 16, ry: 5.5, yOff: 16 },
-      lunala: { rx: 17, ry: 5, yOff: 16 },
-      solgaleo: { rx: 16, ry: 6, yOff: 16 },
-      samurott: { rx: 14, ry: 5, yOff: 16 },
-      empoleon: { rx: 13, ry: 5, yOff: 16 },
-      regigigas: { rx: 16, ry: 6, yOff: 16 },
-      koraidon: { rx: 15, ry: 5.5, yOff: 16 },
-      eternatus: { rx: 16, ry: 5.5, yOff: 16 },
-      necrozma: { rx: 16, ry: 6, yOff: 16 },
-      groudon: { rx: 15, ry: 6, yOff: 16 },
-      kyogre: { rx: 15, ry: 5.5, yOff: 16 },
-      gyarados: { rx: 16, ry: 5.5, yOff: 16 },
-      snorlax: { rx: 15, ry: 6, yOff: 15 },
-      dialga: { rx: 15, ry: 5.5, yOff: 16 },
-      palkia: { rx: 15, ry: 5.5, yOff: 16 },
-      giratina: { rx: 15, ry: 5.5, yOff: 16 },
-      zekrom: { rx: 15, ry: 5.5, yOff: 16 },
-      reshiram: { rx: 15, ry: 5.5, yOff: 16 },
-      rayquaza: { rx: 15, ry: 5.5, yOff: 16 },
-      darkrai: { rx: 14, ry: 5.5, yOff: 16 },
-      garchomp: { rx: 15, ry: 5.5, yOff: 16 },
-      tyranitar: { rx: 15, ry: 5.5, yOff: 16 },
-      charizard: { rx: 14, ry: 5, yOff: 15 },
-      arceus: { rx: 14, ry: 5, yOff: 16 },
-      mewtwo: { rx: 13, ry: 4.5, yOff: 16 },
-      latios: { rx: 13, ry: 4.5, yOff: 16 },
-      latias: { rx: 13, ry: 4.5, yOff: 16 },
-    };
-    const s = shadowMap[fid] ?? { rx: 14, ry: 5, yOff: 16 };
-    ctx.fillStyle = rideClass === 'sky' ? 'rgba(15, 23, 42, 0.28)' : 'rgba(15, 23, 42, 0.42)';
-    ctx.beginPath();
-    ctx.ellipse(
-      coreX,
-      drawY + s.yOff,
-      rideClass === 'sky' ? s.rx * 0.85 : s.rx,
-      rideClass === 'sky' ? s.ry * 0.85 : s.ry,
-      0,
-      0,
-      Math.PI * 2
-    );
-    ctx.fill();
-
-    // Water surf wake ring when surfing on water
-    if (isOverWater && rideClass === 'surf') {
-      const wavePulse = 0.5 + 0.5 * Math.sin(this.tick * 0.14);
-      ctx.save();
-      ctx.strokeStyle = `rgba(186, 230, 253, ${0.55 + wavePulse * 0.3})`;
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.ellipse(coreX, drawY + 15, s.rx + 2 + wavePulse * 2, s.ry + 1, 0, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.restore();
-    }
-
-    // Determine attack tick and action
-    let action: PMDAction = isMoving ? 'walk' : 'idle';
-    let attackTick = 0;
-    if (fid === 'rayquaza' && this.rayquazaAttackTick > 0) {
-      action = 'shoot';
-      attackTick = 26 - this.rayquazaAttackTick;
-    } else if (fid === 'arceus' && this.arceusAttackTick > 0) {
-      action = 'shoot';
-      attackTick = 30 - this.arceusAttackTick;
-    } else if (fid === 'reshiram' && this.reshiramAttackTick > 0) {
-      action = 'shoot';
-      attackTick = 28 - this.reshiramAttackTick;
-    } else if (fid === 'zekrom' && this.zekromAttackTick > 0) {
-      action = 'shoot';
-      attackTick = 26 - this.zekromAttackTick;
-    } else if (fid === 'giratina' && this.giratinaAttackTick > 0) {
-      action = 'shoot';
-      attackTick = 24 - this.giratinaAttackTick;
-    } else if (fid === 'palkia' && this.palkiaAttackTick > 0) {
-      action = 'shoot';
-      attackTick = 28 - this.palkiaAttackTick;
-    } else if (fid === 'dialga' && this.dialgaAttackTick > 0) {
-      action = 'shoot';
-      attackTick = 28 - this.dialgaAttackTick;
-    } else if (fid === 'lunala' && this.lunalaAttackTick > 0) {
-      action = 'shoot';
-      attackTick = 25 - this.lunalaAttackTick;
-    } else if (fid === 'solgaleo' && this.solgaleoAttackTick > 0) {
-      action = 'shoot';
-      attackTick = 25 - this.solgaleoAttackTick;
-    } else if (fid === 'garchomp' && this.garchompAttackTick > 0) {
-      action = 'shoot';
-      attackTick = 26 - this.garchompAttackTick;
-    } else if (fid === 'groudon' && this.groudonAttackTick > 0) {
-      action = 'shoot';
-      attackTick = 28 - this.groudonAttackTick;
-    } else if (fid === 'kyogre' && this.kyogreAttackTick > 0) {
-      action = 'shoot';
-      attackTick = 26 - this.kyogreAttackTick;
-    } else if (fid === 'tyranitar' && this.tyranitarAttackTick > 0) {
-      action = 'shoot';
-      attackTick = 26 - this.tyranitarAttackTick;
-    } else if (fid === 'gyarados' && this.gyaradosAttackTick > 0) {
-      action = 'shoot';
-      attackTick = 25 - this.gyaradosAttackTick;
-    } else if (fid === 'snorlax' && this.snorlaxAttackTick > 0) {
-      action = 'shoot';
-      attackTick = 26 - this.snorlaxAttackTick;
-    } else if (fid === 'samurott' && this.samurottAttackTick > 0) {
-      action = 'attack';
-      attackTick = 27 - this.samurottAttackTick;
-    } else if (fid === 'empoleon' && this.empoleonAttackTick > 0) {
-      action = 'shoot';
-      attackTick = 26 - this.empoleonAttackTick;
-    } else if (fid === 'regigigas' && this.regigigasAttackTick > 0) {
-      action = 'shoot';
-      attackTick = 29 - this.regigigasAttackTick;
-    } else if (fid === 'koraidon' && this.koraidonAttackTick > 0) {
-      action = 'attack';
-      attackTick = 26 - this.koraidonAttackTick;
-    } else if (fid === 'eternatus' && this.eternatusAttackTick > 0) {
-      action = 'shoot';
-      attackTick = 29 - this.eternatusAttackTick;
-    } else if (fid === 'latios' && this.latiosAttackTick > 0) {
-      action = 'shoot';
-      attackTick = 25 - this.latiosAttackTick;
-    } else if (fid === 'latias' && this.latiasAttackTick > 0) {
-      action = 'shoot';
-      attackTick = 25 - this.latiasAttackTick;
-    } else if (fid === 'darkrai' && this.darkraiAttackTick > 0) {
-      action = 'shoot';
-      attackTick = 30 - this.darkraiAttackTick;
-    } else if (fid === 'urshifu' && this.urshifuAttackTick > 0) {
-      action = 'attack';
-      attackTick = 28 - this.urshifuAttackTick;
-    }
-
-    const curAnimTick = attackTick > 0 ? attackTick : animTick;
-
-    // Draw background visual aura for PMD/legendary Pokémon
-    if (fid === 'rayquaza') {
-      const ozonePulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
-      const ozoneGrad = ctx.createRadialGradient(coreX, coreY - 12, 3, coreX, coreY - 12, 22);
-      ozoneGrad.addColorStop(0, `rgba(52, 211, 153, ${ozonePulse + 0.3})`);
-      ozoneGrad.addColorStop(0.5, `rgba(16, 185, 129, ${ozonePulse})`);
-      ozoneGrad.addColorStop(1, 'rgba(16, 185, 129, 0)');
-      ctx.fillStyle = ozoneGrad;
-      ctx.beginPath();
-      ctx.arc(coreX, coreY - 12, 22, 0, Math.PI * 2);
-      ctx.fill();
-    } else if (fid === 'arceus') {
-      const cosPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
-      const cosGrad = ctx.createRadialGradient(coreX, coreY - 12, 3, coreX, coreY - 12, 20);
-      cosGrad.addColorStop(0, `rgba(254, 240, 138, ${cosPulse + 0.3})`);
-      cosGrad.addColorStop(0.5, `rgba(234, 179, 8, ${cosPulse})`);
-      cosGrad.addColorStop(1, 'rgba(234, 179, 8, 0)');
-      ctx.fillStyle = cosGrad;
-      ctx.beginPath();
-      ctx.arc(coreX, coreY - 12, 20, 0, Math.PI * 2);
-      ctx.fill();
-    } else if (fid === 'dialga') {
-      const corePulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
-      const coreGrad = ctx.createRadialGradient(coreX, coreY - 10, 2, coreX, coreY - 10, 20);
-      coreGrad.addColorStop(0, `rgba(224, 242, 254, ${corePulse + 0.35})`);
-      coreGrad.addColorStop(0.45, `rgba(56, 189, 248, ${corePulse + 0.1})`);
-      coreGrad.addColorStop(1, 'rgba(2, 132, 199, 0)');
-      ctx.fillStyle = coreGrad;
-      ctx.beginPath();
-      ctx.arc(coreX, coreY - 10, 20, 0, Math.PI * 2);
-      ctx.fill();
-    } else if (fid === 'palkia') {
-      const spatialPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
-      const spatGrad = ctx.createRadialGradient(coreX, coreY - 10, 3, coreX, coreY - 10, 20);
-      spatGrad.addColorStop(0, `rgba(240, 171, 252, ${spatialPulse + 0.3})`);
-      spatGrad.addColorStop(0.5, `rgba(192, 38, 211, ${spatialPulse})`);
-      spatGrad.addColorStop(1, 'rgba(192, 38, 211, 0)');
-      ctx.fillStyle = spatGrad;
-      ctx.beginPath();
-      ctx.arc(coreX, coreY - 10, 20, 0, Math.PI * 2);
-      ctx.fill();
-    } else if (fid === 'lunala') {
-      const moonPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
-      const moonGrad = ctx.createRadialGradient(coreX, coreY - 14, 2, coreX, coreY - 14, 22);
-      moonGrad.addColorStop(0, `rgba(224, 231, 255, ${moonPulse + 0.3})`);
-      moonGrad.addColorStop(0.5, `rgba(129, 140, 248, ${moonPulse})`);
-      moonGrad.addColorStop(1, 'rgba(15, 23, 42, 0)');
-      ctx.fillStyle = moonGrad;
-      ctx.beginPath();
-      ctx.arc(coreX, coreY - 14, 22, 0, Math.PI * 2);
-      ctx.fill();
-    } else if (fid === 'solgaleo') {
-      const sunPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
-      const sunGrad = ctx.createRadialGradient(coreX, coreY - 10, 2, coreX, coreY - 10, 20);
-      sunGrad.addColorStop(0, `rgba(255, 255, 255, ${sunPulse + 0.35})`);
-      sunGrad.addColorStop(0.35, `rgba(254, 240, 138, ${sunPulse + 0.2})`);
-      sunGrad.addColorStop(0.7, `rgba(245, 158, 11, ${sunPulse * 0.7})`);
-      sunGrad.addColorStop(1, 'rgba(234, 88, 12, 0)');
-      ctx.fillStyle = sunGrad;
-      ctx.beginPath();
-      ctx.arc(coreX, coreY - 10, 20, 0, Math.PI * 2);
-      ctx.fill();
-    } else if (fid === 'garchomp') {
-      const dragonPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
-      const dragonGrad = ctx.createRadialGradient(coreX, coreY - 10, 2, coreX, coreY - 10, 20);
-      dragonGrad.addColorStop(0, `rgba(56, 189, 248, ${dragonPulse + 0.3})`);
-      dragonGrad.addColorStop(0.5, `rgba(3, 105, 161, ${dragonPulse * 0.7})`);
-      dragonGrad.addColorStop(1, 'rgba(15, 23, 42, 0)');
-      ctx.fillStyle = dragonGrad;
-      ctx.beginPath();
-      ctx.arc(coreX, coreY - 10, 20, 0, Math.PI * 2);
-      ctx.fill();
-    } else if (fid === 'groudon') {
-      const magmaPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
-      const magmaGrad = ctx.createRadialGradient(coreX, coreY - 10, 2, coreX, coreY - 10, 20);
-      magmaGrad.addColorStop(0, `rgba(239, 68, 68, ${magmaPulse + 0.35})`);
-      magmaGrad.addColorStop(0.5, `rgba(249, 115, 22, ${magmaPulse * 0.8})`);
-      magmaGrad.addColorStop(1, 'rgba(180, 83, 9, 0)');
-      ctx.fillStyle = magmaGrad;
-      ctx.beginPath();
-      ctx.arc(coreX, coreY - 10, 20, 0, Math.PI * 2);
-      ctx.fill();
-    } else if (fid === 'kyogre') {
-      const aquaPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
-      const aquaGrad = ctx.createRadialGradient(coreX, coreY - 10, 2, coreX, coreY - 10, 20);
-      aquaGrad.addColorStop(0, `rgba(186, 230, 253, ${aquaPulse + 0.35})`);
-      aquaGrad.addColorStop(0.5, `rgba(14, 165, 233, ${aquaPulse * 0.8})`);
-      aquaGrad.addColorStop(1, 'rgba(3, 105, 161, 0)');
-      ctx.fillStyle = aquaGrad;
-      ctx.beginPath();
-      ctx.arc(coreX, coreY - 10, 20, 0, Math.PI * 2);
-      ctx.fill();
-    } else if (fid === 'tyranitar') {
-      const sandPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
-      const sandGrad = ctx.createRadialGradient(coreX, coreY - 10, 2, coreX, coreY - 10, 20);
-      sandGrad.addColorStop(0, `rgba(217, 119, 6, ${sandPulse + 0.35})`);
-      sandGrad.addColorStop(0.5, `rgba(180, 83, 9, ${sandPulse * 0.8})`);
-      sandGrad.addColorStop(1, 'rgba(15, 23, 42, 0)');
-      ctx.fillStyle = sandGrad;
-      ctx.beginPath();
-      ctx.arc(coreX, coreY - 10, 20, 0, Math.PI * 2);
-      ctx.fill();
-    } else if (fid === 'gyarados') {
-      const aquaPulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
-      const aquaGrad = ctx.createRadialGradient(coreX, coreY - 10, 2, coreX, coreY - 10, 20);
-      aquaGrad.addColorStop(0, `rgba(186, 230, 253, ${aquaPulse + 0.35})`);
-      aquaGrad.addColorStop(0.5, `rgba(14, 165, 233, ${aquaPulse * 0.8})`);
-      aquaGrad.addColorStop(1, 'rgba(3, 105, 161, 0)');
-      ctx.fillStyle = aquaGrad;
-      ctx.beginPath();
-      ctx.arc(coreX, coreY - 10, 20, 0, Math.PI * 2);
-      ctx.fill();
-    } else if (fid === 'samurott') {
-      this.drawSamurottHydroAura(ctx, coreX, coreY - 10, false);
-    } else if (fid === 'empoleon') {
-      this.drawEmpoleonTridentAura(ctx, coreX, coreY - 10, false);
-    } else if (fid === 'regigigas') {
-      this.drawRegigigasRuneAura(ctx, coreX, coreY - 12, false);
-    } else if (fid === 'koraidon') {
-      this.drawKoraidonApexAura(ctx, coreX, coreY - 12, false);
-    } else if (fid === 'eternatus') {
-      this.drawEternatusDynamoAura(ctx, coreX, coreY - 12, false);
-    } else if (fid === 'latios') {
-      this.drawLatiosJetAura(ctx, coreX, coreY - 10, false);
-    } else if (fid === 'latias') {
-      const rosePulse = 0.35 + Math.sin(this.tick * 0.08) * 0.15;
-      const roseGrad = ctx.createRadialGradient(coreX, coreY - 10, 2, coreX, coreY - 10, 18);
-      roseGrad.addColorStop(0, `rgba(254, 205, 211, ${rosePulse + 0.35})`);
-      roseGrad.addColorStop(0.5, `rgba(244, 63, 94, ${rosePulse * 0.8})`);
-      roseGrad.addColorStop(1, 'rgba(190, 18, 60, 0)');
-      ctx.fillStyle = roseGrad;
-      ctx.beginPath();
-      ctx.arc(coreX, coreY - 10, 18, 0, Math.PI * 2);
-      ctx.fill();
-    } else if (fid === 'darkrai') {
-      this.drawDarkraiVoidAura(ctx, coreX, coreY - 10, false);
-    } else if (fid === 'urshifu') {
-      this.drawUrshifuTorrentAura(ctx, coreX, coreY - 12, false);
-    }
-
-    // Anatomical per-species and per-direction saddle offsets relative to (coreX, coreY)
-    const saddleConfigs: Record<
-      string,
-      {
-        down: { dx: number; dy: number };
-        side: { dx: number; dy: number };
-        up: { dx: number; dy: number };
-      }
-    > = {
-      dialga:   { down: { dx: 0, dy: -21 }, side: { dx: -4, dy: -20 }, up: { dx: 0, dy: -19 } },
-      giratina: { down: { dx: 0, dy: -23 }, side: { dx: -8, dy: -19 }, up: { dx: 0, dy: -19 } },
-      palkia:   { down: { dx: 0, dy: -21 }, side: { dx: -3, dy: -19 }, up: { dx: 0, dy: -19 } },
-      rayquaza: { down: { dx: 0, dy: -21 }, side: { dx: -4, dy: -19 }, up: { dx: 0, dy: -19 } },
-      lunala:   { down: { dx: 0, dy: -17 }, side: { dx: -2, dy: -16 }, up: { dx: 0, dy: -16 } },
-      arceus:   { down: { dx: 0, dy: -20 }, side: { dx: -4, dy: -18 }, up: { dx: 0, dy: -19 } },
-      reshiram: { down: { dx: 0, dy: -19 }, side: { dx: -5, dy: -17 }, up: { dx: 0, dy: -17 } },
-      zekrom:   { down: { dx: 0, dy: -19 }, side: { dx: -5, dy: -17 }, up: { dx: 0, dy: -17 } },
-      groudon:  { down: { dx: 0, dy: -22 }, side: { dx: -4, dy: -20 }, up: { dx: 0, dy: -21 } },
-      kyogre:   { down: { dx: 0, dy: -18 }, side: { dx: -3, dy: -17 }, up: { dx: 0, dy: -18 } },
-      charizard:{ down: { dx: 0, dy: -18 }, side: { dx: -3, dy: -17 }, up: { dx: 0, dy: -17 } },
-      garchomp: { down: { dx: 0, dy: -20 }, side: { dx: -4, dy: -19 }, up: { dx: 0, dy: -19 } },
-      tyranitar:{ down: { dx: 0, dy: -22 }, side: { dx: -4, dy: -20 }, up: { dx: 0, dy: -20 } },
-      gyarados: { down: { dx: 0, dy: -22 }, side: { dx: -5, dy: -20 }, up: { dx: 0, dy: -21 } },
-      snorlax:  { down: { dx: 0, dy: -18 }, side: { dx: -3, dy: -17 }, up: { dx: 0, dy: -17 } },
-      urshifu:  { down: { dx: 0, dy: -19 }, side: { dx: -3, dy: -18 }, up: { dx: 0, dy: -18 } },
-      solgaleo: { down: { dx: 0, dy: -18 }, side: { dx: -4, dy: -17 }, up: { dx: 0, dy: -17 } },
-      necrozma: { down: { dx: 0, dy: -19 }, side: { dx: -3, dy: -18 }, up: { dx: 0, dy: -18 } },
-      samurott: { down: { dx: 0, dy: -17 }, side: { dx: -3, dy: -16 }, up: { dx: 0, dy: -17 } },
-      empoleon: { down: { dx: 0, dy: -17 }, side: { dx: -2, dy: -16 }, up: { dx: 0, dy: -17 } },
-      regigigas:{ down: { dx: 0, dy: -22 }, side: { dx: -4, dy: -20 }, up: { dx: 0, dy: -21 } },
-      koraidon: { down: { dx: 0, dy: -20 }, side: { dx: -4, dy: -18 }, up: { dx: 0, dy: -19 } },
-      eternatus:{ down: { dx: 0, dy: -21 }, side: { dx: -5, dy: -19 }, up: { dx: 0, dy: -19 } },
-      latios:   { down: { dx: 0, dy: -16 }, side: { dx: -2, dy: -15 }, up: { dx: 0, dy: -16 } },
-      latias:   { down: { dx: 0, dy: -16 }, side: { dx: -2, dy: -15 }, up: { dx: 0, dy: -16 } },
-      darkrai:  { down: { dx: 0, dy: -18 }, side: { dx: -3, dy: -17 }, up: { dx: 0, dy: -17 } },
-      mewtwo:   { down: { dx: 0, dy: -17 }, side: { dx: -3, dy: -16 }, up: { dx: 0, dy: -17 } },
-      lucario:  { down: { dx: 0, dy: -13 }, side: { dx: -2, dy: -12 }, up: { dx: 0, dy: -13 } },
-    };
-
-    const saddle = saddleConfigs[fid] ?? {
-      down: { dx: 0, dy: -19 },
-      side: { dx: -3, dy: -17 },
-      up: { dx: 0, dy: -17 },
-    };
-
-    let riderDx = 0;
-    let riderDy = -19;
-    if (dir === 'down') {
-      riderDx = saddle.down.dx;
-      riderDy = saddle.down.dy;
-    } else if (dir === 'up') {
-      riderDx = saddle.up.dx;
-      riderDy = saddle.up.dy;
-    } else if (dir === 'right') {
-      riderDx = saddle.side.dx;
-      riderDy = saddle.side.dy;
-    } else if (dir === 'left') {
-      riderDx = -saddle.side.dx;
-      riderDy = saddle.side.dy;
-    }
-
-    const digiMount = getDigimonById(fid);
-    const pmdDrawn = digiMount
-      ? false
-      : this.pmdAnimator.draw(
-          ctx,
-          fid,
-          action,
-          dir,
-          coreX,
-          coreY,
-          curAnimTick,
-          1.18
-        );
-
-    if (digiMount) {
-      const orientMap: Record<Dir, 'N' | 'S' | 'E' | 'W'> = {
-        up: 'N',
-        down: 'S',
-        left: 'W',
-        right: 'E',
-      };
-      this.drawDigimonOverworldSprite(
-        ctx,
-        digiMount,
-        orientMap[dir] || 'S',
-        curAnimTick,
-        isMoving,
-        coreX,
-        coreY + 3 + rideBob,
-        1.14,
-        false
-      );
-    } else if (!pmdDrawn) {
-      const isFlipped = this.playerDir === 'left';
-      if (isFlipped) {
-        ctx.save();
-        ctx.translate(drawX + 8, 0);
-        ctx.scale(-1, 1);
-        ctx.translate(-(drawX + 8), 0);
-      }
-      if (fid === 'charizard' && this.charizardImg?.complete) {
-        ctx.drawImage(this.charizardImg, drawX - 16, drawY - 24 + rideBob, 48, 48);
-      } else if (fid === 'garchomp' && this.garchompImg?.complete) {
-        ctx.drawImage(this.garchompImg, drawX - 16, drawY - 23 + rideBob, 48, 48);
-      } else if (fid === 'tyranitar' && this.tyranitarImg?.complete) {
-        ctx.drawImage(this.tyranitarImg, drawX - 16, drawY - 23 + rideBob, 48, 48);
-      } else if (fid === 'urshifu' && this.urshifuImg?.complete) {
-        ctx.drawImage(this.urshifuImg, drawX - 18, drawY - 25 + rideBob, 52, 48);
-      } else if (fid === 'mewtwo' && this.mewtwoImg?.complete) {
-        ctx.drawImage(this.mewtwoImg, drawX - 14, drawY - 21 + rideBob, 44, 44);
-      } else if (fid === 'groudon' && this.groudonImg?.complete) {
-        ctx.drawImage(this.groudonImg, drawX - 17, drawY - 24 + rideBob, 50, 48);
-      } else if (fid === 'kyogre' && this.kyogreImg?.complete) {
-        ctx.drawImage(this.kyogreImg, drawX - 18, drawY - 22 + rideBob, 52, 46);
-      } else if (fid === 'latios' && this.latiosImg?.complete) {
-        ctx.drawImage(this.latiosImg, drawX - 16, drawY - 21 + rideBob, 48, 44);
-      } else if (fid === 'latias' && this.latiasImg?.complete) {
-        ctx.drawImage(this.latiasImg, drawX - 16, drawY - 21 + rideBob, 48, 44);
-      } else if (fid === 'darkrai' && this.darkraiImg?.complete) {
-        ctx.drawImage(this.darkraiImg, drawX - 15, drawY - 23 + rideBob, 46, 46);
-      } else if (fid === 'necrozma' && this.necrozmaImg?.complete) {
-        ctx.drawImage(this.necrozmaImg, drawX - 17, drawY - 24 + rideBob, 50, 46);
-      } else if (fid === 'solgaleo' && this.solgaleoImg?.complete) {
-        ctx.drawImage(this.solgaleoImg, drawX - 17, drawY - 24 + rideBob, 50, 46);
-      } else if (fid === 'samurott' && this.samurottImg?.complete) {
-        ctx.drawImage(this.samurottImg, drawX - 16, drawY - 23 + rideBob, 48, 46);
-      } else if (fid === 'empoleon' && this.empoleonImg?.complete) {
-        ctx.drawImage(this.empoleonImg, drawX - 16, drawY - 23 + rideBob, 48, 46);
-      } else if (fid === 'regigigas' && this.regigigasImg?.complete) {
-        ctx.drawImage(this.regigigasImg, drawX - 17, drawY - 24 + rideBob, 50, 48);
-      } else if (fid === 'koraidon' && this.koraidonImg?.complete) {
-        ctx.drawImage(this.koraidonImg, drawX - 17, drawY - 24 + rideBob, 50, 48);
-      } else if (fid === 'eternatus' && this.eternatusImg?.complete) {
-        ctx.drawImage(this.eternatusImg, drawX - 17, drawY - 24 + rideBob, 50, 48);
-      } else if (fid === 'lucario') {
-        drawLucario(ctx, drawX, drawY + rideBob, this.tick, 1.1);
-      }
-      if (isFlipped) ctx.restore();
-    }
-
-    // Draw seated rider on the Pokémon's anatomical saddle (authentic Ash Ketchum sprite, realistic 0.60x mount scale & soft blending)
-    drawRiderCharacter(
-      ctx,
-      this.playerPalette,
-      dir,
-      isMoving ? stepFrame : 0,
-      coreX + riderDx,
-      coreY + riderDy + rideBob * 0.75,
-      0.60,
-      0.82
-    );
+    drawPokeRideHelper(this, ctx, drawX, drawY, stepFrame);
   }
 
   private renderMoveParticles(ctx: CanvasRenderingContext2D) {
-    if (this.moveParticles.length === 0) return;
-    ctx.save();
-    for (const p of this.moveParticles) {
-      ctx.globalAlpha = p.alpha;
-      ctx.fillStyle = p.color;
-      ctx.shadowColor = p.color;
-      ctx.shadowBlur = 6;
-      ctx.fillRect(Math.floor(p.x), Math.floor(p.y), p.size, p.size);
-    }
-    ctx.restore();
+    renderMoveParticlesHelper(this, ctx);
   }
 }

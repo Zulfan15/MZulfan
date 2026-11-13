@@ -1,6 +1,18 @@
 import type { Dir } from './types';
 import { TILE_SIZE, drawCharacter } from './sprites';
 import { drawPixelText } from './devScene';
+import type { PokemonPMDAnimator } from './pokemonPMDAnimator';
+import { GARDEVOIR_IMAGE_SRC } from './gardevoirSprite';
+import { CELEBI_IMAGE_SRC } from './celebiSprite';
+
+let gardevoirFallbackImg: HTMLImageElement | null = null;
+let celebiFallbackImg: HTMLImageElement | null = null;
+if (typeof window !== 'undefined') {
+  gardevoirFallbackImg = new Image();
+  gardevoirFallbackImg.src = GARDEVOIR_IMAGE_SRC;
+  celebiFallbackImg = new Image();
+  celebiFallbackImg.src = CELEBI_IMAGE_SRC;
+}
 
 export const GARDEN_COLS = 15;
 export const GARDEN_ROWS = 12;
@@ -46,14 +58,34 @@ export interface GardenProp {
 
 export const GARDEN_PROPS: GardenProp[] = [
   {
+    id: 'gardevoir',
+    x: 6,
+    y: 3,
+    w: 1,
+    h: 1,
+    label: '🧚 Gardevoir',
+    labelLift: 20,
+    target: { type: 'event', name: 'gardevoir' },
+  },
+  {
+    id: 'celebi',
+    x: 8,
+    y: 3,
+    w: 1,
+    h: 1,
+    label: '🌿 Celebi',
+    labelLift: 10,
+    target: { type: 'event', name: 'celebi' },
+  },
+  {
     id: 'botanist-flora',
     x: 6,
     y: 3,
     w: 1,
     h: 1,
-    label: '👩‍🌾 Botanist Flora',
+    label: '🧚 Gardevoir',
     labelLift: 20,
-    target: { type: 'event', name: 'botanist-flora' },
+    target: { type: 'event', name: 'gardevoir' },
   },
   {
     id: 'shaymin-npc',
@@ -61,9 +93,9 @@ export const GARDEN_PROPS: GardenProp[] = [
     y: 3,
     w: 1,
     h: 1,
-    label: '🦔 Shaymin',
-    labelLift: 8,
-    target: { type: 'event', name: 'shaymin-npc' },
+    label: '🌿 Celebi',
+    labelLift: 10,
+    target: { type: 'event', name: 'celebi' },
   },
   {
     id: 'plot-oran',
@@ -537,58 +569,87 @@ function drawSprayduckWell(ctx: CanvasRenderingContext2D, x: number, y: number) 
 /**
  * Dynamic frame-by-frame animations for the Botanical Berry Plantation (/garden)
  */
-export function renderGardenAnimations(ctx: CanvasRenderingContext2D, tick: number) {
+export function renderGardenAnimations(ctx: CanvasRenderingContext2D, tick: number, pmdAnimator?: PokemonPMDAnimator) {
   ctx.save();
 
-  // 1. Master Botanist Flora at (6, 3) beside the Sakura Spring
-  const floraX = 6 * TILE_SIZE;
-  const floraY = 3 * TILE_SIZE - 2;
-  drawCharacter(
-    ctx,
-    {
-      skin: '#fed7aa',
-      hair: '#9a3412', // Auburn hair
-      shirt: '#15803d', // Botanical green apron/tunic
-      pants: '#fef3c7', // Cream trousers
-      shoes: '#78350f', // Garden boots
-      accent: '#f472b6', // Sakura hair blossom
-    },
-    'down',
-    Math.floor(tick / 28) % 2,
-    floraX,
-    floraY,
-    1
-  );
+  // 1. Gardevoir (Psychic/Fairy Sakura Conservatory Guardian) at (6, 3)
+  const gdX = 6 * TILE_SIZE;
+  const gdY = 3 * TILE_SIZE;
+  const gdCoreX = gdX + 8;
+  const gdCoreY = gdY + 16;
 
-  // 2. Shaymin (Gratitude Hedge Guardian) at (8, 3)
-  const shX = 8 * TILE_SIZE;
-  const shY = 3 * TILE_SIZE;
-  const shBob = Math.round(Math.sin(tick * 0.08) * 1.2);
-
-  // Shadow
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.28)';
+  // Ground contact shadow
+  ctx.fillStyle = 'rgba(20, 25, 30, 0.35)';
   ctx.beginPath();
-  ctx.ellipse(shX + 8, shY + 14, 5, 2.2, 0, 0, Math.PI * 2);
+  ctx.ellipse(gdCoreX, gdCoreY, 11, 4.5, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  // White body & lush green grass-hedge back
-  ctx.fillStyle = '#ffffff';
-  ctx.fillRect(shX + 4, shY + 8 + shBob, 8, 5);
-  ctx.fillStyle = '#22c55e';
-  ctx.fillRect(shX + 4, shY + 4 + shBob, 8, 5);
-  ctx.fillStyle = '#4ade80';
-  ctx.fillRect(shX + 5, shY + 3 + shBob, 6, 3);
+  // Fairy Psychic Aura & Sakura petals
+  const fairyPulse = 0.32 + Math.sin(tick * 0.09) * 0.14;
+  const fairyGrad = ctx.createRadialGradient(gdCoreX, gdCoreY - 10, 2, gdCoreX, gdCoreY - 10, 18);
+  fairyGrad.addColorStop(0, `rgba(251, 207, 232, ${fairyPulse + 0.3})`);
+  fairyGrad.addColorStop(0.45, `rgba(244, 114, 182, ${fairyPulse + 0.1})`);
+  fairyGrad.addColorStop(0.8, `rgba(192, 132, 252, ${fairyPulse * 0.6})`);
+  fairyGrad.addColorStop(1, 'rgba(147, 51, 234, 0)');
+  ctx.fillStyle = fairyGrad;
+  ctx.beginPath();
+  ctx.arc(gdCoreX, gdCoreY - 10, 18, 0, Math.PI * 2);
+  ctx.fill();
 
-  // Pink Gracidea Flower on side of Shaymin's head
-  ctx.fillStyle = '#f43f5e';
-  ctx.fillRect(shX + 3, shY + 4 + shBob, 3, 3);
-  ctx.fillStyle = '#fde047';
-  ctx.fillRect(shX + 4, shY + 5 + shBob, 1, 1);
+  if (tick % 18 < 11) {
+    ctx.fillStyle = '#fbcfe8';
+    ctx.fillRect(gdCoreX + Math.sin(tick * 0.22) * 11, gdCoreY - 14 + Math.cos(tick * 0.22) * 6, 1.5, 1.5);
+    ctx.fillStyle = '#f472b6';
+    ctx.fillRect(gdCoreX - 6 + Math.cos(tick * 0.18) * 9, gdCoreY - 7 - (tick % 8), 1.5, 1.5);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(gdCoreX + 4 + Math.sin(tick * 0.28) * 8, gdCoreY - 16 - (tick % 6), 1.5, 1.5);
+  }
 
-  // Eyes
-  ctx.fillStyle = '#1e293b';
-  ctx.fillRect(shX + 6, shY + 9 + shBob, 1, 2);
-  ctx.fillRect(shX + 9, shY + 9 + shBob, 1, 2);
+  // Draw Gardevoir PMD animated sprite (with fallback)
+  const gdDrawn = pmdAnimator?.draw(ctx, 'gardevoir', 'idle', 'down', gdCoreX, gdCoreY, tick);
+  if (!gdDrawn && gardevoirFallbackImg?.complete) {
+    ctx.drawImage(gardevoirFallbackImg, gdX - 16, gdY - 24, 48, 48);
+  }
+
+  // 2. Celebi (Voice of the Forest & Time Guardian) at (8, 3)
+  const cbX = 8 * TILE_SIZE;
+  const cbY = 3 * TILE_SIZE;
+  const cbCoreX = cbX + 8;
+  const cbCoreY = cbY + 16;
+  const floatBob = Math.sin(tick * 0.08) * 1.8;
+
+  // Ground contact shadow
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.3)';
+  ctx.beginPath();
+  ctx.ellipse(cbCoreX, cbCoreY, 10 - floatBob * 0.4, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Time Ripple Forest Aura & golden time particles
+  const timePulse = 0.32 + Math.sin(tick * 0.09) * 0.14;
+  const timeGrad = ctx.createRadialGradient(cbCoreX, cbCoreY - 10 + floatBob, 2, cbCoreX, cbCoreY - 10 + floatBob, 18);
+  timeGrad.addColorStop(0, `rgba(254, 240, 138, ${timePulse + 0.3})`);
+  timeGrad.addColorStop(0.45, `rgba(74, 222, 128, ${timePulse + 0.15})`);
+  timeGrad.addColorStop(0.8, `rgba(34, 197, 94, ${timePulse * 0.6})`);
+  timeGrad.addColorStop(1, 'rgba(21, 128, 61, 0)');
+  ctx.fillStyle = timeGrad;
+  ctx.beginPath();
+  ctx.arc(cbCoreX, cbCoreY - 10 + floatBob, 18, 0, Math.PI * 2);
+  ctx.fill();
+
+  if (tick % 18 < 11) {
+    ctx.fillStyle = '#fef08a';
+    ctx.fillRect(cbCoreX + Math.sin(tick * 0.24) * 11, cbCoreY - 15 + Math.cos(tick * 0.24) * 7 + floatBob, 1.5, 1.5);
+    ctx.fillStyle = '#86efac';
+    ctx.fillRect(cbCoreX - 6 + Math.cos(tick * 0.18) * 10, cbCoreY - 7 - (tick % 8) + floatBob, 1.5, 1.5);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(cbCoreX + 4 + Math.sin(tick * 0.3) * 8, cbCoreY - 16 - (tick % 7) + floatBob, 1.5, 1.5);
+  }
+
+  // Draw Celebi PMD animated sprite (with fallback)
+  const cbDrawn = pmdAnimator?.draw(ctx, 'celebi', 'idle', 'down', cbCoreX, cbCoreY + floatBob, tick);
+  if (!cbDrawn && celebiFallbackImg?.complete) {
+    ctx.drawImage(celebiFallbackImg, cbX - 16, cbY - 24 + floatBob, 48, 48);
+  }
 
   // 3. Sparkling Spring Water Ripple at (7, 3)
   const rippleR = 3 + ((tick % 40) / 40) * 5;
