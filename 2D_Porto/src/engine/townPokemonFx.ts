@@ -3109,3 +3109,167 @@ export function renderMoveParticles(host: TownPokemonFxHost, ctx: CanvasRenderin
   }
   ctx.restore();
 }
+
+export interface ResonanceMatch {
+  id: string;
+  label: string;
+  comboTitle: string;
+  followerId: string;
+  nearbyId: string;
+  nearbyName: string;
+  nearbyX: number;
+  nearbyY: number;
+  colors: string[];
+  grantsSpeedBoost?: boolean;
+  shiftsWeather?: 'rain' | 'stars';
+}
+
+interface ResonanceGroupDef {
+  id: string;
+  label: string;
+  comboTitle: string;
+  members: string[];
+  colors: string[];
+  grantsSpeedBoost?: boolean;
+  shiftsWeather?: 'rain' | 'stars';
+}
+
+const RESONANCE_GROUPS: ResonanceGroupDef[] = [
+  {
+    id: 'tao-trio',
+    label: 'Tao Trio Resonance',
+    comboTitle: 'Freeze Shock · Ice Burn!',
+    members: ['kyurem', 'reshiram', 'zekrom'],
+    colors: ['#67e8f9', '#38bdf8', '#fb923c', '#fde047', '#ffffff'],
+  },
+  {
+    id: 'sea-sky',
+    label: 'Sea & Sky Guardians',
+    comboTitle: 'Abyssal Gale Storm!',
+    members: ['lugia', 'kyogre', 'rayquaza'],
+    colors: ['#e0f2fe', '#38bdf8', '#34d399', '#818cf8', '#ffffff'],
+    shiftsWeather: 'rain',
+  },
+  {
+    id: 'paradox-awakening',
+    label: 'Paradox Orichalcum Pulse',
+    comboTitle: 'Ancient Solar Overdrive (+50% Speed)!',
+    members: ['koraidon', 'gougingfire', 'greattusk'],
+    colors: ['#f97316', '#facc15', '#ef4444', '#fde68a', '#ffffff'],
+    grantsSpeedBoost: true,
+  },
+  {
+    id: 'chrono-creation',
+    label: 'Chrono-Spatial Rift',
+    comboTitle: 'Cosmic Creation Convergence!',
+    members: ['arceus', 'dialga', 'palkia', 'giratina'],
+    colors: ['#facc15', '#38bdf8', '#ec4899', '#a855f7', '#ffffff'],
+    shiftsWeather: 'stars',
+  },
+  {
+    id: 'astral-light',
+    label: 'Celestial Light Sync',
+    comboTitle: 'Radiant Astral Burst!',
+    members: ['latios', 'latias', 'solgaleo', 'lunala', 'necrozma'],
+    colors: ['#fbbf24', '#818cf8', '#f472b6', '#38bdf8', '#ffffff'],
+  },
+];
+
+export function findActiveResonance(host: TownPokemonFxHost): ResonanceMatch | null {
+  if (!host.activeFollower || !host.isWorldScene()) return null;
+  const fid = host.activeFollower.id.toLowerCase();
+  const group = RESONANCE_GROUPS.find((g) => g.members.includes(fid));
+  if (!group) return null;
+
+  const px = host.playerPos.x;
+  const py = host.playerPos.y;
+  const candidates: { pokeId: string; name: string; x: number; y: number }[] = [];
+
+  for (const b of townConfig.getBuildings()) {
+    if (b.hidden || b.kind !== 'npc') continue;
+    const sid = (b.subType || b.id || '').toLowerCase();
+    const matchedMember = group.members.find((m) => m !== fid && sid.includes(m));
+    if (matchedMember) {
+      candidates.push({ pokeId: matchedMember, name: b.name || matchedMember, x: b.x, y: b.y });
+    }
+  }
+  for (const n of host.map.npcs) {
+    const cfg = townConfig.getBuilding(n.id);
+    if (cfg?.hidden) continue;
+    const nid = n.id.toLowerCase();
+    const matchedMember = group.members.find((m) => m !== fid && nid.includes(m));
+    if (matchedMember) {
+      candidates.push({
+        pokeId: matchedMember,
+        name: n.name || matchedMember,
+        x: cfg ? cfg.x : n.x,
+        y: cfg ? cfg.y : n.y,
+      });
+    }
+  }
+
+  let best: { pokeId: string; name: string; x: number; y: number; dist: number } | null = null;
+  for (const c of candidates) {
+    const dist = Math.hypot(px - c.x, py - c.y);
+    if (dist <= 5.5 && (!best || dist < best.dist)) {
+      best = { ...c, dist };
+    }
+  }
+  if (!best) return null;
+
+  return {
+    id: group.id,
+    label: group.label,
+    comboTitle: group.comboTitle,
+    followerId: fid,
+    nearbyId: best.pokeId,
+    nearbyName: best.name,
+    nearbyX: best.x,
+    nearbyY: best.y,
+    colors: group.colors,
+    grantsSpeedBoost: group.grantsSpeedBoost,
+    shiftsWeather: group.shiftsWeather,
+  };
+}
+
+export function triggerResonanceBurst(host: TownPokemonFxHost): ResonanceMatch | null {
+  const match = findActiveResonance(host);
+  if (!match) return null;
+
+  sfx.catchSuccess();
+  triggerSignatureMove(host, match.followerId);
+  triggerSignatureMove(host, match.nearbyId, match.nearbyX, match.nearbyY);
+
+  // Dual cosmic energy arc between follower/player and nearby legendary
+  const sx = host.playerPos.x * TILE_SIZE + 8;
+  const sy = host.playerPos.y * TILE_SIZE + 8;
+  const tx = match.nearbyX * TILE_SIZE + 8;
+  const ty = match.nearbyY * TILE_SIZE + 8;
+  const midX = (sx + tx) / 2;
+  const midY = (sy + ty) / 2;
+
+  for (let i = 0; i < 65; i++) {
+    const t = i / 65;
+    const bx = sx + (tx - sx) * t;
+    const by = sy + (ty - sy) * t;
+    const ang = Math.random() * Math.PI * 2;
+    const spd = 1.6 + Math.random() * 3.8;
+    host.moveParticles.push({
+      x: i % 2 === 0 ? bx : midX,
+      y: i % 2 === 0 ? by : midY,
+      vx: Math.cos(ang) * spd,
+      vy: Math.sin(ang) * spd,
+      size: 3 + Math.random() * 3.5,
+      color: match.colors[Math.floor(Math.random() * match.colors.length)],
+      alpha: 0.98,
+      life: 0,
+      maxLife: 34 + Math.floor(Math.random() * 16),
+      type: 'cosmic',
+    });
+  }
+
+  host.cameraShakeTime = 34;
+  host.cameraShakeIntensity = 5.5;
+  host.wake();
+  return match;
+}

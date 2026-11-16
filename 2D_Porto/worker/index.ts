@@ -1,6 +1,7 @@
 import { checkRateLimit } from './ratelimit';
 import { fetchLiveStats, type Env } from './telemetry';
 import { handleChat } from './chat';
+import { handleGuestbook, handleReactions } from './social';
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
@@ -29,6 +30,14 @@ export default {
     // 3. AI Chat endpoint
     if (url.pathname === '/api/chat' && request.method === 'POST') {
       return handleChat(request, env);
+    }
+
+    // 4. Trainer Guestbook & Live Project Reactions (Cloudflare KV + rate-limit)
+    if (url.pathname === '/api/guestbook') {
+      return handleGuestbook(request, env, clientIP);
+    }
+    if (url.pathname === '/api/reactions') {
+      return handleReactions(request, env, clientIP);
     }
 
     return new Response('Not Found', { status: 404 });

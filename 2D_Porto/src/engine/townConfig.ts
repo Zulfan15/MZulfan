@@ -27,6 +27,32 @@ export interface BuildingLayout {
   dialogue?: string;
   link?: string;
   hidden?: boolean;
+  behavior?: 'stationary' | 'look_around' | 'patrol_small';
+  scaleMultiplier?: number;
+}
+
+export interface PrefabBlueprint {
+  id: string;
+  name: string;
+  createdAt: string;
+  items: Omit<BuildingLayout, 'id'>[];
+}
+
+export interface NamedLayoutSnapshot {
+  slot: string;
+  label: string;
+  savedAt: string;
+  buildingCount: number;
+  tileCount: number;
+  snapshot: TownStateSnapshot;
+}
+
+export interface LayoutDiffSummary {
+  added: number;
+  removed: number;
+  moved: number;
+  tileDiff: number;
+  totalChanges: number;
 }
 
 export type EditorCategoryKey =
@@ -850,6 +876,54 @@ export const SPAWNABLE_TEMPLATES: SpawnableTemplate[] = [
     desc: 'Pondok kayu mungil beratap genteng merah (2x2)',
     defaultDialogue: 'Rumah singgah mungil beratap merah untuk Pokémon pendamping. Sangat nyaman dan hangat setelah lelah berpetualang seharian.',
   },
+  {
+    id: 'tpl_ancient_pillar',
+    name: 'Paradox Ancient Pillar',
+    icon: '🏛️',
+    category: 'Dunia Pokémon',
+    w: 1,
+    h: 2,
+    kind: 'object',
+    subType: 'ancient_pillar',
+    desc: 'Pilar batu purba Area Zero berpendar rune solar keemasan (1x2)',
+    defaultDialogue: 'Pilar Monolit Purba (Habitat Koraidon, Gouging Fire & Great Tusk): Rune surya berdenyut memancarkan energi Area Zero.',
+  },
+  {
+    id: 'tpl_volcanic_vent',
+    name: 'Volcanic Magma Vent',
+    icon: '🌋',
+    category: 'Dunia Pokémon',
+    w: 1,
+    h: 1,
+    kind: 'object',
+    subType: 'volcanic_vent',
+    desc: 'Kawah mini lava berpijar untuk habitat Pokémon Api/Paradox (1x1)',
+    defaultDialogue: 'Kawah Magma Aktif: Uap panas vulkanik menjaga suhu inti habitat Gouging Fire dan Charizard.',
+  },
+  {
+    id: 'tpl_alloy_beacon',
+    name: 'Alloy Skybridge Beacon',
+    icon: '🗼',
+    category: 'Dunia Pokémon',
+    w: 1,
+    h: 2,
+    kind: 'object',
+    subType: 'alloy_beacon',
+    desc: 'Pilon menara baja konduktor elektro untuk habitat Archaludon & Salamence (1x2)',
+    defaultDialogue: 'Menara Pilon Baja Elektro: Mengumpulkan muatan listrik atmosfer untuk Electro Shot milik Archaludon dan navigasi terbang Salamence.',
+  },
+  {
+    id: 'tpl_frost_shrine',
+    name: 'Boundary Frost Shrine',
+    icon: '🧊',
+    category: 'Dunia Pokémon',
+    w: 2,
+    h: 2,
+    kind: 'object',
+    subType: 'frost_shrine',
+    desc: 'Kuil kristal es nol absolut untuk Tao Trio Plaza / Kyurem (2x2)',
+    defaultDialogue: 'Kuil Kristal Batas Es (Habitat Kyurem & Tao Trio): Memancarkan hawa dingin abadi dan resonansi energi Unova.',
+  },
 
   // 👾 3b. Dunia Digimon (Otomatis dari DIGIMON_CATALOG Tier 1+)
   ...DIGIMON_CATALOG.map((d) => ({
@@ -1662,6 +1736,19 @@ class TownConfigManager {
     return this.redoStack.length > 0;
   }
 
+  public cycleBuildingBehavior(id: string): 'stationary' | 'look_around' | 'patrol_small' | null {
+    const b = this.buildings.get(id);
+    if (!b) return null;
+    this.pushSnapshot(this.captureSnapshot());
+    const order: ('stationary' | 'look_around' | 'patrol_small')[] = ['stationary', 'look_around', 'patrol_small'];
+    const cur = b.behavior || 'stationary';
+    const next = order[(order.indexOf(cur) + 1) % order.length];
+    b.behavior = next;
+    this.saveToStorage();
+    this.notify();
+    return next;
+  }
+
   public undo(): boolean {
     if (this.historyStack.length === 0) return false;
     const prev = this.historyStack.pop()!;
@@ -1869,6 +1956,206 @@ class TownConfigManager {
     } catch (e) {
       console.warn('Failed to load town config from localStorage', e);
     }
+  }
+
+  public updateObjectProperties(
+    id: string,
+    patch: {
+      name?: string;
+      dialogue?: string;
+      link?: string;
+      scaleMultiplier?: number;
+      behavior?: 'stationary' | 'look_around' | 'patrol_small';
+    }
+  ): boolean {
+    const b = this.buildings.get(id);
+    if (!b) return false;
+    this.pushSnapshot(this.captureSnapshot());
+    if (patch.name !== undefined && patch.name.trim()) b.name = patch.name.trim();
+    if (patch.dialogue !== undefined) b.dialogue = patch.dialogue;
+    if (patch.link !== undefined) {
+      if (patch.link.trim()) b.link = patch.link.trim();
+      else delete b.link;
+    }
+    if (patch.scaleMultiplier !== undefined) {
+      b.scaleMultiplier = Math.max(0.6, Math.min(1.6, Number(patch.scaleMultiplier)));
+    }
+    if (patch.behavior !== undefined) {
+      b.behavior = patch.behavior;
+    }
+    this.saveToStorage();
+    this.notify();
+    return true;
+  }
+
+  public getDiffSummaryVsCanonical(): LayoutDiffSummary {
+    const { buildings: canonBuildings, tiles: canonTiles } = this.getCanonicalSource();
+    const canonBMap = new Map<string, BuildingLayout>();
+    for (const cb of canonBuildings) {
+      if (!cb.hidden) canonBMap.set(cb.id, cb);
+    }
+
+    const activeBuildings = this.getBuildings(false);
+    let added = 0;
+    let moved = 0;
+    const seenIds = new Set<string>();
+
+    for (const b of activeBuildings) {
+      seenIds.add(b.id);
+      const orig = canonBMap.get(b.id);
+      if (!orig) {
+        added++;
+      } else if (
+        orig.x !== b.x ||
+        orig.y !== b.y ||
+        orig.orientation !== b.orientation ||
+        orig.behavior !== b.behavior ||
+        orig.scaleMultiplier !== b.scaleMultiplier ||
+        orig.dialogue !== b.dialogue
+      ) {
+        moved++;
+      }
+    }
+
+    let removed = 0;
+    for (const id of canonBMap.keys()) {
+      if (!seenIds.has(id)) removed++;
+    }
+
+    const canonTileMap = new Map<string, TileTypeKey>(Array.isArray(canonTiles) ? canonTiles : []);
+    let tileDiff = 0;
+    for (const [k, v] of this.tileOverrides.entries()) {
+      if (canonTileMap.get(k) !== v) tileDiff++;
+    }
+    for (const k of canonTileMap.keys()) {
+      if (!this.tileOverrides.has(k)) tileDiff++;
+    }
+
+    return {
+      added,
+      removed,
+      moved,
+      tileDiff,
+      totalChanges: added + removed + moved + tileDiff,
+    };
+  }
+
+  private getPrefabsStorageKey(): string {
+    return 'town:editor_prefabs';
+  }
+
+  public getPrefabs(): PrefabBlueprint[] {
+    if (typeof window === 'undefined') return [];
+    try {
+      const raw = localStorage.getItem(this.getPrefabsStorageKey());
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  public savePrefab(name: string, ids: string[]): PrefabBlueprint | null {
+    const selected = ids
+      .map((id) => this.buildings.get(id))
+      .filter((b): b is BuildingLayout => Boolean(b && !b.hidden));
+    if (selected.length === 0) return null;
+
+    const minX = Math.min(...selected.map((b) => b.x));
+    const minY = Math.min(...selected.map((b) => b.y));
+    const prefab: PrefabBlueprint = {
+      id: `prefab_${Date.now().toString(36)}`,
+      name: name.trim() || `Prefab (${selected.length} objek)`,
+      createdAt: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+      items: selected.map(({ id: _omit, ...rest }) => ({
+        ...rest,
+        x: rest.x - minX,
+        y: rest.y - minY,
+        labelX: rest.labelX !== undefined ? rest.labelX - minX : undefined,
+        labelY: rest.labelY !== undefined ? rest.labelY - minY : undefined,
+        doorX: rest.doorX !== undefined ? rest.doorX - minX : undefined,
+        doorY: rest.doorY !== undefined ? rest.doorY - minY : undefined,
+      })),
+    };
+
+    const existing = this.getPrefabs();
+    existing.unshift(prefab);
+    try {
+      localStorage.setItem(this.getPrefabsStorageKey(), JSON.stringify(existing.slice(0, 20)));
+    } catch {}
+    return prefab;
+  }
+
+  public deletePrefab(prefabId: string) {
+    const filtered = this.getPrefabs().filter((p) => p.id !== prefabId);
+    try {
+      localStorage.setItem(this.getPrefabsStorageKey(), JSON.stringify(filtered));
+    } catch {}
+  }
+
+  public placePrefab(prefabId: string, anchorX: number, anchorY: number): BuildingLayout[] {
+    const prefab = this.getPrefabs().find((p) => p.id === prefabId);
+    if (!prefab || prefab.items.length === 0) return [];
+    this.pushSnapshot(this.captureSnapshot());
+    const placed: BuildingLayout[] = [];
+    const stamp = Date.now().toString(36);
+
+    prefab.items.forEach((item, idx) => {
+      const id = `${item.subType || 'obj'}_${stamp}_${idx}`;
+      const b: BuildingLayout = {
+        ...item,
+        id,
+        x: Math.max(0, Math.min(43, anchorX + item.x)),
+        y: Math.max(0, Math.min(62, anchorY + item.y)),
+      };
+      if (item.labelX !== undefined) b.labelX = b.x + (item.labelX - item.x);
+      if (item.labelY !== undefined) b.labelY = b.y + (item.labelY - item.y);
+      this.buildings.set(id, b);
+      placed.push(b);
+    });
+
+    this.saveToStorage();
+    this.notify();
+    return placed;
+  }
+
+  private getSnapshotsStorageKey(): string {
+    return `town:layout_snapshots:${this.activeWorld}`;
+  }
+
+  public getNamedSnapshots(): NamedLayoutSnapshot[] {
+    if (typeof window === 'undefined') return [];
+    try {
+      const raw = localStorage.getItem(this.getSnapshotsStorageKey());
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  public saveNamedSnapshot(slot: string, label?: string): NamedLayoutSnapshot {
+    const snap: NamedLayoutSnapshot = {
+      slot,
+      label: label?.trim() || `Slot ${slot}`,
+      savedAt: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+      buildingCount: this.getBuildings(false).length,
+      tileCount: this.tileOverrides.size,
+      snapshot: this.captureSnapshot(),
+    };
+    const list = this.getNamedSnapshots().filter((s) => s.slot !== slot);
+    list.push(snap);
+    list.sort((a, b) => a.slot.localeCompare(b.slot));
+    try {
+      localStorage.setItem(this.getSnapshotsStorageKey(), JSON.stringify(list));
+    } catch {}
+    return snap;
+  }
+
+  public loadNamedSnapshot(slot: string): boolean {
+    const found = this.getNamedSnapshots().find((s) => s.slot === slot);
+    if (!found) return false;
+    this.pushSnapshot(this.captureSnapshot());
+    this.restoreSnapshot(found.snapshot);
+    return true;
   }
 
   public exportCode(): string {

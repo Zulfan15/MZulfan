@@ -6,8 +6,10 @@
   "description": "Zulfan's Town — an interactive Pokémon-inspired pixel-art portfolio built with Astro, a tiny custom canvas engine and Cloudflare Workers.",
   "scripts": {
     "prompt": "tsx scripts/build-prompt.ts",
+    "og": "tsx scripts/generate-og-cards.ts",
     "dev": "npm run prompt && astro dev",
-    "build": "npm run prompt && astro build",
+    "build": "npm run prompt && npm run og && astro build",
+    "verify": "tsx scripts/verify-town.ts",
     "check": "astro check && tsc -p worker/tsconfig.json --noEmit",
     "preview": "npm run build && wrangler dev",
     "deploy": "npm run build && wrangler deploy",

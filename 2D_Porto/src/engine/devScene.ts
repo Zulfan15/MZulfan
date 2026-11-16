@@ -79,9 +79,14 @@ export function drawPixelText(
   text: string,
   x: number,
   y: number,
-  color: string
+  color: string,
+  scale = 1,
+  align: 'left' | 'center' | 'right' = 'left'
 ) {
   const upper = text.toUpperCase();
+  const totalW = Math.max(0, upper.length * 4 - 1) * scale;
+  const startX =
+    align === 'center' ? Math.round(x - totalW / 2) : align === 'right' ? Math.round(x - totalW) : x;
   for (let s = 0; s < upper.length; s++) {
     const char = upper[s];
     const glyph = FONT[char];
@@ -91,7 +96,7 @@ export function drawPixelText(
         for (let col = 0; col < line.length; col++) {
           if (line[col] === '#') {
             ctx.fillStyle = color;
-            ctx.fillRect(x + s * 4 + col, y + row, 1, 1);
+            ctx.fillRect(startX + (s * 4 + col) * scale, y + row * scale, scale, scale);
           }
         }
       }

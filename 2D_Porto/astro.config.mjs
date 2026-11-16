@@ -69,5 +69,45 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss(), townEditorDevPlugin()],
     worker: { format: 'es' },
+    build: {
+      rolldownOptions: {
+        output: {
+          codeSplitting: {
+            groups: [
+              {
+                name: 'town-background',
+                test: /src[\\/]engine[\\/]townBackground\.ts/,
+                priority: 10,
+              },
+              {
+                name: 'town-pokemon-fx',
+                test: /src[\\/]engine[\\/]townPokemon(Fx|Overworld)\.ts/,
+                priority: 10,
+              },
+              {
+                name: 'town-pokemon-assets',
+                test: /src[\\/]engine[\\/](pokemon(PMDAnimator|Companions)|.*Sprite)\.ts/,
+                priority: 10,
+              },
+              {
+                name: 'town-editor',
+                test: /(src[\\/]engine[\\/]town(Editor|Config)\.ts|src[\\/]data[\\/]townLayout\.json)/,
+                priority: 10,
+              },
+              {
+                name: 'town-scenes',
+                test: /src[\\/]engine[\\/](.*Scene\.ts|digi(Map|Background|Catalog|SpriteLoader|Animator|monCatalog).*\.ts)/,
+                priority: 10,
+              },
+              {
+                name: 'town-engine',
+                test: /src[\\/]engine[\\/]TownEngine\.ts/,
+                priority: 5,
+              },
+            ],
+          },
+        },
+      },
+    },
   },
 });

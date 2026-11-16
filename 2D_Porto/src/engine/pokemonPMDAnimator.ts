@@ -1514,18 +1514,41 @@ export class PokemonPMDAnimator {
 
   constructor() {
     if (typeof window !== 'undefined') {
-      this.preloadAll();
+      this.preloadIdleDeferred();
     }
   }
 
-  private preloadAll() {
-    for (const [, cfg] of Object.entries(PMD_POKEMON_CONFIGS)) {
-      this.loadImage(cfg.idle.src);
-      this.loadImage(cfg.walk.src);
-      if (cfg.shoot) this.loadImage(cfg.shoot.src);
-      if (cfg.attack) this.loadImage(cfg.attack.src);
-      if (cfg.rearUp) this.loadImage(cfg.rearUp.src);
-    }
+  /**
+   * Stagger idle-only sprite preloads using idle frames so page startup stays fast,
+   * while walk/shoot/attack sheets load on-demand or via preloadPokemon(id).
+   */
+  private preloadIdleDeferred() {
+    const entries = Object.values(PMD_POKEMON_CONFIGS);
+    let idx = 0;
+    const step = () => {
+      const batchEnd = Math.min(entries.length, idx + 4);
+      while (idx < batchEnd) {
+        this.loadImage(entries[idx].idle.src);
+        idx++;
+      }
+      if (idx < entries.length) {
+        const schedule =
+          (window as unknown as { requestIdleCallback?: (cb: () => void) => number }).requestIdleCallback ||
+          ((cb: () => void) => window.setTimeout(cb, 32));
+        schedule(step);
+      }
+    };
+    window.setTimeout(step, 50);
+  }
+
+  public preloadPokemon(pokemonId: string) {
+    const cfg = this.getConfig(pokemonId);
+    if (!cfg || typeof window === 'undefined') return;
+    this.loadImage(cfg.idle.src);
+    this.loadImage(cfg.walk.src);
+    if (cfg.shoot) this.loadImage(cfg.shoot.src);
+    if (cfg.attack) this.loadImage(cfg.attack.src);
+    if (cfg.rearUp) this.loadImage(cfg.rearUp.src);
   }
 
   private loadImage(src: string): HTMLImageElement {

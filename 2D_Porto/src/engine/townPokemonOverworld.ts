@@ -1305,9 +1305,26 @@ export function renderOverworldPokemonNPCs(
   }
 
   // Custom spawned NPCs
-  for (const b of townConfig.getBuildings()) {
-    if (b.kind === 'npc' && !host.map.npcs.some((n) => n.id === b.id)) {
-      if (b.hidden) continue;
+  for (const rawB of townConfig.getBuildings()) {
+    if (rawB.kind === 'npc' && !host.map.npcs.some((n) => n.id === rawB.id)) {
+      if (rawB.hidden) continue;
+      const behavior = rawB.behavior || 'stationary';
+      const phase = ((rawB.x * 31 + rawB.y * 17) & 255);
+      let effectiveOrient = rawB.orientation || 'S';
+      let patrolDx = 0;
+      let patrolDy = 0;
+
+      if (behavior === 'look_around') {
+        const dirs: ('S' | 'W' | 'N' | 'E')[] = ['S', 'W', 'N', 'E'];
+        effectiveOrient = dirs[Math.floor((host.tick + phase * 3) / 150) % 4];
+      } else if (behavior === 'patrol_small') {
+        const t = (host.tick + phase * 5) * 0.028;
+        patrolDx = Math.sin(t) * 6;
+        patrolDy = Math.cos(t * 0.5) * 3;
+        effectiveOrient = Math.cos(t) >= 0 ? 'E' : 'W';
+      }
+
+      const b = behavior === 'stationary' ? rawB : { ...rawB, orientation: effectiveOrient };
       const isPokemon = [
         'charizard', 'tyranitar', 'blastoise', 'garchomp', 'urshifu', 'rayquaza',
         'mewtwo', 'arceus', 'dialga', 'palkia', 'reshiram', 'zekrom',
@@ -1316,6 +1333,21 @@ export function renderOverworldPokemonNPCs(
         'archaludon', 'gougingfire', 'greattusk', 'kyurem', 'salamence',
         'lucario', 'pikachu'
       ].includes(b.subType || b.id);
+      const scale = b.scaleMultiplier && b.scaleMultiplier !== 1 ? Math.max(0.6, Math.min(1.6, b.scaleMultiplier)) : 1;
+      const needsTransform = patrolDx !== 0 || patrolDy !== 0 || scale !== 1;
+      if (needsTransform) {
+        ctx.save();
+        if (patrolDx !== 0 || patrolDy !== 0) {
+          ctx.translate(patrolDx, patrolDy);
+        }
+        if (scale !== 1) {
+          const anchorX = b.x * TILE_SIZE + 8;
+          const anchorY = b.y * TILE_SIZE + 16;
+          ctx.translate(anchorX, anchorY);
+          ctx.scale(scale, scale);
+          ctx.translate(-anchorX, -anchorY);
+        }
+      }
       const isFlipped = (isPokemon && !host.pmdAnimator.isSupported(b.subType || b.id)) ? b.orientation === 'E' : false;
       const centerX = b.x * TILE_SIZE + 8;
       if (isFlipped) {
@@ -2228,6 +2260,16 @@ export function renderOverworldPokemonNPCs(
       ctx.fillRect(bx + 2.5, by + 3.5, 1.5, 1.5);
       ctx.fillRect(bx + 5.5, by + 3.5, 1.5, 1.5);
       ctx.fillRect(bx + 8.5, by + 3.5, 1.5, 1.5);
+
+      if (behavior !== 'stationary' && (host.tick + phase * 7) % 240 < 48) {
+        const emote = (b.subType || b.id) === 'snorlax' ? '💤' : behavior === 'patrol_small' ? '🎵' : '✨';
+        ctx.font = '9px sans-serif';
+        ctx.fillText(emote, bx - 12, by + 7);
+      }
+
+      if (needsTransform) {
+        ctx.restore();
+      }
     }
   }
 }

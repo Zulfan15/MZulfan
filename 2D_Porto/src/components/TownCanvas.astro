@@ -195,6 +195,47 @@ const dataPlaceRooms = {
             <kbd class="town-burger-dropdown__kbd">Ctrl+K</kbd>
           </button>
 
+          <button type="button" class="town-burger-dropdown__item" id="burger-item-jobfit" role="menuitem">
+            <span class="town-burger-dropdown__item-icon">🎯</span>
+            <div class="town-burger-dropdown__item-info">
+              <span class="town-burger-dropdown__item-title">AI Job-Fit Analyzer</span>
+              <span class="town-burger-dropdown__item-sub">Cek kecocokan role / JD (HR Mode)</span>
+            </div>
+          </button>
+
+          <button type="button" class="town-burger-dropdown__item" id="burger-item-tour" role="menuitem">
+            <span class="town-burger-dropdown__item-icon">🎬</span>
+            <div class="town-burger-dropdown__item-info">
+              <span class="town-burger-dropdown__item-title">Guided Auto-Tour (60d)</span>
+              <span class="town-burger-dropdown__item-sub">Tur otomatis 5 landmark utama kota</span>
+            </div>
+          </button>
+
+          <button type="button" class="town-burger-dropdown__item" id="burger-item-guestbook" role="menuitem">
+            <span class="town-burger-dropdown__item-icon">📖</span>
+            <div class="town-burger-dropdown__item-info">
+              <span class="town-burger-dropdown__item-title">Trainer Guestbook</span>
+              <span class="town-burger-dropdown__item-sub">Papan pesan kota &amp; buku tamu</span>
+            </div>
+          </button>
+
+          <button type="button" class="town-burger-dropdown__item is-active" id="burger-item-ghosts" role="menuitem">
+            <span class="town-burger-dropdown__item-icon">👻</span>
+            <div class="town-burger-dropdown__item-info">
+              <span class="town-burger-dropdown__item-title" id="burger-ghosts-title">Ghost Trainers: ON</span>
+              <span class="town-burger-dropdown__item-sub" id="burger-ghosts-sub">Pengunjung terbaru di Fountain Plaza</span>
+            </div>
+          </button>
+
+          <button type="button" class="town-burger-dropdown__item" id="burger-item-pokesnap" role="menuitem">
+            <span class="town-burger-dropdown__item-icon">📸</span>
+            <div class="town-burger-dropdown__item-info">
+              <span class="town-burger-dropdown__item-title">PokéSnap Studio</span>
+              <span class="town-burger-dropdown__item-sub">Mode foto retro &amp; export PNG</span>
+            </div>
+            <kbd class="town-burger-dropdown__kbd">O</kbd>
+          </button>
+
           <button type="button" class="town-burger-dropdown__item" id="burger-item-bike" role="menuitem">
             <span class="town-burger-dropdown__item-icon">🚲</span>
             <div class="town-burger-dropdown__item-info">
@@ -270,6 +311,14 @@ const dataPlaceRooms = {
             <div class="town-burger-dropdown__item-info">
               <span class="town-burger-dropdown__item-title">Musik Latar 8-Bit</span>
               <span class="town-burger-dropdown__item-sub" id="burger-bgm-sub">Lo-Fi Nostalgik</span>
+            </div>
+          </button>
+
+          <button type="button" class="town-burger-dropdown__item" id="burger-item-jukebox" role="menuitem">
+            <span class="town-burger-dropdown__item-icon">🎹</span>
+            <div class="town-burger-dropdown__item-info">
+              <span class="town-burger-dropdown__item-title">Chiptune Jukebox</span>
+              <span class="town-burger-dropdown__item-sub">6 Track + 16-Bar Visualizer</span>
             </div>
           </button>
 
@@ -801,6 +850,142 @@ const dataPlaceRooms = {
     <span class="town-legend-item"><kbd class="town-kbd">Enter</kbd> Interaksi</span>
   </div>
 
+  <!-- Guided Auto-Tour Cinematic Lower-Third Banner -->
+  <div
+    id="town-tour-banner"
+    class="hidden fixed sm:absolute bottom-3 left-1/2 -translate-x-1/2 z-30 w-[min(94vw,34rem)] rounded-2xl border-[2.5px] border-[#1c1726] bg-[#141d33]/95 text-white p-3 shadow-[0_6px_0_0_#090d16] backdrop-blur-xs"
+    role="region"
+    aria-label="Guided Auto-Tour Progress"
+  >
+    <div class="flex items-start justify-between gap-2.5">
+      <div class="flex items-start gap-2.5 min-w-0">
+        <span id="tour-stop-icon" class="text-2xl leading-none shrink-0 mt-0.5">🎬</span>
+        <div class="min-w-0 space-y-0.5">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span id="tour-step-badge" class="px-1.5 py-0.5 rounded bg-sky-500/25 border border-sky-400/50 font-mono text-[9px] font-bold text-sky-200">
+              STOP 1/5
+            </span>
+            <h3 id="tour-stop-title" class="font-pixel text-xs font-bold text-amber-300 m-0 truncate">
+              Dev Center · Mission Control
+            </h3>
+          </div>
+          <p id="tour-stop-desc" class="font-sans text-[11px] text-slate-200 m-0 leading-snug"></p>
+        </div>
+      </div>
+      <button
+        id="tour-stop-btn"
+        type="button"
+        class="shrink-0 px-2 py-1 rounded-lg border border-slate-500 bg-slate-800 hover:bg-rose-600 text-[10px] font-pixel font-bold text-white cursor-pointer"
+        title="Hentikan Tur Otomatis"
+      >
+        ⏹️ Stop
+      </button>
+    </div>
+
+    <div class="mt-2 flex items-center justify-between gap-2">
+      <div class="flex-1 h-1.5 rounded-full bg-slate-700 overflow-hidden">
+        <div id="tour-progress-bar" class="h-full bg-amber-400 transition-all duration-300" style="width: 20%"></div>
+      </div>
+      <div class="flex items-center gap-1.5 shrink-0">
+        <a
+          id="tour-visit-link"
+          href="/dev"
+          class="px-2 py-1 rounded-lg border border-emerald-400/60 bg-emerald-600/80 hover:bg-emerald-500 font-pixel text-[9px] font-bold text-white no-underline"
+        >
+          🚪 Buka
+        </a>
+        <button
+          id="tour-next-btn"
+          type="button"
+          class="px-2 py-1 rounded-lg border border-sky-400/60 bg-sky-600/80 hover:bg-sky-500 font-pixel text-[9px] font-bold text-white cursor-pointer"
+        >
+          ⏭️ Lanjut
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Legendary Resonance Pill (Auto-appears near compatible pair) -->
+  <button
+    type="button"
+    id="town-resonance-pill"
+    class="hidden fixed sm:absolute top-14 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 px-3.5 py-1.5 rounded-full border-2 border-amber-300 bg-gradient-to-r from-indigo-950/95 via-purple-900/95 to-sky-900/95 text-white shadow-[0_4px_14px_rgba(99,102,241,0.5)] hover:scale-105 cursor-pointer transition-all"
+    title="Tekan G untuk mengaktifkan Legendary Resonance Burst!"
+  >
+    <span class="text-sm animate-pulse" aria-hidden="true">🌟</span>
+    <span id="town-resonance-text" class="font-pixel text-[10px] font-bold text-amber-200">
+      Resonance Ready
+    </span>
+    <kbd class="px-1.5 py-0.5 rounded bg-amber-400 text-[#1c1726] font-mono text-[9px] font-bold">G</kbd>
+  </button>
+
+  <!-- Floating PokéSnap Studio Dock (In-Game Photo Mode & PNG Postcard Exporter) -->
+  <div
+    id="town-pokesnap-dock"
+    class="hidden fixed sm:absolute bottom-3 left-1/2 -translate-x-1/2 z-40 w-[min(94vw,35rem)] rounded-2xl border-[2.5px] border-[#1c1726] bg-[#111827]/95 text-white p-3 shadow-[0_6px_0_0_#030712] backdrop-blur-xs space-y-2.5"
+    role="region"
+    aria-label="PokéSnap Studio Photo Mode"
+  >
+    <div class="flex items-center justify-between gap-2">
+      <div class="flex items-center gap-2">
+        <span class="text-base" aria-hidden="true">📸</span>
+        <span class="font-pixel text-xs font-bold text-amber-300">PokéSnap Studio</span>
+        <span class="font-mono text-[9px] text-slate-400 hidden sm:inline">Filter Retro &amp; Kartu Pos PNG</span>
+      </div>
+      <button
+        id="pokesnap-close-btn"
+        type="button"
+        class="px-2 py-1 rounded-lg border border-slate-600 bg-slate-800 hover:bg-rose-600 font-pixel text-[10px] font-bold text-white cursor-pointer"
+      >
+        ✕ Tutup (O)
+      </button>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-1.5" role="group" aria-label="Pilih Filter Foto">
+      <button type="button" class="pokesnap-filter-btn px-2 py-1 rounded-lg border border-amber-400 bg-amber-400/20 text-amber-200 font-mono text-[10px] font-bold cursor-pointer" data-snap-filter="normal">
+        Natural
+      </button>
+      <button type="button" class="pokesnap-filter-btn px-2 py-1 rounded-lg border border-slate-600 bg-slate-800 text-slate-200 font-mono text-[10px] cursor-pointer" data-snap-filter="gameboy">
+        GameBoy Green
+      </button>
+      <button type="button" class="pokesnap-filter-btn px-2 py-1 rounded-lg border border-slate-600 bg-slate-800 text-slate-200 font-mono text-[10px] cursor-pointer" data-snap-filter="crt">
+        CRT Scanlines
+      </button>
+      <button type="button" class="pokesnap-filter-btn px-2 py-1 rounded-lg border border-slate-600 bg-slate-800 text-slate-200 font-mono text-[10px] cursor-pointer" data-snap-filter="sunset">
+        Golden Sunset
+      </button>
+      <button type="button" class="pokesnap-filter-btn px-2 py-1 rounded-lg border border-slate-600 bg-slate-800 text-slate-200 font-mono text-[10px] cursor-pointer" data-snap-filter="cyber">
+        Cyberpunk Neon
+      </button>
+    </div>
+
+    <div class="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-slate-700/70">
+      <div class="flex items-center gap-1.5">
+        <button
+          id="pokesnap-pose-btn"
+          type="button"
+          class="px-2.5 py-1.5 rounded-xl border border-sky-400/60 bg-sky-600/80 hover:bg-sky-500 font-pixel text-[10px] font-bold text-white cursor-pointer"
+        >
+          ⚡ Pose Skill Partner
+        </button>
+        <button
+          id="pokesnap-zoom-btn"
+          type="button"
+          class="px-2.5 py-1.5 rounded-xl border border-slate-600 bg-slate-800 hover:bg-slate-700 font-mono text-[10px] font-bold text-slate-200 cursor-pointer"
+        >
+          🔍 Zoom In/Out
+        </button>
+      </div>
+      <button
+        id="pokesnap-capture-btn"
+        type="button"
+        class="px-3.5 py-1.5 rounded-xl border-2 border-[#1c1726] bg-emerald-500 hover:bg-emerald-400 text-[#052e16] font-pixel text-[11px] font-bold shadow-[0_2px_0_0_#064e3b] cursor-pointer"
+      >
+        📸 Jepret &amp; Unduh PNG
+      </button>
+    </div>
+  </div>
+
   <!-- Floating Zoom Level Indicator Pill -->
   <div id="town-zoom-indicator" class="town-zoom-indicator" aria-live="polite" aria-hidden="true">
     <span class="town-zoom-icon" aria-hidden="true">🔍</span>
@@ -891,21 +1076,48 @@ const dataPlaceRooms = {
 
   <div class="visually-hidden" aria-live="polite" data-town-live="">{currentPlace === 'arcade' ? 'Arcade: Walk up to Deoxys and press Enter (or tap it) to play Mancala. Step on the mat to leave.' : ''}</div>
 
-  <!-- Mobile Virtual Controller (Ergonomic Nintendo Cross & Tactile Button) -->
-  <div class="town-mobile-controls md:hidden" aria-label="Virtual Gamepad">
-    <div class="town-dpad" role="group" aria-label="Directional pad">
-      <button id="dpad-up" class="town-dpad-btn town-dpad-up" aria-label="Walk Up">▲</button>
-      <button id="dpad-left" class="town-dpad-btn town-dpad-left" aria-label="Walk Left">◀</button>
-      <div class="town-dpad-center" aria-hidden="true"></div>
-      <button id="dpad-right" class="town-dpad-btn town-dpad-right" aria-label="Walk Right">▶</button>
-      <button id="dpad-down" class="town-dpad-btn town-dpad-down" aria-label="Walk Down">▼</button>
+  <!-- Collapsible Handheld Touch Controller (Active on Touch / pointer: coarse) -->
+  <div id="town-mobile-controls" class="town-mobile-controls" aria-label="Virtual Gamepad">
+    <div class="town-mobile-controls__pad-row">
+      <div class="town-dpad" role="group" aria-label="Directional pad">
+        <button id="dpad-up" class="town-dpad-btn town-dpad-up" aria-label="Walk Up">▲</button>
+        <button id="dpad-left" class="town-dpad-btn town-dpad-left" aria-label="Walk Left">◀</button>
+        <div class="town-dpad-center" aria-hidden="true"></div>
+        <button id="dpad-right" class="town-dpad-btn town-dpad-right" aria-label="Walk Right">▶</button>
+        <button id="dpad-down" class="town-dpad-btn town-dpad-down" aria-label="Walk Down">▼</button>
+      </div>
+
+      <button
+        type="button"
+        id="btn-touchpad-minimize"
+        class="town-touchpad-toggle"
+        aria-expanded="true"
+        title="Minimize D-Pad (Gunakan Tap-to-Move)"
+      >
+        ▾ Tap-to-Move
+      </button>
+
+      <div class="town-action-cluster">
+        <button id="btn-touch-move" type="button" class="town-action-btn town-action-btn--skill" aria-label="Signature Move" title="Signature Move (⚡)">
+          <span class="town-action-btn__letter">⚡</span>
+        </button>
+        <button id="btn-touch-bike" type="button" class="town-action-btn town-action-btn--b" aria-label="Run / Ride" title="Mach Bike / Poké Ride (B)">
+          <span class="town-action-btn__letter">B</span>
+        </button>
+        <button id="btn-interact" type="button" class="town-action-btn" aria-label="Action / Interact" title="Interact (A)">
+          <span class="town-action-btn__letter">A</span>
+        </button>
+      </div>
     </div>
 
-    <div class="town-action-cluster">
-      <button id="btn-interact" class="town-action-btn" aria-label="Action / Interact">
-        <span class="town-action-btn__letter">A</span>
-      </button>
-    </div>
+    <button
+      type="button"
+      id="btn-touchpad-restore"
+      class="town-touchpad-restore"
+      aria-label="Show Virtual D-Pad"
+    >
+      🎮 D-Pad
+    </button>
   </div>
 
   <!-- Floating Playtest Bar (Active in Playtest Mode) -->
@@ -936,6 +1148,10 @@ const dataPlaceRooms = {
           <span class="transform-btn-icon">↷</span>
           <span class="transform-btn-text">Hadap Kanan</span>
         </button>
+        <button type="button" id="btn-transform-behavior" class="town-transform-btn" style="display: none;" title="Ubah Perilaku Idle / Patroli NPC (Diam / Menoleh / Patroli Kecil)">
+          <span class="transform-btn-icon">🐾</span>
+          <span class="transform-btn-text" id="btn-transform-behavior-label">Perilaku: Diam</span>
+        </button>
         <button type="button" id="btn-transform-apply" class="town-transform-btn town-transform-btn--apply" title="Selesai & Simpan Perubahan (Enter)">
           <span class="transform-btn-icon">✓</span>
           <span class="transform-btn-text">Selesai</span>
@@ -952,7 +1168,10 @@ const dataPlaceRooms = {
   <div id="town-editor-toolbar" class="town-editor-toolbar hidden" style="display: none;" role="toolbar" aria-label="Town Editor Palette">
     <div class="town-editor-toolbar__header">
       <div class="town-editor-toolbar__header-left">
-        <span class="town-editor-badge">🛠️ TOWN BUILDER 2.0</span>
+        <span class="town-editor-badge">🛠️ TOWN EDITOR 4.0</span>
+        <span id="town-editor-diff-pill" class="px-2 py-0.5 rounded bg-slate-800 border border-slate-600 font-mono text-[9px] text-emerald-300 hidden sm:inline-block">
+          📊 Synced
+        </span>
         <span id="town-editor-status" class="town-editor-status">Pilih alat atau lantai untuk mendesain kota</span>
       </div>
       <div class="town-editor-toolbar__header-actions">
@@ -1016,8 +1235,8 @@ const dataPlaceRooms = {
           <button type="button" class="town-editor-btn town-editor-btn--delete hidden" id="btn-editor-delete" title="Hapus gedung atau objek yang dipilih (Delete / Backspace)" style="display: none;">
             🗑️ <span class="editor-btn-text">Hapus</span>
           </button>
-          <button type="button" class="town-editor-btn town-editor-btn--action hidden" id="btn-editor-dialogue" title="Ubah Teks Dialog Interaktif Objek" style="display: none;">
-            💬 <span class="editor-btn-text">Dialog</span>
+          <button type="button" class="town-editor-btn town-editor-btn--action hidden" id="btn-editor-dialogue" title="Visual Inspector 2.0 (Ubah Nama, Dialog, Skala, Perilaku & Preview Jurus)" style="display: none;">
+            🎛️ <span class="editor-btn-text">Inspector</span>
           </button>
           <button type="button" class="town-editor-btn town-editor-btn--action hidden" id="btn-editor-lock" title="Kunci / Buka Kunci Objek (K)" style="display: none;">
             🔒 <span class="editor-btn-text">Kunci (K)</span>
@@ -1065,6 +1284,12 @@ const dataPlaceRooms = {
 
         <!-- Action Buttons -->
         <div class="town-editor-group town-editor-group--actions">
+          <button type="button" class="town-editor-btn town-editor-btn--action" id="btn-editor-prefabs" title="Simpan & Tempel Prefab Blueprint Grup Objek">
+            🧩 <span class="editor-btn-text">Prefab</span>
+          </button>
+          <button type="button" class="town-editor-btn town-editor-btn--action" id="btn-editor-snapshots" title="Snapshot Layout Cepat (Slot A-E) & Diff Preview">
+            🕒 <span class="editor-btn-text">Snapshot</span>
+          </button>
           <button type="button" class="town-editor-btn town-editor-btn--validate" id="btn-editor-validate" title="Cek Jalur & Aksesibilitas Semua Gedung / NPC (BFS Reachability)">
             🔍 <span class="editor-btn-text">Cek Jalur</span>
           </button>
@@ -1181,23 +1406,83 @@ const dataPlaceRooms = {
     </div>
   </dialog>
 
-  <!-- Object Dialogue Edit Modal -->
+  <!-- Visual Inspector 2.0 Modal (Upgraded from Object Dialogue Modal) -->
   <dialog id="town-editor-dialogue-modal" class="town-editor-modal town-editor-dialogue-modal">
-    <div class="town-editor-modal__content">
+    <div class="town-editor-modal__content space-y-2.5">
       <div class="town-editor-modal__header">
-        <h3 class="town-editor-modal__title" id="town-dialogue-modal-title">💬 Ubah Dialog Objek</h3>
+        <h3 class="town-editor-modal__title" id="town-dialogue-modal-title">🎛️ Visual Inspector 2.0</h3>
         <button type="button" class="town-editor-modal__close" id="btn-close-dialogue-modal">×</button>
       </div>
-      <p class="town-editor-modal__desc">
-        Tulis pesan interaksi kustom yang akan muncul saat pemain mendekati atau menekan Enter di samping objek ini.
-      </p>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-mono">
+        <label class="space-y-1 block">
+          <span class="text-[10px] text-slate-300 block">Nama Tampilan</span>
+          <input id="town-inspector-name" type="text" class="w-full rounded border border-slate-600 bg-slate-900 px-2 py-1 text-white" />
+        </label>
+        <label class="space-y-1 block">
+          <span class="text-[10px] text-slate-300 block">Link Tujuan (opsional, misal /dev)</span>
+          <input id="town-inspector-link" type="text" placeholder="/dev atau https://..." class="w-full rounded border border-slate-600 bg-slate-900 px-2 py-1 text-white" />
+        </label>
+        <label class="space-y-1 block">
+          <span class="text-[10px] text-slate-300 flex justify-between">
+            <span>Skala Visual</span>
+            <strong id="town-inspector-scale-val" class="text-amber-300">1.00×</strong>
+          </span>
+          <input id="town-inspector-scale" type="range" min="0.7" max="1.5" step="0.05" value="1" class="w-full accent-amber-400" />
+        </label>
+        <label class="space-y-1 block">
+          <span class="text-[10px] text-slate-300 block">Mode Perilaku (NPC)</span>
+          <select id="town-inspector-behavior" class="w-full rounded border border-slate-600 bg-slate-900 px-2 py-1 text-white">
+            <option value="stationary">🧘 Diam (Stationary)</option>
+            <option value="look_around">👀 Menoleh Otomatis</option>
+            <option value="patrol_small">🐾 Patroli Mikro</option>
+          </select>
+        </label>
+      </div>
       <div class="town-dialogue-form">
-        <textarea id="town-dialogue-input" class="town-dialogue-textarea" rows="4" placeholder="Tuliskan dialog objek di sini..."></textarea>
-        <div class="town-dialogue-actions">
-          <button type="button" class="town-editor-btn" id="btn-dialogue-cancel">Batal</button>
-          <button type="button" class="town-editor-btn town-editor-btn--save" id="btn-dialogue-save">💾 Simpan Dialog</button>
+        <span class="text-[10px] font-mono text-slate-300 block mb-1">Teks Dialog Interaktif</span>
+        <textarea id="town-dialogue-input" class="town-dialogue-textarea" rows="3" placeholder="Tuliskan dialog objek di sini..."></textarea>
+        <div class="town-dialogue-actions flex flex-wrap justify-between gap-2 pt-1">
+          <button type="button" class="town-editor-btn" id="btn-inspector-preview-move" style="display: none;">
+            ⚡ Preview Signature Move
+          </button>
+          <div class="flex gap-2 ml-auto">
+            <button type="button" class="town-editor-btn" id="btn-dialogue-cancel">Batal</button>
+            <button type="button" class="town-editor-btn town-editor-btn--save" id="btn-dialogue-save">💾 Simpan Properti</button>
+          </div>
         </div>
       </div>
+    </div>
+  </dialog>
+
+  <!-- Prefab Blueprints Modal -->
+  <dialog id="town-editor-prefabs-modal" class="town-editor-modal">
+    <div class="town-editor-modal__content space-y-3">
+      <div class="town-editor-modal__header">
+        <h3 class="town-editor-modal__title">🧩 Prefab Blueprints</h3>
+        <button type="button" class="town-editor-modal__close" id="btn-close-prefabs-modal">×</button>
+      </div>
+      <p class="town-editor-modal__desc">
+        Simpan grup objek terpilih (termasuk hasil Marquee Shift+Drag) menjadi blueprint siap pakai ulang.
+      </p>
+      <div class="flex gap-2 items-center">
+        <input id="town-prefab-name-input" type="text" placeholder="Nama Prefab (misal: Taman Lampu 2x2)..." class="flex-1 rounded border border-slate-600 bg-slate-900 px-2.5 py-1.5 text-xs text-white" />
+        <button type="button" id="btn-save-selection-prefab" class="town-editor-btn town-editor-btn--save">
+          💾 Simpan Seleksi (<span id="prefab-sel-count">0</span>)
+        </button>
+      </div>
+      <div id="town-prefabs-list" class="space-y-2 max-h-64 overflow-y-auto pr-1"></div>
+    </div>
+  </dialog>
+
+  <!-- Layout Snapshots & Diff Modal -->
+  <dialog id="town-editor-snapshots-modal" class="town-editor-modal">
+    <div class="town-editor-modal__content space-y-3">
+      <div class="town-editor-modal__header">
+        <h3 class="town-editor-modal__title">🕒 Layout Snapshots &amp; Diff Preview</h3>
+        <button type="button" class="town-editor-modal__close" id="btn-close-snapshots-modal">×</button>
+      </div>
+      <div id="town-diff-summary-box" class="p-2.5 rounded-lg border border-slate-700 bg-slate-900/90 font-mono text-xs text-slate-200"></div>
+      <div id="town-snapshots-list" class="space-y-2 max-h-72 overflow-y-auto pr-1"></div>
     </div>
   </dialog>
 
@@ -1290,6 +1575,12 @@ const dataPlaceRooms = {
   import { requestDigimonSprites } from '../engine/digiSpriteLoader';
   import { COMPANIONS_MAP } from '../engine/pokemonCompanions';
   import { gameStore } from '../game/store';
+  import {
+    fetchGuestbookEntries,
+    getLocalGuestbookEntries,
+    GHOST_ENABLED_STORAGE_KEY,
+    type GuestbookEntry,
+  } from '../lib/socialClient';
 
   let engine: TownEngine | null = null;
 
@@ -1758,6 +2049,10 @@ const dataPlaceRooms = {
       sfx.select();
     };
 
+    function toggleBurger(open?: boolean) {
+      return open === false ? closeBurgerMenu() : openBurgerMenu();
+    }
+
     btnTownBurger?.addEventListener('click', (e) => {
       e.stopPropagation();
       const isOpen = burgerDropdown && !burgerDropdown.classList.contains('hidden') && burgerDropdown.style.display !== 'none';
@@ -1801,6 +2096,24 @@ const dataPlaceRooms = {
     burgerItemFullscreen?.addEventListener('click', () => {
       toggleFullscreen();
       closeBurgerMenu();
+    });
+
+    document.getElementById('burger-item-jobfit')?.addEventListener('click', () => {
+      sfx.select();
+      closeBurgerMenu();
+      document.dispatchEvent(new CustomEvent('town:open-modal', { detail: { target: 'jobfit' } }));
+    });
+
+    document.getElementById('burger-item-tour')?.addEventListener('click', () => {
+      sfx.confirm();
+      closeBurgerMenu();
+      const isTown = window.location.pathname === '/' || window.location.pathname === '' || window.location.pathname === '/town/';
+      if (isTown) {
+        window.dispatchEvent(new CustomEvent('town:start-tour'));
+      } else {
+        sessionStorage.setItem('town:start_tour', '1');
+        window.location.href = '/';
+      }
     });
 
     // ─── HUD Minimize & Desktop Burger Mode Handlers ───
@@ -2086,6 +2399,336 @@ const dataPlaceRooms = {
       if (engine && detail) {
         engine.flyTo(detail.x, detail.y, detail.name);
         showToast(`🦅 Mendarat di ${detail.name}! (${detail.x}, ${detail.y})`);
+      }
+    });
+
+    // ─── 🎬 Guided Auto-Pilot Tour Controller ───
+    const tourBanner = document.getElementById('town-tour-banner');
+    const tourIconEl = document.getElementById('tour-stop-icon');
+    const tourStepBadge = document.getElementById('tour-step-badge');
+    const tourTitleEl = document.getElementById('tour-stop-title');
+    const tourDescEl = document.getElementById('tour-stop-desc');
+    const tourProgressEl = document.getElementById('tour-progress-bar') as HTMLElement | null;
+    const tourVisitLink = document.getElementById('tour-visit-link') as HTMLAnchorElement | null;
+    const tourNextBtn = document.getElementById('tour-next-btn');
+    const tourStopBtn = document.getElementById('tour-stop-btn');
+
+    const TOUR_STOPS = [
+      {
+        x: 16,
+        y: 12,
+        icon: '💻',
+        title: 'Dev Center · Mission Control',
+        desc: 'AeroScan YOLOv11-OBB (1.8ms TensorRT), FoodLink Cloud-Native (Kafka/PostGIS), Stack Radar & Timeline.',
+        route: '/dev',
+      },
+      {
+        x: 27,
+        y: 8,
+        icon: '🔬',
+        title: 'Research Lab · Applied AI',
+        desc: 'Skripsi deteksi spam judi online 99.56% F1, Computer Vision OMR, dan AI Micro-Sandbox interaktif.',
+        route: '/lab',
+      },
+      {
+        x: 39,
+        y: 9,
+        icon: '🏢',
+        title: 'Tech Tower · Robotics, IoT & Cloud',
+        desc: 'Koordinator Asisten Lab Robotik, ESP32 RC Tank, dan sertifikasi jaringan Huawei HCIA-Security.',
+        route: '/tower',
+      },
+      {
+        x: 16,
+        y: 29,
+        icon: '👑',
+        title: 'Hall of Legends · Tech Guardians',
+        desc: 'Koridor 35+ Pokémon Legendaris yang memetakan pilar rekayasa sistem, cloud, dan AI Zulfan.',
+        route: '',
+      },
+      {
+        x: 38,
+        y: 18,
+        icon: '🤖',
+        title: 'Poké Center & AI Digital Twin',
+        desc: 'Tanya jawab interaktif seputar pengalaman Zulfan atau buka Job-Fit Analyzer & unduh CV PDF.',
+        route: '/twin',
+      },
+    ];
+
+    let tourActive = false;
+    let tourIdx = 0;
+    let tourTimer: number | null = null;
+
+    const stopAutoTour = (silent = false) => {
+      if (!tourActive) return;
+      tourActive = false;
+      if (tourTimer !== null) {
+        window.clearTimeout(tourTimer);
+        tourTimer = null;
+      }
+      tourBanner?.classList.add('hidden');
+      if (!silent) {
+        showToast('⏹️ Tur otomatis selesai. Selamat menjelajah bebas!');
+      }
+    };
+
+    const runTourStep = (idx: number) => {
+      if (!tourActive || !engine) return;
+      if (idx >= TOUR_STOPS.length) {
+        sfx.catchSuccess();
+        stopAutoTour(true);
+        showToast('🎉 Tur 5 landmark selesai! Buka 🎯 Job Fit atau /twin untuk info lanjut.');
+        return;
+      }
+      tourIdx = idx;
+      const stop = TOUR_STOPS[idx];
+      if (tourIconEl) tourIconEl.textContent = stop.icon;
+      if (tourStepBadge) tourStepBadge.textContent = `STOP ${idx + 1}/${TOUR_STOPS.length}`;
+      if (tourTitleEl) tourTitleEl.textContent = stop.title;
+      if (tourDescEl) tourDescEl.textContent = stop.desc;
+      if (tourProgressEl) tourProgressEl.style.width = `${Math.round(((idx + 1) / TOUR_STOPS.length) * 100)}%`;
+      if (tourVisitLink) {
+        if (stop.route) {
+          tourVisitLink.href = stop.route;
+          tourVisitLink.classList.remove('hidden');
+        } else {
+          tourVisitLink.classList.add('hidden');
+        }
+      }
+
+      engine.flyTo(stop.x, stop.y, stop.title);
+      if (tourTimer !== null) window.clearTimeout(tourTimer);
+      tourTimer = window.setTimeout(() => runTourStep(tourIdx + 1), 8000);
+    };
+
+    const startAutoTour = () => {
+      if (!engine || engine.getScene() !== 'town') {
+        sessionStorage.setItem('town:start_tour', '1');
+        window.location.href = '/';
+        return;
+      }
+      if (!engine.getActiveFollower()) {
+        engine.setActiveFollower('lugia', false);
+      }
+      if (!engine.isRiding()) {
+        engine.setPokeRide(true);
+      }
+      tourActive = true;
+      tourBanner?.classList.remove('hidden');
+      sfx.fly();
+      showToast('🎬 Guided Auto-Tour dimulai! Tekan WASD / klik peta kapan saja untuk berhenti.');
+      runTourStep(0);
+    };
+
+    tourNextBtn?.addEventListener('click', () => {
+      sfx.select();
+      if (tourActive) runTourStep(tourIdx + 1);
+    });
+    tourStopBtn?.addEventListener('click', () => {
+      sfx.select();
+      stopAutoTour(false);
+    });
+
+    window.addEventListener('town:start-tour', startAutoTour);
+
+    // Auto-cancel tour if visitor takes manual control via keyboard or canvas click
+    window.addEventListener('keydown', (e) => {
+      if (!tourActive) return;
+      if (['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(e.key.toLowerCase())) {
+        stopAutoTour(false);
+      }
+    });
+    canvas?.addEventListener('pointerdown', () => {
+      if (tourActive) stopAutoTour(false);
+    });
+
+    if (engine && sessionStorage.getItem('town:start_tour') === '1') {
+      sessionStorage.removeItem('town:start_tour');
+      window.setTimeout(startAutoTour, 450);
+    }
+
+    // ─── 🌟 Legendary Resonance Pill & Hotkey (G) ───
+    const resonancePill = document.getElementById('town-resonance-pill');
+    const resonanceText = document.getElementById('town-resonance-text');
+
+    const updateResonancePill = (res: any) => {
+      if (!resonancePill || !resonanceText) return;
+      if (res) {
+        resonanceText.textContent = `${res.label}: ${res.followerId.toUpperCase()} × ${res.nearbyId.toUpperCase()}`;
+        resonancePill.classList.remove('hidden');
+      } else {
+        resonancePill.classList.add('hidden');
+      }
+    };
+
+    const fireResonanceBurst = () => {
+      if (!engine) return;
+      const fired = engine.triggerResonanceBurst();
+      if (fired) {
+        showToast(`🌟 ${fired.label}: ${fired.comboTitle}`);
+      } else {
+        showToast('💡 Dekati Pokémon pasangan dengan Follower aktif untuk memicu Resonance Burst!');
+      }
+    };
+
+    window.addEventListener('town:resonance-available', (e: Event) => {
+      updateResonancePill((e as CustomEvent).detail);
+    });
+    window.addEventListener('town:trigger-resonance', fireResonanceBurst);
+    resonancePill?.addEventListener('click', fireResonanceBurst);
+
+    // ─── 📸 PokéSnap Studio (In-Game Photo Mode & Postcard PNG) ───
+    const snapTownSection = document.querySelector<HTMLElement>('[data-town]');
+    const pokesnapDock = document.getElementById('town-pokesnap-dock');
+    const burgerItemPokesnap = document.getElementById('burger-item-pokesnap');
+    const pokesnapCloseBtn = document.getElementById('pokesnap-close-btn');
+    const pokesnapPoseBtn = document.getElementById('pokesnap-pose-btn');
+    const pokesnapZoomBtn = document.getElementById('pokesnap-zoom-btn');
+    const pokesnapCaptureBtn = document.getElementById('pokesnap-capture-btn');
+    const pokesnapFilterBtns = Array.from(document.querySelectorAll<HTMLButtonElement>('.pokesnap-filter-btn'));
+
+    let isPokeSnapOpen = false;
+    let activeSnapFilter = 'normal';
+
+    const FILTER_CSS_MAP: Record<string, string> = {
+      normal: 'none',
+      gameboy: 'grayscale(1) sepia(1) hue-rotate(55deg) saturate(2.1) contrast(1.15)',
+      crt: 'contrast(1.18) saturate(1.25) brightness(0.96)',
+      sunset: 'sepia(0.38) saturate(1.45) contrast(1.08) hue-rotate(-8deg)',
+      cyber: 'contrast(1.22) saturate(1.6) hue-rotate(15deg)',
+    };
+
+    const applySnapFilterPreview = () => {
+      if (!canvas) return;
+      canvas.style.filter = isPokeSnapOpen ? (FILTER_CSS_MAP[activeSnapFilter] || 'none') : '';
+    };
+
+    const togglePokeSnap = (force?: boolean) => {
+      isPokeSnapOpen = typeof force === 'boolean' ? force : !isPokeSnapOpen;
+      if (snapTownSection) {
+        if (isPokeSnapOpen) snapTownSection.setAttribute('data-pokesnap', 'true');
+        else snapTownSection.removeAttribute('data-pokesnap');
+      }
+      pokesnapDock?.classList.toggle('hidden', !isPokeSnapOpen);
+      if (isPokeSnapOpen) {
+        closeBurgerMenu();
+        hideBubble();
+        sfx.select();
+        showToast('📸 PokéSnap Studio aktif! Atur filter lalu klik Jepret PNG.');
+      } else {
+        sfx.select();
+      }
+      applySnapFilterPreview();
+    };
+
+    burgerItemPokesnap?.addEventListener('click', () => togglePokeSnap(true));
+    pokesnapCloseBtn?.addEventListener('click', () => togglePokeSnap(false));
+    window.addEventListener('town:toggle-pokesnap', () => togglePokeSnap());
+
+    pokesnapFilterBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        activeSnapFilter = btn.dataset.snapFilter || 'normal';
+        sfx.select();
+        pokesnapFilterBtns.forEach((b) => {
+          const active = b === btn;
+          b.className = active
+            ? 'pokesnap-filter-btn px-2 py-1 rounded-lg border border-amber-400 bg-amber-400/20 text-amber-200 font-mono text-[10px] font-bold cursor-pointer'
+            : 'pokesnap-filter-btn px-2 py-1 rounded-lg border border-slate-600 bg-slate-800 text-slate-200 font-mono text-[10px] cursor-pointer';
+        });
+        applySnapFilterPreview();
+      });
+    });
+
+    pokesnapPoseBtn?.addEventListener('click', () => {
+      if (!engine) return;
+      const res = engine.getActiveResonance();
+      if (res) {
+        fireResonanceBurst();
+        return;
+      }
+      const follower = engine.getActiveFollower();
+      if (follower) {
+        engine.triggerSignatureMove(follower.id);
+      } else {
+        engine.setActiveFollower('lugia', false);
+        engine.triggerSignatureMove('lugia');
+      }
+      sfx.confirm();
+    });
+
+    pokesnapZoomBtn?.addEventListener('click', () => {
+      if (!engine) return;
+      sfx.select();
+      const nextZ = engine.getZoom() >= 3.2 ? 2 : engine.getZoom() + 0.6;
+      engine.setZoom(nextZ);
+    });
+
+    pokesnapCaptureBtn?.addEventListener('click', () => {
+      if (!canvas) return;
+      sfx.catchSuccess();
+      const pad = 18;
+      const footerH = 44;
+      const out = document.createElement('canvas');
+      out.width = canvas.width + pad * 2;
+      out.height = canvas.height + pad + footerH;
+      const octx = out.getContext('2d');
+      if (!octx) return;
+
+      // Polaroid retro frame
+      octx.fillStyle = '#fcf8ef';
+      octx.fillRect(0, 0, out.width, out.height);
+      octx.strokeStyle = '#1c1726';
+      octx.lineWidth = 4;
+      octx.strokeRect(2, 2, out.width - 4, out.height - 4);
+
+      octx.save();
+      octx.filter = FILTER_CSS_MAP[activeSnapFilter] || 'none';
+      octx.drawImage(canvas, pad, pad);
+      octx.restore();
+
+      // Optional CRT scanline overlay for CRT / Cyber modes
+      if (activeSnapFilter === 'crt' || activeSnapFilter === 'cyber') {
+        octx.fillStyle = activeSnapFilter === 'crt' ? 'rgba(0,0,0,0.22)' : 'rgba(56,189,248,0.08)';
+        for (let y = pad; y < pad + canvas.height; y += 4) {
+          octx.fillRect(pad, y, canvas.width, 1.5);
+        }
+      }
+
+      octx.strokeStyle = '#1c1726';
+      octx.lineWidth = 2;
+      octx.strokeRect(pad, pad, canvas.width, canvas.height);
+
+      // Postcard caption
+      const partner = engine?.getActiveFollower();
+      const partnerNote = partner ? ` · ${partner.icon} Partner: ${partner.name}` : '';
+      octx.fillStyle = '#1c1726';
+      octx.font = 'bold 14px monospace';
+      octx.fillText(`Zulfan's Town · mzulfan.dev${partnerNote}`, pad, canvas.height + pad + 26);
+
+      const link = document.createElement('a');
+      link.download = `zulfan-town-pokesnap-${activeSnapFilter}.png`;
+      link.href = out.toDataURL('image/png');
+      link.click();
+      showToast('📸 Postcard PNG berhasil diunduh!');
+    });
+
+    // Global hotkeys G (Resonance Burst) & O (PokéSnap Studio)
+    window.addEventListener('keydown', (e) => {
+      const tag = (document.activeElement as HTMLElement | null)?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      const k = e.key.toLowerCase();
+      if (k === 'g') {
+        if (engine?.getActiveResonance()) {
+          e.preventDefault();
+          fireResonanceBurst();
+        }
+      } else if (k === 'o') {
+        e.preventDefault();
+        togglePokeSnap();
+      } else if (e.key === 'Escape' && isPokeSnapOpen) {
+        togglePokeSnap(false);
       }
     });
 
@@ -2774,6 +3417,18 @@ const dataPlaceRooms = {
           editorBody.style.display = isMinimized ? 'none' : 'block';
         }
 
+        const diffPill = document.getElementById('town-editor-diff-pill');
+        if (diffPill) {
+          const diff = townConfig.getDiffSummaryVsCanonical();
+          if (diff.totalChanges === 0) {
+            diffPill.textContent = '📊 Synced';
+            diffPill.className = 'px-2 py-0.5 rounded bg-slate-800 border border-slate-600 font-mono text-[9px] text-emerald-300 hidden sm:inline-block';
+          } else {
+            diffPill.textContent = `📊 +${diff.added} ~${diff.moved} -${diff.removed} · ${diff.tileDiff} Tile`;
+            diffPill.className = 'px-2 py-0.5 rounded bg-amber-950/80 border border-amber-500/60 font-mono text-[9px] text-amber-200 hidden sm:inline-block';
+          }
+        }
+
         if (editorPalette) {
           editorPalette.classList.remove('hidden');
           editorPalette.style.display = 'flex';
@@ -2927,6 +3582,21 @@ const dataPlaceRooms = {
               };
               badgeEl.textContent = orientLabels[orient] || orient;
             }
+            const btnBehavior = document.getElementById('btn-transform-behavior');
+            const behaviorLabel = document.getElementById('btn-transform-behavior-label');
+            if (btnBehavior) {
+              const isNpc = selected.kind === 'npc';
+              btnBehavior.style.display = isNpc ? 'inline-flex' : 'none';
+              if (behaviorLabel) {
+                const bMode = selected.behavior || 'stationary';
+                behaviorLabel.textContent =
+                  bMode === 'patrol_small'
+                    ? 'Perilaku: Patroli'
+                    : bMode === 'look_around'
+                      ? 'Perilaku: Menoleh'
+                      : 'Perilaku: Diam';
+              }
+            }
             if (engine) {
               const pt = engine.worldToScreen((selected.x + selected.w / 2) * 16, selected.y * 16);
               const isTopClipped = pt.y < 85;
@@ -3044,9 +3714,35 @@ const dataPlaceRooms = {
         sfx.select();
       });
 
+      document.getElementById('btn-transform-behavior')?.addEventListener('click', () => {
+        const sel = editor.getSelectedBuilding();
+        if (!sel) return;
+        const next = townConfig.cycleBuildingBehavior(sel.id);
+        sfx.select();
+        if (next) {
+          const textMap = {
+            stationary: 'Diam (Stationary)',
+            look_around: 'Menoleh Otomatis (Look Around)',
+            patrol_small: 'Patroli Mikro (Micro-Patrol)',
+          };
+          showToast(`🐾 ${sel.name}: ${textMap[next]}`);
+        }
+      });
+
       btnEditorDuplicate?.addEventListener('click', () => {
         editor.duplicateSelected();
         sfx.select();
+      });
+
+      const inspectorName = document.getElementById('town-inspector-name') as HTMLInputElement | null;
+      const inspectorLink = document.getElementById('town-inspector-link') as HTMLInputElement | null;
+      const inspectorScale = document.getElementById('town-inspector-scale') as HTMLInputElement | null;
+      const inspectorScaleVal = document.getElementById('town-inspector-scale-val');
+      const inspectorBehavior = document.getElementById('town-inspector-behavior') as HTMLSelectElement | null;
+      const btnInspectorPreview = document.getElementById('btn-inspector-preview-move');
+
+      inspectorScale?.addEventListener('input', () => {
+        if (inspectorScaleVal) inspectorScaleVal.textContent = `${Number(inspectorScale.value).toFixed(2)}×`;
       });
 
       btnEditorDialogue?.addEventListener('click', () => {
@@ -3055,7 +3751,16 @@ const dataPlaceRooms = {
         const dialogueModal = document.getElementById('town-editor-dialogue-modal') as HTMLDialogElement | null;
         const titleEl = document.getElementById('town-dialogue-modal-title');
         const inputEl = document.getElementById('town-dialogue-input') as HTMLTextAreaElement | null;
-        if (titleEl) titleEl.textContent = `💬 Ubah Dialog: ${selected.name}`;
+        if (titleEl) titleEl.textContent = `🎛️ Visual Inspector 2.0: ${selected.name}`;
+        if (inspectorName) inspectorName.value = selected.name || '';
+        if (inspectorLink) inspectorLink.value = selected.link || '';
+        const sc = selected.scaleMultiplier ?? 1;
+        if (inspectorScale) inspectorScale.value = String(sc);
+        if (inspectorScaleVal) inspectorScaleVal.textContent = `${sc.toFixed(2)}×`;
+        if (inspectorBehavior) inspectorBehavior.value = selected.behavior || 'stationary';
+        if (btnInspectorPreview) {
+          btnInspectorPreview.style.display = selected.kind === 'npc' ? 'inline-flex' : 'none';
+        }
         if (inputEl) {
           const tpl = SPAWNABLE_TEMPLATES.find((t) => t.id === selected.id || t.subType === selected.subType);
           inputEl.value = selected.dialogue !== undefined ? selected.dialogue : (tpl?.defaultDialogue || '');
@@ -3064,12 +3769,27 @@ const dataPlaceRooms = {
         sfx.select();
       });
 
+      btnInspectorPreview?.addEventListener('click', () => {
+        const selected = editor.getSelectedBuilding();
+        if (!selected || !engine) return;
+        const pokeKey = selected.subType || selected.id.split('_')[0] || 'pikachu';
+        engine.triggerSignatureMove(pokeKey, selected.x, selected.y);
+        sfx.confirm();
+        showToast(`⚡ Preview Signature Move: ${selected.name}`);
+      });
+
       document.getElementById('btn-dialogue-save')?.addEventListener('click', () => {
         const selected = editor.getSelectedBuilding();
         const inputEl = document.getElementById('town-dialogue-input') as HTMLTextAreaElement | null;
         if (selected && inputEl) {
-          townConfig.setBuildingDialogue(selected.id, inputEl.value.trim());
-          showToast(`💬 Dialog "${selected.name}" berhasil disimpan!`);
+          townConfig.updateObjectProperties(selected.id, {
+            name: inspectorName?.value,
+            dialogue: inputEl.value.trim(),
+            link: inspectorLink?.value,
+            scaleMultiplier: inspectorScale ? Number(inspectorScale.value) : undefined,
+            behavior: (inspectorBehavior?.value as 'stationary' | 'look_around' | 'patrol_small') || 'stationary',
+          });
+          showToast(`🎛️ Properti "${inspectorName?.value || selected.name}" disimpan!`);
           sfx.heal();
         }
         (document.getElementById('town-editor-dialogue-modal') as HTMLDialogElement | null)?.close();
@@ -3082,6 +3802,160 @@ const dataPlaceRooms = {
       document.getElementById('btn-close-dialogue-modal')?.addEventListener('click', () => {
         (document.getElementById('town-editor-dialogue-modal') as HTMLDialogElement | null)?.close();
       });
+
+      // ─── 🧩 Prefab Blueprints Modal Handlers ───
+      const prefabsModal = document.getElementById('town-editor-prefabs-modal') as HTMLDialogElement | null;
+      const prefabsListEl = document.getElementById('town-prefabs-list');
+      const prefabNameInput = document.getElementById('town-prefab-name-input') as HTMLInputElement | null;
+      const prefabSelCount = document.getElementById('prefab-sel-count');
+
+      const renderPrefabsList = () => {
+        if (!prefabsListEl) return;
+        const selCount = editor.getSelectedBuildings().length;
+        if (prefabSelCount) prefabSelCount.textContent = String(selCount);
+        const list = townConfig.getPrefabs();
+        prefabsListEl.innerHTML = '';
+        if (list.length === 0) {
+          prefabsListEl.innerHTML =
+            '<p class="text-xs font-mono text-slate-400 p-2 rounded border border-dashed border-slate-700">Belum ada Prefab tersimpan. Pilih 1 atau beberapa objek (Shift+Drag) lalu simpan sebagai Prefab.</p>';
+          return;
+        }
+        for (const p of list) {
+          const row = document.createElement('div');
+          row.className = 'flex items-center justify-between gap-2 p-2 rounded border border-slate-700 bg-slate-900/90 text-xs font-mono';
+          const info = document.createElement('div');
+          info.className = 'min-w-0';
+          info.innerHTML = `<div class="font-bold text-amber-300 truncate">${p.name}</div><div class="text-[10px] text-slate-400">${p.items.length} objek · ${p.createdAt}</div>`;
+          const btns = document.createElement('div');
+          btns.className = 'flex gap-1.5 shrink-0';
+
+          const placeBtn = document.createElement('button');
+          placeBtn.type = 'button';
+          placeBtn.className = 'town-editor-btn town-editor-btn--save';
+          placeBtn.textContent = '📌 Tempel';
+          placeBtn.onclick = () => {
+            const camTileX = engine ? Math.max(1, Math.min(40, Math.round(engine.getCameraX() / 16))) : 18;
+            const camTileY = engine ? Math.max(1, Math.min(58, Math.round(engine.getCameraY() / 16))) : 25;
+            const placed = townConfig.placePrefab(p.id, camTileX, camTileY);
+            sfx.heal();
+            prefabsModal?.close();
+            showToast(`🧩 Prefab "${p.name}" (${placed.length} objek) ditempel di (${camTileX}, ${camTileY})!`);
+          };
+
+          const delBtn = document.createElement('button');
+          delBtn.type = 'button';
+          delBtn.className = 'town-editor-btn town-editor-btn--delete';
+          delBtn.textContent = '🗑️';
+          delBtn.onclick = () => {
+            townConfig.deletePrefab(p.id);
+            sfx.select();
+            renderPrefabsList();
+          };
+
+          btns.appendChild(placeBtn);
+          btns.appendChild(delBtn);
+          row.appendChild(info);
+          row.appendChild(btns);
+          prefabsListEl.appendChild(row);
+        }
+      };
+
+      document.getElementById('btn-editor-prefabs')?.addEventListener('click', () => {
+        renderPrefabsList();
+        prefabsModal?.showModal();
+        sfx.select();
+      });
+      document.getElementById('btn-close-prefabs-modal')?.addEventListener('click', () => prefabsModal?.close());
+      document.getElementById('btn-save-selection-prefab')?.addEventListener('click', () => {
+        const selectedList = editor.getSelectedBuildings();
+        if (selectedList.length === 0) {
+          showToast('⚠️ Pilih minimal 1 objek terlebih dahulu sebelum menyimpan Prefab!');
+          return;
+        }
+        const saved = townConfig.savePrefab(
+          prefabNameInput?.value || `Blueprint ${townConfig.getPrefabs().length + 1}`,
+          selectedList.map((b) => b.id)
+        );
+        if (saved) {
+          if (prefabNameInput) prefabNameInput.value = '';
+          sfx.heal();
+          renderPrefabsList();
+          showToast(`🧩 Prefab "${saved.name}" tersimpan!`);
+        }
+      });
+
+      // ─── 🕒 Layout Snapshots & Diff Modal Handlers ───
+      const snapshotsModal = document.getElementById('town-editor-snapshots-modal') as HTMLDialogElement | null;
+      const diffBox = document.getElementById('town-diff-summary-box');
+      const snapListEl = document.getElementById('town-snapshots-list');
+      const SNAPSHOT_SLOTS = ['A', 'B', 'C', 'D', 'E'];
+
+      const renderSnapshotsModal = () => {
+        const diff = townConfig.getDiffSummaryVsCanonical();
+        if (diffBox) {
+          diffBox.innerHTML = `
+            <div class="font-bold text-amber-300 mb-1">Perbandingan Layout Saat Ini vs Canonical JSON:</div>
+            <div class="flex flex-wrap gap-3 text-[11px]">
+              <span class="text-emerald-300">+${diff.added} Baru</span>
+              <span class="text-sky-300">~${diff.moved} Diubah/Digeser</span>
+              <span class="text-rose-300">-${diff.removed} Terhapus</span>
+              <span class="text-purple-300">${diff.tileDiff} Tile Diubah</span>
+            </div>
+          `;
+        }
+        if (!snapListEl) return;
+        const savedList = townConfig.getNamedSnapshots();
+        snapListEl.innerHTML = '';
+        for (const slot of SNAPSHOT_SLOTS) {
+          const found = savedList.find((s) => s.slot === slot);
+          const row = document.createElement('div');
+          row.className = 'flex items-center justify-between gap-2 p-2 rounded border border-slate-700 bg-slate-900/90 text-xs font-mono';
+          const info = document.createElement('div');
+          info.innerHTML = found
+            ? `<div class="font-bold text-white">Slot ${slot} · ${found.savedAt}</div><div class="text-[10px] text-slate-400">${found.buildingCount} objek · ${found.tileCount} custom tile</div>`
+            : `<div class="text-slate-400">Slot ${slot} (Kosong)</div>`;
+
+          const btns = document.createElement('div');
+          btns.className = 'flex gap-1.5 shrink-0';
+
+          const saveSlotBtn = document.createElement('button');
+          saveSlotBtn.type = 'button';
+          saveSlotBtn.className = 'town-editor-btn town-editor-btn--save';
+          saveSlotBtn.textContent = '💾 Simpan';
+          saveSlotBtn.onclick = () => {
+            townConfig.saveNamedSnapshot(slot);
+            sfx.heal();
+            renderSnapshotsModal();
+            showToast(`🕒 Snapshot tersimpan di Slot ${slot}!`);
+          };
+          btns.appendChild(saveSlotBtn);
+
+          if (found) {
+            const loadSlotBtn = document.createElement('button');
+            loadSlotBtn.type = 'button';
+            loadSlotBtn.className = 'town-editor-btn';
+            loadSlotBtn.textContent = '↩️ Pulihkan';
+            loadSlotBtn.onclick = () => {
+              townConfig.loadNamedSnapshot(slot);
+              sfx.confirm();
+              snapshotsModal?.close();
+              showToast(`↩️ Layout dipulihkan dari Slot ${slot}! (Bisa di-Undo Ctrl+Z)`);
+            };
+            btns.appendChild(loadSlotBtn);
+          }
+
+          row.appendChild(info);
+          row.appendChild(btns);
+          snapListEl.appendChild(row);
+        }
+      };
+
+      document.getElementById('btn-editor-snapshots')?.addEventListener('click', () => {
+        renderSnapshotsModal();
+        snapshotsModal?.showModal();
+        sfx.select();
+      });
+      document.getElementById('btn-close-snapshots-modal')?.addEventListener('click', () => snapshotsModal?.close());
 
       btnEditorDeselect?.addEventListener('click', () => {
         editor.selectBuilding(null);
@@ -3494,6 +4368,151 @@ const dataPlaceRooms = {
       e.preventDefault();
       engine?.interactFacing();
     });
+
+    const btnTouchBike = document.getElementById('btn-touch-bike');
+    btnTouchBike?.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      if (!engine) return;
+      if (engine.getActiveFollower() && !engine.isRiding()) {
+        engine.togglePokeRide();
+      } else {
+        engine.toggleBike();
+      }
+      sfx.select();
+    });
+
+    const btnTouchMove = document.getElementById('btn-touch-move');
+    btnTouchMove?.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      castPartnerSkill();
+    });
+
+    const touchControls = document.getElementById('town-mobile-controls');
+    const btnTouchMin = document.getElementById('btn-touchpad-minimize');
+    const btnTouchRestore = document.getElementById('btn-touchpad-restore');
+    const TOUCHPAD_KEY = 'town_touchpad_collapsed';
+
+    const applyTouchpadCollapsed = (collapsed: boolean) => {
+      touchControls?.classList.toggle('is-collapsed', collapsed);
+      btnTouchMin?.setAttribute('aria-expanded', String(!collapsed));
+    };
+
+    try {
+      applyTouchpadCollapsed(localStorage.getItem(TOUCHPAD_KEY) === 'true');
+    } catch {}
+
+    btnTouchMin?.addEventListener('click', () => {
+      applyTouchpadCollapsed(true);
+      try {
+        localStorage.setItem(TOUCHPAD_KEY, 'true');
+      } catch {}
+      sfx.select();
+      showToast('👆 Mode Tap-to-Move aktif. Sentuh kanvas untuk berjalan!');
+    });
+
+    btnTouchRestore?.addEventListener('click', () => {
+      applyTouchpadCollapsed(false);
+      try {
+        localStorage.setItem(TOUCHPAD_KEY, 'false');
+      } catch {}
+      sfx.select();
+    });
+
+    // Pilar 5: Hydrate Ghost Trainers in Town Square & wire Guestbook / Ghost Toggle
+    const burgerItemGuestbook = document.getElementById('burger-item-guestbook');
+    const burgerItemGhosts = document.getElementById('burger-item-ghosts');
+    const burgerGhostsTitle = document.getElementById('burger-ghosts-title');
+
+    let ghostsEnabled = true;
+    try {
+      const savedGhostPref = localStorage.getItem(GHOST_ENABLED_STORAGE_KEY);
+      if (savedGhostPref === 'false') ghostsEnabled = false;
+    } catch {}
+
+    const syncGhostUI = () => {
+      engine?.setGhostTrainersEnabled(ghostsEnabled);
+      burgerItemGhosts?.classList.toggle('is-active', ghostsEnabled);
+      if (burgerGhostsTitle) {
+        burgerGhostsTitle.textContent = ghostsEnabled ? 'Ghost Trainers: ON' : 'Ghost Trainers: OFF';
+      }
+    };
+
+    const toggleGhosts = () => {
+      ghostsEnabled = !ghostsEnabled;
+      try {
+        localStorage.setItem(GHOST_ENABLED_STORAGE_KEY, String(ghostsEnabled));
+      } catch {}
+      syncGhostUI();
+      sfx.select();
+      showToast(
+        ghostsEnabled
+          ? '👻 Ghost Trainers aktif di Fountain Plaza (Klik mereka untuk baca pesan)!'
+          : '👻 Ghost Trainers disembunyikan.'
+      );
+    };
+
+    burgerItemGuestbook?.addEventListener('click', () => {
+      toggleBurger(false);
+      sfx.select();
+      window.dispatchEvent(new CustomEvent('town:open-guestbook'));
+    });
+
+    const burgerItemJukebox = document.getElementById('burger-item-jukebox');
+    burgerItemJukebox?.addEventListener('click', () => {
+      toggleBurger(false);
+      sfx.select();
+      window.dispatchEvent(new CustomEvent('town:open-jukebox'));
+    });
+
+    // Pilar 6: Unlock 8 Tech Gym Badges based on visited room & notify
+    const placeToBadge: Record<string, 'cascade' | 'vision' | 'stratos' | 'tactical' | 'heuristic' | 'sanctuary' | 'botanical' | 'empathy'> = {
+      dev: 'cascade',
+      lab: 'vision',
+      tower: 'stratos',
+      arena: 'tactical',
+      arcade: 'heuristic',
+      digimon: 'sanctuary',
+      garden: 'botanical',
+      reception: 'empathy',
+      twin: 'empathy',
+    };
+    const routeBadge = placeToBadge[spawnPlace];
+    if (routeBadge) {
+      gameStore.unlockBadge(routeBadge);
+    }
+
+    window.addEventListener('town:badge-unlocked', (e: Event) => {
+      const detail = (e as CustomEvent<{ badge?: { name?: string; icon?: string }; totalBadges?: number }>).detail;
+      if (!detail) return;
+      sfx.catchSuccess();
+      const count = detail.totalBadges ?? 0;
+      if (count >= 8) {
+        showToast('🏆 ZULFAN LEAGUE MASTER! Seluruh 8 Tech Gym Badges telah dikumpulkan!');
+      } else {
+        showToast(`🏅 Gym Badge Earned: ${detail.badge?.icon || ''} ${detail.badge?.name || 'Badge Baru'} (${count}/8)!`);
+      }
+    });
+
+    burgerItemGhosts?.addEventListener('click', () => {
+      toggleBurger(false);
+      toggleGhosts();
+    });
+
+    window.addEventListener('town:toggle-ghosts', toggleGhosts);
+    window.addEventListener('town:guestbook-updated', (e: Event) => {
+      const detail = (e as CustomEvent<{ entries?: GuestbookEntry[] }>).detail;
+      if (detail?.entries && engine) {
+        engine.setGhostTrainers(detail.entries);
+      }
+    });
+
+    if (engine) {
+      syncGhostUI();
+      engine.setGhostTrainers(getLocalGuestbookEntries());
+      fetchGuestbookEntries().then(({ entries }) => {
+        engine?.setGhostTrainers(entries);
+      });
+    }
   }
 
   document.addEventListener('DOMContentLoaded', initTown);

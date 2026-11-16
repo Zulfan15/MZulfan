@@ -385,18 +385,52 @@ const critters = profile.critters || [];
             </div>
           </div>
 
+          <!-- Badge Role & Avatar Picker -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label for="guest-badge-role" class="block font-mono text-[10px] text-slate-400 uppercase font-bold mb-1">
+                Visitor Badge Role:
+              </label>
+              <select
+                id="guest-badge-role"
+                class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white font-mono text-xs focus:border-emerald-400 focus:outline-none"
+              >
+                <option value="Recruiter">💼 Recruiter</option>
+                <option value="Fellow Developer">👨‍💻 Fellow Developer</option>
+                <option value="Trainer">🧢 Trainer</option>
+                <option value="Guest">✨ Guest</option>
+              </select>
+            </div>
+            <div>
+              <span class="block font-mono text-[10px] text-slate-400 uppercase font-bold mb-1">
+                Avatar Ikon (Pokémon / Digimon):
+              </span>
+              <div class="flex flex-wrap gap-1.5" id="pc-guest-avatar-picker">
+                {['⚡', '🥊', '🔥', '🌙', '🧬', '🛰️', '🌸', '🧢'].map((icon, idx) => (
+                  <button
+                    type="button"
+                    class={`pc-avatar-btn w-8 h-8 rounded-md border text-sm flex items-center justify-center cursor-pointer transition-all ${idx === 0 ? 'bg-emerald-600 border-emerald-300' : 'bg-slate-900 border-slate-700 hover:border-emerald-500'}`}
+                    data-pc-avatar={icon}
+                  >
+                    {icon}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
           <!-- Input Fields -->
           <form id="guestbook-form" class="space-y-3 pt-1">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               <div>
                 <label for="guest-name" class="block font-mono text-[10px] text-slate-400 mb-1">
-                  Your Name / Organization:
+                  Your Name:
                 </label>
                 <input
                   type="text"
                   id="guest-name"
-                  placeholder="e.g. Maya (Senior Tech Recruiter)"
-                  maxlength="50"
+                  placeholder="e.g. Maya R."
+                  maxlength="36"
                   required
                   class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white font-sans text-xs focus:border-emerald-400 focus:outline-none"
                 />
@@ -409,7 +443,7 @@ const critters = profile.critters || [];
                   type="text"
                   id="guest-role"
                   placeholder="e.g. AI Startup / Jakarta"
-                  maxlength="50"
+                  maxlength="44"
                   class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white font-sans text-xs focus:border-emerald-400 focus:outline-none"
                 />
               </div>
@@ -417,13 +451,13 @@ const critters = profile.critters || [];
 
             <div>
               <label for="guest-message" class="block font-mono text-[10px] text-slate-400 mb-1">
-                Your Note / Feedback:
+                Your Note / Feedback (max 160 chars):
               </label>
               <textarea
                 id="guest-message"
                 rows="2"
                 placeholder="Share your thoughts on Zulfan's projects, technical depth, or portfolio town..."
-                maxlength="200"
+                maxlength="160"
                 required
                 class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white font-sans text-xs focus:border-emerald-400 focus:outline-none resize-none"
               ></textarea>
@@ -487,38 +521,15 @@ const critters = profile.critters || [];
 <script>
   import { sfx } from '../game/sfx';
   import { gameStore } from '../game/store';
-
-  interface GuestbookEntry {
-    name: string;
-    role: string;
-    stamp: string;
-    message: string;
-    time: string;
-  }
-
-  const INITIAL_ENTRIES: GuestbookEntry[] = [
-    {
-      name: 'Sarah Kurnia',
-      role: 'Senior Tech Recruiter · Singapore',
-      stamp: '💼 Recruiter Visited',
-      message: 'Incredibly creative interactive portfolio! The combination of verified engineering credentials (GPA 3.49, Huawei HCIA) and the 2D canvas simulation is unforgettable.',
-      time: 'Earlier today',
-    },
-    {
-      name: 'Lab Team Lead',
-      role: 'ITENAS Informatics Department',
-      stamp: '🌟 Awesome Portfolio!',
-      message: 'Zulfan has consistently shown stellar leadership as Robotics Lab Coordinator and 6-time teaching assistant. Highly endorsed for AI and software roles!',
-      time: 'Yesterday',
-    },
-    {
-      name: 'DevOps Architect',
-      role: 'Cloud Systems Engineer',
-      stamp: '💡 Brilliant Architecture',
-      message: 'Inspected the FoodLink microservices setup with Kafka, Redis, and FastAPI—solid structural decoupling and clean code practices.',
-      time: '2 days ago',
-    },
-  ];
+  import {
+    escapeHtml,
+    fetchGuestbookEntries,
+    formatRelativeGuestTime,
+    getLocalGuestbookEntries,
+    submitGuestbookEntry,
+    type GuestBadgeRole,
+    type GuestbookEntry,
+  } from '../lib/socialClient';
 
   function initNetworkPcModal() {
     const dialog = document.getElementById('network-pc-modal') as HTMLDialogElement | null;
@@ -593,8 +604,9 @@ const critters = profile.critters || [];
       });
     }
 
-    // Guestbook Logic
+    // Guestbook Logic (synced with Cloudflare Worker KV + localStorage fallback)
     let selectedStamp = '🌟 Awesome Portfolio!';
+    let selectedAvatar = '⚡';
     const stampPicker = document.getElementById('guestbook-stamp-picker');
     if (stampPicker) {
       const stampButtons = stampPicker.querySelectorAll<HTMLButtonElement>('.stamp-btn');
@@ -612,23 +624,28 @@ const critters = profile.critters || [];
       });
     }
 
-    function getGuestbookEntries(): GuestbookEntry[] {
-      try {
-        const raw = localStorage.getItem('reception_guestbook_entries');
-        if (raw) {
-          const parsed = JSON.parse(raw);
-          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-        }
-      } catch {}
-      return INITIAL_ENTRIES;
+    const avatarPicker = document.getElementById('pc-guest-avatar-picker');
+    if (avatarPicker) {
+      const avatarBtns = avatarPicker.querySelectorAll<HTMLButtonElement>('[data-pc-avatar]');
+      avatarBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          selectedAvatar = btn.dataset.pcAvatar || '🧢';
+          avatarBtns.forEach((b) => {
+            const isSel = b === btn;
+            b.className = isSel
+              ? 'pc-avatar-btn w-8 h-8 rounded-md border text-sm flex items-center justify-center cursor-pointer transition-all bg-emerald-600 border-emerald-300'
+              : 'pc-avatar-btn w-8 h-8 rounded-md border text-sm flex items-center justify-center cursor-pointer transition-all bg-slate-900 border-slate-700 hover:border-emerald-500';
+          });
+          sfx.blip();
+        });
+      });
     }
 
-    function renderGuestbook() {
+    function paintGuestbook(entries: GuestbookEntry[]) {
       const listEl = document.getElementById('guestbook-list');
       const badgeEl = document.getElementById('guestbook-count-badge');
       if (!listEl) return;
 
-      const entries = getGuestbookEntries();
       if (badgeEl) {
         badgeEl.textContent = `${entries.length} Inscriptions`;
       }
@@ -638,11 +655,13 @@ const critters = profile.critters || [];
           (entry) => `
         <div class="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 space-y-1.5 hover:border-slate-700 transition-colors">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="text-sm">${escapeHtml(entry.avatar)}</span>
               <span class="font-bold text-white text-xs">${escapeHtml(entry.name)}</span>
+              <span class="chip bg-blue-950 text-blue-300 border border-blue-700 font-mono text-[9px] px-1.5 py-0.2">${escapeHtml(entry.badgeRole)}</span>
               ${
-                entry.role
-                  ? `<span class="text-slate-400 font-mono text-[10px]">(${escapeHtml(entry.role)})</span>`
+                entry.org
+                  ? `<span class="text-slate-400 font-mono text-[10px]">(${escapeHtml(entry.org)})</span>`
                   : ''
               }
             </div>
@@ -650,7 +669,7 @@ const critters = profile.critters || [];
               <span class="chip bg-emerald-950 text-emerald-300 border border-emerald-600 font-mono text-[9px] px-1.5 py-0.2 font-bold">${escapeHtml(
                 entry.stamp
               )}</span>
-              <span class="font-mono text-[9px] text-slate-500">${escapeHtml(entry.time)}</span>
+              <span class="font-mono text-[9px] text-slate-500">${escapeHtml(formatRelativeGuestTime(entry.createdAt))}</span>
             </div>
           </div>
           <p class="font-sans text-xs text-slate-300 leading-relaxed">${escapeHtml(entry.message)}</p>
@@ -660,54 +679,65 @@ const critters = profile.critters || [];
         .join('');
     }
 
-    function escapeHtml(str: string): string {
-      return str
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
+    async function renderGuestbook() {
+      paintGuestbook(getLocalGuestbookEntries());
+      const { entries } = await fetchGuestbookEntries();
+      paintGuestbook(entries);
     }
 
     renderGuestbook();
+    window.addEventListener('town:guestbook-updated', (e: Event) => {
+      const detail = (e as CustomEvent<{ entries?: GuestbookEntry[] }>).detail;
+      if (detail?.entries) paintGuestbook(detail.entries);
+    });
 
     const guestbookForm = document.getElementById('guestbook-form') as HTMLFormElement | null;
     const feedbackEl = document.getElementById('guestbook-feedback');
     if (guestbookForm) {
-      guestbookForm.addEventListener('submit', (e) => {
+      guestbookForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const nameInput = document.getElementById('guest-name') as HTMLInputElement | null;
         const roleInput = document.getElementById('guest-role') as HTMLInputElement | null;
+        const badgeSelect = document.getElementById('guest-badge-role') as HTMLSelectElement | null;
         const msgInput = document.getElementById('guest-message') as HTMLTextAreaElement | null;
 
         const name = nameInput?.value.trim() || 'Anonymous Visitor';
-        const role = roleInput?.value.trim() || '';
+        const org = roleInput?.value.trim() || '';
+        const badgeRole = (badgeSelect?.value as GuestBadgeRole) || 'Guest';
         const message = msgInput?.value.trim() || '';
 
         if (!message) return;
 
-        const newEntry: GuestbookEntry = {
+        const res = await submitGuestbookEntry({
           name,
-          role,
+          org,
+          badgeRole,
+          avatar: selectedAvatar,
           stamp: selectedStamp,
           message,
-          time: 'Just now',
-        };
+        });
 
-        const current = getGuestbookEntries();
-        current.unshift(newEntry);
-        try {
-          localStorage.setItem('reception_guestbook_entries', JSON.stringify(current));
-        } catch {}
+        if (res.error) {
+          sfx.bump();
+          if (feedbackEl) {
+            feedbackEl.textContent = `⚠ ${res.error}`;
+            feedbackEl.classList.remove('hidden', 'text-emerald-400');
+            feedbackEl.classList.add('text-rose-400');
+          }
+          return;
+        }
 
-        renderGuestbook();
+        paintGuestbook(res.entries);
         sfx.confirm();
 
-        // Reset form
         if (msgInput) msgInput.value = '';
 
         if (feedbackEl) {
-          feedbackEl.classList.remove('hidden');
+          feedbackEl.textContent = res.syncedRemote
+            ? '✨ Recorded to Cloudflare KV & spawned as Ghost Trainer!'
+            : '✨ Your stamp was successfully recorded in the guestbook!';
+          feedbackEl.classList.remove('hidden', 'text-rose-400');
+          feedbackEl.classList.add('text-emerald-400');
           setTimeout(() => {
             feedbackEl.classList.add('hidden');
           }, 4000);

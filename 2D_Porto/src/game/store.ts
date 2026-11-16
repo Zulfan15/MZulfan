@@ -54,11 +54,98 @@ export const STAMP_MISSIONS: StampMission[] = [
   },
 ];
 
+export type GymBadgeId =
+  | 'cascade'
+  | 'vision'
+  | 'stratos'
+  | 'tactical'
+  | 'heuristic'
+  | 'sanctuary'
+  | 'botanical'
+  | 'empathy';
+
+export interface GymBadge {
+  id: GymBadgeId;
+  name: string;
+  icon: string;
+  route: string;
+  desc: string;
+  color: string;
+}
+
+export const GYM_BADGES: GymBadge[] = [
+  {
+    id: 'cascade',
+    name: 'Cascade Core Badge',
+    icon: '⚡',
+    route: '/dev',
+    desc: 'Menginspeksi arsitektur proyek di Dev Center.',
+    color: '#38bdf8',
+  },
+  {
+    id: 'vision',
+    name: 'Vision Neural Badge',
+    icon: '👁️',
+    route: '/lab',
+    desc: 'Menguji eksperimen Computer Vision / Thesis di Research Lab.',
+    color: '#a855f7',
+  },
+  {
+    id: 'stratos',
+    name: 'Cloud Stratos Badge',
+    icon: '🗼',
+    route: '/tower',
+    desc: 'Menjelajahi perjalanan karier & sertifikasi di Tech Tower.',
+    color: '#60a5fa',
+  },
+  {
+    id: 'tactical',
+    name: 'Tactical Logic Badge',
+    icon: '⚔️',
+    route: '/arena',
+    desc: 'Menghadapi tantangan arsitektur di Battle Arena.',
+    color: '#f43f5e',
+  },
+  {
+    id: 'heuristic',
+    name: 'Heuristic Mind Badge',
+    icon: '🕹️',
+    route: '/arcade',
+    desc: 'Bermain melawan AI Alpha-Beta di Arcade.',
+    color: '#f59e0b',
+  },
+  {
+    id: 'sanctuary',
+    name: 'Cyber Sanctuary Badge',
+    icon: '🌐',
+    route: '/digimon',
+    desc: 'Mengunjungi Digi-Sanctuary & membuka DigiDex.',
+    color: '#06b6d4',
+  },
+  {
+    id: 'botanical',
+    name: 'Botanical Data Badge',
+    icon: '🌿',
+    route: '/garden',
+    desc: 'Memanen buah algoritma & skill di Berry Garden.',
+    color: '#22c55e',
+  },
+  {
+    id: 'empathy',
+    name: 'Empathy Twin Badge',
+    icon: '🤖',
+    route: '/twin',
+    desc: 'Berbicara dengan AI Digital Twin & Reception Desk.',
+    color: '#ec4899',
+  },
+];
+
 export interface GameState {
   balls: number;
   caught: string[];
   trainerName: string;
   stamps: string[];
+  badges: GymBadgeId[];
 }
 
 const STORAGE_KEY = 'zulfan_town_save';
@@ -69,6 +156,7 @@ export class GameStore {
     caught: [],
     trainerName: 'TRAINER',
     stamps: [],
+    badges: [],
   };
 
   private listeners: Set<(state: GameState) => void> = new Set();
@@ -84,6 +172,7 @@ export class GameStore {
             caught: Array.isArray(parsed.caught) ? parsed.caught : [],
             trainerName: parsed.trainerName || 'TRAINER',
             stamps: Array.isArray(parsed.stamps) ? parsed.stamps : [],
+            badges: Array.isArray(parsed.badges) ? parsed.badges : [],
           };
         }
       } catch {
@@ -140,6 +229,17 @@ export class GameStore {
   }
 
   public addStamp(id: 'dev' | 'twin' | 'battle' | 'critter' | 'arcade'): boolean {
+    const stampToBadge: Partial<Record<string, GymBadgeId>> = {
+      dev: 'cascade',
+      twin: 'empathy',
+      battle: 'tactical',
+      arcade: 'heuristic',
+    };
+    const mappedBadge = stampToBadge[id];
+    if (mappedBadge) {
+      this.unlockBadge(mappedBadge);
+    }
+
     if (!this.state.stamps.includes(id)) {
       this.state.stamps.push(id);
       this.save();
@@ -166,6 +266,35 @@ export class GameStore {
 
   public getStamps(): string[] {
     return [...this.state.stamps];
+  }
+
+  public unlockBadge(id: GymBadgeId): boolean {
+    if (!this.state.badges.includes(id)) {
+      this.state.badges.push(id);
+      this.save();
+      const badge = GYM_BADGES.find((b) => b.id === id);
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(
+          new CustomEvent('town:badge-unlocked', {
+            detail: {
+              id,
+              badge,
+              totalBadges: this.state.badges.length,
+            },
+          })
+        );
+      }
+      return true;
+    }
+    return false;
+  }
+
+  public hasBadge(id: GymBadgeId): boolean {
+    return this.state.badges.includes(id);
+  }
+
+  public getBadges(): GymBadgeId[] {
+    return [...this.state.badges];
   }
 }
 

@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updatedAt": "2026-11-13T07:13:51.696Z",
+  "updatedAt": "2026-11-16T02:41:10.388Z",
   "buildings": [
     {
       "id": "dev",
@@ -883,6 +883,67 @@
       "orientation": "S",
       "dialogue": "LUGIA: 'Gyaaa-oooor-shuuu...!' 🌊🌪️ [Tech Guardian: Full-Stack Calm in Storms, High-Traffic Sea Scale & Atmospheric Airflow] Kepakan sayap perak Lugia mampu meredakan badai dan menjaga kelancaran sistem di saat load tertinggi.",
       "hidden": false
+    },
+    {
+      "id": "archaludon_mwesxep4",
+      "name": "Archaludon Sang Menara Electro Shot #1",
+      "x": 23,
+      "y": 49,
+      "w": 2,
+      "h": 2,
+      "kind": "npc",
+      "subType": "archaludon",
+      "orientation": "S",
+      "dialogue": "ARCHALUDON: 'Zzzzt-CLANGGG...!' ⚡🌉 [Tech Guardian: Structural Steel Architecture & High-Voltage Data Pipelines] Mengisi daya railgun baja dan menembakkan Electro Shot berkecepatan tinggi melintasi jaringan.",
+      "hidden": false
+    },
+    {
+      "id": "salamence_mwino2jd",
+      "name": "Salamence Sang Naga Sayap Merah #1",
+      "x": 23,
+      "y": 46,
+      "w": 2,
+      "h": 2,
+      "kind": "npc",
+      "subType": "salamence",
+      "orientation": "S",
+      "dialogue": "SALAMENCE: 'Gyaaa-RAAAHHH!' 🐲☄️ [Tech Guardian: Cloud Flight Orchestration & High-Altitude Scalability] Sayap merahnya membelah langit kota sambil menghujankan meteor energi Draco Meteor!"
+    },
+    {
+      "id": "kyurem_mwinoia7",
+      "name": "Kyurem Sang Naga Batas Es Absolut #1",
+      "x": 23,
+      "y": 43,
+      "w": 2,
+      "h": 2,
+      "kind": "npc",
+      "subType": "kyurem",
+      "orientation": "S",
+      "dialogue": "KYUREM: 'Krrrr-SHHHOOO...!' ❄️💎 [Tech Guardian: Sub-Zero Latency Optimization & Immutable State Snapshots] Membekukan bottleneck seketika lewat hembusan kristal es Glaciate."
+    },
+    {
+      "id": "greattusk_mwinovl7",
+      "name": "Great Tusk Sang Raksasa Gading Purba #1",
+      "x": 23,
+      "y": 40,
+      "w": 2,
+      "h": 2,
+      "kind": "npc",
+      "subType": "greattusk",
+      "orientation": "S",
+      "dialogue": "GREAT TUSK: 'Brrrooo-THUDDD!' 🐘🪨 [Tech Guardian: Heavy Data Ingestion & Unstoppable Throughput] Menerjang rintangan teknis tanpa henti dengan gading purba dan kekuatan seismik Headlong Rush!"
+    },
+    {
+      "id": "gougingfire_mwinpach",
+      "name": "Gouging Fire Sang Penguasa Api Purba #1",
+      "x": 23,
+      "y": 37,
+      "w": 2,
+      "h": 2,
+      "kind": "npc",
+      "subType": "gougingfire",
+      "orientation": "S",
+      "dialogue": "GOUGING FIRE: 'Grrraa-OOOORRR!' 🔥🌋 [Tech Guardian: Hardened Firewall Bastion & Volcanic Compute Cores] Perisai api purba Burning Bulwark membakar tuntas setiap ancaman dan menjaga integritas sistem."
     }
   ],
   "tiles": [

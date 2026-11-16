@@ -1,0 +1,366 @@
+---
+// 8-Bit Chiptune Jukebox Modal — 6 Procedural Web Audio Tracks + 16-Bar Pixel Spectrum Visualizer
+import { BGM_TRACKS } from '../game/sfx';
+---
+
+<dialog
+  id="jukebox-modal"
+  aria-labelledby="jukebox-modal-title"
+  class="jb-modal backdrop:bg-slate-950/75 backdrop:backdrop-blur-xs bg-transparent p-0 m-auto max-w-lg w-[94vw] shadow-2xl overflow-visible"
+>
+  <div class="jb-shell">
+    <header class="jb-head">
+      <div class="jb-head__left">
+        <span class="jb-head__disc" aria-hidden="true">💿</span>
+        <div>
+          <h2 id="jukebox-modal-title" class="jb-head__title">8-Bit Chiptune Jukebox</h2>
+          <p class="jb-head__sub">6 Procedural Web Audio Tracks · 0 KB MP3</p>
+        </div>
+      </div>
+      <div class="jb-head__actions">
+        <button type="button" id="jb-toggle-play" class="jb-play-btn">▶ Play</button>
+        <button type="button" id="btn-close-jukebox" class="jb-close" aria-label="Close Jukebox">✕</button>
+      </div>
+    </header>
+
+    <div class="jb-body">
+      <div class="jb-viz-card">
+        <div class="jb-viz-meta">
+          <span id="jb-now-icon" class="jb-viz-icon">☀️</span>
+          <div class="jb-viz-text">
+            <div id="jb-now-title" class="jb-viz-title">Littleroot Breeze (Day Theme)</div>
+            <div id="jb-now-sub" class="jb-viz-sub">104 BPM · C Major Chiptune Brass &amp; Arps</div>
+          </div>
+          <span id="jb-status-badge" class="jb-badge">IDLE</span>
+        </div>
+        <canvas id="jb-spectrum-canvas" width="384" height="68" class="jb-canvas"></canvas>
+      </div>
+
+      <div class="jb-tracks" role="list">
+        {BGM_TRACKS.map((t) => (
+          <button
+            type="button"
+            class="jb-track"
+            data-jb-track={t.id}
+            data-jb-title={t.title}
+            data-jb-sub={t.sub}
+            data-jb-icon={t.icon}
+          >
+            <span class="jb-track__icon">{t.icon}</span>
+            <div class="jb-track__info">
+              <span class="jb-track__title">{t.title}</span>
+              <span class="jb-track__sub">{t.sub}</span>
+            </div>
+            <span class="jb-track__bpm">{t.bpm} BPM</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<style>
+  .jb-shell {
+    background: #0f172a;
+    border: 4px solid #334155;
+    box-shadow: 6px 6px 0 #020617;
+    color: #f8fafc;
+    font-family: var(--font-sans, system-ui, sans-serif);
+  }
+
+  .jb-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 12px 14px;
+    background: linear-gradient(135deg, #1e1b4b, #312e81);
+    border-bottom: 3px solid #020617;
+  }
+
+  .jb-head__left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .jb-head__disc {
+    font-size: 22px;
+    line-height: 1;
+  }
+
+  .jb-head__title {
+    margin: 0;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 11px;
+    color: #fde047;
+  }
+
+  .jb-head__sub {
+    margin: 3px 0 0;
+    font-family: monospace;
+    font-size: 10px;
+    color: #c7d2fe;
+  }
+
+  .jb-head__actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .jb-play-btn {
+    padding: 5px 10px;
+    border: 2px solid #020617;
+    background: #10b981;
+    color: #052e16;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+    cursor: pointer;
+    box-shadow: 2px 2px 0 #020617;
+  }
+
+  .jb-play-btn.is-playing {
+    background: #f59e0b;
+    color: #451a03;
+  }
+
+  .jb-close {
+    width: 28px;
+    height: 28px;
+    border: 2px solid #020617;
+    background: #ef4444;
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .jb-body {
+    padding: 12px 14px;
+    display: grid;
+    gap: 12px;
+    max-height: 78vh;
+    overflow-y: auto;
+  }
+
+  .jb-viz-card {
+    background: #020617;
+    border: 2px solid #475569;
+    padding: 10px;
+    display: grid;
+    gap: 8px;
+  }
+
+  .jb-viz-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .jb-viz-icon {
+    font-size: 20px;
+  }
+
+  .jb-viz-text {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .jb-viz-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    color: #e2e8f0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .jb-viz-sub {
+    margin-top: 2px;
+    font-family: monospace;
+    font-size: 10px;
+    color: #94a3b8;
+  }
+
+  .jb-badge {
+    font-family: monospace;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border: 1px solid #475569;
+    color: #94a3b8;
+  }
+
+  .jb-badge.is-live {
+    border-color: #34d399;
+    color: #6ee7b7;
+    background: rgba(16, 185, 129, 0.16);
+  }
+
+  .jb-canvas {
+    width: 100%;
+    height: 68px;
+    display: block;
+    image-rendering: pixelated;
+    background: #070b18;
+    border: 1px solid #1e293b;
+  }
+
+  .jb-tracks {
+    display: grid;
+    gap: 6px;
+  }
+
+  .jb-track {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 8px 10px;
+    text-align: left;
+    background: #1e293b;
+    border: 2px solid #334155;
+    color: #e2e8f0;
+    cursor: pointer;
+    transition: border-color 0.12s ease, background 0.12s ease;
+  }
+
+  .jb-track:hover {
+    border-color: #38bdf8;
+    background: #1e3a5f;
+  }
+
+  .jb-track.is-active {
+    border-color: #fde047;
+    background: #312e81;
+    box-shadow: 3px 3px 0 #020617;
+  }
+
+  .jb-track__icon {
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .jb-track__info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .jb-track__title {
+    font-family: monospace;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .jb-track__sub {
+    font-family: monospace;
+    font-size: 10px;
+    color: #94a3b8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .jb-track__bpm {
+    font-family: monospace;
+    font-size: 10px;
+    padding: 2px 6px;
+    background: rgba(2, 6, 23, 0.55);
+    color: #a5f3fc;
+    flex-shrink: 0;
+  }
+</style>
+
+<script>
+  import { BGM_TRACKS, renderPixelSpectrum, sfx, type BgmTheme } from '../game/sfx';
+
+  function initJukeboxModal() {
+    const dialogEl = document.getElementById('jukebox-modal') as HTMLDialogElement | null;
+    if (!dialogEl || dialogEl.dataset.wired === 'true') return;
+    dialogEl.dataset.wired = 'true';
+    const dialog: HTMLDialogElement = dialogEl;
+
+    const closeBtn = document.getElementById('btn-close-jukebox');
+    const toggleBtn = document.getElementById('jb-toggle-play');
+    const spectrumCanvas = document.getElementById('jb-spectrum-canvas') as HTMLCanvasElement | null;
+    const nowIcon = document.getElementById('jb-now-icon');
+    const nowTitle = document.getElementById('jb-now-title');
+    const nowSub = document.getElementById('jb-now-sub');
+    const statusBadge = document.getElementById('jb-status-badge');
+
+    let rafId: number | null = null;
+
+    function syncUI() {
+      const theme = sfx.getBgmTheme();
+      const meta = BGM_TRACKS.find((t) => t.id === theme) || BGM_TRACKS[0];
+      const playing = sfx.isBgmEnabled();
+
+      if (nowIcon) nowIcon.textContent = meta.icon;
+      if (nowTitle) nowTitle.textContent = meta.title;
+      if (nowSub) nowSub.textContent = meta.sub;
+      if (toggleBtn) {
+        toggleBtn.textContent = playing ? '⏸ Pause' : '▶ Play';
+        toggleBtn.classList.toggle('is-playing', playing);
+      }
+      if (statusBadge) {
+        statusBadge.textContent = playing ? 'PLAYING' : 'IDLE';
+        statusBadge.classList.toggle('is-live', playing);
+      }
+      document.querySelectorAll<HTMLButtonElement>('[data-jb-track]').forEach((btn) => {
+        btn.classList.toggle('is-active', btn.dataset.jbTrack === theme);
+      });
+    }
+
+    function tickVisualizer() {
+      if (!dialog.open) {
+        rafId = null;
+        return;
+      }
+      if (spectrumCanvas) renderPixelSpectrum(spectrumCanvas);
+      rafId = requestAnimationFrame(tickVisualizer);
+    }
+
+    function openJukebox() {
+      dialog.showModal();
+      syncUI();
+      if (!rafId) rafId = requestAnimationFrame(tickVisualizer);
+      sfx.select();
+    }
+
+    toggleBtn?.addEventListener('click', () => {
+      const on = sfx.toggleBgm();
+      window.dispatchEvent(new CustomEvent('town:bgm-toggled', { detail: { enabled: on } }));
+      syncUI();
+    });
+
+    document.querySelectorAll<HTMLButtonElement>('[data-jb-track]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const theme = btn.dataset.jbTrack as BgmTheme;
+        if (!theme) return;
+        sfx.playTrack(theme);
+        syncUI();
+      });
+    });
+
+    closeBtn?.addEventListener('click', () => dialog.close());
+    dialog.addEventListener('click', (e) => {
+      if (e.target === dialog) dialog.close();
+    });
+
+    window.addEventListener('town:open-jukebox', openJukebox);
+    window.addEventListener('town:bgm-theme-changed', syncUI);
+    window.addEventListener('town:bgm-toggled', syncUI);
+  }
+
+  document.addEventListener('astro:page-load', initJukeboxModal);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initJukeboxModal);
+  } else {
+    initJukeboxModal();
+  }
+</script>

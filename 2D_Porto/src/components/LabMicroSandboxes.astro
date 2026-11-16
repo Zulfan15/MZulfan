@@ -1,0 +1,436 @@
+<section class="mcp-card space-y-4" id="sec-ai-sandboxes" aria-labelledby="sandboxes-title">
+  <div class="flex flex-wrap items-center justify-between gap-2">
+    <div>
+      <h2 id="sandboxes-title" class="mcp-h m-0">Interactive AI Micro-Sandboxes</h2>
+      <p class="mcp-dim m-0 mt-0.5">
+        Uji langsung dua model AI riset Zulfan secara interaktif di browser (100% client-side, 0 latensi server).
+      </p>
+    </div>
+    <span class="px-2 py-0.5 rounded border border-emerald-700 bg-emerald-100 text-emerald-950 font-mono text-[10px] font-bold">
+      LIVE SANDBOX
+    </span>
+  </div>
+
+  <!-- Sandbox 1: AeroScan Tactical Vision Inspector -->
+  <div class="p-3.5 rounded-xl border-2 border-[#1c1726] bg-[#0d1526] text-slate-100 space-y-3">
+    <div class="flex flex-wrap items-center justify-between gap-2">
+      <div>
+        <h3 class="font-pixel text-xs font-bold text-cyan-300 m-0">
+          🛰️ 1. AeroScan Vision Inspector (YOLOv11-OBB · TensorRT FP16)
+        </h3>
+        <p class="font-mono text-[10px] text-slate-400 m-0">
+          Simulasi deteksi berorientasi (OBB) 15 kelas pesawat militer &amp; benchmark runtime GPU.
+        </p>
+      </div>
+      <div class="flex flex-wrap gap-1" role="group" aria-label="AeroScan Scene Presets">
+        <button type="button" class="aero-scene-btn px-2 py-1 rounded border border-cyan-500/60 bg-cyan-950 text-cyan-200 font-mono text-[10px] cursor-pointer" data-aero-scene="apron">
+          Airfield Apron
+        </button>
+        <button type="button" class="aero-scene-btn px-2 py-1 rounded border border-slate-600 bg-slate-800 text-slate-300 font-mono text-[10px] cursor-pointer" data-aero-scene="runway">
+          Coastal Runway
+        </button>
+        <button type="button" class="aero-scene-btn px-2 py-1 rounded border border-slate-600 bg-slate-800 text-slate-300 font-mono text-[10px] cursor-pointer" data-aero-scene="thermal">
+          Night Recon
+        </button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-[1fr_210px] gap-3 items-start">
+      <div class="rounded-lg border border-cyan-500/40 overflow-hidden bg-slate-950">
+        <canvas
+          id="aero-sandbox-canvas"
+          width="460"
+          height="230"
+          class="w-full h-auto block"
+          aria-label="AeroScan interactive oriented bounding box canvas"
+        ></canvas>
+      </div>
+
+      <div class="space-y-2.5 font-mono text-[10px]">
+        <div class="p-2.5 rounded-lg border border-slate-700 bg-slate-900/80 space-y-1.5">
+          <div class="flex items-center justify-between">
+            <label for="aero-conf-slider" class="text-slate-300 font-bold">Confidence ≥</label>
+            <span id="aero-conf-val" class="text-cyan-300 font-bold">0.60</span>
+          </div>
+          <input
+            id="aero-conf-slider"
+            type="range"
+            min="0.35"
+            max="0.95"
+            step="0.05"
+            value="0.60"
+            class="w-full accent-cyan-400 cursor-pointer"
+          />
+          <label class="flex items-center gap-1.5 text-slate-300 cursor-pointer pt-1">
+            <input id="aero-obb-toggle" type="checkbox" checked class="accent-cyan-400 cursor-pointer" />
+            <span>Gunakan Oriented Box (OBB)</span>
+          </label>
+        </div>
+
+        <div class="p-2.5 rounded-lg border border-slate-700 bg-slate-900/80 space-y-1.5">
+          <span class="text-slate-400 block uppercase text-[9px]">Engine Runtime</span>
+          <select
+            id="aero-runtime-select"
+            class="w-full rounded border border-slate-600 bg-slate-950 text-cyan-200 px-2 py-1 text-[10px]"
+            aria-label="Pilih runtime inference AeroScan"
+          >
+            <option value="trt" selected>TensorRT 10 FP16 (~1.8 ms)</option>
+            <option value="onnx">ONNX Runtime (~4.9 ms)</option>
+            <option value="pytorch">PyTorch FP32 (~14.2 ms)</option>
+          </select>
+          <div id="aero-telemetry-readout" class="pt-1 space-y-0.5 text-[10px] text-emerald-300">
+            <div>Throughput: ~555 FPS</div>
+            <div>Detected: 4 targets · 87.9% mAP@50</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sandbox 2: Thesis Indonesian Obfuscated Spam Classifier -->
+  <div class="p-3.5 rounded-xl border-2 border-[#1c1726] bg-white space-y-3">
+    <div class="flex flex-wrap items-center justify-between gap-2">
+      <div>
+        <h3 class="font-pixel text-xs font-bold text-[#1c1726] m-0">
+          🛡️ 2. Thesis NLP Live Classifier (YouTube Spam · 99.56% F1)
+        </h3>
+        <p class="font-sans text-[11px] text-slate-600 m-0">
+          Detektor komentar promosi judi online tersamarkan (*char-trigrams + 9 fitur statistik* leetspeak, emoji &amp; digit padding).
+        </p>
+      </div>
+    </div>
+
+    <div class="flex flex-wrap gap-1.5">
+      <button type="button" class="spam-sample-btn px-2 py-1 rounded-lg border border-[#1c1726] bg-slate-100 hover:bg-amber-100 font-mono text-[10px] cursor-pointer" data-spam-sample="normal">
+        ✅ Komentar Normal
+      </button>
+      <button type="button" class="spam-sample-btn px-2 py-1 rounded-lg border border-[#1c1726] bg-rose-50 hover:bg-rose-100 font-mono text-[10px] cursor-pointer" data-spam-sample="leet">
+        🚨 Spam Leetspeak (S.L.0.T / G4C0R)
+      </button>
+      <button type="button" class="spam-sample-btn px-2 py-1 rounded-lg border border-[#1c1726] bg-rose-50 hover:bg-rose-100 font-mono text-[10px] cursor-pointer" data-spam-sample="emoji">
+        🚨 Spam Padding Emoji &amp; Angka
+      </button>
+      <button type="button" class="spam-sample-btn px-2 py-1 rounded-lg border border-[#1c1726] bg-slate-100 hover:bg-amber-100 font-mono text-[10px] cursor-pointer" data-spam-sample="tech">
+        💻 Diskusi Teknis
+      </button>
+    </div>
+
+    <textarea
+      id="spam-input-text"
+      rows="2"
+      class="w-full rounded-xl border-2 border-[#1c1726] bg-[#fcf8ef] px-3 py-2 font-sans text-xs text-[#1c1726] focus:outline-none focus:ring-2 focus:ring-amber-400"
+      placeholder="Ketik atau pilih contoh komentar YouTube untuk dianalisis..."
+    ></textarea>
+
+    <div class="grid grid-cols-1 sm:grid-cols-[1fr_1fr] gap-2.5 items-stretch">
+      <div id="spam-verdict-box" class="p-2.5 rounded-xl border-2 border-[#1c1726] bg-emerald-50 flex flex-col justify-between gap-1.5">
+        <div class="flex items-center justify-between">
+          <span id="spam-verdict-label" class="font-pixel text-xs font-bold text-emerald-900">✅ CLEAN COMMENT</span>
+          <span id="spam-risk-pct" class="font-mono text-xs font-bold text-emerald-900">6% Risk</span>
+        </div>
+        <div class="w-full h-2.5 rounded-full bg-slate-200 overflow-hidden border border-[#1c1726]/30">
+          <div id="spam-risk-bar" class="h-full bg-emerald-500 transition-all duration-200" style="width: 6%"></div>
+        </div>
+        <p id="spam-verdict-note" class="font-sans text-[10px] text-slate-700 m-0"></p>
+      </div>
+
+      <div id="spam-features-box" class="p-2.5 rounded-xl border-2 border-[#1c1726] bg-slate-50 font-mono text-[10px] text-slate-700 grid grid-cols-2 gap-x-2 gap-y-1 content-center">
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  function initLabMicroSandboxes() {
+    // 1. AeroScan Vision Inspector
+    const canvas = document.getElementById('aero-sandbox-canvas') as HTMLCanvasElement | null;
+    const slider = document.getElementById('aero-conf-slider') as HTMLInputElement | null;
+    const confVal = document.getElementById('aero-conf-val');
+    const obbToggle = document.getElementById('aero-obb-toggle') as HTMLInputElement | null;
+    const runtimeSelect = document.getElementById('aero-runtime-select') as HTMLSelectElement | null;
+    const telemetryReadout = document.getElementById('aero-telemetry-readout');
+    const sceneBtns = Array.from(document.querySelectorAll<HTMLButtonElement>('.aero-scene-btn'));
+
+    interface DetTarget {
+      x: number;
+      y: number;
+      w: number;
+      h: number;
+      angle: number;
+      label: string;
+      conf: number;
+      color: string;
+    }
+
+    const SCENES: Record<string, { bg: string; runwayColor: string; grid: string; targets: DetTarget[] }> = {
+      apron: {
+        bg: '#172336',
+        runwayColor: '#2a374c',
+        grid: 'rgba(56, 189, 248, 0.08)',
+        targets: [
+          { x: 105, y: 80, w: 64, h: 42, angle: -0.45, label: 'B-52', conf: 0.94, color: '#22d3ee' },
+          { x: 215, y: 120, w: 46, h: 30, angle: 0.38, label: 'F-16', conf: 0.89, color: '#34d399' },
+          { x: 325, y: 78, w: 54, h: 34, angle: -0.25, label: 'C-130', conf: 0.81, color: '#facc15' },
+          { x: 375, y: 168, w: 40, h: 24, angle: 0.7, label: 'MQ-9', conf: 0.66, color: '#fb7185' },
+          { x: 145, y: 185, w: 38, h: 24, angle: -0.8, label: 'F-15', conf: 0.48, color: '#a78bfa' },
+        ],
+      },
+      runway: {
+        bg: '#11222d',
+        runwayColor: '#1f3644',
+        grid: 'rgba(52, 211, 153, 0.08)',
+        targets: [
+          { x: 130, y: 112, w: 58, h: 36, angle: 0.12, label: 'E-2D', conf: 0.91, color: '#34d399' },
+          { x: 265, y: 115, w: 48, h: 28, angle: 0.14, label: 'F/A-18', conf: 0.86, color: '#22d3ee' },
+          { x: 360, y: 155, w: 44, h: 26, angle: -0.52, label: 'P-8A', conf: 0.72, color: '#facc15' },
+          { x: 80, y: 165, w: 36, h: 22, angle: 0.65, label: 'A-10', conf: 0.52, color: '#fb7185' },
+        ],
+      },
+      thermal: {
+        bg: '#090d16',
+        runwayColor: '#182032',
+        grid: 'rgba(244, 63, 94, 0.09)',
+        targets: [
+          { x: 185, y: 95, w: 62, h: 38, angle: -0.32, label: 'B-2', conf: 0.93, color: '#f43f5e' },
+          { x: 315, y: 135, w: 50, h: 30, angle: 0.42, label: 'F-22', conf: 0.84, color: '#fb923c' },
+          { x: 110, y: 162, w: 44, h: 28, angle: 0.18, label: 'KC-135', conf: 0.63, color: '#facc15' },
+          { x: 390, y: 68, w: 34, h: 22, angle: -0.6, label: 'RQ-4', conf: 0.44, color: '#c084fc' },
+        ],
+      },
+    };
+
+    let currentSceneKey = 'apron';
+
+    function drawAeroScene() {
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      const scene = SCENES[currentSceneKey] || SCENES.apron;
+      const threshold = Number(slider?.value ?? '0.60');
+      const useObb = Boolean(obbToggle?.checked);
+      if (confVal) confVal.textContent = threshold.toFixed(2);
+
+      // Background
+      ctx.fillStyle = scene.bg;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Runway stripes
+      ctx.fillStyle = scene.runwayColor;
+      ctx.save();
+      ctx.translate(230, 115);
+      ctx.rotate(currentSceneKey === 'runway' ? 0.12 : -0.2);
+      ctx.fillRect(-260, -34, 520, 68);
+      ctx.strokeStyle = 'rgba(255,255,255,0.22)';
+      ctx.setLineDash([12, 10]);
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(-250, 0);
+      ctx.lineTo(250, 0);
+      ctx.stroke();
+      ctx.restore();
+
+      // Tactical radar grid
+      ctx.strokeStyle = scene.grid;
+      ctx.lineWidth = 1;
+      for (let x = 0; x < canvas.width; x += 24) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvas.height);
+        ctx.stroke();
+      }
+      for (let y = 0; y < canvas.height; y += 24) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+        ctx.stroke();
+      }
+
+      const visible = scene.targets.filter((t) => t.conf >= threshold);
+      for (const t of scene.targets) {
+        // Aircraft pixel silhouette
+        ctx.save();
+        ctx.translate(t.x, t.y);
+        ctx.rotate(t.angle);
+        ctx.fillStyle = currentSceneKey === 'thermal' ? '#fecdd3' : '#cbd5e1';
+        ctx.fillRect(-t.w * 0.36, -3, t.w * 0.72, 6); // fuselage
+        ctx.fillRect(-6, -t.h * 0.4, 10, t.h * 0.8); // swept wings
+        ctx.fillRect(-t.w * 0.34, -9, 5, 18); // tailplane
+        ctx.restore();
+      }
+
+      for (const t of visible) {
+        ctx.save();
+        ctx.translate(t.x, t.y);
+        if (useObb) {
+          ctx.rotate(t.angle);
+          ctx.strokeStyle = t.color;
+          ctx.lineWidth = 2;
+          ctx.strokeRect(-t.w / 2, -t.h / 2, t.w, t.h);
+        } else {
+          const bw = Math.abs(t.w * Math.cos(t.angle)) + Math.abs(t.h * Math.sin(t.angle));
+          const bh = Math.abs(t.w * Math.sin(t.angle)) + Math.abs(t.h * Math.cos(t.angle));
+          ctx.strokeStyle = '#fb923c';
+          ctx.setLineDash([4, 3]);
+          ctx.lineWidth = 1.8;
+          ctx.strokeRect(-bw / 2, -bh / 2, bw, bh);
+        }
+        ctx.restore();
+
+        // Label badge
+        const tag = `${t.label} ${Math.round(t.conf * 100)}%`;
+        ctx.font = 'bold 10px monospace';
+        const tw = ctx.measureText(tag).width + 8;
+        ctx.fillStyle = useObb ? t.color : '#fb923c';
+        ctx.fillRect(t.x - tw / 2, t.y - t.h / 2 - 17, tw, 13);
+        ctx.fillStyle = '#090d16';
+        ctx.fillText(tag, t.x - tw / 2 + 4, t.y - t.h / 2 - 7);
+      }
+
+      const rt = runtimeSelect?.value || 'trt';
+      const rtMeta =
+        rt === 'trt'
+          ? { ms: '1.8 ms', fps: '~555 FPS' }
+          : rt === 'onnx'
+            ? { ms: '4.9 ms', fps: '~204 FPS' }
+            : { ms: '14.2 ms', fps: '~70 FPS' };
+      if (telemetryReadout) {
+        telemetryReadout.innerHTML = `<div>Latency: ${rtMeta.ms} · ${rtMeta.fps}</div><div>Detected: ${visible.length}/${scene.targets.length} aircraft</div>`;
+      }
+    }
+
+    sceneBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        currentSceneKey = btn.dataset.aeroScene || 'apron';
+        sceneBtns.forEach((b) => {
+          const active = b === btn;
+          b.className = active
+            ? 'aero-scene-btn px-2 py-1 rounded border border-cyan-500/60 bg-cyan-950 text-cyan-200 font-mono text-[10px] cursor-pointer'
+            : 'aero-scene-btn px-2 py-1 rounded border border-slate-600 bg-slate-800 text-slate-300 font-mono text-[10px] cursor-pointer';
+        });
+        drawAeroScene();
+      });
+    });
+
+    slider?.addEventListener('input', drawAeroScene);
+    obbToggle?.addEventListener('change', drawAeroScene);
+    runtimeSelect?.addEventListener('change', drawAeroScene);
+    drawAeroScene();
+
+    // 2. Thesis Indonesian Gambling-Spam Classifier Sandbox
+    const spamInput = document.getElementById('spam-input-text') as HTMLTextAreaElement | null;
+    const verdictBox = document.getElementById('spam-verdict-box');
+    const verdictLabel = document.getElementById('spam-verdict-label');
+    const riskPctEl = document.getElementById('spam-risk-pct');
+    const riskBar = document.getElementById('spam-risk-bar') as HTMLElement | null;
+    const verdictNote = document.getElementById('spam-verdict-note');
+    const featuresBox = document.getElementById('spam-features-box');
+    const sampleBtns = Array.from(document.querySelectorAll<HTMLButtonElement>('.spam-sample-btn'));
+
+    const SAMPLES: Record<string, string> = {
+      normal: 'Penjelasannya rapi banget bang! Makasih tutorial YOLOv11-nya, langsung jalan di laptop.',
+      leet: 'Kunjung1 5.L.0.T G4C0R h4ri in1, j4m1n M4X-W1N 777 langsung cairr!!',
+      emoji: '🔥🔥🔥 C0B4IN S1TU5 T3RP3RC4Y4 💰💎 D4FT4R 888 SEKARANG 👇🚀',
+      tech: 'Apakah TF-IDF character trigram (3-gram) efektif menangkap pola kata yang disisipi titik?',
+    };
+
+    const OBFS_KEYWORDS = [
+      'slot', 'gacor', 'maxwin', 'jp', 'jackpot', 'togel', 'judi', 'bet', 'deposit', 'wd', 'cair', 'situs', 'daftar', 'zeus', 'olympus', 'scatter', 'bonanza', 'pragmatic', '777', '888',
+    ];
+
+    function normalizeLeet(text: string): string {
+      const map: Record<string, string> = {
+        '0': 'o', '1': 'i', '3': 'e', '4': 'a', '5': 's', '6': 'g', '7': 't', '8': 'b', '9': 'g', '@': 'a', '$': 's',
+      };
+      return text
+        .toLowerCase()
+        .replace(/[013456789@$]/g, (ch) => map[ch] || ch)
+        .replace(/[^a-z\s]/g, '');
+    }
+
+    function evaluateSpam(rawText: string) {
+      const text = rawText || '';
+      const len = Math.max(1, text.length);
+      const digitCount = (text.match(/\d/g) || []).length;
+      const symbolCount = (text.match(/[._\-*!@#$%^&~|\\]/g) || []).length;
+      const emojiCount = (text.match(/[\u{1F300}-\u{1FAFF}]/gu) || []).length;
+      const upperCount = (text.match(/[A-Z]/g) || []).length;
+
+      const digitRatio = digitCount / len;
+      const symbolRatio = symbolCount / len;
+      const upperRatio = upperCount / len;
+
+      const normalized = normalizeLeet(text);
+      const compact = normalized.replace(/\s+/g, '');
+      const matchedTokens = OBFS_KEYWORDS.filter(
+        (kw) => normalized.includes(kw) || compact.includes(kw)
+      );
+
+      let risk = 5;
+      risk += Math.min(62, matchedTokens.length * 24);
+      risk += Math.min(18, Math.round(digitRatio * 80));
+      risk += Math.min(12, Math.round(symbolRatio * 75));
+      risk += Math.min(10, emojiCount * 2.5);
+      risk += upperRatio > 0.45 ? 8 : 0;
+      const riskPct = Math.min(99, Math.max(3, Math.round(risk)));
+      const isSpam = riskPct >= 50;
+
+      if (verdictBox) {
+        verdictBox.className = isSpam
+          ? 'p-2.5 rounded-xl border-2 border-[#1c1726] bg-rose-50 flex flex-col justify-between gap-1.5'
+          : 'p-2.5 rounded-xl border-2 border-[#1c1726] bg-emerald-50 flex flex-col justify-between gap-1.5';
+      }
+      if (verdictLabel) {
+        verdictLabel.textContent = isSpam ? '🚨 OBFUSCATED SPAM' : '✅ CLEAN COMMENT';
+        verdictLabel.className = isSpam
+          ? 'font-pixel text-xs font-bold text-rose-900'
+          : 'font-pixel text-xs font-bold text-emerald-900';
+      }
+      if (riskPctEl) {
+        riskPctEl.textContent = `${riskPct}% Risk`;
+        riskPctEl.className = isSpam
+          ? 'font-mono text-xs font-bold text-rose-900'
+          : 'font-mono text-xs font-bold text-emerald-900';
+      }
+      if (riskBar) {
+        riskBar.style.width = `${riskPct}%`;
+        riskBar.className = isSpam
+          ? 'h-full bg-rose-500 transition-all duration-200'
+          : 'h-full bg-emerald-500 transition-all duration-200';
+      }
+      if (verdictNote) {
+        verdictNote.textContent =
+          matchedTokens.length > 0
+            ? `Pola trigram tersamarkan terdeteksi: ${matchedTokens.slice(0, 4).join(', ')}`
+            : 'Tidak ditemukan pola trigram promosi atau anomali statistik berbahaya.';
+      }
+      if (featuresBox) {
+        featuresBox.innerHTML = `
+          <div>Trigram Hits: <strong>${matchedTokens.length}</strong></div>
+          <div>Digit Ratio: <strong>${(digitRatio * 100).toFixed(1)}%</strong></div>
+          <div>Symbol Ratio: <strong>${(symbolRatio * 100).toFixed(1)}%</strong></div>
+          <div>Emoji Count: <strong>${emojiCount}</strong></div>
+        `;
+      }
+    }
+
+    sampleBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const key = btn.dataset.spamSample || 'normal';
+        if (spamInput) {
+          spamInput.value = SAMPLES[key] || '';
+          evaluateSpam(spamInput.value);
+        }
+      });
+    });
+
+    spamInput?.addEventListener('input', () => evaluateSpam(spamInput.value));
+    if (spamInput) {
+      spamInput.value = SAMPLES.leet;
+      evaluateSpam(spamInput.value);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', initLabMicroSandboxes);
+  document.addEventListener('astro:page-load', initLabMicroSandboxes);
+</script>

@@ -312,14 +312,18 @@
   }
 
   function initNocMonitor() {
-    const dialog = document.getElementById('noc-firewall-modal') as HTMLDialogElement | null;
+    const dialogEl = document.getElementById('noc-firewall-modal') as HTMLDialogElement | null;
     const closeBtn = document.getElementById('btn-close-noc-modal');
     const footerCloseBtn = document.getElementById('btn-footer-close-noc');
-    const canvas = document.getElementById('noc-topology-canvas') as HTMLCanvasElement | null;
-    if (!dialog || !canvas) return;
+    const canvasEl = document.getElementById('noc-topology-canvas') as HTMLCanvasElement | null;
+    if (!dialogEl || !canvasEl) return;
 
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    const rawCtx = canvasEl.getContext('2d');
+    if (!rawCtx) return;
+
+    const dialog: HTMLDialogElement = dialogEl;
+    const canvas: HTMLCanvasElement = canvasEl;
+    const ctx: CanvasRenderingContext2D = rawCtx;
 
     // DOM UI Elements
     const serialOutput = document.getElementById('noc-serial-output');

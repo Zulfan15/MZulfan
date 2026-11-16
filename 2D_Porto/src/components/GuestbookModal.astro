@@ -1,0 +1,607 @@
+---
+// Trainer Guestbook Modal — Papan Pesan Kota & Buku Tamu (/ & global)
+// Terhubung ke Cloudflare Worker `/api/guestbook` dengan fallback localStorage
+import { GUESTBOOK_AVATARS, GUESTBOOK_STAMPS } from '../lib/socialClient';
+---
+
+<dialog
+  id="town-guestbook-modal"
+  aria-labelledby="town-guestbook-title"
+  class="gb-modal backdrop:bg-slate-950/75 backdrop:backdrop-blur-xs bg-transparent p-0 m-auto max-w-2xl w-[94vw] shadow-2xl rounded-none overflow-visible"
+>
+  <div class="gb-shell">
+    <header class="gb-head">
+      <div class="gb-head__left">
+        <span class="gb-head__icon" aria-hidden="true">📖</span>
+        <div>
+          <h2 id="town-guestbook-title" class="gb-head__title">Trainer Guestbook · Town Board</h2>
+          <p class="gb-head__sub">Tinggalkan catatan singkat &amp; spawn Ghost Trainer Anda di Fountain Plaza</p>
+        </div>
+      </div>
+      <div class="gb-head__right">
+        <span id="gb-sync-pill" class="gb-sync-pill" title="Status koneksi buku tamu">LOCAL CACHE</span>
+        <button type="button" id="btn-close-town-guestbook" class="gb-close" aria-label="Close Guestbook">✕</button>
+      </div>
+    </header>
+
+    <div class="gb-body">
+      <form id="town-gb-form" class="gb-form">
+        <div class="gb-grid-2">
+          <label class="gb-field">
+            <span class="gb-label">Nama *</span>
+            <input
+              type="text"
+              id="town-gb-name"
+              maxlength="36"
+              required
+              placeholder="Contoh: Maya R."
+              class="gb-input"
+            />
+          </label>
+          <label class="gb-field">
+            <span class="gb-label">Perusahaan / Komunitas (Opsional)</span>
+            <input
+              type="text"
+              id="town-gb-org"
+              maxlength="44"
+              placeholder="Contoh: PT Tech Cloud"
+              class="gb-input"
+            />
+          </label>
+        </div>
+
+        <div class="gb-grid-2">
+          <div class="gb-field">
+            <span class="gb-label">Badge Role</span>
+            <div class="gb-chip-row" id="town-gb-role-picker">
+              <button type="button" class="gb-role-btn is-selected" data-gb-role="Recruiter">💼 Recruiter</button>
+              <button type="button" class="gb-role-btn" data-gb-role="Fellow Developer">👨‍💻 Fellow Dev</button>
+              <button type="button" class="gb-role-btn" data-gb-role="Trainer">🧢 Trainer</button>
+              <button type="button" class="gb-role-btn" data-gb-role="Guest">✨ Guest</button>
+            </div>
+          </div>
+
+          <div class="gb-field">
+            <span class="gb-label">Avatar Ikon</span>
+            <div class="gb-avatar-row" id="town-gb-avatar-picker">
+              {GUESTBOOK_AVATARS.map((av, idx) => (
+                <button
+                  type="button"
+                  class={`gb-avatar-btn ${idx === 0 ? 'is-selected' : ''}`}
+                  data-gb-avatar={av.icon}
+                  title={av.label}
+                  aria-label={av.label}
+                >
+                  {av.icon}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div class="gb-field">
+          <span class="gb-label">Stamp Apresiasi</span>
+          <div class="gb-chip-row" id="town-gb-stamp-picker">
+            {GUESTBOOK_STAMPS.map((st, idx) => (
+              <button
+                type="button"
+                class={`gb-stamp-btn ${idx === 0 ? 'is-selected' : ''}`}
+                data-gb-stamp={st}
+              >
+                {st}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div class="gb-field">
+          <div class="gb-label-row">
+            <label for="town-gb-message" class="gb-label">Pesan Singkat (maks. 160 karakter) *</label>
+            <span id="town-gb-charcount" class="gb-charcount">0 / 160</span>
+          </div>
+          <textarea
+            id="town-gb-message"
+            rows="2"
+            maxlength="160"
+            required
+            placeholder="Tulis kesan tentang proyek, teknologi, atau kota 2D Zulfan..."
+            class="gb-textarea"
+          ></textarea>
+        </div>
+
+        <div class="gb-form-footer">
+          <span id="town-gb-status" class="gb-status-msg"></span>
+          <button type="submit" id="town-gb-submit" class="gb-submit-btn">
+            🖋️ Tandatangani Buku Tamu
+          </button>
+        </div>
+      </form>
+
+      <section class="gb-feed-wrap">
+        <div class="gb-feed-head">
+          <h3 class="gb-feed-title">👻 Ghost Visitors &amp; Inscriptions</h3>
+          <span id="town-gb-total" class="gb-feed-count">0 entries</span>
+        </div>
+        <div id="town-gb-list" class="gb-list"></div>
+      </section>
+    </div>
+  </div>
+</dialog>
+
+<style>
+  .gb-shell {
+    background: #fffdf5;
+    border: 4px solid #1e293b;
+    box-shadow: 6px 6px 0 #1e293b;
+    color: #1e293b;
+    font-family: var(--font-sans, system-ui, sans-serif);
+    max-height: 88vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .gb-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    color: #f8fafc;
+    border-bottom: 3px solid #0f172a;
+  }
+
+  .gb-head__left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .gb-head__icon {
+    font-size: 22px;
+    line-height: 1;
+  }
+
+  .gb-head__title {
+    margin: 0;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 11px;
+    color: #fde047;
+    letter-spacing: 0.03em;
+  }
+
+  .gb-head__sub {
+    margin: 3px 0 0;
+    font-size: 11px;
+    color: #cbd5e1;
+  }
+
+  .gb-head__right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .gb-sync-pill {
+    font-family: monospace;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border: 1.5px solid #34d399;
+    background: rgba(16, 185, 129, 0.18);
+    color: #a7f3d0;
+  }
+
+  .gb-close {
+    width: 28px;
+    height: 28px;
+    background: #ef4444;
+    color: #fff;
+    border: 2px solid #0f172a;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .gb-body {
+    padding: 14px 16px;
+    overflow-y: auto;
+    display: grid;
+    gap: 16px;
+  }
+
+  .gb-form {
+    background: #fef9e7;
+    border: 2px solid #334155;
+    padding: 12px;
+    display: grid;
+    gap: 10px;
+  }
+
+  .gb-grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  @media (max-width: 600px) {
+    .gb-grid-2 {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .gb-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .gb-label-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .gb-label {
+    font-family: monospace;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #475569;
+  }
+
+  .gb-charcount {
+    font-family: monospace;
+    font-size: 10px;
+    color: #64748b;
+  }
+
+  .gb-input,
+  .gb-textarea {
+    width: 100%;
+    padding: 7px 9px;
+    font-size: 12px;
+    background: #fff;
+    color: #0f172a;
+    border: 2px solid #94a3b8;
+    font-family: inherit;
+  }
+
+  .gb-input:focus,
+  .gb-textarea:focus {
+    outline: none;
+    border-color: #2563eb;
+  }
+
+  .gb-chip-row,
+  .gb-avatar-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+
+  .gb-role-btn,
+  .gb-stamp-btn {
+    padding: 4px 8px;
+    font-family: monospace;
+    font-size: 11px;
+    font-weight: 600;
+    border: 1.5px solid #cbd5e1;
+    background: #fff;
+    color: #334155;
+    cursor: pointer;
+    transition: transform 0.1s ease, background 0.12s ease;
+  }
+
+  .gb-role-btn.is-selected,
+  .gb-stamp-btn.is-selected {
+    background: #1d4ed8;
+    color: #fff;
+    border-color: #0f172a;
+    box-shadow: 2px 2px 0 #0f172a;
+  }
+
+  .gb-avatar-btn {
+    width: 30px;
+    height: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    border: 1.5px solid #cbd5e1;
+    background: #fff;
+    cursor: pointer;
+  }
+
+  .gb-avatar-btn.is-selected {
+    background: #fef08a;
+    border: 2px solid #0f172a;
+    box-shadow: 2px 2px 0 #0f172a;
+  }
+
+  .gb-form-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .gb-status-msg {
+    font-family: monospace;
+    font-size: 11px;
+    font-weight: 700;
+    color: #047857;
+  }
+
+  .gb-status-msg.is-err {
+    color: #dc2626;
+  }
+
+  .gb-submit-btn {
+    padding: 8px 14px;
+    background: #10b981;
+    color: #052e16;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    border: 2px solid #0f172a;
+    box-shadow: 3px 3px 0 #0f172a;
+    cursor: pointer;
+  }
+
+  .gb-submit-btn:hover {
+    background: #34d399;
+  }
+
+  .gb-feed-wrap {
+    display: grid;
+    gap: 8px;
+  }
+
+  .gb-feed-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 2px dashed #cbd5e1;
+    padding-bottom: 4px;
+  }
+
+  .gb-feed-title {
+    margin: 0;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    color: #1e293b;
+  }
+
+  .gb-feed-count {
+    font-family: monospace;
+    font-size: 11px;
+    color: #64748b;
+  }
+
+  .gb-list {
+    display: grid;
+    gap: 8px;
+    max-height: 250px;
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+
+  :global(.gb-entry-card) {
+    background: #fff;
+    border: 2px solid #cbd5e1;
+    padding: 9px 11px;
+    display: grid;
+    gap: 4px;
+  }
+
+  :global(.gb-entry-card__top) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  :global(.gb-entry-card__author) {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #0f172a;
+  }
+
+  :global(.gb-entry-card__role) {
+    font-family: monospace;
+    font-size: 10px;
+    padding: 1px 6px;
+    border: 1px solid #93c5fd;
+    background: #eff6ff;
+    color: #1d4ed8;
+  }
+
+  :global(.gb-entry-card__meta) {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: monospace;
+    font-size: 10px;
+    color: #64748b;
+  }
+
+  :global(.gb-entry-card__stamp) {
+    background: #ecfdf5;
+    border: 1px solid #6ee7b7;
+    color: #065f46;
+    padding: 1px 6px;
+    font-weight: 700;
+  }
+
+  :global(.gb-entry-card__msg) {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.45;
+    color: #334155;
+  }
+</style>
+
+<script>
+  import { sfx } from '../game/sfx';
+  import {
+    escapeHtml,
+    fetchGuestbookEntries,
+    formatRelativeGuestTime,
+    submitGuestbookEntry,
+    type GuestBadgeRole,
+    type GuestbookEntry,
+  } from '../lib/socialClient';
+
+  function initTownGuestbookModal() {
+    const dialogEl = document.getElementById('town-guestbook-modal') as HTMLDialogElement | null;
+    if (!dialogEl || dialogEl.dataset.wired === 'true') return;
+    dialogEl.dataset.wired = 'true';
+    const dialog: HTMLDialogElement = dialogEl;
+
+    const closeBtn = document.getElementById('btn-close-town-guestbook');
+    const syncPill = document.getElementById('gb-sync-pill');
+    const form = document.getElementById('town-gb-form') as HTMLFormElement | null;
+    const nameInput = document.getElementById('town-gb-name') as HTMLInputElement | null;
+    const orgInput = document.getElementById('town-gb-org') as HTMLInputElement | null;
+    const msgInput = document.getElementById('town-gb-message') as HTMLTextAreaElement | null;
+    const charCount = document.getElementById('town-gb-charcount');
+    const statusEl = document.getElementById('town-gb-status');
+    const listEl = document.getElementById('town-gb-list');
+    const totalEl = document.getElementById('town-gb-total');
+
+    let selectedRole: GuestBadgeRole = 'Recruiter';
+    let selectedAvatar = '⚡';
+    let selectedStamp = '🌟 Awesome Portfolio!';
+
+    document.querySelectorAll<HTMLButtonElement>('[data-gb-role]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        selectedRole = (btn.dataset.gbRole as GuestBadgeRole) || 'Guest';
+        document.querySelectorAll('[data-gb-role]').forEach((b) => b.classList.toggle('is-selected', b === btn));
+        sfx.blip();
+      });
+    });
+
+    document.querySelectorAll<HTMLButtonElement>('[data-gb-avatar]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        selectedAvatar = btn.dataset.gbAvatar || '🧢';
+        document.querySelectorAll('[data-gb-avatar]').forEach((b) => b.classList.toggle('is-selected', b === btn));
+        sfx.blip();
+      });
+    });
+
+    document.querySelectorAll<HTMLButtonElement>('[data-gb-stamp]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        selectedStamp = btn.dataset.gbStamp || '🌟 Awesome Portfolio!';
+        document.querySelectorAll('[data-gb-stamp]').forEach((b) => b.classList.toggle('is-selected', b === btn));
+        sfx.blip();
+      });
+    });
+
+    msgInput?.addEventListener('input', () => {
+      if (charCount) charCount.textContent = `${msgInput.value.length} / 160`;
+    });
+
+    function renderList(entries: GuestbookEntry[]) {
+      if (totalEl) totalEl.textContent = `${entries.length} entries`;
+      if (!listEl) return;
+      listEl.innerHTML = entries
+        .map(
+          (e) => `
+          <article class="gb-entry-card">
+            <div class="gb-entry-card__top">
+              <div class="gb-entry-card__author">
+                <span>${escapeHtml(e.avatar)}</span>
+                <span>${escapeHtml(e.name)}</span>
+                <span class="gb-entry-card__role">${escapeHtml(e.badgeRole)}</span>
+                ${e.org ? `<span style="font-weight:400;color:#64748b;font-size:11px">· ${escapeHtml(e.org)}</span>` : ''}
+              </div>
+              <div class="gb-entry-card__meta">
+                <span class="gb-entry-card__stamp">${escapeHtml(e.stamp)}</span>
+                <span>${escapeHtml(formatRelativeGuestTime(e.createdAt))}</span>
+              </div>
+            </div>
+            <p class="gb-entry-card__msg">${escapeHtml(e.message)}</p>
+          </article>`
+        )
+        .join('');
+    }
+
+    async function refreshFeed() {
+      const { entries, online } = await fetchGuestbookEntries();
+      if (syncPill) {
+        syncPill.textContent = online ? 'KV LIVE' : 'LOCAL SYNC';
+      }
+      renderList(entries);
+    }
+
+    form?.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      const name = nameInput?.value.trim() || '';
+      const message = msgInput?.value.trim() || '';
+      if (!name || !message) return;
+
+      const res = await submitGuestbookEntry({
+        name,
+        org: orgInput?.value.trim() || '',
+        badgeRole: selectedRole,
+        avatar: selectedAvatar,
+        stamp: selectedStamp,
+        message,
+      });
+
+      if (res.error) {
+        if (statusEl) {
+          statusEl.textContent = `⚠ ${res.error}`;
+          statusEl.classList.add('is-err');
+        }
+        sfx.bump();
+        return;
+      }
+
+      renderList(res.entries);
+      if (msgInput) msgInput.value = '';
+      if (charCount) charCount.textContent = '0 / 160';
+      if (statusEl) {
+        statusEl.classList.remove('is-err');
+        statusEl.textContent = res.syncedRemote
+          ? '✨ Tersimpan di server & muncul sebagai Ghost Trainer!'
+          : '✨ Tersimpan lokal & muncul sebagai Ghost Trainer!';
+        window.setTimeout(() => {
+          if (statusEl) statusEl.textContent = '';
+        }, 4500);
+      }
+      sfx.confirm();
+    });
+
+    function openGuestbook() {
+      dialog.showModal();
+      refreshFeed();
+      sfx.door();
+    }
+
+    closeBtn?.addEventListener('click', () => dialog.close());
+    dialog.addEventListener('click', (e) => {
+      if (e.target === dialog) dialog.close();
+    });
+
+    window.addEventListener('town:open-guestbook', openGuestbook);
+    window.addEventListener('town:guestbook-updated', (e: Event) => {
+      const detail = (e as CustomEvent<{ entries?: GuestbookEntry[] }>).detail;
+      if (detail?.entries) renderList(detail.entries);
+    });
+  }
+
+  document.addEventListener('astro:page-load', initTownGuestbookModal);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initTownGuestbookModal);
+  } else {
+    initTownGuestbookModal();
+  }
+</script>

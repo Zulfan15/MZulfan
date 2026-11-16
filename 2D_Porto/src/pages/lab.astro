@@ -5,6 +5,7 @@ import '../styles/lab.css';
 import LabPostersModal from '../components/LabPostersModal.astro';
 import LabWhiteboardModal from '../components/LabWhiteboardModal.astro';
 import LabBenchModal from '../components/LabBenchModal.astro';
+import LabMicroSandboxes from '../components/LabMicroSandboxes.astro';
 ---
 
 <TownLayout place="lab" title="Research Lab · Applied AI & Computer Vision — Muhammad Zulfan" description="Zulfan's research: tactical edge AI, NLP spam classifiers, computer vision, and distributed systems.">
@@ -173,6 +174,9 @@ import LabBenchModal from '../components/LabBenchModal.astro';
         <button type="button" class="mcp-btn" data-open="bench">🧪 Methods</button>
       </div>
     </section>
+
+    <!-- // INTERACTIVE AI MICRO-SANDBOXES -->
+    <LabMicroSandboxes />
 
     <!-- // RESEARCH PROJECTS (FROM CV) -->
     <section aria-labelledby="work-title">

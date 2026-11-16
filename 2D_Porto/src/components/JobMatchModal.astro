@@ -1,0 +1,556 @@
+---
+import { profile, missions, skills, fmtRange } from '../lib/profile';
+
+const matchableMissions = missions.map((m) => ({
+  id: m.id,
+  type: m.type,
+  title: m.title,
+  org: m.org,
+  range: fmtRange(m.start, m.end),
+  summary: m.summary,
+  results: m.results,
+  payload: m.payload,
+  research: Boolean(m.research),
+  route: m.research ? '/lab' : m.id === 'rc-tank' || m.id === 'robotics-coordinator' || m.id === 'iot-lab' || m.id === 'network-lab' ? '/tower' : '/dev',
+}));
+
+const matchableSkills = skills.map((s) => ({
+  name: s.name,
+  category: s.category,
+  count: s.count,
+  ring: s.ring,
+}));
+
+const profileSummaryPayload = {
+  person: {
+    name: profile.person.name,
+    shortName: profile.person.short_name,
+    title: profile.person.title,
+    location: profile.person.location,
+    email: profile.person.email,
+    cv: profile.person.cv,
+    openTo: profile.person.open_to,
+    education: profile.education[0]
+      ? `${profile.education[0].degree} · ${profile.education[0].school} (GPA ${profile.education[0].gpa ?? '-'})`
+      : '',
+  },
+  honors: profile.honors.map((h) => `${h.title} (${h.issuer}, ${h.date})`),
+  missions: matchableMissions,
+  skills: matchableSkills,
+};
+---
+
+<dialog
+  id="jobfit-modal"
+  class="m-auto w-[min(95vw,52rem)] max-h-[90dvh] overflow-hidden p-0 rounded-2xl border-[3px] border-[#1c1726] bg-[#fcf8ef] text-[#1c1726] shadow-[0_10px_0_0_#1c1726] backdrop:bg-[#1c1726]/70 backdrop:backdrop-blur-xs"
+  aria-labelledby="jobfit-title"
+>
+  <div class="flex flex-col max-h-[90dvh]">
+    <!-- Top Header -->
+    <div class="flex items-center justify-between px-5 py-3.5 border-b-2 border-[#1c1726] bg-[#162038] text-white shrink-0">
+      <div class="flex items-center gap-2.5">
+        <span class="text-xl" aria-hidden="true">🎯</span>
+        <div>
+          <h2 id="jobfit-title" class="font-pixel text-sm sm:text-base font-bold tracking-wide text-amber-300 m-0">
+            AI Recruiter Co-Pilot · Job-Fit Analyzer
+          </h2>
+          <p class="font-sans text-[11px] text-slate-300 m-0">
+            Analisis kecocokan kebutuhan role/JD Anda dengan data terverifikasi <code class="text-emerald-300">profile.yaml</code> Zulfan
+          </p>
+        </div>
+      </div>
+      <button
+        id="jobfit-close-btn"
+        type="button"
+        class="w-8 h-8 rounded-lg border-2 border-slate-500 bg-slate-800 hover:bg-rose-600 hover:border-rose-400 text-white font-bold text-sm cursor-pointer transition-colors"
+        aria-label="Tutup Job-Fit Analyzer"
+      >
+        ✕
+      </button>
+    </div>
+
+    <!-- Scrollable Body -->
+    <div class="p-4 sm:p-5 overflow-y-auto space-y-4">
+      <!-- Role Presets -->
+      <div class="space-y-1.5">
+        <span class="font-pixel text-[10px] uppercase tracking-wider text-[#4a4160] font-bold block">
+          1. Pilih Preset Role atau Tempel Job Description (JD)
+        </span>
+        <div class="flex flex-wrap gap-1.5" role="group" aria-label="Preset Role Engineering">
+          <button type="button" class="jobfit-preset-btn px-2.5 py-1.5 rounded-lg border-2 border-[#1c1726] bg-white hover:bg-amber-100 font-pixel text-[10px] font-bold cursor-pointer transition-all" data-preset="ai-cv">
+            🤖 AI / Computer Vision
+          </button>
+          <button type="button" class="jobfit-preset-btn px-2.5 py-1.5 rounded-lg border-2 border-[#1c1726] bg-white hover:bg-amber-100 font-pixel text-[10px] font-bold cursor-pointer transition-all" data-preset="fullstack">
+            ☁️ Full-Stack &amp; Cloud
+          </button>
+          <button type="button" class="jobfit-preset-btn px-2.5 py-1.5 rounded-lg border-2 border-[#1c1726] bg-white hover:bg-amber-100 font-pixel text-[10px] font-bold cursor-pointer transition-all" data-preset="backend">
+            ⚙️ Backend &amp; Distributed
+          </button>
+          <button type="button" class="jobfit-preset-btn px-2.5 py-1.5 rounded-lg border-2 border-[#1c1726] bg-white hover:bg-amber-100 font-pixel text-[10px] font-bold cursor-pointer transition-all" data-preset="iot">
+            📡 IoT &amp; Embedded
+          </button>
+        </div>
+      </div>
+
+      <!-- JD Input -->
+      <div class="space-y-2">
+        <textarea
+          id="jobfit-jd-input"
+          rows="3"
+          class="w-full rounded-xl border-2 border-[#1c1726] bg-white px-3 py-2 font-sans text-xs sm:text-[13px] text-[#1c1726] placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          placeholder="Tempel teks Job Description atau kata kunci teknologi (contoh: Python, PyTorch, YOLOv11, TensorRT, Laravel, PostgreSQL, Docker, Kubernetes, ESP32)..."
+        ></textarea>
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <button
+            id="jobfit-analyze-btn"
+            type="button"
+            class="px-3.5 py-1.5 rounded-xl border-2 border-[#1c1726] bg-emerald-500 hover:bg-emerald-600 text-white font-pixel text-xs font-bold shadow-[0_2px_0_0_#1c1726] active:translate-y-0.5 cursor-pointer transition-all"
+          >
+            🔍 Analisis Kecocokan
+          </button>
+          <span class="font-mono text-[10px] text-slate-500">
+            100% Client-Side Scoring · Sumber: profile.yaml ({missions.length} Misi, {skills.length} Tech)
+          </span>
+        </div>
+      </div>
+
+      <!-- Results Area -->
+      <div id="jobfit-results" class="space-y-4 pt-1 border-t-2 border-dashed border-[#d4cbb8]">
+        <!-- Score + Matched Skills Summary Card -->
+        <div class="p-3.5 rounded-xl border-2 border-[#1c1726] bg-white shadow-[0_3px_0_0_#1c1726] flex flex-col sm:flex-row items-center gap-4">
+          <div class="relative w-24 h-24 shrink-0 flex items-center justify-center">
+            <svg class="w-24 h-24 -rotate-90" viewBox="0 0 100 100" aria-hidden="true">
+              <circle cx="50" cy="50" r="42" stroke="#e2e8f0" stroke-width="10" fill="none" />
+              <circle
+                id="jobfit-ring-circle"
+                cx="50"
+                cy="50"
+                r="42"
+                stroke="#10b981"
+                stroke-width="10"
+                stroke-linecap="round"
+                fill="none"
+                stroke-dasharray="263.89"
+                stroke-dashoffset="30"
+              />
+            </svg>
+            <div class="absolute inset-0 flex flex-col items-center justify-center">
+              <span id="jobfit-score-text" class="font-pixel text-lg font-bold text-[#1c1726]">94%</span>
+              <span class="font-mono text-[8px] uppercase text-slate-500">Match</span>
+            </div>
+          </div>
+
+          <div class="flex-1 min-w-0 space-y-2 text-center sm:text-left">
+            <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+              <span id="jobfit-verdict-badge" class="px-2 py-0.5 rounded-md border border-emerald-700 bg-emerald-100 text-emerald-900 font-pixel text-[10px] font-bold">
+                EXCELLENT FIT
+              </span>
+              <span id="jobfit-role-label" class="font-sans text-xs font-bold text-[#1c1726]">
+                AI / Computer Vision Engineer
+              </span>
+            </div>
+            <p id="jobfit-summary-text" class="font-sans text-xs text-[#3a3150] leading-relaxed m-0"></p>
+            <div id="jobfit-matched-chips" class="flex flex-wrap justify-center sm:justify-start gap-1"></div>
+          </div>
+        </div>
+
+        <!-- Top 3 Relevant Missions -->
+        <div class="space-y-2">
+          <h3 class="font-pixel text-xs font-bold text-[#1c1726] m-0 flex items-center gap-1.5">
+            <span>🚀</span> Top 3 Bukti Proyek &amp; Pengalaman Paling Relevan
+          </h3>
+          <div id="jobfit-top-missions" class="grid grid-cols-1 gap-2.5"></div>
+        </div>
+
+        <!-- Recruiter Quick Actions -->
+        <div class="flex flex-wrap items-center gap-2 pt-2 border-t-2 border-[#e5decb]">
+          <button
+            id="jobfit-copy-brief-btn"
+            type="button"
+            class="px-3 py-2 rounded-xl border-2 border-[#1c1726] bg-amber-300 hover:bg-amber-400 text-[#1c1726] font-pixel text-[11px] font-bold shadow-[0_2px_0_0_#1c1726] cursor-pointer transition-all"
+          >
+            📋 Salin Executive Brief (Markdown)
+          </button>
+          <button
+            id="jobfit-start-tour-btn"
+            type="button"
+            class="px-3 py-2 rounded-xl border-2 border-[#1c1726] bg-sky-500 hover:bg-sky-600 text-white font-pixel text-[11px] font-bold shadow-[0_2px_0_0_#1c1726] cursor-pointer transition-all"
+          >
+            🎬 Tur Otomatis 2D (60 Detik)
+          </button>
+          <a
+            href={profile.person.cv}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="px-3 py-2 rounded-xl border-2 border-[#1c1726] bg-white hover:bg-slate-100 text-[#1c1726] font-pixel text-[11px] font-bold shadow-[0_2px_0_0_#1c1726] no-underline transition-all"
+          >
+            📄 Unduh CV (PDF)
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="application/json" id="job-match-profile-data" set:html={JSON.stringify(profileSummaryPayload)}></script>
+</dialog>
+
+<script>
+  import { sfx } from '../game/sfx';
+
+  interface MatchMission {
+    id: string;
+    type: string;
+    title: string;
+    org: string;
+    range: string;
+    summary: string;
+    results: string[];
+    payload: string[];
+    research: boolean;
+    route: string;
+  }
+
+  interface MatchSkill {
+    name: string;
+    category: string;
+    count: number;
+    ring: string;
+  }
+
+  interface MatchDataset {
+    person: {
+      name: string;
+      shortName: string;
+      title: string;
+      location: string;
+      email: string;
+      cv: string;
+      openTo: string;
+      education: string;
+    };
+    honors: string[];
+    missions: MatchMission[];
+    skills: MatchSkill[];
+  }
+
+  const ROLE_PRESETS: Record<string, { label: string; jd: string }> = {
+    'ai-cv': {
+      label: 'AI / Computer Vision Engineer',
+      jd: 'Python PyTorch YOLOv11 Computer Vision OpenCV TensorRT ONNX Deep Learning Machine Learning scikit-learn NLP TF-IDF Streamlit edge inference object detection classification',
+    },
+    fullstack: {
+      label: 'Full-Stack & Cloud Engineer',
+      jd: 'PHP Laravel Next.js TypeScript JavaScript Tailwind CSS PostgreSQL PostGIS Redis Docker Kubernetes GitLab CI/CD REST OpenAPI Leaflet Leaflet fullstack web cloud platform',
+    },
+    backend: {
+      label: 'Backend & Distributed Systems Engineer',
+      jd: 'PostgreSQL PostGIS Redis Kafka Docker Kubernetes Laravel FastAPI Python PHP OpenAPI distributed caching locking microservices API',
+    },
+    iot: {
+      label: 'IoT, Robotics & Embedded Engineer',
+      jd: 'ESP32 Arduino C IoT Robotics Flutter Networking MikroTik Network Security JavaScript hardware sensor telemetry real-time control',
+    },
+  };
+
+  const ALIAS_MAP: Record<string, string[]> = {
+    cv: ['computer vision', 'opencv', 'yolov11'],
+    ml: ['machine learning', 'scikit-learn', 'random forest'],
+    dl: ['deep learning', 'pytorch', 'inceptionv3'],
+    ai: ['pytorch', 'machine learning', 'deep learning', 'computer vision', 'nlp'],
+    yolo: ['yolov11'],
+    trt: ['tensorrt'],
+    postgres: ['postgresql', 'postgis'],
+    k8s: ['kubernetes'],
+    ci: ['gitlab ci/cd'],
+    cd: ['gitlab ci/cd'],
+    ts: ['typescript'],
+    js: ['javascript'],
+    tailwind: ['tailwind css'],
+    mcu: ['esp32', 'arduino'],
+    embedded: ['esp32', 'arduino', 'c', 'iot'],
+    security: ['network security'],
+    robot: ['robotics'],
+    spam: ['nlp', 'tf-idf', 'random forest'],
+    backend: ['laravel', 'fastapi', 'postgresql', 'redis', 'kafka'],
+    frontend: ['next.js', 'typescript', 'tailwind css', 'alpine.js'],
+    fullstack: ['laravel', 'next.js', 'typescript', 'postgresql', 'docker'],
+    cloud: ['docker', 'kubernetes', 'gitlab ci/cd', 'kafka', 'redis'],
+  };
+
+  function initJobMatchModal() {
+    const modal = document.getElementById('jobfit-modal') as HTMLDialogElement | null;
+    const rawDataEl = document.getElementById('job-match-profile-data');
+    if (!modal || !rawDataEl) return;
+
+    const dataset: MatchDataset = JSON.parse(rawDataEl.textContent || '{}');
+    const closeBtn = document.getElementById('jobfit-close-btn');
+    const jdInput = document.getElementById('jobfit-jd-input') as HTMLTextAreaElement | null;
+    const analyzeBtn = document.getElementById('jobfit-analyze-btn');
+    const presetBtns = Array.from(document.querySelectorAll<HTMLButtonElement>('.jobfit-preset-btn'));
+    const ringCircle = document.getElementById('jobfit-ring-circle') as SVGCircleElement | null;
+    const scoreText = document.getElementById('jobfit-score-text');
+    const verdictBadge = document.getElementById('jobfit-verdict-badge');
+    const roleLabelEl = document.getElementById('jobfit-role-label');
+    const summaryTextEl = document.getElementById('jobfit-summary-text');
+    const matchedChipsEl = document.getElementById('jobfit-matched-chips');
+    const topMissionsEl = document.getElementById('jobfit-top-missions');
+    const copyBriefBtn = document.getElementById('jobfit-copy-brief-btn');
+    const startTourBtn = document.getElementById('jobfit-start-tour-btn');
+
+    let activePresetLabel = 'Custom Job Description';
+    let lastBriefMarkdown = '';
+
+    function expandQueryTerms(text: string): string[] {
+      const cleaned = text
+        .toLowerCase()
+        .replace(/[^a-z0-9.+#/\-\s]/g, ' ')
+        .split(/\s+/)
+        .filter((t) => t.length >= 2);
+      const terms = new Set<string>(cleaned);
+      for (const word of cleaned) {
+        const aliases = ALIAS_MAP[word];
+        if (aliases) aliases.forEach((a) => terms.add(a));
+      }
+      return [...terms];
+    }
+
+    function runAnalysis(rawQuery: string, labelOverride?: string) {
+      const query = rawQuery.trim() || ROLE_PRESETS['ai-cv'].jd;
+      const lowerQuery = query.toLowerCase();
+      const terms = expandQueryTerms(query);
+      if (labelOverride) activePresetLabel = labelOverride;
+
+      // Match skills
+      const matchedSkills: MatchSkill[] = [];
+      for (const skill of dataset.skills) {
+        const skLower = skill.name.toLowerCase();
+        const directHit = lowerQuery.includes(skLower);
+        const termHit = terms.some((t) => skLower === t || (t.length >= 3 && skLower.includes(t)));
+        if (directHit || termHit) {
+          matchedSkills.push(skill);
+        }
+      }
+
+      // Score each mission
+      const scoredMissions = dataset.missions.map((m) => {
+        const haystack = `${m.title} ${m.summary} ${m.results.join(' ')} ${m.payload.join(' ')}`.toLowerCase();
+        let score = 0;
+        const matchedTags: string[] = [];
+
+        for (const tag of m.payload) {
+          const tl = tag.toLowerCase();
+          if (lowerQuery.includes(tl) || terms.some((t) => tl === t || (t.length >= 3 && tl.includes(t)))) {
+            score += 4;
+            matchedTags.push(tag);
+          }
+        }
+        for (const t of terms) {
+          if (t.length >= 3 && haystack.includes(t)) {
+            score += 1;
+          }
+        }
+        if (m.type === 'launch') score += 0.5;
+        return { mission: m, score, matchedTags };
+      });
+
+      scoredMissions.sort((a, b) => b.score - a.score);
+      const top3 = scoredMissions.slice(0, 3);
+
+      // Compute calibrated match percentage (0-98%)
+      const totalHits = matchedSkills.length + top3.reduce((acc, x) => acc + x.matchedTags.length, 0);
+      let pct = 62;
+      if (matchedSkills.length === 0 && top3[0].score < 1.5) {
+        pct = 48;
+      } else {
+        pct = Math.min(98, Math.round(64 + Math.min(24, matchedSkills.length * 3.2) + Math.min(10, top3[0].matchedTags.length * 2.5)));
+      }
+      if (totalHits === 0) pct = 45;
+
+      // Update Gauge SVG
+      const circumference = 263.89;
+      if (ringCircle) {
+        ringCircle.style.strokeDashoffset = String(circumference * (1 - pct / 100));
+        ringCircle.setAttribute('stroke', pct >= 80 ? '#10b981' : pct >= 65 ? '#f59e0b' : '#64748b');
+      }
+      if (scoreText) scoreText.textContent = `${pct}%`;
+
+      if (verdictBadge) {
+        if (pct >= 88) {
+          verdictBadge.textContent = 'EXCELLENT FIT';
+          verdictBadge.className = 'px-2 py-0.5 rounded-md border border-emerald-700 bg-emerald-100 text-emerald-900 font-pixel text-[10px] font-bold';
+        } else if (pct >= 72) {
+          verdictBadge.textContent = 'STRONG ALIGNMENT';
+          verdictBadge.className = 'px-2 py-0.5 rounded-md border border-sky-700 bg-sky-100 text-sky-900 font-pixel text-[10px] font-bold';
+        } else {
+          verdictBadge.textContent = 'ADAPTABLE FOUNDATION';
+          verdictBadge.className = 'px-2 py-0.5 rounded-md border border-amber-700 bg-amber-100 text-amber-900 font-pixel text-[10px] font-bold';
+        }
+      }
+      if (roleLabelEl) roleLabelEl.textContent = activePresetLabel;
+
+      if (summaryTextEl) {
+        summaryTextEl.textContent =
+          matchedSkills.length > 0
+            ? `Ditemukan ${matchedSkills.length} kecocokan skill langsung dari profil Zulfan (${dataset.person.education}). Kekuatan utama terbukti pada ${top3[0].mission.title}.`
+            : `Profil Zulfan memiliki fondasi kuat di AI/CV, Full-Stack Laravel/TypeScript, dan IoT. Coba masukkan kata kunci stack teknis untuk pencocokan lebih spesifik.`;
+      }
+
+      if (matchedChipsEl) {
+        matchedChipsEl.innerHTML = '';
+        const displaySkills = (matchedSkills.length > 0 ? matchedSkills : dataset.skills.slice(0, 8)).slice(0, 12);
+        for (const sk of displaySkills) {
+          const span = document.createElement('span');
+          span.className =
+            matchedSkills.length > 0
+              ? 'px-2 py-0.5 rounded-full border border-emerald-600 bg-emerald-50 text-emerald-900 font-mono text-[10px] font-semibold'
+              : 'px-2 py-0.5 rounded-full border border-slate-400 bg-slate-100 text-slate-700 font-mono text-[10px]';
+          span.textContent = `${sk.name} (${sk.count}×)`;
+          matchedChipsEl.appendChild(span);
+        }
+      }
+
+      if (topMissionsEl) {
+        topMissionsEl.innerHTML = '';
+        for (const entry of top3) {
+          const { mission, matchedTags } = entry;
+          const card = document.createElement('div');
+          card.className = 'p-3 rounded-xl border-2 border-[#1c1726] bg-white space-y-1.5 shadow-[0_2px_0_0_#1c1726]';
+
+          const header = document.createElement('div');
+          header.className = 'flex items-start justify-between gap-2';
+
+          const titleWrap = document.createElement('div');
+          const title = document.createElement('h4');
+          title.className = 'font-pixel text-xs font-bold text-[#1c1726] m-0';
+          title.textContent = `${mission.type === 'launch' ? '🚀' : '🛰️'} ${mission.title}`;
+          const meta = document.createElement('p');
+          meta.className = 'font-mono text-[10px] text-slate-500 m-0';
+          meta.textContent = `${mission.org} · ${mission.range}`;
+          titleWrap.appendChild(title);
+          titleWrap.appendChild(meta);
+
+          const link = document.createElement('a');
+          link.href = mission.route;
+          link.className = 'shrink-0 px-2 py-1 rounded-lg border border-[#1c1726] bg-amber-100 hover:bg-amber-200 font-pixel text-[9px] font-bold text-[#1c1726] no-underline';
+          link.textContent = `Buka ${mission.route} →`;
+
+          header.appendChild(titleWrap);
+          header.appendChild(link);
+          card.appendChild(header);
+
+          const summary = document.createElement('p');
+          summary.className = 'font-sans text-[11px] text-[#2c2638] m-0 leading-snug';
+          summary.textContent = mission.summary;
+          card.appendChild(summary);
+
+          if (mission.results[0]) {
+            const metric = document.createElement('p');
+            metric.className = 'font-mono text-[10px] text-emerald-800 bg-emerald-50 border border-emerald-200 rounded px-2 py-1 m-0';
+            metric.textContent = `✓ ${mission.results[0]}`;
+            card.appendChild(metric);
+          }
+
+          const tagsWrap = document.createElement('div');
+          tagsWrap.className = 'flex flex-wrap gap-1 pt-0.5';
+          for (const tag of mission.payload.slice(0, 8)) {
+            const isHit = matchedTags.includes(tag);
+            const pill = document.createElement('span');
+            pill.className = isHit
+              ? 'px-1.5 py-0.2 rounded bg-amber-200 border border-amber-500 font-mono text-[9px] font-bold text-amber-950'
+              : 'px-1.5 py-0.2 rounded bg-slate-100 border border-slate-300 font-mono text-[9px] text-slate-600';
+            pill.textContent = tag;
+            tagsWrap.appendChild(pill);
+          }
+          card.appendChild(tagsWrap);
+          topMissionsEl.appendChild(card);
+        }
+      }
+
+      lastBriefMarkdown = [
+        `# Candidate Brief: ${dataset.person.name} (${pct}% Match — ${activePresetLabel})`,
+        `- **Title**: ${dataset.person.title}`,
+        `- **Education**: ${dataset.person.education}`,
+        `- **Location**: ${dataset.person.location}`,
+        `- **Matched Stack**: ${(matchedSkills.length > 0 ? matchedSkills : dataset.skills.slice(0, 8)).map((s) => s.name).join(', ')}`,
+        '',
+        '## Top 3 Relevant Missions',
+        ...top3.map(
+          ({ mission }) =>
+            `- **${mission.title}** (${mission.range}): ${mission.summary}\n  - Key Highlight: ${mission.results[0] || ''}`
+        ),
+        '',
+        '## Honors',
+        ...dataset.honors.map((h) => `- ${h}`),
+        '',
+        `- **Contact**: ${dataset.person.email} · **CV**: ${window.location.origin}${dataset.person.cv}`,
+      ].join('\n');
+    }
+
+    presetBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        sfx.select();
+        const key = btn.dataset.preset || 'ai-cv';
+        const preset = ROLE_PRESETS[key];
+        if (!preset) return;
+        presetBtns.forEach((b) => b.classList.toggle('bg-amber-200', b === btn));
+        if (jdInput) jdInput.value = preset.jd;
+        runAnalysis(preset.jd, preset.label);
+      });
+    });
+
+    analyzeBtn?.addEventListener('click', () => {
+      sfx.confirm();
+      presetBtns.forEach((b) => b.classList.remove('bg-amber-200'));
+      runAnalysis(jdInput?.value || '', 'Custom Job Description');
+    });
+
+    copyBriefBtn?.addEventListener('click', () => {
+      if (!lastBriefMarkdown) return;
+      navigator.clipboard?.writeText(lastBriefMarkdown).then(() => {
+        sfx.catchSuccess();
+        window.dispatchEvent(
+          new CustomEvent('town:editor-toast', {
+            detail: '📋 Executive Brief Markdown berhasil disalin ke clipboard!',
+          })
+        );
+      });
+    });
+
+    startTourBtn?.addEventListener('click', () => {
+      sfx.confirm();
+      modal.close();
+      const isTown = window.location.pathname === '/' || window.location.pathname === '' || window.location.pathname === '/town/';
+      if (isTown) {
+        window.dispatchEvent(new CustomEvent('town:start-tour'));
+      } else {
+        sessionStorage.setItem('town:start_tour', '1');
+        window.location.href = '/';
+      }
+    });
+
+    closeBtn?.addEventListener('click', () => modal.close());
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) modal.close();
+    });
+
+    document.addEventListener('town:open-modal', (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail?.target === 'jobfit') {
+        if (!modal.open) modal.showModal();
+        if (jdInput && !jdInput.value.trim()) {
+          jdInput.value = ROLE_PRESETS['ai-cv'].jd;
+          presetBtns[0]?.classList.add('bg-amber-200');
+          runAnalysis(ROLE_PRESETS['ai-cv'].jd, ROLE_PRESETS['ai-cv'].label);
+        }
+      }
+    });
+
+    // Run default analysis on load so results are populated immediately when opened
+    if (jdInput) jdInput.value = ROLE_PRESETS['ai-cv'].jd;
+    presetBtns[0]?.classList.add('bg-amber-200');
+    runAnalysis(ROLE_PRESETS['ai-cv'].jd, ROLE_PRESETS['ai-cv'].label);
+  }
+
+  document.addEventListener('DOMContentLoaded', initJobMatchModal);
+  document.addEventListener('astro:page-load', initJobMatchModal);
+</script>

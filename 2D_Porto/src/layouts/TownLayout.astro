@@ -12,6 +12,9 @@ import DeskModal from '../components/DeskModal.astro';
 import CommandPalette from '../components/CommandPalette.astro';
 import PartnerModal from '../components/PartnerModal.astro';
 import DigiDexModal from '../components/DigiDexModal.astro';
+import JobMatchModal from '../components/JobMatchModal.astro';
+import GuestbookModal from '../components/GuestbookModal.astro';
+import JukeboxModal from '../components/JukeboxModal.astro';
 import { profile } from '../lib/profile';
 
 interface Props {
@@ -25,6 +28,17 @@ const {
   description = profile.person.tagline,
   place = 'town',
 } = Astro.props;
+
+const ogCardMap: Record<string, string> = {
+  dev: '/og/dev.png',
+  lab: '/og/lab.png',
+  digimon: '/og/digimon.png',
+  town: '/og/town.png',
+};
+const ogImagePath = ogCardMap[place] || '/og/town.png';
+const ogBase = Astro.site ?? Astro.url;
+const ogImageUrl = new URL(ogImagePath, ogBase).toString();
+const canonicalUrl = Astro.url.toString();
 ---
 
 <!doctype html>
@@ -35,6 +49,26 @@ const {
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta name="theme-color" content="#8bd16a" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <link rel="canonical" href={canonicalUrl} />
+
+    <!-- OpenGraph & Social Share Preview Cards -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Zulfan's Town" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:type" content="image/png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
 
     <!-- Google Fonts for retro/pixel aesthetic and clean typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -139,6 +173,9 @@ const {
     <DeskModal />
     <CommandPalette />
     <PartnerModal />
+    <JobMatchModal />
+    <GuestbookModal />
+    <JukeboxModal />
     {place === 'digimon' && <DigiDexModal />}
 
     <script>
@@ -230,6 +267,17 @@ const {
         initLayoutAll();
       }
       document.addEventListener('astro:page-load', initLayoutAll);
+
+      // Register PWA Service Worker for instant sprite & asset caching
+      if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
+        window.addEventListener(
+          'load',
+          () => {
+            navigator.serviceWorker.register('/sw.js').catch(() => {});
+          },
+          { once: true }
+        );
+      }
     </script>
   </body>
 </html>

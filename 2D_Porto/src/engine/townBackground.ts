@@ -3621,6 +3621,10 @@ export function renderConfiguredExtraEntities(ctx: CanvasRenderingContext2D) {
         case 'egg_incubator': drawEggIncubator(ctx, px, py); break;
         case 'pc_terminal': drawPCTerminal(ctx, px, py); break;
         case 'poke_house': drawPokeHouse(ctx, px, py); break;
+        case 'ancient_pillar': drawAncientPillar(ctx, px, py); break;
+        case 'volcanic_vent': drawVolcanicVent(ctx, px, py); break;
+        case 'alloy_beacon': drawAlloyBeacon(ctx, px, py); break;
+        case 'frost_shrine': drawFrostShrine(ctx, px, py); break;
 
         // 4. Tech & AI
         case 'server_rack': drawServerRack(ctx, px, py); break;
@@ -6273,6 +6277,93 @@ export function drawNoticeBoard(ctx: CanvasRenderingContext2D, px: number, py: n
   ctx.fillRect(px + 19, py + 6, 6, 5);
   ctx.fillStyle = '#16a34a';
   ctx.fillRect(px + 21, py + 6, 1, 1);
+  ctx.restore();
+}
+
+export function drawAncientPillar(ctx: CanvasRenderingContext2D, px: number, py: number) {
+  ctx.save();
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.38)';
+  ctx.fillRect(px + 2, py + 29, 12, 3);
+  ctx.fillStyle = '#57534e';
+  ctx.fillRect(px + 2, py + 25, 12, 5);
+  ctx.fillStyle = '#78716c';
+  ctx.fillRect(px + 4, py + 6, 8, 19);
+  ctx.fillStyle = '#a8a29e';
+  ctx.fillRect(px + 3, py + 4, 10, 3);
+  // Glowing Area Zero amber rune strip
+  ctx.fillStyle = '#f59e0b';
+  ctx.fillRect(px + 7, py + 9, 2, 13);
+  ctx.fillStyle = '#fef08a';
+  ctx.fillRect(px + 7, py + 11, 2, 3);
+  ctx.fillRect(px + 6, py + 16, 4, 2);
+  ctx.restore();
+}
+
+export function drawVolcanicVent(ctx: CanvasRenderingContext2D, px: number, py: number) {
+  ctx.save();
+  ctx.fillStyle = '#292524';
+  ctx.beginPath();
+  ctx.ellipse(px + 8, py + 11, 7, 4.5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#7c2d12';
+  ctx.beginPath();
+  ctx.ellipse(px + 8, py + 9.5, 5.5, 3.2, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#f97316';
+  ctx.beginPath();
+  ctx.ellipse(px + 8, py + 9, 3.5, 2, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#fef08a';
+  ctx.fillRect(px + 7, py + 8, 2, 1.5);
+  ctx.restore();
+}
+
+export function drawAlloyBeacon(ctx: CanvasRenderingContext2D, px: number, py: number) {
+  ctx.save();
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.35)';
+  ctx.fillRect(px + 2, py + 29, 12, 3);
+  // Steel bridge tower base
+  ctx.fillStyle = '#334155';
+  ctx.fillRect(px + 3, py + 24, 10, 6);
+  ctx.fillStyle = '#64748b';
+  ctx.fillRect(px + 5, py + 6, 6, 18);
+  ctx.fillStyle = '#cbd5e1';
+  ctx.fillRect(px + 6, py + 6, 2, 18);
+  // Railgun crossarms & electric node
+  ctx.fillStyle = '#1e293b';
+  ctx.fillRect(px + 2, py + 10, 12, 3);
+  ctx.fillStyle = '#38bdf8';
+  ctx.fillRect(px + 6, py + 2, 4, 4);
+  ctx.fillStyle = '#e0f2fe';
+  ctx.fillRect(px + 7, py + 3, 2, 2);
+  ctx.restore();
+}
+
+export function drawFrostShrine(ctx: CanvasRenderingContext2D, px: number, py: number) {
+  ctx.save();
+  ctx.fillStyle = 'rgba(12, 74, 110, 0.32)';
+  ctx.beginPath();
+  ctx.ellipse(px + 16, py + 28, 13, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // Pedestal base
+  ctx.fillStyle = '#1e3a8a';
+  ctx.fillRect(px + 4, py + 22, 24, 6);
+  ctx.fillStyle = '#93c5fd';
+  ctx.fillRect(px + 6, py + 20, 20, 3);
+  // Twin ice spires & center boundary crystal
+  ctx.fillStyle = '#38bdf8';
+  ctx.beginPath();
+  ctx.moveTo(px + 16, py + 2);
+  ctx.lineTo(px + 22, py + 14);
+  ctx.lineTo(px + 16, py + 21);
+  ctx.lineTo(px + 10, py + 14);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = '#e0f2fe';
+  ctx.fillRect(px + 14, py + 7, 3, 9);
+  ctx.fillStyle = '#7dd3fc';
+  ctx.fillRect(px + 7, py + 12, 4, 8);
+  ctx.fillRect(px + 21, py + 12, 4, 8);
   ctx.restore();
 }
 

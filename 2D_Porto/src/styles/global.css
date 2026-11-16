@@ -1098,24 +1098,66 @@
     transform: rotate(-90deg);
   }
 
-  /* ───────────────────────── Mobile Virtual Controller ───────────────────────── */
+  /* ───────────────────────── Mobile Virtual Controller (pointer: coarse) ───────────────────────── */
   .town-mobile-controls {
     position: absolute;
     bottom: 14px;
     left: 0;
     right: 0;
     padding: 0 14px;
-    display: flex;
+    display: none;
     align-items: flex-end;
     justify-content: space-between;
     pointer-events: none;
     z-index: 25;
+  }
+  @media (hover: none) and (pointer: coarse) {
+    .town-mobile-controls {
+      display: flex;
+    }
+  }
+  .town-mobile-controls__pad-row {
+    width: 100%;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .town-mobile-controls.is-collapsed .town-mobile-controls__pad-row {
+    display: none;
+  }
+  .town-touchpad-toggle,
+  .town-touchpad-restore {
+    pointer-events: auto;
+    padding: 6px 10px;
+    border-radius: 999px;
+    border: 1.5px solid rgba(255, 255, 255, 0.35);
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(6px);
+    color: #f8fafc;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35);
+    user-select: none;
+    touch-action: manipulation;
+  }
+  .town-touchpad-restore {
+    display: none;
+    margin-left: auto;
+  }
+  .town-mobile-controls.is-collapsed .town-touchpad-restore {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
   }
   .town-dpad {
     position: relative;
     width: 108px;
     height: 108px;
     pointer-events: auto;
+    opacity: 0.92;
   }
   .town-dpad-btn {
     position: absolute;
@@ -1176,6 +1218,24 @@
   }
   .town-action-cluster {
     pointer-events: auto;
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+    align-items: end;
+    gap: 8px;
+  }
+  .town-action-btn--b {
+    width: 46px;
+    height: 46px;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    box-shadow: 0 3px 0 #1e3a8a, 0 5px 12px rgba(37, 99, 235, 0.4);
+  }
+  .town-action-btn--skill {
+    grid-column: span 2;
+    justify-self: end;
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    box-shadow: 0 3px 0 #92400e, 0 5px 12px rgba(245, 158, 11, 0.4);
   }
   .town-action-btn {
     position: relative;
@@ -4275,6 +4335,85 @@ ul.clean, ol.clean {
 #town-pokeride-hud.is-minimized #pokeride-hud-actions {
   display: none !important;
 }
+
+/* PokéSnap Studio Clean Canvas Framing */
+.town[data-pokesnap="true"] .town-hud-bar,
+.town[data-pokesnap="true"] .town-desktop-legend,
+.town[data-pokesnap="true"] .town-mobile-controls,
+.town[data-pokesnap="true"] .town-zoom-indicator,
+.town[data-pokesnap="true"] #town-pokeride-hud {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Pilar 5: Live Project Kudos / Reactions Bar */
+.project-kudos-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  margin-bottom: 6px;
+}
+
+.kudos-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1.5px solid rgba(51, 65, 85, 0.45);
+  background: rgba(248, 250, 252, 0.9);
+  color: #1e293b;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.1s ease, background 0.12s ease, border-color 0.12s ease;
+}
+
+.kudos-btn:hover {
+  transform: translateY(-1px);
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+
+.kudos-btn.is-reacted {
+  background: #1d4ed8;
+  color: #ffffff;
+  border-color: #0f172a;
+  box-shadow: 2px 2px 0 #0f172a;
+}
+
+.kudos-btn__count {
+  font-weight: 700;
+  padding: 0 4px;
+  border-radius: 4px;
+  background: rgba(15, 23, 42, 0.1);
+}
+
+.kudos-btn.is-reacted .kudos-btn__count {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.mc--debrief .kudos-btn {
+  background: rgba(15, 23, 42, 0.8);
+  color: #e2e8f0;
+  border-color: rgba(100, 116, 139, 0.55);
+}
+
+.mc--debrief .kudos-btn:hover {
+  background: rgba(30, 58, 138, 0.75);
+  border-color: #60a5fa;
+}
+
+.mc--debrief .kudos-btn.is-reacted {
+  background: #10b981;
+  color: #052e16;
+  border-color: #a7f3d0;
+  box-shadow: 2px 2px 0 #064e3b;
+}
+
 
 
 

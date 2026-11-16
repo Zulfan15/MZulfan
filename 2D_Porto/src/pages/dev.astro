@@ -413,6 +413,8 @@ const feedJson = "{\"timeline\":[{\"label\":\"ITENAS ENROLLMENT\",\"kind\":\"sch
 
 <script>
   import { gameStore } from '../game/store';
+  import { sfx } from '../game/sfx';
+  import { mountProjectReactionBars } from '../lib/socialClient';
   // Dev Center Client Script matching si-dan.com
   const DIALOGS: Record<string, string> = {
     timeline: 'timeline',
@@ -1032,6 +1034,12 @@ Zzz... Snorlax tertidur pulas di meja depan menjaga log sistem. Tekan tombol bic
 
     // Unlock Dev Center stamp
     gameStore.addStamp('dev');
+
+    // Hydrate Live Project Kudos / Reactions on Dev cards & Debrief modal
+    mountProjectReactionBars((active) => {
+      if (active) sfx.confirm();
+      else sfx.blip();
+    });
   }
 
   if (document.readyState === 'loading') {

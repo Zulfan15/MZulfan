@@ -176,16 +176,27 @@ import {
   drawFollower as drawFollowerHelper,
   drawGardevoirPsychicAura as drawGardevoirPsychicAuraHelper,
   drawPokeRide as drawPokeRideHelper,
+  findActiveResonance as findActiveResonanceHelper,
   renderMoveParticles as renderMoveParticlesHelper,
   spawnRideMountFX as spawnRideMountFXHelper,
   spawnRideTrailFX as spawnRideTrailFXHelper,
+  triggerResonanceBurst as triggerResonanceBurstHelper,
   triggerSignatureMove as triggerSignatureMoveHelper,
+  type ResonanceMatch,
   type TownPokemonFxHost,
 } from './townPokemonFx';
 import {
   renderOverworldPokemonNPCs,
   type TownPokemonOverworldHost,
 } from './townPokemonOverworld';
+import {
+  buildGhostTrainers,
+  findGhostAtTile,
+  renderGhostTrainers,
+  updateGhostTrainers,
+  type GhostTrainerNpc,
+} from './ghostTrainers';
+import type { GuestbookEntry } from '../lib/socialClient';
 
 export interface BubbleAction {
   label: string;
@@ -355,6 +366,9 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
   private isBikeActive = false;
   private isRidingPokemon = false;
   private coffeeBoostTimer = 0;
+  private lastResonanceKey = '';
+  private ghostTrainers: GhostTrainerNpc[] = [];
+  private ghostTrainersEnabled = true;
   private dustPuffs: DustPuff[] = [];
   private flyBurstParticles: FlyParticle[] = [];
   private lastBumpTime = 0;
@@ -1772,6 +1786,14 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
             lamps.push({ x: b.x, y: b.y, radius: 36, color: 'gold' });
           } else if (b.subType === 'jukebox' || b.id.startsWith('jukebox')) {
             lamps.push({ x: b.x, y: b.y, radius: 40, color: 'magenta' });
+          } else if (b.subType === 'ancient_pillar' || b.id.startsWith('ancient_pillar')) {
+            lamps.push({ x: b.x + 0.5, y: b.y + 1, radius: 42, color: 'gold' });
+          } else if (b.subType === 'volcanic_vent' || b.id.startsWith('volcanic_vent')) {
+            lamps.push({ x: b.x + 0.5, y: b.y + 0.5, radius: 44, color: 'amber' });
+          } else if (b.subType === 'alloy_beacon' || b.id.startsWith('alloy_beacon')) {
+            lamps.push({ x: b.x + 0.5, y: b.y + 0.5, radius: 44, color: 'cyan' });
+          } else if (b.subType === 'frost_shrine' || b.id.startsWith('frost_shrine')) {
+            lamps.push({ x: b.x + 1, y: b.y + 1, radius: 48, color: 'cyan' });
           } else if (b.subType === 'campfire' || b.id === 'campfire') {
             lamps.push({ x: b.x + 0.5, y: b.y + 0.5, radius: 52, color: 'amber' });
           }
@@ -2166,6 +2188,16 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
             this.walkTo(doorX, doorY);
             return;
           }
+        }
+      }
+
+      // Check Ghost Trainers patrolling Town Square plaza
+      if (this.currentScene === 'town' && this.ghostTrainersEnabled && this.ghostTrainers.length > 0) {
+        const hitGhost = findGhostAtTile(this.ghostTrainers, targetTileX, targetTileY);
+        if (hitGhost) {
+          this.showGhostTrainerBubble(hitGhost);
+          this.wake();
+          return;
         }
       }
 
@@ -4096,6 +4128,23 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
 
     if (this.coffeeBoostTimer > 0) {
       this.coffeeBoostTimer = Math.max(0, this.coffeeBoostTimer - dt);
+    }
+
+    if (this.currentScene === 'town' && this.ghostTrainersEnabled && this.ghostTrainers.length > 0) {
+      updateGhostTrainers(this.ghostTrainers, dt, (nx, ny) => {
+        if (nx === this.playerPos.x && ny === this.playerPos.y) return false;
+        if (nx === this.playerTarget.x && ny === this.playerTarget.y) return false;
+        return this.canWalk(nx, ny);
+      });
+    }
+
+    if (this.tick % 12 === 0 && typeof window !== 'undefined') {
+      const res = findActiveResonanceHelper(this);
+      const nextKey = res ? `${res.id}:${res.followerId}:${res.nearbyId}` : '';
+      if (nextKey !== this.lastResonanceKey) {
+        this.lastResonanceKey = nextKey;
+        window.dispatchEvent(new CustomEvent('town:resonance-available', { detail: res }));
+      }
     }
 
     // Update dust puff particles
@@ -8422,6 +8471,16 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
       }
     }
 
+    // Check Ghost Trainer at facing tile in Town Square
+    if (this.currentScene === 'town' && this.ghostTrainersEnabled && this.ghostTrainers.length > 0) {
+      const ghost = findGhostAtTile(this.ghostTrainers, fx, fy);
+      if (ghost) {
+        this.showGhostTrainerBubble(ghost);
+        this.wake();
+        return;
+      }
+    }
+
     // 3. Check Prop (Statue / Fountain / East & West POIs)
     const contestCfg = townConfig.getBuilding('contest');
     const prop = this.map.props.find((p) => {
@@ -8528,6 +8587,18 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
           this.callbacks.onBubble("Off-Duty Pergola & Boardwalk 🚴", prop.lines.join(' '), action);
         } else {
           this.callbacks.onDialogue('Off-Duty Pergola', prop.lines);
+        }
+        this.wake();
+        return;
+      }
+      if (prop.id === 'fountain' || prop.type === 'fountain') {
+        if (this.callbacks.onBubble) {
+          this.callbacks.onBubble(prop.name, prop.lines.join(' '), {
+            label: '📖 Trainer Guestbook Board',
+            onClick: () => window.dispatchEvent(new CustomEvent('town:open-guestbook')),
+          });
+        } else {
+          this.callbacks.onDialogue(prop.name, prop.lines);
         }
         this.wake();
         return;
@@ -9883,6 +9954,11 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
     // 8. NPCs (Reading dynamic positions from townConfig)
     renderOverworldPokemonNPCs(this, ctx);
 
+    // 8a. Ghost Trainers (Asynchronous Guestbook visitors patrolling Fountain Plaza)
+    if (this.currentScene === 'town' && this.ghostTrainersEnabled && this.ghostTrainers.length > 0) {
+      renderGhostTrainers(ctx, this.ghostTrainers, this.tick);
+    }
+
     // 8b. Custom spawned Digimon (Digimon World DS lazy sprite slicing + orientation)
     this.renderCustomDigimonEntities(ctx);
 
@@ -10523,6 +10599,7 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
     if (!matchedKey && !digiMatch) return;
 
     const companionId = matchedKey || digiMatch!.id;
+    this.pmdAnimator.preloadPokemon(companionId);
     const data = matchedKey
       ? followersMap[matchedKey]
       : {
@@ -10641,5 +10718,50 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
 
   private renderMoveParticles(ctx: CanvasRenderingContext2D) {
     renderMoveParticlesHelper(this, ctx);
+  }
+
+  public getActiveResonance(): ResonanceMatch | null {
+    return findActiveResonanceHelper(this);
+  }
+
+  public triggerResonanceBurst(): ResonanceMatch | null {
+    const match = triggerResonanceBurstHelper(this);
+    if (!match) return null;
+    if (match.grantsSpeedBoost) {
+      this.coffeeBoostTimer = 15;
+    }
+    if (match.shiftsWeather && this.weather === 'petals') {
+      this.setWeather(match.shiftsWeather);
+    }
+    return match;
+  }
+
+  public setGhostTrainers(entries: GuestbookEntry[]) {
+    this.ghostTrainers = buildGhostTrainers(entries);
+    this.wake();
+  }
+
+  public setGhostTrainersEnabled(enabled: boolean) {
+    this.ghostTrainersEnabled = enabled;
+    this.wake();
+  }
+
+  public areGhostTrainersEnabled(): boolean {
+    return this.ghostTrainersEnabled;
+  }
+
+  private showGhostTrainerBubble(ghost: GhostTrainerNpc) {
+    sfx.select();
+    const orgLine = ghost.org ? ` (${ghost.org})` : '';
+    const title = `${ghost.avatar} ${ghost.name}${orgLine} · ${ghost.badgeRole}`;
+    const body = `${ghost.stamp} — "${ghost.message}"`;
+    if (this.callbacks.onBubble) {
+      this.callbacks.onBubble(title, body, {
+        label: '📖 Sign Guestbook Board',
+        onClick: () => window.dispatchEvent(new CustomEvent('town:open-guestbook')),
+      });
+    } else {
+      this.callbacks.onDialogue(title, [body]);
+    }
   }
 }

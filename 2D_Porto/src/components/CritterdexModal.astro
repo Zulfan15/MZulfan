@@ -1,6 +1,6 @@
 ---
 import { profile } from '../lib/profile';
-import { STAMP_MISSIONS } from '../game/store';
+import { GYM_BADGES, STAMP_MISSIONS } from '../game/store';
 const critters = profile.critters;
 ---
 
@@ -109,6 +109,40 @@ const critters = profile.critters;
           </div>
         ))}
       </div>
+
+      <!-- 8 Zulfan Region Tech Gym Badges (Badge Case) -->
+      <div class="p-3 rounded-xl border-2 border-ink bg-slate-950 text-white space-y-2.5">
+        <div class="flex items-center justify-between gap-2">
+          <div class="font-pixel text-[10px] text-amber-300 flex items-center gap-1.5">
+            <span>🏅</span>
+            <span>KOTAK LENCANA (TECH GYM BADGES)</span>
+          </div>
+          <div class="font-pixel text-[10px] text-cyan-300">
+            <span id="passport-badge-count">0</span> / 8
+          </div>
+        </div>
+        <p id="passport-league-banner" class="text-[10px] font-mono text-slate-300">
+          Kumpulkan semua 8 lencana keahlian teknis untuk meraih gelar tertinggi 🏆 ZULFAN LEAGUE MASTER.
+        </p>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          {GYM_BADGES.map((b) => (
+            <a
+              href={b.route}
+              id={`gym-badge-card-${b.id}`}
+              class="gym-badge-slot p-2 rounded-lg border border-slate-700 bg-slate-900/80 hover:border-amber-400 transition-all flex items-center gap-2 opacity-55"
+              title={`${b.name}: ${b.desc}`}
+            >
+              <span class="w-7 h-7 rounded-md flex items-center justify-center text-base border border-slate-700 bg-slate-950 shrink-0">
+                {b.icon}
+              </span>
+              <div class="min-w-0">
+                <div class="font-pixel text-[8px] text-slate-100 truncate">{b.name.replace(' Badge', '')}</div>
+                <div class="gym-badge-state font-mono text-[8px] text-slate-400 truncate">{b.route}</div>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
     </div>
 
     <!-- TAB 2: CRITTERDEX (12 POKEMON) -->
@@ -198,7 +232,7 @@ const critters = profile.critters;
 </script>
 
 <script>
-  import { gameStore, STAMP_MISSIONS } from '../game/store';
+  import { gameStore, GYM_BADGES, STAMP_MISSIONS } from '../game/store';
   import { renderCritterOnCanvas } from '../game/critterArt';
   import { sfx } from '../game/sfx';
 
@@ -208,6 +242,8 @@ const critters = profile.critters;
     const caughtSpan = document.getElementById('dex-caught-count');
     const ballsSpan = document.getElementById('dex-balls-count');
     const passportStampSpan = document.getElementById('passport-stamp-count');
+    const passportBadgeSpan = document.getElementById('passport-badge-count');
+    const passportLeagueBanner = document.getElementById('passport-league-banner');
     const passportVipBanner = document.getElementById('passport-vip-banner');
     const passportVipIcon = document.getElementById('passport-vip-icon');
     const passportVipText = document.getElementById('passport-vip-text');
@@ -249,7 +285,7 @@ const critters = profile.critters;
 
       if (isC) {
         const state = gameStore.getState();
-        drawTrainerCard(cardCanvas, state.trainerName, state.caught.length, state.stamps);
+        drawTrainerCard(cardCanvas, state.trainerName, state.caught.length, state.stamps, state.badges);
       }
     };
 
@@ -268,15 +304,21 @@ const critters = profile.critters;
     const updateUI = () => {
       const state = gameStore.getState();
       const stampCount = state.stamps.length;
-      const isVip = stampCount >= 3;
+      const badgeCount = state.badges.length;
+      const isLeagueMaster = badgeCount >= GYM_BADGES.length;
+      const isVip = stampCount >= 3 || badgeCount >= 4;
 
       if (caughtSpan) caughtSpan.textContent = String(state.caught.length);
       if (ballsSpan) ballsSpan.textContent = String(state.balls);
       if (passportStampSpan) passportStampSpan.textContent = String(stampCount);
+      if (passportBadgeSpan) passportBadgeSpan.textContent = String(badgeCount);
 
-      if (cardStampStatus) cardStampStatus.textContent = `${stampCount} / 5 Stempel`;
+      if (cardStampStatus) cardStampStatus.textContent = `${stampCount}/5 Stempel · ${badgeCount}/8 Badges`;
       if (cardTierStatus) {
-        if (stampCount >= 5) {
+        if (isLeagueMaster) {
+          cardTierStatus.textContent = '🏆 ZULFAN LEAGUE MASTER';
+          cardTierStatus.className = 'text-amber-600 font-bold';
+        } else if (stampCount >= 5) {
           cardTierStatus.textContent = '👑 Grand Champion';
           cardTierStatus.className = 'text-amber-600 font-bold';
         } else if (isVip) {
@@ -287,6 +329,33 @@ const critters = profile.critters;
           cardTierStatus.className = 'text-ink';
         }
       }
+
+      if (passportLeagueBanner) {
+        passportLeagueBanner.textContent = isLeagueMaster
+          ? '🏆 SELAMAT! Semua 8 Tech Gym Badges tersemat. Gelar ZULFAN LEAGUE MASTER aktif di Trainer Card!'
+          : `Kumpulkan ${8 - badgeCount} lencana lagi dari gedung kota untuk membuka gelar 🏆 ZULFAN LEAGUE MASTER.`;
+        passportLeagueBanner.className = isLeagueMaster
+          ? 'text-[10px] font-mono text-amber-300 font-bold'
+          : 'text-[10px] font-mono text-slate-300';
+      }
+
+      GYM_BADGES.forEach((b) => {
+        const earned = state.badges.includes(b.id);
+        const slot = document.getElementById(`gym-badge-card-${b.id}`);
+        const sub = slot?.querySelector('.gym-badge-state');
+        if (slot) {
+          slot.classList.toggle('opacity-55', !earned);
+          slot.classList.toggle('border-amber-400', earned);
+          slot.classList.toggle('bg-amber-950/35', earned);
+          slot.classList.toggle('shadow-[0_0_12px_rgba(251,191,36,0.28)]', earned);
+        }
+        if (sub) {
+          sub.textContent = earned ? '✔ EARNED' : b.route;
+          sub.className = earned
+            ? 'gym-badge-state font-mono text-[8px] text-emerald-300 font-bold truncate'
+            : 'gym-badge-state font-mono text-[8px] text-slate-400 truncate';
+        }
+      });
 
       if (passportVipBanner) {
         if (stampCount >= 5) {
@@ -344,7 +413,7 @@ const critters = profile.critters;
         }
       });
 
-      drawTrainerCard(cardCanvas, state.trainerName, state.caught.length, state.stamps);
+      drawTrainerCard(cardCanvas, state.trainerName, state.caught.length, state.stamps, state.badges);
     };
 
     gameStore.subscribe(updateUI);
@@ -380,7 +449,8 @@ const critters = profile.critters;
     nameInput?.addEventListener('input', (e) => {
       const val = (e.target as HTMLInputElement).value;
       gameStore.setTrainerName(val);
-      drawTrainerCard(cardCanvas, val || 'TRAINER', gameStore.getState().caught.length, gameStore.getState().stamps);
+      const st = gameStore.getState();
+      drawTrainerCard(cardCanvas, val || 'TRAINER', st.caught.length, st.stamps, st.badges);
     });
 
     saveBtn?.addEventListener('click', () => {
@@ -411,7 +481,13 @@ const critters = profile.critters;
     });
   }
 
-  function drawTrainerCard(canvas: HTMLCanvasElement, name: string, caughtCount: number, stamps: string[] = []) {
+  function drawTrainerCard(
+    canvas: HTMLCanvasElement,
+    name: string,
+    caughtCount: number,
+    stamps: string[] = [],
+    badges: string[] = []
+  ) {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
@@ -419,8 +495,10 @@ const critters = profile.critters;
     const w = canvas.width;
     const h = canvas.height;
     const stampCount = stamps.length;
-    const isVip = stampCount >= 3;
-    const isMaster = stampCount >= 5;
+    const badgeCount = badges.length;
+    const isLeagueMaster = badgeCount >= 8;
+    const isVip = stampCount >= 3 || badgeCount >= 4;
+    const isMaster = stampCount >= 5 || isLeagueMaster;
 
     ctx.imageSmoothingEnabled = false;
     ctx.clearRect(0, 0, w, h);
@@ -458,8 +536,10 @@ const critters = profile.critters;
 
     // Header Text
     ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 11px monospace';
-    if (isMaster) {
+    ctx.font = 'bold 10px monospace';
+    if (isLeagueMaster) {
+      ctx.fillText('🏆 ZULFAN LEAGUE MASTER', 12, 21);
+    } else if (isMaster) {
       ctx.fillText('👑 GRAND CHAMPION', 14, 21);
     } else if (isVip) {
       ctx.fillText('⭐ VIP RECRUITER', 14, 21);
@@ -518,38 +598,36 @@ const critters = profile.critters;
     ctx.fillText(`IDNo. 290826`, 88, 74);
     ctx.fillText(`CRITTERS: ${caughtCount} / 12`, 88, 90);
 
-    // Passport Stamps Count on Card
+    // Passport & Gym Badges Count on Card
     ctx.fillStyle = isVip ? '#b45309' : '#6b7280';
-    ctx.font = 'bold 9px monospace';
-    ctx.fillText(`PASSPORT: ${stampCount}/5 STEMPEL ${isVip ? '⭐ VIP' : ''}`, 88, 106);
+    ctx.font = 'bold 8.5px monospace';
+    ctx.fillText(`STAMPS: ${stampCount}/5 · GYM: ${badgeCount}/8`, 88, 106);
 
-    // Badges & Stamp Strip
+    // Badges Case Strip (8 Tech Gym Badges)
     ctx.fillStyle = isVip ? '#fef3c7' : '#e5d7bd';
     ctx.fillRect(16, 126, w - 32, 30);
     ctx.strokeStyle = isVip ? '#d97706' : '#1c1726';
     ctx.lineWidth = 1.5;
     ctx.strokeRect(16, 126, w - 32, 30);
 
-    // Stamp seals icons: Dev (🏢), Twin (🤖), Arena (🔥), Critter (🌿), Arcade (🕹️)
-    const stampMissionsList = ['dev', 'twin', 'battle', 'critter', 'arcade'];
-    const stampIcons = ['🏢', '🤖', '🔥', '🌿', '🕹️'];
+    const gymOrder = ['cascade', 'vision', 'stratos', 'tactical', 'heuristic', 'sanctuary', 'botanical', 'empathy'];
+    const gymIcons = ['⚡', '👁️', '🗼', '⚔️', '🕹️', '🌐', '🌿', '🤖'];
 
-    stampMissionsList.forEach((id, i) => {
-      const earned = stamps.includes(id);
-      const bx = 26 + i * 50;
+    gymOrder.forEach((id, i) => {
+      const earned = badges.includes(id);
+      const cx = 31 + i * 31;
 
-      // Draw subtle stamp seal circle
       ctx.beginPath();
-      ctx.arc(bx + 10, 141, 10, 0, Math.PI * 2);
-      ctx.fillStyle = earned ? (isVip ? 'rgba(245, 158, 11, 0.25)' : 'rgba(34, 197, 94, 0.2)') : 'rgba(0, 0, 0, 0.05)';
+      ctx.arc(cx, 141, 10, 0, Math.PI * 2);
+      ctx.fillStyle = earned ? (isVip ? 'rgba(245, 158, 11, 0.28)' : 'rgba(56, 189, 248, 0.22)') : 'rgba(0, 0, 0, 0.06)';
       ctx.fill();
-      ctx.strokeStyle = earned ? (isVip ? '#d97706' : '#16a34a') : '#cbd5e1';
+      ctx.strokeStyle = earned ? (isVip ? '#d97706' : '#0284c7') : '#cbd5e1';
       ctx.stroke();
 
       ctx.fillStyle = earned ? '#1c1726' : '#94a3b8';
-      ctx.font = earned ? '12px sans-serif' : '10px sans-serif';
+      ctx.font = earned ? '11px sans-serif' : '9px sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText(earned ? stampIcons[i] : '○', bx + 10, 145);
+      ctx.fillText(earned ? gymIcons[i] : '○', cx, 145);
     });
     ctx.textAlign = 'start';
   }

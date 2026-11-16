@@ -1,5 +1,25 @@
 // Retro chiptune sound generator using the browser's Web Audio API. Zero audio files needed.
 
+export type BgmTheme = 'day' | 'sunset' | 'night' | 'legends' | 'cyber' | 'lofi';
+
+export interface BgmTrackMeta {
+  id: BgmTheme;
+  title: string;
+  sub: string;
+  bpm: number;
+  icon: string;
+  accent: string;
+}
+
+export const BGM_TRACKS: BgmTrackMeta[] = [
+  { id: 'day', title: 'Littleroot Breeze (Day Theme)', sub: '104 BPM · C Major Chiptune Brass & Arps', bpm: 104, icon: '☀️', accent: '#f59e0b' },
+  { id: 'sunset', title: 'Golden Horizon (Sunset Theme)', sub: '88 BPM · Warm Fmaj7 Acoustic Whistle', bpm: 88, icon: '🌅', accent: '#fb923c' },
+  { id: 'night', title: 'Lullaby of the Stars (Night Theme)', sub: '72 BPM · Music-Box Nocturne Chimes', bpm: 72, icon: '🌙', accent: '#818cf8' },
+  { id: 'legends', title: 'Hall of Legends (Epic Legendary)', sub: '124 BPM · D-Minor Heroic Square Lead', bpm: 124, icon: '⚔️', accent: '#ef4444' },
+  { id: 'cyber', title: 'Digi-Sanctuary Cyber Pulse', sub: '128 BPM · Digital Synth Arpeggio 16-bit', bpm: 128, icon: '🌐', accent: '#06b6d4' },
+  { id: 'lofi', title: 'Lo-Fi Café Beats (Chill Study)', sub: '78 BPM · Mellow Maj9 Rhodes Groove', bpm: 78, icon: '☕', accent: '#10b981' },
+];
+
 function mtof(midi: number): number {
   return 440 * Math.pow(2, (midi - 69) / 12);
 }
@@ -11,9 +31,11 @@ class SoundFX {
   // 8-Bit Procedural Lo-Fi BGM Engine
   private bgmEnabled = false;
   private bgmPlaying = false;
-  private bgmTheme: 'day' | 'sunset' | 'night' = 'day';
+  private bgmTheme: BgmTheme = 'day';
   private bgmGainNode: GainNode | null = null;
   private bgmFilterNode: BiquadFilterNode | null = null;
+  private bgmAnalyser: AnalyserNode | null = null;
+  private bgmFreqBuffer: Uint8Array<ArrayBuffer> | null = null;
   private bgmTimer: number | null = null;
   private bgmNextNoteTime = 0;
   private bgmStep = 0;
@@ -24,6 +46,10 @@ class SoundFX {
       this.enabled = saved !== '0';
       const savedBgm = localStorage.getItem('bgm_enabled');
       this.bgmEnabled = savedBgm === '1';
+      const savedTheme = localStorage.getItem('bgm_theme') as BgmTheme | null;
+      if (savedTheme && BGM_TRACKS.some((t) => t.id === savedTheme)) {
+        this.bgmTheme = savedTheme;
+      }
 
       // Auto-unlock audio context on first user interaction
       const unlock = () => {
@@ -68,8 +94,12 @@ class SoundFX {
     return this.bgmEnabled;
   }
 
-  public getBgmTheme(): 'day' | 'sunset' | 'night' {
+  public getBgmTheme(): BgmTheme {
     return this.bgmTheme;
+  }
+
+  public isBgmPlaying(): boolean {
+    return this.bgmPlaying;
   }
 
   public toggleBgm(): boolean {
@@ -82,22 +112,55 @@ class SoundFX {
     } else {
       this.stopBgm();
     }
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('town:bgm-theme-changed', { detail: { theme: this.bgmTheme, enabled: this.bgmEnabled } }));
+    }
     return this.bgmEnabled;
   }
 
-  public setBgmTheme(theme: 'day' | 'sunset' | 'night') {
+  public setBgmTheme(theme: BgmTheme) {
     if (this.bgmTheme === theme) return;
     this.bgmTheme = theme;
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('bgm_theme', theme);
+      window.dispatchEvent(new CustomEvent('town:bgm-theme-changed', { detail: { theme, enabled: this.bgmEnabled } }));
+    }
     if (this.bgmPlaying) {
-      // Smoothly update filter and sequence
       if (this.bgmFilterNode && this.ctx) {
-        const targetFreq = theme === 'night' ? 950 : theme === 'sunset' ? 1400 : 1900;
+        const targetFreq =
+          theme === 'night' ? 950 : theme === 'lofi' ? 1150 : theme === 'sunset' ? 1400 : theme === 'cyber' ? 2800 : theme === 'legends' ? 2500 : 1900;
         this.bgmFilterNode.frequency.setTargetAtTime(targetFreq, this.ctx.currentTime, 0.4);
       }
     }
   }
 
-  public startBgm(theme?: 'day' | 'sunset' | 'night') {
+  public playTrack(theme: BgmTheme) {
+    this.bgmTheme = theme;
+    this.bgmEnabled = true;
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('bgm_enabled', '1');
+      localStorage.setItem('bgm_theme', theme);
+      window.dispatchEvent(new CustomEvent('town:bgm-theme-changed', { detail: { theme, enabled: true } }));
+      window.dispatchEvent(new CustomEvent('town:bgm-toggled', { detail: { enabled: true } }));
+    }
+    this.startBgm(theme);
+  }
+
+  public getAudioSpectrum(barCount = 16): number[] {
+    if (!this.bgmPlaying || !this.bgmAnalyser || !this.bgmFreqBuffer) {
+      return new Array(barCount).fill(0);
+    }
+    this.bgmAnalyser.getByteFrequencyData(this.bgmFreqBuffer);
+    const out: number[] = [];
+    const len = this.bgmFreqBuffer.length;
+    for (let i = 0; i < barCount; i++) {
+      const idx = Math.min(len - 1, Math.floor((i / barCount) * (len * 0.72)));
+      out.push(Math.min(1, (this.bgmFreqBuffer[idx] || 0) / 220));
+    }
+    return out;
+  }
+
+  public startBgm(theme?: BgmTheme) {
     if (theme) this.bgmTheme = theme;
     if (typeof window === 'undefined') return;
     this.init();
@@ -109,20 +172,35 @@ class SoundFX {
     }
 
     try {
-      // Warm Lo-Fi master channel with gentle low-pass filter
+      // Warm Lo-Fi master channel with gentle low-pass filter & live AnalyserNode
       this.bgmFilterNode = this.ctx.createBiquadFilter();
       this.bgmFilterNode.type = 'lowpass';
-      this.bgmFilterNode.frequency.setValueAtTime(
-        this.bgmTheme === 'night' ? 950 : this.bgmTheme === 'sunset' ? 1400 : 1900,
-        this.ctx.currentTime
-      );
+      const initFreq =
+        this.bgmTheme === 'night'
+          ? 950
+          : this.bgmTheme === 'lofi'
+          ? 1150
+          : this.bgmTheme === 'sunset'
+          ? 1400
+          : this.bgmTheme === 'cyber'
+          ? 2800
+          : this.bgmTheme === 'legends'
+          ? 2500
+          : 1900;
+      this.bgmFilterNode.frequency.setValueAtTime(initFreq, this.ctx.currentTime);
       this.bgmFilterNode.Q.setValueAtTime(1.2, this.ctx.currentTime);
+
+      this.bgmAnalyser = this.ctx.createAnalyser();
+      this.bgmAnalyser.fftSize = 64;
+      this.bgmAnalyser.smoothingTimeConstant = 0.72;
+      this.bgmFreqBuffer = new Uint8Array(new ArrayBuffer(this.bgmAnalyser.frequencyBinCount));
 
       this.bgmGainNode = this.ctx.createGain();
       this.bgmGainNode.gain.setValueAtTime(0.0001, this.ctx.currentTime);
       this.bgmGainNode.gain.exponentialRampToValueAtTime(0.055, this.ctx.currentTime + 0.8);
 
-      this.bgmFilterNode.connect(this.bgmGainNode);
+      this.bgmFilterNode.connect(this.bgmAnalyser);
+      this.bgmAnalyser.connect(this.bgmGainNode);
       this.bgmGainNode.connect(this.ctx.destination);
 
       this.bgmPlaying = true;
@@ -168,10 +246,12 @@ class SoundFX {
   }
 
   private getStepDuration(): number {
-    // 16th notes: Day = 104 BPM, Sunset = 88 BPM, Night = 72 BPM
-    if (this.bgmTheme === 'night') return 60 / 72 / 4; // ~0.208s
-    if (this.bgmTheme === 'sunset') return 60 / 88 / 4; // ~0.170s
-    return 60 / 104 / 4; // ~0.144s
+    if (this.bgmTheme === 'night') return 60 / 72 / 4;
+    if (this.bgmTheme === 'lofi') return 60 / 78 / 4;
+    if (this.bgmTheme === 'sunset') return 60 / 88 / 4;
+    if (this.bgmTheme === 'legends') return 60 / 124 / 4;
+    if (this.bgmTheme === 'cyber') return 60 / 128 / 4;
+    return 60 / 104 / 4;
   }
 
   private scheduleNextStep(time: number) {
@@ -276,6 +356,62 @@ class SoundFX {
       const chimeMidi = musicBox[step];
       if (chimeMidi && (step % 2 === 0)) {
         this.playSynthNote(mtof(chimeMidi), 'sine', time, 0.35, 0.028);
+      }
+    }
+
+    // --- HALL OF LEGENDS ("Epic Legendary" - Dm / Bb / C / A Heroic 124 BPM) ---
+    else if (theme === 'legends') {
+      const bar = Math.floor(step / 16);
+      const roots = [38, 46, 48, 45]; // D2, Bb2, C3, A2
+      if (step % 4 === 0) {
+        const root = roots[bar] + (step % 8 === 4 ? 12 : 0);
+        this.playSynthNote(mtof(root), 'triangle', time, 0.16, 0.055);
+      }
+      const heroicLead = [
+        62, 0, 69, 0, 74, 0, 72, 69, 70, 0, 69, 0, 67, 0, 65, 0,
+        70, 0, 74, 0, 77, 0, 76, 74, 72, 0, 70, 0, 69, 0, 67, 0,
+        72, 0, 76, 0, 79, 0, 77, 76, 74, 0, 72, 0, 69, 0, 0, 0,
+        69, 0, 73, 0, 76, 0, 81, 0, 79, 0, 76, 0, 74, 0, 0, 0,
+      ];
+      const mel = heroicLead[step];
+      if (mel) {
+        this.playSynthNote(mtof(mel), 'square', time, 0.18, 0.036);
+      }
+    }
+
+    // --- DIGI-SANCTUARY CYBER PULSE (Synth Arpeggio 128 BPM) ---
+    else if (theme === 'cyber') {
+      const arpNotes = [
+        48, 60, 67, 72, 48, 60, 67, 72, 51, 63, 70, 75, 51, 63, 70, 75,
+        44, 56, 63, 68, 44, 56, 63, 68, 46, 58, 65, 70, 46, 58, 65, 70,
+        48, 60, 67, 72, 48, 60, 67, 72, 53, 65, 72, 77, 53, 65, 72, 77,
+        43, 55, 62, 67, 43, 55, 62, 67, 46, 58, 65, 70, 50, 62, 67, 74,
+      ];
+      const n = arpNotes[step];
+      if (n) {
+        this.playSynthNote(mtof(n), step % 4 === 0 ? 'sawtooth' : 'square', time, 0.11, 0.025);
+      }
+      if (step % 4 === 0) {
+        this.playSynthNote(mtof(36 + (step < 32 ? 0 : 5)), 'triangle', time, 0.14, 0.05);
+      }
+    }
+
+    // --- LO-FI CAFE BEATS (Chill Maj9 Study Groove 78 BPM) ---
+    else if (theme === 'lofi') {
+      if (step % 16 === 0) {
+        const chord = step < 16 ? [60, 64, 67, 71, 74] : step < 32 ? [57, 60, 64, 67, 71] : step < 48 ? [53, 57, 60, 64, 69] : [55, 59, 62, 65, 69];
+        for (const c of chord) {
+          this.playSynthNote(mtof(c), 'sine', time, 0.72, 0.017);
+        }
+      }
+      if (step % 8 === 0 || step % 16 === 10) {
+        const bass = step < 16 ? 48 : step < 32 ? 45 : step < 48 ? 41 : 43;
+        this.playSynthNote(mtof(bass), 'triangle', time, 0.36, 0.045);
+      }
+      const lofiMel = [0, 0, 76, 0, 0, 74, 0, 72, 0, 0, 71, 0, 67, 0, 0, 0];
+      const note = lofiMel[step % 16];
+      if (note && (Math.floor(step / 16) % 2 === 0)) {
+        this.playSynthNote(mtof(note), 'triangle', time, 0.32, 0.03);
       }
     }
   }
@@ -473,3 +609,35 @@ class SoundFX {
 }
 
 export const sfx = new SoundFX();
+
+export function renderPixelSpectrum(
+  canvas: HTMLCanvasElement,
+  opts: { rows?: number; segH?: number; gap?: number; lowColor?: string } = {}
+) {
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+  const rows = opts.rows ?? 9;
+  const segH = opts.segH ?? 5;
+  const gap = opts.gap ?? 2;
+  const lowColor = opts.lowColor ?? '#22d3ee';
+  const w = canvas.width;
+  const h = canvas.height;
+  const bars = sfx.getAudioSpectrum(16);
+
+  ctx.clearRect(0, 0, w, h);
+  ctx.fillStyle = '#070b18';
+  ctx.fillRect(0, 0, w, h);
+
+  const slotW = w / 16;
+  const barW = Math.max(2, Math.floor(slotW - 3));
+  for (let i = 0; i < 16; i++) {
+    const level = bars[i] ?? 0;
+    const lit = sfx.isBgmPlaying() ? Math.max(1, Math.round(level * rows)) : 1;
+    const x = Math.floor(i * slotW + 1.5);
+    for (let s = 0; s < lit; s++) {
+      const y = h - 3 - (s + 1) * (segH + gap);
+      ctx.fillStyle = s >= Math.floor(rows * 0.72) ? '#f43f5e' : s >= Math.floor(rows * 0.44) ? '#f59e0b' : lowColor;
+      ctx.fillRect(x, y, barW, segH);
+    }
+  }
+}
