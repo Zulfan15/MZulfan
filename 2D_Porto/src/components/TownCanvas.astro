@@ -118,7 +118,7 @@ const dataPlaceRooms = {
         class="town-hud-btn town-hud-btn--editor"
         id="btn-toggle-editor"
         aria-label="Toggle Town Editor"
-        title="Town Editor 3.0 (Kustomisasi Kota / Tekan E)"
+        title="Town Editor 5.0 · Studio Dock (Tekan E)"
       >
         <span class="town-hud-btn__icon" aria-hidden="true">🛠️</span>
         <span class="town-hud-btn__label">Editor</span>
@@ -528,6 +528,10 @@ const dataPlaceRooms = {
         <button type="button" class="town-label" data-id="lab-bench" aria-label="Look over the lab bench">
           <span class="town-label__icon" aria-hidden="true">🔬</span>
           <span class="town-label__text">Lab Bench</span>
+        </button>
+        <button type="button" class="town-label town-label--npc" data-id="pheromosa" aria-label="Talk to Pheromosa">
+          <span class="town-label__icon" aria-hidden="true">✨</span>
+          <span class="town-label__text">Pheromosa</span>
         </button>
       </>
     ) : currentPlace === 'arcade' ? (
@@ -1131,222 +1135,390 @@ const dataPlaceRooms = {
     </button>
   </div>
 
-  <!-- Floating Transform Action Bubble (Active when an object is selected in Town Editor) -->
+  <!-- Compact Floating Transform Action Bubble (Above selected object) -->
   <div id="town-transform-bubble" class="town-transform-bubble hidden" style="display: none;" role="region" aria-label="Transform Object Controls">
     <div class="town-transform-bubble__content">
       <div class="town-transform-bubble__header">
         <span id="transform-bubble-icon" class="town-transform-bubble__icon">📦</span>
         <span id="transform-bubble-title" class="town-transform-bubble__title">Objek Terpilih</span>
-        <span id="transform-bubble-orient-badge" class="town-transform-bubble__orient-badge">➡️ Hadap Kanan</span>
+        <span id="transform-bubble-orient-badge" class="town-transform-bubble__orient-badge">➡️ Kanan</span>
       </div>
       <div class="town-transform-bubble__actions">
-        <button type="button" id="btn-transform-rot-left" class="town-transform-btn town-transform-btn--rot" title="Hadap Kiri / Putar Berlawanan Jarum Jam (Q / [)">
-          <span class="transform-btn-icon">↶</span>
-          <span class="transform-btn-text">Hadap Kiri</span>
+        <button type="button" id="btn-transform-rot-left" class="town-transform-btn town-transform-btn--rot" title="Putar Kiri (Q)">↶</button>
+        <button type="button" id="btn-transform-rot-right" class="town-transform-btn town-transform-btn--rot" title="Putar Kanan (R)">↷</button>
+        <button type="button" id="btn-transform-behavior" class="town-transform-btn town-transform-btn--rot" style="display: none;" title="Ubah Perilaku Patroli NPC">
+          <span>🐾</span>
+          <span id="btn-transform-behavior-label">Diam</span>
         </button>
-        <button type="button" id="btn-transform-rot-right" class="town-transform-btn town-transform-btn--rot" title="Hadap Kanan / Putar Searah Jarum Jam (E / R / ])">
-          <span class="transform-btn-icon">↷</span>
-          <span class="transform-btn-text">Hadap Kanan</span>
-        </button>
-        <button type="button" id="btn-transform-behavior" class="town-transform-btn" style="display: none;" title="Ubah Perilaku Idle / Patroli NPC (Diam / Menoleh / Patroli Kecil)">
-          <span class="transform-btn-icon">🐾</span>
-          <span class="transform-btn-text" id="btn-transform-behavior-label">Perilaku: Diam</span>
-        </button>
-        <button type="button" id="btn-transform-apply" class="town-transform-btn town-transform-btn--apply" title="Selesai & Simpan Perubahan (Enter)">
-          <span class="transform-btn-icon">✓</span>
-          <span class="transform-btn-text">Selesai</span>
-        </button>
-        <button type="button" id="btn-transform-cancel" class="town-transform-btn town-transform-btn--cancel" title="Tidak Jadi / Batalkan Perubahan (ESC)">
-          <span class="transform-btn-icon">✕</span>
-          <span class="transform-btn-text">Tidak Jadi</span>
-        </button>
+        <button type="button" id="btn-transform-dup" class="town-transform-btn town-transform-btn--rot" title="Duplikat Objek (Ctrl+D)">📑</button>
+        <button type="button" id="btn-transform-lock" class="town-transform-btn town-transform-btn--rot" title="Kunci / Buka Kunci (K)">🔒</button>
+        <button type="button" id="btn-transform-inspect" class="town-transform-btn town-transform-btn--rot" title="Buka / Tutup Live Inspector">🎛️</button>
+        <button type="button" id="btn-transform-del" class="town-transform-btn town-transform-btn--cancel" title="Hapus Objek (Del)">🗑️</button>
+        <button type="button" id="btn-transform-apply" class="town-transform-btn town-transform-btn--apply" title="Selesai (Enter)">✓</button>
+        <button type="button" id="btn-transform-cancel" class="town-transform-btn town-transform-btn--cancel" title="Batalkan (ESC)">✕</button>
       </div>
     </div>
   </div>
 
-  <!-- Floating Town Editor Toolbar (Active when Editor is toggled ON) -->
-  <div id="town-editor-toolbar" class="town-editor-toolbar hidden" style="display: none;" role="toolbar" aria-label="Town Editor Palette">
-    <div class="town-editor-toolbar__header">
-      <div class="town-editor-toolbar__header-left">
-        <span class="town-editor-badge">🛠️ TOWN EDITOR 4.0</span>
-        <span id="town-editor-diff-pill" class="px-2 py-0.5 rounded bg-slate-800 border border-slate-600 font-mono text-[9px] text-emerald-300 hidden sm:inline-block">
+  <!-- On-Canvas Top-Left Cursor Telemetry & Quick Tools Pill (Active in Editor) -->
+  <div id="town-editor-telemetry-pill" class="town-editor-telemetry-pill hidden" style="display: none;" role="status" aria-label="Telemetry Kursor Editor">
+    <span class="town-telemetry-dot" aria-hidden="true"></span>
+    <span id="town-telemetry-coords" class="town-telemetry-coords">X: --, Y: --</span>
+    <span class="town-telemetry-sep">|</span>
+    <span id="town-telemetry-tool" class="town-telemetry-tool">🖐️ Pilih</span>
+    <button type="button" id="btn-telemetry-zen" class="town-telemetry-mini-btn" title="Mode Zen: Sembunyikan Panel (Tab)">👁️ Zen</button>
+    <button type="button" id="btn-telemetry-shortcuts" class="town-telemetry-mini-btn" title="Panduan Pintasan Keyboard & Mouse (?)">?</button>
+  </div>
+
+  <!-- Zen Canvas Mode Floating Restore Capsule -->
+  <div id="town-editor-zen-pill" class="town-editor-zen-pill hidden" style="display: none;" role="region" aria-label="Kontrol Mode Zen">
+    <span class="text-sky-300 font-bold">👁️ MODE ZEN</span>
+    <button type="button" id="btn-zen-undo" class="town-telemetry-mini-btn" title="Undo (Ctrl+Z)">↩️</button>
+    <button type="button" id="btn-zen-save" class="town-telemetry-mini-btn text-emerald-300" title="Simpan (Ctrl+S)">💾</button>
+    <button type="button" id="btn-zen-exit" class="town-telemetry-mini-btn bg-sky-600/80 text-white border-sky-400" title="Tampilkan Studio Dock (Tab)">Keluar Zen (Tab)</button>
+  </div>
+
+  <!-- Non-Blocking Live Right Side-Drawer Inspector (Town Editor 5.0) -->
+  <aside id="town-editor-inspector-drawer" class="town-editor-inspector hidden" style="display: none;" aria-label="Live Object Inspector">
+    <div class="town-editor-inspector__header">
+      <div class="flex items-center gap-1.5 min-w-0">
+        <span id="inspector-entity-icon" class="text-sm shrink-0">🎛️</span>
+        <span id="inspector-header-title" class="truncate font-bold text-sky-300">Inspector</span>
+      </div>
+      <div class="flex items-center gap-1 shrink-0">
+        <button type="button" id="btn-inspector-focus" class="town-editor-mini-btn" title="Pusatkan Kamera ke Objek">🎯</button>
+        <button type="button" id="btn-inspector-close" class="town-editor-mini-btn town-editor-mini-btn--close" title="Tutup / Lepas Seleksi (ESC)">✕</button>
+      </div>
+    </div>
+
+    <div class="town-editor-inspector__body">
+      <!-- Single Object Mode Section -->
+      <div id="inspector-single-panel" class="space-y-2.5">
+        <!-- Quick Action Strip -->
+        <div class="grid grid-cols-5 gap-1">
+          <button type="button" id="btn-insp-lock" class="town-insp-icon-btn" title="Kunci / Buka Kunci (K)">🔒</button>
+          <button type="button" id="btn-insp-dup" class="town-insp-icon-btn" title="Duplikat (Ctrl+D)">📑</button>
+          <button type="button" id="btn-insp-layer-down" class="town-insp-icon-btn" title="Mundur Layer ([)">🥞-</button>
+          <button type="button" id="btn-insp-layer-up" class="town-insp-icon-btn" title="Maju Layer (])">🥞+</button>
+          <button type="button" id="btn-insp-delete" class="town-insp-icon-btn town-insp-icon-btn--danger" title="Hapus (Del)">🗑️</button>
+        </div>
+
+        <!-- Name & Orientation -->
+        <div class="space-y-1.5">
+          <label class="block">
+            <span class="town-insp-label">Nama Tampilan</span>
+            <input id="town-inspector-name" type="text" class="town-insp-input" placeholder="Nama objek..." />
+          </label>
+
+          <div>
+            <span class="town-insp-label">Arah Hadap (<span id="inspector-orient-label" class="text-sky-300">N</span>)</span>
+            <div class="grid grid-cols-4 gap-1 mt-1">
+              <button type="button" class="town-insp-orient-btn" data-orient="N" title="Utara / Belakang">⬆️ N</button>
+              <button type="button" class="town-insp-orient-btn" data-orient="E" title="Timur / Kanan">➡️ E</button>
+              <button type="button" class="town-insp-orient-btn" data-orient="S" title="Selatan / Depan">⬇️ S</button>
+              <button type="button" class="town-insp-orient-btn" data-orient="W" title="Barat / Kiri">⬅️ W</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Coordinates & Scale -->
+        <div class="town-insp-card space-y-2">
+          <div class="grid grid-cols-3 gap-1.5">
+            <label class="block">
+              <span class="town-insp-label">Pos X</span>
+              <input id="town-inspector-x" type="number" min="0" max="64" class="town-insp-input text-center" />
+            </label>
+            <label class="block">
+              <span class="town-insp-label">Pos Y</span>
+              <input id="town-inspector-y" type="number" min="0" max="64" class="town-insp-input text-center" />
+            </label>
+            <label class="block">
+              <span class="town-insp-label">Layer Z</span>
+              <input id="town-inspector-z" type="number" min="-20" max="50" class="town-insp-input text-center" />
+            </label>
+          </div>
+
+          <label class="block">
+            <div class="flex justify-between items-center mb-1">
+              <span class="town-insp-label">Skala Visual Live</span>
+              <strong id="town-inspector-scale-val" class="text-[10px] font-mono text-amber-300">1.00×</strong>
+            </div>
+            <input id="town-inspector-scale" type="range" min="0.7" max="1.5" step="0.05" value="1" class="w-full accent-amber-400 cursor-pointer" />
+          </label>
+        </div>
+
+        <!-- Behavior & Interactive Dialogue -->
+        <div class="town-insp-card space-y-2">
+          <label class="block">
+            <span class="town-insp-label">Perilaku NPC / Entitas</span>
+            <select id="town-inspector-behavior" class="town-insp-input">
+              <option value="stationary">🧘 Diam (Stationary)</option>
+              <option value="look_around">👀 Menoleh Otomatis</option>
+              <option value="patrol_small">🐾 Patroli Mikro</option>
+            </select>
+          </label>
+
+          <label class="block">
+            <span class="town-insp-label">Link Rute (opsional)</span>
+            <input id="town-inspector-link" type="text" placeholder="/dev atau https://..." class="town-insp-input" />
+          </label>
+
+          <label class="block">
+            <span class="town-insp-label">Teks Dialog Interaktif</span>
+            <textarea id="town-dialogue-input" class="town-insp-input resize-y min-h-[58px]" rows="3" placeholder="Tuliskan dialog saat diklik..."></textarea>
+          </label>
+
+          <button type="button" class="town-editor-btn w-full justify-center text-amber-200 border-amber-500/50 bg-amber-950/50 hover:bg-amber-900/70" id="btn-inspector-preview-move" style="display: none;">
+            ⚡ Test Signature Move
+          </button>
+        </div>
+
+        <div id="town-insp-subpins-info" class="text-[9px] font-mono text-slate-400 px-1 leading-relaxed">
+          💡 Seret pin 🟣 Label / 🟡 Pintu langsung di peta untuk fine-tuning jangkar.
+        </div>
+      </div>
+
+      <!-- Multi-Select Alignment & Batch Section -->
+      <div id="inspector-multi-panel" class="hidden space-y-2.5">
+        <div class="p-2 rounded-lg bg-sky-950/60 border border-sky-500/40 text-[10px] font-mono text-sky-200">
+          ✨ <strong id="multi-sel-count">0</strong> objek terpilih. Gunakan alat perataan di bawah atau geser bersama di kanvas.
+        </div>
+
+        <div class="town-insp-card space-y-2">
+          <span class="town-insp-label block">Perataan Horizontal &amp; Vertikal</span>
+          <div class="grid grid-cols-3 gap-1">
+            <button type="button" class="town-insp-icon-btn" data-align="left" title="Rata Kiri">⬅️ Kiri</button>
+            <button type="button" class="town-insp-icon-btn" data-align="centerX" title="Rata Tengah Horizontal">↔️ Tengah</button>
+            <button type="button" class="town-insp-icon-btn" data-align="right" title="Rata Kanan">➡️ Kanan</button>
+            <button type="button" class="town-insp-icon-btn" data-align="top" title="Rata Atas">⬆️ Atas</button>
+            <button type="button" class="town-insp-icon-btn" data-align="centerY" title="Rata Tengah Vertikal">↕️ Tengah</button>
+            <button type="button" class="town-insp-icon-btn" data-align="bottom" title="Rata Bawah">⬇️ Bawah</button>
+          </div>
+          <div class="grid grid-cols-2 gap-1 pt-1">
+            <button type="button" class="town-insp-icon-btn" data-align="distributeX" title="Rapikan Jarak Horizontal">📊 Sebar H</button>
+            <button type="button" class="town-insp-icon-btn" data-align="distributeY" title="Rapikan Jarak Vertikal">📊 Sebar V</button>
+          </div>
+        </div>
+
+        <div class="town-insp-card space-y-1.5">
+          <span class="town-insp-label block">Aksi Grup</span>
+          <div class="grid grid-cols-2 gap-1.5">
+            <button type="button" id="btn-multi-dup" class="town-insp-icon-btn">📑 Duplikat</button>
+            <button type="button" id="btn-multi-lock" class="town-insp-icon-btn">🔒 Kunci/Buka</button>
+            <button type="button" id="btn-multi-prefab" class="town-insp-icon-btn text-amber-200 border-amber-500/40">🧩 Jadi Prefab</button>
+            <button type="button" id="btn-multi-delete" class="town-insp-icon-btn town-insp-icon-btn--danger">🗑️ Hapus</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Town Editor 5.0: Contextual Studio Dock (Compact 2-Row Workspace) -->
+  <div id="town-editor-toolbar" class="town-editor-toolbar town-studio-dock hidden" style="display: none;" role="toolbar" aria-label="Town Editor 5.0 Studio Dock">
+    <!-- Row 1: Contextual Strip (Adapts to active Mode: Objek / Lantai / Diagnostik) -->
+    <div id="town-studio-context-row" class="town-studio-context-row">
+      <!-- Context Panel A: Mode Objek -->
+      <div id="ctx-panel-object" class="town-studio-context-panel">
+        <button type="button" class="town-editor-btn town-editor-btn--spawn shrink-0" id="tool-btn-spawn" title="Buka Katalog Lengkap Objek, Pokémon & Digimon">
+          ➕ <span class="editor-btn-text">Katalog</span>
+        </button>
+        <button type="button" class="town-editor-btn is-active shrink-0" id="tool-btn-move" title="Pilih, Geser & Seleksi Kotak Marquee (V)">
+          🖐️ <span class="editor-btn-text">Pilih</span>
+        </button>
+        <button type="button" class="town-editor-btn town-editor-btn--danger shrink-0" id="tool-btn-delete-object" title="Alat Hapus Objek Klik (X)">
+          🗑️ <span class="editor-btn-text">Hapus (X)</span>
+        </button>
+        <div class="town-editor-divider shrink-0"></div>
+        <span class="text-[9px] font-mono text-sky-300/80 uppercase tracking-wider shrink-0 hidden md:inline">Cap Cepat:</span>
+        <div id="town-quick-stamp-strip" class="town-quick-stamp-strip" aria-label="Quick Stamp Objek Favorit"></div>
+      </div>
+
+      <!-- Context Panel B: Mode Lantai (Tile Swatch Carousel, Zero Native Scrollbar!) -->
+      <div id="ctx-panel-paint" class="town-studio-context-panel hidden">
+        <div class="flex items-center gap-1 shrink-0">
+          <button type="button" class="town-editor-btn" id="tool-btn-brush" title="Kuas Lantai">🖌️</button>
+          <button type="button" class="town-editor-btn" id="tool-btn-line" title="Garis Lurus (L)">📏</button>
+          <button type="button" class="town-editor-btn" id="tool-btn-rect" title="Area Kotak (R)">⬛</button>
+          <button type="button" class="town-editor-btn" id="tool-btn-bucket" title="Ember Flood Fill (B)">🪣</button>
+          <button type="button" class="town-editor-btn" id="tool-btn-eyedropper" title="Pipet Ubin/Objek (I)">💧</button>
+          <button type="button" class="town-editor-btn" id="tool-btn-erase" title="Hapus Lantai ke Rumput">🧹</button>
+        </div>
+        <div class="town-editor-divider shrink-0"></div>
+        <div class="town-brush-size-group shrink-0" title="Ukuran Kuas (Tombol 1, 2, 3)">
+          <button type="button" class="town-brush-size-btn is-active" id="btn-brush-1" data-size="1">1×1</button>
+          <button type="button" class="town-brush-size-btn" id="btn-brush-2" data-size="2">2×2</button>
+          <button type="button" class="town-brush-size-btn" id="btn-brush-3" data-size="3">3×3</button>
+        </div>
+        <div class="town-editor-divider shrink-0"></div>
+        <div class="town-tile-carousel-wrap" id="town-editor-palette">
+          <button type="button" id="btn-tile-scroll-left" class="town-tile-carousel-arrow" aria-label="Geser Kiri">‹</button>
+          <div id="town-tile-carousel" class="town-tile-carousel">
+            <button type="button" class="town-tile-btn is-active" data-tile="cobble" title="Jalan Batu (Cobblestone)"><span class="tile-swatch swatch-cobble"></span>Jalan Batu</button>
+            <button type="button" class="town-tile-btn" data-tile="lab_paver" title="Paving Modern Lab"><span class="tile-swatch swatch-lab"></span>Paving Lab</button>
+            <button type="button" class="town-tile-btn" data-tile="dev_paver" title="Lantai Megah Dev Center"><span class="tile-swatch swatch-dev"></span>Lantai Megah</button>
+            <button type="button" class="town-tile-btn" data-tile="grass" title="Rumput Hijau"><span class="tile-swatch swatch-grass"></span>Rumput</button>
+            <button type="button" class="town-tile-btn" data-tile="tall_grass" title="Rumput Liar Pokémon"><span class="tile-swatch swatch-tall"></span>Rumput Liar</button>
+            <button type="button" class="town-tile-btn" data-tile="cyber_grid" title="Lantai Cyber Grid Digital World"><span class="tile-swatch swatch-cyber"></span>Cyber Grid</button>
+            <button type="button" class="town-tile-btn" data-tile="lava_rock" title="Batu Vulkanik Flame Canyon"><span class="tile-swatch swatch-lava"></span>Batu Lava</button>
+            <button type="button" class="town-tile-btn" data-tile="cryo_ice" title="Lantai Kristal Es Cryo Bay"><span class="tile-swatch swatch-ice"></span>Lantai Es</button>
+            <button type="button" class="town-tile-btn" data-tile="holy_marble" title="Marmer Suci Holy Sanctuary"><span class="tile-swatch swatch-holy"></span>Marmer Suci</button>
+            <button type="button" class="town-tile-btn" data-tile="hedge" title="Semak Boxwood (Solid)"><span class="tile-swatch swatch-hedge"></span>Semak</button>
+            <button type="button" class="town-tile-btn" data-tile="fence" title="Pagar Besi (Solid)"><span class="tile-swatch swatch-fence"></span>Pagar</button>
+            <button type="button" class="town-tile-btn" data-tile="fence_water" title="Pagar Tepi Air"><span class="tile-swatch swatch-fence-water"></span>Pagar Air</button>
+            <button type="button" class="town-tile-btn" data-tile="water" title="Air / Laut"><span class="tile-swatch swatch-water"></span>Air</button>
+            <button type="button" class="town-tile-btn" data-tile="solid_override" title="Tembok Tabrakan Kustom (Solid)"><span class="tile-swatch swatch-solid"></span>🛑 Tembok</button>
+            <button type="button" class="town-tile-btn" data-tile="walkable_override" title="Lantai Bebas Tabrakan (Walkable)"><span class="tile-swatch swatch-walkable"></span>🟢 Bebas</button>
+          </div>
+          <button type="button" id="btn-tile-scroll-right" class="town-tile-carousel-arrow" aria-label="Geser Kanan">›</button>
+        </div>
+      </div>
+
+      <!-- Context Panel C: Mode Diagnostik & Cek Jalur -->
+      <div id="ctx-panel-check" class="town-studio-context-panel hidden">
+        <button type="button" class="town-editor-btn" id="tool-btn-collision" title="Overlay Hijau/Merah Tabrakan & Toggle Solid Petak (C)">
+          🛡️ <span class="editor-btn-text">Inspeksi Tabrakan (C)</span>
+        </button>
+        <button type="button" class="town-editor-btn town-editor-btn--validate" id="btn-editor-validate" title="Cek Aksesibilitas Seluruh Pintu Gedung & NPC (BFS)">
+          🔍 <span class="editor-btn-text">Cek Jalur BFS</span>
+        </button>
+        <button type="button" class="town-editor-btn" id="btn-diag-solid-brush" title="Cat Pembatas Solid Tak Terlihat (🛑)">🛑 Solid Override</button>
+        <button type="button" class="town-editor-btn" id="btn-diag-walk-brush" title="Cat Jalur Bebas Lewat (🟢)">🟢 Walkable Override</button>
+        <span class="text-[9px] font-mono text-slate-300 hidden md:inline truncate">
+          Hijau = Bisa Lewat • Merah = Terhalang • Kuning = Pintu • Biru = NPC
+        </span>
+      </div>
+    </div>
+
+    <!-- Row 2: Main Studio Control Bar (Single Clean Row, Zero Clipping) -->
+    <div class="town-studio-main-bar">
+      <!-- Mode Tabs Switcher -->
+      <div class="town-studio-tabs" role="tablist" aria-label="Mode Kerja Editor">
+        <button type="button" class="town-studio-tab is-active" id="tab-mode-object" role="tab" aria-selected="true" title="Mode Tata Letak Objek & Bangunan (V)">
+          <span>🖐️</span><span class="hidden sm:inline">Objek</span>
+        </button>
+        <button type="button" class="town-studio-tab" id="tab-mode-paint" role="tab" aria-selected="false" title="Mode Kuas Lantai & Lanskap">
+          <span>🖌️</span><span class="hidden sm:inline">Lantai</span>
+        </button>
+        <button type="button" class="town-studio-tab" id="tab-mode-check" role="tab" aria-selected="false" title="Mode Diagnostik Tabrakan & Jalur BFS (C)">
+          <span>🛡️</span><span class="hidden sm:inline">Cek</span>
+        </button>
+        <button type="button" class="town-studio-tab town-studio-tab--play" id="tool-btn-playtest" title="Coba Jalan-Jalan Langsung di Posisi Kursor (P)">
+          <span>🎮</span><span class="hidden sm:inline">Play</span>
+        </button>
+      </div>
+
+      <!-- Outliner Trigger + Status Pill -->
+      <div class="town-studio-center relative flex items-center gap-1.5 min-w-0">
+        <button type="button" id="btn-open-outliner" class="town-outliner-trigger" title="Cari & Lompat ke Gedung, Pokémon, atau Prop">
+          <span>🎯</span>
+          <span id="outliner-trigger-label" class="truncate">Outliner</span>
+          <span id="outliner-count-badge" class="town-outliner-count">0</span>
+          <span class="text-[9px] opacity-75">▾</span>
+        </button>
+        <span id="town-editor-diff-pill" class="px-2 py-0.5 rounded bg-slate-800 border border-slate-600 font-mono text-[9px] text-emerald-300 hidden lg:inline-block shrink-0">
           📊 Synced
         </span>
-        <span id="town-editor-status" class="town-editor-status">Pilih alat atau lantai untuk mendesain kota</span>
+        <span id="town-editor-status" class="visually-hidden">Siap mengedit kota</span>
       </div>
-      <div class="town-editor-toolbar__header-actions">
-        <button type="button" class="town-editor-mini-btn" id="btn-editor-minimize" title="Sembunyikan / Munculkan Menu">
+
+      <!-- History, Save & Overflow Menu -->
+      <div class="town-studio-right flex items-center gap-1 shrink-0">
+        <button type="button" class="town-editor-btn town-editor-btn--undo" id="btn-editor-undo" title="Undo (Ctrl+Z)" disabled>↩️</button>
+        <button type="button" class="town-editor-btn town-editor-btn--redo" id="btn-editor-redo" title="Redo (Ctrl+Y)" disabled>↪️</button>
+        <button type="button" class="town-editor-btn town-editor-btn--save relative" id="btn-editor-save" title={currentPlace === 'digimon' ? 'Simpan ke src/data/digimonLayout.json (Ctrl+S)' : 'Simpan ke src/data/townLayout.json (Ctrl+S)'}>
+          💾 <span class="hidden sm:inline">Simpan</span>
+          <span id="btn-save-dirty-dot" class="hidden w-2 h-2 rounded-full bg-amber-300 animate-pulse"></span>
+        </button>
+
+        <!-- Overflow Utilities Popover Trigger -->
+        <div class="relative">
+          <button type="button" class="town-editor-btn" id="btn-editor-more" aria-expanded="false" aria-controls="town-editor-more-popover" title="Utilitas Lainnya (Prefab, Snapshot, Grid, Export, Reset)">
+            ⚙️ <span class="hidden md:inline">⋯</span>
+          </button>
+          <div id="town-editor-more-popover" class="town-editor-popover hidden" style="display: none;" role="menu">
+            <button type="button" class="town-editor-popover__item" id="tool-btn-grid">
+              <span>📐 Grid Petak (G)</span>
+              <span id="more-grid-state" class="text-[9px] font-bold text-emerald-300">ON</span>
+            </button>
+            <button type="button" class="town-editor-popover__item" id="btn-more-zen">
+              <span>👁️ Mode Zen Kanvas</span>
+              <kbd class="town-dev-kbd">Tab</kbd>
+            </button>
+            <div class="my-1 border-t border-slate-700/80"></div>
+            <button type="button" class="town-editor-popover__item" id="btn-editor-prefabs">
+              <span>🧩 Prefab Blueprints</span>
+            </button>
+            <button type="button" class="town-editor-popover__item" id="btn-editor-snapshots">
+              <span>🕒 Snapshot &amp; Diff (A–E)</span>
+            </button>
+            <button type="button" class="town-editor-popover__item" id="btn-editor-export">
+              <span>📋 Salin Kode JSON</span>
+            </button>
+            <button type="button" class="town-editor-popover__item" id="btn-editor-fullscreen">
+              <span>⛶ Layar Penuh</span>
+              <kbd class="town-dev-kbd">F</kbd>
+            </button>
+            <button type="button" class="town-editor-popover__item" id="btn-more-shortcuts">
+              <span>⌨️ Daftar Pintasan</span>
+              <kbd class="town-dev-kbd">?</kbd>
+            </button>
+            <div class="my-1 border-t border-slate-700/80"></div>
+            <button type="button" class="town-editor-popover__item text-rose-300 hover:bg-rose-950/60" id="btn-editor-reset">
+              <span>🔄 Reset Tata Letak Awal</span>
+            </button>
+          </div>
+        </div>
+
+        <button type="button" class="town-editor-mini-btn" id="btn-editor-minimize" title="Lipat / Rentangkan Sub-Toolbar">
           <span id="icon-editor-minimize">🔽</span>
         </button>
-        <button type="button" class="town-editor-mini-btn town-editor-mini-btn--close" id="btn-editor-quick-close" title="Tutup Editor (E)">
-          ✖
-        </button>
+        <button type="button" class="town-editor-btn town-editor-btn--close" id="btn-editor-close" title="Tutup Town Editor (E)">✖️</button>
       </div>
     </div>
 
-    <div id="town-editor-body" class="town-editor-toolbar__body">
-      <!-- Row 1: Tools, Object Controls & Project Actions -->
-      <div class="town-editor-toolbar__row town-editor-toolbar__row--tools">
-        <!-- Tool Modes -->
-        <div class="town-editor-group town-editor-group--tools">
-          <button type="button" class="town-editor-btn is-active" id="tool-btn-move" title="Pilih & Geser Objek / Marquee Drag (V)">
-            🖐️ <span class="editor-btn-text">Pilih & Geser</span>
-          </button>
-          <button type="button" class="town-editor-btn town-editor-btn--spawn" id="tool-btn-spawn" title="Tambah Objek Baru (Pohon, Bangku, Lampu, Semak, Dekorasi)">
-            ➕ <span class="editor-btn-text">Tambah Objek</span>
-          </button>
-          <button type="button" class="town-editor-btn" id="tool-btn-brush" title="Kuas Lantai (Klik/drag di petak)">
-            🖌️ <span class="editor-btn-text">Kuas Lantai</span>
-          </button>
-          <button type="button" class="town-editor-btn" id="tool-btn-erase" title="Hapus Lantai (Kembali ke Rumput Hijau)">
-            🧹 <span class="editor-btn-text">Hapus Lantai</span>
-          </button>
-          <button type="button" class="town-editor-btn town-editor-btn--danger" id="tool-btn-delete-object" title="Alat Hapus Objek (X) - Klik langsung objek di kanvas untuk menghapusnya">
-            🗑️ <span class="editor-btn-text">Hapus Objek (X)</span>
-          </button>
-          <button type="button" class="town-editor-btn" id="tool-btn-line" title="Tarik Garis Lurus (L)">
-            📏 <span class="editor-btn-text">Garis (L)</span>
-          </button>
-          <button type="button" class="town-editor-btn" id="tool-btn-rect" title="Isi Area Kotak (R)">
-            ⬛ <span class="editor-btn-text">Kotak (R)</span>
-          </button>
-          <button type="button" class="town-editor-btn" id="tool-btn-bucket" title="Ember Tumpah / Flood Fill (B)">
-            🪣 <span class="editor-btn-text">Ember (B)</span>
-          </button>
-          <button type="button" class="town-editor-btn" id="tool-btn-eyedropper" title="Pipet Salin Lantai/Objek (I atau Alt+Klik)">
-            💧 <span class="editor-btn-text">Pipet (I)</span>
-          </button>
-          <button type="button" class="town-editor-btn" id="tool-btn-collision" title="Inspektur Tabrakan & Walkability (C)">
-            🛡️ <span class="editor-btn-text">Collision (C)</span>
-          </button>
-          <button type="button" class="town-editor-btn town-editor-btn--playtest" id="tool-btn-playtest" title="Coba Jalan-Jalan Langsung (P)">
-            🎮 <span class="editor-btn-text">Playtest (P)</span>
-          </button>
-          <button type="button" class="town-editor-btn is-active" id="tool-btn-grid" title="Nyalakan / Matikan Grid Petak (G)">
-            📐 <span class="editor-btn-text">Grid (G)</span>
-          </button>
-        </div>
-
-        <!-- Object Controls -->
-        <div class="town-editor-group town-editor-group--objects">
-          <select id="town-object-picker" class="town-editor-select" title="Pilih Gedung atau Objek untuk langsung difokuskan">
-            <option value="">🎯 Pilih Gedung / Objek...</option>
-          </select>
-          <button type="button" class="town-editor-btn town-editor-btn--delete hidden" id="btn-editor-delete" title="Hapus gedung atau objek yang dipilih (Delete / Backspace)" style="display: none;">
-            🗑️ <span class="editor-btn-text">Hapus</span>
-          </button>
-          <button type="button" class="town-editor-btn town-editor-btn--action hidden" id="btn-editor-dialogue" title="Visual Inspector 2.0 (Ubah Nama, Dialog, Skala, Perilaku & Preview Jurus)" style="display: none;">
-            🎛️ <span class="editor-btn-text">Inspector</span>
-          </button>
-          <button type="button" class="town-editor-btn town-editor-btn--action hidden" id="btn-editor-lock" title="Kunci / Buka Kunci Objek (K)" style="display: none;">
-            🔒 <span class="editor-btn-text">Kunci (K)</span>
-          </button>
-          <button type="button" class="town-editor-btn town-editor-btn--rot hidden" id="btn-editor-rot-left" title="Hadap Kiri / Putar Kiri (Q / [)" style="display: none;">
-            ↶ <span class="editor-btn-text">Hadap Kiri</span>
-          </button>
-          <button type="button" class="town-editor-btn town-editor-btn--rot hidden" id="btn-editor-rot-right" title="Hadap Kanan / Putar Kanan (E / R / ])" style="display: none;">
-            ↷ <span class="editor-btn-text">Hadap Kanan</span>
-          </button>
-          <button type="button" class="town-editor-btn town-editor-btn--action hidden" id="btn-editor-rotate" title="Putar Objek 90° (R)" style="display: none;">
-            🔄 <span class="editor-btn-text">Putar (R)</span>
-          </button>
-          <button type="button" class="town-editor-btn town-editor-btn--apply hidden" id="btn-editor-apply" title="Selesai & Simpan Perubahan (Enter)" style="display: none;">
-            ✓ <span class="editor-btn-text">Selesai</span>
-          </button>
-          <button type="button" class="town-editor-btn town-editor-btn--cancel hidden" id="btn-editor-cancel" title="Tidak Jadi / Batalkan Perubahan (ESC)" style="display: none;">
-            ✕ <span class="editor-btn-text">Tidak Jadi</span>
-          </button>
-          <button type="button" class="town-editor-btn town-editor-btn--duplicate hidden" id="btn-editor-duplicate" title="Duplikasi Objek Terpilih (Ctrl+D)" style="display: none;">
-            📑 <span class="editor-btn-text">Duplikat</span>
-          </button>
-          <button type="button" class="town-editor-btn town-editor-btn--action hidden" id="btn-editor-layer-down" title="Mundur ke Belakang / Layer Down ([)" style="display: none;">
-            🥞 <span class="editor-btn-text">Mundur ([)</span>
-          </button>
-          <button type="button" class="town-editor-btn town-editor-btn--action hidden" id="btn-editor-layer-up" title="Maju ke Depan / Layer Up (])" style="display: none;">
-            🥞 <span class="editor-btn-text">Maju (])</span>
-          </button>
-          <button type="button" class="town-editor-btn town-editor-btn--deselect hidden" id="btn-editor-deselect" title="Lepas pilihan gedung saat ini (ESC)" style="display: none;">
-            ✖ <span class="editor-btn-text">Lepas</span>
-          </button>
-        </div>
-
-        <!-- Undo / Redo Controls -->
-        <div class="town-editor-group town-editor-group--history">
-          <button type="button" class="town-editor-btn town-editor-btn--undo" id="btn-editor-undo" title="Urungkan Perubahan (Ctrl+Z)" disabled>
-            ↩️ <span class="editor-btn-text">Undo</span>
-          </button>
-          <button type="button" class="town-editor-btn town-editor-btn--redo" id="btn-editor-redo" title="Ulangi Perubahan (Ctrl+Y / Ctrl+Shift+Z)" disabled>
-            ↪️ <span class="editor-btn-text">Redo</span>
-          </button>
-        </div>
-
-        <div class="town-editor-divider"></div>
-
-        <!-- Action Buttons -->
-        <div class="town-editor-group town-editor-group--actions">
-          <button type="button" class="town-editor-btn town-editor-btn--action" id="btn-editor-prefabs" title="Simpan & Tempel Prefab Blueprint Grup Objek">
-            🧩 <span class="editor-btn-text">Prefab</span>
-          </button>
-          <button type="button" class="town-editor-btn town-editor-btn--action" id="btn-editor-snapshots" title="Snapshot Layout Cepat (Slot A-E) & Diff Preview">
-            🕒 <span class="editor-btn-text">Snapshot</span>
-          </button>
-          <button type="button" class="town-editor-btn town-editor-btn--validate" id="btn-editor-validate" title="Cek Jalur & Aksesibilitas Semua Gedung / NPC (BFS Reachability)">
-            🔍 <span class="editor-btn-text">Cek Jalur</span>
-          </button>
-          <button type="button" class="town-editor-btn town-editor-btn--save" id="btn-editor-save" title={currentPlace === 'digimon' ? 'Simpan permanen ke file proyek src/data/digimonLayout.json (Ctrl+S)' : 'Simpan permanen ke file proyek src/data/townLayout.json (Ctrl+S)'}>
-            💾 <span class="editor-btn-text">Simpan (Ctrl+S)</span>
-          </button>
-          <button type="button" class="town-editor-btn town-editor-btn--export" id="btn-editor-export" title="Salin kode / Ekspor data">
-            📋 <span class="editor-btn-text">Salin Kode</span>
-          </button>
-          <button type="button" class="town-editor-btn town-editor-btn--reset" id="btn-editor-reset" title="Kembalikan ke tata letak awal">
-            🔄 <span class="editor-btn-text">Reset</span>
-          </button>
-          <button type="button" class="town-editor-btn town-editor-btn--fs" id="btn-editor-fullscreen" title="Mode Layar Penuh / Fullscreen (F)">
-            ⛶ <span class="editor-btn-text">Fullscreen</span>
-          </button>
-          <button type="button" class="town-editor-btn town-editor-btn--close" id="btn-editor-close" title="Tutup editor & coba jalan-jalan (E)">
-            ✖️ <span class="editor-btn-text">Tutup</span>
-          </button>
-        </div>
+    <!-- Searchable Scene Outliner Popover -->
+    <div id="town-outliner-popover" class="town-outliner-popover hidden" style="display: none;" role="dialog" aria-label="Scene Outliner">
+      <div class="p-2 border-b border-slate-700/80 flex items-center gap-1.5">
+        <input type="text" id="town-outliner-search" class="town-insp-input flex-1" placeholder="🔍 Cari nama gedung, Pokémon, prop..." autocomplete="off" />
+        <button type="button" id="btn-close-outliner" class="town-editor-mini-btn">✕</button>
       </div>
-
-      <!-- Row 2: Tile Palette Bar & Brush Size Selector -->
-      <div id="town-editor-palette" class="town-editor-palette">
-        <div class="town-editor-palette__section">
-          <span class="town-editor-palette__label">UKURAN KUAS:</span>
-          <div class="town-brush-size-group">
-            <button type="button" class="town-brush-size-btn is-active" id="btn-brush-1" data-size="1" title="Kuas 1×1 Petak (Tombol 1)">1×1</button>
-            <button type="button" class="town-brush-size-btn" id="btn-brush-2" data-size="2" title="Kuas 2×2 Petak (Tombol 2)">2×2</button>
-            <button type="button" class="town-brush-size-btn" id="btn-brush-3" data-size="3" title="Kuas 3×3 Petak (Tombol 3)">3×3</button>
-          </div>
-        </div>
-
-        <div class="town-editor-palette__divider"></div>
-
-        <div class="town-editor-palette__section">
-          <span class="town-editor-palette__label">PILIH LANTAI:</span>
-          <div class="town-editor-palette__tiles">
-            <button type="button" class="town-tile-btn is-active" data-tile="cobble" title="Jalan Batu (Cobblestone)">🪨 Jalan Batu</button>
-            <button type="button" class="town-tile-btn" data-tile="lab_paver" title="Paving Modern Lab (Tech Pavers)">🏢 Paving Lab</button>
-            <button type="button" class="town-tile-btn" data-tile="dev_paver" title="Lantai Megah Dev Center">🏛️ Lantai Megah</button>
-            <button type="button" class="town-tile-btn" data-tile="grass" title="Rumput Hijau (Grass)">🌿 Rumput</button>
-            <button type="button" class="town-tile-btn" data-tile="tall_grass" title="Rumput Liar Pokémon (Tall Grass)">🌾 Rumput Liar</button>
-            <button type="button" class="town-tile-btn" data-tile="cyber_grid" title="Lantai Cyber Grid Digital World">💠 Cyber Grid</button>
-            <button type="button" class="town-tile-btn" data-tile="lava_rock" title="Batu Vulkanik Flame Canyon">🔥 Batu Lava</button>
-            <button type="button" class="town-tile-btn" data-tile="cryo_ice" title="Lantai Kristal Es Cryo Bay">❄️ Lantai Es</button>
-            <button type="button" class="town-tile-btn" data-tile="holy_marble" title="Marmer Suci Holy Sanctuary">✨ Marmer Suci</button>
-            <button type="button" class="town-tile-btn" data-tile="hedge" title="Semak Boxwood (Hedge)">🌳 Semak</button>
-            <button type="button" class="town-tile-btn" data-tile="fence" title="Pagar Besi (Fence)">🚧 Pagar</button>
-            <button type="button" class="town-tile-btn" data-tile="fence_water" title="Pagar Pembatas Tepi Air (Water Edge Railing)">⚓ Pagar Air</button>
-            <button type="button" class="town-tile-btn" data-tile="water" title="Air / Laut (Water)">🌊 Air</button>
-            <button type="button" class="town-tile-btn" data-tile="solid_override" title="Tembok Tabrakan Kustom (Solid Override)">🛑 Tembok</button>
-            <button type="button" class="town-tile-btn" data-tile="walkable_override" title="Lantai Bebas Tabrakan (Walkable Override)">🟢 Bebas</button>
-          </div>
-        </div>
+      <div class="flex flex-wrap gap-1 px-2 pt-1.5 pb-1 border-b border-slate-800" id="town-outliner-tabs">
+        <button type="button" class="town-outliner-tab is-active" data-ocat="all">Semua</button>
+        <button type="button" class="town-outliner-tab" data-ocat="building">🏢 Gedung</button>
+        <button type="button" class="town-outliner-tab" data-ocat="npc">⚡ Pokémon/NPC</button>
+        <button type="button" class="town-outliner-tab" data-ocat="nature">🌳 Alam &amp; Prop</button>
       </div>
+      <div id="town-outliner-list" class="town-outliner-list"></div>
     </div>
   </div>
+
+  <!-- Keyboard & Mouse Shortcuts Cheat Sheet Modal -->
+  <dialog id="town-editor-shortcuts-modal" class="town-editor-modal">
+    <div class="town-editor-modal__content space-y-3">
+      <div class="town-editor-modal__header">
+        <h3 class="town-editor-modal__title">⌨️ Pintasan Studio Town Editor 5.0</h3>
+        <button type="button" class="town-editor-modal__close" id="btn-close-shortcuts-modal">×</button>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[10px] font-mono">
+        <div class="p-2 rounded bg-slate-900/80 border border-slate-700 space-y-1">
+          <div class="text-sky-300 font-bold mb-1">🧭 Navigasi &amp; Workspace</div>
+          <div class="flex justify-between"><span>Geser Kamera (Hand Pan)</span><kbd class="town-dev-kbd">Space + Drag</kbd></div>
+          <div class="flex justify-between"><span>Mode Zen Bersih</span><kbd class="town-dev-kbd">Tab</kbd></div>
+          <div class="flex justify-between"><span>Mode Playtest di Kursor</span><kbd class="town-dev-kbd">P</kbd></div>
+          <div class="flex justify-between"><span>Toggle Grid 16px</span><kbd class="town-dev-kbd">G</kbd></div>
+          <div class="flex justify-between"><span>Simpan ke File JSON</span><kbd class="town-dev-kbd">Ctrl+S</kbd></div>
+        </div>
+        <div class="p-2 rounded bg-slate-900/80 border border-slate-700 space-y-1">
+          <div class="text-amber-300 font-bold mb-1">🖐️ Objek &amp; Lantai</div>
+          <div class="flex justify-between"><span>Multi-Pilih Kotak</span><kbd class="town-dev-kbd">Shift + Drag</kbd></div>
+          <div class="flex justify-between"><span>Klon Cepat Saat Tarik</span><kbd class="town-dev-kbd">Alt + Drag</kbd></div>
+          <div class="flex justify-between"><span>Pipet Cepat (Ubin/Objek)</span><kbd class="town-dev-kbd">Alt + Klik</kbd></div>
+          <div class="flex justify-between"><span>Garis / Kotak / Ember</span><kbd class="town-dev-kbd">L / R / B</kbd></div>
+          <div class="flex justify-between"><span>Kunci / Layer Up-Down</span><kbd class="town-dev-kbd">K / [ ]</kbd></div>
+        </div>
+      </div>
+    </div>
+  </dialog>
 
   <!-- Export Code Modal -->
   <dialog id="town-editor-export-modal" class="town-editor-modal">
@@ -1391,66 +1563,18 @@ const dataPlaceRooms = {
       <div class="town-spawn-tabs" id="town-spawn-tabs">
         <button type="button" class="town-spawn-tab is-active" data-cat="all">🌟 Semua (<span id="cat-count-all">0</span>)</button>
         <button type="button" class="town-spawn-tab" data-cat="Foliage & Alam">🌳 Alam (<span id="cat-count-alam">0</span>)</button>
-        <button type="button" class="town-spawn-tab" data-cat="Perabot & Lampu">🪑 Perabot & Lampu (<span id="cat-count-perabot">0</span>)</button>
+        <button type="button" class="town-spawn-tab" data-cat="Perabot & Lampu">🪑 Perabot &amp; Lampu (<span id="cat-count-perabot">0</span>)</button>
         <button type="button" class="town-spawn-tab" data-cat="Dunia Pokémon">⚡ Pokémon (<span id="cat-count-pokemon">0</span>)</button>
         <button type="button" class="town-spawn-tab" data-cat="Dunia Digimon">👾 Digimon (<span id="cat-count-digimon">0</span>)</button>
-        <button type="button" class="town-spawn-tab" data-cat="Tech & AI">💻 Tech & AI (<span id="cat-count-tech">0</span>)</button>
-        <button type="button" class="town-spawn-tab" data-cat="Fasilitas & Kota">⛲ Fasilitas & Kota (<span id="cat-count-fasilitas">0</span>)</button>
+        <button type="button" class="town-spawn-tab" data-cat="Tech & AI">💻 Tech &amp; AI (<span id="cat-count-tech">0</span>)</button>
+        <button type="button" class="town-spawn-tab" data-cat="Fasilitas & Kota">⛲ Fasilitas &amp; Kota (<span id="cat-count-fasilitas">0</span>)</button>
       </div>
 
       <div class="town-spawn-stamp-tip">
-        <span>💡 <strong>Tip Penempatan:</strong> Gunakan <strong>➕ Pasang</strong> untuk pasang di tengah layar, atau <strong>🎯 Cap (Stamp)</strong> untuk klik menempatkan berkali-kali di peta!</span>
+        <span>💡 <strong>Tip Penempatan:</strong> Gunakan <strong>➕ Pasang</strong> untuk pasang di tengah layar, atau <strong>🎯 Cap (Stamp)</strong> untuk menempatkan berkali-kali! Objek juga otomatis masuk ke strip Cap Cepat.</span>
       </div>
 
       <div class="town-spawn-catalog" id="town-spawn-catalog"></div>
-    </div>
-  </dialog>
-
-  <!-- Visual Inspector 2.0 Modal (Upgraded from Object Dialogue Modal) -->
-  <dialog id="town-editor-dialogue-modal" class="town-editor-modal town-editor-dialogue-modal">
-    <div class="town-editor-modal__content space-y-2.5">
-      <div class="town-editor-modal__header">
-        <h3 class="town-editor-modal__title" id="town-dialogue-modal-title">🎛️ Visual Inspector 2.0</h3>
-        <button type="button" class="town-editor-modal__close" id="btn-close-dialogue-modal">×</button>
-      </div>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-mono">
-        <label class="space-y-1 block">
-          <span class="text-[10px] text-slate-300 block">Nama Tampilan</span>
-          <input id="town-inspector-name" type="text" class="w-full rounded border border-slate-600 bg-slate-900 px-2 py-1 text-white" />
-        </label>
-        <label class="space-y-1 block">
-          <span class="text-[10px] text-slate-300 block">Link Tujuan (opsional, misal /dev)</span>
-          <input id="town-inspector-link" type="text" placeholder="/dev atau https://..." class="w-full rounded border border-slate-600 bg-slate-900 px-2 py-1 text-white" />
-        </label>
-        <label class="space-y-1 block">
-          <span class="text-[10px] text-slate-300 flex justify-between">
-            <span>Skala Visual</span>
-            <strong id="town-inspector-scale-val" class="text-amber-300">1.00×</strong>
-          </span>
-          <input id="town-inspector-scale" type="range" min="0.7" max="1.5" step="0.05" value="1" class="w-full accent-amber-400" />
-        </label>
-        <label class="space-y-1 block">
-          <span class="text-[10px] text-slate-300 block">Mode Perilaku (NPC)</span>
-          <select id="town-inspector-behavior" class="w-full rounded border border-slate-600 bg-slate-900 px-2 py-1 text-white">
-            <option value="stationary">🧘 Diam (Stationary)</option>
-            <option value="look_around">👀 Menoleh Otomatis</option>
-            <option value="patrol_small">🐾 Patroli Mikro</option>
-          </select>
-        </label>
-      </div>
-      <div class="town-dialogue-form">
-        <span class="text-[10px] font-mono text-slate-300 block mb-1">Teks Dialog Interaktif</span>
-        <textarea id="town-dialogue-input" class="town-dialogue-textarea" rows="3" placeholder="Tuliskan dialog objek di sini..."></textarea>
-        <div class="town-dialogue-actions flex flex-wrap justify-between gap-2 pt-1">
-          <button type="button" class="town-editor-btn" id="btn-inspector-preview-move" style="display: none;">
-            ⚡ Preview Signature Move
-          </button>
-          <div class="flex gap-2 ml-auto">
-            <button type="button" class="town-editor-btn" id="btn-dialogue-cancel">Batal</button>
-            <button type="button" class="town-editor-btn town-editor-btn--save" id="btn-dialogue-save">💾 Simpan Properti</button>
-          </div>
-        </div>
-      </div>
     </div>
   </dialog>
 
@@ -1541,7 +1665,7 @@ const dataPlaceRooms = {
     </button>
   </div>
 
-  <!-- Floating Mini-Map Radar Widget -->
+  <!-- Floating Mini-Map Radar Widget with Integrated Zoom Controls -->
   <div id="town-editor-minimap" class="town-editor-minimap hidden" style="display: none;" role="region" aria-label="Radar Kota 2D">
     <div class="town-editor-minimap__header">
       <span class="town-editor-minimap__title" id="town-minimap-title">🧭 RADAR KOTA</span>
@@ -1550,8 +1674,13 @@ const dataPlaceRooms = {
         <button type="button" id="btn-minimap-close" class="town-editor-minimap__toggle hover:text-rose-400" title="Tutup Radar">✕</button>
       </div>
     </div>
-    <div id="town-minimap-body" class="town-editor-minimap__body">
+    <div id="town-minimap-body" class="town-editor-minimap__body flex-col gap-1.5">
       <canvas id="town-minimap-canvas" width="90" height="128" class="town-minimap-canvas cursor-pointer" title="Klik untuk jalan • Shift+Klik untuk terbang"></canvas>
+      <div class="flex items-center justify-between w-full gap-1 pt-0.5 border-t border-slate-700/70">
+        <button type="button" id="btn-minimap-zoom-out" class="town-minimap-zoom-btn" title="Perkecil Zoom (-)">−</button>
+        <button type="button" id="btn-minimap-zoom-reset" class="town-minimap-zoom-label" title="Reset Zoom 100%">100%</button>
+        <button type="button" id="btn-minimap-zoom-in" class="town-minimap-zoom-btn" title="Perbesar Zoom (+)">+</button>
+      </div>
     </div>
     <div id="town-minimap-hint" class="px-2 pb-1.5 text-[9px] font-mono text-cyan-200/70 text-center tracking-tight">
       Klik: Jalan • Shift: Terbang
@@ -1591,6 +1720,9 @@ const dataPlaceRooms = {
     const spawnPlace = (window as unknown as { __CURRENT_PLACE__: string }).__CURRENT_PLACE__ || 'town';
     townConfig.setActiveWorld(spawnPlace === 'digimon' ? 'digimon' : 'town');
     townConfig.loadFromStorage();
+    if (typeof sessionStorage !== 'undefined' && spawnPlace !== 'town') {
+      sessionStorage.setItem('town:last_place', spawnPlace);
+    }
 
     const bubble = document.querySelector('[data-town-bubble]') as HTMLDivElement | null;
     let bubbleActionLink: HTMLAnchorElement | HTMLButtonElement | null = null;
@@ -1712,6 +1844,11 @@ const dataPlaceRooms = {
       onBubble: showBubble,
       onNavigate: (route) => {
         if (route === '/town' || route === 'town') route = '/';
+        if ((route === '/' || route.startsWith('/?from=digimon')) && spawnPlace !== 'town' && typeof sessionStorage !== 'undefined') {
+          if (!sessionStorage.getItem('town:respawn')) {
+            sessionStorage.setItem('town:respawn', townConfig.getExitRespawnForPlace(spawnPlace));
+          }
+        }
         if (route === '/dev') gameStore.addStamp('dev');
         if (route === '/twin') gameStore.addStamp('twin');
         if (route === '/arcade') gameStore.addStamp('arcade');
@@ -1969,8 +2106,8 @@ const dataPlaceRooms = {
       if (btnEditorFullscreen) {
         btnEditorFullscreen.classList.toggle('is-active', isFs);
         btnEditorFullscreen.innerHTML = isFs
-          ? '🗗 <span class="hidden sm:inline">Normal</span>'
-          : '⛶ <span class="hidden sm:inline">Fullscreen</span>';
+          ? '<span>🗗 Keluar Penuh</span><kbd class="town-dev-kbd">F</kbd>'
+          : '<span>⛶ Layar Penuh</span><kbd class="town-dev-kbd">F</kbd>';
         btnEditorFullscreen.setAttribute('title', isFs ? 'Exit Fullscreen (Press F)' : 'Mode Layar Penuh / Fullscreen (F)');
       }
       window.setTimeout(() => {
@@ -1995,7 +2132,7 @@ const dataPlaceRooms = {
         showToast('🛠️ Town Editor aktif di Peta Kota & Digi-Sanctuary. Mengalihkan ke Kota...');
         sfx.select();
         setTimeout(() => {
-          sessionStorage.setItem('town:respawn', '22,28');
+          sessionStorage.setItem('town:respawn', townConfig.getExitRespawnForPlace(spawnPlace));
           sessionStorage.setItem('town:open-editor', 'true');
           window.location.href = '/';
         }, 350);
@@ -2241,19 +2378,12 @@ const dataPlaceRooms = {
     const btnBrush1 = document.getElementById('btn-brush-1');
     const btnBrush2 = document.getElementById('btn-brush-2');
     const btnBrush3 = document.getElementById('btn-brush-3');
-    const btnEditorRotate = document.getElementById('btn-editor-rotate');
-    const btnEditorRotLeft = document.getElementById('btn-editor-rot-left');
-    const btnEditorRotRight = document.getElementById('btn-editor-rot-right');
-    const btnEditorApply = document.getElementById('btn-editor-apply');
-    const btnEditorCancel = document.getElementById('btn-editor-cancel');
     const btnTransformRotLeft = document.getElementById('btn-transform-rot-left');
     const btnTransformRotRight = document.getElementById('btn-transform-rot-right');
     const btnTransformApply = document.getElementById('btn-transform-apply');
     const btnTransformCancel = document.getElementById('btn-transform-cancel');
-    const btnEditorDuplicate = document.getElementById('btn-editor-duplicate');
     const playtestBar = document.getElementById('town-playtest-bar');
     const btnExitPlaytest = document.getElementById('btn-exit-playtest');
-    const editorPalette = document.getElementById('town-editor-palette');
     const tileBtns = document.querySelectorAll<HTMLButtonElement>('.town-tile-btn');
     const btnEditorSave = document.getElementById('btn-editor-save');
     const btnEditorExport = document.getElementById('btn-editor-export');
@@ -3078,16 +3208,8 @@ const dataPlaceRooms = {
 
       const btnEditorMinimize = document.getElementById('btn-editor-minimize');
       const iconEditorMinimize = document.getElementById('icon-editor-minimize');
-      const editorBody = document.getElementById('town-editor-body');
-      const btnEditorQuickClose = document.getElementById('btn-editor-quick-close');
-      const townObjectPicker = document.getElementById('town-object-picker') as HTMLSelectElement | null;
-      const btnEditorLock = document.getElementById('btn-editor-lock') as HTMLButtonElement | null;
-      const btnEditorLayerDown = document.getElementById('btn-editor-layer-down') as HTMLButtonElement | null;
-      const btnEditorLayerUp = document.getElementById('btn-editor-layer-up') as HTMLButtonElement | null;
-      const btnEditorDialogue = document.getElementById('btn-editor-dialogue') as HTMLButtonElement | null;
+      const studioContextRow = document.getElementById('town-studio-context-row');
       const btnEditorValidate = document.getElementById('btn-editor-validate') as HTMLButtonElement | null;
-      const btnEditorDeselect = document.getElementById('btn-editor-deselect') as HTMLButtonElement | null;
-      const btnEditorDelete = document.getElementById('btn-editor-delete') as HTMLButtonElement | null;
       const btnEditorUndo = document.getElementById('btn-editor-undo') as HTMLButtonElement | null;
       const btnEditorRedo = document.getElementById('btn-editor-redo') as HTMLButtonElement | null;
       const toolBtnSpawn = document.getElementById('tool-btn-spawn');
@@ -3096,61 +3218,339 @@ const dataPlaceRooms = {
       const spawnCatalog = document.getElementById('town-spawn-catalog');
       let isMinimized = false;
 
-      let lastPickerSignature = '';
-      const refreshObjectPicker = () => {
-        if (!townObjectPicker) return;
-        const buildings = townConfig.getBuildings();
-        const signature = buildings.map((b) => `${b.id}:${b.x},${b.y}`).join('|');
-        const selected = editor.getSelectedBuilding();
+      // Mode Tabs & Contextual Panels
+      type EditorModeTab = 'object' | 'paint' | 'check';
+      let currentModeTab: EditorModeTab = 'object';
+      const tabModeObject = document.getElementById('tab-mode-object');
+      const tabModePaint = document.getElementById('tab-mode-paint');
+      const tabModeCheck = document.getElementById('tab-mode-check');
+      const ctxPanelObject = document.getElementById('ctx-panel-object');
+      const ctxPanelPaint = document.getElementById('ctx-panel-paint');
+      const ctxPanelCheck = document.getElementById('ctx-panel-check');
 
-        if (signature !== lastPickerSignature) {
-          lastPickerSignature = signature;
-          townObjectPicker.innerHTML = '';
+      const switchEditorModeTab = (mode: EditorModeTab, syncTool = true) => {
+        currentModeTab = mode;
+        tabModeObject?.classList.toggle('is-active', mode === 'object');
+        tabModePaint?.classList.toggle('is-active', mode === 'paint');
+        tabModeCheck?.classList.toggle('is-active', mode === 'check');
+        tabModeObject?.setAttribute('aria-selected', String(mode === 'object'));
+        tabModePaint?.setAttribute('aria-selected', String(mode === 'paint'));
+        tabModeCheck?.setAttribute('aria-selected', String(mode === 'check'));
+        ctxPanelObject?.classList.toggle('hidden', mode !== 'object');
+        ctxPanelPaint?.classList.toggle('hidden', mode !== 'paint');
+        ctxPanelCheck?.classList.toggle('hidden', mode !== 'check');
+        if (syncTool) {
+          if (mode === 'object') editor.setTool('move');
+          else if (mode === 'paint') editor.setTool('brush');
+          else if (mode === 'check') editor.setTool('collision');
+        }
+      };
 
-          const defaultOption = document.createElement('option');
-          defaultOption.value = '';
-          defaultOption.textContent = '🎯 Pilih Gedung / Objek...';
-          townObjectPicker.appendChild(defaultOption);
+      tabModeObject?.addEventListener('click', () => {
+        switchEditorModeTab('object', true);
+        sfx.select();
+      });
+      tabModePaint?.addEventListener('click', () => {
+        switchEditorModeTab('paint', true);
+        sfx.select();
+      });
+      tabModeCheck?.addEventListener('click', () => {
+        switchEditorModeTab('check', true);
+        sfx.select();
+      });
 
-          const groups: { label: string; items: typeof buildings }[] = [
-            { label: '── 🏢 Gedung-Gedung ──', items: buildings.filter((b) => b.kind === 'building') },
-            { label: '── 🌳 Pepohonan & Bunga ──', items: buildings.filter((b) => b.kind === 'tree' || b.kind === 'flowerbed') },
-            { label: '── 🌿 Semak & Pagar Hias ──', items: buildings.filter((b) => b.kind === 'bush') },
-            { label: '── 💡 Lampu-Lampu Jalan ──', items: buildings.filter((b) => b.kind === 'lamp') },
-            { label: '── 🪑 Bangku-Bangku Taman ──', items: buildings.filter((b) => b.kind === 'bench') },
-            { label: '── ⛲ Objek & Fasilitas Luar ──', items: buildings.filter((b) => b.kind === 'object') },
-          ];
+      // Tile Carousel Horizontal Scroll (Zero OS Scrollbar)
+      const tileCarousel = document.getElementById('town-tile-carousel');
+      document.getElementById('btn-tile-scroll-left')?.addEventListener('click', () => {
+        tileCarousel?.scrollBy({ left: -200, behavior: 'smooth' });
+        sfx.select();
+      });
+      document.getElementById('btn-tile-scroll-right')?.addEventListener('click', () => {
+        tileCarousel?.scrollBy({ left: 200, behavior: 'smooth' });
+        sfx.select();
+      });
+      tileCarousel?.addEventListener(
+        'wheel',
+        (e) => {
+          if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+            e.preventDefault();
+            tileCarousel.scrollLeft += e.deltaY;
+          }
+        },
+        { passive: false }
+      );
 
-          for (const grp of groups) {
-            if (grp.items.length === 0) continue;
-            const optgroup = document.createElement('optgroup');
-            optgroup.label = grp.label;
-            for (const b of grp.items) {
-              const opt = document.createElement('option');
-              opt.value = b.id;
-              let icon = '📦';
-              if (b.kind === 'building') icon = '🏢';
-              else if (b.kind === 'tree') icon = b.subType === 'tree_sakura' ? '🌸' : '🌳';
-              else if (b.kind === 'bush') icon = '🌿';
-              else if (b.kind === 'flowerbed') icon = '🌺';
-              else if (b.kind === 'lamp') icon = '💡';
-              else if (b.kind === 'bench') icon = '🪑';
-              else if (b.id === 'fountain') icon = '⛲';
-              else if (b.id === 'campfire' || b.subType === 'campfire') icon = '🔥';
-              else if (b.id === 'vending' || b.subType === 'vending') icon = '🥤';
-              else if (b.id === 'statue' || b.subType === 'statue') icon = '🗿';
-              else if (b.id === 'camp' || b.subType === 'tent') icon = '⛺';
-              else if (b.id === 'telescope' || b.subType === 'telescope') icon = '🔭';
+      // Diagnostic Quick Brushes
+      document.getElementById('btn-diag-solid-brush')?.addEventListener('click', () => {
+        editor.setBrushTile('solid_override');
+        if (!editor.isCollisionOverlayVisible()) editor.toggleCollisionOverlay();
+        sfx.select();
+        showToast('🛑 Mode Kuas Solid Override aktif.');
+      });
+      document.getElementById('btn-diag-walk-brush')?.addEventListener('click', () => {
+        editor.setBrushTile('walkable_override');
+        if (!editor.isCollisionOverlayVisible()) editor.toggleCollisionOverlay();
+        sfx.select();
+        showToast('🟢 Mode Kuas Walkable Override aktif.');
+      });
 
-              opt.textContent = `${icon} ${b.name} (${b.x}, ${b.y})`;
-              optgroup.appendChild(opt);
-            }
-            townObjectPicker.appendChild(optgroup);
+      // Quick Stamp Strip (8 Recent / Favorite Templates)
+      const QUICK_STAMP_STORAGE_KEY = 'town_editor_quick_stamps_v1';
+      const DEFAULT_QUICK_STAMPS = [
+        'tree_green',
+        'tree_sakura',
+        'lamp_classic',
+        'bench_wood',
+        'pikachu',
+        'bulbasaur',
+        'server_rack',
+        'sign_post',
+      ];
+      let quickStampIds: string[] = [...DEFAULT_QUICK_STAMPS];
+      try {
+        const rawStamps = localStorage.getItem(QUICK_STAMP_STORAGE_KEY);
+        if (rawStamps) {
+          const parsed = JSON.parse(rawStamps);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            quickStampIds = parsed.slice(0, 8);
           }
         }
+      } catch {}
 
-        townObjectPicker.value = selected ? selected.id : '';
+      const pushQuickStamp = (tplId: string) => {
+        quickStampIds = [tplId, ...quickStampIds.filter((id) => id !== tplId)].slice(0, 8);
+        try {
+          localStorage.setItem(QUICK_STAMP_STORAGE_KEY, JSON.stringify(quickStampIds));
+        } catch {}
+        renderQuickStampStrip();
       };
+
+      const quickStampStrip = document.getElementById('town-quick-stamp-strip');
+      const renderQuickStampStrip = () => {
+        if (!quickStampStrip) return;
+        quickStampStrip.innerHTML = '';
+        const activeStamp = editor.getTool() === 'stamp' ? editor.getStampTemplate() : null;
+        const validIds = quickStampIds
+          .map((id) => SPAWNABLE_TEMPLATES.find((t) => t.id === id))
+          .filter((t): t is (typeof SPAWNABLE_TEMPLATES)[number] => Boolean(t));
+        const fallbackList =
+          validIds.length >= 4
+            ? validIds
+            : SPAWNABLE_TEMPLATES.slice(0, 8);
+
+        for (const tpl of fallbackList) {
+          const chip = document.createElement('button');
+          chip.type = 'button';
+          chip.className = `town-quick-stamp-chip${activeStamp === tpl.id ? ' is-active' : ''}`;
+          chip.title = `Cap Cepat: ${tpl.name} (${tpl.w}×${tpl.h}) — Klik di peta untuk menaruh`;
+          const shortName = tpl.name.split(' ')[0];
+          chip.innerHTML = `<span>${tpl.icon}</span><span class="truncate max-w-[68px]">${shortName}</span>`;
+          chip.addEventListener('click', () => {
+            if (activeStamp === tpl.id) {
+              editor.setStampTemplate(null);
+              editor.setTool('move');
+            } else {
+              editor.setStampTemplate(tpl.id);
+              showToast(`🎯 Cap Cepat aktif: ${tpl.name}! Klik di peta untuk menaruh.`);
+            }
+            sfx.select();
+          });
+          quickStampStrip.appendChild(chip);
+        }
+      };
+
+      // ==========================================
+      // SEARCHABLE SCENE OUTLINER POPOVER
+      // ==========================================
+      const outlinerPopover = document.getElementById('town-outliner-popover');
+      const btnOpenOutliner = document.getElementById('btn-open-outliner');
+      const outlinerTriggerLabel = document.getElementById('outliner-trigger-label');
+      const outlinerCountBadge = document.getElementById('outliner-count-badge');
+      const outlinerSearch = document.getElementById('town-outliner-search') as HTMLInputElement | null;
+      const outlinerList = document.getElementById('town-outliner-list');
+      const outlinerTabs = document.querySelectorAll<HTMLButtonElement>('.town-outliner-tab');
+      let outlinerCat = 'all';
+      let isOutlinerOpen = false;
+
+      const getEntityEmoji = (b: { id: string; kind?: string; subType?: string }) => {
+        if (b.kind === 'building') return '🏢';
+        if (b.kind === 'tree') return b.subType === 'tree_sakura' ? '🌸' : '🌳';
+        if (b.kind === 'bush') return '🌿';
+        if (b.kind === 'flowerbed') return '🌺';
+        if (b.kind === 'lamp') return '💡';
+        if (b.kind === 'bench') return '🪑';
+        if (b.kind === 'npc') return '⚡';
+        if (b.kind === 'digimon') return '👾';
+        if (b.kind === 'sign') return '🪧';
+        if (b.id === 'fountain') return '⛲';
+        if (b.id === 'campfire' || b.subType === 'campfire') return '🔥';
+        if (b.id === 'vending' || b.subType === 'vending') return '🥤';
+        if (b.id === 'statue' || b.subType === 'statue') return '🗿';
+        return '📦';
+      };
+
+      const renderOutlinerList = () => {
+        if (!outlinerList) return;
+        const buildings = townConfig.getBuildings();
+        const q = (outlinerSearch?.value || '').trim().toLowerCase();
+        const selectedIds = new Set(editor.getSelectedBuildings().map((b) => b.id));
+
+        const filtered = buildings.filter((b) => {
+          if (outlinerCat === 'building' && b.kind !== 'building') return false;
+          if (outlinerCat === 'npc' && b.kind !== 'npc' && b.kind !== 'digimon') return false;
+          if (outlinerCat === 'nature' && (b.kind === 'building' || b.kind === 'npc' || b.kind === 'digimon')) return false;
+          if (q && !b.name.toLowerCase().includes(q) && !b.id.toLowerCase().includes(q)) return false;
+          return true;
+        });
+
+        outlinerList.innerHTML = '';
+        if (filtered.length === 0) {
+          outlinerList.innerHTML = `<div class="p-4 text-center text-[10px] font-mono text-slate-400">Tidak ada entitas cocok dengan "${q}".</div>`;
+          return;
+        }
+        for (const b of filtered) {
+          const item = document.createElement('button');
+          item.type = 'button';
+          item.className = `town-outliner-item${selectedIds.has(b.id) ? ' is-selected' : ''}`;
+          item.innerHTML = `
+            <span class="shrink-0">${getEntityEmoji(b)}</span>
+            <span class="flex-1 text-left truncate font-medium">${b.name}</span>
+            ${b.locked ? '<span class="text-[9px]" title="Terkunci">🔒</span>' : ''}
+            <span class="text-[9px] font-mono text-slate-400 shrink-0">(${b.x},${b.y})</span>
+          `;
+          item.addEventListener('click', () => {
+            editor.focusBuilding(b.id);
+            isOutlinerOpen = false;
+            if (outlinerPopover) {
+              outlinerPopover.classList.add('hidden');
+              outlinerPopover.style.display = 'none';
+            }
+            sfx.select();
+          });
+          outlinerList.appendChild(item);
+        }
+      };
+
+      const toggleOutliner = (force?: boolean) => {
+        isOutlinerOpen = force !== undefined ? force : !isOutlinerOpen;
+        if (outlinerPopover) {
+          if (isOutlinerOpen) {
+            renderOutlinerList();
+            outlinerPopover.classList.remove('hidden');
+            outlinerPopover.style.display = 'flex';
+            setTimeout(() => outlinerSearch?.focus(), 40);
+          } else {
+            outlinerPopover.classList.add('hidden');
+            outlinerPopover.style.display = 'none';
+          }
+        }
+      };
+
+      btnOpenOutliner?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleOutliner();
+        sfx.select();
+      });
+      document.getElementById('btn-close-outliner')?.addEventListener('click', () => toggleOutliner(false));
+      outlinerSearch?.addEventListener('input', renderOutlinerList);
+      outlinerTabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+          outlinerCat = tab.getAttribute('data-ocat') || 'all';
+          outlinerTabs.forEach((t) => t.classList.toggle('is-active', t === tab));
+          renderOutlinerList();
+          sfx.select();
+        });
+      });
+
+      const refreshObjectPicker = () => {
+        const buildings = townConfig.getBuildings();
+        const selected = editor.getSelectedBuilding();
+        const selectedBuildings = editor.getSelectedBuildings();
+        if (outlinerCountBadge) {
+          outlinerCountBadge.textContent = String(buildings.length);
+        }
+        if (outlinerTriggerLabel) {
+          if (selectedBuildings.length > 1) {
+            outlinerTriggerLabel.textContent = `${selectedBuildings.length} Objek Terpilih`;
+          } else if (selected) {
+            outlinerTriggerLabel.textContent = selected.name;
+          } else {
+            outlinerTriggerLabel.textContent = 'Cari Objek';
+          }
+        }
+        if (isOutlinerOpen) {
+          renderOutlinerList();
+        }
+      };
+
+      // Overflow Utilities Popover
+      const btnEditorMore = document.getElementById('btn-editor-more');
+      const morePopover = document.getElementById('town-editor-more-popover');
+      let isMoreOpen = false;
+      const toggleMorePopover = (force?: boolean) => {
+        isMoreOpen = force !== undefined ? force : !isMoreOpen;
+        if (morePopover) {
+          if (isMoreOpen) {
+            morePopover.classList.remove('hidden');
+            morePopover.style.display = 'flex';
+          } else {
+            morePopover.classList.add('hidden');
+            morePopover.style.display = 'none';
+          }
+        }
+        btnEditorMore?.setAttribute('aria-expanded', String(isMoreOpen));
+      };
+      btnEditorMore?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleMorePopover();
+        sfx.select();
+      });
+      document.addEventListener('click', (e) => {
+        const tgt = e.target as Node;
+        if (isMoreOpen && !morePopover?.contains(tgt) && !btnEditorMore?.contains(tgt)) {
+          toggleMorePopover(false);
+        }
+        if (isOutlinerOpen && !outlinerPopover?.contains(tgt) && !btnOpenOutliner?.contains(tgt)) {
+          toggleOutliner(false);
+        }
+      });
+
+      // Shortcuts Cheat Sheet & Zen Controls
+      const shortcutsModal = document.getElementById('town-editor-shortcuts-modal') as HTMLDialogElement | null;
+      const openShortcutsModal = () => {
+        toggleMorePopover(false);
+        shortcutsModal?.showModal();
+        sfx.select();
+      };
+      document.getElementById('btn-telemetry-shortcuts')?.addEventListener('click', openShortcutsModal);
+      document.getElementById('btn-more-shortcuts')?.addEventListener('click', openShortcutsModal);
+      document.getElementById('btn-close-shortcuts-modal')?.addEventListener('click', () => shortcutsModal?.close());
+
+      document.getElementById('btn-telemetry-zen')?.addEventListener('click', () => {
+        editor.toggleZenMode();
+        sfx.select();
+      });
+      document.getElementById('btn-more-zen')?.addEventListener('click', () => {
+        toggleMorePopover(false);
+        editor.toggleZenMode();
+        sfx.select();
+      });
+      document.getElementById('btn-zen-exit')?.addEventListener('click', () => {
+        editor.toggleZenMode();
+        sfx.select();
+      });
+      document.getElementById('btn-zen-undo')?.addEventListener('click', () => {
+        if (townConfig.undo()) {
+          sfx.select();
+          showToast('↩ Perubahan dibatalkan (Undo)');
+          engine?.invalidateBackgroundCanvas();
+          engine?.wake();
+        }
+      });
+      document.getElementById('btn-zen-save')?.addEventListener('click', async () => {
+        await editor.save();
+        sfx.heal();
+      });
 
       // ==========================================
       // UPGRADED SPAWNER MODAL CATALOG & STAMP MODE
@@ -3303,6 +3703,7 @@ const dataPlaceRooms = {
 
             btnPlace?.addEventListener('click', (e) => {
               if (!engine) return;
+              pushQuickStamp(item.id);
               if (e.shiftKey) {
                 editor.setStampTemplate(item.id);
                 spawnModal?.close();
@@ -3328,6 +3729,7 @@ const dataPlaceRooms = {
             });
 
             btnStamp?.addEventListener('click', () => {
+              pushQuickStamp(item.id);
               editor.setStampTemplate(item.id);
               spawnModal?.close();
               showToast(`🎯 Mode Cap aktif: ${item.name}! Klik bebas di peta untuk menaruh berturut-turut. Tekan ESC untuk selesai.`);
@@ -3372,7 +3774,6 @@ const dataPlaceRooms = {
         });
       });
 
-      // Initial catalog render
       renderSpawnCatalog();
 
       let hasOpenedDigiSpawner = false;
@@ -3393,13 +3794,231 @@ const dataPlaceRooms = {
         spawnModal?.close();
       });
 
+      // ==========================================
+      // LIVE RIGHT SIDE-DRAWER INSPECTOR
+      // ==========================================
+      const inspectorDrawer = document.getElementById('town-editor-inspector-drawer');
+      const inspectorSinglePanel = document.getElementById('inspector-single-panel');
+      const inspectorMultiPanel = document.getElementById('inspector-multi-panel');
+      const inspectorHeaderTitle = document.getElementById('inspector-header-title');
+      const inspectorEntityIcon = document.getElementById('inspector-entity-icon');
+      const inspectorName = document.getElementById('town-inspector-name') as HTMLInputElement | null;
+      const inspectorLink = document.getElementById('town-inspector-link') as HTMLInputElement | null;
+      const inspectorPosX = document.getElementById('town-inspector-x') as HTMLInputElement | null;
+      const inspectorPosY = document.getElementById('town-inspector-y') as HTMLInputElement | null;
+      const inspectorPosZ = document.getElementById('town-inspector-z') as HTMLInputElement | null;
+      const inspectorScale = document.getElementById('town-inspector-scale') as HTMLInputElement | null;
+      const inspectorScaleVal = document.getElementById('town-inspector-scale-val');
+      const inspectorOrientLabel = document.getElementById('inspector-orient-label');
+      const inspectorBehavior = document.getElementById('town-inspector-behavior') as HTMLSelectElement | null;
+      const inspectorDialogue = document.getElementById('town-dialogue-input') as HTMLTextAreaElement | null;
+      const btnInspectorPreview = document.getElementById('btn-inspector-preview-move');
+      const btnInspLock = document.getElementById('btn-insp-lock');
+      const orientBtns = document.querySelectorAll<HTMLButtonElement>('.town-insp-orient-btn');
+      let isInspectorDrawerDismissed = false;
+      let lastInspectedId = '';
+      let scaleDragSnapshot: ReturnType<typeof townConfig.captureSnapshot> | null = null;
+
+      const commitLivePatch = (
+        patch: Parameters<typeof townConfig.updateObjectProperties>[1],
+        recordHistory = true
+      ) => {
+        const selected = editor.getSelectedBuilding();
+        if (!selected) return;
+        townConfig.updateObjectProperties(selected.id, patch, recordHistory);
+        engine?.invalidateBackgroundCanvas();
+        engine?.wake();
+      };
+
+      inspectorScale?.addEventListener('pointerdown', () => {
+        scaleDragSnapshot = townConfig.captureSnapshot();
+      });
+      inspectorScale?.addEventListener('input', () => {
+        if (!scaleDragSnapshot) scaleDragSnapshot = townConfig.captureSnapshot();
+        const val = Number(inspectorScale.value);
+        if (inspectorScaleVal) inspectorScaleVal.textContent = `${val.toFixed(2)}×`;
+        commitLivePatch({ scaleMultiplier: val }, false);
+      });
+      inspectorScale?.addEventListener('change', () => {
+        if (scaleDragSnapshot) {
+          townConfig.pushSnapshot(scaleDragSnapshot);
+          scaleDragSnapshot = null;
+        }
+        sfx.select();
+      });
+
+      inspectorName?.addEventListener('change', () => {
+        commitLivePatch({ name: inspectorName.value }, true);
+        sfx.select();
+      });
+      inspectorLink?.addEventListener('change', () => {
+        commitLivePatch({ link: inspectorLink.value }, true);
+        sfx.select();
+      });
+      inspectorPosX?.addEventListener('change', () => {
+        commitLivePatch({ x: Number(inspectorPosX.value) }, true);
+        sfx.select();
+      });
+      inspectorPosY?.addEventListener('change', () => {
+        commitLivePatch({ y: Number(inspectorPosY.value) }, true);
+        sfx.select();
+      });
+      inspectorPosZ?.addEventListener('change', () => {
+        commitLivePatch({ zIndex: Number(inspectorPosZ.value) }, true);
+        sfx.select();
+      });
+      inspectorBehavior?.addEventListener('change', () => {
+        commitLivePatch(
+          { behavior: inspectorBehavior.value as 'stationary' | 'look_around' | 'patrol_small' },
+          true
+        );
+        sfx.select();
+      });
+      inspectorDialogue?.addEventListener('change', () => {
+        commitLivePatch({ dialogue: inspectorDialogue.value.trim() }, true);
+        sfx.select();
+      });
+
+      orientBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const o = btn.getAttribute('data-orient') as 'N' | 'E' | 'S' | 'W' | null;
+          if (o) {
+            editor.setSelectedOrientation(o);
+            sfx.select();
+          }
+        });
+      });
+
+      btnInspLock?.addEventListener('click', () => {
+        editor.toggleSelectedLock();
+        sfx.select();
+      });
+      document.getElementById('btn-insp-dup')?.addEventListener('click', () => {
+        editor.duplicateSelected();
+        sfx.select();
+      });
+      document.getElementById('btn-insp-layer-down')?.addEventListener('click', () => {
+        editor.adjustSelectedZIndex(-1);
+        sfx.select();
+      });
+      document.getElementById('btn-insp-layer-up')?.addEventListener('click', () => {
+        editor.adjustSelectedZIndex(1);
+        sfx.select();
+      });
+      document.getElementById('btn-insp-delete')?.addEventListener('click', () => {
+        editor.deleteSelected();
+        sfx.select();
+      });
+      document.getElementById('btn-inspector-focus')?.addEventListener('click', () => {
+        const sel = editor.getSelectedBuilding();
+        if (sel) {
+          editor.focusBuilding(sel.id);
+          sfx.select();
+        }
+      });
+      document.getElementById('btn-inspector-close')?.addEventListener('click', () => {
+        isInspectorDrawerDismissed = true;
+        updateEditorUI();
+        sfx.select();
+      });
+
+      btnInspectorPreview?.addEventListener('click', () => {
+        const selected = editor.getSelectedBuilding();
+        if (!selected || !engine) return;
+        const pokeKey = selected.subType || selected.id.split('_')[0] || 'pikachu';
+        engine.triggerSignatureMove(pokeKey, selected.x, selected.y);
+        sfx.confirm();
+        showToast(`⚡ Preview Signature Move: ${selected.name}`);
+      });
+
+      // Multi-select alignment buttons
+      document.querySelectorAll<HTMLButtonElement>('[data-align]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const mode = btn.getAttribute('data-align') as Parameters<typeof editor.alignSelected>[0];
+          if (mode) {
+            editor.alignSelected(mode);
+            sfx.select();
+          }
+        });
+      });
+      document.getElementById('btn-multi-dup')?.addEventListener('click', () => {
+        editor.duplicateSelected();
+        sfx.select();
+      });
+      document.getElementById('btn-multi-lock')?.addEventListener('click', () => {
+        editor.toggleSelectedLock();
+        sfx.select();
+      });
+      document.getElementById('btn-multi-delete')?.addEventListener('click', () => {
+        editor.deleteSelected();
+        sfx.select();
+      });
+      document.getElementById('btn-multi-prefab')?.addEventListener('click', () => {
+        renderPrefabsList();
+        prefabsModal?.showModal();
+        sfx.select();
+      });
+
+      // Floating Transform Bubble quick buttons
+      document.getElementById('btn-transform-dup')?.addEventListener('click', () => {
+        editor.duplicateSelected();
+        sfx.select();
+      });
+      document.getElementById('btn-transform-lock')?.addEventListener('click', () => {
+        editor.toggleSelectedLock();
+        sfx.select();
+      });
+      document.getElementById('btn-transform-del')?.addEventListener('click', () => {
+        editor.deleteSelected();
+        sfx.select();
+      });
+      document.getElementById('btn-transform-inspect')?.addEventListener('click', () => {
+        isInspectorDrawerDismissed = !isInspectorDrawerDismissed;
+        updateEditorUI();
+        sfx.select();
+      });
+
+      // Telemetry Pill Live Listener
+      const telemetryPill = document.getElementById('town-editor-telemetry-pill');
+      const telemetryCoords = document.getElementById('town-telemetry-coords');
+      const telemetryTool = document.getElementById('town-telemetry-tool');
+      const zenPill = document.getElementById('town-editor-zen-pill');
+
+      const toolLabelMap: Record<string, string> = {
+        move: '🖐️ Pilih',
+        brush: '🖌️ Kuas',
+        erase: '🧹 Hapus',
+        delete_object: '🗑️ Hapus Objek',
+        line: '📏 Garis',
+        rect: '⬛ Kotak',
+        bucket: '🪣 Ember',
+        eyedropper: '💧 Pipet',
+        collision: '🛡️ Tabrakan',
+        stamp: '🎯 Cap',
+      };
+
+      window.addEventListener('town:editor-telemetry', ((e: CustomEvent<{ x: number; y: number; tool: string; brushSize: number }>) => {
+        const d = e.detail;
+        if (!d) return;
+        if (telemetryCoords) telemetryCoords.textContent = `X: ${d.x}, Y: ${d.y}`;
+        if (telemetryTool) {
+          const base = toolLabelMap[d.tool] || d.tool;
+          const sz = d.tool === 'brush' || d.tool === 'erase' ? ` (${d.brushSize}×${d.brushSize})` : '';
+          telemetryTool.textContent = `${base}${sz}`;
+        }
+      }) as EventListener);
+
       const updateEditorUI = () => {
         const isEnabled = editor.isEnabled();
+        const isPlay = editor.isPlaytesting();
+        const isZen = editor.isZenMode();
+
         btnToggleEditor?.classList.toggle('is-active', isEnabled);
         btnToggleDevMenu?.classList.toggle('is-active', isEnabled || (engine?.isXray() ?? false));
         burgerItemEditor?.classList.toggle('is-active', isEnabled);
+
         if (editorToolbar) {
-          if (isEnabled) {
+          if (isEnabled && !isPlay && !isZen) {
             editorToolbar.classList.remove('hidden');
             editorToolbar.removeAttribute('hidden');
             editorToolbar.style.display = 'flex';
@@ -3409,32 +4028,81 @@ const dataPlaceRooms = {
             editorToolbar.style.display = 'none';
           }
         }
-        if (!isEnabled) {
-          return;
-        }
-
-        if (editorBody) {
-          editorBody.style.display = isMinimized ? 'none' : 'block';
-        }
-
-        const diffPill = document.getElementById('town-editor-diff-pill');
-        if (diffPill) {
-          const diff = townConfig.getDiffSummaryVsCanonical();
-          if (diff.totalChanges === 0) {
-            diffPill.textContent = '📊 Synced';
-            diffPill.className = 'px-2 py-0.5 rounded bg-slate-800 border border-slate-600 font-mono text-[9px] text-emerald-300 hidden sm:inline-block';
+        if (telemetryPill) {
+          if (isEnabled && !isPlay && !isZen) {
+            telemetryPill.classList.remove('hidden');
+            telemetryPill.style.display = 'inline-flex';
           } else {
-            diffPill.textContent = `📊 +${diff.added} ~${diff.moved} -${diff.removed} · ${diff.tileDiff} Tile`;
-            diffPill.className = 'px-2 py-0.5 rounded bg-amber-950/80 border border-amber-500/60 font-mono text-[9px] text-amber-200 hidden sm:inline-block';
+            telemetryPill.classList.add('hidden');
+            telemetryPill.style.display = 'none';
+          }
+        }
+        if (zenPill) {
+          if (isEnabled && !isPlay && isZen) {
+            zenPill.classList.remove('hidden');
+            zenPill.style.display = 'inline-flex';
+          } else {
+            zenPill.classList.add('hidden');
+            zenPill.style.display = 'none';
           }
         }
 
-        if (editorPalette) {
-          editorPalette.classList.remove('hidden');
-          editorPalette.style.display = 'flex';
+        if (!isEnabled) {
+          if (inspectorDrawer) {
+            inspectorDrawer.classList.add('hidden');
+            inspectorDrawer.style.display = 'none';
+          }
+          if (minimapWidget) {
+            minimapWidget.classList.remove('has-inspector-open');
+          }
+          return;
         }
 
+        if (studioContextRow) {
+          studioContextRow.style.display = isMinimized ? 'none' : 'flex';
+        }
+
+        const diffPill = document.getElementById('town-editor-diff-pill');
+        const dirtyDot = document.getElementById('btn-save-dirty-dot');
+        const diff = townConfig.getDiffSummaryVsCanonical();
+        if (diffPill) {
+          if (diff.totalChanges === 0) {
+            diffPill.textContent = '✓ Synced';
+            diffPill.className = 'px-2 py-0.5 rounded bg-slate-800 border border-slate-600 font-mono text-[9px] text-emerald-300 hidden lg:inline-block shrink-0';
+          } else {
+            diffPill.textContent = `● +${diff.added} ~${diff.moved} -${diff.removed} · ${diff.tileDiff}T`;
+            diffPill.className = 'px-2 py-0.5 rounded bg-amber-950/80 border border-amber-500/60 font-mono text-[9px] text-amber-200 hidden lg:inline-block shrink-0';
+          }
+        }
+        dirtyDot?.classList.toggle('hidden', diff.totalChanges === 0);
+
         const tool = editor.getTool();
+        // Auto-sync Mode Tab with active tool
+        let desiredMode: EditorModeTab = currentModeTab;
+        if (tool === 'move' || tool === 'delete_object' || tool === 'stamp') {
+          desiredMode = 'object';
+        } else if (tool === 'collision') {
+          desiredMode = 'check';
+        } else if (
+          tool === 'brush' ||
+          tool === 'erase' ||
+          tool === 'line' ||
+          tool === 'rect' ||
+          tool === 'bucket' ||
+          tool === 'eyedropper'
+        ) {
+          if (desiredMode !== 'check') desiredMode = 'paint';
+        }
+        if (desiredMode !== currentModeTab) {
+          switchEditorModeTab(desiredMode, false);
+        }
+
+        if (telemetryTool) {
+          const base = toolLabelMap[tool] || tool;
+          const sz = tool === 'brush' || tool === 'erase' ? ` (${editor.getBrushSize()}×${editor.getBrushSize()})` : '';
+          telemetryTool.textContent = `${base}${sz}`;
+        }
+
         toolBtnMove?.classList.toggle('is-active', tool === 'move');
         toolBtnBrush?.classList.toggle('is-active', tool === 'brush');
         toolBtnErase?.classList.toggle('is-active', tool === 'erase');
@@ -3444,141 +4112,150 @@ const dataPlaceRooms = {
         toolBtnBucket?.classList.toggle('is-active', tool === 'bucket');
         toolBtnEyedropper?.classList.toggle('is-active', tool === 'eyedropper');
         toolBtnCollision?.classList.toggle('is-active', tool === 'collision' || editor.isCollisionOverlayVisible());
-        toolBtnPlaytest?.classList.toggle('is-active', editor.isPlaytesting());
+        toolBtnPlaytest?.classList.toggle('is-active', isPlay);
         toolBtnGrid?.classList.toggle('is-active', editor.isGridVisible());
+        const moreGridState = document.getElementById('more-grid-state');
+        if (moreGridState) {
+          moreGridState.textContent = editor.isGridVisible() ? 'ON' : 'OFF';
+          moreGridState.className = `text-[9px] font-bold ${editor.isGridVisible() ? 'text-emerald-300' : 'text-slate-400'}`;
+        }
 
         const brushSize = editor.getBrushSize();
         btnBrush1?.classList.toggle('is-active', brushSize === 1);
         btnBrush2?.classList.toggle('is-active', brushSize === 2);
         btnBrush3?.classList.toggle('is-active', brushSize === 3);
 
-        // Update Undo / Redo buttons
         btnEditorUndo?.toggleAttribute('disabled', !townConfig.canUndo());
         btnEditorRedo?.toggleAttribute('disabled', !townConfig.canRedo());
 
         const brushTile = editor.getBrushTile();
         tileBtns.forEach((btn) => {
           const isCurrent = btn.getAttribute('data-tile') === brushTile;
-          btn.classList.toggle('is-active', isCurrent && (tool === 'brush' || tool === 'line' || tool === 'rect' || tool === 'bucket'));
+          btn.classList.toggle(
+            'is-active',
+            isCurrent && (tool === 'brush' || tool === 'line' || tool === 'rect' || tool === 'bucket')
+          );
         });
+
+        renderQuickStampStrip();
 
         const selected = editor.getSelectedBuilding();
         const selectedBuildings = editor.getSelectedBuildings();
         refreshObjectPicker();
 
-        const hasSelection = selectedBuildings.length > 0;
-        const isLocked = editor.isSelectedLocked();
-        if (btnEditorLock) {
-          btnEditorLock.style.display = hasSelection ? 'inline-flex' : 'none';
-          btnEditorLock.innerHTML = isLocked
-            ? `🔓 <span class="hidden sm:inline">Buka (K)</span>`
-            : `🔒 <span class="hidden sm:inline">Kunci (K)</span>`;
-          btnEditorLock.title = isLocked
-            ? 'Buka Kunci Objek agar dapat digeser / diedit (K)'
-            : 'Kunci Objek agar tidak sengaja bergeser atau terhapus (K)';
+        if (!selected && selectedBuildings.length === 0) {
+          isInspectorDrawerDismissed = false;
+          lastInspectedId = '';
+        } else if (selected && selected.id !== lastInspectedId) {
+          isInspectorDrawerDismissed = false;
+          lastInspectedId = selected.id;
         }
-        if (btnEditorLayerDown) {
-          btnEditorLayerDown.style.display = hasSelection ? 'inline-flex' : 'none';
+
+        // Sync Live Side-Drawer Inspector
+        const showInspector =
+          isEnabled && !isPlay && !isZen && selectedBuildings.length > 0 && !isInspectorDrawerDismissed;
+        if (inspectorDrawer) {
+          if (showInspector) {
+            inspectorDrawer.classList.remove('hidden');
+            inspectorDrawer.style.display = 'flex';
+          } else {
+            inspectorDrawer.classList.add('hidden');
+            inspectorDrawer.style.display = 'none';
+          }
         }
-        if (btnEditorLayerUp) {
-          btnEditorLayerUp.style.display = hasSelection ? 'inline-flex' : 'none';
-        }
-        if (btnEditorRotate) {
-          btnEditorRotate.style.display = hasSelection ? 'inline-flex' : 'none';
-        }
-        if (btnEditorRotLeft) {
-          btnEditorRotLeft.style.display = hasSelection ? 'inline-flex' : 'none';
-        }
-        if (btnEditorRotRight) {
-          btnEditorRotRight.style.display = hasSelection ? 'inline-flex' : 'none';
-        }
-        if (btnEditorApply) {
-          btnEditorApply.style.display = hasSelection ? 'inline-flex' : 'none';
-        }
-        if (btnEditorCancel) {
-          btnEditorCancel.style.display = hasSelection ? 'inline-flex' : 'none';
-        }
-        if (btnEditorDuplicate) {
-          btnEditorDuplicate.style.display = hasSelection ? 'inline-flex' : 'none';
-        }
-        if (btnEditorDialogue) {
-          btnEditorDialogue.style.display = hasSelection ? 'inline-flex' : 'none';
-        }
-        if (btnEditorDeselect) {
-          btnEditorDeselect.style.display = hasSelection ? 'inline-flex' : 'none';
-        }
-        if (btnEditorDelete) {
-          btnEditorDelete.style.display = hasSelection ? 'inline-flex' : 'none';
+        minimapWidget?.classList.toggle('has-inspector-open', showInspector);
+
+        if (showInspector) {
+          if (selectedBuildings.length > 1) {
+            inspectorSinglePanel?.classList.add('hidden');
+            inspectorMultiPanel?.classList.remove('hidden');
+            if (inspectorEntityIcon) inspectorEntityIcon.textContent = '📚';
+            if (inspectorHeaderTitle) inspectorHeaderTitle.textContent = `${selectedBuildings.length} Objek Terpilih`;
+            const multiCount = document.getElementById('multi-sel-count');
+            if (multiCount) multiCount.textContent = String(selectedBuildings.length);
+          } else if (selected) {
+            inspectorSinglePanel?.classList.remove('hidden');
+            inspectorMultiPanel?.classList.add('hidden');
+            if (inspectorEntityIcon) inspectorEntityIcon.textContent = getEntityEmoji(selected);
+            if (inspectorHeaderTitle) inspectorHeaderTitle.textContent = selected.name;
+            if (inspectorName && document.activeElement !== inspectorName) {
+              inspectorName.value = selected.name || '';
+            }
+            if (inspectorLink && document.activeElement !== inspectorLink) {
+              inspectorLink.value = selected.link || '';
+            }
+            if (inspectorPosX && document.activeElement !== inspectorPosX) {
+              inspectorPosX.value = String(selected.x);
+            }
+            if (inspectorPosY && document.activeElement !== inspectorPosY) {
+              inspectorPosY.value = String(selected.y);
+            }
+            if (inspectorPosZ && document.activeElement !== inspectorPosZ) {
+              inspectorPosZ.value = String(selected.zIndex ?? 0);
+            }
+            const sc = selected.scaleMultiplier ?? 1;
+            if (inspectorScale && document.activeElement !== inspectorScale) {
+              inspectorScale.value = String(sc);
+            }
+            if (inspectorScaleVal) inspectorScaleVal.textContent = `${sc.toFixed(2)}×`;
+            const curOrient = selected.orientation || 'N';
+            if (inspectorOrientLabel) inspectorOrientLabel.textContent = curOrient;
+            orientBtns.forEach((b) =>
+              b.classList.toggle('is-active', b.getAttribute('data-orient') === curOrient)
+            );
+            if (inspectorBehavior && document.activeElement !== inspectorBehavior) {
+              inspectorBehavior.value = selected.behavior || 'stationary';
+            }
+            if (inspectorDialogue && document.activeElement !== inspectorDialogue) {
+              const tpl = SPAWNABLE_TEMPLATES.find((t) => t.id === selected.id || t.subType === selected.subType);
+              inspectorDialogue.value =
+                selected.dialogue !== undefined ? selected.dialogue : tpl?.defaultDialogue || '';
+            }
+            if (btnInspectorPreview) {
+              btnInspectorPreview.style.display = selected.kind === 'npc' ? 'inline-flex' : 'none';
+            }
+            if (btnInspLock) {
+              btnInspLock.textContent = selected.locked ? '🔓' : '🔒';
+              btnInspLock.classList.toggle('is-active', !!selected.locked);
+            }
+            const subPinsInfo = document.getElementById('town-insp-subpins-info');
+            if (subPinsInfo) {
+              const dX = selected.doorX !== undefined ? selected.doorX : selected.x + Math.floor(selected.w / 2);
+              const dY = selected.doorY !== undefined ? selected.doorY : selected.y + selected.h;
+              const lX = selected.labelX !== undefined ? selected.labelX : selected.x + selected.w / 2;
+              const lY = selected.labelY !== undefined ? selected.labelY : selected.y;
+              subPinsInfo.textContent = `🟣 Label (${lX}, ${lY}) • 🟡 Pintu (${dX}, ${dY}) — Seret pin langsung di kanvas`;
+            }
+          }
         }
 
         // Update Floating Transform Action Bubble
         const transformBubble = document.getElementById('town-transform-bubble');
         if (transformBubble) {
-          if (isEnabled && !editor.isPlaytesting() && selected) {
+          if (isEnabled && !isPlay && selected) {
             transformBubble.classList.remove('hidden');
             transformBubble.style.display = 'block';
             const titleEl = document.getElementById('transform-bubble-title');
             const badgeEl = document.getElementById('transform-bubble-orient-badge');
             const iconEl = document.getElementById('transform-bubble-icon');
-            if (titleEl) titleEl.textContent = selected.name;
+            const lockBtn = document.getElementById('btn-transform-lock');
+            if (titleEl) {
+              titleEl.textContent =
+                selectedBuildings.length > 1 ? `${selectedBuildings.length} Objek` : selected.name;
+            }
+            if (lockBtn) {
+              lockBtn.textContent = editor.isSelectedLocked() ? '🔓' : '🔒';
+            }
             if (iconEl) {
-              const kindIcons: Record<string, string> = {
-                building: '🏢',
-                tree: '🌲',
-                bush: '🌿',
-                bench: '🪑',
-                lamp: '🏮',
-                flowerbed: '🌸',
-                npc: '👤',
-                sign: '🪧',
-                object: '📦',
-              };
-              const pokeIcons: Record<string, string> = {
-                dialga: '⏳',
-                palkia: '🌌',
-                giratina: '👻',
-                zekrom: '⚡',
-                reshiram: '🔥',
-                arceus: '✨',
-                mewtwo: '🔮',
-                rayquaza: '🐉',
-                groudon: '🌋',
-                kyogre: '🌊',
-                latios: '🔷',
-                latias: '🌸',
-                darkrai: '🌑',
-                necrozma: '🦁',
-                necrozma_dusk_mane: '🦁',
-                lunala: '🌙',
-                solgaleo: '☀️',
-                samurott: '⚔️',
-                empoleon: '🐧',
-                regigigas: '🗿',
-                koraidon: '🦖',
-                eternatus: '☄️',
-                lugia: '🌊',
-                archaludon: '⚡',
-                gougingfire: '🔥',
-                greattusk: '🐘',
-                kyurem: '❄️',
-                salamence: '🐲',
-              };
-              const pokeKey = Object.keys(pokeIcons).find(
-                (k) => selected.subType === k || selected.id.includes(k)
-              );
-              if (pokeKey) {
-                iconEl.textContent = pokeIcons[pokeKey];
-              } else {
-                iconEl.textContent = kindIcons[selected.kind || 'object'] || '📦';
-              }
+              iconEl.textContent = getEntityEmoji(selected);
             }
             if (badgeEl) {
               const orient = selected.orientation || 'N';
               const orientLabels: Record<'N' | 'E' | 'S' | 'W', string> = {
-                W: '⬅️ Hadap Kiri',
-                E: '➡️ Hadap Kanan',
-                S: '⬇️ Hadap Depan',
-                N: '⬆️ Hadap Belakang',
+                W: '⬅️ Kiri',
+                E: '➡️ Kanan',
+                S: '⬇️ Depan',
+                N: '⬆️ Blkg',
               };
               badgeEl.textContent = orientLabels[orient] || orient;
             }
@@ -3590,11 +4267,7 @@ const dataPlaceRooms = {
               if (behaviorLabel) {
                 const bMode = selected.behavior || 'stationary';
                 behaviorLabel.textContent =
-                  bMode === 'patrol_small'
-                    ? 'Perilaku: Patroli'
-                    : bMode === 'look_around'
-                      ? 'Perilaku: Menoleh'
-                      : 'Perilaku: Diam';
+                  bMode === 'patrol_small' ? 'Patroli' : bMode === 'look_around' ? 'Menoleh' : 'Diam';
               }
             }
             if (engine) {
@@ -3610,9 +4283,13 @@ const dataPlaceRooms = {
           }
         }
 
-        // Update Mini-Map Radar widget
+        // Update Mini-Map Radar widget & Zoom Badge
+        const zoomResetLabel = document.getElementById('btn-minimap-zoom-reset');
+        if (zoomResetLabel && engine) {
+          zoomResetLabel.textContent = `${Math.round(engine.getZoom() * 100)}%`;
+        }
         if (minimapWidget) {
-          if ((isEnabled && !editor.isPlaytesting()) || isVisitorRadarOpen) {
+          if ((isEnabled && !isPlay && !isZen) || isVisitorRadarOpen) {
             minimapWidget.classList.remove('hidden');
             minimapWidget.style.display = 'flex';
             if (minimapCanvas) {
@@ -3625,89 +4302,41 @@ const dataPlaceRooms = {
         }
 
         if (editorStatus) {
-          if (tool === 'move') {
-            if (selectedBuildings.length > 1) {
-              editorStatus.textContent = `Multi-seleksi: ${selectedBuildings.length} objek terpilih. Tarik kursor / panah keyboard / Tekan R putar / Ctrl+D duplikat / Delete hapus`;
-            } else if (selected) {
-              const orient = selected.orientation ? ` [${selected.orientation}]` : '';
-              editorStatus.textContent = `Objek Terpilih: ${selected.name}${orient} (${selected.x}, ${selected.y}) - Tarik kursor / panah / Tekan R putar / Ctrl+D duplikat / ESC lepas`;
-            } else {
-              editorStatus.textContent = 'Mode Geser: Klik & Tarik objek, pilih dari dropdown, atau tarik kotak seleksi (Marquee) di petak kosong';
-            }
-          } else if (tool === 'brush') {
-            editorStatus.textContent = `Mode Kuas [${brushTile.toUpperCase()} ${brushSize}×${brushSize}]: Klik atau seret untuk mengecat lantai`;
-          } else if (tool === 'erase') {
-            editorStatus.textContent = `Mode Hapus Lantai [${brushSize}×${brushSize}]: Klik atau seret untuk menghapus lantai / jalan kembali menjadi rumput hijau`;
-          } else if (tool === 'line') {
-            editorStatus.textContent = `Mode Garis Lurus (L): Klik dan tarik dari titik A ke titik B untuk membuat jalan / semak lurus`;
-          } else if (tool === 'rect') {
-            editorStatus.textContent = `Mode Kotak Fill (R): Klik dan tarik area persegi untuk mengecat plaza / taman sekaligus`;
-          } else if (tool === 'bucket') {
-            editorStatus.textContent = `Mode Ember (B): Klik lantai untuk flood-fill area yang terhubung (Max 500 petak)`;
-          } else if (tool === 'eyedropper') {
-            editorStatus.textContent = `Mode Pipet (I / Alt+Klik): Klik objek untuk memilihnya, atau klik lantai untuk menyalin jenisnya`;
-          } else if (tool === 'collision') {
-            editorStatus.textContent = `Inspektur Tabrakan (C): Hijau=Bebas, Merah=Solid, Kuning=Pintu, Biru=NPC. Klik petak untuk toggle batas solid`;
-          }
+          editorStatus.textContent = `Mode: ${toolLabelMap[tool] || tool}`;
         }
       };
 
       editor.subscribe(updateEditorUI);
       updateEditorUI();
 
-      townObjectPicker?.addEventListener('change', () => {
-        const id = townObjectPicker.value;
-        if (!id) {
-          editor.selectBuilding(null);
-          sfx.select();
-          return;
-        }
-        editor.setTool('move');
-        editor.selectBuilding(id);
-        const b = townConfig.getBuilding(id);
-        if (b && engine) {
-          const targetX = (b.x + b.w / 2) * 16;
-          const targetY = (b.y + b.h / 2) * 16;
-          engine.panCamera(targetX - engine.getCameraX(), targetY - engine.getCameraY());
-        }
+      // Radar Integrated Zoom Stepper
+      document.getElementById('btn-minimap-zoom-out')?.addEventListener('click', () => {
+        engine?.zoomBy(0.87);
+        updateEditorUI();
+        sfx.select();
+      });
+      document.getElementById('btn-minimap-zoom-in')?.addEventListener('click', () => {
+        engine?.zoomBy(1.15);
+        updateEditorUI();
+        sfx.select();
+      });
+      document.getElementById('btn-minimap-zoom-reset')?.addEventListener('click', () => {
+        engine?.setZoom(1);
+        updateEditorUI();
         sfx.select();
       });
 
-      btnEditorRotate?.addEventListener('click', () => {
-        editor.rotateSelected();
-        sfx.select();
-      });
-
-      btnEditorRotLeft?.addEventListener('click', () => {
-        editor.rotateSelectedDirection('left');
-        sfx.select();
-      });
       btnTransformRotLeft?.addEventListener('click', () => {
         editor.rotateSelectedDirection('left');
-        sfx.select();
-      });
-
-      btnEditorRotRight?.addEventListener('click', () => {
-        editor.rotateSelectedDirection('right');
         sfx.select();
       });
       btnTransformRotRight?.addEventListener('click', () => {
         editor.rotateSelectedDirection('right');
         sfx.select();
       });
-
-      btnEditorApply?.addEventListener('click', () => {
-        editor.applySelectedTransform();
-        sfx.heal();
-      });
       btnTransformApply?.addEventListener('click', () => {
         editor.applySelectedTransform();
         sfx.heal();
-      });
-
-      btnEditorCancel?.addEventListener('click', () => {
-        editor.cancelSelectedTransform();
-        sfx.select();
       });
       btnTransformCancel?.addEventListener('click', () => {
         editor.cancelSelectedTransform();
@@ -3727,80 +4356,6 @@ const dataPlaceRooms = {
           };
           showToast(`🐾 ${sel.name}: ${textMap[next]}`);
         }
-      });
-
-      btnEditorDuplicate?.addEventListener('click', () => {
-        editor.duplicateSelected();
-        sfx.select();
-      });
-
-      const inspectorName = document.getElementById('town-inspector-name') as HTMLInputElement | null;
-      const inspectorLink = document.getElementById('town-inspector-link') as HTMLInputElement | null;
-      const inspectorScale = document.getElementById('town-inspector-scale') as HTMLInputElement | null;
-      const inspectorScaleVal = document.getElementById('town-inspector-scale-val');
-      const inspectorBehavior = document.getElementById('town-inspector-behavior') as HTMLSelectElement | null;
-      const btnInspectorPreview = document.getElementById('btn-inspector-preview-move');
-
-      inspectorScale?.addEventListener('input', () => {
-        if (inspectorScaleVal) inspectorScaleVal.textContent = `${Number(inspectorScale.value).toFixed(2)}×`;
-      });
-
-      btnEditorDialogue?.addEventListener('click', () => {
-        const selected = editor.getSelectedBuilding();
-        if (!selected) return;
-        const dialogueModal = document.getElementById('town-editor-dialogue-modal') as HTMLDialogElement | null;
-        const titleEl = document.getElementById('town-dialogue-modal-title');
-        const inputEl = document.getElementById('town-dialogue-input') as HTMLTextAreaElement | null;
-        if (titleEl) titleEl.textContent = `🎛️ Visual Inspector 2.0: ${selected.name}`;
-        if (inspectorName) inspectorName.value = selected.name || '';
-        if (inspectorLink) inspectorLink.value = selected.link || '';
-        const sc = selected.scaleMultiplier ?? 1;
-        if (inspectorScale) inspectorScale.value = String(sc);
-        if (inspectorScaleVal) inspectorScaleVal.textContent = `${sc.toFixed(2)}×`;
-        if (inspectorBehavior) inspectorBehavior.value = selected.behavior || 'stationary';
-        if (btnInspectorPreview) {
-          btnInspectorPreview.style.display = selected.kind === 'npc' ? 'inline-flex' : 'none';
-        }
-        if (inputEl) {
-          const tpl = SPAWNABLE_TEMPLATES.find((t) => t.id === selected.id || t.subType === selected.subType);
-          inputEl.value = selected.dialogue !== undefined ? selected.dialogue : (tpl?.defaultDialogue || '');
-        }
-        dialogueModal?.showModal();
-        sfx.select();
-      });
-
-      btnInspectorPreview?.addEventListener('click', () => {
-        const selected = editor.getSelectedBuilding();
-        if (!selected || !engine) return;
-        const pokeKey = selected.subType || selected.id.split('_')[0] || 'pikachu';
-        engine.triggerSignatureMove(pokeKey, selected.x, selected.y);
-        sfx.confirm();
-        showToast(`⚡ Preview Signature Move: ${selected.name}`);
-      });
-
-      document.getElementById('btn-dialogue-save')?.addEventListener('click', () => {
-        const selected = editor.getSelectedBuilding();
-        const inputEl = document.getElementById('town-dialogue-input') as HTMLTextAreaElement | null;
-        if (selected && inputEl) {
-          townConfig.updateObjectProperties(selected.id, {
-            name: inspectorName?.value,
-            dialogue: inputEl.value.trim(),
-            link: inspectorLink?.value,
-            scaleMultiplier: inspectorScale ? Number(inspectorScale.value) : undefined,
-            behavior: (inspectorBehavior?.value as 'stationary' | 'look_around' | 'patrol_small') || 'stationary',
-          });
-          showToast(`🎛️ Properti "${inspectorName?.value || selected.name}" disimpan!`);
-          sfx.heal();
-        }
-        (document.getElementById('town-editor-dialogue-modal') as HTMLDialogElement | null)?.close();
-      });
-
-      document.getElementById('btn-dialogue-cancel')?.addEventListener('click', () => {
-        (document.getElementById('town-editor-dialogue-modal') as HTMLDialogElement | null)?.close();
-      });
-
-      document.getElementById('btn-close-dialogue-modal')?.addEventListener('click', () => {
-        (document.getElementById('town-editor-dialogue-modal') as HTMLDialogElement | null)?.close();
       });
 
       // ─── 🧩 Prefab Blueprints Modal Handlers ───
@@ -3861,6 +4416,7 @@ const dataPlaceRooms = {
       };
 
       document.getElementById('btn-editor-prefabs')?.addEventListener('click', () => {
+        toggleMorePopover(false);
         renderPrefabsList();
         prefabsModal?.showModal();
         sfx.select();
@@ -3951,40 +4507,12 @@ const dataPlaceRooms = {
       };
 
       document.getElementById('btn-editor-snapshots')?.addEventListener('click', () => {
+        toggleMorePopover(false);
         renderSnapshotsModal();
         snapshotsModal?.showModal();
         sfx.select();
       });
       document.getElementById('btn-close-snapshots-modal')?.addEventListener('click', () => snapshotsModal?.close());
-
-      btnEditorDeselect?.addEventListener('click', () => {
-        editor.selectBuilding(null);
-        sfx.select();
-        showToast('Seleksi objek dilepas.');
-      });
-
-      btnEditorDelete?.addEventListener('click', () => {
-        editor.deleteSelected();
-        if (townObjectPicker) {
-          townObjectPicker.value = '';
-        }
-        sfx.select();
-      });
-
-      btnEditorLock?.addEventListener('click', () => {
-        editor.toggleSelectedLock();
-        sfx.select();
-      });
-
-      btnEditorLayerDown?.addEventListener('click', () => {
-        editor.adjustSelectedZIndex(-1);
-        sfx.select();
-      });
-
-      btnEditorLayerUp?.addEventListener('click', () => {
-        editor.adjustSelectedZIndex(1);
-        sfx.select();
-      });
 
       btnEditorValidate?.addEventListener('click', () => {
         editor.validateReachability();
@@ -3994,7 +4522,7 @@ const dataPlaceRooms = {
       btnMinimapToggle?.addEventListener('click', () => {
         isMinimapCollapsed = !isMinimapCollapsed;
         if (minimapBody) {
-          minimapBody.style.display = isMinimapCollapsed ? 'none' : 'block';
+          minimapBody.style.display = isMinimapCollapsed ? 'none' : 'flex';
         }
         if (btnMinimapToggle) {
           btnMinimapToggle.textContent = isMinimapCollapsed ? '🔼' : '🔽';
@@ -4046,9 +4574,7 @@ const dataPlaceRooms = {
 
       btnEditorMinimize?.addEventListener('click', () => {
         isMinimized = !isMinimized;
-        if (editorBody) {
-          editorBody.style.display = isMinimized ? 'none' : 'block';
-        }
+        updateEditorUI();
         if (iconEditorMinimize) {
           iconEditorMinimize.textContent = isMinimized ? '🔼' : '🔽';
         }
@@ -4062,7 +4588,6 @@ const dataPlaceRooms = {
         }
       };
 
-      btnEditorQuickClose?.addEventListener('click', closeEditor);
       btnEditorClose?.addEventListener('click', closeEditor);
 
       toolBtnMove?.addEventListener('click', () => {
@@ -4153,13 +4678,8 @@ const dataPlaceRooms = {
             playtestBar.classList.add('hidden');
             playtestBar.style.display = 'none';
           }
-          if (editor.isEnabled()) {
-            if (editorToolbar) {
-              editorToolbar.classList.remove('hidden');
-              editorToolbar.style.display = 'flex';
-            }
-          }
         }
+        updateEditorUI();
       }) as EventListener);
 
       tileBtns.forEach((btn) => {
@@ -4178,6 +4698,7 @@ const dataPlaceRooms = {
       });
 
       btnEditorExport?.addEventListener('click', () => {
+        toggleMorePopover(false);
         if (codeOutput && exportModal) {
           codeOutput.textContent = townConfig.exportCode();
           exportModal.showModal();
@@ -4202,6 +4723,7 @@ const dataPlaceRooms = {
       });
 
       btnEditorReset?.addEventListener('click', () => {
+        toggleMorePopover(false);
         if (window.confirm('Kembalikan semua posisi bangunan & petak kustom ke tata letak awal?')) {
           townConfig.resetToDefaults();
           sfx.select();
@@ -4216,6 +4738,12 @@ const dataPlaceRooms = {
 
       const editor = engine?.getEditor();
       const editorActive = editor?.isEnabled() || editor?.isPlaytesting();
+
+      if (editor?.isEnabled() && !editor.isPlaytesting() && e.key === '?') {
+        e.preventDefault();
+        (document.getElementById('town-editor-shortcuts-modal') as HTMLDialogElement | null)?.showModal();
+        return;
+      }
 
       if (!editorActive) {
         if (e.key === 'x' || e.key === 'X') {
@@ -4255,7 +4783,9 @@ const dataPlaceRooms = {
     // Back to room / POV Exit button
     const povExit = document.querySelector('[data-pov-exit]');
     povExit?.addEventListener('click', () => {
-      sessionStorage.setItem('town:respawn', '22,28');
+      if (spawnPlace !== 'town') {
+        sessionStorage.setItem('town:respawn', townConfig.getExitRespawnForPlace(spawnPlace));
+      }
       window.location.href = '/';
     });
 

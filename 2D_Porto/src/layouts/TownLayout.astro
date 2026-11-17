@@ -105,7 +105,12 @@ const canonicalUrl = Astro.url.toString();
 
           <div class="panel__bar">
             {place !== 'town' && (
-              <a class="btn btn--small panel__back" href={place === 'digimon' ? '/?from=digimon' : '/'} onclick={place === 'cafe' ? "sessionStorage.setItem('town:respawn', '29,32')" : place === 'arena' ? "sessionStorage.setItem('town:respawn', '38,44')" : place === 'garden' ? "sessionStorage.setItem('town:respawn', '28,44')" : place === 'neighbour' ? "sessionStorage.setItem('town:respawn', '27,25')" : place === 'digimon' ? "sessionStorage.setItem('town:respawn', '22,58,up')" : "sessionStorage.setItem('town:respawn', '22,28')"} aria-label="Back to the town map">← Town</a>
+              <a
+                class="btn btn--small panel__back"
+                href={place === 'digimon' ? '/?from=digimon' : '/'}
+                data-exit-place={place}
+                aria-label="Back to the town map"
+              >← Town</a>
             )}
             <span class="panel__where pixel" aria-hidden="true">
               {place === 'dev' ? '💻 Dev Center' : place === 'lab' ? '🔬 Research Lab' : place === 'arcade' ? '🕹️ Arcade' : place === 'about' ? '🏠 Home' : place === 'reception' ? '🏥 Poké Center' : place === 'mart' ? '🏪 Poké Mart' : place === 'tower' ? '🏢 Tech Tower' : place === 'cafe' ? '☕ Poké-Café & Bar' : place === 'arena' ? '⚔️ Gladiator Arena' : place === 'garden' ? '🌸 Berry Garden' : place === 'neighbour' ? "🏡 Neighbour's House" : place === 'digimon' ? '👾 Digi-Sanctuary' : '🏡 Town Square'}
@@ -179,6 +184,38 @@ const canonicalUrl = Astro.url.toString();
     {place === 'digimon' && <DigiDexModal />}
 
     <script>
+      import { townConfig } from '../engine/townConfig';
+
+      function initExitRespawnHook() {
+        const w = window as unknown as { __CURRENT_PLACE__?: string; __townExitHookBound?: boolean };
+        if (w.__townExitHookBound) return;
+        w.__townExitHookBound = true;
+
+        document.addEventListener(
+          'click',
+          (ev) => {
+            const target = ev.target as HTMLElement | null;
+            const anchor = target?.closest('a[href]') as HTMLAnchorElement | null;
+            if (!anchor) return;
+            const href = anchor.getAttribute('href') || '';
+            if (href !== '/' && href !== '/?from=digimon') return;
+
+            const currentPlace = w.__CURRENT_PLACE__ || 'town';
+            const exitPlace = anchor.getAttribute('data-exit-place') || currentPlace;
+            if (!exitPlace || exitPlace === 'town') return;
+
+            try {
+              if (exitPlace !== 'digimon') {
+                townConfig.setActiveWorld('town');
+                townConfig.loadFromStorage();
+              }
+              sessionStorage.setItem('town:respawn', townConfig.getExitRespawnForPlace(exitPlace));
+            } catch {}
+          },
+          true
+        );
+      }
+
       function initPanelTab() {
         const tab = document.querySelector<HTMLButtonElement>('[data-panel-tab]');
         const panel = document.querySelector<HTMLElement>('.panel');
@@ -257,6 +294,7 @@ const canonicalUrl = Astro.url.toString();
       }
 
       function initLayoutAll() {
+        initExitRespawnHook();
         initPanelTab();
         initPanelLayout();
       }

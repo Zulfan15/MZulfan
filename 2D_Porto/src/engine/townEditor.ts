@@ -46,6 +46,7 @@ export interface TownEditorState {
   showGrid: boolean;
   showCollisionOverlay: boolean;
   isPlaytesting: boolean;
+  zenMode: boolean;
   shapeStartTile: { x: number; y: number } | null;
   shapeCurrentTile: { x: number; y: number } | null;
   marqueeStartTile: { x: number; y: number } | null;
@@ -199,6 +200,7 @@ function getFloodFillPoints(
 export class TownEditor {
   private engine: TownEngine;
   private isPanning = false;
+  private isSpaceDown = false;
   private lastScreenX = 0;
   private lastScreenY = 0;
   private preActionSnapshot: TownStateSnapshot | null = null;
@@ -219,6 +221,7 @@ export class TownEditor {
     showGrid: true,
     showCollisionOverlay: false,
     isPlaytesting: false,
+    zenMode: false,
     shapeStartTile: null,
     shapeCurrentTile: null,
     marqueeStartTile: null,
@@ -287,12 +290,172 @@ export class TownEditor {
       this.draggingSubPin = null;
       this.unreachableTargets = [];
       this.state.isPlaytesting = false;
+      this.state.zenMode = false;
       this.isPanning = false;
+      this.isSpaceDown = false;
     }
     this.updateCursor();
     this.engine.invalidateBackgroundCanvas();
     this.engine.wake();
     this.notify();
+  }
+
+  public isZenMode(): boolean {
+    return this.state.zenMode;
+  }
+
+  public toggleZenMode() {
+    if (!this.state.enabled) return;
+    this.state.zenMode = !this.state.zenMode;
+    this.notify();
+    window.dispatchEvent(
+      new CustomEvent('town:editor-toast', {
+        detail: this.state.zenMode
+          ? '👁️ Mode Zen aktif (Tekan Tab untuk memunculkan kembali Studio Dock).'
+          : '🛠️ Studio Dock ditampilkan kembali.',
+      })
+    );
+  }
+
+  public focusBuilding(id: string | null) {
+    if (!id) {
+      this.selectBuilding(null);
+      return;
+    }
+    this.setTool('move');
+    this.selectBuilding(id);
+    const b = townConfig.getBuilding(id);
+    if (b) {
+      const targetX = (b.x + b.w / 2) * TILE_SIZE;
+      const targetY = (b.y + b.h / 2) * TILE_SIZE;
+      this.engine.panCamera(
+        targetX - this.engine.getCameraX(),
+        targetY - this.engine.getCameraY()
+      );
+      this.engine.wake();
+    }
+  }
+
+  public alignSelected(
+    mode:
+      | 'left'
+      | 'centerX'
+      | 'right'
+      | 'top'
+      | 'centerY'
+      | 'bottom'
+      | 'distributeX'
+      | 'distributeY'
+  ) {
+    const selected = this.getSelectedBuildings().filter((b) => !b.locked);
+    if (selected.length < 2) {
+      window.dispatchEvent(
+        new CustomEvent('town:editor-toast', {
+          detail: '⚠️ Pilih minimal 2 objek yang tidak terkunci untuk meratakan.',
+        })
+      );
+      return;
+    }
+    const map = this.engine.getMap();
+    const snap = townConfig.captureSnapshot();
+
+    const minX = Math.min(...selected.map((b) => b.x));
+    const maxR = Math.max(...selected.map((b) => b.x + b.w));
+    const midX = (minX + maxR) / 2;
+    const minY = Math.min(...selected.map((b) => b.y));
+    const maxB = Math.max(...selected.map((b) => b.y + b.h));
+    const midY = (minY + maxB) / 2;
+
+    const moves: {
+      id: string;
+      x: number;
+      y: number;
+      doorX?: number;
+      doorY?: number;
+      labelX?: number;
+      labelY?: number;
+    }[] = [];
+
+    if (mode === 'distributeX') {
+      const sorted = selected.slice().sort((a, b) => a.x - b.x);
+      const totalObjW = sorted.reduce((acc, b) => acc + b.w, 0);
+      const span = sorted[sorted.length - 1].x + sorted[sorted.length - 1].w - sorted[0].x;
+      const gap = Math.max(1, Math.round((span - totalObjW) / Math.max(1, sorted.length - 1)));
+      let cursorX = sorted[0].x;
+      for (const b of sorted) {
+        const nx = Math.max(0, Math.min(map.w - b.w, cursorX));
+        const dx = nx - b.x;
+        moves.push({
+          id: b.id,
+          x: nx,
+          y: b.y,
+          doorX: b.doorX !== undefined ? b.doorX + dx : undefined,
+          doorY: b.doorY,
+          labelX: b.labelX !== undefined ? Number((b.labelX + dx).toFixed(1)) : undefined,
+          labelY: b.labelY,
+        });
+        cursorX = nx + b.w + gap;
+      }
+    } else if (mode === 'distributeY') {
+      const sorted = selected.slice().sort((a, b) => a.y - b.y);
+      const totalObjH = sorted.reduce((acc, b) => acc + b.h, 0);
+      const span = sorted[sorted.length - 1].y + sorted[sorted.length - 1].h - sorted[0].y;
+      const gap = Math.max(1, Math.round((span - totalObjH) / Math.max(1, sorted.length - 1)));
+      let cursorY = sorted[0].y;
+      for (const b of sorted) {
+        const ny = Math.max(0, Math.min(map.h - b.h, cursorY));
+        const dy = ny - b.y;
+        moves.push({
+          id: b.id,
+          x: b.x,
+          y: ny,
+          doorX: b.doorX,
+          doorY: b.doorY !== undefined ? b.doorY + dy : undefined,
+          labelX: b.labelX,
+          labelY: b.labelY !== undefined ? Number((b.labelY + dy).toFixed(1)) : undefined,
+        });
+        cursorY = ny + b.h + gap;
+      }
+    } else {
+      for (const b of selected) {
+        let nx = b.x;
+        let ny = b.y;
+        if (mode === 'left') nx = minX;
+        else if (mode === 'right') nx = maxR - b.w;
+        else if (mode === 'centerX') nx = Math.round(midX - b.w / 2);
+        else if (mode === 'top') ny = minY;
+        else if (mode === 'bottom') ny = maxB - b.h;
+        else if (mode === 'centerY') ny = Math.round(midY - b.h / 2);
+
+        nx = Math.max(0, Math.min(map.w - b.w, nx));
+        ny = Math.max(0, Math.min(map.h - b.h, ny));
+        const dx = nx - b.x;
+        const dy = ny - b.y;
+        moves.push({
+          id: b.id,
+          x: nx,
+          y: ny,
+          doorX: b.doorX !== undefined ? b.doorX + dx : undefined,
+          doorY: b.doorY !== undefined ? b.doorY + dy : undefined,
+          labelX: b.labelX !== undefined ? Number((b.labelX + dx).toFixed(1)) : undefined,
+          labelY: b.labelY !== undefined ? Number((b.labelY + dy).toFixed(1)) : undefined,
+        });
+      }
+    }
+
+    if (moves.length > 0) {
+      townConfig.moveBuildingsBatch(moves);
+      townConfig.pushSnapshot(snap);
+      this.syncTransformSnapshots();
+      this.engine.invalidateBackgroundCanvas();
+      this.engine.wake();
+      this.notify();
+      window.dispatchEvent(
+        new CustomEvent('town:editor-toast', {
+          detail: `📐 ${moves.length} objek diratakan (${mode})!`,
+        })
+      );
+    }
   }
 
   public isPlaytesting(): boolean {
@@ -340,6 +503,10 @@ export class TownEditor {
     }
     if (this.isPanning) {
       canvas.style.cursor = 'grabbing';
+      return;
+    }
+    if (this.isSpaceDown) {
+      canvas.style.cursor = 'grab';
       return;
     }
     if (this.state.tool === 'brush') {
@@ -1208,10 +1375,11 @@ export class TownEditor {
   public handleMouseDown(e: MouseEvent) {
     if (!this.state.enabled || this.state.isPlaytesting) return;
 
-    // Middle click, right click, or Shift+Click in non-move mode = Pan Camera
+    // Middle click, right click, Space+Left-Drag, or Shift+Click in non-move mode = Pan Camera
     if (
       e.button === 1 ||
       e.button === 2 ||
+      (e.button === 0 && this.isSpaceDown) ||
       (e.button === 0 && e.shiftKey && this.state.tool !== 'move')
     ) {
       this.isPanning = true;
@@ -1604,8 +1772,16 @@ export class TownEditor {
       return;
     }
 
+    const prevHover = this.state.hoverTile;
     const tile = this.screenToTile(e.clientX, e.clientY);
     this.state.hoverTile = tile;
+    if (tile && (!prevHover || prevHover.x !== tile.x || prevHover.y !== tile.y)) {
+      window.dispatchEvent(
+        new CustomEvent('town:editor-telemetry', {
+          detail: { x: tile.x, y: tile.y, tool: this.state.tool, brushSize: this.state.brushSize },
+        })
+      );
+    }
 
     // Handle Sub-Pin Dragging (🟣 Label Pin & 🟡 Door Pin)
     if (this.draggingSubPin) {
@@ -1983,6 +2159,21 @@ export class TownEditor {
 
   private setupKeyboardShortcuts() {
     if (typeof window === 'undefined') return;
+    window.addEventListener('keyup', (e) => {
+      if (e.code === 'Space' && this.isSpaceDown) {
+        this.isSpaceDown = false;
+        this.isPanning = false;
+        this.updateCursor();
+        this.engine.wake();
+      }
+    });
+    window.addEventListener('blur', () => {
+      if (this.isSpaceDown || this.isPanning) {
+        this.isSpaceDown = false;
+        this.isPanning = false;
+        this.updateCursor();
+      }
+    });
     window.addEventListener('keydown', (e) => {
       if (['INPUT', 'TEXTAREA', 'SELECT'].includes((e.target as HTMLElement)?.tagName)) {
         return;
@@ -2004,6 +2195,24 @@ export class TownEditor {
       }
 
       if (!this.state.enabled) return;
+
+      // Spacebar Hold = Hand Pan Cursor
+      if (e.code === 'Space') {
+        e.preventDefault();
+        if (!this.isSpaceDown) {
+          this.isSpaceDown = true;
+          this.updateCursor();
+          this.engine.wake();
+        }
+        return;
+      }
+
+      // Tab = Zen Canvas Mode
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        this.toggleZenMode();
+        return;
+      }
 
       // Save to disk with Ctrl+S / Cmd+S
       if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S')) {
@@ -2540,6 +2749,29 @@ export class TownEditor {
         ctx.fillRect(p.x * TILE_SIZE, p.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
         ctx.strokeRect(p.x * TILE_SIZE, p.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
       }
+
+      // On-Canvas Shape Dimension Telemetry Badge
+      const wTiles = Math.abs(this.state.shapeCurrentTile.x - this.state.shapeStartTile.x) + 1;
+      const hTiles = Math.abs(this.state.shapeCurrentTile.y - this.state.shapeStartTile.y) + 1;
+      const dimLabel =
+        this.state.tool === 'line'
+          ? `📏 Panjang: ${previewPoints.length} ubin`
+          : `⬛ ${wTiles} × ${hTiles} (${previewPoints.length} ubin)`;
+      const cx = (this.state.shapeCurrentTile.x + 1) * TILE_SIZE + 4;
+      const cy = Math.max(12, this.state.shapeCurrentTile.y * TILE_SIZE - 8);
+      ctx.font = 'bold 8px monospace';
+      const dtw = ctx.measureText(dimLabel).width + 10;
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.92)';
+      ctx.beginPath();
+      ctx.roundRect(cx, cy - 7, dtw, 15, 3);
+      ctx.fill();
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+      ctx.fillStyle = '#e0f2fe';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(dimLabel, cx + 5, cy + 0.5);
     }
 
     // 6. Hover Tile / Multi-Tile Brush Footprint Highlight

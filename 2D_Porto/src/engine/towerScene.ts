@@ -2,6 +2,7 @@ import type { Dir } from './types';
 import { TILE_SIZE } from './sprites';
 import { drawPixelText } from './devScene';
 import { XURKITREE_IMAGE_SRC } from './xurkitreeSprite';
+import type { PokemonPMDAnimator } from './pokemonPMDAnimator';
 
 let xurkitreeImg: HTMLImageElement | null = null;
 if (typeof Image !== 'undefined') {
@@ -487,7 +488,8 @@ function drawReceptionDesk(ctx: CanvasRenderingContext2D, x: number, y: number, 
 export function renderTowerAnimations(
   ctx: CanvasRenderingContext2D,
   tick: number,
-  activeFloor: '1F' | '2F' | '3F' | '4F' = '1F'
+  activeFloor: '1F' | '2F' | '3F' | '4F' = '1F',
+  pmdAnimator?: PokemonPMDAnimator
 ) {
   ctx.save();
 
@@ -534,18 +536,30 @@ export function renderTowerAnimations(
   ctx.arc(cx, cy, 26, 0, Math.PI * 2);
   ctx.fill();
 
-  // Draw Xurkitree authentic Sun & Moon sprite
-  if (xurkitreeImg && xurkitreeImg.complete && xurkitreeImg.naturalWidth > 0) {
-    ctx.drawImage(xurkitreeImg, cx - 19, cy - 19, 38, 38);
-  } else {
-    // Fallback pixel art electric core
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(cx - 3, cy - 8, 6, 6);
-    ctx.fillStyle = '#fde047';
-    ctx.fillRect(cx - 5, cy - 10, 10, 2);
-    ctx.fillRect(cx - 5, cy - 2, 10, 2);
-    ctx.fillStyle = '#0f172a';
-    ctx.fillRect(cx - 2, cy - 2, 4, 12);
+  // Draw Xurkitree PMD animated sprite (with fallback to static Sun & Moon sprite)
+  const xurDrawn = pmdAnimator?.draw(
+    ctx,
+    'xurkitree',
+    'idle',
+    'down',
+    cx,
+    3 * TILE_SIZE + 17 + floatY * 0.4,
+    tick,
+    1.05
+  );
+  if (!xurDrawn) {
+    if (xurkitreeImg && xurkitreeImg.complete && xurkitreeImg.naturalWidth > 0) {
+      ctx.drawImage(xurkitreeImg, cx - 19, cy - 19, 38, 38);
+    } else {
+      // Fallback pixel art electric core
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(cx - 3, cy - 8, 6, 6);
+      ctx.fillStyle = '#fde047';
+      ctx.fillRect(cx - 5, cy - 10, 10, 2);
+      ctx.fillRect(cx - 5, cy - 2, 10, 2);
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(cx - 2, cy - 2, 4, 12);
+    }
   }
 
   // Dynamic lightning spark discharges

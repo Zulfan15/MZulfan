@@ -8,6 +8,196 @@ import { profile } from '../lib/profile';
 const githubUrl = profile.socials.find((s) => s.label === 'GitHub')?.url || 'https://github.com/Zulfan15';
 const linkedinUrl = profile.socials.find((s) => s.label === 'LinkedIn')?.url || 'https://www.linkedin.com/in/muhammad-zulfan-anggadhiputra';
 const emailUrl = `mailto:${profile.person.email}`;
+
+interface CampusFacility {
+  href: string;
+  icon: string;
+  bgClass: string;
+  zone: string;
+  category: 'engineering' | 'ai' | 'interactive';
+  title: string;
+  desc: string;
+  tags: string[];
+  guardian: string;
+  badgeId?: string;
+  badgeLabel?: string;
+  cta: string;
+}
+
+const CAMPUS_FACILITIES: CampusFacility[] = [
+  {
+    href: '/dev',
+    icon: '💻',
+    bgClass: 'bg-blue-100 border-blue-300',
+    zone: 'North Zone',
+    category: 'engineering',
+    title: 'Dev Center · Mission Control',
+    desc: 'Production full-stack engineering hub, telemetry radar wall, distributed microservices, and Snorlax at Mission Control.',
+    tags: ['FastAPI', 'Kafka', 'Redis'],
+    guardian: 'Snorlax · Logs Guardian',
+    badgeId: 'cascade',
+    badgeLabel: '⚡ Cascade Badge',
+    cta: 'Enter Route →',
+  },
+  {
+    href: '/lab',
+    icon: '🔬',
+    bgClass: 'bg-emerald-100 border-emerald-300',
+    zone: 'North-East Zone',
+    category: 'ai',
+    title: 'Research Lab · AI & Vision',
+    desc: 'AeroScan UAV detection testbed, IndoSpam transformer classifier, interactive micro-sandboxes, and ITENAS thesis papers.',
+    tags: ['YOLOv8', 'SAHI', 'PyTorch'],
+    guardian: 'Dialga · Temporal R&D',
+    badgeId: 'vision',
+    badgeLabel: '👁️ Vision Badge',
+    cta: 'Enter Route →',
+  },
+  {
+    href: '/tower',
+    icon: '🏢',
+    bgClass: 'bg-cyan-100 border-cyan-300',
+    zone: 'North-West Zone',
+    category: 'engineering',
+    title: 'Tech Tower · Innovation HQ',
+    desc: '4-floor executive facility featuring the ESP32 Robotics workshop, Huawei NOC cloud firewall simulator, and Xurkitree AI Host.',
+    tags: ['ESP32', 'Huawei HCIA', 'Robotics'],
+    guardian: 'Xurkitree · Cloud Conduit',
+    badgeId: 'stratos',
+    badgeLabel: '🗼 Stratos Badge',
+    cta: 'Enter Route →',
+  },
+  {
+    href: '/arena',
+    icon: '⚔️',
+    bgClass: 'bg-rose-100 border-rose-300',
+    zone: 'East Colosseum',
+    category: 'ai',
+    title: 'Battle Arena · Gladiatoria',
+    desc: 'Colosseum duel sand pit led by Champion Mewtwo: test your architectural choices and conquer the Six Trials of Rome.',
+    tags: ['Architecture Quiz', 'Mewtwo', 'Trials'],
+    guardian: 'Mewtwo · Psychic Champion',
+    badgeId: 'tactical',
+    badgeLabel: '⚔️ Tactical Badge',
+    cta: 'Enter Arena →',
+  },
+  {
+    href: '/arcade',
+    icon: '🕹️',
+    bgClass: 'bg-amber-100 border-amber-300',
+    zone: 'East Plaza',
+    category: 'interactive',
+    title: 'Retro Arcade · Kalah AI',
+    desc: 'Challenge Mythical Deoxys at FairKalah Minimax Mancala with configurable search depths and verified scoreboards.',
+    tags: ['Minimax', 'Game AI', 'Heuristic'],
+    guardian: 'Deoxys · FairKalah AI',
+    badgeId: 'heuristic',
+    badgeLabel: '🕹️ Heuristic Badge',
+    cta: 'Play Game →',
+  },
+  {
+    href: '/digimon',
+    icon: '👾',
+    bgClass: 'bg-indigo-100 border-indigo-300',
+    zone: 'Island Warp',
+    category: 'interactive',
+    title: 'Digi-Sanctuary · Digital World',
+    desc: 'Expansive 40×45 Digital Island spanning 4 Elemental Zones (Flame Canyon, Cyber Dome, Cryo Bay, Holy Sanctuary) and DigiDex.',
+    tags: ['40×45 Island', 'DigiDex', '4 Zones'],
+    guardian: 'Omnimon · Island Warden',
+    badgeId: 'sanctuary',
+    badgeLabel: '🌐 Sanctuary Badge',
+    cta: 'Warp Island →',
+  },
+  {
+    href: '/garden',
+    icon: '🌸',
+    bgClass: 'bg-pink-100 border-pink-300',
+    zone: 'Garden Lane',
+    category: 'interactive',
+    title: 'Berry Garden · Botanical Lab',
+    desc: 'Interactive 6-plot heirloom berry plantation tended by Gardevoir & Celebi with Copper Berry Blender and irrigation controls.',
+    tags: ['Gardevoir', 'Celebi', 'UI/UX Harvest'],
+    guardian: 'Gardevoir & Celebi',
+    badgeId: 'botanical',
+    badgeLabel: '🌿 Botanical Badge',
+    cta: 'Visit Garden →',
+  },
+  {
+    href: '/twin',
+    icon: '🧬',
+    bgClass: 'bg-violet-100 border-violet-300',
+    zone: 'Innovation Hub',
+    category: 'ai',
+    title: 'Digital Twin · Neural Zulfan AI',
+    desc: 'Conversational neural persona modeled on Zulfan’s real-world engineering background, system design choices, and career journey.',
+    tags: ['LLM Persona', 'RAG', 'AI Twin'],
+    guardian: 'Neural Twin Persona',
+    badgeId: 'empathy',
+    badgeLabel: '🤖 Empathy Badge',
+    cta: 'Chat with Twin →',
+  },
+  {
+    href: '/mart',
+    icon: '🏪',
+    bgClass: 'bg-red-100 border-red-300',
+    zone: 'South-East Zone',
+    category: 'engineering',
+    title: 'Poké Mart · Stacks & Services',
+    desc: 'Browse software engineering services, inspect Tech Stack TMs, grab developer potions, or test the checkout simulator.',
+    tags: ['Tech Stacks', 'Services', 'TMs'],
+    guardian: 'Clerk Kevin · Gear Desk',
+    cta: 'Browse Mart →',
+  },
+  {
+    href: '/cafe',
+    icon: '☕',
+    bgClass: 'bg-orange-100 border-orange-300',
+    zone: 'Plaza Terrace',
+    category: 'interactive',
+    title: 'Poké-Café & Bar · Roastery',
+    desc: 'Order custom Dev Blends from Master Barista Rio, greet Alcremie, spin 8-bit chiptune records, or book a Coffee Chat.',
+    tags: ['Chiptune Jukebox', 'Coffee Chat', 'Alcremie'],
+    guardian: 'Barista Rio & Alcremie',
+    cta: 'Visit Café →',
+  },
+  {
+    href: '/neighbour',
+    icon: '🏡',
+    bgClass: 'bg-teal-100 border-teal-300',
+    zone: 'West Cottage',
+    category: 'interactive',
+    title: "Neighbour's House · Dev Guild",
+    desc: 'Warm developer cottage hosted by Fellow Dev Maya & Eevee: play PR Review Ping-Pong CRT and pin guestbook sticky notes.',
+    tags: ['Eevee', 'PR Ping-Pong', 'Cozy Guild'],
+    guardian: 'Maya & Eevee',
+    cta: 'Visit Cottage →',
+  },
+  {
+    href: '/about',
+    icon: '🏠',
+    bgClass: 'bg-purple-100 border-purple-300',
+    zone: 'West Row',
+    category: 'interactive',
+    title: 'Home & Studio · Crate & Closet',
+    desc: 'Zulfan’s personal biography, interactive vinyl crates, 2F chill lounge, wardrobe gear, and desk artifacts.',
+    tags: ['Biography', 'Jukebox', 'Studio 2F'],
+    guardian: 'Starter Hub',
+    cta: 'Visit Studio →',
+  },
+  {
+    href: '/',
+    icon: '🏆',
+    bgClass: 'bg-emerald-100 border-emerald-300',
+    zone: 'Central Plaza',
+    category: 'engineering',
+    title: 'Town Square · Open-World Map',
+    desc: 'The full 45×64 open-world Pokémon canvas with PokéSnap Studio, Legendary Resonance Bursts, Ghost Trainers, and Safari Grass.',
+    tags: ['60fps Engine', 'Town Editor 5.0', 'PWA'],
+    guardian: '33+ Legendaries',
+    cta: 'Explore Map →',
+  },
+];
 ---
 
 <TownLayout place="reception" title="Poké Center · Front Desk & Visitor Services — Muhammad Zulfan">
@@ -54,41 +244,127 @@ const emailUrl = `mailto:${profile.person.email}`;
     <nav class="window p-2.5 md:p-3 bg-slate-900/90 border-2 border-emerald-500/50 flex flex-wrap items-center justify-between gap-2.5 shadow-md text-white" aria-label="Poké Center Quick Actions">
       <div class="flex items-center gap-2 text-xs font-mono text-emerald-300 font-bold">
         <span class="text-base">🏥</span>
-        <span>QUICK ACTIONS:</span>
+        <span>LOBBY STATIONS:</span>
       </div>
       <div class="flex flex-wrap items-center gap-1.5" id="reception-quick-bar">
         <button type="button" class="reception-quick-btn btn btn-sm btn-paper font-pixel text-[10px]" data-quick="mira" title="Talk to Nurse Mira at the Front Desk">
-          👩‍⚕️ 1. Nurse Mira
+          👩‍⚕️ Mira
         </button>
         <button type="button" class="reception-quick-btn btn btn-sm btn-paper font-pixel text-[10px]" data-quick="chansey" title="Say hello to Chansey &amp; Lucky Egg">
-          🥚 2. Chansey
+          🥚 Chansey
         </button>
         <button type="button" class="reception-quick-btn btn btn-sm btn-paper font-pixel text-[10px]" data-quick="healing-machine" title="Refill Poké Balls &amp; Rest Party">
-          💖 3. Healing Station
+          💖 Heal
         </button>
-        <button type="button" class="reception-quick-btn btn btn-sm btn-paper font-pixel text-[10px]" data-quick="pc-terminal" title="Access Network PC &amp; Critterdex">
-          💻 4. Network PC
+        <button type="button" class="reception-quick-btn btn btn-sm btn-paper font-pixel text-[10px]" data-quick="partner-pod" title="Check Active Companion at Partner Care Pod">
+          🐾 Partner Pod
         </button>
-        <button type="button" class="reception-quick-btn btn btn-sm btn-paper font-pixel text-[10px]" data-quick="directory-board" title="Read Campus Building Directory">
-          📋 5. Directory
+        <button type="button" class="reception-quick-btn btn btn-sm btn-paper font-pixel text-[10px]" data-quick="warp-globe" title="Inspect Holographic 13-Zone Town Globe">
+          🌐 Holo Globe
+        </button>
+        <button type="button" class="reception-quick-btn btn btn-sm btn-paper font-pixel text-[10px]" data-quick="pc-terminal" title="Access Bill &amp; Lanette's Cloud PC V5.0">
+          💻 Cloud PC
+        </button>
+        <button type="button" class="reception-quick-btn btn btn-sm btn-paper font-pixel text-[10px]" data-quick="triage-scanner" title="Inspect Live System Health &amp; Telemetry Scanner">
+          🩺 Telemetry
         </button>
         <button type="button" class="reception-quick-btn btn btn-sm btn-paper font-pixel text-[10px]" data-quick="waiting-couch" title="Relax in the Visitor Lounge">
-          🛋️ 6. VIP Lounge
+          🛋️ Lounge
         </button>
       </div>
     </nav>
 
-    <!-- Pokéball Refill & Healing Station Widget -->
+    <!-- VIP Visitor Check-In & Concierge Route Recommender -->
+    <section class="window p-4 md:p-5 bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950 border-2 border-sky-500/60 text-white space-y-3.5 shadow-lg" id="vip-checkin-section">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-slate-700/80 pb-3">
+        <div class="flex items-center gap-2.5">
+          <span class="text-2xl p-1.5 rounded-lg bg-sky-950 border border-sky-500/50">🎫</span>
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="font-pixel text-xs text-sky-300 uppercase tracking-wide">
+                VIP Visitor Check-In &amp; Route Concierge
+              </h2>
+              <span class="chip bg-emerald-500/20 text-emerald-300 border border-emerald-400/50 font-mono text-[9px] font-bold px-1.5 py-0.5">
+                INSTANT ITINERARY
+              </span>
+            </div>
+            <p class="font-sans text-[11px] text-slate-300 mt-0.5">
+              Select your visit purpose for a curated 3-stop campus tour or launch the AI Job-Fit Scanner
+            </p>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            id="btn-reception-jobfit"
+            class="btn btn-sm bg-amber-500 hover:bg-amber-400 text-slate-950 border border-amber-300 font-pixel text-[10px] px-3 py-1.5 flex items-center gap-1.5 font-bold cursor-pointer"
+          >
+            <span>🎯</span>
+            <span>AI Job-Fit Scanner</span>
+          </button>
+          <button
+            type="button"
+            id="btn-reception-start-tour"
+            class="btn btn-sm bg-sky-600 hover:bg-sky-500 text-white border border-sky-400 font-pixel text-[10px] px-3 py-1.5 flex items-center gap-1.5 cursor-pointer"
+          >
+            <span>🎬</span>
+            <span>60s Auto-Tour</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Check-in Track Pills -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2" id="visitor-track-tabs">
+        <button type="button" class="visitor-track-btn px-2.5 py-2 rounded-lg border-2 border-sky-400 bg-sky-950/80 text-left transition-all cursor-pointer" data-vtrack="recruiter">
+          <div class="font-pixel text-[10px] text-white">💼 HR / Recruiter</div>
+          <div class="font-mono text-[9px] text-sky-300 mt-0.5">Proof-of-Work &amp; CV</div>
+        </button>
+        <button type="button" class="visitor-track-btn px-2.5 py-2 rounded-lg border border-slate-700 bg-slate-950/70 hover:border-slate-500 text-left transition-all cursor-pointer" data-vtrack="peer">
+          <div class="font-pixel text-[10px] text-slate-200">👨‍💻 Software Peer</div>
+          <div class="font-mono text-[9px] text-slate-400 mt-0.5">Systems, Arch &amp; 2D</div>
+        </button>
+        <button type="button" class="visitor-track-btn px-2.5 py-2 rounded-lg border border-slate-700 bg-slate-950/70 hover:border-slate-500 text-left transition-all cursor-pointer" data-vtrack="ai">
+          <div class="font-pixel text-[10px] text-slate-200">🔬 AI / Robotics</div>
+          <div class="font-mono text-[9px] text-slate-400 mt-0.5">YOLOv8, SAHI &amp; ESP32</div>
+        </button>
+        <button type="button" class="visitor-track-btn px-2.5 py-2 rounded-lg border border-slate-700 bg-slate-950/70 hover:border-slate-500 text-left transition-all cursor-pointer" data-vtrack="explorer">
+          <div class="font-pixel text-[10px] text-slate-200">🎮 Town Explorer</div>
+          <div class="font-mono text-[9px] text-slate-400 mt-0.5">Badges, Minigames &amp; Pets</div>
+        </button>
+      </div>
+
+      <!-- Tailored Route Output -->
+      <div id="visitor-track-itinerary" class="p-3 rounded-xl bg-slate-950/80 border border-slate-700/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs">
+        <div class="space-y-1">
+          <div class="font-mono text-[10px] text-emerald-300 font-bold uppercase" id="vtrack-heading">
+            Recommended 3-Stop Itinerary for Hiring Managers:
+          </div>
+          <div class="flex flex-wrap items-center gap-1.5 font-mono text-[11px]" id="vtrack-stops">
+            <a href="/dev" class="px-2 py-0.5 rounded bg-slate-800 border border-sky-500/40 text-sky-200 hover:bg-sky-900 no-underline">1. 💻 Dev Center</a>
+            <span class="text-slate-500">→</span>
+            <a href="/lab" class="px-2 py-0.5 rounded bg-slate-800 border border-emerald-500/40 text-emerald-200 hover:bg-emerald-900 no-underline">2. 🔬 Research Lab</a>
+            <span class="text-slate-500">→</span>
+            <a href="/twin" class="px-2 py-0.5 rounded bg-slate-800 border border-violet-500/40 text-violet-200 hover:bg-violet-900 no-underline">3. 🧬 Digital Twin AI</a>
+          </div>
+        </div>
+        <span class="font-mono text-[10px] text-amber-300 shrink-0" id="vtrack-tip">
+          💡 Est. 3 mins total
+        </span>
+      </div>
+    </section>
+
+    <!-- Pokéball Refill & Healing Station 2.0 (+ Active Companion Status) -->
     <section class="window p-4 md:p-5 bg-paper border-2 space-y-4" id="healing-station-widget">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b-2 border-ink/15 pb-3">
         <div class="flex items-center gap-2.5">
           <span class="text-xl">✨</span>
           <div>
             <h2 class="font-pixel text-xs text-ink uppercase tracking-wide">
-              Pokéball Refill & Healing Machine
+              Pokéball Healing Station 2.0 &amp; Partner Care
             </h2>
             <p class="font-sans text-[11px] text-ink-soft">
-              Fully restore party status and replenish your inventory to 10 Poké Balls
+              Restore companion vitality, replenish 10 Poké Balls, or Overcharge to 15 Balls
             </p>
           </div>
         </div>
@@ -97,6 +373,39 @@ const emailUrl = `mailto:${profile.person.email}`;
           <span id="ball-count-badge" class="chip bg-ball text-paper border-ink font-mono font-bold text-xs px-2 py-0.5">
             10 / 10 Balls
           </span>
+        </div>
+      </div>
+
+      <!-- Active Companion Live Status Strip -->
+      <div class="p-3 rounded-xl bg-emerald-50/70 border border-emerald-300 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+        <div class="flex items-center gap-2.5">
+          <span id="reception-partner-icon" class="text-2xl w-9 h-9 rounded-lg bg-white border border-emerald-300 flex items-center justify-center shadow-sm">🐾</span>
+          <div>
+            <div class="font-pixel text-[11px] text-ink flex items-center gap-1.5">
+              <span>Active Companion:</span>
+              <span id="reception-partner-name" class="text-emerald-800">None Selected</span>
+            </div>
+            <p id="reception-partner-title" class="font-mono text-[10px] text-ink-soft">
+              Withdraw any Guardian Pokémon from Bill &amp; Lanette's Cloud PC Box!
+            </p>
+          </div>
+        </div>
+        <div class="flex items-center gap-1.5 shrink-0">
+          <button
+            type="button"
+            id="btn-reception-switch-partner"
+            class="btn btn-sm btn-paper text-[10px] font-pixel cursor-pointer"
+          >
+            📦 PC Box
+          </button>
+          <button
+            type="button"
+            class="btn btn-sm btn-paper text-[10px] font-pixel btn-inspect-2d"
+            data-prop="partner-pod"
+            title="Walk to Partner Care Pod in 2D"
+          >
+            📍 Care Pod
+          </button>
         </div>
       </div>
 
@@ -114,14 +423,23 @@ const emailUrl = `mailto:${profile.person.email}`;
           </div>
         </div>
 
-        <div class="flex items-center gap-2">
+        <div class="flex flex-wrap items-center gap-2">
           <button
             type="button"
             id="btn-trigger-heal"
-            class="btn btn-primary w-full sm:w-auto px-4 py-2 flex items-center justify-center gap-2 text-xs font-pixel shadow-sm hover:scale-[1.02] active:scale-95 transition-all"
+            class="btn btn-primary px-3.5 py-2 flex items-center justify-center gap-1.5 text-xs font-pixel shadow-sm hover:scale-[1.02] active:scale-95 transition-all cursor-pointer"
           >
             <span>💖</span>
-            <span>Rest & Refill Balls</span>
+            <span>Refill (10)</span>
+          </button>
+          <button
+            type="button"
+            id="btn-trigger-overcharge"
+            class="btn btn-sm btn-gold px-3 py-2 flex items-center justify-center gap-1 text-[10px] font-pixel shadow-sm hover:scale-[1.02] active:scale-95 transition-all cursor-pointer"
+            title="Chansey Overcharge: Boost bag capacity to 15 Poké Balls!"
+          >
+            <span>⚡</span>
+            <span>Overcharge (15)</span>
           </button>
           <button
             type="button"
@@ -129,7 +447,7 @@ const emailUrl = `mailto:${profile.person.email}`;
             data-prop="healing-machine"
             title="Navigate character to Healing Machine on 2D canvas"
           >
-            📍 Inspect 2D
+            📍 2D
           </button>
         </div>
       </div>
@@ -141,7 +459,7 @@ const emailUrl = `mailto:${profile.person.email}`;
       </div>
     </section>
 
-    <!-- Poké Center Network Storage Terminal (Bill's PC V4.2) -->
+    <!-- Poké Center Network Storage Terminal (Bill & Lanette's Cloud PC V5.0) -->
     <section class="window p-4 md:p-5 bg-paper border-2 space-y-4" id="network-pc-section">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b-2 border-ink/15 pb-3">
         <div class="flex items-center gap-2.5">
@@ -149,27 +467,35 @@ const emailUrl = `mailto:${profile.person.email}`;
           <div>
             <div class="flex items-center gap-2">
               <h2 class="font-pixel text-xs text-ink uppercase tracking-wide">
-                Network PC Terminal · Bill's PC V4.2
+                Cloud PC Terminal · Bill &amp; Lanette V5.0
               </h2>
               <span class="chip bg-emerald-100 text-emerald-800 border-emerald-400 font-mono text-[9px] font-bold px-1.5 py-0.5">
-                ENCRYPTED
+                4-TAB CLOUD HUB
               </span>
             </div>
             <p class="font-sans text-[11px] text-ink-soft">
-              Access Zulfan's verified Trainer Card, live Safari Dex telemetry, and visitor guestbook
+              Access Zulfan's verified Trainer Card, Partner Storage Box, live Safari Dex, and Cloud Guestbook
             </p>
           </div>
         </div>
 
-        <div class="flex items-center gap-2">
+        <div class="flex flex-wrap items-center gap-2">
           <button
             type="button"
             id="btn-trigger-open-pc"
-            class="btn btn-primary text-xs font-pixel px-3.5 py-2 flex items-center gap-2 shadow-sm hover:scale-[1.02] active:scale-95 transition-all"
-            title="Open Poké Center Network PC Terminal"
+            class="btn btn-primary text-xs font-pixel px-3.5 py-2 flex items-center gap-2 shadow-sm hover:scale-[1.02] active:scale-95 transition-all cursor-pointer"
+            title="Open Poké Center Cloud PC V5.0"
           >
             <span>💻</span>
-            <span>Launch PC Terminal</span>
+            <span>Launch PC</span>
+          </button>
+          <button
+            type="button"
+            id="btn-trigger-open-pc-box"
+            class="btn btn-sm btn-paper text-[10px] font-pixel cursor-pointer"
+            title="Jump directly to Partner Storage Box"
+          >
+            📦 Partner Box
           </button>
           <button
             type="button"
@@ -177,34 +503,42 @@ const emailUrl = `mailto:${profile.person.email}`;
             data-prop="pc-terminal"
             title="Navigate character to Network PC on 2D canvas"
           >
-            📍 Inspect 2D
+            📍 2D
           </button>
         </div>
       </div>
 
       <!-- Quick Snapshot Grid -->
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div class="p-3 rounded-lg bg-cream/70 border border-ink/15 flex items-start gap-2.5">
-          <span class="text-xl">🪪</span>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+        <div class="p-3 rounded-lg bg-cream/70 border border-ink/15 flex items-start gap-2">
+          <span class="text-lg">🪪</span>
           <div class="min-w-0">
-            <span class="font-pixel text-[11px] text-ink block">Trainer Card</span>
-            <span class="font-mono text-[10px] text-ink-soft block">IDNo. 349400 · 8 Master Badges</span>
+            <span class="font-pixel text-[10px] text-ink block">Trainer Card</span>
+            <span class="font-mono text-[9px] text-ink-soft block">Live Badges &amp; CV</span>
           </div>
         </div>
 
-        <div class="p-3 rounded-lg bg-cream/70 border border-ink/15 flex items-start gap-2.5">
-          <span class="text-xl">🐾</span>
+        <div class="p-3 rounded-lg bg-cream/70 border border-ink/15 flex items-start gap-2">
+          <span class="text-lg">📦</span>
           <div class="min-w-0">
-            <span class="font-pixel text-[11px] text-ink block">Critter Safari Sync</span>
-            <span class="font-mono text-[10px] text-ink-soft block">12 Wild Critters · Live Inventory</span>
+            <span class="font-pixel text-[10px] text-ink block">Partner Box</span>
+            <span class="font-mono text-[9px] text-ink-soft block">Swap Guardians Live</span>
           </div>
         </div>
 
-        <div class="p-3 rounded-lg bg-cream/70 border border-ink/15 flex items-start gap-2.5">
-          <span class="text-xl">📝</span>
+        <div class="p-3 rounded-lg bg-cream/70 border border-ink/15 flex items-start gap-2">
+          <span class="text-lg">🐾</span>
           <div class="min-w-0">
-            <span class="font-pixel text-[11px] text-ink block">Visitor Guestbook</span>
-            <span class="font-mono text-[10px] text-ink-soft block">Reaction Stamps &amp; Recruiter Notes</span>
+            <span class="font-pixel text-[10px] text-ink block">Safari Sync</span>
+            <span class="font-mono text-[9px] text-ink-soft block">12 Wild Critters</span>
+          </div>
+        </div>
+
+        <div class="p-3 rounded-lg bg-cream/70 border border-ink/15 flex items-start gap-2">
+          <span class="text-lg">📝</span>
+          <div class="min-w-0">
+            <span class="font-pixel text-[10px] text-ink block">Guestbook</span>
+            <span class="font-mono text-[9px] text-ink-soft block">Stamps &amp; Ghosts</span>
           </div>
         </div>
       </div>
@@ -260,11 +594,20 @@ const emailUrl = `mailto:${profile.person.email}`;
         </div>
 
         <!-- 1-Click Recruiter Tools -->
-        <div class="flex items-center gap-2">
+        <div class="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            id="btn-concierge-jobfit"
+            class="btn btn-sm bg-emerald-600 hover:bg-emerald-500 text-white border border-emerald-400 text-[10px] font-pixel flex items-center gap-1 cursor-pointer"
+            title="Paste any Job Description to compute instant skill alignment"
+          >
+            <span>🎯</span>
+            <span>Match JD</span>
+          </button>
           <button
             type="button"
             id="btn-copy-recruiter-email"
-            class="btn btn-sm btn-paper text-[10px] font-pixel flex items-center gap-1.5 hover:bg-slate-100 active:scale-95 transition-all"
+            class="btn btn-sm btn-paper text-[10px] font-pixel flex items-center gap-1.5 hover:bg-slate-100 active:scale-95 transition-all cursor-pointer"
             data-email={profile.person.email}
             title="Copy Zulfan's email address to clipboard"
           >
@@ -284,8 +627,8 @@ const emailUrl = `mailto:${profile.person.email}`;
         </div>
       </div>
 
-      <!-- Role Selector Tabs -->
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5" id="role-selector-tabs">
+      <!-- Role Selector Tabs (4 Engineering Tracks) -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5" id="role-selector-tabs">
         <!-- Tab 1: AI & Vision -->
         <button
           type="button"
@@ -299,7 +642,7 @@ const emailUrl = `mailto:${profile.person.email}`;
             </span>
           </div>
           <div class="font-pixel text-xs text-ink">AI &amp; Computer Vision</div>
-          <div class="font-mono text-[10px] text-ink-soft mt-0.5">YOLOv8 · SAHI · IndoSpam NLP</div>
+          <div class="font-mono text-[10px] text-ink-soft mt-0.5">YOLOv8 · SAHI · IndoBERT</div>
         </button>
 
         <!-- Tab 2: Full-Stack & Cloud Security -->
@@ -314,7 +657,7 @@ const emailUrl = `mailto:${profile.person.email}`;
               98% Fit
             </span>
           </div>
-          <div class="font-pixel text-xs text-ink">Full-Stack &amp; Cloud Security</div>
+          <div class="font-pixel text-xs text-ink">Full-Stack &amp; Security</div>
           <div class="font-mono text-[10px] text-ink-soft mt-0.5">FastAPI · Kafka · Huawei HCIA</div>
         </button>
 
@@ -330,8 +673,24 @@ const emailUrl = `mailto:${profile.person.email}`;
               97% Fit
             </span>
           </div>
-          <div class="font-pixel text-xs text-ink">Embedded IoT &amp; Robotics</div>
-          <div class="font-mono text-[10px] text-ink-soft mt-0.5">ESP32 · FreeRTOS · 6x TA Lead</div>
+          <div class="font-pixel text-xs text-ink">IoT &amp; Robotics</div>
+          <div class="font-mono text-[10px] text-ink-soft mt-0.5">ESP32 · FreeRTOS · 6x TA</div>
+        </button>
+
+        <!-- Tab 4: Interactive Web & 2D Engine -->
+        <button
+          type="button"
+          class="role-tab card p-3 text-left transition-all cursor-pointer border-2 border-ink/20 hover:border-ink/50 bg-paper"
+          data-role="canvas"
+        >
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-xl">🕹️</span>
+            <span class="chip bg-purple-100 border-purple-400 text-purple-800 font-mono text-[9px] font-bold">
+              98% Fit
+            </span>
+          </div>
+          <div class="font-pixel text-xs text-ink">2D Engine &amp; UI/UX</div>
+          <div class="font-mono text-[10px] text-ink-soft mt-0.5">Canvas 60fps · Astro · TS</div>
         </button>
       </div>
 
@@ -528,286 +887,176 @@ const emailUrl = `mailto:${profile.person.email}`;
             <span class="chip bg-paper border border-ink/20 font-mono text-[10px]">IoT Protocols</span>
           </div>
         </div>
+
+        <!-- Panel 4: 2D Canvas Engine & UI/UX (Hidden Initially) -->
+        <div id="role-panel-canvas" class="role-panel hidden space-y-3.5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-ink/10 pb-2.5">
+            <div>
+              <div class="font-pixel text-xs text-ink flex items-center gap-2">
+                <span>🕹️ Interactive Web, 60fps Canvas &amp; UI/UX Architect</span>
+                <span class="chip bg-purple-100 text-purple-800 border-purple-300 font-mono text-[9px] font-bold">98% Fit</span>
+              </div>
+              <p class="font-sans text-[11px] text-ink-soft mt-0.5">
+                Custom HTML5 2D Engine · Astro SSG + Rolldown · Town Editor 5.0 Studio Dock · Mobile PWA
+              </p>
+            </div>
+            <a href="/" class="btn btn-sm btn-primary text-[10px] font-pixel flex items-center gap-1.5 self-start sm:self-auto">
+              <span>🗺️</span>
+              <span>Launch 2D World →</span>
+            </a>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5 font-sans text-xs">
+            <div class="p-3 rounded-lg bg-paper border border-ink/15 space-y-1">
+              <div class="font-bold text-ink flex items-center gap-1.5 text-[11px]">
+                <span>🎨</span>
+                <span>Zulfan Town 60fps Engine</span>
+              </div>
+              <p class="text-[11px] text-ink-soft leading-relaxed">
+                Built a multi-scene pixel engine featuring Y-sorted depth rendering, PMD sprite sheet animation, particle weather shaders, and seamless SPA navigation.
+              </p>
+            </div>
+
+            <div class="p-3 rounded-lg bg-paper border border-ink/15 space-y-1">
+              <div class="font-bold text-ink flex items-center gap-1.5 text-[11px]">
+                <span>🛠️</span>
+                <span>In-Browser Studio Dock 5.0</span>
+              </div>
+              <p class="text-[11px] text-ink-soft leading-relaxed">
+                Engineered a Figma-grade visual level editor with contextual mode switching, live side-drawer inspector, 60-step undo/redo, BFS validator, and prefabs.
+              </p>
+            </div>
+
+            <div class="p-3 rounded-lg bg-paper border border-ink/15 space-y-1">
+              <div class="font-bold text-ink flex items-center gap-1.5 text-[11px]">
+                <span>☁️</span>
+                <span>Cloudflare Edge &amp; PWA</span>
+              </div>
+              <p class="text-[11px] text-ink-soft leading-relaxed">
+                Powered by edge Workers for real-time AI chat, guestbook persistence, offline service workers, dynamic pixel OG cards, and handheld touch controls.
+              </p>
+            </div>
+          </div>
+
+          <div class="pt-1 flex flex-wrap items-center gap-1.5">
+            <span class="font-mono text-[10px] text-ink-soft uppercase font-bold mr-1">Core Tech:</span>
+            <span class="chip bg-paper border border-ink/20 font-mono text-[10px]">TypeScript</span>
+            <span class="chip bg-paper border border-ink/20 font-mono text-[10px]">HTML5 Canvas</span>
+            <span class="chip bg-paper border border-ink/20 font-mono text-[10px]">Astro</span>
+            <span class="chip bg-paper border border-ink/20 font-mono text-[10px]">Tailwind CSS</span>
+            <span class="chip bg-paper border border-ink/20 font-mono text-[10px]">WebAudio Synth</span>
+            <span class="chip bg-paper border border-ink/20 font-mono text-[10px]">Cloudflare Workers</span>
+            <span class="chip bg-paper border border-ink/20 font-mono text-[10px]">Service Worker PWA</span>
+          </div>
+        </div>
       </div>
     </section>
 
-    <!-- Campus Quick Directory Cards (Complete 8-Building Network) -->
+    <!-- Campus Quick Directory Cards (Complete 13-Facility Network + Search & Badges) -->
     <section class="space-y-4" id="campus-directory">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-        <div>
-          <h2 class="section-title">
-            <span>Town & Campus Directory · 8 Facilities</span>
-          </h2>
-          <p class="font-sans text-xs text-ink-soft mt-0.5">
-            Select a specialized department below or explore directly via the 2D canvas on the left.
-          </p>
+      <div class="flex flex-col gap-3">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+          <div>
+            <h2 class="section-title">
+              <span>Town &amp; Campus Directory · {CAMPUS_FACILITIES.length} Facilities</span>
+            </h2>
+            <p class="font-sans text-xs text-ink-soft mt-0.5">
+              Every building, guild, and island in Zulfan Town — plus live Gym Badge progress synced to your Passport.
+            </p>
+          </div>
+          <span id="directory-badge-summary" class="chip bg-amber-100 text-amber-900 border-amber-400 font-mono text-[10px] font-bold px-2.5 py-0.5 self-start sm:self-auto">
+            🏅 0 / 8 Gym Badges Earned
+          </span>
         </div>
 
-        <!-- Directory Filter Pills -->
-        <div class="flex flex-wrap items-center gap-1" id="directory-filters">
-          <button
-            type="button"
-            class="directory-filter-btn chip bg-ball text-paper border-ink font-mono text-[10px] font-bold px-2 py-0.5 cursor-pointer"
-            data-filter="all"
-          >
-            All (8)
-          </button>
-          <button
-            type="button"
-            class="directory-filter-btn chip bg-paper text-ink border-ink/20 hover:border-ink/50 font-mono text-[10px] px-2 py-0.5 cursor-pointer"
-            data-filter="engineering"
-          >
-            Engineering (3)
-          </button>
-          <button
-            type="button"
-            class="directory-filter-btn chip bg-paper text-ink border-ink/20 hover:border-ink/50 font-mono text-[10px] px-2 py-0.5 cursor-pointer"
-            data-filter="ai"
-          >
-            AI &amp; R&D (2)
-          </button>
-          <button
-            type="button"
-            class="directory-filter-btn chip bg-paper text-ink border-ink/20 hover:border-ink/50 font-mono text-[10px] px-2 py-0.5 cursor-pointer"
-            data-filter="interactive"
-          >
-            Interactive &amp; Life (3)
-          </button>
+        <!-- Search + Category Filter Pills -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+          <input
+            type="text"
+            id="directory-search-input"
+            placeholder="🔍 Filter 13 facilities, guardians, or stacks (e.g. mewtwo, digimon, kafka)..."
+            class="flex-1 px-3 py-1.5 rounded-lg bg-paper border border-ink/25 font-mono text-xs text-ink focus:border-ball focus:outline-none"
+          />
+          <div class="flex flex-wrap items-center gap-1 shrink-0" id="directory-filters">
+            <button
+              type="button"
+              class="directory-filter-btn chip bg-ball text-paper border-ink font-mono text-[10px] font-bold px-2 py-0.5 cursor-pointer"
+              data-filter="all"
+            >
+              All ({CAMPUS_FACILITIES.length})
+            </button>
+            <button
+              type="button"
+              class="directory-filter-btn chip bg-paper text-ink border-ink/20 hover:border-ink/50 font-mono text-[10px] px-2 py-0.5 cursor-pointer"
+              data-filter="engineering"
+            >
+              Engineering ({CAMPUS_FACILITIES.filter((f) => f.category === 'engineering').length})
+            </button>
+            <button
+              type="button"
+              class="directory-filter-btn chip bg-paper text-ink border-ink/20 hover:border-ink/50 font-mono text-[10px] px-2 py-0.5 cursor-pointer"
+              data-filter="ai"
+            >
+              AI &amp; R&amp;D ({CAMPUS_FACILITIES.filter((f) => f.category === 'ai').length})
+            </button>
+            <button
+              type="button"
+              class="directory-filter-btn chip bg-paper text-ink border-ink/20 hover:border-ink/50 font-mono text-[10px] px-2 py-0.5 cursor-pointer"
+              data-filter="interactive"
+            >
+              Interactive ({CAMPUS_FACILITIES.filter((f) => f.category === 'interactive').length})
+            </button>
+          </div>
         </div>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="directory-cards-container">
-        <!-- 1. Dev Center Card -->
-        <a
-          href="/dev"
-          class="directory-card card card-hover flex flex-col justify-between group p-3.5 no-underline transition-all"
-          data-category="engineering"
-        >
-          <div>
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-2xl p-1.5 rounded-lg bg-blue-100 border border-blue-300">💻</span>
-              <span class="chip font-mono text-[9px] uppercase">North Zone</span>
+        {CAMPUS_FACILITIES.map((fac) => (
+          <a
+            href={fac.href}
+            class="directory-card card card-hover flex flex-col justify-between group p-3.5 no-underline transition-all"
+            data-category={fac.category}
+            data-search={`${fac.title} ${fac.desc} ${fac.guardian} ${fac.tags.join(' ')} ${fac.href}`.toLowerCase()}
+          >
+            <div>
+              <div class="flex items-center justify-between gap-2 mb-2">
+                <span class={`text-2xl p-1.5 rounded-lg border ${fac.bgClass}`}>{fac.icon}</span>
+                <div class="flex items-center gap-1.5 flex-wrap justify-end">
+                  {fac.badgeId && (
+                    <span
+                      class="facility-badge-pill chip bg-slate-100 text-slate-600 border-slate-300 font-mono text-[9px] px-1.5 py-0.2"
+                      data-badge-id={fac.badgeId}
+                    >
+                      {fac.badgeLabel}
+                    </span>
+                  )}
+                  <span class="chip font-mono text-[9px] uppercase">{fac.zone}</span>
+                </div>
+              </div>
+              <h3 class="font-pixel text-xs text-ink group-hover:text-ball transition-colors">
+                {fac.title}
+              </h3>
+              <p class="font-sans text-xs text-ink-soft mt-1 leading-relaxed">
+                {fac.desc}
+              </p>
+              <div class="mt-2 font-mono text-[9px] text-ink-soft">
+                🐾 Guardian: <strong class="text-ink">{fac.guardian}</strong>
+              </div>
+              <div class="mt-2 flex flex-wrap gap-1 font-mono text-[9px] text-ink-soft">
+                {fac.tags.map((tag) => (
+                  <span class="px-1.5 py-0.5 rounded bg-cream border border-ink/10">{tag}</span>
+                ))}
+              </div>
             </div>
-            <h3 class="font-pixel text-xs text-ink group-hover:text-ball transition-colors">
-              Dev Center · Mission Control
-            </h3>
-            <p class="font-sans text-xs text-ink-soft mt-1 leading-relaxed">
-              Production full-stack engineering hub, telemetry radar wall, distributed microservices, and Snorlax at Mission Control.
-            </p>
-            <div class="mt-2.5 flex flex-wrap gap-1 font-mono text-[9px] text-ink-soft">
-              <span class="px-1.5 py-0.5 rounded bg-cream border border-ink/10">FastAPI</span>
-              <span class="px-1.5 py-0.5 rounded bg-cream border border-ink/10">Kafka</span>
-              <span class="px-1.5 py-0.5 rounded bg-cream border border-ink/10">Redis</span>
+            <div class="mt-3 pt-2 border-t border-ink/10 flex items-center justify-between font-mono text-[10px] text-ink-soft">
+              <span>Route: {fac.href}</span>
+              <span class="text-ball font-bold group-hover:translate-x-1 transition-transform">{fac.cta}</span>
             </div>
-          </div>
-          <div class="mt-3 pt-2 border-t border-ink/10 flex items-center justify-between font-mono text-[10px] text-ink-soft">
-            <span>Route: /dev</span>
-            <span class="text-ball font-bold group-hover:translate-x-1 transition-transform">Enter Route →</span>
-          </div>
-        </a>
-
-        <!-- 2. Research Lab Card -->
-        <a
-          href="/lab"
-          class="directory-card card card-hover flex flex-col justify-between group p-3.5 no-underline transition-all"
-          data-category="ai"
-        >
-          <div>
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-2xl p-1.5 rounded-lg bg-emerald-100 border border-emerald-300">🔬</span>
-              <span class="chip font-mono text-[9px] uppercase">North-East Zone</span>
-            </div>
-            <h3 class="font-pixel text-xs text-ink group-hover:text-ball transition-colors">
-              Research Lab · AI & Vision
-            </h3>
-            <p class="font-sans text-xs text-ink-soft mt-1 leading-relaxed">
-              AeroScan UAV detection testbed, IndoSpam transformer classifier, ITENAS thesis papers, and research posters.
-            </p>
-            <div class="mt-2.5 flex flex-wrap gap-1 font-mono text-[9px] text-ink-soft">
-              <span class="px-1.5 py-0.5 rounded bg-cream border border-ink/10">YOLOv8</span>
-              <span class="px-1.5 py-0.5 rounded bg-cream border border-ink/10">SAHI</span>
-              <span class="px-1.5 py-0.5 rounded bg-cream border border-ink/10">PyTorch</span>
-            </div>
-          </div>
-          <div class="mt-3 pt-2 border-t border-ink/10 flex items-center justify-between font-mono text-[10px] text-ink-soft">
-            <span>Route: /lab</span>
-            <span class="text-ball font-bold group-hover:translate-x-1 transition-transform">Enter Route →</span>
-          </div>
-        </a>
-
-        <!-- 3. Tech Tower HQ Card -->
-        <a
-          href="/tower"
-          class="directory-card card card-hover flex flex-col justify-between group p-3.5 no-underline transition-all"
-          data-category="engineering"
-        >
-          <div>
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-2xl p-1.5 rounded-lg bg-cyan-100 border border-cyan-300">🏢</span>
-              <span class="chip font-mono text-[9px] uppercase">North-West Zone</span>
-            </div>
-            <h3 class="font-pixel text-xs text-ink group-hover:text-ball transition-colors">
-              Tech Tower · Innovation HQ
-            </h3>
-            <p class="font-sans text-xs text-ink-soft mt-1 leading-relaxed">
-              4-floor executive facility featuring the ESP32 Robotics workshop, Huawei NOC cloud firewall, and 6x lab assistant terminal.
-            </p>
-            <div class="mt-2.5 flex flex-wrap gap-1 font-mono text-[9px] text-ink-soft">
-              <span class="px-1.5 py-0.5 rounded bg-cream border border-ink/10">ESP32</span>
-              <span class="px-1.5 py-0.5 rounded bg-cream border border-ink/10">Huawei HCIA</span>
-              <span class="px-1.5 py-0.5 rounded bg-cream border border-ink/10">Robotics</span>
-            </div>
-          </div>
-          <div class="mt-3 pt-2 border-t border-ink/10 flex items-center justify-between font-mono text-[10px] text-ink-soft">
-            <span>Route: /tower</span>
-            <span class="text-ball font-bold group-hover:translate-x-1 transition-transform">Enter Route →</span>
-          </div>
-        </a>
-
-        <!-- 4. Poké Mart Card -->
-        <a
-          href="/mart"
-          class="directory-card card card-hover flex flex-col justify-between group p-3.5 no-underline transition-all"
-          data-category="interactive"
-        >
-          <div>
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-2xl p-1.5 rounded-lg bg-rose-100 border border-rose-300">🏪</span>
-              <span class="chip font-mono text-[9px] uppercase">South-East Zone</span>
-            </div>
-            <h3 class="font-pixel text-xs text-ink group-hover:text-ball transition-colors">
-              Poké Mart · Stacks &amp; Gear
-            </h3>
-            <p class="font-sans text-xs text-ink-soft mt-1 leading-relaxed">
-              Curated tech stack showcases, dev tools, libraries, and an interactive inventory shopping cart with checkout simulator.
-            </p>
-            <div class="mt-2.5 flex flex-wrap gap-1 font-mono text-[9px] text-ink-soft">
-              <span class="px-1.5 py-0.5 rounded bg-cream border border-ink/10">Tech Stacks</span>
-              <span class="px-1.5 py-0.5 rounded bg-cream border border-ink/10">Dev Gear</span>
-              <span class="px-1.5 py-0.5 rounded bg-cream border border-ink/10">Cart Demo</span>
-            </div>
-          </div>
-          <div class="mt-3 pt-2 border-t border-ink/10 flex items-center justify-between font-mono text-[10px] text-ink-soft">
-            <span>Route: /mart</span>
-            <span class="text-ball font-bold group-hover:translate-x-1 transition-transform">Enter Route →</span>
-          </div>
-        </a>
-
-        <!-- 5. Retro Arcade Card -->
-        <a
-          href="/arcade"
-          class="directory-card card card-hover flex flex-col justify-between group p-3.5 no-underline transition-all"
-          data-category="interactive"
-        >
-          <div>
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-2xl p-1.5 rounded-lg bg-amber-100 border border-amber-300">🕹️</span>
-              <span class="chip font-mono text-[9px] uppercase">East Plaza</span>
-            </div>
-            <h3 class="font-pixel text-xs text-ink group-hover:text-ball transition-colors">
-              Retro Arcade · Kalah AI
-            </h3>
-            <p class="font-sans text-xs text-ink-soft mt-1 leading-relaxed">
-              Challenge the Mancala minimax robot, test your board tactics with adjustable depths, and check the high score hall.
-            </p>
-            <div class="mt-2.5 flex flex-wrap gap-1 font-mono text-[9px] text-ink-soft">
-              <span class="px-1.5 py-0.5 rounded bg-cream border border-ink/10">Minimax</span>
-              <span class="px-1.5 py-0.5 rounded bg-cream border border-ink/10">Game AI</span>
-              <span class="px-1.5 py-0.5 rounded bg-cream border border-ink/10">WASM</span>
-            </div>
-          </div>
-          <div class="mt-3 pt-2 border-t border-ink/10 flex items-center justify-between font-mono text-[10px] text-ink-soft">
-            <span>Route: /arcade</span>
-            <span class="text-ball font-bold group-hover:translate-x-1 transition-transform">Play Game →</span>
-          </div>
-        </a>
-
-        <!-- 6. Digital Twin Card -->
-        <a
-          href="/twin"
-          class="directory-card card card-hover flex flex-col justify-between group p-3.5 no-underline transition-all"
-          data-category="ai"
-        >
-          <div>
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-2xl p-1.5 rounded-lg bg-violet-100 border border-violet-300">🧬</span>
-              <span class="chip font-mono text-[9px] uppercase">Innovation Hub</span>
-            </div>
-            <h3 class="font-pixel text-xs text-ink group-hover:text-ball transition-colors">
-              Digital Twin · Neural Zulfan AI
-            </h3>
-            <p class="font-sans text-xs text-ink-soft mt-1 leading-relaxed">
-              Conversational neural persona modeled on Zulfan's real-world engineering background, system design choices, and career journey.
-            </p>
-            <div class="mt-2.5 flex flex-wrap gap-1 font-mono text-[9px] text-ink-soft">
-              <span class="px-1.5 py-0.5 rounded bg-cream border border-ink/10">LLM Persona</span>
-              <span class="px-1.5 py-0.5 rounded bg-cream border border-ink/10">RAG</span>
-              <span class="px-1.5 py-0.5 rounded bg-cream border border-ink/10">AI Twin</span>
-            </div>
-          </div>
-          <div class="mt-3 pt-2 border-t border-ink/10 flex items-center justify-between font-mono text-[10px] text-ink-soft">
-            <span>Route: /twin</span>
-            <span class="text-ball font-bold group-hover:translate-x-1 transition-transform">Chat with Twin →</span>
-          </div>
-        </a>
-
-        <!-- 7. Home & Studio Card -->
-        <a
-          href="/about"
-          class="directory-card card card-hover flex flex-col justify-between group p-3.5 no-underline transition-all"
-          data-category="interactive"
-        >
-          <div>
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-2xl p-1.5 rounded-lg bg-purple-100 border border-purple-300">🏠</span>
-              <span class="chip font-mono text-[9px] uppercase">West Row</span>
-            </div>
-            <h3 class="font-pixel text-xs text-ink group-hover:text-ball transition-colors">
-              Home & Studio · Crate & Closet
-            </h3>
-            <p class="font-sans text-xs text-ink-soft mt-1 leading-relaxed">
-              Zulfan's personal biography, interactive vinyl jukebox, 2F chill lounge, wardrobe gear, and fridge notes.
-            </p>
-            <div class="mt-2.5 flex flex-wrap gap-1 font-mono text-[9px] text-ink-soft">
-              <span class="px-1.5 py-0.5 rounded bg-cream border border-ink/10">Biography</span>
-              <span class="px-1.5 py-0.5 rounded bg-cream border border-ink/10">Jukebox</span>
-              <span class="px-1.5 py-0.5 rounded bg-cream border border-ink/10">Vinyl</span>
-            </div>
-          </div>
-          <div class="mt-3 pt-2 border-t border-ink/10 flex items-center justify-between font-mono text-[10px] text-ink-soft">
-            <span>Route: /about</span>
-            <span class="text-ball font-bold group-hover:translate-x-1 transition-transform">Visit Studio →</span>
-          </div>
-        </a>
-
-        <!-- 8. Town Square Card -->
-        <a
-          href="/"
-          class="directory-card card card-hover flex flex-col justify-between group p-3.5 no-underline transition-all"
-          data-category="engineering"
-        >
-          <div>
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-2xl p-1.5 rounded-lg bg-emerald-100 border border-emerald-300">🏆</span>
-              <span class="chip font-mono text-[9px] uppercase">Central Plaza</span>
-            </div>
-            <h3 class="font-pixel text-xs text-ink group-hover:text-ball transition-colors">
-              Town Square · Open-World Map
-            </h3>
-            <p class="font-sans text-xs text-ink-soft mt-1 leading-relaxed">
-              The full 45x64 tile open-world Pokémon canvas, wild critter encounters, safari grass, and live day/night weather cycles.
-            </p>
-            <div class="mt-2.5 flex flex-wrap gap-1 font-mono text-[9px] text-ink-soft">
-              <span class="px-1.5 py-0.5 rounded bg-cream border border-ink/10">2D Canvas</span>
-              <span class="px-1.5 py-0.5 rounded bg-cream border border-ink/10">Game Loop</span>
-              <span class="px-1.5 py-0.5 rounded bg-cream border border-ink/10">Safari Dex</span>
-            </div>
-          </div>
-          <div class="mt-3 pt-2 border-t border-ink/10 flex items-center justify-between font-mono text-[10px] text-ink-soft">
-            <span>Route: /</span>
-            <span class="text-ball font-bold group-hover:translate-x-1 transition-transform">Explore Map →</span>
-          </div>
-        </a>
+          </a>
+        ))}
+      </div>
+      <div id="directory-empty-msg" class="hidden p-4 rounded-xl bg-cream border border-dashed border-ink/25 text-center font-mono text-xs text-ink-soft">
+        🔍 No campus facilities match your search filter.
       </div>
     </section>
 
@@ -1124,90 +1373,215 @@ const emailUrl = `mailto:${profile.person.email}`;
 
 <script>
   import { sfx } from '../game/sfx';
+  import { gameStore, type GymBadgeId } from '../game/store';
+  import { COMPANIONS_MAP } from '../engine/pokemonCompanions';
 
-  // Interactive Healing Station Logic
-  function initHealingStation() {
+  // Interactive Poké Center 2.0 Reception Logic
+  function initReceptionHub() {
     const btnHeal = document.getElementById('btn-trigger-heal');
+    const btnOvercharge = document.getElementById('btn-trigger-overcharge');
     const badge = document.getElementById('ball-count-badge');
     const feedback = document.getElementById('heal-feedback');
     const feedbackText = document.getElementById('heal-feedback-text');
     const slotElements = document.querySelectorAll<HTMLElement>('.healing-slot');
 
-    function getBallCount(): number {
-      try {
-        const raw = localStorage.getItem('critters_inventory');
-        if (raw) {
-          const inv = JSON.parse(raw);
-          return typeof inv.balls === 'number' ? inv.balls : 10;
-        }
-      } catch {}
-      return 10;
-    }
-
-    function updateBadge() {
+    function syncInventoryAndBadges() {
+      const st = gameStore.getState();
       if (badge) {
-        const count = getBallCount();
-        badge.textContent = `${count} / 10 Balls`;
+        const count = st.balls;
+        badge.textContent = count > 10 ? `${count} / 10⚡ Overcharged` : `${count} / 10 Balls`;
         if (count <= 2) {
           badge.className = 'chip bg-amber-500 text-paper border-ink font-mono font-bold text-xs px-2 py-0.5';
+        } else if (count > 10) {
+          badge.className = 'chip bg-emerald-600 text-paper border-ink font-mono font-bold text-xs px-2 py-0.5';
         } else {
           badge.className = 'chip bg-ball text-paper border-ink font-mono font-bold text-xs px-2 py-0.5';
         }
       }
+
+      // Sync Directory Gym Badge Pills & Total Count
+      const summaryEl = document.getElementById('directory-badge-summary');
+      if (summaryEl) {
+        summaryEl.textContent = `🏅 ${st.badges.length} / 8 Gym Badges Earned`;
+      }
+      document.querySelectorAll<HTMLElement>('.facility-badge-pill').forEach((pill) => {
+        const bid = pill.getAttribute('data-badge-id') as GymBadgeId | null;
+        if (!bid) return;
+        const unlocked = st.badges.includes(bid);
+        pill.className = unlocked
+          ? 'facility-badge-pill chip bg-emerald-100 text-emerald-800 border-emerald-400 font-mono text-[9px] font-bold px-1.5 py-0.2'
+          : 'facility-badge-pill chip bg-slate-100 text-slate-600 border-slate-300 font-mono text-[9px] px-1.5 py-0.2';
+        if (unlocked && !pill.textContent?.includes('✓')) {
+          pill.textContent = `${pill.textContent?.trim()} ✓`;
+        }
+      });
     }
 
-    updateBadge();
-
-    // Listen for refill events from engine or other components
-    window.addEventListener('town:refill-balls', () => {
-      executeHealingEffect(false);
-    });
-
-    function executeHealingEffect(triggerSound = true) {
-      if (triggerSound) {
-        sfx.heal();
+    // Active Companion Strip Sync
+    function syncActiveCompanion() {
+      const iconEl = document.getElementById('reception-partner-icon');
+      const nameEl = document.getElementById('reception-partner-name');
+      const titleEl = document.getElementById('reception-partner-title');
+      let activeId: string | null = null;
+      try {
+        activeId = localStorage.getItem('town:active_follower');
+      } catch {}
+      const info = activeId ? COMPANIONS_MAP[activeId] : undefined;
+      if (info) {
+        if (iconEl) iconEl.textContent = info.icon;
+        if (nameEl) nameEl.textContent = `${info.name} (${info.title})`;
+        if (titleEl) titleEl.textContent = `⚡ Signature Skill: ${info.skillName} — Ready to walk alongside you!`;
+      } else {
+        if (iconEl) iconEl.textContent = '🐾';
+        if (nameEl) nameEl.textContent = 'None Selected';
+        if (titleEl) titleEl.textContent = "Withdraw any Guardian Pokémon from Bill & Lanette's Cloud PC Box!";
       }
+    }
 
-      // Sequentially animate the 6 slots
+    syncInventoryAndBadges();
+    syncActiveCompanion();
+    gameStore.subscribe(syncInventoryAndBadges);
+    window.addEventListener('town:follower-changed', syncActiveCompanion);
+
+    function executeHealingEffect(targetCount = 10, triggerSound = true) {
+      if (triggerSound) sfx.heal();
+
       slotElements.forEach((el, index) => {
         setTimeout(() => {
-          el.style.backgroundColor = '#fecdd3';
-          el.style.borderColor = '#e11d48';
+          el.style.backgroundColor = targetCount > 10 ? '#bbf7d0' : '#fecdd3';
+          el.style.borderColor = targetCount > 10 ? '#059669' : '#e11d48';
           el.style.transform = 'scale(1.25)';
           setTimeout(() => {
             el.style.backgroundColor = '';
             el.style.borderColor = '';
             el.style.transform = '';
           }, 350);
-        }, index * 90);
+        }, index * 85);
       });
 
-      // Update localStorage inventory to 10 balls
+      gameStore.refillBalls(targetCount);
       try {
         const raw = localStorage.getItem('critters_inventory');
         const inv = raw ? JSON.parse(raw) : {};
-        inv.balls = 10;
+        inv.balls = Math.max(typeof inv.balls === 'number' ? inv.balls : 0, targetCount);
         localStorage.setItem('critters_inventory', JSON.stringify(inv));
       } catch {}
 
-      updateBadge();
+      syncInventoryAndBadges();
 
-      // Show feedback
       if (feedback && feedbackText) {
         feedback.classList.remove('hidden');
-        feedbackText.textContent = '✨ All team members fully rested and 10 Poké Balls refilled!';
+        feedbackText.textContent =
+          targetCount > 10
+            ? `⚡ Chansey Overcharge complete! Party healed & inventory boosted to ${targetCount} Poké Balls!`
+            : '✨ All team members fully rested and 10 Poké Balls refilled!';
         setTimeout(() => {
           feedback.classList.add('hidden');
         }, 5000);
       }
     }
 
-    if (btnHeal) {
-      btnHeal.addEventListener('click', () => {
-        executeHealingEffect(true);
-        window.dispatchEvent(new CustomEvent('town:reception-heal-anim'));
+    window.addEventListener('town:refill-balls', () => executeHealingEffect(10, false));
+    window.addEventListener('reception:overcharge-balls', () => {
+      executeHealingEffect(15, true);
+      window.dispatchEvent(new CustomEvent('town:reception-heal-anim'));
+    });
+
+    btnHeal?.addEventListener('click', () => {
+      executeHealingEffect(10, true);
+      window.dispatchEvent(new CustomEvent('town:reception-heal-anim'));
+    });
+
+    btnOvercharge?.addEventListener('click', () => {
+      executeHealingEffect(15, true);
+      window.dispatchEvent(new CustomEvent('town:reception-heal-anim'));
+    });
+
+    // VIP Visitor Check-In Tracks
+    const VTRACK_DATA: Record<
+      string,
+      { heading: string; stops: { href: string; label: string; cls: string }[]; tip: string }
+    > = {
+      recruiter: {
+        heading: 'Recommended 3-Stop Itinerary for Hiring Managers:',
+        stops: [
+          { href: '/dev', label: '1. 💻 Dev Center', cls: 'border-sky-500/40 text-sky-200 hover:bg-sky-900' },
+          { href: '/lab', label: '2. 🔬 Research Lab', cls: 'border-emerald-500/40 text-emerald-200 hover:bg-emerald-900' },
+          { href: '/twin', label: '3. 🧬 Digital Twin AI', cls: 'border-violet-500/40 text-violet-200 hover:bg-violet-900' },
+        ],
+        tip: '💡 Est. 3 mins total',
+      },
+      peer: {
+        heading: 'Recommended Architecture Tour for Software Engineers:',
+        stops: [
+          { href: '/dev', label: '1. 💻 FoodLink & Kafka', cls: 'border-sky-500/40 text-sky-200 hover:bg-sky-900' },
+          { href: '/tower', label: '2. 🏢 Huawei NOC Firewall', cls: 'border-cyan-500/40 text-cyan-200 hover:bg-cyan-900' },
+          { href: '/', label: '3. 🛠️ Town Editor 5.0 (E)', cls: 'border-amber-500/40 text-amber-200 hover:bg-amber-900' },
+        ],
+        tip: '💡 Press E on Town Map',
+      },
+      ai: {
+        heading: 'Recommended R&D Path for AI & Robotics Specialists:',
+        stops: [
+          { href: '/lab', label: '1. 🔬 YOLOv8 + SAHI UAV', cls: 'border-emerald-500/40 text-emerald-200 hover:bg-emerald-900' },
+          { href: '/tower', label: '2. 🤖 ESP32 FreeRTOS Tank', cls: 'border-amber-500/40 text-amber-200 hover:bg-amber-900' },
+          { href: '/arcade', label: '3. 🕹️ Deoxys Minimax AI', cls: 'border-rose-500/40 text-rose-200 hover:bg-rose-900' },
+        ],
+        tip: '💡 Live sandboxes inside',
+      },
+      explorer: {
+        heading: 'Recommended Adventure Loop for World Explorers:',
+        stops: [
+          { href: '/arena', label: '1. ⚔️ Mewtwo Colosseum', cls: 'border-rose-500/40 text-rose-200 hover:bg-rose-900' },
+          { href: '/garden', label: '2. 🌸 Berry Garden', cls: 'border-pink-500/40 text-pink-200 hover:bg-pink-900' },
+          { href: '/digimon', label: '3. 👾 Digi-Sanctuary', cls: 'border-indigo-500/40 text-indigo-200 hover:bg-indigo-900' },
+        ],
+        tip: '💡 Collect all 8 Badges!',
+      },
+    };
+
+    const vtrackBtns = document.querySelectorAll<HTMLButtonElement>('.visitor-track-btn');
+    const vtrackHeading = document.getElementById('vtrack-heading');
+    const vtrackStops = document.getElementById('vtrack-stops');
+    const vtrackTip = document.getElementById('vtrack-tip');
+
+    vtrackBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const key = btn.getAttribute('data-vtrack') || 'recruiter';
+        const cfg = VTRACK_DATA[key];
+        if (!cfg) return;
+        sfx.select();
+        vtrackBtns.forEach((b) => {
+          const isAct = b === btn;
+          b.className = isAct
+            ? 'visitor-track-btn px-2.5 py-2 rounded-lg border-2 border-sky-400 bg-sky-950/80 text-left transition-all cursor-pointer'
+            : 'visitor-track-btn px-2.5 py-2 rounded-lg border border-slate-700 bg-slate-950/70 hover:border-slate-500 text-left transition-all cursor-pointer';
+        });
+        if (vtrackHeading) vtrackHeading.textContent = cfg.heading;
+        if (vtrackTip) vtrackTip.textContent = cfg.tip;
+        if (vtrackStops) {
+          vtrackStops.innerHTML = cfg.stops
+            .map(
+              (s, i) =>
+                `${i > 0 ? '<span class="text-slate-500">→</span>' : ''}<a href="${s.href}" class="px-2 py-0.5 rounded bg-slate-800 border ${s.cls} no-underline">${s.label}</a>`
+            )
+            .join('');
+        }
       });
-    }
+    });
+
+    // AI Job-Fit & Guided Auto-Tour Triggers
+    const openJobFit = () => {
+      sfx.select();
+      document.dispatchEvent(new CustomEvent('town:open-modal', { detail: { target: 'jobfit' } }));
+    };
+    document.getElementById('btn-reception-jobfit')?.addEventListener('click', openJobFit);
+    document.getElementById('btn-concierge-jobfit')?.addEventListener('click', openJobFit);
+    document.getElementById('btn-reception-start-tour')?.addEventListener('click', () => {
+      sfx.confirm();
+      sessionStorage.setItem('town:start_tour', '1');
+      window.location.href = '/';
+    });
 
     // Quick Action Bar click listeners
     const quickButtons = document.querySelectorAll<HTMLButtonElement>('.reception-quick-btn');
@@ -1218,21 +1592,20 @@ const emailUrl = `mailto:${profile.person.email}`;
 
         if (action === 'healing-machine') {
           window.dispatchEvent(new CustomEvent('town:locate', { detail: { propId: 'healing-machine' } }));
-          executeHealingEffect(true);
+          executeHealingEffect(10, true);
           window.dispatchEvent(new CustomEvent('town:reception-heal-anim'));
           return;
         }
 
         if (action === 'pc-terminal') {
           window.dispatchEvent(new CustomEvent('town:locate', { detail: { propId: 'pc-terminal' } }));
-          window.dispatchEvent(new CustomEvent('reception:open-pc'));
+          window.dispatchEvent(new CustomEvent('reception:open-pc', { detail: { tab: 'card' } }));
           return;
         }
 
         if (action === 'waiting-couch') {
           window.dispatchEvent(new CustomEvent('town:locate', { detail: { propId: 'waiting-couch' } }));
-          const lounge = document.querySelector('#vip-lounge-section');
-          lounge?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          document.querySelector('#vip-lounge-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
           return;
         }
 
@@ -1244,82 +1617,80 @@ const emailUrl = `mailto:${profile.person.email}`;
       });
     });
 
-    // 💻 Launch Network PC button
-    const btnOpenPc = document.getElementById('btn-trigger-open-pc');
-    btnOpenPc?.addEventListener('click', () => {
-      window.dispatchEvent(new CustomEvent('reception:open-pc'));
+    // Cloud PC V5.0 triggers
+    document.getElementById('btn-trigger-open-pc')?.addEventListener('click', () => {
+      window.dispatchEvent(new CustomEvent('reception:open-pc', { detail: { tab: 'card' } }));
     });
+    const openPartnerBox = () => {
+      window.dispatchEvent(new CustomEvent('reception:open-pc', { detail: { tab: 'partners' } }));
+    };
+    document.getElementById('btn-trigger-open-pc-box')?.addEventListener('click', openPartnerBox);
+    document.getElementById('btn-reception-switch-partner')?.addEventListener('click', openPartnerBox);
 
-    // 📍 Inspect in 2D buttons
-    const inspectButtons = document.querySelectorAll<HTMLButtonElement>('.btn-inspect-2d');
-    inspectButtons.forEach((btn) => {
+    // Inspect in 2D buttons
+    document.querySelectorAll<HTMLButtonElement>('.btn-inspect-2d').forEach((btn) => {
       btn.addEventListener('click', () => {
         const propId = btn.getAttribute('data-prop');
         if (!propId) return;
-
         window.dispatchEvent(new CustomEvent('town:locate', { detail: { propId } }));
-        const townCanvas = document.querySelector('.town');
-        if (townCanvas) {
-          townCanvas.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
+        document.querySelector('.town')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       });
     });
 
-    // 🎯 Recruiter Concierge Role-Fit Matcher Tabs
+    // Recruiter Concierge Role-Fit Matcher Tabs
     const roleTabs = document.querySelectorAll<HTMLButtonElement>('.role-tab');
     const rolePanels = document.querySelectorAll<HTMLElement>('.role-panel');
     roleTabs.forEach((tab) => {
       tab.addEventListener('click', () => {
         const role = tab.getAttribute('data-role');
         if (!role) return;
-
         sfx.select();
-
-        // Reset all tabs
         roleTabs.forEach((t) => {
           t.className = 'role-tab card p-3 text-left transition-all cursor-pointer border-2 border-ink/20 hover:border-ink/50 bg-paper';
         });
-        // Activate current tab
         tab.className = 'role-tab card p-3 text-left transition-all cursor-pointer border-2 border-ball bg-ball/5 ring-1 ring-ball shadow-sm';
-
-        // Toggle role panels
-        rolePanels.forEach((panel) => {
-          panel.classList.add('hidden');
-        });
-        const targetPanel = document.getElementById(`role-panel-${role}`);
-        if (targetPanel) {
-          targetPanel.classList.remove('hidden');
-        }
+        rolePanels.forEach((panel) => panel.classList.add('hidden'));
+        document.getElementById(`role-panel-${role}`)?.classList.remove('hidden');
       });
     });
 
-    // 📋 Campus Directory Category Filtering
+    // Campus Directory Category Filter + Live Search
     const filterButtons = document.querySelectorAll<HTMLButtonElement>('.directory-filter-btn');
     const directoryCards = document.querySelectorAll<HTMLElement>('.directory-card');
+    const dirSearchInput = document.getElementById('directory-search-input') as HTMLInputElement | null;
+    const dirEmptyMsg = document.getElementById('directory-empty-msg');
+    let activeDirCategory = 'all';
+
+    function applyDirectoryFilter() {
+      const q = (dirSearchInput?.value || '').trim().toLowerCase();
+      let visibleCount = 0;
+      directoryCards.forEach((card) => {
+        const category = card.getAttribute('data-category');
+        const haystack = card.getAttribute('data-search') || '';
+        const catOk = activeDirCategory === 'all' || category === activeDirCategory;
+        const queryOk = !q || haystack.includes(q);
+        const show = catOk && queryOk;
+        card.classList.toggle('hidden', !show);
+        if (show) visibleCount++;
+      });
+      dirEmptyMsg?.classList.toggle('hidden', visibleCount > 0);
+    }
+
     filterButtons.forEach((btn) => {
       btn.addEventListener('click', () => {
-        const filter = btn.getAttribute('data-filter') || 'all';
+        activeDirCategory = btn.getAttribute('data-filter') || 'all';
         sfx.select();
-
-        // Update active filter styling
         filterButtons.forEach((b) => {
           b.className = 'directory-filter-btn chip bg-paper text-ink border-ink/20 hover:border-ink/50 font-mono text-[10px] px-2 py-0.5 cursor-pointer';
         });
         btn.className = 'directory-filter-btn chip bg-ball text-paper border-ink font-mono text-[10px] font-bold px-2 py-0.5 cursor-pointer';
-
-        // Filter cards
-        directoryCards.forEach((card) => {
-          const category = card.getAttribute('data-category');
-          if (filter === 'all' || category === filter) {
-            card.classList.remove('hidden');
-          } else {
-            card.classList.add('hidden');
-          }
-        });
+        applyDirectoryFilter();
       });
     });
 
-    // 📬 1-Click Copy Recruiter Email
+    dirSearchInput?.addEventListener('input', applyDirectoryFilter);
+
+    // 1-Click Copy Recruiter Email
     const btnCopyEmail = document.getElementById('btn-copy-recruiter-email') as HTMLButtonElement | null;
     const copyEmailLabel = document.getElementById('btn-copy-email-label');
     if (btnCopyEmail && copyEmailLabel) {
@@ -1331,44 +1702,34 @@ const emailUrl = `mailto:${profile.person.email}`;
           const originalText = copyEmailLabel.textContent || 'Copy Email';
           copyEmailLabel.textContent = '✨ Copied!';
           btnCopyEmail.classList.add('bg-emerald-100', 'text-emerald-800', 'border-emerald-400');
-
           setTimeout(() => {
             copyEmailLabel.textContent = originalText;
             btnCopyEmail.classList.remove('bg-emerald-100', 'text-emerald-800', 'border-emerald-400');
           }, 2500);
         } catch {
-          // Fallback if clipboard API is blocked
           window.location.href = `mailto:${email}`;
         }
       });
     }
 
-    // 📰 Portfolio Zine Issue Tabs
+    // Portfolio Zine Issue Tabs
     const zineTabs = document.querySelectorAll<HTMLButtonElement>('.zine-tab');
     const zineArticles = document.querySelectorAll<HTMLElement>('.zine-article');
     zineTabs.forEach((tab) => {
       tab.addEventListener('click', () => {
         const issue = tab.getAttribute('data-issue');
         if (!issue) return;
-
         sfx.select();
-
         zineTabs.forEach((t) => {
           t.className = 'zine-tab card p-3 text-left transition-all cursor-pointer border-2 border-ink/20 hover:border-ink/50 bg-paper';
         });
         tab.className = 'zine-tab card p-3 text-left transition-all cursor-pointer border-2 border-ball bg-ball/5 ring-1 ring-ball shadow-sm';
-
-        zineArticles.forEach((article) => {
-          article.classList.add('hidden');
-        });
-        const targetArticle = document.getElementById(`zine-article-${issue}`);
-        if (targetArticle) {
-          targetArticle.classList.remove('hidden');
-        }
+        zineArticles.forEach((article) => article.classList.add('hidden'));
+        document.getElementById(`zine-article-${issue}`)?.classList.remove('hidden');
       });
     });
 
-    // 🥚 Lucky Egg Speed Buff Tracker
+    // Lucky Egg Speed Buff Tracker
     const btnClaimLuckyEgg = document.getElementById('btn-claim-lucky-egg');
     const luckyEggBtnText = document.getElementById('lucky-egg-btn-text');
     const luckyEggBanner = document.getElementById('lucky-egg-active-banner');
@@ -1379,10 +1740,9 @@ const emailUrl = `mailto:${profile.person.email}`;
 
     function handleLuckyEggBuff(duration = 25) {
       secondsLeft = duration;
-      if (luckyEggBanner) luckyEggBanner.classList.remove('hidden');
+      luckyEggBanner?.classList.remove('hidden');
       if (luckyEggCountdown) luckyEggCountdown.textContent = `${secondsLeft}s remaining`;
       if (luckyEggBtnText) luckyEggBtnText.textContent = `✨ Active (${secondsLeft}s)`;
-
       if (eggCountdownTimer) clearInterval(eggCountdownTimer);
 
       eggCountdownTimer = window.setInterval(() => {
@@ -1390,7 +1750,7 @@ const emailUrl = `mailto:${profile.person.email}`;
         if (secondsLeft <= 0) {
           if (eggCountdownTimer) clearInterval(eggCountdownTimer);
           eggCountdownTimer = null;
-          if (luckyEggBanner) luckyEggBanner.classList.add('hidden');
+          luckyEggBanner?.classList.add('hidden');
           if (luckyEggBtnText) luckyEggBtnText.textContent = 'Claim Lucky Egg Buff';
         } else {
           if (luckyEggCountdown) luckyEggCountdown.textContent = `${secondsLeft}s remaining`;
@@ -1411,10 +1771,10 @@ const emailUrl = `mailto:${profile.person.email}`;
     });
   }
 
-  document.addEventListener('astro:page-load', initHealingStation);
+  document.addEventListener('astro:page-load', initReceptionHub);
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initHealingStation);
+    document.addEventListener('DOMContentLoaded', initReceptionHub);
   } else {
-    initHealingStation();
+    initReceptionHub();
   }
 </script>

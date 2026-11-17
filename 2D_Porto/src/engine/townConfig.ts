@@ -1966,22 +1966,62 @@ class TownConfigManager {
       link?: string;
       scaleMultiplier?: number;
       behavior?: 'stationary' | 'look_around' | 'patrol_small';
-    }
+      x?: number;
+      y?: number;
+      zIndex?: number;
+      doorX?: number;
+      doorY?: number;
+      labelX?: number;
+      labelY?: number;
+    },
+    recordHistory = true
   ): boolean {
     const b = this.buildings.get(id);
     if (!b) return false;
-    this.pushSnapshot(this.captureSnapshot());
+    if (recordHistory) {
+      this.pushSnapshot(this.captureSnapshot());
+    }
+    const { w: maxW, h: maxH } = this.getBounds();
     if (patch.name !== undefined && patch.name.trim()) b.name = patch.name.trim();
     if (patch.dialogue !== undefined) b.dialogue = patch.dialogue;
     if (patch.link !== undefined) {
       if (patch.link.trim()) b.link = patch.link.trim();
       else delete b.link;
     }
-    if (patch.scaleMultiplier !== undefined) {
+    if (patch.scaleMultiplier !== undefined && Number.isFinite(patch.scaleMultiplier)) {
       b.scaleMultiplier = Math.max(0.6, Math.min(1.6, Number(patch.scaleMultiplier)));
     }
     if (patch.behavior !== undefined) {
       b.behavior = patch.behavior;
+    }
+    if (patch.x !== undefined && Number.isFinite(patch.x)) {
+      const nx = Math.max(0, Math.min(maxW - b.w, Math.round(patch.x)));
+      const dx = nx - b.x;
+      b.x = nx;
+      if (b.doorX !== undefined && patch.doorX === undefined) b.doorX += dx;
+      if (b.labelX !== undefined && patch.labelX === undefined) b.labelX = Number((b.labelX + dx).toFixed(1));
+    }
+    if (patch.y !== undefined && Number.isFinite(patch.y)) {
+      const ny = Math.max(0, Math.min(maxH - b.h, Math.round(patch.y)));
+      const dy = ny - b.y;
+      b.y = ny;
+      if (b.doorY !== undefined && patch.doorY === undefined) b.doorY += dy;
+      if (b.labelY !== undefined && patch.labelY === undefined) b.labelY = Number((b.labelY + dy).toFixed(1));
+    }
+    if (patch.zIndex !== undefined && Number.isFinite(patch.zIndex)) {
+      b.zIndex = Math.round(patch.zIndex);
+    }
+    if (patch.doorX !== undefined && Number.isFinite(patch.doorX)) {
+      b.doorX = Math.max(0, Math.min(maxW - 1, Math.round(patch.doorX)));
+    }
+    if (patch.doorY !== undefined && Number.isFinite(patch.doorY)) {
+      b.doorY = Math.max(0, Math.min(maxH - 1, Math.round(patch.doorY)));
+    }
+    if (patch.labelX !== undefined && Number.isFinite(patch.labelX)) {
+      b.labelX = Number(patch.labelX.toFixed(1));
+    }
+    if (patch.labelY !== undefined && Number.isFinite(patch.labelY)) {
+      b.labelY = Number(patch.labelY.toFixed(1));
     }
     this.saveToStorage();
     this.notify();
@@ -2200,6 +2240,63 @@ class TownConfigManager {
     }
 
     return lines.join('\n');
+  }
+
+  public getExitRespawnForPlace(place: string): string {
+    const clean = (place || '').replace(/^\/+|\/+$/g, '').toLowerCase();
+    if (!clean || clean === 'town') return '22,28,down';
+    if (clean === 'digimon') return '22,58,up';
+
+    const aliasToBuildingId: Record<string, string> = {
+      dev: 'dev',
+      lab: 'lab',
+      about: 'home',
+      home: 'home',
+      reception: 'reception',
+      mart: 'shop',
+      shop: 'shop',
+      arcade: 'arcade',
+      tower: 'office',
+      office: 'office',
+      neighbour: 'villa',
+      villa: 'villa',
+      arena: 'arena',
+      cafe: 'kiosk',
+      kiosk: 'kiosk',
+      garden: 'garden',
+      berry: 'garden',
+      twin: 'twin',
+    };
+
+    const fallbacks: Record<string, string> = {
+      dev: '16,12,down',
+      lab: '27,7,down',
+      home: '37,25,down',
+      reception: '38,17,down',
+      shop: '39,33,down',
+      arcade: '27,17,down',
+      office: '39,8,down',
+      villa: '27,25,down',
+      arena: '38,40,down',
+      kiosk: '29,32,down',
+      garden: '28,44,down',
+      twin: '12,23,down',
+    };
+
+    const buildingId = aliasToBuildingId[clean] || clean;
+    if (this.activeWorld === 'town') {
+      const targetRoute = clean === 'home' ? '/about' : `/${clean}`;
+      const b =
+        this.getBuilding(buildingId) ||
+        this.getBuildings(true).find((item) => item.link === targetRoute || item.link === `/${clean}`);
+      if (b && !b.hidden) {
+        const dx = b.doorX !== undefined ? Math.round(b.doorX) : Math.round(b.x + Math.floor((b.w || 1) / 2));
+        const dy = b.doorY !== undefined ? Math.round(b.doorY) + 1 : Math.round(b.y + (b.h || 1));
+        return `${dx},${dy},down`;
+      }
+    }
+
+    return fallbacks[buildingId] || '22,28,down';
   }
 }
 

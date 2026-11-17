@@ -58,6 +58,9 @@ export interface TownPokemonOverworldHost {
   regigigasImg: HTMLImageElement | null;
   koraidonImg: HTMLImageElement | null;
   eternatusImg: HTMLImageElement | null;
+  lucarioAttackTick?: number;
+  mewtwoAttackTick?: number;
+  necrozmaAttackTick?: number;
 }
 
 export function renderOverworldPokemonNPCs(
@@ -72,15 +75,39 @@ export function renderOverworldPokemonNPCs(
     const curTileY = cfg ? cfg.y : (npc.id === 'ace' && arenaCfg ? arenaCfg.y + 1 : npc.y);
 
     if (npc.id === 'twin') {
-      const isFlipped = (cfg?.orientation || 'W') === 'E';
-      if (isFlipped) {
-        ctx.save();
-        ctx.translate(curTileX * TILE_SIZE + 8, 0);
-        ctx.scale(-1, 1);
-        ctx.translate(-(curTileX * TILE_SIZE + 8), 0);
+      const drawX = curTileX * TILE_SIZE;
+      const drawY = curTileY * TILE_SIZE;
+      const coreX = drawX + 8;
+      const coreY = drawY + 16;
+
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.38)';
+      ctx.beginPath();
+      ctx.ellipse(coreX, coreY, 10, 4, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      const auraR = 12 + Math.sin(host.tick * 0.08) * 1.5;
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.42)';
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      ctx.arc(coreX, drawY + 2, auraR, 0, Math.PI * 2);
+      ctx.stroke();
+
+      const dir = cfg?.orientation || npc.dir || 'down';
+      const npcAction = host.lucarioAttackTick && host.lucarioAttackTick > 0 ? 'shoot' : 'idle';
+      const npcTick = npcAction === 'shoot' ? 27 - (host.lucarioAttackTick || 0) : host.tick;
+      const pmdDrawn = host.pmdAnimator.draw(ctx, 'lucario', npcAction, dir, coreX, coreY, npcTick);
+
+      if (!pmdDrawn) {
+        const isFlipped = (cfg?.orientation || 'W') === 'E';
+        if (isFlipped) {
+          ctx.save();
+          ctx.translate(curTileX * TILE_SIZE + 8, 0);
+          ctx.scale(-1, 1);
+          ctx.translate(-(curTileX * TILE_SIZE + 8), 0);
+        }
+        drawLucario(ctx, curTileX * TILE_SIZE, curTileY * TILE_SIZE, host.tick, 1);
+        if (isFlipped) ctx.restore();
       }
-      drawLucario(ctx, curTileX * TILE_SIZE, curTileY * TILE_SIZE, host.tick, 1);
-      if (isFlipped) ctx.restore();
     } else if (npc.id === 'charizard' || npc.id === 'lebron' || (npc as any).subType === 'charizard') {
       const drawX = curTileX * TILE_SIZE;
       const drawY = curTileY * TILE_SIZE;
@@ -698,7 +725,14 @@ export function renderOverworldPokemonNPCs(
         ctx.fillRect(drawX + 8 - Math.sin(host.tick * 0.15) * 12, drawY - 2 + levitate - Math.cos(host.tick * 0.15) * 12, 1.5, 1.5);
       }
 
-      if (host.mewtwoImg && host.mewtwoImg.complete && host.mewtwoImg.naturalWidth > 0) {
+      const coreX = drawX + 8;
+      const coreY = drawY + 16 + levitate * 0.45;
+      const dir = cfg?.orientation || npc.dir || 'down';
+      const npcAction = host.mewtwoAttackTick && host.mewtwoAttackTick > 0 ? 'shoot' : 'idle';
+      const npcTick = npcAction === 'shoot' ? 26 - (host.mewtwoAttackTick || 0) : host.tick;
+      const pmdDrawn = host.pmdAnimator.draw(ctx, 'mewtwo', npcAction, dir, coreX, coreY, npcTick);
+
+      if (!pmdDrawn && host.mewtwoImg && host.mewtwoImg.complete && host.mewtwoImg.naturalWidth > 0) {
         const isFlipped = (cfg?.orientation || 'W') === 'E';
         if (isFlipped) {
           ctx.save();
@@ -1054,8 +1088,13 @@ export function renderOverworldPokemonNPCs(
         ctx.fillRect(coreX + 4 + Math.sin(host.tick * 0.3) * 10, coreY + 4 - (host.tick % 14), 1.5, 1.5);
       }
 
-      // Draw Necrozma Dusk Mane sprite (120x112 scaled to 46x43)
-      if (host.necrozmaImg && host.necrozmaImg.complete && host.necrozmaImg.naturalWidth > 0) {
+      // Draw PMD Animated Necrozma (with fallback to static sprite)
+      const dir = cfg?.orientation || npc.dir || 'S';
+      const npcAction = host.necrozmaAttackTick && host.necrozmaAttackTick > 0 ? 'shoot' : 'idle';
+      const npcTick = npcAction === 'shoot' ? 26 - (host.necrozmaAttackTick || 0) : host.tick;
+      const pmdDrawn = host.pmdAnimator.draw(ctx, 'necrozma', npcAction, dir, coreX, drawY + 16, npcTick);
+
+      if (!pmdDrawn && host.necrozmaImg && host.necrozmaImg.complete && host.necrozmaImg.naturalWidth > 0) {
         const isFlipped = (cfg?.orientation || 'W') === 'E';
         if (isFlipped) {
           ctx.save();
@@ -1566,9 +1605,28 @@ export function renderOverworldPokemonNPCs(
         if (!pmdDrawn && host.arceusImg && host.arceusImg.complete) {
           ctx.drawImage(host.arceusImg, b.x * TILE_SIZE - 12, b.y * TILE_SIZE - 18 + lev, 40, 40);
         }
-      } else if ((b.subType === 'mewtwo' || b.id === 'mewtwo') && host.mewtwoImg && host.mewtwoImg.complete) {
+      } else if ((b.subType === 'mewtwo' || b.id === 'mewtwo') && (host.pmdAnimator.isSupported('mewtwo') || (host.mewtwoImg && host.mewtwoImg.complete))) {
         const lev = Math.sin(host.tick * 0.045) * 2.2;
-        ctx.drawImage(host.mewtwoImg, b.x * TILE_SIZE - 11, b.y * TILE_SIZE - 16 + lev, 38, 38);
+        const coreX = b.x * TILE_SIZE + 8;
+        const coreY = b.y * TILE_SIZE + 16;
+
+        ctx.fillStyle = 'rgba(25, 15, 35, 0.45)';
+        ctx.beginPath();
+        ctx.ellipse(coreX, coreY, 12, 4.5, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        const auraR = 14 + Math.sin(host.tick * 0.06) * 2;
+        ctx.strokeStyle = 'rgba(168, 85, 247, 0.45)';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(coreX, b.y * TILE_SIZE - 2 + lev, auraR, 0, Math.PI * 2);
+        ctx.stroke();
+
+        const dir = b.orientation || 'S';
+        const pmdDrawn = host.pmdAnimator.draw(ctx, 'mewtwo', 'idle', dir, coreX, coreY + lev * 0.45, host.tick);
+        if (!pmdDrawn && host.mewtwoImg && host.mewtwoImg.complete) {
+          ctx.drawImage(host.mewtwoImg, b.x * TILE_SIZE - 11, b.y * TILE_SIZE - 16 + lev, 38, 38);
+        }
       } else if (b.subType === 'rayquaza' || b.id === 'rayquaza') {
         const coreX = b.x * TILE_SIZE + 8;
         const coreY = b.y * TILE_SIZE + 16;
@@ -1795,7 +1853,7 @@ export function renderOverworldPokemonNPCs(
         if (!pmdDrawn && host.darkraiImg && host.darkraiImg.complete) {
           ctx.drawImage(host.darkraiImg, b.x * TILE_SIZE - 13, b.y * TILE_SIZE - 20 + levitate, 42, 42);
         }
-      } else if ((b.subType === 'necrozma' || b.subType === 'necrozma_dusk_mane' || b.id === 'necrozma' || b.id === 'necrozma_dusk_mane') && host.necrozmaImg && host.necrozmaImg.complete) {
+      } else if ((b.subType === 'necrozma' || b.subType === 'necrozma_dusk_mane' || b.id === 'necrozma' || b.id === 'necrozma_dusk_mane') && (host.pmdAnimator.isSupported('necrozma') || (host.necrozmaImg && host.necrozmaImg.complete))) {
         const breath = Math.sin(host.tick * 0.04) * 0.9;
         const coreX = b.x * TILE_SIZE + 8;
         const coreY = b.y * TILE_SIZE + 6;
@@ -1828,7 +1886,12 @@ export function renderOverworldPokemonNPCs(
           ctx.fillRect(coreX + 4 + Math.sin(host.tick * 0.3) * 10, coreY + 4 - (host.tick % 14), 1.5, 1.5);
         }
 
-        ctx.drawImage(host.necrozmaImg, b.x * TILE_SIZE - 15, b.y * TILE_SIZE - 21 + breath, 46, 43);
+        const dir = b.orientation || 'S';
+        const pmdAction = behavior === 'patrol_small' ? 'walk' : 'idle';
+        const pmdDrawn = host.pmdAnimator.draw(ctx, 'necrozma', pmdAction, dir, coreX, b.y * TILE_SIZE + 16, host.tick);
+        if (!pmdDrawn && host.necrozmaImg && host.necrozmaImg.complete) {
+          ctx.drawImage(host.necrozmaImg, b.x * TILE_SIZE - 15, b.y * TILE_SIZE - 21 + breath, 46, 43);
+        }
       } else if (b.subType === 'lunala' || b.id === 'lunala') {
         const levitate = Math.sin(host.tick * 0.045) * 2.2;
         const coreX = b.x * TILE_SIZE + 8;
@@ -2227,7 +2290,27 @@ export function renderOverworldPokemonNPCs(
           ctx.drawImage(host.salamenceImg, b.x * TILE_SIZE - 15, b.y * TILE_SIZE - 22 + breath, 46, 46);
         }
       } else if (b.subType === 'lucario' || b.id === 'lucario') {
-        drawLucario(ctx, b.x * TILE_SIZE, b.y * TILE_SIZE, host.tick, 1);
+        const coreX = b.x * TILE_SIZE + 8;
+        const coreY = b.y * TILE_SIZE + 16;
+
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.38)';
+        ctx.beginPath();
+        ctx.ellipse(coreX, coreY, 10, 4, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        const auraR = 12 + Math.sin(host.tick * 0.08) * 1.5;
+        ctx.strokeStyle = 'rgba(56, 189, 248, 0.42)';
+        ctx.lineWidth = 1.4;
+        ctx.beginPath();
+        ctx.arc(coreX, b.y * TILE_SIZE + 2, auraR, 0, Math.PI * 2);
+        ctx.stroke();
+
+        const dir = b.orientation || 'S';
+        const pmdAction = behavior === 'patrol_small' ? 'walk' : 'idle';
+        const pmdDrawn = host.pmdAnimator.draw(ctx, 'lucario', pmdAction, dir, coreX, coreY, host.tick);
+        if (!pmdDrawn) {
+          drawLucario(ctx, b.x * TILE_SIZE, b.y * TILE_SIZE, host.tick, 1);
+        }
       } else if (b.subType === 'pikachu' || b.id === 'pikachu') {
         drawPikachu(ctx, b.x * TILE_SIZE, b.y * TILE_SIZE);
       } else {

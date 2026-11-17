@@ -1,4 +1,5 @@
 import type { Dir } from './types';
+import type { PokemonPMDAnimator } from './pokemonPMDAnimator';
 
 export const ARCADE_COLS = 19;
 export const ARCADE_ROWS = 14;
@@ -511,25 +512,8 @@ function renderScoreboard(ctx: CanvasRenderingContext2D, prop: ArcadeProp) {
   fill(ctx, '#ffd166', px + 11, py + 18, 4, 2);
 }
 
-// Mythical Deoxys seated at physical Mancala board table
-function renderMancalaDeoxys(ctx: CanvasRenderingContext2D, prop: ArcadeProp) {
-  const centerX = (prop.x + prop.w / 2) * 16;
-  const py = prop.y * 16;
-
-  // Cosmic psychic aura around hovering Deoxys
-  ctx.save();
-  ctx.fillStyle = 'rgba(168, 85, 247, 0.25)';
-  ctx.beginPath();
-  ctx.arc(centerX, py - 4, 18, 0, Math.PI * 2);
-  ctx.fill();
-
-  // Deoxys sprite
-  if (deoxysImg && deoxysImg.complete && deoxysImg.naturalWidth > 0) {
-    ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(deoxysImg, centerX - 24, py - 24, 48, 48);
-  }
-  ctx.restore();
-
+// Wooden Mancala table & physical board baked onto arcade background canvas
+function renderMancalaTable(ctx: CanvasRenderingContext2D, prop: ArcadeProp) {
   // Wooden Mancala Table
   const tableX = prop.x * 16 + 1;
   const tableY = (prop.y + 1) * 16;
@@ -560,6 +544,62 @@ function renderMancalaDeoxys(ctx: CanvasRenderingContext2D, prop: ArcadeProp) {
       fill(ctx, CONFETTI_COLORS[(pitIdx + pitRow) % CONFETTI_COLORS.length], pitX + 1, pitRow + 1, 1, 1);
     }
   }
+}
+
+/**
+ * Dynamic frame-by-frame cosmic animations for Deoxys seated at the Mancala table.
+ */
+export function renderArcadeAnimations(
+  ctx: CanvasRenderingContext2D,
+  tick: number,
+  pmdAnimator?: PokemonPMDAnimator
+) {
+  const deoxysProp = ARCADE_PROPS.find((p) => p.id === 'robot');
+  if (!deoxysProp) return;
+
+  const centerX = (deoxysProp.x + deoxysProp.w / 2) * 16;
+  const py = deoxysProp.y * 16;
+  const levitate = Math.sin(tick * 0.055) * 1.8;
+
+  ctx.save();
+
+  // Pulsing Cosmic / DNA Psychic Aura behind Deoxys
+  const auraR = 15 + Math.sin(tick * 0.07) * 2;
+  const grad = ctx.createRadialGradient(centerX, py + 2 + levitate, 2, centerX, py + 2 + levitate, auraR + 4);
+  grad.addColorStop(0, 'rgba(125, 249, 255, 0.34)');
+  grad.addColorStop(0.5, 'rgba(168, 85, 247, 0.25)');
+  grad.addColorStop(1, 'rgba(168, 85, 247, 0)');
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.arc(centerX, py + 2 + levitate, auraR + 4, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Orbiting DNA / Cosmic Sparks
+  for (let i = 0; i < 3; i++) {
+    const ang = tick * 0.045 + (i * Math.PI * 2) / 3;
+    const ox = centerX + Math.cos(ang) * 14;
+    const oy = py + 2 + levitate + Math.sin(ang) * 5;
+    ctx.fillStyle = i % 2 === 0 ? '#7df9ff' : '#e879f9';
+    ctx.fillRect(Math.round(ox), Math.round(oy), 1.5, 1.5);
+  }
+
+  // Animated PMD Deoxys standing behind the Mancala table
+  const pmdDrawn = pmdAnimator?.draw(
+    ctx,
+    'deoxys',
+    'idle',
+    'down',
+    centerX,
+    py + 15 + levitate * 0.4,
+    tick
+  );
+
+  if (!pmdDrawn && deoxysImg && deoxysImg.complete && deoxysImg.naturalWidth > 0) {
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(deoxysImg, centerX - 18, py - 18 + levitate * 0.4, 36, 36);
+  }
+
+  ctx.restore();
 }
 
 // Create an offscreen pre-baked canvas for the arcade interior
@@ -594,7 +634,7 @@ export function createArcadeBackgroundCanvas(): HTMLCanvasElement {
         break;
       case 'deoxys':
       case 'robot':
-        renderMancalaDeoxys(ctx, prop);
+        renderMancalaTable(ctx, prop);
         break;
       case 'vending':
         renderVendingMachine(ctx, prop);

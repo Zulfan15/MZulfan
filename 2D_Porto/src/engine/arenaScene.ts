@@ -1,6 +1,7 @@
 import type { Dir } from './types';
 import { TILE_SIZE, drawCharacter, drawLucario } from './sprites';
 import { drawPixelText } from './devScene';
+import type { PokemonPMDAnimator } from './pokemonPMDAnimator';
 
 export const ARENA_COLS = 15;
 export const ARENA_ROWS = 12;
@@ -709,7 +710,7 @@ function drawBrazierBase(ctx: CanvasRenderingContext2D, x: number, y: number) {
 /**
  * Dynamic frame-by-frame animations for the Roman Gladiator Colosseum
  */
-export function renderArenaAnimations(ctx: CanvasRenderingContext2D, tick: number) {
+export function renderArenaAnimations(ctx: CanvasRenderingContext2D, tick: number, pmdAnimator?: PokemonPMDAnimator) {
   ctx.save();
 
   // 1. Roaring Fire Braziers at the 4 Corners of the Sand Pit
@@ -777,12 +778,25 @@ export function renderArenaAnimations(ctx: CanvasRenderingContext2D, tick: numbe
   ctx.arc(mX + 8, mY + 6 + levitate, auraR, 0, Math.PI * 2);
   ctx.stroke();
 
-  if (mewtwoSpriteImg && mewtwoSpriteImg.complete && mewtwoSpriteImg.naturalWidth > 0) {
-    ctx.drawImage(mewtwoSpriteImg, mX - 9, mY - 12 + levitate, 34, 34);
-  } else {
-    // Fallback pixel silhouette while image loads
-    ctx.fillStyle = '#e9d5ff';
-    ctx.fillRect(mX + 4, mY + 2 + levitate, 8, 12);
+  const pmdDrawn = pmdAnimator?.draw(
+    ctx,
+    'mewtwo',
+    'idle',
+    'down',
+    mX + 8,
+    mY + 15 + levitate * 0.4,
+    tick,
+    1.05
+  );
+
+  if (!pmdDrawn) {
+    if (mewtwoSpriteImg && mewtwoSpriteImg.complete && mewtwoSpriteImg.naturalWidth > 0) {
+      ctx.drawImage(mewtwoSpriteImg, mX - 9, mY - 12 + levitate, 34, 34);
+    } else {
+      // Fallback pixel silhouette while image loads
+      ctx.fillStyle = '#e9d5ff';
+      ctx.fillRect(mX + 4, mY + 2 + levitate, 8, 12);
+    }
   }
 
   // Orbiting Golden Laurel Sparks around Champion Mewtwo
@@ -795,7 +809,19 @@ export function renderArenaAnimations(ctx: CanvasRenderingContext2D, tick: numbe
   }
 
   // 3. Lanista Lucario on West Pit-Side Plinth (x = 2, y = 6)
-  drawLucario(ctx, 2 * TILE_SIZE + 1, 6 * TILE_SIZE - 1, tick, 0.85);
+  const lucDrawn = pmdAnimator?.draw(
+    ctx,
+    'lucario',
+    'idle',
+    'right',
+    2 * TILE_SIZE + 8,
+    6 * TILE_SIZE + 15,
+    tick,
+    0.95
+  );
+  if (!lucDrawn) {
+    drawLucario(ctx, 2 * TILE_SIZE + 1, 6 * TILE_SIZE - 1, tick, 0.85);
+  }
 
   // 4. Legatus Arbiter (Roman Centurion Referee) on East Pit-Side Plinth (x = 12, y = 6)
   const arbX = 12 * TILE_SIZE;

@@ -69,6 +69,7 @@ import {
   ARCADE_COLLISION,
   ARCADE_PROPS,
   createArcadeBackgroundCanvas,
+  renderArcadeAnimations,
 } from './arcadeScene';
 import {
   RECEPTION_COLS,
@@ -383,6 +384,8 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
   followerEmoteTime = 0;
   followerEmote = '❤️';
   followerWalkTick = 0;
+  lucarioAttackTick = 0;
+  mewtwoAttackTick = 0;
   rayquazaAttackTick = 0;
   arceusAttackTick = 0;
   reshiramAttackTick = 0;
@@ -390,6 +393,7 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
   giratinaAttackTick = 0;
   palkiaAttackTick = 0;
   dialgaAttackTick = 0;
+  necrozmaAttackTick = 0;
   lunalaAttackTick = 0;
   solgaleoAttackTick = 0;
   garchompAttackTick = 0;
@@ -556,10 +560,17 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
       let spawnX = 22;
       let spawnY = 28;
       let spawnDir: Dir = 'down';
+      let fromExitRespawn = false;
 
       const exitSpawn = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('town:respawn') : null;
-      if (exitSpawn) {
+      const lastPlace = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('town:last_place') : null;
+      if (typeof sessionStorage !== 'undefined') {
         sessionStorage.removeItem('town:respawn');
+        sessionStorage.removeItem('town:last_place');
+      }
+
+      if (exitSpawn) {
+        fromExitRespawn = true;
         const parts = exitSpawn.split(',');
         const sx = Number(parts[0]);
         const sy = Number(parts[1]);
@@ -576,11 +587,30 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
         spawnX = digiReturn?.x ?? 22;
         spawnY = digiReturn?.y ?? 58;
         spawnDir = digiReturn?.dir ?? 'up';
+      } else if (lastPlace && lastPlace !== 'town' && initialSpawn === 'town') {
+        fromExitRespawn = true;
+        const parts = townConfig.getExitRespawnForPlace(lastPlace).split(',');
+        const sx = Number(parts[0]);
+        const sy = Number(parts[1]);
+        const sdir = parts[2] as Dir | undefined;
+        if (!isNaN(sx) && !isNaN(sy)) {
+          spawnX = sx;
+          spawnY = sy;
+          if (sdir === 'up' || sdir === 'down' || sdir === 'left' || sdir === 'right') {
+            spawnDir = sdir;
+          }
+        }
       } else {
         const spawn = this.map.spawns[initialSpawn] || this.map.spawns.town;
         spawnX = spawn?.x ?? 22;
         spawnY = spawn?.y ?? 28;
         spawnDir = spawn?.dir ?? 'down';
+      }
+
+      if (fromExitRespawn) {
+        const safePos = this.resolveSafeTownRespawn(spawnX, spawnY);
+        spawnX = safePos.x;
+        spawnY = safePos.y;
       }
 
       this.playerPos = { x: spawnX, y: spawnY };
@@ -2172,6 +2202,45 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
         return;
       }
 
+      // In Research Lab: clicking on any prop or Pheromosa walks to and interacts with it!
+      if (this.currentScene === 'lab') {
+        const isPheromosaHit =
+          (targetTileX === 9 && targetTileY >= 3 && targetTileY <= 4) ||
+          Math.hypot(worldX - 152, worldY - 64) <= 22;
+
+        const hitProp = isPheromosaHit
+          ? LAB_PROPS.find((p) => p.id === 'pheromosa')
+          : LAB_PROPS.find(
+              (p) => targetTileX >= p.x && targetTileX < p.x + p.w && targetTileY >= p.y && targetTileY < p.y + p.h
+            );
+
+        if (hitProp) {
+          const isAdjacent =
+            this.playerPos.x >= hitProp.x - 1 &&
+            this.playerPos.x <= hitProp.x + hitProp.w &&
+            this.playerPos.y >= hitProp.y - 1 &&
+            this.playerPos.y <= hitProp.y + hitProp.h;
+
+          if (isAdjacent) {
+            if (this.playerPos.x < hitProp.x) this.playerDir = 'right';
+            else if (this.playerPos.x >= hitProp.x + hitProp.w) this.playerDir = 'left';
+            else if (this.playerPos.y < hitProp.y) this.playerDir = 'down';
+            else if (this.playerPos.y >= hitProp.y + hitProp.h) this.playerDir = 'up';
+            this.interactFacing(hitProp.id);
+            this.wake();
+            return;
+          }
+
+          this.walkToObject(hitProp.id);
+          this.wake();
+          return;
+        }
+
+        this.pendingTarget = null;
+        this.walkTo(targetTileX, targetTileY);
+        return;
+      }
+
       // If clicking inside a building footprint, redirect target to its door
       for (const b of this.map.buildings) {
         const cfg = townConfig.getBuilding(b.id) || b;
@@ -2378,6 +2447,22 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
           Math.hypot(worldX - 120, worldY - 56) <= 24
         );
         const hitProp = isXurkitreeHover || TOWER_PROPS.some(
+          (p) => tx >= p.x && tx < p.x + p.w && ty >= p.y && ty < p.y + p.h
+        );
+        this.canvas.style.cursor = hitProp ? 'pointer' : '';
+      } else if (this.currentScene === 'lab') {
+        const rect = this.canvas.getBoundingClientRect();
+        const mouseScreenX = (e.clientX - rect.left) * (this.canvas.width / rect.width);
+        const mouseScreenY = (e.clientY - rect.top) * (this.canvas.height / rect.height);
+        const worldX = (mouseScreenX - this.canvas.width / 2) / this.zoom + this.cameraX;
+        const worldY = (mouseScreenY - this.canvas.height / 2) / this.zoom + this.cameraY;
+        const tx = Math.floor(worldX / TILE_SIZE);
+        const ty = Math.floor(worldY / TILE_SIZE);
+
+        const isPheromosaHover =
+          (tx === 9 && ty >= 3 && ty <= 4) ||
+          Math.hypot(worldX - 152, worldY - 64) <= 22;
+        const hitProp = isPheromosaHover || LAB_PROPS.some(
           (p) => tx >= p.x && tx < p.x + p.w && ty >= p.y && ty < p.y + p.h
         );
         this.canvas.style.cursor = hitProp ? 'pointer' : '';
@@ -3317,6 +3402,9 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
         case 'plant':
           this.walkTo(10, 12);
           break;
+        case 'pheromosa':
+          this.walkTo(9, 5);
+          break;
         case 'exit':
           this.walkTo(6, 14);
           break;
@@ -3779,6 +3867,12 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
     if (this.isMoving) {
       this.followerWalkTick++;
     }
+    if (this.lucarioAttackTick > 0) {
+      this.lucarioAttackTick--;
+    }
+    if (this.mewtwoAttackTick > 0) {
+      this.mewtwoAttackTick--;
+    }
     if (this.rayquazaAttackTick > 0) {
       this.rayquazaAttackTick--;
     }
@@ -3799,6 +3893,9 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
     }
     if (this.dialgaAttackTick > 0) {
       this.dialgaAttackTick--;
+    }
+    if (this.necrozmaAttackTick > 0) {
+      this.necrozmaAttackTick--;
     }
     if (this.lunalaAttackTick > 0) {
       this.lunalaAttackTick--;
@@ -4785,6 +4882,11 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
         this.playerDir = 'left';
         this.interactFacing(id);
         break;
+      // Research Lab props
+      case 'pheromosa':
+        this.playerDir = 'up';
+        this.interactFacing('pheromosa');
+        break;
       // Dev Center props
       case 'eternatus':
         this.playerDir = 'right';
@@ -4823,103 +4925,51 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
     }
   }
 
+  private resolveSafeTownRespawn(x: number, y: number): { x: number; y: number } {
+    if (this.checkTileWalkableOnFoot(x, y)) return { x, y };
+    const offsets = [
+      { dx: 0, dy: 1 },
+      { dx: -1, dy: 1 },
+      { dx: 1, dy: 1 },
+      { dx: -1, dy: 0 },
+      { dx: 1, dy: 0 },
+      { dx: 0, dy: 2 },
+      { dx: -2, dy: 1 },
+      { dx: 2, dy: 1 },
+    ];
+    for (const { dx, dy } of offsets) {
+      const cx = x + dx;
+      const cy = y + dy;
+      if (this.checkTileWalkableOnFoot(cx, cy)) return { x: cx, y: cy };
+    }
+    return { x, y };
+  }
+
+  private exitCurrentSceneToTown() {
+    sfx.door();
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.setItem('town:respawn', townConfig.getExitRespawnForPlace(this.currentScene));
+    }
+    this.callbacks.onNavigate('/');
+  }
+
   private onStepComplete() {
-    if (this.currentScene === 'tower') {
-      if (this.playerPos.x === 7 && this.playerPos.y === 11) {
-        sfx.door();
-        if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('town:respawn', '22,28');
-        this.callbacks.onNavigate('/');
-        return;
-      }
-      return;
-    }
-
-    if (this.currentScene === 'mart') {
-      if (this.playerPos.x === 7 && this.playerPos.y === 11) {
-        sfx.door();
-        if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('town:respawn', '22,28');
-        this.callbacks.onNavigate('/');
-        return;
-      }
-      return;
-    }
-
-    if (this.currentScene === 'cafe') {
-      if (this.playerPos.x === 7 && this.playerPos.y === 11) {
-        sfx.door();
-        if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('town:respawn', '29,32');
-        this.callbacks.onNavigate('/');
-        return;
-      }
-      return;
-    }
-
-    if (this.currentScene === 'arena') {
-      if (this.playerPos.x === 7 && this.playerPos.y === 11) {
-        sfx.door();
-        if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('town:respawn', '38,44');
-        this.callbacks.onNavigate('/');
-        return;
-      }
-      return;
-    }
-
-    if (this.currentScene === 'garden') {
-      if (this.playerPos.x === 7 && this.playerPos.y === 11) {
-        sfx.door();
-        if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('town:respawn', '28,44');
-        this.callbacks.onNavigate('/');
-        return;
-      }
-      return;
-    }
-
-    if (this.currentScene === 'neighbour') {
-      if (this.playerPos.x === 7 && this.playerPos.y === 11) {
-        sfx.door();
-        if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('town:respawn', '27,25');
-        this.callbacks.onNavigate('/');
-        return;
-      }
-      return;
-    }
-
-    if (this.currentScene === 'reception') {
-      if (this.playerPos.x === 7 && this.playerPos.y === 11) {
-        sfx.door();
-        if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('town:respawn', '22,28');
-        this.callbacks.onNavigate('/');
-        return;
-      }
-      return;
-    }
-
-    if (this.currentScene === 'arcade') {
-      if (this.playerPos.x === 9 && this.playerPos.y === 13) {
-        sfx.door();
-        if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('town:respawn', '22,28');
-        this.callbacks.onNavigate('/');
-        return;
-      }
-      return;
-    }
-
-    if (this.currentScene === 'lab') {
-      if (this.playerPos.x === 6 && this.playerPos.y === 14) {
-        sfx.door();
-        if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('town:respawn', '22,28');
-        this.callbacks.onNavigate('/');
-        return;
-      }
-      return;
-    }
-
-    if (this.currentScene === 'dev') {
-      if (this.playerPos.x === 7 && this.playerPos.y === 18) {
-        sfx.door();
-        if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('town:respawn', '22,28');
-        this.callbacks.onNavigate('/');
-        return;
+    const simpleExits: Record<string, { x: number; y: number }> = {
+      tower: { x: 7, y: 11 },
+      mart: { x: 7, y: 11 },
+      cafe: { x: 7, y: 11 },
+      arena: { x: 7, y: 11 },
+      garden: { x: 7, y: 11 },
+      neighbour: { x: 7, y: 11 },
+      reception: { x: 7, y: 11 },
+      arcade: { x: 9, y: 13 },
+      lab: { x: 6, y: 14 },
+      dev: { x: 7, y: 18 },
+    };
+    const exitTile = simpleExits[this.currentScene];
+    if (exitTile) {
+      if (this.playerPos.x === exitTile.x && this.playerPos.y === exitTile.y) {
+        this.exitCurrentSceneToTown();
       }
       return;
     }
@@ -4927,9 +4977,7 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
     if (this.currentScene === 'home') {
       if (this.homeFloor === '1F') {
         if (this.playerPos.x === 7 && this.playerPos.y === 14) {
-          sfx.door();
-          if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('town:respawn', '22,28');
-          this.callbacks.onNavigate('/');
+          this.exitCurrentSceneToTown();
           return;
         }
         if ((this.playerPos.x === 12 || this.playerPos.x === 13) && this.playerPos.y === 2) {
@@ -5341,9 +5389,12 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
             this.callbacks.onDialogue(prop.label, [prop.target.text]);
           }
         } else if (prop.target.type === 'place' && prop.target.id) {
-          sfx.door();
-          if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('town:respawn', '22,28');
-          this.callbacks.onNavigate(prop.target.id === 'town' ? '/' : `/${prop.target.id}`);
+          if (prop.target.id === 'town') {
+            this.exitCurrentSceneToTown();
+          } else {
+            sfx.door();
+            this.callbacks.onNavigate(`/${prop.target.id}`);
+          }
         }
         this.wake();
       }
@@ -5559,9 +5610,12 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
             }
           }
         } else if (prop.target.type === 'place' && prop.target.id) {
-          sfx.door();
-          if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('town:respawn', '29,32');
-          this.callbacks.onNavigate(prop.target.id === 'town' ? '/' : `/${prop.target.id}`);
+          if (prop.target.id === 'town') {
+            this.exitCurrentSceneToTown();
+          } else {
+            sfx.door();
+            this.callbacks.onNavigate(`/${prop.target.id}`);
+          }
         }
         this.wake();
       }
@@ -5742,9 +5796,12 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
             }
           }
         } else if (prop.target.type === 'place' && prop.target.id) {
-          sfx.door();
-          if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('town:respawn', '38,44');
-          this.callbacks.onNavigate(prop.target.id === 'town' ? '/' : `/${prop.target.id}`);
+          if (prop.target.id === 'town') {
+            this.exitCurrentSceneToTown();
+          } else {
+            sfx.door();
+            this.callbacks.onNavigate(`/${prop.target.id}`);
+          }
         }
         this.wake();
       }
@@ -5775,32 +5832,32 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
             if (this.callbacks.onBubble) {
               this.callbacks.onBubble(
                 'Gardevoir · Embracing Psychic/Fairy Guardian 🧚',
-                '"Gar-de-voir! 🌸" Gardevoir memancarkan kehangatan psikis dan berkah peri yang menyejukkan. Di bawah naungan Pohon Sakura Induk, Gardevoir merawat 6 petak kebun beri pusaka! [Tech Guardian: UI/UX Grace, Clean Architecture & Front-End Harmony]',
+                '"Gar-de-voir! 🌸" Gardevoir radiates calming psychic warmth and a gentle Fairy blessing. Beneath the Grand Sakura Tree, Gardevoir tends to the 6 heirloom berry plots! [Tech Guardian: UI/UX Grace, Clean Architecture & Front-End Harmony]',
                 [
                   {
-                    label: '⚡ Kekuatan Psikis (Moonblast / Psychic)',
+                    label: '⚡ Psychic Power (Moonblast / Psychic)',
                     onClick: () => this.triggerSignatureMove('gardevoir', 6, 3),
                   },
                   {
-                    label: '🤝 Ajak Jalan Bersama',
+                    label: '🤝 Walk Together',
                     onClick: () => this.setActiveFollower('gardevoir'),
                   },
                   {
-                    label: '🏇 Tunggangi (Poké Ride)',
+                    label: '🏇 Ride Partner (Poké Ride)',
                     onClick: () => {
                       this.setActiveFollower('gardevoir', false);
                       this.setPokeRide(true);
                     },
                   },
                   {
-                    label: '🌱 Buka 6-Plot Berry Plantation',
+                    label: '🌱 Open 6-Plot Berry Plantation',
                     onClick: () => {
                       const el = document.getElementById('plantation-sim-section');
                       el?.scrollIntoView({ behavior: 'smooth' });
                     },
                   },
                   {
-                    label: '🍯 Putar Copper Berry Blender',
+                    label: '🍯 Spin Copper Berry Blender',
                     onClick: () => {
                       const el = document.getElementById('berry-blender-section');
                       el?.scrollIntoView({ behavior: 'smooth' });
@@ -5815,32 +5872,32 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
             if (this.callbacks.onBubble) {
               this.callbacks.onBubble(
                 'Celebi · Voice of the Forest & Time Guardian 🌿',
-                '"Bi-bi-biii! ✨" Celebi melayang anggun di atas mata air sakura! Sentuhan penjelajah waktu Celebi menyegarkan seluruh tanaman seketika dan memberi dorongan kecepatan +50%! [Tech Guardian: Time Travel Git History, Instant CI/CD Deploy & Timeless Resilience]',
+                '"Bi-bi-biii! ✨" Celebi gracefully floats above the sakura spring! Its time-traveling touch instantly revitalizes every plant and grants a +50% movement speed boost! [Tech Guardian: Time-Travel Git History, Instant CI/CD Deploy & Timeless Resilience]',
                 [
                   {
-                    label: '⚡ Riak Waktu (Time Ripple / Leaf Storm)',
+                    label: '⚡ Time Ripple (Time Ripple / Leaf Storm)',
                     onClick: () => this.triggerSignatureMove('celebi', 8, 3),
                   },
                   {
-                    label: '✨ Berkah Kecepatan Waktu (+50% Speed)',
+                    label: '✨ Time Speed Blessing (+50% Speed)',
                     onClick: () => {
                       this.activateCoffeeBoost(30);
                       window.dispatchEvent(new CustomEvent('garden:ripen-all'));
                     },
                   },
                   {
-                    label: '🤝 Ajak Jalan Bersama',
+                    label: '🤝 Walk Together',
                     onClick: () => this.setActiveFollower('celebi'),
                   },
                   {
-                    label: '🏇 Terbang Bersama (Poké Ride)',
+                    label: '🏇 Fly Together (Poké Ride)',
                     onClick: () => {
                       this.setActiveFollower('celebi', false);
                       this.setPokeRide(true);
                     },
                   },
                   {
-                    label: '📖 Buka Botanical Skill Compendium',
+                    label: '📖 Open Botanical Skill Compendium',
                     onClick: () => {
                       const el = document.getElementById('berry-compendium-section');
                       el?.scrollIntoView({ behavior: 'smooth' });
@@ -5945,9 +6002,12 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
             }
           }
         } else if (prop.target.type === 'place' && prop.target.id) {
-          sfx.door();
-          if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('town:respawn', '28,44');
-          this.callbacks.onNavigate(prop.target.id === 'town' ? '/' : `/${prop.target.id}`);
+          if (prop.target.id === 'town') {
+            this.exitCurrentSceneToTown();
+          } else {
+            sfx.door();
+            this.callbacks.onNavigate(`/${prop.target.id}`);
+          }
         }
         this.wake();
       }
@@ -6117,9 +6177,12 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
             }
           }
         } else if (prop.target.type === 'place' && prop.target.id) {
-          sfx.door();
-          if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('town:respawn', '27,25');
-          this.callbacks.onNavigate(prop.target.id === 'town' ? '/' : `/${prop.target.id}`);
+          if (prop.target.id === 'town') {
+            this.exitCurrentSceneToTown();
+          } else {
+            sfx.door();
+            this.callbacks.onNavigate(`/${prop.target.id}`);
+          }
         }
         this.wake();
       }
@@ -6392,7 +6455,12 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
             this.callbacks.onDialogue(prop.label, [prop.target.text]);
           }
         } else if (prop.target.type === 'place' && prop.target.id) {
-          this.callbacks.onNavigate(`/${prop.target.id === 'town' ? '' : prop.target.id}`);
+          if (prop.target.id === 'town') {
+            this.exitCurrentSceneToTown();
+          } else {
+            sfx.door();
+            this.callbacks.onNavigate(`/${prop.target.id}`);
+          }
         }
         this.wake();
       }
@@ -6525,26 +6593,115 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
             if (this.callbacks.onBubble) {
               this.callbacks.onBubble(
                 'Campus Directory Board 📋',
-                "Official Directory of Muhammad Zulfan's Portfolio Town. Discover 8 specialized research facilities, engineering labs, and interactive showcases across the campus.",
+                "Official Directory of Muhammad Zulfan's Portfolio Town. Discover all 13 specialized research facilities, gyms, gardens, and interactive worlds across the campus.",
                 [
                   {
-                    label: '📋 View All 8 Facilities (Scroll Panel)',
+                    label: '📋 View All 13 Facilities (Scroll Panel)',
                     onClick: () => {
                       const dir = document.querySelector('#campus-directory');
                       dir?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     },
                   },
                   {
-                    label: '🎯 Recruiter Concierge & Role Matcher',
+                    label: '🎯 AI Job-Fit JD Scanner (HR Mode)',
                     onClick: () => {
-                      const rc = document.querySelector('#recruiter-concierge');
-                      rc?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      document.dispatchEvent(new CustomEvent('town:open-modal', { detail: { target: 'jobfit' } }));
                     },
                   },
                   {
                     label: '🗺️ Exit to Town Square (Open Map)',
                     onClick: () => {
                       this.callbacks.onNavigate('/');
+                    },
+                  },
+                ]
+              );
+            }
+          } else if (prop.target.name === 'partner-pod') {
+            sfx.select();
+            const fName = this.activeFollower ? `${this.activeFollower.icon} ${this.activeFollower.name}` : 'None Selected';
+            if (this.callbacks.onBubble) {
+              this.callbacks.onBubble(
+                'Poké-Partner Care Pod 🐾',
+                `Active Companion: ${fName}. Check your partner's vitality, switch companions from storage, or test their Signature Move!`,
+                [
+                  {
+                    label: '🐾 Open Partner Hub & Switch Companion',
+                    onClick: () => {
+                      window.dispatchEvent(new CustomEvent('town:open-partner-hub'));
+                    },
+                  },
+                  {
+                    label: '💻 Open Bill’s PC Storage Box',
+                    onClick: () => {
+                      window.dispatchEvent(new CustomEvent('reception:open-pc', { detail: { tab: 'partners' } }));
+                    },
+                  },
+                  ...(this.activeFollower
+                    ? [
+                        {
+                          label: `⚡ Cast ${this.activeFollower.name} Move`,
+                          onClick: () => {
+                            if (this.activeFollower) {
+                              this.triggerSignatureMove(this.activeFollower.id, 4, 3);
+                            }
+                          },
+                        },
+                      ]
+                    : []),
+                ]
+              );
+            }
+          } else if (prop.target.name === 'warp-globe') {
+            sfx.confirm();
+            if (this.callbacks.onBubble) {
+              this.callbacks.onBubble(
+                'Holographic 13-Zone Town Globe 🌐',
+                'Interactive spatial projection of Zulfan Town! Launch the Guided Auto-Tour, run the AI Job-Fit Scanner, or warp directly to any campus zone.',
+                [
+                  {
+                    label: '🧭 Open Town Fast-Travel Map',
+                    onClick: () => {
+                      document.dispatchEvent(new CustomEvent('town:open-modal', { detail: { target: 'map' } }));
+                    },
+                  },
+                  {
+                    label: '🎬 Launch Guided Auto-Tour (60s)',
+                    onClick: () => {
+                      sessionStorage.setItem('town:start_tour', '1');
+                      this.callbacks.onNavigate('/');
+                    },
+                  },
+                  {
+                    label: '👾 Warp to Digi-Sanctuary Island',
+                    onClick: () => {
+                      this.callbacks.onNavigate('/digimon');
+                    },
+                  },
+                ]
+              );
+            }
+          } else if (prop.target.name === 'triage-scanner') {
+            sfx.select();
+            const gs = gameStore.getState();
+            const balls = gs.balls;
+            const badges = gs.badges.length;
+            const stamps = gs.stamps.length;
+            if (this.callbacks.onBubble) {
+              this.callbacks.onBubble(
+                'System Health & Triage Telemetry 🩺',
+                `Node: BANDUNG_ITENAS_01 | Status: 100% Operational | Inventory: ${balls} Poké Balls | Gym Badges: ${badges}/8 | Passport Stamps: ${stamps}/5.`,
+                [
+                  {
+                    label: '💻 Launch Cloud Diagnostics in PC',
+                    onClick: () => {
+                      window.dispatchEvent(new CustomEvent('reception:open-pc', { detail: { tab: 'card' } }));
+                    },
+                  },
+                  {
+                    label: '💖 Overcharge Bag to 15 Poké Balls',
+                    onClick: () => {
+                      window.dispatchEvent(new CustomEvent('reception:overcharge-balls'));
                     },
                   },
                 ]
@@ -6596,7 +6753,12 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
             this.callbacks.onDialogue(prop.label, [prop.target.text]);
           }
         } else if (prop.target.type === 'place' && prop.target.id) {
-          this.callbacks.onNavigate(`/${prop.target.id === 'town' ? '' : prop.target.id}`);
+          if (prop.target.id === 'town') {
+            this.exitCurrentSceneToTown();
+          } else {
+            sfx.door();
+            this.callbacks.onNavigate(`/${prop.target.id}`);
+          }
         }
         this.wake();
       }
@@ -6628,9 +6790,12 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
             this.callbacks.onDialogue(prop.label, [prop.target.text]);
           }
         } else if (prop.target.type === 'place' && prop.target.id) {
-          sfx.door();
-          if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('town:respawn', '22,28');
-          this.callbacks.onNavigate(prop.target.id === 'town' ? '/' : `/${prop.target.id}`);
+          if (prop.target.id === 'town') {
+            this.exitCurrentSceneToTown();
+          } else {
+            sfx.door();
+            this.callbacks.onNavigate(`/${prop.target.id}`);
+          }
         }
         this.wake();
       }
@@ -6653,7 +6818,28 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
 
       if (prop) {
         sfx.select();
-        if (prop.target.type === 'event' && prop.target.name) {
+        if (prop.target.type === 'event' && prop.target.name === 'pheromosa') {
+          const pheroText =
+            'PHEROMOSA (UB-02 Beauty): "Latency is entropy, Researcher. At 3.2ms TensorRT FP16 inference on Jetson Orin Nano, perception reacts before human blink! Inspect the Lab Bench, Edge AI Posters, or Whiteboard!"';
+          if (this.callbacks.onBubble) {
+            this.callbacks.onBubble('Pheromosa · Ultra Beast AI Optimizer ✨', pheroText, [
+              {
+                label: '🔬 Inspect Edge AI Lab Bench',
+                onClick: () => document.dispatchEvent(new CustomEvent('town:lab-bench')),
+              },
+              {
+                label: '📋 Open Research Posters',
+                onClick: () => document.dispatchEvent(new CustomEvent('town:lab-posters')),
+              },
+              {
+                label: '🧠 Inspect ML Whiteboard',
+                onClick: () => document.dispatchEvent(new CustomEvent('town:lab-whiteboard')),
+              },
+            ]);
+          } else {
+            this.callbacks.onDialogue('Pheromosa · Ultra Beast AI Optimizer ✨', [pheroText]);
+          }
+        } else if (prop.target.type === 'event' && prop.target.name) {
           document.dispatchEvent(new CustomEvent(`town:${prop.target.name}`));
         } else if (prop.target.type === 'note' && prop.target.text) {
           if (this.callbacks.onBubble) {
@@ -6662,9 +6848,12 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
             this.callbacks.onDialogue(prop.label, [prop.target.text]);
           }
         } else if (prop.target.type === 'place' && prop.target.id) {
-          sfx.door();
-          if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('town:respawn', '22,28');
-          this.callbacks.onNavigate(prop.target.id === 'town' ? '/' : `/${prop.target.id}`);
+          if (prop.target.id === 'town') {
+            this.exitCurrentSceneToTown();
+          } else {
+            sfx.door();
+            this.callbacks.onNavigate(`/${prop.target.id}`);
+          }
         }
         this.wake();
       }
@@ -6852,9 +7041,12 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
             this.callbacks.onDialogue(prop.label, [prop.target.text]);
           }
         } else if (prop.target.type === 'place' && prop.target.id) {
-          sfx.door();
-          if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('town:respawn', '22,28');
-          this.callbacks.onNavigate(prop.target.id === 'town' ? '/' : `/${prop.target.id}`);
+          if (prop.target.id === 'town') {
+            this.exitCurrentSceneToTown();
+          } else {
+            sfx.door();
+            this.callbacks.onNavigate(`/${prop.target.id}`);
+          }
         }
         this.wake();
       }
@@ -9012,6 +9204,7 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
         'lab-posters': { x: 1, y: 1, w: 4, h: 1, lift: 0.8 },
         'lab-whiteboard': { x: 6, y: 1, w: 5, h: 1, lift: 0.8 },
         'lab-bench': { x: 4, y: 7, w: 5, h: 2, lift: 0.1 },
+        pheromosa: { x: 9, y: 4, w: 1, h: 1, lift: 1.3 },
       };
 
       const buttons = container.querySelectorAll<HTMLButtonElement>('.town-label');
@@ -9492,7 +9685,7 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
       }
       ctx.drawImage(this.towerBackgroundCanvas, 0, 0);
 
-      renderTowerAnimations(ctx, this.tick, this.activeTowerFloor);
+      renderTowerAnimations(ctx, this.tick, this.activeTowerFloor, this.pmdAnimator);
 
       this.renderPathAndMarker(ctx);
 
@@ -9622,7 +9815,7 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
       }
       ctx.drawImage(this.arenaBackgroundCanvas, 0, 0);
 
-      renderArenaAnimations(ctx, this.tick);
+      renderArenaAnimations(ctx, this.tick, this.pmdAnimator);
 
       this.renderPathAndMarker(ctx);
 
@@ -9795,6 +9988,8 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
       }
       ctx.drawImage(this.arcadeBackgroundCanvas, 0, 0);
 
+      renderArcadeAnimations(ctx, this.tick, this.pmdAnimator);
+
       this.renderPathAndMarker(ctx);
 
       const drawX =
@@ -9836,7 +10031,7 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
       }
       ctx.drawImage(this.labBackgroundCanvas, 0, 0);
 
-      renderLabAnimations(ctx, performance.now());
+      renderLabAnimations(ctx, performance.now(), this.pmdAnimator, this.tick);
 
       this.renderPathAndMarker(ctx);
 

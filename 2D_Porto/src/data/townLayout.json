@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updatedAt": "2026-11-16T02:41:10.388Z",
+  "updatedAt": "2026-11-17T04:34:24.869Z",
   "buildings": [
     {
       "id": "dev",
@@ -282,7 +282,7 @@
     {
       "id": "vending",
       "name": "Mesin Minuman Vending",
-      "x": 34,
+      "x": 32,
       "y": 31,
       "w": 1,
       "h": 2,
@@ -416,28 +416,6 @@
       "hidden": false
     },
     {
-      "id": "bench_harbor",
-      "name": "Bangku Oceanview Harbor",
-      "x": 34,
-      "y": 28,
-      "w": 2,
-      "h": 1,
-      "kind": "bench",
-      "subType": "bench",
-      "hidden": false
-    },
-    {
-      "id": "bench_plaza_w",
-      "name": "Bangku Plaza Barat",
-      "x": 31,
-      "y": 33,
-      "w": 2,
-      "h": 1,
-      "kind": "bench",
-      "subType": "bench",
-      "hidden": false
-    },
-    {
       "id": "bench_plaza_e",
       "name": "Bangku Plaza Timur",
       "x": 25,
@@ -451,8 +429,8 @@
     {
       "id": "bench_arcade",
       "name": "Bangku Depan Arcade",
-      "x": 28,
-      "y": 33,
+      "x": 34,
+      "y": 27,
       "w": 2,
       "h": 1,
       "kind": "bench",
@@ -531,7 +509,7 @@
       "hidden": false,
       "labelX": 12.5,
       "labelY": 21.2,
-      "orientation": "W"
+      "orientation": "S"
     },
     {
       "id": "charizard",
@@ -724,7 +702,7 @@
       "h": 2,
       "kind": "npc",
       "subType": "necrozma",
-      "orientation": "W",
+      "orientation": "S",
       "dialogue": "NECROZMA: 'Ggg-rraaa-shhh-kzzzt...!' 🦁☀️ Prisma kristal hitam beresonansi dengan surya terang Solgaleo. Necrozma Dusk Mane memancarkan kekuatan cahaya murni (Sunsteel Strike), menyerap dan menerangi seluruh Zulfan's Town dengan energi kosmik tanpa batas.",
       "hidden": false
     },
@@ -907,7 +885,8 @@
       "kind": "npc",
       "subType": "salamence",
       "orientation": "S",
-      "dialogue": "SALAMENCE: 'Gyaaa-RAAAHHH!' 🐲☄️ [Tech Guardian: Cloud Flight Orchestration & High-Altitude Scalability] Sayap merahnya membelah langit kota sambil menghujankan meteor energi Draco Meteor!"
+      "dialogue": "SALAMENCE: 'Gyaaa-RAAAHHH!' 🐲☄️ [Tech Guardian: Cloud Flight Orchestration & High-Altitude Scalability] Sayap merahnya membelah langit kota sambil menghujankan meteor energi Draco Meteor!",
+      "hidden": false
     },
     {
       "id": "kyurem_mwinoia7",
@@ -919,7 +898,8 @@
       "kind": "npc",
       "subType": "kyurem",
       "orientation": "S",
-      "dialogue": "KYUREM: 'Krrrr-SHHHOOO...!' ❄️💎 [Tech Guardian: Sub-Zero Latency Optimization & Immutable State Snapshots] Membekukan bottleneck seketika lewat hembusan kristal es Glaciate."
+      "dialogue": "KYUREM: 'Krrrr-SHHHOOO...!' ❄️💎 [Tech Guardian: Sub-Zero Latency Optimization & Immutable State Snapshots] Membekukan bottleneck seketika lewat hembusan kristal es Glaciate.",
+      "hidden": false
     },
     {
       "id": "greattusk_mwinovl7",
@@ -931,7 +911,8 @@
       "kind": "npc",
       "subType": "greattusk",
       "orientation": "S",
-      "dialogue": "GREAT TUSK: 'Brrrooo-THUDDD!' 🐘🪨 [Tech Guardian: Heavy Data Ingestion & Unstoppable Throughput] Menerjang rintangan teknis tanpa henti dengan gading purba dan kekuatan seismik Headlong Rush!"
+      "dialogue": "GREAT TUSK: 'Brrrooo-THUDDD!' 🐘🪨 [Tech Guardian: Heavy Data Ingestion & Unstoppable Throughput] Menerjang rintangan teknis tanpa henti dengan gading purba dan kekuatan seismik Headlong Rush!",
+      "hidden": false
     },
     {
       "id": "gougingfire_mwinpach",
@@ -943,7 +924,47 @@
       "kind": "npc",
       "subType": "gougingfire",
       "orientation": "S",
-      "dialogue": "GOUGING FIRE: 'Grrraa-OOOORRR!' 🔥🌋 [Tech Guardian: Hardened Firewall Bastion & Volcanic Compute Cores] Perisai api purba Burning Bulwark membakar tuntas setiap ancaman dan menjaga integritas sistem."
+      "dialogue": "GOUGING FIRE: 'Grrraa-OOOORRR!' 🔥🌋 [Tech Guardian: Hardened Firewall Bastion & Volcanic Compute Cores] Perisai api purba Burning Bulwark membakar tuntas setiap ancaman dan menjaga integritas sistem.",
+      "hidden": false
+    },
+    {
+      "id": "tree_berry_mwirbc4r",
+      "name": "Pohon Buah Berry Lebat #1",
+      "x": 3,
+      "y": 46,
+      "w": 2,
+      "h": 2,
+      "kind": "tree",
+      "subType": "tree_berry",
+      "orientation": "N",
+      "dialogue": "Pohon buah Berry yang ranum dan manis! Terlihat buah Oran Berry dan Sitrus Berry bergantungan segar di dahannya.",
+      "hidden": false
+    },
+    {
+      "id": "tree_berry_mwirbiio",
+      "name": "Pohon Buah Berry Lebat #2",
+      "x": 40,
+      "y": 45,
+      "w": 2,
+      "h": 2,
+      "kind": "tree",
+      "subType": "tree_berry",
+      "orientation": "N",
+      "dialogue": "Pohon buah Berry yang ranum dan manis! Terlihat buah Oran Berry dan Sitrus Berry bergantungan segar di dahannya.",
+      "hidden": false
+    },
+    {
+      "id": "tree_berry_mwirbnma",
+      "name": "Pohon Buah Berry Lebat #3",
+      "x": 23,
+      "y": 53,
+      "w": 2,
+      "h": 2,
+      "kind": "tree",
+      "subType": "tree_berry",
+      "orientation": "N",
+      "dialogue": "Pohon buah Berry yang ranum dan manis! Terlihat buah Oran Berry dan Sitrus Berry bergantungan segar di dahannya.",
+      "hidden": false
     }
   ],
   "tiles": [

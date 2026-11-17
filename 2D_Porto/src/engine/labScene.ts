@@ -1,5 +1,6 @@
 import type { Dir } from './types';
 import { drawPixelText } from './devScene';
+import type { PokemonPMDAnimator } from './pokemonPMDAnimator';
 
 export const LAB_COLS = 13;
 export const LAB_ROWS = 15;
@@ -189,6 +190,19 @@ export const LAB_PROPS: LabProp[] = [
     hideLabel: true,
   },
   {
+    id: 'pheromosa',
+    kind: 'npc',
+    x: 9,
+    y: 4,
+    w: 1,
+    h: 1,
+    target: { type: 'event', name: 'pheromosa' },
+    label: 'Pheromosa',
+    style: 'pheromosa',
+    labelLift: 24,
+    hint: 'Talk to Pheromosa (Ultra Beast Edge AI) ⚡',
+  },
+  {
     id: 'exit',
     kind: 'exit',
     x: 6,
@@ -234,6 +248,7 @@ markLabSolid(11, 3, 1, 2);  // Fume hood
 markLabSolid(11, 9, 1, 2);  // Sample fridge
 markLabSolid(1, 11, 3, 1);  // Bookshelf / papers
 markLabSolid(11, 12, 1, 1); // Plant
+markLabSolid(9, 4, 1, 1);   // Pheromosa Ultra Beast Researcher
 
 // Floor tile rendering
 function renderFloorTile(ctx: CanvasRenderingContext2D, col: number, row: number) {
@@ -668,9 +683,71 @@ export function createLabBackgroundCanvas(): HTMLCanvasElement {
 }
 
 /**
- * Renders dynamic animations on the Lab bench (pulsing chart + bubbling flask).
+ * Renders dynamic animations on the Lab bench (pulsing chart + bubbling flask) and Pheromosa NPC.
  */
-export function renderLabAnimations(ctx: CanvasRenderingContext2D, now: number) {
+export function renderLabAnimations(
+  ctx: CanvasRenderingContext2D,
+  now: number,
+  pmdAnimator?: PokemonPMDAnimator,
+  tick?: number
+) {
+  const animTick = tick ?? Math.floor(now / 16.6);
+  const pheromosa = LAB_PROPS.find((p) => p.id === 'pheromosa');
+  if (pheromosa) {
+    const px = pheromosa.x * 16 + 8;
+    const py = pheromosa.y * 16 + 16;
+    const floatY = Math.sin(animTick * 0.055) * 1.6;
+
+    // Ground contact shadow
+    ctx.fillStyle = 'rgba(16, 32, 27, 0.35)';
+    ctx.beginPath();
+    ctx.ellipse(px, py, 11, 4, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Beast Boost Pearl-Gold / Teal Edge AI Speed Aura
+    const auraR = 13 + Math.sin(animTick * 0.07) * 1.8;
+    const grad = ctx.createRadialGradient(px, py - 10 + floatY, 2, px, py - 10 + floatY, auraR + 4);
+    grad.addColorStop(0, 'rgba(254, 240, 138, 0.32)');
+    grad.addColorStop(0.55, 'rgba(56, 201, 138, 0.16)');
+    grad.addColorStop(1, 'rgba(56, 201, 138, 0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(px, py - 10 + floatY, auraR + 4, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.strokeStyle = 'rgba(250, 204, 21, 0.45)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.ellipse(px, py - 1 + floatY * 0.25, auraR * 0.85, 3.5, 0, 0, Math.PI * 2);
+    ctx.stroke();
+
+    const pmdDrawn = pmdAnimator?.draw(
+      ctx,
+      'pheromosa',
+      'idle',
+      'down',
+      px,
+      py + floatY * 0.35,
+      animTick
+    );
+
+    if (!pmdDrawn) {
+      ctx.fillStyle = '#fefce8';
+      ctx.fillRect(px - 3, py - 18 + floatY, 6, 16);
+      ctx.fillStyle = '#fde047';
+      ctx.fillRect(px - 2, py - 21 + floatY, 4, 3);
+    }
+
+    // Orbiting high-speed photon motes
+    for (let i = 0; i < 2; i++) {
+      const ang = animTick * 0.05 + i * Math.PI;
+      const mx = px + Math.cos(ang) * 12;
+      const my = py - 10 + floatY + Math.sin(ang) * 4.5;
+      ctx.fillStyle = i === 0 ? '#fef08a' : '#38c98a';
+      ctx.fillRect(Math.round(mx), Math.round(my), 1.5, 1.5);
+    }
+  }
+
   const bench = LAB_PROPS.find((p) => p.id === 'lab-bench');
   if (!bench) return;
 

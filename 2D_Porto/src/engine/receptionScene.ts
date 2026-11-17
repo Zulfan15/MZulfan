@@ -119,6 +119,45 @@ export const RECEPTION_PROPS: ReceptionProp[] = [
     hint: 'Rest in the lounge 🛋️',
   },
   {
+    id: 'partner-pod',
+    kind: 'prop',
+    x: 4,
+    y: 2,
+    w: 1,
+    h: 2,
+    target: { type: 'event', name: 'partner-pod' },
+    label: 'Partner Care Pod',
+    style: 'partner-pod',
+    labelLift: 12,
+    hint: 'Manage & Care for Partner 🐾',
+  },
+  {
+    id: 'warp-globe',
+    kind: 'prop',
+    x: 1,
+    y: 4,
+    w: 2,
+    h: 1,
+    target: { type: 'event', name: 'warp-globe' },
+    label: 'Holo Town Globe',
+    style: 'warp-globe',
+    labelLift: 14,
+    hint: 'Fast-Travel & Guided Tour 🌐',
+  },
+  {
+    id: 'triage-scanner',
+    kind: 'prop',
+    x: 13,
+    y: 7,
+    w: 1,
+    h: 2,
+    target: { type: 'event', name: 'triage-scanner' },
+    label: 'System Telemetry',
+    style: 'triage-scanner',
+    labelLift: 10,
+    hint: 'Check Live Diagnostics 🩺',
+  },
+  {
     id: 'exit',
     kind: 'exit',
     x: 7,
@@ -177,6 +216,18 @@ for (let x = 1; x <= 3; x++) {
   RECEPTION_COLLISION[cIdx(x, 6)] = 1;
   RECEPTION_COLLISION[cIdx(x, 7)] = 1;
 }
+
+// Poké-Partner Care Pod (x: 4, y: 2..3)
+RECEPTION_COLLISION[cIdx(4, 2)] = 1;
+RECEPTION_COLLISION[cIdx(4, 3)] = 1;
+
+// Holographic Town Globe Pedestal (x: 1..2, y: 4)
+RECEPTION_COLLISION[cIdx(1, 4)] = 1;
+RECEPTION_COLLISION[cIdx(2, 4)] = 1;
+
+// System Health & Telemetry Scanner (x: 13, y: 7..8)
+RECEPTION_COLLISION[cIdx(13, 7)] = 1;
+RECEPTION_COLLISION[cIdx(13, 8)] = 1;
 
 // Corner Potted Plants
 RECEPTION_COLLISION[cIdx(1, 2)] = 1;
@@ -408,7 +459,47 @@ export function createReceptionBackgroundCanvas(): HTMLCanvasElement {
   ctx.fillRect(dirX + 4, dirY + 8, 2 * TILE_SIZE - 8, 1);
   ctx.fillRect(dirX + 4, dirY + 11, 2 * TILE_SIZE - 8, 1);
 
-  // 10. Potted Plants in Corners
+  // 10. Partner Care Pod Base (x: 4, y: 2..3)
+  const ppX = 4 * TILE_SIZE;
+  const ppY = 2 * TILE_SIZE;
+  ctx.fillStyle = '#334155';
+  ctx.fillRect(ppX + 1, ppY + 18, 14, 12);
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(ppX + 2, ppY + 4, 12, 16);
+  ctx.strokeStyle = '#38bdf8';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(ppX + 2, ppY + 4, 12, 16);
+
+  // 11. Holographic Town Globe Pedestal (x: 1..2, y: 4)
+  const wgX = 1 * TILE_SIZE;
+  const wgY = 4 * TILE_SIZE;
+  ctx.fillStyle = '#1e293b';
+  ctx.beginPath();
+  ctx.roundRect(wgX + 4, wgY + 6, 2 * TILE_SIZE - 8, 9, 3);
+  ctx.fill();
+  ctx.strokeStyle = '#38bdf8';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  // 12. System Health & Triage Telemetry Rack (x: 13, y: 7..8)
+  const trX = 13 * TILE_SIZE;
+  const trY = 7 * TILE_SIZE;
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(trX + 1, trY + 2, 14, 28);
+  ctx.strokeStyle = '#10b981';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(trX + 1, trY + 2, 14, 28);
+  ctx.fillStyle = '#064e3b';
+  ctx.fillRect(trX + 3, trY + 5, 10, 10);
+
+  // 13. Back-Wall EKG Monitor Panel (x: 6..8, y: 1)
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(6 * TILE_SIZE + 2, 14, 3 * TILE_SIZE - 4, 12);
+  ctx.strokeStyle = '#475569';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(6 * TILE_SIZE + 2, 14, 3 * TILE_SIZE - 4, 12);
+
+  // 14. Potted Plants in Corners
   drawPottedPlant(ctx, 1 * TILE_SIZE, 1 * TILE_SIZE + 4);
   drawPottedPlant(ctx, 13 * TILE_SIZE, 1 * TILE_SIZE + 4);
   drawPottedPlant(ctx, 1 * TILE_SIZE, 10 * TILE_SIZE);
@@ -635,6 +726,14 @@ export function renderReceptionAnimations(ctx: CanvasRenderingContext2D, now: nu
     // Floating text banner
     drawPixelText(ctx, 'HEALED! 10 BALLS', hmX + 2, hmY - 6, '#22c55e');
 
+    // Expanding Healing Wave Rings around Healing Machine
+    const ringRadius = 10 + healProgress * 36;
+    ctx.strokeStyle = `rgba(52, 211, 153, ${alpha * 0.75})`;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(hmX + (3 * TILE_SIZE) / 2, hmY + TILE_SIZE, ringRadius, 0, Math.PI * 2);
+    ctx.stroke();
+
     healEffectTimer--;
   }
 
@@ -648,4 +747,68 @@ export function renderReceptionAnimations(ctx: CanvasRenderingContext2D, now: nu
   ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
   const scanY = pcY + 4 + (tick % 6);
   ctx.fillRect(pcX + 4, scanY, 8, 1);
+
+  // 5. Back-Wall EKG Heartbeat Waveform (x: 6..8, y: 1)
+  const ekgX = 6 * TILE_SIZE + 4;
+  const ekgY = 20;
+  const ekgW = 3 * TILE_SIZE - 8;
+  ctx.strokeStyle = '#34d399';
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  for (let i = 0; i <= ekgW; i += 2) {
+    const phase = (i + tick * 3) % 24;
+    let dy = 0;
+    if (phase === 10) dy = -4;
+    else if (phase === 12) dy = 3;
+    else if (phase === 14) dy = -1.5;
+    if (i === 0) ctx.moveTo(ekgX + i, ekgY + dy);
+    else ctx.lineTo(ekgX + i, ekgY + dy);
+  }
+  ctx.stroke();
+
+  // 6. Poké-Partner Care Pod Capsule Glow & Floating Emblem (x: 4, y: 2..3)
+  const ppX = 4 * TILE_SIZE + 8;
+  const ppY = 2 * TILE_SIZE + 12 + Math.sin(now * 0.004) * 1.5;
+  ctx.fillStyle = 'rgba(56, 189, 248, 0.25)';
+  ctx.beginPath();
+  ctx.arc(ppX, ppY, 5.5, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#ec4899';
+  ctx.beginPath();
+  ctx.arc(ppX, ppY, 3, Math.PI, 0);
+  ctx.fill();
+  ctx.fillStyle = '#f8fafc';
+  ctx.beginPath();
+  ctx.arc(ppX, ppY, 3, 0, Math.PI);
+  ctx.fill();
+
+  // 7. Holographic Rotating 13-Zone Globe (x: 1..2, y: 4)
+  const glX = 2 * TILE_SIZE;
+  const glY = 4 * TILE_SIZE + 1 + Math.sin(now * 0.005) * 1.5;
+  ctx.fillStyle = 'rgba(14, 165, 233, 0.25)';
+  ctx.beginPath();
+  ctx.arc(glX, glY, 8, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = '#38bdf8';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.arc(glX, glY, 6, 0, Math.PI * 2);
+  ctx.stroke();
+  const lonRadius = Math.max(1.2, Math.abs(Math.cos(now * 0.0025)) * 6);
+  ctx.beginPath();
+  ctx.ellipse(glX, glY, lonRadius, 6, 0, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // 8. System Health & Triage Telemetry LEDs (x: 13, y: 7..8)
+  const trX = 13 * TILE_SIZE;
+  const trY = 7 * TILE_SIZE;
+  const barH = 3 + ((tick * 2) % 6);
+  ctx.fillStyle = '#34d399';
+  ctx.fillRect(trX + 4, trY + 13 - barH, 2, barH);
+  ctx.fillStyle = '#38bdf8';
+  ctx.fillRect(trX + 7, trY + 13 - ((barH + 3) % 7), 2, (barH + 3) % 7);
+  ctx.fillStyle = tick % 6 < 3 ? '#fbbf24' : '#334155';
+  ctx.fillRect(trX + 10, trY + 19, 2, 2);
+  ctx.fillStyle = '#22c55e';
+  ctx.fillRect(trX + 4, trY + 23, 8, 2);
 }

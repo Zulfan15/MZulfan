@@ -1,7 +1,8 @@
 ---
-// NetworkPcModal.astro — Interactive Poké Center PC System (Bill's PC V4.2 Zulfan Edition)
-// Features: Official Trainer Card, Critter Safari Sync, and Visitor Guestbook & Reaction Stamp
+// NetworkPcModal.astro — Interactive Poké Center PC System (Bill & Lanette's Cloud PC V5.0)
+// Features: Official Trainer Card + Live Visitor Telemetry, Partner Storage Box, Critter Safari Sync, and Visitor Guestbook
 import { profile } from '../lib/profile';
+import { COMPANIONS } from '../engine/pokemonCompanions';
 
 const githubUrl = profile.socials.find((s) => s.label === 'GitHub')?.url || 'https://github.com/Zulfan15';
 const linkedinUrl = profile.socials.find((s) => s.label === 'LinkedIn')?.url || 'https://www.linkedin.com/in/muhammad-zulfan-anggadhiputra';
@@ -30,7 +31,7 @@ const critters = profile.critters || [];
             </span>
           </div>
           <h2 id="network-pc-title" class="font-pixel text-xs text-white tracking-wide mt-0.5">
-            Poké Center Network Storage System · Bill's PC V4.2
+            Poké Center Cloud Storage · Bill &amp; Lanette's PC V5.0
           </h2>
         </div>
       </div>
@@ -72,7 +73,15 @@ const critters = profile.critters || [];
           data-tab="guestbook"
         >
           <span>📝</span>
-          <span>3. Visitor Guestbook</span>
+          <span>3. Guestbook</span>
+        </button>
+        <button
+          type="button"
+          class="pc-tab-btn btn btn-sm bg-slate-800 text-slate-300 border border-slate-700 hover:border-emerald-500 px-3 py-1 flex items-center gap-1.5 transition-all"
+          data-tab="partners"
+        >
+          <span>📦</span>
+          <span>4. Partner Box ({COMPANIONS.length})</span>
         </button>
       </div>
 
@@ -219,6 +228,17 @@ const critters = profile.critters || [];
                   <div class="font-mono text-[9px] text-teal-400">Astro &amp; TypeScript 60fps</div>
                 </div>
               </div>
+            </div>
+          </div>
+
+          <!-- Live Visitor Session Progress Telemetry Strip -->
+          <div class="mt-4 p-3 rounded-xl bg-emerald-950/35 border border-emerald-500/35 relative z-10 flex flex-wrap items-center justify-between gap-2 text-[11px] font-mono">
+            <span class="text-emerald-300 font-bold">⚡ LIVE VISITOR TELEMETRY:</span>
+            <div class="flex flex-wrap items-center gap-2.5">
+              <span class="px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-amber-300">🏅 Badges: <strong id="pc-card-badges">0/8</strong></span>
+              <span class="px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-sky-300">🎫 Stamps: <strong id="pc-card-stamps">0/5</strong></span>
+              <span class="px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-purple-300">🐾 Safari: <strong id="pc-card-caught">0/12</strong></span>
+              <span class="px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-rose-300">🔴 Balls: <strong id="pc-card-balls">10</strong></span>
             </div>
           </div>
 
@@ -495,6 +515,76 @@ const critters = profile.critters || [];
         </div>
       </section>
 
+      <!-- ================= TAB 4: PARTNER STORAGE BOX ================= -->
+      <section id="pc-panel-partners" class="pc-panel hidden space-y-4">
+        <div class="p-4 rounded-xl bg-slate-950 border border-emerald-500/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h3 class="font-pixel text-xs text-white uppercase tracking-wide flex items-center gap-2">
+              <span>📦 Cloud Partner Storage Box ({COMPANIONS.length} Companions)</span>
+            </h3>
+            <p class="font-sans text-xs text-slate-400 mt-0.5">
+              Withdraw any Guardian Pokémon to walk beside you in the 2D Town or unleash its Signature Skill (X).
+            </p>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <span id="pc-active-partner-badge" class="chip bg-sky-950 text-sky-300 border border-sky-500/60 font-mono text-[10px] px-2.5 py-1 font-bold">
+              Active: None
+            </span>
+            <button
+              type="button"
+              id="btn-pc-rest-partner"
+              class="btn btn-sm bg-slate-800 hover:bg-rose-900/70 text-slate-200 border border-slate-600 font-pixel text-[10px] px-2.5 py-1 cursor-pointer"
+            >
+              👟 Rest Partner
+            </button>
+          </div>
+        </div>
+
+        <div class="relative">
+          <input
+            type="text"
+            id="pc-partner-search"
+            placeholder="🔍 Search Companion Pokémon by name, element, or Tech Guardian specialization..."
+            class="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white font-mono text-xs focus:border-emerald-400 focus:outline-none"
+          />
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5" id="pc-partners-grid">
+          {COMPANIONS.map((c) => (
+            <div
+              class="pc-partner-card p-3 rounded-xl bg-slate-950/80 border border-slate-800 hover:border-emerald-500/60 transition-all flex flex-col justify-between gap-2.5"
+              data-partner-id={c.id}
+              data-partner-search={`${c.name} ${c.title} ${c.element} ${c.skillName} ${c.tagline}`.toLowerCase()}
+            >
+              <div class="space-y-1.5">
+                <div class="flex items-center justify-between gap-2">
+                  <div class="flex items-center gap-2 min-w-0">
+                    <span class="text-xl shrink-0">{c.icon}</span>
+                    <div class="min-w-0">
+                      <h4 class="font-pixel text-[11px] text-white truncate">{c.name}</h4>
+                      <span class="font-mono text-[9px] text-emerald-300 block truncate">{c.title}</span>
+                    </div>
+                  </div>
+                  <span class="pc-partner-active-pill hidden chip bg-emerald-600 text-white border-emerald-300 font-mono text-[9px] font-bold px-1.5 py-0.5 shrink-0">
+                    ACTIVE
+                  </span>
+                </div>
+                <div class="font-mono text-[9px] text-amber-300/90">⚡ {c.skillName}</div>
+                <p class="font-sans text-[10px] text-slate-400 leading-snug line-clamp-2">{c.tagline}</p>
+              </div>
+              <button
+                type="button"
+                class="pc-withdraw-btn btn btn-sm w-full bg-slate-800 hover:bg-emerald-600 text-slate-200 hover:text-white border border-slate-700 hover:border-emerald-400 font-pixel text-[10px] py-1.5 cursor-pointer transition-colors"
+                data-withdraw-id={c.id}
+                data-withdraw-name={c.name}
+              >
+                📤 Withdraw Partner
+              </button>
+            </div>
+          ))}
+        </div>
+      </section>
+
     </div>
 
     <!-- Modal Footer -->
@@ -538,51 +628,57 @@ const critters = profile.critters || [];
     if (!dialog) return;
 
     // Tabs
+    type PcTab = 'card' | 'safari' | 'guestbook' | 'partners';
     const tabButtons = document.querySelectorAll<HTMLButtonElement>('.pc-tab-btn');
-    const panels = {
+    const panels: Record<PcTab, HTMLElement | null> = {
       card: document.getElementById('pc-panel-card'),
       safari: document.getElementById('pc-panel-safari'),
       guestbook: document.getElementById('pc-panel-guestbook'),
+      partners: document.getElementById('pc-panel-partners'),
     };
+
+    function switchTab(tab: PcTab) {
+      tabButtons.forEach((b) => {
+        const isAct = b.getAttribute('data-tab') === tab;
+        b.className = isAct
+          ? 'pc-tab-btn btn btn-sm bg-emerald-600 text-white border border-emerald-400 px-3 py-1 font-bold flex items-center gap-1.5 transition-all'
+          : 'pc-tab-btn btn btn-sm bg-slate-800 text-slate-300 border border-slate-700 hover:border-emerald-500 px-3 py-1 flex items-center gap-1.5 transition-all';
+      });
+
+      (Object.keys(panels) as PcTab[]).forEach((key) => {
+        const panel = panels[key];
+        if (panel) panel.classList.toggle('hidden', key !== tab);
+      });
+
+      if (tab === 'safari' || tab === 'card') syncSafariDex();
+      if (tab === 'partners') syncPartnerBox();
+    }
 
     tabButtons.forEach((btn) => {
       btn.addEventListener('click', () => {
-        const tab = btn.getAttribute('data-tab') as 'card' | 'safari' | 'guestbook';
+        const tab = btn.getAttribute('data-tab') as PcTab;
         if (!tab) return;
-
-        tabButtons.forEach((b) => {
-          const isAct = b === btn;
-          b.className = isAct
-            ? 'pc-tab-btn btn btn-sm bg-emerald-600 text-white border border-emerald-400 px-3 py-1 font-bold flex items-center gap-1.5 transition-all'
-            : 'pc-tab-btn btn btn-sm bg-slate-800 text-slate-300 border border-slate-700 hover:border-emerald-500 px-3 py-1 flex items-center gap-1.5 transition-all';
-        });
-
-        Object.entries(panels).forEach(([key, panel]) => {
-          if (panel) {
-            panel.classList.toggle('hidden', key !== tab);
-          }
-        });
-
-        if (tab === 'safari') {
-          syncSafariDex();
-        }
-
+        switchTab(tab);
         sfx.select();
       });
     });
 
-    // Sync Safari Dex Status from GameStore / LocalStorage
+    // Sync Safari Dex & Trainer Card Telemetry from GameStore
     function syncSafariDex() {
       const state = gameStore.getState();
       const ballsEl = document.getElementById('pc-safari-balls');
       const caughtEl = document.getElementById('pc-safari-caught');
+      const cardBadgesEl = document.getElementById('pc-card-badges');
+      const cardStampsEl = document.getElementById('pc-card-stamps');
+      const cardCaughtEl = document.getElementById('pc-card-caught');
+      const cardBallsEl = document.getElementById('pc-card-balls');
 
-      if (ballsEl) {
-        ballsEl.textContent = `${state.balls} / 10 Balls`;
-      }
-      if (caughtEl) {
-        caughtEl.textContent = `${state.caught.length} / 12 Caught`;
-      }
+      if (ballsEl) ballsEl.textContent = `${state.balls} / 10 Balls`;
+      if (caughtEl) caughtEl.textContent = `${state.caught.length} / 12 Caught`;
+      if (cardBadgesEl) cardBadgesEl.textContent = `${state.badges.length}/8`;
+      if (cardStampsEl) cardStampsEl.textContent = `${state.stamps.length}/5`;
+      if (cardCaughtEl) cardCaughtEl.textContent = `${state.caught.length}/12`;
+      if (cardBallsEl) cardBallsEl.textContent = `${state.balls}`;
 
       // Update critter slots
       const critterSlots = document.querySelectorAll<HTMLElement>('.pc-critter-slot');
@@ -603,6 +699,69 @@ const critters = profile.critters || [];
         }
       });
     }
+
+    // Tab 4: Cloud Partner Storage Box Sync & Search
+    function getActiveFollowerId(): string | null {
+      try {
+        return localStorage.getItem('town:active_follower');
+      } catch {
+        return null;
+      }
+    }
+
+    function syncPartnerBox() {
+      const activeId = getActiveFollowerId();
+      const badgeEl = document.getElementById('pc-active-partner-badge');
+      const cards = document.querySelectorAll<HTMLElement>('.pc-partner-card');
+      let activeLabel = 'None';
+      cards.forEach((card) => {
+        const pid = card.getAttribute('data-partner-id');
+        const pill = card.querySelector('.pc-partner-active-pill');
+        const btn = card.querySelector<HTMLButtonElement>('.pc-withdraw-btn');
+        const isAct = !!activeId && pid === activeId;
+        if (isAct && btn) activeLabel = btn.getAttribute('data-withdraw-name') || activeId;
+        card.classList.toggle('border-emerald-400', isAct);
+        card.classList.toggle('bg-emerald-950/25', isAct);
+        pill?.classList.toggle('hidden', !isAct);
+        if (btn) {
+          btn.textContent = isAct ? '✓ Accompanying You' : '📤 Withdraw Partner';
+        }
+      });
+      if (badgeEl) badgeEl.textContent = `Active: ${activeLabel}`;
+    }
+
+    const pcPartnerSearch = document.getElementById('pc-partner-search') as HTMLInputElement | null;
+    pcPartnerSearch?.addEventListener('input', () => {
+      const q = pcPartnerSearch.value.trim().toLowerCase();
+      document.querySelectorAll<HTMLElement>('.pc-partner-card').forEach((card) => {
+        const hay = card.getAttribute('data-partner-search') || '';
+        card.classList.toggle('hidden', !!q && !hay.includes(q));
+      });
+    });
+
+    document.querySelectorAll<HTMLButtonElement>('.pc-withdraw-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const pid = btn.getAttribute('data-withdraw-id');
+        if (!pid) return;
+        try {
+          localStorage.setItem('town:active_follower', pid);
+        } catch {}
+        window.dispatchEvent(new CustomEvent('town:set-follower', { detail: { followerId: pid } }));
+        sfx.confirm();
+        syncPartnerBox();
+      });
+    });
+
+    document.getElementById('btn-pc-rest-partner')?.addEventListener('click', () => {
+      try {
+        localStorage.removeItem('town:active_follower');
+      } catch {}
+      window.dispatchEvent(new CustomEvent('town:set-follower', { detail: { followerId: null } }));
+      sfx.select();
+      syncPartnerBox();
+    });
+
+    window.addEventListener('town:follower-changed', syncPartnerBox);
 
     // Guestbook Logic (synced with Cloudflare Worker KV + localStorage fallback)
     let selectedStamp = '🌟 Awesome Portfolio!';
@@ -745,9 +904,15 @@ const critters = profile.critters || [];
       });
     }
 
-    function openModal() {
+    function openModal(e?: Event) {
+      const custom = e as CustomEvent<{ tab?: PcTab }> | undefined;
+      const requestedTab = custom?.detail?.tab;
+      if (requestedTab && panels[requestedTab]) {
+        switchTab(requestedTab);
+      }
       dialog?.showModal();
       syncSafariDex();
+      syncPartnerBox();
       renderGuestbook();
       sfx.door();
     }

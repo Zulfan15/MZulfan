@@ -76,6 +76,8 @@ export interface TownPokemonFxHost {
   regigigasImg: HTMLImageElement | null;
   koraidonImg: HTMLImageElement | null;
   eternatusImg: HTMLImageElement | null;
+  lucarioAttackTick: number;
+  mewtwoAttackTick: number;
   rayquazaAttackTick: number;
   arceusAttackTick: number;
   reshiramAttackTick: number;
@@ -83,6 +85,7 @@ export interface TownPokemonFxHost {
   giratinaAttackTick: number;
   palkiaAttackTick: number;
   dialgaAttackTick: number;
+  necrozmaAttackTick: number;
   lunalaAttackTick: number;
   solgaleoAttackTick: number;
   garchompAttackTick: number;
@@ -235,6 +238,7 @@ export function triggerSignatureMove(host: TownPokemonFxHost, pokemonId: string,
       });
     }
   } else if (id.includes('lucario')) {
+    host.lucarioAttackTick = 27;
     for (let i = 0; i < 40; i++) {
       const spd = 2 + Math.random() * 4;
       const ang = Math.random() * Math.PI * 2;
@@ -252,6 +256,7 @@ export function triggerSignatureMove(host: TownPokemonFxHost, pokemonId: string,
       });
     }
   } else if (id.includes('mewtwo')) {
+    host.mewtwoAttackTick = 26;
     for (let i = 0; i < 45; i++) {
       const spd = 2.2 + Math.random() * 4.2;
       const ang = Math.random() * Math.PI * 2;
@@ -527,6 +532,7 @@ export function triggerSignatureMove(host: TownPokemonFxHost, pokemonId: string,
       });
     }
   } else if (id.includes('necrozma')) {
+    host.necrozmaAttackTick = 26;
     for (let i = 0; i < 50; i++) {
       const ang = Math.random() * Math.PI * 2;
       const spd = 3.5 + Math.random() * 5.0;
@@ -868,7 +874,36 @@ export function drawFollower(host: TownPokemonFxHost, ctx: CanvasRenderingContex
   } else if (fid === 'pikachu') {
     drawPikachu(ctx, drawX, drawY + stepBob + idleBob);
   } else if (fid === 'lucario') {
-    drawLucario(ctx, drawX, drawY + stepBob, host.tick, 1);
+    const coreX = drawX + 8;
+    const coreY = drawY + 16;
+
+    let action: 'idle' | 'walk' | 'shoot' = 'idle';
+    let animTick = host.tick;
+    if (host.lucarioAttackTick > 0) {
+      action = 'shoot';
+      animTick = 27 - host.lucarioAttackTick;
+    } else if (isFollowerWalking) {
+      action = 'walk';
+      animTick = host.followerWalkTick;
+    }
+    const dir = host.followerDir || 'down';
+
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.38)';
+    ctx.beginPath();
+    ctx.ellipse(coreX, coreY, 10, 4, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    const auraR = 12 + Math.sin(host.tick * 0.08) * 1.5;
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.42)';
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    ctx.arc(coreX, drawY + 2 + stepBob * 0.4, auraR, 0, Math.PI * 2);
+    ctx.stroke();
+
+    const pmdDrawn = host.pmdAnimator.draw(ctx, 'lucario', action, dir, coreX, coreY, animTick);
+    if (!pmdDrawn) {
+      drawLucario(ctx, drawX, drawY + stepBob, host.tick, 1);
+    }
   } else if (fid === 'charizard') {
     const coreX = drawX + 8;
     const coreY = drawY + 16;
@@ -1124,14 +1159,38 @@ export function drawFollower(host: TownPokemonFxHost, ctx: CanvasRenderingContex
       ctx.drawImage(host.rayquazaImg, drawX - 13, drawY - 20 + idleBob * 1.8, 42, 42);
     }
   } else if (fid === 'mewtwo') {
-    if (host.mewtwoImg && host.mewtwoImg.complete) {
-      const auraR = 14 + Math.sin(host.tick * 0.06) * 2;
-      ctx.strokeStyle = 'rgba(168, 85, 247, 0.45)';
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.arc(drawX + 8, drawY - 2 + stepBob + idleBob, auraR, 0, Math.PI * 2);
-      ctx.stroke();
+    const coreX = drawX + 8;
+    const coreY = drawY + 16;
 
+    const auraR = 14 + Math.sin(host.tick * 0.06) * 2;
+    ctx.strokeStyle = 'rgba(168, 85, 247, 0.45)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(coreX, drawY - 2 + stepBob + idleBob, auraR, 0, Math.PI * 2);
+    ctx.stroke();
+
+    let action: 'idle' | 'walk' | 'shoot' = 'idle';
+    let animTick = host.tick;
+    if (host.mewtwoAttackTick > 0) {
+      action = 'shoot';
+      animTick = 26 - host.mewtwoAttackTick;
+    } else if (isFollowerWalking) {
+      action = 'walk';
+      animTick = host.followerWalkTick;
+    }
+    const dir = host.followerDir || 'down';
+
+    const pmdDrawn = host.pmdAnimator.draw(
+      ctx,
+      'mewtwo',
+      action,
+      dir,
+      coreX,
+      coreY + idleBob * 0.4,
+      animTick
+    );
+
+    if (!pmdDrawn && host.mewtwoImg && host.mewtwoImg.complete) {
       ctx.drawImage(host.mewtwoImg, drawX - 11, drawY - 16 + stepBob + idleBob, 38, 38);
     }
   } else if (fid === 'arceus') {
@@ -1671,18 +1730,30 @@ export function drawFollower(host: TownPokemonFxHost, ctx: CanvasRenderingContex
       ctx.drawImage(host.darkraiImg, drawX - 13, drawY - 20 + stepBob + idleBob * 1.4, 42, 42);
     }
   } else if (fid === 'necrozma') {
-    if (host.necrozmaImg && host.necrozmaImg.complete) {
-      const coreX = drawX + 8;
-      const coreY = drawY + 4 + stepBob;
-      const sunGrad = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, 17);
-      sunGrad.addColorStop(0, 'rgba(254, 240, 138, 0.65)');
-      sunGrad.addColorStop(0.5, 'rgba(245, 158, 11, 0.35)');
-      sunGrad.addColorStop(1, 'rgba(30, 27, 75, 0)');
-      ctx.fillStyle = sunGrad;
-      ctx.beginPath();
-      ctx.arc(coreX, coreY, 17, 0, Math.PI * 2);
-      ctx.fill();
+    const coreX = drawX + 8;
+    const coreY = drawY + 16;
+    const sunGrad = ctx.createRadialGradient(coreX, drawY + 4 + stepBob, 2, coreX, drawY + 4 + stepBob, 17);
+    sunGrad.addColorStop(0, 'rgba(254, 240, 138, 0.65)');
+    sunGrad.addColorStop(0.5, 'rgba(245, 158, 11, 0.35)');
+    sunGrad.addColorStop(1, 'rgba(30, 27, 75, 0)');
+    ctx.fillStyle = sunGrad;
+    ctx.beginPath();
+    ctx.arc(coreX, drawY + 4 + stepBob, 17, 0, Math.PI * 2);
+    ctx.fill();
 
+    let action: 'idle' | 'walk' | 'shoot' = 'idle';
+    let animTick = host.tick;
+    if (host.necrozmaAttackTick > 0) {
+      action = 'shoot';
+      animTick = 26 - host.necrozmaAttackTick;
+    } else if (isFollowerWalking) {
+      action = 'walk';
+      animTick = host.followerWalkTick;
+    }
+    const dir = host.followerDir || 'down';
+
+    const pmdDrawn = host.pmdAnimator.draw(ctx, 'necrozma', action, dir, coreX, coreY, animTick);
+    if (!pmdDrawn && host.necrozmaImg && host.necrozmaImg.complete) {
       ctx.drawImage(host.necrozmaImg, drawX - 15, drawY - 21 + stepBob, 46, 43);
     }
   } else if (fid === 'lunala') {
@@ -2757,6 +2828,15 @@ export function drawPokeRide(
   } else if (fid === 'salamence' && host.salamenceAttackTick > 0) {
     action = 'shoot';
     attackTick = 24 - host.salamenceAttackTick;
+  } else if (fid === 'mewtwo' && host.mewtwoAttackTick > 0) {
+    action = 'shoot';
+    attackTick = 26 - host.mewtwoAttackTick;
+  } else if (fid === 'lucario' && host.lucarioAttackTick > 0) {
+    action = 'shoot';
+    attackTick = 27 - host.lucarioAttackTick;
+  } else if (fid === 'necrozma' && host.necrozmaAttackTick > 0) {
+    action = 'shoot';
+    attackTick = 26 - host.necrozmaAttackTick;
   }
 
   const curAnimTick = attackTick > 0 ? attackTick : animTick;
