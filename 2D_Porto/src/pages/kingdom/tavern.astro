@@ -1,0 +1,460 @@
+---
+import TownLayout from '../../layouts/TownLayout.astro';
+import WhereTo from '../../components/WhereTo.astro';
+import { profile } from '../../lib/profile';
+import { ROYAL_CRESTS_META } from '../../engine/kingdomInteriorShared';
+
+const allCrests = Object.values(ROYAL_CRESTS_META);
+const launchProjects = profile.missions.filter((m) => m.type === 'launch');
+
+const menuDishes = [
+  { id: 'stew', icon: '🍲', title: 'Golden Griffin Royal Stew', lore: 'Hearty spiced venison & saffron broth — clears fatigue and triggers +50% Sprint Buff.' },
+  { id: 'cider', icon: '🍺', title: 'Avalon Spiced Oak Cider', lore: 'Sparkling orchard brew from the East Casks — boosts walking reflex by +50% for 25s.' },
+  { id: 'platter', icon: '🍖', title: "Snorlax's Triple Feast Platter", lore: 'Roasted herb shank & honey bread — favorite of Golden Griffin Tavern regulars!' },
+];
+
+const bardTales = [
+  'Samurott strums: "AeroScan digested 12 GB of PASCAL VOC CSVs into 8,400 clean YOLO frames, then hit ~1.8 ms/frame on TensorRT FP16!"',
+  'Empoleon pours: "When concurrent hunger rescues surge on FoodLink, PostgreSQL FOR UPDATE row locks + Redis Lua mutexes keep 32/32 tests green!"',
+  'Snorlax yawns happily: "Teachers saved hours of grading when OpenCV automated LJK bubble-sheet detection in the OMR Grading Web App!"',
+  'Samurott salutes: "Before deep CNNs, 1,000 TF-IDF char trigrams + 9 stats + Random Forest caught YouTube gambling spam at 99.56% F1!"',
+];
+---
+
+<TownLayout
+  title="Golden Griffin Tavern — Fellowship Inn & Quest Board | Muhammad Zulfan"
+  description="Enter Golden Griffin Tavern inside Royal Kingdom: order feast buffs, hear Samurott's Bardic Tales, and explore Zulfan's launched systems on the Production Quest Board."
+  place="kingdom-tavern"
+>
+  <article class="tavern-page space-y-6 pb-10 text-[#1e1b18]" data-tales={JSON.stringify(bardTales)}>
+    <!-- 1. TAVERN HERALDIC MARQUEE BANNER (WARM OAK, AMBER & BURGUNDY) -->
+    <header class="relative overflow-hidden rounded-2xl border-[3px] border-[#b45309] bg-gradient-to-b from-[#fffbeb] via-[#faecc8] to-[#ecd29e] p-5 text-[#2c1e12] shadow-[0_8px_0_#78350f,0_18px_36px_rgba(44,30,18,0.35)]">
+      <div class="pointer-events-none absolute inset-x-0 top-0 h-2 bg-[repeating-linear-gradient(90deg,#9a3412_0px,#9a3412_14px,#fbbf24_14px,#fbbf24_28px,#78350f_28px,#78350f_42px)]" aria-hidden="true"></div>
+      <div class="pointer-events-none absolute inset-x-0 bottom-0 h-2 bg-[repeating-linear-gradient(90deg,#78350f_0px,#78350f_14px,#fbbf24_14px,#fbbf24_28px,#9a3412_28px,#9a3412_42px)]" aria-hidden="true"></div>
+
+      <div class="relative z-10 mt-1 flex flex-wrap items-start justify-between gap-4">
+        <div class="space-y-2">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="rounded-full border border-[#9a3412] bg-[#9a3412] px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[#fef3c7]">
+              🍺 GOLDEN GRIFFIN TAVERN · FELLOWSHIP INN
+            </span>
+            <span id="tav-crest-pill" class="rounded-full border border-[#b45309]/50 bg-[#fef3c7] px-2.5 py-1 font-mono text-[10px] font-bold uppercase text-[#78350f]">
+              ⏳ Crest Unclaimed
+            </span>
+          </div>
+          <h1 class="font-display text-2xl font-black tracking-tight text-[#1e293b] sm:text-3xl">
+            🍺 Golden Griffin Tavern &amp; Quest Board
+          </h1>
+          <p class="max-w-2xl text-sm leading-relaxed text-[#44403c]">
+            Hangatkan diri di kedai kayu Avalon bersama pemilik bar <strong class="text-[#1e3a8a]">Empoleon</strong>, pelanggan tetap
+            <strong class="text-[#1e40af]">Snorlax</strong>, dan penyair pengembara <strong class="text-[#0369a1]">Samurott</strong>. Nikmati hidangan + dengar satu kisah bardic untuk meraih <strong class="text-[#9a3412]">Crest of Fellowship</strong>!
+          </p>
+        </div>
+
+        <div class="flex flex-col items-end gap-2">
+          <div class="grid grid-cols-3 gap-2 rounded-xl border-2 border-[#b45309] bg-white px-3 py-2 text-center font-mono shadow-inner">
+            <div>
+              <div class="text-[9px] font-bold uppercase text-[#92400e]">FEAST</div>
+              <div id="hero-tav-feast" class="text-sm font-black text-[#b45309]">READY</div>
+            </div>
+            <div>
+              <div class="text-[9px] font-bold uppercase text-[#92400e]">TALES</div>
+              <div id="hero-tav-tales" class="text-sm font-black text-[#1e3a8a]">0</div>
+            </div>
+            <div>
+              <div class="text-[9px] font-bold uppercase text-[#92400e]">CRESTS</div>
+              <div id="hero-tav-crests" class="text-sm font-black text-[#15803d]">0 / 7</div>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-end gap-2">
+            <button id="tav-audio-toggle" type="button" class="cursor-pointer rounded-lg border-2 border-[#b45309] bg-[#fef3c7] px-2.5 py-1.5 font-mono text-[11px] font-bold text-[#78350f]">
+              🎵 Bard SFX: ON
+            </button>
+            <a id="tav-exit-btn" href="/kingdom?from=tavern" class="inline-flex items-center gap-1.5 rounded-lg border-2 border-[#7f1d1d] bg-gradient-to-b from-[#b91c1c] to-[#7f1d1d] px-3 py-1.5 font-mono text-xs font-extrabold text-[#fef3c7] shadow-[0_3px_0_#450a0a] transition hover:-translate-y-0.5">
+              🚪 Exit to Kingdom
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tri-Guardian Dialogue Strip -->
+      <div class="relative z-10 mt-4 flex flex-col gap-3 rounded-xl border-2 border-[#b45309]/50 bg-[#fffbeb]/95 p-3.5 sm:flex-row sm:items-center">
+        <div class="flex shrink-0 items-center gap-1.5">
+          <button type="button" data-tav-walk="empoleon" data-speaker="🍺 Empoleon · Innkeeper" data-quote="Order any signature dish from my Oak Counter below—every mug restores your dash speed by +50% for 25s!" data-fx-text="CHEERS! +50% SPD!" data-fx-color="#fbbf24" class="flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl border-2 border-[#1d4ed8] bg-[#dbeafe] text-xl shadow-[0_2px_0_#1e3a8a] transition hover:-translate-y-0.5">🍺</button>
+          <button type="button" data-tav-walk="snorlax" data-speaker="🍖 Snorlax · Chief Taste-Tester" data-quote="Snorrr... Try the Griffin Stew platter while browsing FoodLink and FoodRescue on the NW Quest Board!" data-fx-text="FEAST MODE!" data-fx-color="#f59e0b" class="flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl border-2 border-[#1e3a8a] bg-[#eff6ff] text-xl shadow-[0_2px_0_#1e3a8a] transition hover:-translate-y-0.5">🍖</button>
+          <button type="button" data-tav-walk="samurott" data-speaker="⚔️ Samurott · Traveling Bard" data-quote="Pull up a bench by my SE stage and spin a Bard’s Tale to hear how Zulfan shipped 7 real-world launches!" data-fx-text="BARDIC CHRONICLE!" data-fx-color="#38bdf8" class="flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl border-2 border-[#0284c7] bg-[#e0f2fe] text-xl shadow-[0_2px_0_#075985] transition hover:-translate-y-0.5">⚔️</button>
+        </div>
+        <div class="min-w-0 flex-1">
+          <div id="tav-speaker" class="font-mono text-[10px] font-black uppercase tracking-wider text-[#9a3412]">
+            🍺 Empoleon · Innkeeper
+          </div>
+          <p id="tav-dialogue" class="mt-0.5 text-xs italic leading-relaxed text-[#44403c]">
+            “Pesan satu hidangan hangat dan putar satu Bard’s Tale dari Samurott untuk menambang Crest of Fellowship!”
+          </p>
+        </div>
+      </div>
+
+      <!-- 6 Tactile Quick-Walk Station Cards -->
+      <nav aria-label="Quick walk Tavern stations" class="relative z-10 mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+        <button type="button" data-tav-walk="empoleon" data-scroll-to="tav-feast-section" data-hotkey="e" class="tav-station-btn flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#1d4ed8] bg-white px-2.5 py-2 text-left shadow-[0_2px_0_#1e3a8a] transition hover:-translate-y-0.5">
+          <span class="flex items-center gap-1.5 truncate text-xs font-bold"><span>🍺</span><span class="truncate">Empoleon</span></span>
+          <kbd class="rounded border border-[#1d4ed8]/40 bg-[#dbeafe] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#1e3a8a]">E</kbd>
+        </button>
+        <button type="button" data-tav-walk="quest-board" data-scroll-to="tav-quest-section" data-hotkey="q" class="tav-station-btn flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#d97706] bg-white px-2.5 py-2 text-left shadow-[0_2px_0_#92400e] transition hover:-translate-y-0.5">
+          <span class="flex items-center gap-1.5 truncate text-xs font-bold"><span>📋</span><span class="truncate">Quests</span></span>
+          <kbd class="rounded border border-[#d97706]/40 bg-[#fef3c7] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#78350f]">Q</kbd>
+        </button>
+        <button type="button" data-tav-walk="snorlax" data-scroll-to="tav-feast-section" data-hotkey="s" class="tav-station-btn flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#1e3a8a] bg-white px-2.5 py-2 text-left shadow-[0_2px_0_#1e3a8a] transition hover:-translate-y-0.5">
+          <span class="flex items-center gap-1.5 truncate text-xs font-bold"><span>🍖</span><span class="truncate">Snorlax</span></span>
+          <kbd class="rounded border border-[#1e3a8a]/40 bg-[#dbeafe] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#1e3a8a]">S</kbd>
+        </button>
+        <button type="button" data-tav-walk="samurott" data-scroll-to="tav-feast-section" data-hotkey="r" class="tav-station-btn flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#0284c7] bg-white px-2.5 py-2 text-left shadow-[0_2px_0_#075985] transition hover:-translate-y-0.5">
+          <span class="flex items-center gap-1.5 truncate text-xs font-bold"><span>⚔️</span><span class="truncate">Samurott</span></span>
+          <kbd class="rounded border border-[#0284c7]/40 bg-[#e0f2fe] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#075985]">R</kbd>
+        </button>
+        <button type="button" data-tav-walk="banquet-table" data-scroll-to="tav-quest-section" data-hotkey="b" class="tav-station-btn flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#b45309] bg-white px-2.5 py-2 text-left shadow-[0_2px_0_#78350f] transition hover:-translate-y-0.5">
+          <span class="flex items-center gap-1.5 truncate text-xs font-bold"><span>🕯️</span><span class="truncate">Banquet</span></span>
+          <kbd class="rounded border border-[#b45309]/40 bg-[#fef3c7] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#78350f]">B</kbd>
+        </button>
+        <button type="button" data-tav-walk="ale-barrels" data-scroll-to="tav-relic-section" data-hotkey="c" class="tav-station-btn flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#9a3412] bg-white px-2.5 py-2 text-left shadow-[0_2px_0_#431407] transition hover:-translate-y-0.5">
+          <span class="flex items-center gap-1.5 truncate text-xs font-bold"><span>🛢️</span><span class="truncate">Casks</span></span>
+          <kbd class="rounded border border-[#9a3412]/40 bg-[#ffedd5] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#9a3412]">C</kbd>
+        </button>
+      </nav>
+    </header>
+
+    <!-- 2. FEAST COUNTER & BARD'S TALE GENERATOR -->
+    <section
+      id="tav-feast-section"
+      class="scroll-mt-6 rounded-2xl border-[3px] border-[#b45309] bg-gradient-to-b from-[#fffdf7] to-[#f4ead5] p-5 shadow-[0_8px_0_#78350f]"
+    >
+      <div class="flex flex-wrap items-start justify-between gap-3 border-b-2 border-[#b45309]/30 pb-3.5">
+        <div>
+          <span class="font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-[#9a3412]">
+            TRIAL I · EMPOLEN'S MENU &amp; BARD'S CHRONICLE
+          </span>
+          <h2 class="mt-0.5 font-display text-xl font-black text-[#1e293b]">
+            🍲 Order Royal Feast (+50% Speed) &amp; Hear Bard's Tale
+          </h2>
+          <p class="mt-1 text-xs text-[#44403c]">
+            Pesan 1 hidangan di bawah untuk mengaktifkan kecepatan lari +50% selama 25 detik, lalu putar kisah Samurott untuk membuka <strong class="text-[#b45309]">🍺 Crest of Fellowship</strong>!
+          </p>
+        </div>
+        <span id="tav-buff-timer" class="rounded-full border border-[#b45309] bg-[#fef3c7] px-3 py-1 font-mono text-[11px] font-bold text-[#78350f]">
+          Buff: Ready
+        </span>
+      </div>
+
+      <div class="mt-4 grid gap-3 sm:grid-cols-3">
+        {menuDishes.map((dish) => (
+          <button
+            type="button"
+            data-tav-order={dish.id}
+            data-title={dish.title}
+            class="tav-order-btn cursor-pointer rounded-xl border-2 border-[#b45309]/50 bg-white p-4 text-left transition hover:-translate-y-0.5 hover:border-[#9a3412] hover:bg-[#fffbeb]"
+          >
+            <div class="flex items-center justify-between">
+              <span class="text-2xl">{dish.icon}</span>
+              <span class="rounded bg-[#dcfce7] px-2 py-0.5 font-mono text-[9px] font-bold text-[#14532d]">+50% SPD</span>
+            </div>
+            <h3 class="mt-2 font-display text-sm font-black text-[#1e293b]">{dish.title}</h3>
+            <p class="mt-1 text-xs leading-relaxed text-[#44403c]">{dish.lore}</p>
+          </button>
+        ))}
+      </div>
+
+      <!-- Samurott Bard's Tale Box -->
+      <div class="mt-4 flex flex-col gap-3 rounded-xl border-2 border-[#0284c7]/40 bg-[#f0f9ff] p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div class="min-w-0 flex-1">
+          <div class="font-mono text-[10px] font-bold uppercase tracking-wider text-[#0369a1]">🪕 SAMUROTT'S BARDIC TALE</div>
+          <p id="tav-tale-text" class="mt-1 text-xs font-semibold leading-relaxed text-[#0c4a6e]">
+            Klik tombol di samping untuk mendengarkan kisah pengembaraan sistem produksi Muhammad Zulfan!
+          </p>
+        </div>
+        <button
+          id="tav-tale-btn"
+          type="button"
+          class="shrink-0 cursor-pointer rounded-xl border-2 border-[#0284c7] bg-[#0284c7] px-4 py-2 font-mono text-xs font-black text-white shadow-[0_3px_0_#075985] hover:brightness-110"
+        >
+          🎲 Play Bard's Tale
+        </button>
+      </div>
+    </section>
+
+    <!-- 3. PRODUCTION QUEST BOARD (ALL LAUNCH MISSIONS) -->
+    <section
+      id="tav-quest-section"
+      class="scroll-mt-6 rounded-2xl border-[3px] border-[#1e3a8a] bg-gradient-to-b from-[#fffdf7] to-[#f4ead5] p-5 shadow-[0_8px_0_#1e3a8a]"
+    >
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b-2 border-[#1e3a8a]/20 pb-3.5">
+        <div>
+          <span class="font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-[#b45309]">
+            NW NOTICE BOARD · {launchProjects.length} LAUNCHED QUESTS
+          </span>
+          <h2 class="mt-0.5 font-display text-xl font-black text-[#1e293b]">
+            📋 Production Missions Quest Board
+          </h2>
+        </div>
+
+        <div class="flex flex-wrap gap-1.5">
+          <button type="button" data-quest-filter="all" class="quest-filter-btn cursor-pointer rounded-lg border border-[#1e3a8a] bg-[#1e3a8a] px-2.5 py-1 font-mono text-[10px] font-bold text-white">All ({launchProjects.length})</button>
+          <button type="button" data-quest-filter="featured" class="quest-filter-btn cursor-pointer rounded-lg border border-[#b45309]/50 bg-white px-2.5 py-1 font-mono text-[10px] font-bold text-[#78350f]">Featured</button>
+          <button type="button" data-quest-filter="research" class="quest-filter-btn cursor-pointer rounded-lg border border-[#b45309]/50 bg-white px-2.5 py-1 font-mono text-[10px] font-bold text-[#78350f]">AI &amp; Vision</button>
+        </div>
+      </div>
+
+      <div class="mt-4 grid gap-4 md:grid-cols-2">
+        {launchProjects.map((m) => (
+          <div
+            data-quest-card=""
+            data-featured={m.featured ? 'true' : 'false'}
+            data-research={m.research ? 'true' : 'false'}
+            class="rounded-xl border-2 border-[#b45309]/40 bg-white p-4 space-y-2"
+          >
+            <div class="flex flex-wrap items-center justify-between gap-2 font-mono text-[10px] font-bold">
+              <span class="rounded bg-[#fef3c7] px-2 py-0.5 text-[#78350f]">{m.org}</span>
+              <span class="text-[#1e3a8a]">{m.start} → {m.end || 'Active'}</span>
+            </div>
+            <h3 class="font-display text-base font-black text-[#1e293b]">{m.title}</h3>
+            <p class="text-xs leading-relaxed text-[#44403c]">{m.summary}</p>
+            <ul class="space-y-1 text-[11px] text-[#44403c]">
+              {m.results.slice(0, 3).map((res) => (
+                <li class="flex items-start gap-1.5">
+                  <span class="text-[#b45309]">✦</span>
+                  <span>{res}</span>
+                </li>
+              ))}
+            </ul>
+            <div class="flex flex-wrap gap-1 pt-1">
+              {m.payload.slice(0, 7).map((tag) => (
+                <span class="rounded border border-[#1e3a8a]/25 bg-[#eff6ff] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#1e3a8a]">
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- 4. FELLOWSHIP REGISTRY & 7 ROYAL CRESTS -->
+    <section
+      id="tav-relic-section"
+      class="scroll-mt-6 rounded-2xl border-[3px] border-[#b45309] bg-gradient-to-b from-[#fffdf7] to-[#f4ead5] p-5 shadow-[0_8px_0_#78350f]"
+    >
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b-2 border-[#b45309]/30 pb-3">
+        <h2 class="font-display text-xl font-black text-[#1e293b]">🛢️ Cellar Coffer &amp; 7 Royal Crests</h2>
+        <span id="tav-crest-summary" class="rounded-full border border-[#1e3a8a] bg-[#1e3a8a] px-3 py-1 font-mono text-[11px] font-bold text-[#fef3c7]">
+          0 / 7 Crests Claimed
+        </span>
+      </div>
+
+      <div class="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+        {allCrests.map((c) => (
+          <a href={c.route} class="flex items-center justify-between gap-2 rounded-xl border border-[#b45309]/40 bg-white px-3 py-2 text-xs hover:-translate-y-0.5 hover:border-[#1e3a8a]">
+            <span class="truncate font-bold">{c.icon} {c.name}</span>
+            <span data-tav-crest-badge={c.key} class="font-mono text-[10px] font-bold text-[#94a3b8]">🔒</span>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <WhereTo currentPath="/kingdom/tavern" />
+  </article>
+</TownLayout>
+
+<script>
+  import { awardRoyalCrest, countRoyalCrests, getRoyalCrests } from '../../engine/kingdomInteriorShared';
+
+  let tavAudioOn = true;
+  let tavAudioCtx: AudioContext | null = null;
+
+  function playTavernNote(freq: number, dur = 0.14, type: OscillatorType = 'triangle') {
+    if (!tavAudioOn || typeof window === 'undefined') return;
+    try {
+      const Ctx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      if (!Ctx) return;
+      if (!tavAudioCtx) tavAudioCtx = new Ctx();
+      if (tavAudioCtx.state === 'suspended') void tavAudioCtx.resume();
+      const osc = tavAudioCtx.createOscillator();
+      const gain = tavAudioCtx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, tavAudioCtx.currentTime);
+      gain.gain.setValueAtTime(0.11, tavAudioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, tavAudioCtx.currentTime + dur);
+      osc.connect(gain);
+      gain.connect(tavAudioCtx.destination);
+      osc.start();
+      osc.stop(tavAudioCtx.currentTime + dur);
+    } catch {
+      // ignore
+    }
+  }
+
+  function emitTavWave(text: string, color = '#fbbf24') {
+    window.dispatchEvent(new CustomEvent('town:kingdom-fx', { detail: { text, color } }));
+  }
+
+  function initTavernPage() {
+    const root = document.querySelector<HTMLElement>('.tavern-page');
+    if (!root) return;
+
+    const tales: string[] = JSON.parse(root.dataset.tales || '[]');
+    let hasOrdered = false;
+    let taleIdx = 0;
+    let talesHeard = 0;
+    let buffTimer: number | null = null;
+
+    document.getElementById('tav-exit-btn')?.addEventListener('click', () => {
+      try {
+        sessionStorage.setItem('kingdom:respawn', '36,20,down');
+      } catch {
+        // ignore
+      }
+    });
+
+    const audioBtn = document.getElementById('tav-audio-toggle');
+    audioBtn?.addEventListener('click', () => {
+      tavAudioOn = !tavAudioOn;
+      audioBtn.textContent = tavAudioOn ? '🎵 Bard SFX: ON' : '🔇 Bard SFX: MUTED';
+      if (tavAudioOn) playTavernNote(523.25);
+    });
+
+    const speakerEl = document.getElementById('tav-speaker');
+    const dialogueEl = document.getElementById('tav-dialogue');
+
+    const walkStation = (el: HTMLElement) => {
+      const id = el.dataset.tavWalk;
+      if (id) window.dispatchEvent(new CustomEvent('town:walk-to', { detail: { id } }));
+      if (el.dataset.speaker && speakerEl) speakerEl.textContent = el.dataset.speaker;
+      if (el.dataset.quote && dialogueEl) dialogueEl.textContent = `“${el.dataset.quote}”`;
+      if (el.dataset.fxText) emitTavWave(el.dataset.fxText, el.dataset.fxColor || '#f59e0b');
+      if (el.dataset.scrollTo) {
+        document.getElementById(el.dataset.scrollTo)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      playTavernNote(440, 0.08);
+    };
+
+    document.querySelectorAll<HTMLElement>('[data-tav-walk]').forEach((btn) => {
+      btn.addEventListener('click', () => walkStation(btn));
+    });
+
+    function refreshCrests() {
+      const crests = getRoyalCrests();
+      const total = countRoyalCrests();
+      const hasFel = Boolean(crests.fellowship);
+
+      const hCrests = document.getElementById('hero-tav-crests');
+      const pill = document.getElementById('tav-crest-pill');
+      const summary = document.getElementById('tav-crest-summary');
+
+      if (hCrests) hCrests.textContent = `${total} / 7`;
+      if (summary) summary.textContent = `${total} / 7 Crests Claimed`;
+      if (pill && hasFel) {
+        pill.textContent = '🍺 Crest of Fellowship Claimed';
+        pill.className = 'rounded-full border border-[#15803d] bg-[#dcfce7] px-2.5 py-1 font-mono text-[10px] font-bold uppercase text-[#14532d]';
+      }
+
+      (['sovereignty', 'steel', 'fellowship', 'arcana', 'valor', 'grace', 'chivalry'] as const).forEach((k) => {
+        const badge = document.querySelector<HTMLElement>(`[data-tav-crest-badge="${k}"]`);
+        const ok = Boolean(crests[k]);
+        if (badge) {
+          badge.textContent = ok ? '✅' : '🔒';
+          badge.className = ok ? 'font-mono text-[10px] font-bold text-[#15803d]' : 'font-mono text-[10px] font-bold text-[#94a3b8]';
+        }
+      });
+    }
+
+    function maybeUnlockFellowship() {
+      if (hasOrdered && talesHeard >= 1 && !getRoyalCrests().fellowship) {
+        awardRoyalCrest('fellowship');
+        emitTavWave('CREST OF FELLOWSHIP!', '#4ade80');
+        playTavernNote(659.25, 0.16);
+        setTimeout(() => playTavernNote(880, 0.24), 100);
+        refreshCrests();
+      }
+    }
+
+    document.querySelectorAll<HTMLElement>('.tav-order-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        hasOrdered = true;
+        window.dispatchEvent(new CustomEvent('town:claim-lucky-egg'));
+        emitTavWave('FEAST SERVED! +50% SPD', '#fbbf24');
+        playTavernNote(587.33, 0.14);
+
+        const hFeast = document.getElementById('hero-tav-feast');
+        if (hFeast) hFeast.textContent = 'SERVED';
+        if (dialogueEl) dialogueEl.textContent = `“${btn.dataset.title} dihidangkan hangat oleh Empoleon — kecepatan lari +50% aktif!”`;
+
+        let left = 25;
+        const tLabel = document.getElementById('tav-buff-timer');
+        if (tLabel) tLabel.textContent = `Buff: ${left}s (+50% Speed)`;
+        if (buffTimer !== null) clearInterval(buffTimer);
+        buffTimer = window.setInterval(() => {
+          left -= 1;
+          if (tLabel) tLabel.textContent = left > 0 ? `Buff: ${left}s (+50% Speed)` : 'Buff: Ready';
+          if (left <= 0 && buffTimer !== null) {
+            clearInterval(buffTimer);
+            buffTimer = null;
+          }
+        }, 1000);
+        maybeUnlockFellowship();
+      });
+    });
+
+    document.getElementById('tav-tale-btn')?.addEventListener('click', () => {
+      if (!tales.length) return;
+      const text = tales[taleIdx % tales.length];
+      taleIdx += 1;
+      talesHeard += 1;
+      const taleEl = document.getElementById('tav-tale-text');
+      const hTales = document.getElementById('hero-tav-tales');
+      if (taleEl) taleEl.textContent = text;
+      if (hTales) hTales.textContent = String(talesHeard);
+      emitTavWave('BARD TALE SUNG!', '#38bdf8');
+      playTavernNote(523.25, 0.12);
+      setTimeout(() => playTavernNote(659.25, 0.16), 80);
+      maybeUnlockFellowship();
+    });
+
+    // Quest Filter
+    document.querySelectorAll<HTMLButtonElement>('.quest-filter-btn').forEach((fBtn) => {
+      fBtn.addEventListener('click', () => {
+        const mode = fBtn.dataset.questFilter || 'all';
+        document.querySelectorAll<HTMLElement>('[data-quest-card]').forEach((card) => {
+          const show =
+            mode === 'all' ||
+            (mode === 'featured' && card.dataset.featured === 'true') ||
+            (mode === 'research' && card.dataset.research === 'true');
+          card.classList.toggle('hidden', !show);
+        });
+      });
+    });
+
+    const onKey = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement | null)?.tagName;
+      if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
+      const matched = document.querySelector<HTMLElement>(`.tav-station-btn[data-hotkey="${e.key.toLowerCase()}"]`);
+      if (matched) {
+        e.preventDefault();
+        walkStation(matched);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+
+    refreshCrests();
+
+    document.addEventListener(
+      'astro:before-swap',
+      () => {
+        if (buffTimer !== null) clearInterval(buffTimer);
+        window.removeEventListener('keydown', onKey);
+      },
+      { once: true }
+    );
+  }
+
+  initTavernPage();
+  document.addEventListener('astro:page-load', initTavernPage);
+</script>

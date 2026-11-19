@@ -1,0 +1,683 @@
+---
+import TownLayout from '../../layouts/TownLayout.astro';
+import WhereTo from '../../components/WhereTo.astro';
+import { profile } from '../../lib/profile';
+import { MARITIME_SEALS_META } from '../../engine/harbourInteriorShared';
+
+const allSeals = Object.values(MARITIME_SEALS_META);
+
+const manifestCrates = [
+  {
+    id: 'crate-yolo',
+    priority: 1,
+    code: 'MANIFEST #01 · HEAVY CV ETL',
+    title: '12 GB PASCAL VOC → YOLOv11s Curated Vault',
+    tonnage: '8,400 Images (80/15/5)',
+    desc: 'Raw aerial annotation ingestion, schema validation, and FP16 ONNX/TensorRT packaging (~22.1 MB compiled engine).',
+  },
+  {
+    id: 'crate-postgis',
+    priority: 2,
+    code: 'MANIFEST #02 · SPATIAL DB LEDGER',
+    title: 'PostgreSQL 16 + PostGIS GIST Spatial Index',
+    tonnage: 'FOR UPDATE Row Locks',
+    desc: 'Zero-oversell food-surplus rescue schema with geolocation fuzzing, radius bounds, and ACID claim locks.',
+  },
+  {
+    id: 'crate-kafka',
+    priority: 3,
+    code: 'MANIFEST #03 · STREAMING PIPE',
+    title: 'Redis 7 Mutexes + Apache Kafka Outbox',
+    tonnage: '3 Fan-Out Consumers',
+    desc: 'Idempotency-Key guardrails, distributed Lua locks, and transactional event streaming under merchant bursts.',
+  },
+  {
+    id: 'crate-omr',
+    priority: 4,
+    code: 'MANIFEST #04 · DOCUMENT SCAN',
+    title: 'Automated OMR Grading & PDF Excel Exports',
+    tonnage: 'OpenCV + FastAPI Bulk',
+    desc: 'Batch answer-sheet bubble detection, automated student score analytics, and ready-to-download Excel spreadsheets.',
+  },
+];
+
+// Deterministic display order shuffled so player must dispatch Priority 1 -> 2 -> 3 -> 4
+const scrambledCrates = [manifestCrates[2], manifestCrates[0], manifestCrates[3], manifestCrates[1]];
+
+const pipelinePillars = [
+  {
+    badge: 'COMPUTER VISION ETL',
+    icon: '🛰️',
+    title: 'AeroScan Annotation & TensorRT Forge',
+    accent: 'border-[#0284c7] bg-[#f0f9ff] text-[#0c4a6e]',
+    specs: ['12 GB VOC CSV → YOLO', '~8,400 Images', '22.1 MB TRT FP16'],
+    summary:
+      'Automated dataset sanitization converting bulky PASCAL VOC CSV manifests into verified YOLO format across 15 military aircraft classes (87.9% max mAP@50 on B-52).',
+  },
+  {
+    badge: 'CONCURRENCY & SPATIAL DATA',
+    icon: '🗄️',
+    title: 'FoodLink High-Integrity Relational & Geo Core',
+    accent: 'border-[#059669] bg-[#ecfdf5] text-[#064e3b]',
+    specs: ['PostgreSQL 16', 'PostGIS GIST', 'Redis 7 Lua Mutex'],
+    summary:
+      'Row-level locking combined with Redis tagged caches and geospatial radius indexing prevents double-claiming during concurrent rescue bursts.',
+  },
+  {
+    badge: 'NLP FEATURE ENGINEERING',
+    icon: '🧪',
+    title: 'Thesis Anti-Spam Hybrid Pipeline (99.56% F1)',
+    accent: 'border-[#7c3aed] bg-[#f5f3ff] text-[#4c1d95]',
+    specs: ['1,000 TF-IDF Trigrams', '9 Statistical Signals', '10-Fold Stratified CV'],
+    summary:
+      'Extracts character-level trigrams alongside obfuscation heuristics (emoji counts, digit ratios) fed into GridSearchCV-tuned Random Forest.',
+  },
+  {
+    badge: 'BULK DOCUMENT INGESTION',
+    icon: '📊',
+    title: 'Automated OMR Bubble & Excel Ledger',
+    accent: 'border-[#d97706] bg-[#fffbeb] text-[#78350f]',
+    specs: ['FastAPI + OpenCV', 'Next.js Dashboard', 'Auto Excel Reports'],
+    summary:
+      'Replaces hours of manual LJK grading by aligning scanned exam sheets, extracting filled marks via computer vision, and emitting downloadable analytics.',
+  },
+];
+---
+
+<TownLayout
+  title="Customs & Cargo Warehouse — Data Pipelines & Logistics | Harbour Town"
+  description="Enter Customs & Cargo Warehouse (15×12) in Harbour Town: dispatch Imperial Supply Crates in priority order with Gyarados to unlock the Seal of the Quartermaster."
+  place="harbour-warehouse"
+>
+  <article
+    class="warehouse-page space-y-6 pb-10 text-[#0f172a]"
+    data-summary-text={`${profile.person.name} Data Pipelines, Datasets & Artifact Registry — Customs Warehouse guarded by Gyarados, Vikemon & Regigigas.`}
+  >
+    <!-- 1. ADMIRALTY CARGO LOGISTICS HERO BANNER -->
+    <header class="relative overflow-hidden rounded-2xl border-[3px] border-[#475569] bg-gradient-to-b from-[#f7f4eb] via-[#ece5d2] to-[#dcd2ba] p-5 text-[#1e293b] shadow-[0_8px_0_#1e293b,0_18px_36px_rgba(30,41,59,0.28)]">
+      <div
+        class="pointer-events-none absolute inset-x-0 top-0 h-2 bg-[repeating-linear-gradient(90deg,#334155_0px,#334155_14px,#d97706_14px,#d97706_28px,#0369a1_28px,#0369a1_42px)]"
+        aria-hidden="true"
+      ></div>
+      <div
+        class="pointer-events-none absolute inset-x-0 bottom-0 h-2 bg-[repeating-linear-gradient(90deg,#0369a1_0px,#0369a1_14px,#d97706_14px,#d97706_28px,#334155_28px,#334155_42px)]"
+        aria-hidden="true"
+      ></div>
+
+      <div class="relative z-10 mt-1 flex flex-wrap items-start justify-between gap-4">
+        <div class="space-y-2">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="rounded-full border border-[#334155] bg-[#1e293b] px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[#e2e8f0]">
+              📦 CUSTOMS WAREHOUSE · ROYAL LOGISTICS
+            </span>
+            <span
+              id="wh-seal-pill"
+              class="rounded-full border border-[#d97706]/60 bg-[#fef3c7] px-2.5 py-1 font-mono text-[10px] font-bold uppercase text-[#78350f]"
+            >
+              ⏳ Seal Unclaimed
+            </span>
+          </div>
+          <h1 class="font-display text-2xl font-black tracking-tight text-[#0f172a] sm:text-3xl">
+            📦 Customs &amp; Cargo Warehouse
+          </h1>
+          <p class="max-w-2xl text-sm leading-relaxed text-[#334155]">
+            Gudang bea cukai dermaga utara tempat penyimpanan dataset, pipeline ETL, dan manifes produksi Avalon — dijaga
+            <strong class="text-[#1d4ed8]">Gyarados</strong>, <strong class="text-[#475569]">Vikemon</strong> &amp; <strong class="text-[#b45309]">Regigigas</strong>.
+            Susun &amp; kirimkan <strong>4 Peti Kargo Kerajaan</strong> berurutan dari <code class="rounded bg-[#e2e8f0] px-1 font-mono font-bold">Priority #1 → #4</code> untuk membuka <strong class="text-[#b45309]">Seal of the Quartermaster</strong>!
+          </p>
+        </div>
+
+        <div class="flex flex-col items-end gap-2">
+          <div class="grid grid-cols-3 gap-2 rounded-xl border-2 border-[#475569] bg-[#f8fafc] px-3 py-2 text-center font-mono shadow-inner">
+            <div>
+              <div class="text-[9px] font-bold uppercase text-[#475569]">DISPATCHED</div>
+              <div id="hero-crate-score" class="text-sm font-black text-[#0f172a]">0 / 4</div>
+            </div>
+            <div>
+              <div class="text-[9px] font-bold uppercase text-[#475569]">CUSTOMS</div>
+              <div id="hero-customs-state" class="text-sm font-black text-[#b45309]">INSPECT</div>
+            </div>
+            <div>
+              <div class="text-[9px] font-bold uppercase text-[#475569]">SEALS</div>
+              <div id="hero-wh-seals" class="text-sm font-black text-[#059669]">0 / 5</div>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-end gap-2">
+            <button
+              id="wh-audio-toggle"
+              type="button"
+              class="cursor-pointer rounded-lg border-2 border-[#d97706] bg-[#fef3c7] px-2.5 py-1.5 font-mono text-[11px] font-bold text-[#78350f] transition hover:bg-[#fde68a]"
+            >
+              🔔 Hoist Audio: ON
+            </button>
+            <a
+              id="wh-exit-btn"
+              href="/harbour?from=warehouse"
+              class="inline-flex items-center gap-1.5 rounded-lg border-2 border-[#1e293b] bg-gradient-to-b from-[#475569] to-[#1e293b] px-3 py-1.5 font-mono text-xs font-extrabold text-[#f8fafc] shadow-[0_3px_0_#0f172a] transition hover:-translate-y-0.5 hover:brightness-110"
+            >
+              ⚓ Exit to Harbour
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tri-Guardian Dialogue Switcher -->
+      <div class="relative z-10 mt-4 flex flex-col gap-3 rounded-xl border-2 border-[#475569]/40 bg-[#f8fafc]/95 p-3.5 sm:flex-row sm:items-center">
+        <div class="flex shrink-0 items-center gap-1.5">
+          <button
+            type="button"
+            data-wh-walk="gyarados"
+            data-speaker="🐉 Gyarados · Grand Quartermaster"
+            data-quote="Chaos breaks pipelines! Dispatch the 4 Cargo Manifests strictly from Priority #1 (YOLOv11 ETL) up to #4 (OMR Bulk Grades)!"
+            data-fx-text="HYDRO CUSTOMS CLEARANCE!"
+            data-fx-color="#38bdf8"
+            class="flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl border-2 border-[#1d4ed8] bg-[#dbeafe] text-xl shadow-[0_2px_0_#1e3a8a] transition hover:-translate-y-0.5"
+            title="Walk to Gyarados"
+          >
+            🐉
+          </button>
+          <button
+            type="button"
+            data-wh-walk="vikemon"
+            data-speaker="🧊 Vikemon · Cold-Vault Warden"
+            data-quote="Every high-throughput service needs deterministic locks! PostgreSQL row locks plus Redis 7 mutexes protect concurrent FoodLink claims."
+            data-fx-text="ARCTIC LOCK ENGAGED!"
+            data-fx-color="#cbd5e1"
+            class="flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl border-2 border-[#475569] bg-[#f1f5f9] text-xl shadow-[0_2px_0_#1e293b] transition hover:-translate-y-0.5"
+            title="Walk to Vikemon"
+          >
+            🧊
+          </button>
+          <button
+            type="button"
+            data-wh-walk="regigigas"
+            data-speaker="🗿 Regigigas · Heavy Freight Titan"
+            data-quote="Twelve gigabytes of PASCAL VOC data won’t lift itself! Check the Data Manifest Ledger to audit every benchmark."
+            data-fx-text="COLOSSAL CRANE LIFT!"
+            data-fx-color="#fbbf24"
+            class="flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl border-2 border-[#d97706] bg-[#fef3c7] text-xl shadow-[0_2px_0_#92400e] transition hover:-translate-y-0.5"
+            title="Walk to Regigigas"
+          >
+            🗿
+          </button>
+        </div>
+
+        <div class="min-w-0 flex-1">
+          <div id="wh-speaker" class="font-mono text-[10px] font-black uppercase tracking-wider text-[#334155]">
+            🐉 Gyarados · Grand Quartermaster
+          </div>
+          <p id="wh-dialogue" class="mt-0.5 text-xs italic leading-relaxed text-[#334155]">
+            “Dispatch all 4 Imperial Cargo Manifests from Priority #1 → #4 below to balance the crane and unlock the Seal of the Quartermaster!”
+          </p>
+        </div>
+      </div>
+
+      <!-- 6 Quick-Walk Station Chips + Hotkeys -->
+      <nav aria-label="Quick walk Warehouse stations" class="relative z-10 mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+        <button
+          type="button"
+          data-wh-walk="gyarados"
+          data-scroll-to="wh-crane-trial"
+          data-hotkey="g"
+          class="wh-station-btn flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#1d4ed8] bg-white px-2.5 py-2 text-left shadow-[0_2px_0_#1e3a8a] transition hover:-translate-y-0.5 hover:bg-[#eff6ff]"
+        >
+          <span class="flex items-center gap-1.5 truncate text-xs font-bold text-[#0f172a]">
+            <span>🐉</span>
+            <span class="truncate">Gyarados</span>
+          </span>
+          <kbd class="rounded border border-[#1d4ed8]/40 bg-[#dbeafe] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#1e3a8a]">G</kbd>
+        </button>
+
+        <button
+          type="button"
+          data-wh-walk="customs-scales"
+          data-scroll-to="wh-crane-trial"
+          data-hotkey="s"
+          class="wh-station-btn flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#d97706] bg-white px-2.5 py-2 text-left shadow-[0_2px_0_#92400e] transition hover:-translate-y-0.5 hover:bg-[#fffbeb]"
+        >
+          <span class="flex items-center gap-1.5 truncate text-xs font-bold text-[#0f172a]">
+            <span>⚖️</span>
+            <span class="truncate">Scales</span>
+          </span>
+          <kbd class="rounded border border-[#d97706]/40 bg-[#fef3c7] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#78350f]">S</kbd>
+        </button>
+
+        <button
+          type="button"
+          data-wh-walk="manifest-ledger"
+          data-scroll-to="wh-datasets-section"
+          data-hotkey="l"
+          class="wh-station-btn flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#0284c7] bg-white px-2.5 py-2 text-left shadow-[0_2px_0_#0c4a6e] transition hover:-translate-y-0.5 hover:bg-[#f0f9ff]"
+        >
+          <span class="flex items-center gap-1.5 truncate text-xs font-bold text-[#0f172a]">
+            <span>📜</span>
+            <span class="truncate">Ledger</span>
+          </span>
+          <kbd class="rounded border border-[#0284c7]/40 bg-[#e0f2fe] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#0c4a6e]">L</kbd>
+        </button>
+
+        <button
+          type="button"
+          data-wh-walk="royal-crates"
+          data-scroll-to="wh-datasets-section"
+          data-hotkey="c"
+          class="wh-station-btn flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#475569] bg-white px-2.5 py-2 text-left shadow-[0_2px_0_#1e293b] transition hover:-translate-y-0.5 hover:bg-[#f1f5f9]"
+        >
+          <span class="flex items-center gap-1.5 truncate text-xs font-bold text-[#0f172a]">
+            <span>📦</span>
+            <span class="truncate">Crates</span>
+          </span>
+          <kbd class="rounded border border-[#475569]/40 bg-[#f1f5f9] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#334155]">C</kbd>
+        </button>
+
+        <button
+          type="button"
+          data-wh-walk="crane-beam"
+          data-scroll-to="wh-crane-trial"
+          data-hotkey="h"
+          class="wh-station-btn flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#059669] bg-white px-2.5 py-2 text-left shadow-[0_2px_0_#064e3b] transition hover:-translate-y-0.5 hover:bg-[#ecfdf5]"
+        >
+          <span class="flex items-center gap-1.5 truncate text-xs font-bold text-[#0f172a]">
+            <span>🏗️</span>
+            <span class="truncate">Iron Hoist</span>
+          </span>
+          <kbd class="rounded border border-[#059669]/40 bg-[#d1fae5] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#065f46]">H</kbd>
+        </button>
+
+        <button
+          type="button"
+          data-wh-walk="spice-barrels"
+          data-scroll-to="wh-seals-ledger"
+          data-hotkey="b"
+          class="wh-station-btn flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#9a3412] bg-white px-2.5 py-2 text-left shadow-[0_2px_0_#431407] transition hover:-translate-y-0.5 hover:bg-[#fff7ed]"
+        >
+          <span class="flex items-center gap-1.5 truncate text-xs font-bold text-[#0f172a]">
+            <span>🛢️</span>
+            <span class="truncate">Casks</span>
+          </span>
+          <kbd class="rounded border border-[#9a3412]/40 bg-[#ffedd5] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#7c2d12]">B</kbd>
+        </button>
+      </nav>
+    </header>
+
+    <!-- 2. MINI-GAME: ROYAL CARGO CRANE MANIFEST -->
+    <section
+      id="wh-crane-trial"
+      class="rounded-2xl border-[3px] border-[#334155] bg-gradient-to-b from-[#fffdf7] to-[#f1ead8] p-5 text-[#1e293b] shadow-[0_6px_0_#1e293b]"
+    >
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b-2 border-[#475569]/20 pb-3">
+        <div>
+          <span class="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[#475569]">
+            TRIAL II · CUSTOMS MANIFEST DISPATCH
+          </span>
+          <h2 class="mt-0.5 font-display text-lg font-black text-[#0f172a]">
+            🏗️ Royal Cargo Crane Manifest — Dispatch Priority #1 → #4
+          </h2>
+        </div>
+
+        <button
+          id="btn-wh-reset-crane"
+          type="button"
+          class="cursor-pointer rounded-lg border-2 border-[#64748b] bg-white px-3 py-1 font-mono text-[11px] font-bold text-[#334155] transition hover:bg-[#f1f5f9]"
+        >
+          🔄 Reset Loading Bay
+        </button>
+      </div>
+
+      <p class="mt-3 text-xs leading-relaxed text-[#475569]">
+        Klik peti sesuai urutan prioritas pelayaran: <strong class="text-[#1d4ed8]">Priority 1 → 2 → 3 → 4</strong> untuk menaikkan kargo ke kapal transport secara berimbang. Jika salah urutan, derek akan menyetel ulang antrean!
+      </p>
+
+      <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+        {scrambledCrates.map((crate) => (
+          <button
+            type="button"
+            data-crate-btn={crate.priority}
+            class="flex cursor-pointer flex-col justify-between rounded-xl border-2 border-[#94a3b8] bg-white p-3.5 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-[#0284c7]"
+          >
+            <div>
+              <div class="flex items-center justify-between gap-2">
+                <span class="font-mono text-[9px] font-extrabold uppercase tracking-wider text-[#0369a1]">
+                  {crate.code}
+                </span>
+                <span
+                  data-crate-badge={crate.priority}
+                  class="rounded border border-[#cbd5e1] bg-[#f8fafc] px-2 py-0.5 font-mono text-[10px] font-black text-[#334155]"
+                >
+                  PRIORITY #{crate.priority}
+                </span>
+              </div>
+              <h3 class="mt-1 text-sm font-black text-[#0f172a]">{crate.title}</h3>
+              <p class="mt-1 text-[11px] leading-relaxed text-[#475569]">{crate.desc}</p>
+            </div>
+
+            <div class="mt-2.5 flex items-center justify-between border-t border-slate-200 pt-2 font-mono text-[10px]">
+              <span class="font-bold text-[#475569]">Payload: {crate.tonnage}</span>
+              <span data-crate-state={crate.priority} class="font-bold text-[#b45309]">
+                ⏳ Waiting Crane
+              </span>
+            </div>
+          </button>
+        ))}
+      </div>
+
+      <div
+        id="wh-trial-banner"
+        class="mt-4 rounded-xl border-2 border-[#cbd5e1] bg-[#f8fafc] px-4 py-3 text-xs font-medium text-[#334155]"
+      >
+        ⚖️ Antrean Derek: Pilih peti <strong>PRIORITY #1</strong> terlebih dahulu.
+      </div>
+    </section>
+
+    <!-- 3. DATA PIPELINES, DATASETS & ARTIFACT REGISTRY -->
+    <section
+      id="wh-datasets-section"
+      class="rounded-2xl border-[3px] border-[#475569] bg-gradient-to-b from-[#f9f6ed] to-[#ede5d1] p-5 text-[#1e293b] shadow-[0_6px_0_#1e293b]"
+    >
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b-2 border-[#475569]/20 pb-3">
+        <div>
+          <span class="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[#475569]">
+            ROYAL ARTIFACT &amp; ETL VAULT
+          </span>
+          <h2 class="mt-0.5 font-display text-lg font-black text-[#0f172a]">
+            📜 Data Pipelines, Datasets &amp; Storage Systems
+          </h2>
+        </div>
+        <span class="rounded-full border border-[#475569]/40 bg-[#f1f5f9] px-3 py-1 font-mono text-[10px] font-bold text-[#1e293b]">
+          Verified Engineering Manifests
+        </span>
+      </div>
+
+      <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+        {pipelinePillars.map((item) => (
+          <div class={`rounded-xl border-2 p-4 shadow-sm ${item.accent}`}>
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-mono text-[9px] font-extrabold uppercase tracking-wider opacity-80">
+                {item.badge}
+              </span>
+              <span class="text-lg" aria-hidden="true">{item.icon}</span>
+            </div>
+            <h3 class="mt-1 text-sm font-black">{item.title}</h3>
+            <div class="mt-2 flex flex-wrap gap-1.5">
+              {item.specs.map((spec) => (
+                <span class="rounded-md border border-current/25 bg-white/75 px-2 py-0.5 font-mono text-[10px] font-bold">
+                  {spec}
+                </span>
+              ))}
+            </div>
+            <p class="mt-2.5 text-xs leading-relaxed">{item.summary}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- 4. 5 ROYAL MARITIME SEALS HARBOR LEDGER -->
+    <section
+      id="wh-seals-ledger"
+      class="rounded-2xl border-[3px] border-[#0c4a6e] bg-gradient-to-b from-[#f8f5ea] to-[#ecdfc0] p-5 text-[#1e293b] shadow-[0_6px_0_#082f49]"
+    >
+      <div class="flex flex-wrap items-center justify-between gap-2 pb-3">
+        <div>
+          <span class="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[#0369a1]">
+            AVALON ROYAL ADMIRALTY PROGRESS
+          </span>
+          <h2 class="mt-0.5 font-display text-lg font-black text-[#0f172a]">
+            ⚓ 5 Royal Maritime Seals Ledger
+          </h2>
+        </div>
+        <a
+          href="/harbour"
+          class="rounded-lg border-2 border-[#0369a1] bg-[#e0f2fe] px-3 py-1 font-mono text-[11px] font-bold text-[#0c4a6e] hover:bg-[#bae6fd]"
+        >
+          Lihat Armada &amp; Finale →
+        </a>
+      </div>
+
+      <div class="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-5">
+        {allSeals.map((s) => (
+          <a
+            href={s.route}
+            data-ledger-seal={s.key}
+            class={`rounded-xl border-2 p-3 text-xs transition hover:-translate-y-0.5 ${
+              s.key === 'quartermaster'
+                ? 'border-[#475569] bg-[#f1f5f9]'
+                : 'border-[#cbd5e1] bg-white/85 hover:border-[#0369a1]'
+            }`}
+          >
+            <div class="flex items-center justify-between">
+              <span class="text-base">{s.icon}</span>
+              <span data-ledger-badge={s.key} class="font-mono text-[10px] font-bold text-[#64748b]">
+                🔒
+              </span>
+            </div>
+            <div class="mt-1.5 font-bold text-[#0f172a]">{s.sanctum}</div>
+            <div class="font-mono text-[9px] text-[#0369a1]">{s.name}</div>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <WhereTo currentPath="/harbour/warehouse" />
+  </article>
+
+  <script>
+    import {
+      MARITIME_SEALS_META,
+      awardMaritimeSeal,
+      countMaritimeSeals,
+      getMaritimeSeals,
+      type MaritimeSealKey,
+    } from '../../engine/harbourInteriorShared';
+
+    let audioEnabled = true;
+    let nextPriority = 1;
+
+    function playWhTone(freq = 440, dur = 0.18) {
+      if (!audioEnabled || typeof window === 'undefined') return;
+      try {
+        const Ctx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+        if (!Ctx) return;
+        const ctx = new Ctx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(freq, ctx.currentTime);
+        gain.gain.setValueAtTime(0.05, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + dur);
+      } catch {
+        // ignore audio failure
+      }
+    }
+
+    function triggerWhFx(text: string, color = '#94a3b8') {
+      window.dispatchEvent(new CustomEvent('town:harbour-fx', { detail: { text, color } }));
+    }
+
+    function syncWhSealsUi() {
+      const seals = getMaritimeSeals();
+      const total = countMaritimeSeals();
+      const countEl = document.getElementById('hero-wh-seals');
+      if (countEl) countEl.textContent = `${total} / 5`;
+
+      const pill = document.getElementById('wh-seal-pill');
+      if (pill) {
+        if (seals.quartermaster) {
+          pill.textContent = '✓ Seal of the Quartermaster Claimed';
+          pill.className = 'rounded-full border border-[#16a34a] bg-[#dcfce7] px-2.5 py-1 font-mono text-[10px] font-bold uppercase text-[#166534]';
+        } else {
+          pill.textContent = '⏳ Seal of the Quartermaster Sealed';
+          pill.className = 'rounded-full border border-[#d97706]/60 bg-[#fef3c7] px-2.5 py-1 font-mono text-[10px] font-bold uppercase text-[#78350f]';
+        }
+      }
+
+      (Object.keys(MARITIME_SEALS_META) as MaritimeSealKey[]).forEach((k) => {
+        const badge = document.querySelector<HTMLElement>(`[data-ledger-badge="${k}"]`);
+        if (badge) badge.textContent = seals[k] ? '✓ CLAIMED' : '🔒 SEALED';
+      });
+    }
+
+    function renderCratesUi() {
+      const dispatched = nextPriority - 1;
+      const scoreEl = document.getElementById('hero-crate-score');
+      if (scoreEl) scoreEl.textContent = `${dispatched} / 4`;
+
+      const stateEl = document.getElementById('hero-customs-state');
+      const bannerEl = document.getElementById('wh-trial-banner');
+
+      for (let p = 1; p <= 4; p++) {
+        const btn = document.querySelector<HTMLButtonElement>(`[data-crate-btn="${p}"]`);
+        const st = document.querySelector<HTMLElement>(`[data-crate-state="${p}"]`);
+        const done = p < nextPriority;
+        if (btn) {
+          btn.classList.toggle('border-[#22c55e]', done);
+          btn.classList.toggle('bg-[#f0fdf4]', done);
+          btn.classList.toggle('border-[#94a3b8]', !done);
+          btn.classList.toggle('bg-white', !done);
+        }
+        if (st) {
+          st.textContent = done ? '✓ HOISTED & VERIFIED' : '⏳ Waiting Crane';
+          st.className = done ? 'font-bold text-[#15803d]' : 'font-bold text-[#b45309]';
+        }
+      }
+
+      if (dispatched >= 4) {
+        if (stateEl) {
+          stateEl.textContent = 'CLEARED';
+          stateEl.className = 'text-sm font-black text-[#15803d]';
+        }
+        if (bannerEl) {
+          bannerEl.className =
+            'mt-4 rounded-xl border-2 border-[#16a34a] bg-[#dcfce7] px-4 py-3 text-xs font-bold text-[#14532d]';
+          bannerEl.textContent =
+            '📦 CARGO MANIFEST BALANCED! Semua 4 peti kargo kerajaan lulus bea cukai — Seal of the Quartermaster terbuka!';
+        }
+        if (!getMaritimeSeals().quartermaster) {
+          awardMaritimeSeal('quartermaster');
+          triggerWhFx('MANIFEST CLEARED! SEAL EARNED', '#fbbf24');
+          playWhTone(659.25, 0.25);
+          setTimeout(() => playWhTone(880, 0.35), 140);
+          syncWhSealsUi();
+        }
+      } else {
+        if (stateEl) {
+          stateEl.textContent = 'INSPECT';
+          stateEl.className = 'text-sm font-black text-[#b45309]';
+        }
+        if (bannerEl) {
+          bannerEl.className =
+            'mt-4 rounded-xl border-2 border-[#cbd5e1] bg-[#f8fafc] px-4 py-3 text-xs font-medium text-[#334155]';
+          bannerEl.innerHTML = `⚖️ Antrean Derek: Pilih peti <strong>PRIORITY #${nextPriority}</strong> berikutnya (${dispatched}/4 termuat).`;
+        }
+      }
+    }
+
+    function wireWarehousePage() {
+      if (getMaritimeSeals().quartermaster) nextPriority = 5;
+      syncWhSealsUi();
+      renderCratesUi();
+
+      const exitBtn = document.getElementById('wh-exit-btn');
+      if (exitBtn && exitBtn.dataset.wired !== '1') {
+        exitBtn.dataset.wired = '1';
+        exitBtn.addEventListener('click', () => {
+          try {
+            sessionStorage.setItem('harbour:respawn', '27,20,down');
+          } catch {}
+        });
+      }
+
+      const audioBtn = document.getElementById('wh-audio-toggle');
+      if (audioBtn && audioBtn.dataset.wired !== '1') {
+        audioBtn.dataset.wired = '1';
+        audioBtn.addEventListener('click', () => {
+          audioEnabled = !audioEnabled;
+          audioBtn.textContent = audioEnabled ? '🔔 Hoist Audio: ON' : '🔇 Hoist Audio: OFF';
+        });
+      }
+
+      document.querySelectorAll<HTMLButtonElement>('[data-crate-btn]').forEach((btn) => {
+        if (btn.dataset.wired === '1') return;
+        btn.dataset.wired = '1';
+        btn.addEventListener('click', () => {
+          const p = Number(btn.getAttribute('data-crate-btn'));
+          if (Number.isNaN(p) || nextPriority > 4) return;
+          if (p === nextPriority) {
+            playWhTone(440 + p * 90, 0.16);
+            triggerWhFx(`CRATE #${p} HOISTED!`, '#38bdf8');
+            nextPriority++;
+          } else if (p > nextPriority) {
+            playWhTone(210, 0.25);
+            triggerWhFx(`WRONG ORDER! NEED #${nextPriority}`, '#f87171');
+            nextPriority = 1;
+          }
+          renderCratesUi();
+        });
+      });
+
+      const resetBtn = document.getElementById('btn-wh-reset-crane');
+      if (resetBtn && resetBtn.dataset.wired !== '1') {
+        resetBtn.dataset.wired = '1';
+        resetBtn.addEventListener('click', () => {
+          nextPriority = 1;
+          playWhTone(330, 0.15);
+          renderCratesUi();
+        });
+      }
+
+      document.querySelectorAll<HTMLButtonElement>('[data-wh-walk]').forEach((btn) => {
+        if (btn.dataset.wired === '1') return;
+        btn.dataset.wired = '1';
+        btn.addEventListener('click', () => {
+          const propId = btn.getAttribute('data-wh-walk');
+          const scrollTo = btn.getAttribute('data-scroll-to');
+          const speaker = btn.getAttribute('data-speaker');
+          const quote = btn.getAttribute('data-quote');
+          const fxText = btn.getAttribute('data-fx-text');
+          const fxColor = btn.getAttribute('data-fx-color');
+
+          if (propId) {
+            document.querySelector<HTMLButtonElement>(`.town-label[data-id="${propId}"]`)?.click();
+          }
+          if (speaker && quote) {
+            const spEl = document.getElementById('wh-speaker');
+            const qtEl = document.getElementById('wh-dialogue');
+            if (spEl) spEl.textContent = speaker;
+            if (qtEl) qtEl.textContent = `“${quote}”`;
+          }
+          if (fxText) triggerWhFx(fxText, fxColor || '#fbbf24');
+          if (scrollTo) {
+            document.getElementById(scrollTo)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        });
+      });
+    }
+
+    function handleWhHotkey(e: KeyboardEvent) {
+      if (
+        document.activeElement instanceof HTMLInputElement ||
+        document.activeElement instanceof HTMLTextAreaElement ||
+        e.metaKey ||
+        e.ctrlKey ||
+        e.altKey
+      ) {
+        return;
+      }
+      if (e.key === 'Escape') {
+        (document.getElementById('wh-exit-btn') as HTMLAnchorElement | null)?.click();
+        return;
+      }
+      document.querySelector<HTMLButtonElement>(`.wh-station-btn[data-hotkey="${e.key.toLowerCase()}"]`)?.click();
+    }
+
+    window.addEventListener('harbour:seal-updated', syncWhSealsUi);
+    window.addEventListener('keydown', handleWhHotkey);
+
+    wireWarehousePage();
+    document.addEventListener('astro:page-load', wireWarehousePage);
+  </script>
+</TownLayout>

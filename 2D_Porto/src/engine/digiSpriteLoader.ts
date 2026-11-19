@@ -433,6 +433,449 @@ function autoDetectBoxes(sheetCtx: CanvasRenderingContext2D, w: number, h: numbe
   };
 }
 
+function trimAndResizeFrame(
+  srcCanvas: HTMLCanvasElement,
+  d: Uint8ClampedArray,
+  sw: number,
+  sh: number,
+  maxHeight: number
+): ProcessedSpriteFrame | null {
+  let minX = sw;
+  let minY = sh;
+  let maxX = -1;
+  let maxY = -1;
+  for (let y = 0; y < sh; y++) {
+    for (let x = 0; x < sw; x++) {
+      if (d[(y * sw + x) * 4 + 3] > 16) {
+        if (x < minX) minX = x;
+        if (x > maxX) maxX = x;
+        if (y < minY) minY = y;
+        if (y > maxY) maxY = y;
+      }
+    }
+  }
+  if (maxX < minX || maxY < minY) return null;
+
+  const tw = maxX - minX + 1;
+  const th = maxY - minY + 1;
+  const scale = th > maxHeight ? maxHeight / th : 1;
+  const outW = Math.max(8, Math.round(tw * scale));
+  const outH = Math.max(8, Math.round(th * scale));
+
+  const out = document.createElement('canvas');
+  out.width = outW;
+  out.height = outH;
+  const octx = out.getContext('2d');
+  if (!octx) return null;
+  octx.imageSmoothingEnabled = scale < 1;
+  octx.drawImage(srcCanvas, minX, minY, tw, th, 0, 0, outW, outH);
+  return { canvas: out, width: outW, height: outH };
+}
+
+function isHdChromaGreen(p: RgbaColor, bg: RgbaColor, strict = false): boolean {
+  if (p.a < 20) return true;
+  const dist = colorDist(p, bg);
+  if (strict) {
+    return dist <= 28 && p.g > p.r + 44 && p.g > p.b + 34;
+  }
+  if (dist <= 68 && p.g > p.r + 20 && p.g > p.b + 14) return true;
+  return (
+    p.g > p.r + 34 &&
+    p.g > p.b + 26 &&
+    Math.abs(p.g - bg.g) <= 82 &&
+    p.r <= bg.r + 66 &&
+    p.b <= bg.b + 66
+  );
+}
+
+/**
+ * Removes disconnected small caption glyphs ("NORTH (BACK)", "SOUTH-WEST (FRONT-LEFT)", etc.)
+ * from an HD 8-directional cell without touching detached character effects/blades.
+ */
+function stripHdCaptionGlyphs(d: Uint8ClampedArray, sw: number, sh: number): void {
+  const total = sw * sh;
+  const compId = new Int32Array(total);
+  const compStats: Array<{ minX: number; maxX: number; minY: number; maxY: number; count: number; whiteCount: number }> = [];
+  const queue = new Int32Array(total);
+  let nextId = 0;
+
+  for (let i = 0; i < total; i++) {
+    if (d[i * 4 + 3] <= 16 || compId[i] !== 0) continue;
+    nextId++;
+    let head = 0;
+    let tail = 0;
+    compId[i] = nextId;
+    queue[tail++] = i;
+
+    const ix = i % sw;
+    const iy = Math.floor(i / sw);
+    let minX = ix;
+    let maxX = ix;
+    let minY = iy;
+    let maxY = iy;
+    let count = 0;
+    let whiteCount = 0;
+
+    while (head < tail) {
+      const idx = queue[head++];
+      const x = idx % sw;
+      const y = (idx - x) / sw;
+      const off = idx * 4;
+      count++;
+      if (d[off] >= 185 && d[off + 1] >= 185 && d[off + 2] >= 185) whiteCount++;
+      if (x < minX) minX = x;
+      if (x > maxX) maxX = x;
+      if (y < minY) minY = y;
+      if (y > maxY) maxY = y;
+
+      const tryNeighbor = (nIdx: number) => {
+        if (compId[nIdx] === 0 && d[nIdx * 4 + 3] > 16) {
+          compId[nIdx] = nextId;
+          queue[tail++] = nIdx;
+        }
+      };
+      if (x > 0) tryNeighbor(idx - 1);
+      if (x < sw - 1) tryNeighbor(idx + 1);
+      if (y > 0) tryNeighbor(idx - sw);
+      if (y < sh - 1) tryNeighbor(idx + sw);
+    }
+
+    compStats.push({ minX, maxX, minY, maxY, count, whiteCount });
+  }
+
+  let bodyMinY = sh;
+  let bodyMaxY = 0;
+  let foundBody = false;
+  for (const s of compStats) {
+    if (s.count >= 1600) {
+      foundBody = true;
+      if (s.minY < bodyMinY) bodyMinY = s.minY;
+      if (s.maxY > bodyMaxY) bodyMaxY = s.maxY;
+    }
+  }
+  if (!foundBody) return;
+
+  const removeComp = new Uint8Array(nextId + 1);
+  for (let idIdx = 0; idIdx < compStats.length; idIdx++) {
+    const s = compStats[idIdx];
+    const cw = s.maxX - s.minX + 1;
+    const ch = s.maxY - s.minY + 1;
+    const isTinyGlyph = cw <= 52 && ch <= 48 && s.count <= 950;
+    if (!isTinyGlyph) continue;
+    const whiteRatio = s.whiteCount / Math.max(1, s.count);
+    const inCaptionEdge = s.maxY <= bodyMinY + 24 || s.minY >= bodyMaxY - 24 || s.minY <= 72 || s.maxY >= sh - 108;
+    if (inCaptionEdge && (whiteRatio >= 0.25 || ch <= 38)) {
+      removeComp[idIdx + 1] = 1;
+    }
+  }
+
+  for (let i = 0; i < total; i++) {
+    const cid = compId[i];
+    if (cid > 0 && removeComp[cid]) {
+      d[i * 4 + 3] = 0;
+    }
+  }
+}
+
+/**
+ * Slices modern 2388/2400x1792 8-Directional Digimon Sprite Sheets:
+ * - Row 1: North (Back), North-East, East (Right), South-East
+ * - Row 2: South (Front), South-West, West (Left), North-West
+ * - Top-Left: Mugshot Portrait Icon
+ */
+function sliceHd8DirSheet(
+  id: string,
+  sheetCtx: CanvasRenderingContext2D,
+  w: number,
+  h: number
+): SlicedDigimonSprites | null {
+  const fullData = sheetCtx.getImageData(0, 0, w, h).data;
+  const sheetBg = getPixelRgba(fullData, w, 16, Math.floor(h * 0.35));
+
+  const rowNonBg = (y: number, xStart: number, xEnd: number): number => {
+    let hits = 0;
+    for (let x = xStart; x < xEnd; x += 8) {
+      const p = getPixelRgba(fullData, w, x, y);
+      if (!isHdChromaGreen(p, sheetBg, false)) hits++;
+    }
+    return hits;
+  };
+
+  const findWidestGapMid = (yFrom: number, yTo: number, fallback: number): number => {
+    let bestLen = 0;
+    let bestMid = fallback;
+    let curStart = -1;
+    for (let y = yFrom; y <= yTo; y += 2) {
+      if (rowNonBg(y, 20, w - 20) <= 2) {
+        if (curStart < 0) curStart = y;
+      } else if (curStart >= 0) {
+        const len = y - curStart;
+        if (len > bestLen) {
+          bestLen = len;
+          bestMid = Math.floor((curStart + y) / 2);
+        }
+        curStart = -1;
+      }
+    }
+    if (curStart >= 0) {
+      const len = yTo - curStart;
+      if (len > bestLen) bestMid = Math.floor((curStart + yTo) / 2);
+    }
+    return bestMid;
+  };
+
+  let headerEnd = 165;
+  for (let y = 108; y <= 220; y += 2) {
+    if (rowNonBg(y, 220, w - 40) <= 1 && rowNonBg(Math.min(h - 1, y + 4), 220, w - 40) <= 2) {
+      headerEnd = y;
+      break;
+    }
+  }
+  const splitY = findWidestGapMid(820, 1015, Math.floor(h * 0.51));
+  const stripStart = findWidestGapMid(1555, Math.min(h - 40, 1665), Math.floor(h * 0.895));
+
+  // Extract Top-Left Mugshot Icon cleanly (detect vertical gap before title text)
+  let iconEndX = Math.min(225, Math.floor(w * 0.098));
+  let bestGapHits = 999;
+  for (let x = 128; x <= Math.min(238, w - 40); x += 2) {
+    let colHits = 0;
+    for (let y = 10; y <= Math.min(185, h - 10); y += 3) {
+      const p = getPixelRgba(fullData, w, x, y);
+      if (!isHdChromaGreen(p, sheetBg, false)) colHits++;
+    }
+    if (colHits < bestGapHits) {
+      bestGapHits = colHits;
+      iconEndX = x;
+      if (colHits === 0 && x >= 142) break;
+    }
+  }
+
+  const iconBox: SpriteBox = {
+    x: 12,
+    y: 4,
+    w: Math.max(96, iconEndX - 12),
+    h: Math.min(188, Math.max(136, headerEnd + 24)),
+  };
+  let icon: ProcessedSpriteFrame | null = null;
+  let iconDataUrl: string | null = null;
+  {
+    const iWork = document.createElement('canvas');
+    iWork.width = iconBox.w;
+    iWork.height = iconBox.h;
+    const ictx = iWork.getContext('2d', { willReadFrequently: true });
+    if (ictx) {
+      ictx.drawImage(sheetCtx.canvas, iconBox.x, iconBox.y, iconBox.w, iconBox.h, 0, 0, iconBox.w, iconBox.h);
+      const iData = ictx.getImageData(0, 0, iconBox.w, iconBox.h);
+      const idArr = iData.data;
+      const tlColor = getPixelRgba(idArr, iconBox.w, 2, 2);
+      const brColor = getPixelRgba(idArr, iconBox.w, iconBox.w - 3, iconBox.h - 3);
+      floodEraseFromBorder(
+        idArr,
+        iconBox.w,
+        iconBox.h,
+        (p) =>
+          isHdChromaGreen(p, sheetBg, false) ||
+          colorDist(p, tlColor) <= 28 ||
+          colorDist(p, brColor) <= 28
+      );
+
+      // Keep only the main mugshot component (drop any stray title fragments or noise specks)
+      const iw = iconBox.w;
+      const ih = iconBox.h;
+      const iTotal = iw * ih;
+      const iComp = new Int32Array(iTotal);
+      const iQueue = new Int32Array(iTotal);
+      let bestId = 0;
+      let bestSize = 0;
+      let curId = 0;
+      for (let i = 0; i < iTotal; i++) {
+        if (idArr[i * 4 + 3] <= 16 || iComp[i] !== 0) continue;
+        curId++;
+        let hIdx = 0;
+        let tIdx = 0;
+        iComp[i] = curId;
+        iQueue[tIdx++] = i;
+        while (hIdx < tIdx) {
+          const idx = iQueue[hIdx++];
+          const cx = idx % iw;
+          const cy = (idx - cx) / iw;
+          const pushN = (nIdx: number) => {
+            if (iComp[nIdx] === 0 && idArr[nIdx * 4 + 3] > 16) {
+              iComp[nIdx] = curId;
+              iQueue[tIdx++] = nIdx;
+            }
+          };
+          if (cx > 0) pushN(idx - 1);
+          if (cx < iw - 1) pushN(idx + 1);
+          if (cy > 0) pushN(idx - iw);
+          if (cy < ih - 1) pushN(idx + iw);
+        }
+        if (tIdx > bestSize) {
+          bestSize = tIdx;
+          bestId = curId;
+        }
+      }
+      if (bestId > 0) {
+        for (let i = 0; i < iTotal; i++) {
+          if (iComp[i] !== bestId) idArr[i * 4 + 3] = 0;
+        }
+      }
+
+      ictx.putImageData(iData, 0, 0);
+      const trimmedIcon = trimAndResizeFrame(iWork, idArr, iconBox.w, iconBox.h, 44);
+      if (trimmedIcon) {
+        const sqSize = 48;
+        const sq = document.createElement('canvas');
+        sq.width = sqSize;
+        sq.height = sqSize;
+        const sctx = sq.getContext('2d');
+        if (sctx) {
+          const fitScale = Math.min(44 / trimmedIcon.width, 44 / trimmedIcon.height);
+          const dw = Math.max(8, Math.round(trimmedIcon.width * fitScale));
+          const dh = Math.max(8, Math.round(trimmedIcon.height * fitScale));
+          sctx.imageSmoothingEnabled = true;
+          sctx.imageSmoothingQuality = 'high';
+          sctx.drawImage(
+            trimmedIcon.canvas,
+            Math.round((sqSize - dw) / 2),
+            Math.round((sqSize - dh) / 2),
+            dw,
+            dh
+          );
+          icon = { canvas: sq, width: sqSize, height: sqSize };
+        } else {
+          icon = trimmedIcon;
+        }
+        try {
+          iconDataUrl = icon.canvas.toDataURL();
+        } catch {
+          iconDataUrl = null;
+        }
+      }
+    }
+  }
+
+  // Extract 8 directional cells: Row 1 (N, NE, E, SE) + Row 2 (S, SW, W, NW)
+  const overworld: ProcessedSpriteFrame[] = [];
+  const largeFrames: ProcessedSpriteFrame[] = [];
+
+  const rowRanges: Array<[number, number]> = [
+    [headerEnd, splitY],
+    [splitY, stripStart],
+  ];
+
+  for (const [y0, y1] of rowRanges) {
+    const ch = Math.max(16, y1 - y0);
+    for (let col = 0; col < 4; col++) {
+      const x0 = Math.floor((col * w) / 4);
+      const x1 = Math.floor(((col + 1) * w) / 4);
+      const cw = Math.max(16, x1 - x0);
+
+      const work = document.createElement('canvas');
+      work.width = cw;
+      work.height = ch;
+      const wctx = work.getContext('2d', { willReadFrequently: true });
+      if (!wctx) continue;
+      wctx.drawImage(sheetCtx.canvas, x0, y0, cw, ch, 0, 0, cw, ch);
+
+      const imgData = wctx.getImageData(0, 0, cw, ch);
+      const d = imgData.data;
+
+      // 1. Border flood-fill chroma erase
+      floodEraseFromBorder(d, cw, ch, (p) => isHdChromaGreen(p, sheetBg, false));
+
+      // 2. Interior trapped chroma-green loop erase (strict match so green bodies/swords remain untouched)
+      const q = new Int32Array(cw * ch * 2);
+      for (let py = 2; py < ch - 2; py += 4) {
+        for (let px = 2; px < cw - 2; px += 4) {
+          const idx = (py * cw + px) * 4;
+          if (d[idx + 3] < 20) continue;
+          const p = { r: d[idx], g: d[idx + 1], b: d[idx + 2], a: d[idx + 3] };
+          if (!isHdChromaGreen(p, sheetBg, true)) continue;
+          let head = 0;
+          let tail = 0;
+          q[tail++] = px;
+          q[tail++] = py;
+          d[idx + 3] = 0;
+          while (head < tail) {
+            const cx = q[head++];
+            const cy = q[head++];
+            const trySeed = (nx: number, ny: number) => {
+              const noff = (ny * cw + nx) * 4;
+              if (d[noff + 3] < 20) return;
+              const np = { r: d[noff], g: d[noff + 1], b: d[noff + 2], a: d[noff + 3] };
+              if (isHdChromaGreen(np, sheetBg, true)) {
+                d[noff + 3] = 0;
+                q[tail++] = nx;
+                q[tail++] = ny;
+              }
+            };
+            if (cx > 0) trySeed(cx - 1, cy);
+            if (cx < cw - 1) trySeed(cx + 1, cy);
+            if (cy > 0) trySeed(cx, cy - 1);
+            if (cy < ch - 1) trySeed(cx, cy + 1);
+          }
+        }
+      }
+
+      // 3. Soft 1px outline green-halo despill around freshly erased borders
+      const toDespill: number[] = [];
+      for (let py = 1; py < ch - 1; py++) {
+        for (let px = 1; px < cw - 1; px++) {
+          const idx = (py * cw + px) * 4;
+          if (d[idx + 3] < 20) continue;
+          const touchesTransparent =
+            d[((py - 1) * cw + px) * 4 + 3] < 20 ||
+            d[((py + 1) * cw + px) * 4 + 3] < 20 ||
+            d[(py * cw + (px - 1)) * 4 + 3] < 20 ||
+            d[(py * cw + (px + 1)) * 4 + 3] < 20;
+          if (!touchesTransparent) continue;
+          const p = { r: d[idx], g: d[idx + 1], b: d[idx + 2], a: d[idx + 3] };
+          if (p.g > p.r + 24 && p.g > p.b + 18 && colorDist(p, sheetBg) <= 135) {
+            toDespill.push(idx);
+          }
+        }
+      }
+      for (const off of toDespill) {
+        if (d[off + 1] > d[off] + 45 && d[off + 1] > d[off + 2] + 35) {
+          d[off + 3] = 0;
+        } else {
+          d[off + 1] = Math.min(d[off + 1], Math.max(d[off], d[off + 2]) + 6);
+        }
+      }
+
+      // 4. Remove white text labels ("NORTH (BACK)", etc.)
+      stripHdCaptionGlyphs(d, cw, ch);
+
+      wctx.putImageData(imgData, 0, 0);
+
+      const owFrame = trimAndResizeFrame(work, d, cw, ch, 96);
+      const lgFrame = trimAndResizeFrame(work, d, cw, ch, 220);
+      if (owFrame) overworld.push(owFrame);
+      if (lgFrame) largeFrames.push(lgFrame);
+    }
+  }
+
+  const largeIdle =
+    largeFrames.length >= 6
+      ? [largeFrames[5]]
+      : largeFrames.slice(0, 1);
+  const largeAttack =
+    largeFrames.length >= 6
+      ? [largeFrames[3], largeFrames[5]]
+      : largeFrames.slice(0, 2);
+
+  return {
+    id,
+    icon,
+    iconDataUrl,
+    largeIdle,
+    largeAttack,
+    overworld,
+    loadedAt: performance.now(),
+  };
+}
+
 function loadAndSliceEntry(entry: DigimonCatalogEntry): Promise<SlicedDigimonSprites | null> {
   if (typeof window === 'undefined' || typeof Image === 'undefined') {
     return Promise.resolve(null);
@@ -453,6 +896,16 @@ function loadAndSliceEntry(entry: DigimonCatalogEntry): Promise<SlicedDigimonSpr
         }
         ctx.imageSmoothingEnabled = false;
         ctx.drawImage(img, 0, 0);
+
+        if (entry.sheetFormat === 'hd_8dir') {
+          const slicedHd = sliceHd8DirSheet(entry.id, ctx, img.width, img.height);
+          if (slicedHd) {
+            spriteCache.set(entry.id, slicedHd);
+            notifyLoaded(entry.id);
+            resolve(slicedHd);
+            return;
+          }
+        }
 
         const cornerData = ctx.getImageData(0, 0, 1, 1).data;
         const outerBg: RgbaColor = {
@@ -631,23 +1084,36 @@ export function selectDigimonOverworldFrame(
     return { frame: frames[idx] || frames[0], flipX: false };
   }
 
-  if (orientation === 'E' || orientation === 'W') {
+  if (orientation === 'E') {
+    if (pose.east && pose.east.length > 0) {
+      const idx = pose.east[Math.floor(tick / (isWalking ? 9 : 24)) % pose.east.length];
+      return { frame: frames[idx] || frames[0], flipX: false };
+    }
     const pool = pose.side.length ? pose.side : pose.front;
     const idx = pool[Math.floor(tick / (isWalking ? 9 : 24)) % pool.length];
-    const shouldFlip =
-      (orientation === 'E' && pose.nativeFacing === 'left') ||
-      (orientation === 'W' && pose.nativeFacing === 'right');
-    return { frame: frames[idx] || frames[0], flipX: shouldFlip };
+    return { frame: frames[idx] || frames[0], flipX: pose.nativeFacing === 'left' };
+  }
+
+  if (orientation === 'W') {
+    if (pose.west && pose.west.length > 0) {
+      const idx = pose.west[Math.floor(tick / (isWalking ? 9 : 24)) % pose.west.length];
+      return { frame: frames[idx] || frames[0], flipX: false };
+    }
+    const pool = pose.side.length ? pose.side : pose.front;
+    const idx = pool[Math.floor(tick / (isWalking ? 9 : 24)) % pool.length];
+    return { frame: frames[idx] || frames[0], flipX: pose.nativeFacing === 'right' };
   }
 
   // South / Front walk or idle animation
-  const pool = isWalking
-    ? pose.side.length
-      ? pose.side
-      : pose.front
-    : pose.front.length
-    ? pose.front
-    : [3];
+  const hasExplicitEastWest = Boolean(pose.east?.length || pose.west?.length);
+  const pool =
+    isWalking && !hasExplicitEastWest
+      ? pose.side.length
+        ? pose.side
+        : pose.front
+      : pose.front.length
+      ? pose.front
+      : [3];
   const idx = pool[Math.floor(tick / (isWalking ? 10 : 34)) % pool.length];
   return { frame: frames[idx] || frames[0], flipX: false };
 }

@@ -1,0 +1,251 @@
+---
+import TownLayout from '../layouts/TownLayout.astro';
+import WhereTo from './WhereTo.astro';
+import { MARITIME_SEALS_META, type MaritimeSealKey } from '../engine/harbourInteriorShared';
+
+interface QuickWalkStation {
+  id: string;
+  icon: string;
+  label: string;
+  hotkey: string;
+}
+
+interface Props {
+  title: string;
+  description: string;
+  placeId: string;
+  routePath: string;
+  sealKey: MaritimeSealKey;
+  exitHref: string;
+  exitRespawn: string;
+  bannerSubtitle: string;
+  headline: string;
+  intro: string;
+  primaryGuardianName: string;
+  primaryGuardianQuote: string;
+  guardiansSummary: string;
+  upcomingPhaseLabel: string;
+  stations: QuickWalkStation[];
+}
+
+const {
+  title,
+  description,
+  placeId,
+  routePath,
+  sealKey,
+  exitHref,
+  exitRespawn,
+  bannerSubtitle,
+  headline,
+  intro,
+  primaryGuardianName,
+  primaryGuardianQuote,
+  guardiansSummary,
+  upcomingPhaseLabel,
+  stations,
+} = Astro.props;
+
+const sealMeta = MARITIME_SEALS_META[sealKey];
+const allSeals = Object.values(MARITIME_SEALS_META);
+---
+
+<TownLayout title={title} description={description} place={placeId}>
+  <article class="harbour-interior-page space-y-6 pb-10 text-[#0f172a]" data-exit-respawn={exitRespawn}>
+    <!-- Nautical Admiralty Parchment & Brass-trimmed Harbour Banner -->
+    <header class="relative overflow-hidden rounded-2xl border-[3px] border-[#0369a1] bg-gradient-to-b from-[#f4efe1] via-[#ece3cc] to-[#dfd2b2] p-5 text-[#1e293b] shadow-[0_8px_0_#0c4a6e,0_18px_36px_rgba(12,74,110,0.3)]">
+      <div
+        class="pointer-events-none absolute inset-x-0 top-0 h-2 bg-[repeating-linear-gradient(90deg,#0c4a6e_0px,#0c4a6e_14px,#eab308_14px,#eab308_28px,#0284c7_28px,#0284c7_42px)]"
+        aria-hidden="true"
+      ></div>
+      <div
+        class="pointer-events-none absolute inset-x-0 bottom-0 h-2 bg-[repeating-linear-gradient(90deg,#0284c7_0px,#0284c7_14px,#eab308_14px,#eab308_28px,#0c4a6e_28px,#0c4a6e_42px)]"
+        aria-hidden="true"
+      ></div>
+
+      <div class="relative z-10 mt-1 flex flex-wrap items-start justify-between gap-4">
+        <div class="space-y-2">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="rounded-full border border-[#0c4a6e]/40 bg-[#0c4a6e] px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[#e0f2fe]">
+              {bannerSubtitle}
+            </span>
+            <span
+              id="harbour-seal-pill"
+              data-seal-key={sealKey}
+              class="rounded-full border border-[#d97706]/60 bg-[#fef3c7] px-2.5 py-1 font-mono text-[10px] font-bold uppercase text-[#78350f]"
+            >
+              ⏳ {sealMeta.name} Sealed
+            </span>
+          </div>
+
+          <h1 class="font-display text-2xl font-black tracking-tight text-[#0f172a] sm:text-3xl">
+            {headline}
+          </h1>
+          <p class="max-w-2xl text-sm leading-relaxed text-[#334155]">
+            {intro}
+          </p>
+        </div>
+
+        <div class="flex flex-col items-end gap-2">
+          <div class="rounded-xl border-2 border-[#0369a1] bg-[#f8fafc] px-3.5 py-2 text-center font-mono shadow-inner">
+            <div class="text-[9px] font-bold uppercase tracking-wider text-[#0369a1]">MARITIME SEALS</div>
+            <div id="harbour-seals-counter" class="text-sm font-black text-[#0f172a]">0 / 5</div>
+          </div>
+
+          <a
+            id="harbour-exit-btn"
+            href={exitHref}
+            data-exit-respawn={exitRespawn}
+            class="inline-flex items-center gap-1.5 rounded-xl border-2 border-[#0c4a6e] bg-gradient-to-b from-[#0284c7] to-[#0369a1] px-3.5 py-2 font-mono text-xs font-extrabold text-[#f8fafc] shadow-[0_3px_0_#082f49] transition hover:-translate-y-0.5 hover:brightness-110"
+          >
+            ⚓ Exit to Harbour Town
+          </a>
+        </div>
+      </div>
+
+      <!-- Guardian Dialogue Strip -->
+      <div class="relative z-10 mt-4 flex items-center gap-3 rounded-xl border-2 border-[#0284c7]/40 bg-[#f8fafc]/90 px-4 py-3 text-xs">
+        <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#0369a1] bg-[#e0f2fe] text-lg">
+          {sealMeta.icon}
+        </span>
+        <div class="min-w-0 flex-1">
+          <div class="font-mono text-[10px] font-bold uppercase tracking-wider text-[#0369a1]">
+            {primaryGuardianName} · {guardiansSummary}
+          </div>
+          <p class="mt-0.5 italic text-[#334155]">“{primaryGuardianQuote}”</p>
+        </div>
+      </div>
+
+      <!-- Quick-Walk Stations inside 2D Sanctum -->
+      <nav aria-label="Quick walk stations" class="relative z-10 mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+        {stations.map((s) => (
+          <button
+            type="button"
+            data-harbour-walk-prop={s.id}
+            data-hotkey={s.hotkey.toLowerCase()}
+            class="harbour-walk-chip flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#0369a1]/60 bg-[#f8fafc] px-3 py-2 text-left text-[#0f172a] shadow-[0_2px_0_#0c4a6e] transition hover:-translate-y-0.5 hover:border-[#d97706] hover:bg-white"
+          >
+            <span class="flex items-center gap-1.5 truncate text-xs font-bold">
+              <span>{s.icon}</span>
+              <span class="truncate">{s.label}</span>
+            </span>
+            <kbd class="shrink-0 rounded border border-[#0369a1]/40 bg-[#e0f2fe] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#0c4a6e]">
+              {s.hotkey}
+            </kbd>
+          </button>
+        ))}
+      </nav>
+    </header>
+
+    <!-- Fase 0 Interactive Preview Notice + 5 Royal Maritime Seals Ledger -->
+    <section class="rounded-2xl border-[3px] border-[#0c4a6e] bg-gradient-to-b from-[#faf7ee] to-[#efe6d0] p-5 text-[#1e293b] shadow-[0_6px_0_#0c4a6e]">
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b-2 border-[#0369a1]/25 pb-3">
+        <div>
+          <span class="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[#0369a1]">
+            {upcomingPhaseLabel}
+          </span>
+          <h2 class="mt-0.5 font-display text-lg font-black text-[#0f172a]">
+            {sealMeta.icon} Royal Admiralty Trial &amp; Seaport Sanctum
+          </h2>
+        </div>
+        <span class="rounded-full border border-[#0284c7]/40 bg-[#e0f2fe] px-3 py-1 font-mono text-[10px] font-bold text-[#0c4a6e]">
+          Fondasi Pintu &amp; Kanvas 2D Aktif
+        </span>
+      </div>
+
+      <p class="mt-3 text-xs leading-relaxed text-[#334155]">
+        Gerbang masuk dari dermaga Harbour Town dan pintu keluar <code class="rounded bg-[#e2e8f0] px-1.5 py-0.5 font-mono font-bold text-[#0c4a6e]">EXIT (7, 11)</code> sudah terhubung penuh ke kanvas 2D ini beserta para penjaga maritim resminya. Konten portofolio penuh dan mini-game <strong>{sealMeta.trial}</strong> akan dibangun pada fase berikutnya sesuai plan!
+      </p>
+
+      <slot />
+
+      <!-- 5 Royal Maritime Seals Ledger -->
+      <div class="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-5">
+        {allSeals.map((s) => (
+          <a
+            href={s.route}
+            data-ledger-seal={s.key}
+            class={`rounded-xl border-2 p-2.5 text-xs transition hover:-translate-y-0.5 ${
+              s.route === routePath
+                ? 'border-[#0284c7] bg-[#e0f2fe]'
+                : 'border-[#cbd5e1] bg-white/80 hover:border-[#0369a1]'
+            }`}
+          >
+            <div class="flex items-center justify-between">
+              <span class="text-base">{s.icon}</span>
+              <span data-ledger-badge={s.key} class="font-mono text-[9px] font-bold text-[#64748b]">
+                🔒
+              </span>
+            </div>
+            <div class="mt-1 font-bold text-[#0f172a]">{s.sanctum}</div>
+            <div class="font-mono text-[9px] text-[#0369a1]">{s.name}</div>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <WhereTo currentPath={routePath} />
+  </article>
+
+  <script>
+    import {
+      MARITIME_SEALS_META,
+      countMaritimeSeals,
+      getMaritimeSeals,
+      type MaritimeSealKey,
+    } from '../engine/harbourInteriorShared';
+
+    function syncHarbourShellSeals() {
+      const seals = getMaritimeSeals();
+      const total = countMaritimeSeals();
+
+      const counterEl = document.getElementById('harbour-seals-counter');
+      if (counterEl) counterEl.textContent = `${total} / 5`;
+
+      const pill = document.getElementById('harbour-seal-pill');
+      const key = pill?.getAttribute('data-seal-key') as MaritimeSealKey | null;
+      if (pill && key && MARITIME_SEALS_META[key]) {
+        const unlocked = Boolean(seals[key]);
+        pill.textContent = unlocked
+          ? `✓ ${MARITIME_SEALS_META[key].name} Claimed`
+          : `⏳ ${MARITIME_SEALS_META[key].name} Sealed`;
+      }
+
+      (Object.keys(MARITIME_SEALS_META) as MaritimeSealKey[]).forEach((k) => {
+        const badge = document.querySelector<HTMLElement>(`[data-ledger-badge="${k}"]`);
+        if (badge) badge.textContent = seals[k] ? '✓' : '🔒';
+      });
+    }
+
+    function wireHarbourShell() {
+      syncHarbourShellSeals();
+
+      const exitBtn = document.getElementById('harbour-exit-btn');
+      if (exitBtn && exitBtn.dataset.wired !== '1') {
+        exitBtn.dataset.wired = '1';
+        exitBtn.addEventListener('click', () => {
+          const respawn = exitBtn.getAttribute('data-exit-respawn');
+          if (respawn) {
+            try {
+              sessionStorage.setItem('harbour:respawn', respawn);
+            } catch {}
+          }
+        });
+      }
+
+      document.querySelectorAll<HTMLButtonElement>('[data-harbour-walk-prop]').forEach((btn) => {
+        if (btn.dataset.wired === '1') return;
+        btn.dataset.wired = '1';
+        btn.addEventListener('click', () => {
+          const id = btn.getAttribute('data-harbour-walk-prop');
+          if (!id) return;
+          document.querySelector<HTMLButtonElement>(`.town-label[data-id="${id}"]`)?.click();
+        });
+      });
+    }
+
+    window.addEventListener('harbour:seal-updated', syncHarbourShellSeals);
+    wireHarbourShell();
+    document.addEventListener('astro:page-load', wireHarbourShell);
+  </script>
+</TownLayout>

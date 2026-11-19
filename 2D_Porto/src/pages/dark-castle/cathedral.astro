@@ -1,0 +1,1209 @@
+---
+import TownLayout from '../../layouts/TownLayout.astro';
+import WhereTo from '../../components/WhereTo.astro';
+import { profile } from '../../lib/profile';
+import { ABYSSAL_SEALS_META, type AbyssalSealKey } from '../../engine/darkInteriorShared';
+
+const githubUrl = profile.socials.find((s) => s.label === 'GitHub')?.url || 'https://github.com/Zulfan15';
+
+const sanctumCards: Array<{ key: AbyssalSealKey; href: string; label: string }> = [
+  { key: 'echoes', href: '/dark-castle/cathedral', label: 'Shadow Cathedral' },
+  { key: 'ember', href: '/dark-castle/forge', label: 'Crimson Reactor Forge' },
+  { key: 'valor', href: '/dark-castle/manor', label: 'Blood Manor' },
+  { key: 'eternity', href: '/dark-castle/vault', label: 'Chained Chrono Vault' },
+];
+
+const warStories = [
+  {
+    id: 'redis-herd',
+    chapter: 'CHAPTER I · DISTRIBUTED SYSTEMS',
+    icon: '⚡',
+    title: 'The 3 AM Redis Thundering Herd',
+    severity: 'SEV-1 CACHE STAMPEDE',
+    metric: '25,000 RPS → Protected',
+    rootCause:
+      'Synchronized TTL expiry on high-demand donation feeds caused 25,000 concurrent edge requests to bypass Redis simultaneously and saturate primary PostgreSQL connections.',
+    solution:
+      'Engineered probabilistic early recomputation (XFetch jitter), Redis Lua singleflight mutex locks, and FOR UPDATE transactional fallbacks so only one worker refreshes cold keys.',
+    pattern: 'Redis Lua Mutex · XFetch Early Refresh',
+    waveText: 'TALE I: CACHE GUARDED!',
+    waveColor: '#fb7185',
+  },
+  {
+    id: 'opencv-leak',
+    chapter: 'CHAPTER II · COMPUTER VISION',
+    icon: '👁️',
+    title: 'The Ghost in the Frame Buffer',
+    severity: 'NATIVE C++ HEAP LEAK',
+    metric: '1.8 GB → 42 MB Stable RAM',
+    rootCause:
+      'Continuous 60 FPS video ingestion in edge Python pipelines retained native C-allocated OpenCV frame buffers inside exception retry scopes, leading to OOM kills after 4 hours.',
+    solution:
+      'Isolated frame processing inside deterministic context managers, eliminated redundant host-to-device tensor copies via TensorRT FP16 pre-allocated buffers, and verified zero drift over 72h.',
+    pattern: 'TensorRT Pinned Buffers · Deterministic RAII',
+    waveText: 'TALE II: MEMORY PURIFIED!',
+    waveColor: '#38bdf8',
+  },
+  {
+    id: 'canvas-loop',
+    chapter: 'CHAPTER III · 2D CANVAS ENGINE',
+    icon: '🎮',
+    title: 'Taming the 60 FPS Render Loop',
+    severity: 'GPU FRAME BUDGET EXCEEDED',
+    metric: '54,000 Lines → 1 Static Blit',
+    rootCause:
+      'Procedural rendering of thousands of stone bevels, fences, and shadows every 16ms overheated mobile devices even when the player stood motionless exploring panels.',
+    solution:
+      'Split terrain onto offscreen backing canvases drawn once per map load, layered lightweight animated overlays on top, and introduced a Wake-on-Demand sleep governor.',
+    pattern: 'Offscreen Terrain Cache · Sleep-on-Idle',
+    waveText: 'TALE III: 60 FPS LOCKED!',
+    waveColor: '#fbbf24',
+  },
+  {
+    id: 'agent-spiral',
+    chapter: 'CHAPTER IV · AI AGENTS & WORKFLOWS',
+    icon: '🧠',
+    title: 'The Infinite Tool Reflection Spiral',
+    severity: 'AGENT LOOP DIVERGENCE',
+    metric: 'Zero Runaway Recursion',
+    rootCause:
+      'Autonomous verification agents evaluating recursive AST tool schemas occasionally entered circular self-critique loops when schemas returned ambiguous null states.',
+    solution:
+      'Designed strict bounded execution budgets, deterministic state-machine transitions, Zod-validated structured outputs, and retrieval-grounded YAML knowledge boundaries.',
+    pattern: 'Bounded State Machine · Zod Schemas',
+    waveText: 'TALE IV: AGENTS ALIGNED!',
+    waveColor: '#34d399',
+  },
+];
+---
+
+<TownLayout
+  title="Shadow Cathedral — Obsidian Scriptorium | Muhammad Zulfan"
+  description="Enter the Shadow Cathedral: solve the 3-round Echo Pipe Organ WebAudio puzzle with Lunala, Necrozma & Gardevoir, and explore The Obsidian Grimoire of Production War Stories."
+  place="dark-cathedral"
+>
+  <article class="cathedral-page space-y-6 pb-10 text-[#f3e8ff]">
+    <!-- 1. IMPERIAL SCRIPTORIUM MARQUEE BANNER (AMETHYST VELVET & CATHEDRAL GOLD) -->
+    <header class="relative overflow-hidden rounded-2xl border-[3px] border-[#b45309] bg-gradient-to-b from-[#190930] via-[#240e44] to-[#0c0519] p-5 text-[#f3e8ff] shadow-[0_10px_0_#2e1065,0_18px_36px_rgba(0,0,0,0.65)]">
+      <!-- Top & Bottom Repeating Amethyst-Gold Fretwork Trim -->
+      <div
+        class="pointer-events-none absolute inset-x-0 top-0 h-2 bg-[repeating-linear-gradient(90deg,#fbbf24_0px,#fbbf24_12px,#6b21a8_12px,#6b21a8_24px)] opacity-90"
+      >
+      </div>
+      <div
+        class="pointer-events-none absolute inset-x-0 bottom-0 h-1.5 bg-gradient-to-r from-[#581c87] via-[#fbbf24] to-[#581c87]"
+      >
+      </div>
+
+      <!-- Radial Cathedral Stained-Glass Glows -->
+      <div class="pointer-events-none absolute -right-12 -top-12 h-48 w-48 rounded-full bg-purple-500/20 blur-3xl"></div>
+      <div class="pointer-events-none absolute -bottom-12 -left-12 h-48 w-48 rounded-full bg-pink-500/15 blur-3xl"></div>
+
+      <!-- Top Telemetry Ribbon -->
+      <div class="relative z-10 flex flex-wrap items-center justify-between gap-2 border-b border-purple-400/25 pb-3 pt-1">
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="inline-flex items-center gap-1.5 rounded-full border-2 border-[#fbbf24]/80 bg-[#1e0a3b]/95 px-3 py-0.5 font-mono text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#fde68a] shadow-sm">
+            <span id="cathedral-live-dot" class="h-2 w-2 rounded-full bg-purple-400 animate-pulse"></span>
+            NW WARD · OBSIDIAN SCRIPTORIUM
+          </span>
+          <span
+            id="cathedral-seal-badge"
+            class="inline-flex items-center gap-1.5 rounded-full border border-purple-400/60 bg-purple-950/80 px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-purple-200"
+          >
+            🔒 SEAL OF ECHOES: LOCKED
+          </span>
+          <span
+            id="cathedral-master-badge"
+            class="hidden items-center gap-1 rounded-full border-2 border-[#fde047] bg-gradient-to-r from-[#7e22ce] to-[#d97706] px-2.5 py-0.5 font-mono text-[10px] font-black uppercase tracking-wider text-[#fffbeb] shadow"
+          >
+            👑 GRAND CANTOR
+          </span>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <a
+            href="/dark-castle?from=cathedral"
+            onclick="sessionStorage.setItem('dark-castle:respawn', '9,21,down')"
+            class="inline-flex items-center gap-1 rounded-lg border-2 border-[#7e22ce] bg-[#1e0c3a] px-2.5 py-1 font-mono text-[10px] font-bold text-[#fde68a] transition hover:border-[#fbbf24] hover:bg-[#3b0764]"
+          >
+            ← Dark Castle
+          </a>
+        </div>
+      </div>
+
+      <!-- Title & Cathedral Harmonic Telemetry Tablet -->
+      <div class="relative z-10 mt-4 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div class="space-y-2">
+          <p class="font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-[#c084fc]">
+            DARK CASTLE · AMETHYST ECHO BASILICA &amp; ARCHIVE
+          </p>
+          <h1 id="panel-title" class="font-pixel text-base sm:text-lg leading-snug text-[#fef3c7] drop-shadow-[0_2px_0_#3b0764] flex items-center gap-2.5">
+            <span>⛪</span>
+            <span>SHADOW CATHEDRAL</span>
+          </h1>
+          <p class="max-w-xl text-xs sm:text-sm leading-relaxed text-[#e9d5ff]/90">
+            Bathed in amethyst stained-glass light. Echo <strong class="text-[#fde047]">3 WebAudio Pipe Melodies</strong> on the Grand Organ to claim the
+            <strong class="text-emerald-300">Seal of Echoes</strong>, or open <strong class="text-white">The Obsidian Grimoire</strong>.
+          </p>
+        </div>
+
+        <!-- Cathedral Harmonic Telemetry Tablet -->
+        <div class="flex shrink-0 flex-col items-end rounded-xl border-2 border-[#fbbf24]/80 bg-[#0d051a]/95 px-4 py-2.5 shadow-inner">
+          <span class="font-mono text-[10px] font-bold uppercase tracking-widest text-[#fcd34d]">
+            🎵 HARMONIC TELEMETRY
+          </span>
+          <div class="mt-1 flex items-baseline gap-2">
+            <span id="cathedral-stage-readout" class="font-['Press_Start_2P',monospace] text-sm sm:text-base text-[#c084fc] drop-shadow-[0_2px_0_#2e1065]">
+              0 / 3
+            </span>
+            <span id="cathedral-tune-pill" class="rounded border border-purple-400/50 bg-[#2e1065]/90 px-1.5 py-0.5 font-mono text-[9px] font-extrabold text-[#e9d5ff]">
+              432Hz
+            </span>
+          </div>
+          <div class="mt-1.5 flex items-center gap-2 font-mono text-[10px] text-[#e2e8f0]">
+            <span>Abyssal Seals: <strong id="cathedral-abyssal-count" class="text-[#fde047]">0 / 4</strong></span>
+            <span>·</span>
+            <span class="text-purple-300">{warStories.length} War Tales</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tri-Cantor Interactive Dialogue Strip (Lunala, Necrozma & Gardevoir) -->
+      <div class="relative z-10 mt-4 rounded-xl border-2 border-[#b45309]/60 bg-[#0e051d]/90 p-3.5 backdrop-blur-sm shadow-inner">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-start">
+          <div class="flex shrink-0 items-center gap-1.5">
+            <button
+              type="button"
+              data-cath-walk="lunala"
+              data-speaker="🌙 Lunala · Choir Matriarch"
+              data-quote="Through moonlight harmonics, chaotic production incidents settle into calm systems. Complete all 3 melodies on the Grand Pipe Organ!"
+              data-fx-text="MOONGEIST ECHO!"
+              data-fx-color="#fde047"
+              class="flex h-11 w-11 items-center justify-center rounded-xl border-2 border-purple-400/70 bg-purple-500/20 text-xl shadow-[0_2px_0_#3b0764] transition hover:-translate-y-0.5 hover:bg-purple-500/30 cursor-pointer"
+              title="Walk to Lunala in 2D Canvas"
+            >
+              🌙
+            </button>
+            <button
+              type="button"
+              data-cath-walk="necrozma"
+              data-speaker="💠 Prism Necrozma · Nocturne Keeper"
+              data-quote="Listen through the prism! Memorize each sequence on Amethyst, Crimson, Gold, and Abyss Cyan pipes—or test Free-Play Jam mode!"
+              data-fx-text="PRISM NOCTURNE!"
+              data-fx-color="#c084fc"
+              class="flex h-11 w-11 items-center justify-center rounded-xl border-2 border-fuchsia-400/70 bg-fuchsia-500/20 text-xl shadow-[0_2px_0_#4a044e] transition hover:-translate-y-0.5 hover:bg-fuchsia-500/30 cursor-pointer"
+              title="Walk to Prism Necrozma in 2D Canvas"
+            >
+              💠
+            </button>
+            <button
+              type="button"
+              data-cath-walk="gardevoir"
+              data-speaker="✨ Cantor Gardevoir · Keeper of Lore"
+              data-quote="Inside The Obsidian Grimoire rest four war stories of real SEV-1 production outages, native memory leaks, and 60fps rescues."
+              data-fx-text="GRIMOIRE LORE!"
+              data-fx-color="#f59e0b"
+              class="flex h-11 w-11 items-center justify-center rounded-xl border-2 border-amber-400/70 bg-amber-500/20 text-xl shadow-[0_2px_0_#78350f] transition hover:-translate-y-0.5 hover:bg-amber-500/30 cursor-pointer"
+              title="Walk to Cantor Gardevoir in 2D Canvas"
+            >
+              ✨
+            </button>
+          </div>
+
+          <div class="min-w-0 flex-1">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <span id="cathedral-speaker" class="font-mono text-[11px] font-black uppercase tracking-wider text-[#c084fc]">
+                🌙 Lunala · Choir Matriarch
+              </span>
+              <span class="font-mono text-[9px] uppercase tracking-wider text-amber-300/80">
+                Click Cantor or Station Card to Walk in 2D
+              </span>
+            </div>
+            <p id="cathedral-dialogue" class="mt-1 text-xs leading-relaxed text-[#e9d5ff] italic">
+              “Through moonlight harmonics, chaotic production logs sing in order. Synchronize all 3 rounds on the Grand Pipe Organ or study Zulfan’s battlefield chronicles!”
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6 Tactile Quick-Walk Medal Cards (4+2 Grid) -->
+      <div class="relative z-10 mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3">
+        <button
+          type="button"
+          class="cath-station-btn group flex items-center gap-2 rounded-xl border-2 border-[#d97706] bg-gradient-to-b from-[#fef3c7] to-[#fde68a] px-3 py-2 text-left text-[#451a03] shadow-[0_3px_0_#78350f] transition hover:-translate-y-0.5 hover:from-[#fffbeb] hover:to-[#fef08a] active:translate-y-0.5 cursor-pointer"
+          data-walk="pipe-organ"
+          data-scroll-to="cathedral-echo-puzzle"
+          data-key="o"
+          data-speaker="🎹 Grand Echo Pipe Organ"
+          data-quote="Strike the 4 tuned cathedral chimes in order across 3 rounds to awaken the Seal of Echoes!"
+          data-fx-text="PIPE ORGAN RESONANCE!"
+          data-fx-color="#c084fc"
+        >
+          <span class="text-base">🎹</span>
+          <div class="min-w-0">
+            <div class="truncate font-mono text-[11px] font-black uppercase">Echo Organ</div>
+            <div class="truncate text-[10px] font-semibold text-[#78350f]">Audio Puzzle [O]</div>
+          </div>
+        </button>
+
+        <button
+          type="button"
+          class="cath-station-btn group flex items-center gap-2 rounded-xl border-2 border-[#9333ea] bg-gradient-to-b from-[#f3e8ff] to-[#e9d5ff] px-3 py-2 text-left text-[#3b0764] shadow-[0_3px_0_#581c87] transition hover:-translate-y-0.5 hover:from-[#faf5ff] hover:to-[#f3e8ff] active:translate-y-0.5 cursor-pointer"
+          data-walk="necrozma"
+          data-scroll-to="cathedral-echo-puzzle"
+          data-key="n"
+          data-speaker="💠 Prism Necrozma · West Plinth"
+          data-quote="Refract each note cleanly! Ready to test your auditory recall against the 4 crystal pipes?"
+          data-fx-text="PRISM NECROZMA!"
+          data-fx-color="#a855f7"
+        >
+          <span class="text-base">💠</span>
+          <div class="min-w-0">
+            <div class="truncate font-mono text-[11px] font-black uppercase">Prism Necrozma</div>
+            <div class="truncate text-[10px] font-semibold text-[#6b21a8]">West Plinth [N]</div>
+          </div>
+        </button>
+
+        <button
+          type="button"
+          class="cath-station-btn group flex items-center gap-2 rounded-xl border-2 border-[#d97706] bg-gradient-to-b from-[#fef3c7] to-[#fde68a] px-3 py-2 text-left text-[#451a03] shadow-[0_3px_0_#78350f] transition hover:-translate-y-0.5 hover:from-[#fffbeb] hover:to-[#fef08a] active:translate-y-0.5 cursor-pointer"
+          data-walk="gardevoir"
+          data-scroll-to="cathedral-grimoire"
+          data-key="g"
+          data-speaker="✨ Cantor Gardevoir · East Plinth"
+          data-quote="Turn the pages of The Obsidian Grimoire to inspect real outages and their architectural fixes."
+          data-fx-text="CANTOR GARDEVOIR!"
+          data-fx-color="#fbbf24"
+        >
+          <span class="text-base">✨</span>
+          <div class="min-w-0">
+            <div class="truncate font-mono text-[11px] font-black uppercase">Gardevoir Lore</div>
+            <div class="truncate text-[10px] font-semibold text-[#78350f]">East Plinth [G]</div>
+          </div>
+        </button>
+
+        <button
+          type="button"
+          class="cath-station-btn group flex items-center gap-2 rounded-xl border-2 border-[#d97706] bg-gradient-to-b from-[#fef3c7] to-[#fde68a] px-3 py-2 text-left text-[#451a03] shadow-[0_3px_0_#78350f] transition hover:-translate-y-0.5 hover:from-[#fffbeb] hover:to-[#fef08a] active:translate-y-0.5 cursor-pointer"
+          data-walk="war-stories-grimoire"
+          data-scroll-to="cathedral-grimoire"
+          data-key="w"
+          data-speaker="📖 The Obsidian Grimoire (NW)"
+          data-quote="Illuminated post-mortem chronicles: Redis herds, OpenCV leaks, Canvas loops & AI state machines."
+          data-fx-text="GRIMOIRE OPENED!"
+          data-fx-color="#38bdf8"
+        >
+          <span class="text-base">📖</span>
+          <div class="min-w-0">
+            <div class="truncate font-mono text-[11px] font-black uppercase">War Grimoire</div>
+            <div class="truncate text-[10px] font-semibold text-[#78350f]">NW Scriptorium [W]</div>
+          </div>
+        </button>
+
+        <button
+          type="button"
+          class="cath-station-btn group flex items-center gap-2 rounded-xl border-2 border-[#0284c7] bg-gradient-to-b from-[#e0f2fe] to-[#bae6fd] px-3 py-2 text-left text-[#0c4a6e] shadow-[0_3px_0_#075985] transition hover:-translate-y-0.5 hover:from-[#f0f9ff] hover:to-[#e0f2fe] active:translate-y-0.5 cursor-pointer"
+          data-walk="confession-shrine"
+          data-scroll-to="cathedral-relic-section"
+          data-key="s"
+          data-speaker="🕯️ Spirit Cleanse Shrine (NE)"
+          data-quote="Receive Spirit Cleanse at the NE Shrine to run +50% faster across every realm!"
+          data-fx-text="SPIRIT CLEANSED!"
+          data-fx-color="#38bdf8"
+        >
+          <span class="text-base">✨</span>
+          <div class="min-w-0">
+            <div class="truncate font-mono text-[11px] font-black uppercase">Spirit Shrine</div>
+            <div class="truncate text-[10px] font-semibold text-[#0369a1]">NE Blessing [S]</div>
+          </div>
+        </button>
+
+        <button
+          type="button"
+          class="cath-station-btn group flex items-center gap-2 rounded-xl border-2 border-[#d97706] bg-gradient-to-b from-[#fef3c7] to-[#fde68a] px-3 py-2 text-left text-[#451a03] shadow-[0_3px_0_#78350f] transition hover:-translate-y-0.5 hover:from-[#fffbeb] hover:to-[#fef08a] active:translate-y-0.5 cursor-pointer"
+          data-walk="stained-rose"
+          data-scroll-to="cathedral-relic-section"
+          data-key="r"
+          data-speaker="🔮 Harmonic Rose Altar"
+          data-quote="Inspect the Zero-Asset WebAudio Synth Blueprint & Abyssal Seal Tracker below!"
+          data-fx-text="ROSE ALTAR!"
+          data-fx-color="#f43f5e"
+        >
+          <span class="text-base">🔮</span>
+          <div class="min-w-0">
+            <div class="truncate font-mono text-[11px] font-black uppercase">Echo Relics</div>
+            <div class="truncate text-[10px] font-semibold text-[#78350f]">Rose Coffer [R]</div>
+          </div>
+        </button>
+      </div>
+    </header>
+
+    <!-- 2. ECHOES OF THE CATHEDRAL 2.0 (WEBAUDIO HARMONIC ORGAN PUZZLE) -->
+    <section
+      id="cathedral-echo-puzzle"
+      class="scroll-mt-6 overflow-hidden rounded-2xl border-[3px] border-[#b45309] bg-gradient-to-b from-[#150826] via-[#10061e] to-[#080312] shadow-[0_8px_0_#2e1065,0_14px_28px_rgba(0,0,0,0.55)]"
+    >
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b-[3px] border-[#6b21a8] bg-gradient-to-r from-[#2e1065] via-[#4c1d95] to-[#2e1065] px-5 py-3.5 text-[#fef3c7]">
+        <div class="flex items-center gap-2.5">
+          <span class="flex h-9 w-9 items-center justify-center rounded-xl border-2 border-[#fbbf24] bg-[#2e1065] text-lg shadow">
+            🎹
+          </span>
+          <div>
+            <div class="flex flex-wrap items-center gap-2">
+              <h2 class="font-pixel text-[11px] sm:text-xs uppercase tracking-wider text-[#fef08a]">
+                Echoes of the Cathedral 2.0
+              </h2>
+              <span
+                id="organ-mode-pill"
+                class="rounded-full border border-purple-300/50 bg-[#1e0a3b]/80 px-2 py-0.5 font-mono text-[10px] font-bold text-purple-200"
+              >
+                🎹 Free-Play / Trial Ready
+              </span>
+            </div>
+            <p class="mt-0.5 text-[11px] text-[#e9d5ff]/85">
+              Listen to each nocturnal organ melody and repeat it (keys <code class="rounded bg-black/40 px-1 font-mono text-amber-200">1–4</code> supported). Clear 3 stages!
+            </p>
+          </div>
+        </div>
+
+        <span
+          id="organ-round-tracker"
+          class="rounded-lg border-2 border-[#fbbf24]/70 bg-[#1e0a3b] px-3 py-1 font-mono text-[11px] font-bold text-[#fde68a]"
+        >
+          Round 1 / 3
+        </span>
+      </div>
+
+      <div class="p-5 space-y-4">
+        <!-- 3-Stage Rose Window Resonance Strip -->
+        <div class="rounded-xl border border-purple-500/25 bg-[#090314]/90 px-4 py-3 shadow-inner">
+          <div class="mb-2 flex items-center justify-between font-mono text-[10px] uppercase tracking-wider text-purple-300">
+            <span>🟣 Rose Window Harmonic Resonance</span>
+            <span id="organ-step-progress" class="text-amber-300">Ready to listen</span>
+          </div>
+          <div class="grid grid-cols-3 gap-2">
+            {[
+              { idx: 1, title: 'STAGE I', sub: '3 Chime Notes' },
+              { idx: 2, title: 'STAGE II', sub: '4 Chime Notes' },
+              { idx: 3, title: 'STAGE III', sub: '5 Chime Notes' },
+            ].map((st) => (
+              <div
+                id={`organ-stage-${st.idx}`}
+                class="flex items-center justify-between gap-1.5 rounded-lg border border-purple-900/60 bg-[#130724] px-2.5 py-1.5 transition-all"
+              >
+                <div class="min-w-0">
+                  <div class="font-mono text-[9px] font-bold text-purple-300">{st.title}</div>
+                  <div class="truncate text-[10px] font-semibold text-slate-200">{st.sub}</div>
+                </div>
+                <span id={`organ-stage-icon-${st.idx}`} class="text-xs">🔒</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <!-- 4 Tactile Pipe Organ Keys -->
+        <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <button
+            type="button"
+            data-organ-note="0"
+            class="organ-key group rounded-xl border-2 border-[#c084fc] bg-gradient-to-b from-[#3b0764] to-[#240440] p-4 text-center shadow-[0_4px_0_#1e0436] transition-all hover:-translate-y-0.5 active:translate-y-0.5 disabled:opacity-50 cursor-pointer"
+          >
+            <div class="flex items-center justify-between font-mono text-[9px] text-purple-300">
+              <span>PIPE I</span>
+              <span class="rounded bg-black/35 px-1">[1]</span>
+            </div>
+            <div class="mt-1 text-2xl">🟣</div>
+            <div class="mt-1 font-pixel text-[11px] font-bold text-[#f5d0fe]">Amethyst</div>
+            <div class="font-mono text-[9px] text-[#c084fc]">261.6 Hz (C4)</div>
+          </button>
+
+          <button
+            type="button"
+            data-organ-note="1"
+            class="organ-key group rounded-xl border-2 border-[#f43f5e] bg-gradient-to-b from-[#6b122b] to-[#420718] p-4 text-center shadow-[0_4px_0_#2b030e] transition-all hover:-translate-y-0.5 active:translate-y-0.5 disabled:opacity-50 cursor-pointer"
+          >
+            <div class="flex items-center justify-between font-mono text-[9px] text-rose-300">
+              <span>PIPE II</span>
+              <span class="rounded bg-black/35 px-1">[2]</span>
+            </div>
+            <div class="mt-1 text-2xl">🔴</div>
+            <div class="mt-1 font-pixel text-[11px] font-bold text-[#fecdd3]">Crimson</div>
+            <div class="font-mono text-[9px] text-[#fb7185]">329.6 Hz (E4)</div>
+          </button>
+
+          <button
+            type="button"
+            data-organ-note="2"
+            class="organ-key group rounded-xl border-2 border-[#fbbf24] bg-gradient-to-b from-[#78350f] to-[#451a03] p-4 text-center shadow-[0_4px_0_#270f02] transition-all hover:-translate-y-0.5 active:translate-y-0.5 disabled:opacity-50 cursor-pointer"
+          >
+            <div class="flex items-center justify-between font-mono text-[9px] text-amber-300">
+              <span>PIPE III</span>
+              <span class="rounded bg-black/35 px-1">[3]</span>
+            </div>
+            <div class="mt-1 text-2xl">🟡</div>
+            <div class="mt-1 font-pixel text-[11px] font-bold text-[#fef3c7]">Gold</div>
+            <div class="font-mono text-[9px] text-[#fde047]">392.0 Hz (G4)</div>
+          </button>
+
+          <button
+            type="button"
+            data-organ-note="3"
+            class="organ-key group rounded-xl border-2 border-[#38bdf8] bg-gradient-to-b from-[#075985] to-[#082f49] p-4 text-center shadow-[0_4px_0_#041d2e] transition-all hover:-translate-y-0.5 active:translate-y-0.5 disabled:opacity-50 cursor-pointer"
+          >
+            <div class="flex items-center justify-between font-mono text-[9px] text-sky-300">
+              <span>PIPE IV</span>
+              <span class="rounded bg-black/35 px-1">[4]</span>
+            </div>
+            <div class="mt-1 text-2xl">🔵</div>
+            <div class="mt-1 font-pixel text-[11px] font-bold text-[#e0f2fe]">Abyss Cyan</div>
+            <div class="font-mono text-[9px] text-[#7dd3fc]">523.3 Hz (C5)</div>
+          </button>
+        </div>
+
+        <!-- Tactile Control Strip -->
+        <div class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-purple-500/25 bg-[#090314] px-4 py-3">
+          <div id="organ-status-msg" class="min-w-0 flex-1 font-mono text-xs text-[#d8b4fe]">
+            Press <strong class="text-amber-300">Start Echo Trial</strong> to hear the first pipe sequence—or jam freely on the keys!
+          </div>
+
+          <div class="flex shrink-0 flex-wrap items-center gap-2">
+            <button
+              type="button"
+              id="btn-replay-organ"
+              class="rounded-lg border-2 border-purple-400/60 bg-purple-500/15 px-3 py-1 font-mono text-[10px] font-bold text-purple-200 shadow-[0_2px_0_#2e1065] transition hover:bg-purple-500/25 active:translate-y-0.5 cursor-pointer"
+            >
+              🔊 Replay
+            </button>
+            <button
+              type="button"
+              id="btn-start-organ-game"
+              class="rounded-lg border-2 border-[#d97706] bg-gradient-to-b from-[#fef3c7] to-[#fde68a] px-3 py-1 font-mono text-[10px] font-black text-[#451a03] shadow-[0_2px_0_#78350f] transition hover:from-[#fffbeb] hover:to-[#fef08a] active:translate-y-0.5 cursor-pointer"
+            >
+              ▶️ Start Echo Trial
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. THE OBSIDIAN GRIMOIRE 2.0 (ILLUMINATED WAR STORIES INSPECTOR) -->
+    <section
+      id="cathedral-grimoire"
+      class="scroll-mt-6 overflow-hidden rounded-2xl border-[3px] border-[#b45309] bg-gradient-to-b from-[#150826] via-[#10061e] to-[#080312] shadow-[0_8px_0_#2e1065,0_14px_28px_rgba(0,0,0,0.55)]"
+    >
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b-[3px] border-[#6b21a8] bg-gradient-to-r from-[#1e1b4b] via-[#3b0764] to-[#1e1b4b] px-5 py-3.5 text-[#fef3c7]">
+        <div class="flex items-center gap-2.5">
+          <span class="flex h-9 w-9 items-center justify-center rounded-xl border-2 border-[#c084fc] bg-[#240b42] text-lg shadow">
+            📖
+          </span>
+          <div>
+            <h2 class="font-pixel text-[11px] sm:text-xs uppercase tracking-wider text-purple-200">
+              The Obsidian Grimoire 2.0 · War Stories
+            </h2>
+            <p class="mt-0.5 text-[11px] text-[#e2e8f0]/80">
+              Illuminated chronicles of SEV-1 production outages, memory leaks, &amp; architectural rescues.
+            </p>
+          </div>
+        </div>
+        <span class="rounded-full border border-purple-400/50 bg-[#2e1065] px-2.5 py-0.5 font-mono text-[10px] font-bold text-purple-200">
+          4 Illuminated Tales
+        </span>
+      </div>
+
+      <div class="p-5 space-y-4">
+        <!-- 4 Chapter Selector Tabs -->
+        <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
+          {warStories.map((tale, i) => (
+            <button
+              type="button"
+              data-grimoire-tab={i}
+              class={`grimoire-tab flex flex-col items-start rounded-xl border-2 p-2.5 text-left transition cursor-pointer ${
+                i === 0
+                  ? 'border-[#fbbf24] bg-gradient-to-b from-[#3b0764] to-[#21043b] text-[#fef3c7] shadow-[0_3px_0_#78350f]'
+                  : 'border-purple-900/60 bg-[#120624] text-slate-300 hover:border-purple-500/70'
+              }`}
+            >
+              <div class="flex items-center gap-1.5">
+                <span class="text-base">{tale.icon}</span>
+                <span class="font-mono text-[9px] font-extrabold uppercase text-amber-300">TALE 0{i + 1}</span>
+              </div>
+              <span class="mt-1 text-[11px] font-bold line-clamp-1">{tale.title}</span>
+            </button>
+          ))}
+        </div>
+
+        <!-- Illuminated Tome Active Page -->
+        <div class="rounded-xl border-2 border-purple-700/50 bg-[#090312] p-4 sm:p-5 space-y-3.5">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <span id="grimoire-chapter" class="rounded border border-purple-400/50 bg-purple-950/75 px-2 py-0.5 font-mono text-[9px] font-bold text-purple-200">
+              {warStories[0].chapter}
+            </span>
+            <span id="grimoire-metric" class="rounded-full border border-emerald-400/50 bg-emerald-950/70 px-2.5 py-0.5 font-mono text-[10px] font-bold text-emerald-300">
+              {warStories[0].metric}
+            </span>
+          </div>
+
+          <div>
+            <div class="font-mono text-[10px] font-bold text-rose-300" id="grimoire-severity">
+              {warStories[0].severity}
+            </div>
+            <h3 id="grimoire-title" class="mt-0.5 text-base font-bold text-white">
+              {warStories[0].icon} {warStories[0].title}
+            </h3>
+          </div>
+
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 text-xs">
+            <div class="rounded-xl border border-rose-500/30 bg-rose-950/15 p-3">
+              <div class="font-mono text-[10px] font-extrabold uppercase tracking-wider text-rose-300">
+                🔥 Root Cause Crisis
+              </div>
+              <p id="grimoire-root" class="mt-1.5 leading-relaxed text-[#f3e8ff]/90">
+                {warStories[0].rootCause}
+              </p>
+            </div>
+            <div class="rounded-xl border border-emerald-500/30 bg-emerald-950/15 p-3">
+              <div class="font-mono text-[10px] font-extrabold uppercase tracking-wider text-emerald-300">
+                ✨ Architectural Countermeasure
+              </div>
+              <p id="grimoire-solution" class="mt-1.5 leading-relaxed text-[#f3e8ff]/90">
+                {warStories[0].solution}
+              </p>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-between gap-2 border-t border-purple-900/50 pt-3">
+            <span id="grimoire-pattern" class="rounded-md border border-slate-700 bg-slate-900 px-2.5 py-1 font-mono text-[10px] text-sky-300">
+              Pattern: {warStories[0].pattern}
+            </span>
+            <div class="flex items-center gap-2">
+              <button
+                type="button"
+                id="btn-walk-grimoire"
+                class="font-mono text-[10px] font-bold text-amber-300 underline hover:text-amber-200 cursor-pointer"
+              >
+                Walk to Grimoire in 2D →
+              </button>
+              <button
+                type="button"
+                id="btn-next-grimoire"
+                class="rounded-lg border-2 border-[#d97706] bg-gradient-to-b from-[#fef3c7] to-[#fde68a] px-3 py-1 font-mono text-[10px] font-black text-[#451a03] shadow-[0_2px_0_#78350f] transition hover:from-[#fffbeb] hover:to-[#fef08a] active:translate-y-0.5 cursor-pointer"
+              >
+                Next Tale →
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. SPIRIT CLEANSE SHRINE, ECHOES BLUEPRINT & 4 ABYSSAL SEALS -->
+    <section
+      id="cathedral-relic-section"
+      class="scroll-mt-6 overflow-hidden rounded-2xl border-[3px] border-[#b45309] bg-gradient-to-b from-[#150826] via-[#10061e] to-[#080312] shadow-[0_8px_0_#2e1065,0_14px_28px_rgba(0,0,0,0.55)]"
+    >
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b-[3px] border-[#6b21a8] bg-gradient-to-r from-[#064e3b]/80 via-[#2e1065] to-[#064e3b]/80 px-5 py-3.5 text-[#fef3c7]">
+        <div class="flex items-center gap-2.5">
+          <span class="flex h-9 w-9 items-center justify-center rounded-xl border-2 border-[#c084fc] bg-[#1e0a3b] text-lg shadow">
+            🟣
+          </span>
+          <div>
+            <h2 class="font-pixel text-[11px] sm:text-xs uppercase tracking-wider text-purple-200">
+              Scriptorium Relics &amp; Spirit Shrine
+            </h2>
+            <p class="mt-0.5 text-[11px] text-[#e2e8f0]/80" id="cathedral-coffer-subtext">
+              Cleanse your digital spirit or unlock the Rose Window Zero-Asset WebAudio Synth Blueprint.
+            </p>
+          </div>
+        </div>
+        <span
+          id="cathedral-coffer-pill"
+          class="rounded-full border-2 border-purple-400/60 bg-purple-950/75 px-2.5 py-0.5 font-mono text-[10px] font-bold text-purple-200"
+        >
+          🔒 Sealed
+        </span>
+      </div>
+
+      <div class="p-5 space-y-4">
+        <!-- RELIC I: CONFESSION SHRINE SPIRIT CLEANSE (+50% SPEED) -->
+        <div class="rounded-xl border-2 border-sky-400/40 bg-gradient-to-r from-[#0c4a6e]/40 via-[#190930] to-[#0c4a6e]/40 p-4 shadow-inner">
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex items-start gap-3">
+              <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border-2 border-sky-400/70 bg-sky-500/20 text-xl">
+                🕯️
+              </span>
+              <div>
+                <div class="flex flex-wrap items-center gap-2">
+                  <h3 class="font-mono text-xs font-extrabold uppercase tracking-wider text-sky-300">
+                    Relic I · Spirit Cleanse Sanctuary
+                  </h3>
+                  <span
+                    id="shrine-buff-status"
+                    class="rounded-full border border-sky-400/40 bg-sky-950/70 px-2 py-0.5 font-mono text-[9px] font-bold text-sky-200"
+                  >
+                    READY
+                  </span>
+                </div>
+                <p class="mt-1 text-xs text-slate-200">
+                  Kneel at the NE Spirit Shrine to purge cognitive burnout and boost movement speed <strong class="text-sky-300">+50% for 25 seconds</strong>!
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              id="btn-shrine-cleanse"
+              class="shrink-0 rounded-xl border-2 border-[#0284c7] bg-gradient-to-b from-[#e0f2fe] to-[#bae6fd] px-3.5 py-2 font-mono text-[10px] font-black text-[#0c4a6e] shadow-[0_3px_0_#075985] transition hover:from-[#f0f9ff] hover:to-[#e0f2fe] active:translate-y-0.5 cursor-pointer"
+            >
+              ✨ Cleanse Spirit (+50%)
+            </button>
+          </div>
+        </div>
+
+        <!-- RELIC II: ROSE WINDOW WEBAUDIO SYNTH BLUEPRINT -->
+        <div id="cathedral-coffer-locked" class="rounded-xl border-2 border-dashed border-purple-500/40 bg-[#090313]/85 p-5 text-center">
+          <div class="text-2xl">🎹</div>
+          <h3 class="mt-1 font-mono text-xs font-bold uppercase tracking-wider text-purple-200">
+            Relic II · Rose Window Audio Engine Blueprint (Locked)
+          </h3>
+          <p class="mt-1 text-xs text-slate-300">
+            Complete all 3 rounds of <strong class="text-amber-300">Echoes of the Cathedral 2.0</strong> above to claim the <strong class="text-emerald-300">Seal of Echoes</strong> &amp; unseal the blueprint.
+          </p>
+          <button
+            type="button"
+            id="btn-scroll-organ"
+            class="mt-3 rounded-lg border-2 border-[#d97706] bg-gradient-to-b from-[#fef3c7] to-[#fde68a] px-3.5 py-1.5 font-mono text-[10px] font-black text-[#451a03] shadow-[0_2px_0_#78350f] transition hover:from-[#fffbeb] hover:to-[#fef08a] cursor-pointer"
+          >
+            ↑ Play Echo Organ
+          </button>
+        </div>
+
+        <div id="cathedral-coffer-unlocked" class="hidden space-y-3 rounded-xl border-2 border-emerald-400/60 bg-gradient-to-b from-[#064e3b]/30 to-[#0e051d] p-4 shadow-[0_0_24px_rgba(16,185,129,0.12)]">
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-emerald-500/25 pb-2.5">
+            <span class="font-mono text-xs font-extrabold uppercase tracking-wider text-emerald-300">
+              🟣 RELIC II UNSEALED: Zero-Dependency WebAudio Synth Engine
+            </span>
+            <a
+              href={githubUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="rounded-lg border border-sky-400/50 bg-sky-950/60 px-2.5 py-1 font-mono text-[10px] font-bold text-sky-200 hover:bg-sky-900"
+            >
+              Inspect Source on GitHub ↗
+            </a>
+          </div>
+
+          <div class="grid grid-cols-1 gap-2 sm:grid-cols-3 text-[11px]">
+            <div class="rounded-lg border border-emerald-500/25 bg-black/45 p-2.5">
+              <div class="font-mono text-[10px] font-bold text-emerald-400">0 KB AUDIO ASSETS</div>
+              <div class="mt-0.5 font-semibold text-white">Pure Procedural Synth</div>
+              <div class="mt-0.5 text-slate-300">Every UI chime, organ chord &amp; footstep synthesizes live with WebAudio oscillators.</div>
+            </div>
+            <div class="rounded-lg border border-sky-500/25 bg-black/45 p-2.5">
+              <div class="font-mono text-[10px] font-bold text-sky-400">ENVELOPE SHAPING</div>
+              <div class="mt-0.5 font-semibold text-white">Exponential Gain Decay</div>
+              <div class="mt-0.5 text-slate-300">Zero-click linear attack + exponential release prevents audio popping on rapid taps.</div>
+            </div>
+            <div class="rounded-lg border border-amber-500/25 bg-black/45 p-2.5">
+              <div class="font-mono text-[10px] font-bold text-amber-400">ACOUSTIC SYNC</div>
+              <div class="mt-0.5 font-semibold text-white">Canvas Shockwave Coupling</div>
+              <div class="mt-0.5 text-slate-300">Organ chimes dispatch radial violet wave pulses across the 2D Sunken Choir Nave.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RELIC III: SOVEREIGN 4 ABYSSAL SEALS TRACKER -->
+        <div class="rounded-xl border border-amber-500/30 bg-[#0b0417]/90 p-4">
+          <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h3 class="font-mono text-xs font-extrabold uppercase tracking-wider text-amber-300">
+                📜 Relic III · Sovereign Abyssal Seals Tracker
+              </h3>
+              <p class="mt-0.5 text-[11px] text-slate-400">
+                Unite all 4 citadel seals to awaken the central Obsidian Obelisk Ring on Dark Castle.
+              </p>
+            </div>
+            <span
+              id="cathedral-obelisk-pill"
+              class="rounded-full border border-slate-700 bg-slate-900 px-2.5 py-0.5 font-mono text-[10px] font-bold text-slate-300"
+            >
+              0 / 4 Seals
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            {sanctumCards.map((sc) => {
+              const meta = ABYSSAL_SEALS_META[sc.key];
+              return (
+                <a
+                  href={sc.href}
+                  data-cath-seal-card={sc.key}
+                  class="flex items-center justify-between gap-2 rounded-xl border border-purple-900/50 bg-[#150826] px-3 py-2.5 transition hover:border-amber-400/70 hover:bg-[#210c3d]"
+                >
+                  <div class="flex items-center gap-2.5 min-w-0">
+                    <span class="text-lg">{meta.icon}</span>
+                    <div class="min-w-0">
+                      <div class="truncate font-mono text-[11px] font-bold text-white">{meta.name}</div>
+                      <div class="truncate text-[10px] text-slate-400">{sc.label}</div>
+                    </div>
+                  </div>
+                  <span
+                    id={`cathedral-seal-status-${sc.key}`}
+                    class="shrink-0 rounded-full border border-slate-700 bg-slate-900 px-2 py-0.5 font-mono text-[9px] font-bold text-slate-400"
+                  >
+                    LOCKED
+                  </span>
+                </a>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <WhereTo currentPath="/dark-castle" />
+  </article>
+
+  <script define:vars={{ warStories }}>
+    window.__CATHEDRAL_WAR_STORIES__ = warStories;
+  </script>
+
+  <script>
+    import { awardAbyssalSeal, countAbyssalSeals, getAbyssalSeals } from '../../engine/darkInteriorShared';
+
+    function emitCathedralWave(text: string, color: string) {
+      window.dispatchEvent(new CustomEvent('town:cathedral-fx', { detail: { text, color } }));
+    }
+
+    function initCathedralPage() {
+      // 1. Canvas Quick-Walk & Tri-Cantor Dialogue
+      const speakerEl = document.getElementById('cathedral-speaker');
+      const dialogueEl = document.getElementById('cathedral-dialogue');
+
+      let audioCtx: AudioContext | null = null;
+      const FREQS = [261.63, 329.63, 392.0, 523.25]; // C4, E4, G4, C5
+      const NOTE_COLORS = ['#c084fc', '#fb7185', '#fbbf24', '#38bdf8'];
+      const NOTE_LABELS = ['AMETHYST C4', 'CRIMSON E4', 'GOLD G4', 'CYAN C5'];
+
+      function playOrganTone(freq: number, durationMs = 340, type: OscillatorType = 'sine') {
+        try {
+          if (!audioCtx) {
+            audioCtx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+          }
+          if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+          }
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+          gain.gain.setValueAtTime(0.01, audioCtx.currentTime);
+          gain.gain.linearRampToValueAtTime(0.18, audioCtx.currentTime + 0.04);
+          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + durationMs / 1000);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start();
+          osc.stop(audioCtx.currentTime + durationMs / 1000);
+        } catch {
+          // Ignore autoplay restrictions
+        }
+      }
+
+      const activateCathStation = (btn: HTMLButtonElement) => {
+        const id = btn.dataset.cathWalk || btn.dataset.walk;
+        const scrollTo = btn.dataset.scrollTo;
+        if (btn.dataset.speaker && speakerEl) speakerEl.textContent = btn.dataset.speaker;
+        if (btn.dataset.quote && dialogueEl) dialogueEl.textContent = `“${btn.dataset.quote}”`;
+        if (id) {
+          playOrganTone(440, 140, 'triangle');
+          window.dispatchEvent(new CustomEvent('town:locate', { detail: { id } }));
+          if (btn.dataset.fxText) {
+            emitCathedralWave(btn.dataset.fxText, btn.dataset.fxColor || '#c084fc');
+          }
+        }
+        if (scrollTo) {
+          document.getElementById(scrollTo)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      };
+
+      document.querySelectorAll<HTMLButtonElement>('[data-cath-walk], .cath-station-btn').forEach((btn) => {
+        btn.addEventListener('click', () => activateCathStation(btn));
+      });
+
+      document.getElementById('btn-scroll-organ')?.addEventListener('click', () => {
+        document.getElementById('cathedral-echo-puzzle')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+
+      // 2. Seal Synchronization & Sovereign Tracker
+      const sealBadge = document.getElementById('cathedral-seal-badge');
+      const masterBadge = document.getElementById('cathedral-master-badge');
+      const liveDot = document.getElementById('cathedral-live-dot');
+      const stageReadout = document.getElementById('cathedral-stage-readout');
+      const cofferLocked = document.getElementById('cathedral-coffer-locked');
+      const cofferUnlocked = document.getElementById('cathedral-coffer-unlocked');
+      const cofferPill = document.getElementById('cathedral-coffer-pill');
+      const cofferSub = document.getElementById('cathedral-coffer-subtext');
+
+      function refreshCathedralSeals() {
+        const seals = getAbyssalSeals();
+        const total = countAbyssalSeals(seals);
+        const abyssalCountEl = document.getElementById('cathedral-abyssal-count');
+        const obeliskPill = document.getElementById('cathedral-obelisk-pill');
+        if (abyssalCountEl) abyssalCountEl.textContent = `${total} / 4`;
+        if (obeliskPill) {
+          obeliskPill.textContent = total === 4 ? '🌌 Obelisk Awakened (4/4)' : `${total} / 4 Seals`;
+          obeliskPill.className =
+            total === 4
+              ? 'rounded-full border border-emerald-400/70 bg-emerald-950/80 px-2.5 py-0.5 font-mono text-[10px] font-bold text-emerald-200'
+              : 'rounded-full border border-slate-700 bg-slate-900 px-2.5 py-0.5 font-mono text-[10px] font-bold text-slate-300';
+        }
+        (['echoes', 'ember', 'valor', 'eternity'] as const).forEach((k) => {
+          const unlocked = Boolean(seals[k]);
+          const badge = document.getElementById(`cathedral-seal-status-${k}`);
+          const card = document.querySelector<HTMLElement>(`[data-cath-seal-card="${k}"]`);
+          if (badge) {
+            badge.textContent = unlocked ? 'UNLOCKED' : 'LOCKED';
+            badge.className = unlocked
+              ? 'shrink-0 rounded-full border border-emerald-400/60 bg-emerald-950/75 px-2 py-0.5 font-mono text-[9px] font-bold text-emerald-300'
+              : 'shrink-0 rounded-full border border-slate-700 bg-slate-900 px-2 py-0.5 font-mono text-[9px] font-bold text-slate-400';
+          }
+          if (card) card.classList.toggle('border-emerald-500/60', unlocked);
+        });
+      }
+
+      function markOrganStagesCleared(clearedCount: number) {
+        if (stageReadout) {
+          stageReadout.textContent = clearedCount >= 3 ? 'AWAKENED' : `${clearedCount} / 3`;
+          stageReadout.className =
+            clearedCount >= 3
+              ? "font-['Press_Start_2P',monospace] text-xs sm:text-sm text-emerald-300"
+              : "font-['Press_Start_2P',monospace] text-sm sm:text-base text-[#c084fc]";
+        }
+        [1, 2, 3].forEach((idx) => {
+          const box = document.getElementById(`organ-stage-${idx}`);
+          const icon = document.getElementById(`organ-stage-icon-${idx}`);
+          const cleared = idx <= clearedCount;
+          if (box && icon) {
+            box.className = cleared
+              ? 'flex items-center justify-between gap-1.5 rounded-lg border border-emerald-400/60 bg-emerald-950/60 px-2.5 py-1.5 shadow-[0_0_10px_rgba(52,211,153,0.18)] transition-all'
+              : 'flex items-center justify-between gap-1.5 rounded-lg border border-purple-900/60 bg-[#130724] px-2.5 py-1.5 transition-all';
+            icon.textContent = cleared ? '✨' : '🔒';
+          }
+        });
+      }
+
+      function applyEchoesUnlockedUI() {
+        if (sealBadge) {
+          sealBadge.textContent = '🟣 SEAL OF ECHOES: AWAKENED';
+          sealBadge.className =
+            'inline-flex items-center gap-1.5 rounded-full border border-emerald-400/60 bg-emerald-950/75 px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-emerald-200';
+        }
+        if (masterBadge) {
+          masterBadge.classList.remove('hidden');
+          masterBadge.classList.add('inline-flex');
+        }
+        if (liveDot) liveDot.className = 'h-2 w-2 rounded-full bg-emerald-400';
+        markOrganStagesCleared(3);
+        cofferLocked?.classList.add('hidden');
+        cofferUnlocked?.classList.remove('hidden');
+        if (cofferPill) {
+          cofferPill.textContent = '🔓 Unsealed';
+          cofferPill.className =
+            'rounded-full border border-emerald-500/50 bg-emerald-950/70 px-2.5 py-0.5 font-mono text-[10px] font-bold text-emerald-300';
+        }
+        if (cofferSub) {
+          cofferSub.textContent = 'Seal of Echoes awakened! Zero-Asset WebAudio Synth Blueprint ready.';
+        }
+        refreshCathedralSeals();
+      }
+
+      refreshCathedralSeals();
+      if (getAbyssalSeals().echoes) {
+        applyEchoesUnlockedUI();
+      }
+
+      // 3. Echoes of the Cathedral 2.0 (Memory Puzzle + Free-Play Jam Mode)
+      let round = 1;
+      const MAX_ROUNDS = 3;
+      let sequence: number[] = [];
+      let playerStep = 0;
+      let isPlayingSequence = false;
+      let trialActive = false;
+      let cancelled = false;
+
+      const roundTracker = document.getElementById('organ-round-tracker');
+      const statusMsg = document.getElementById('organ-status-msg');
+      const stepProgress = document.getElementById('organ-step-progress');
+      const modePill = document.getElementById('organ-mode-pill');
+      const startBtn = document.getElementById('btn-start-organ-game');
+      const replayBtn = document.getElementById('btn-replay-organ');
+      const organKeys = document.querySelectorAll<HTMLButtonElement>('[data-organ-note]');
+
+      function flashKey(noteIdx: number, withWave = false) {
+        const btn = document.querySelector<HTMLButtonElement>(`[data-organ-note="${noteIdx}"]`);
+        if (!btn) return;
+        btn.classList.add('ring-4', 'ring-amber-300', 'brightness-125', 'scale-[1.03]');
+        playOrganTone(FREQS[noteIdx], 380);
+        if (withWave) {
+          emitCathedralWave(NOTE_LABELS[noteIdx], NOTE_COLORS[noteIdx]);
+        }
+        setTimeout(() => {
+          btn.classList.remove('ring-4', 'ring-amber-300', 'brightness-125', 'scale-[1.03]');
+        }, 280);
+      }
+
+      async function playSequence() {
+        isPlayingSequence = true;
+        organKeys.forEach((k) => (k.disabled = true));
+        if (statusMsg) statusMsg.textContent = `Listen closely to Round ${round} melody (${sequence.length} notes)...`;
+        if (stepProgress) stepProgress.textContent = `Playing ${sequence.length} notes...`;
+
+        await new Promise((r) => setTimeout(r, 450));
+        for (let i = 0; i < sequence.length; i++) {
+          if (cancelled) return;
+          flashKey(sequence[i], true);
+          await new Promise((r) => setTimeout(r, 560));
+        }
+
+        if (cancelled) return;
+        isPlayingSequence = false;
+        playerStep = 0;
+        organKeys.forEach((k) => (k.disabled = false));
+        if (statusMsg) statusMsg.textContent = `Your turn! Repeat the ${sequence.length}-note sequence using pipes or keys 1–4.`;
+        if (stepProgress) stepProgress.textContent = `Step 0 / ${sequence.length}`;
+      }
+
+      function startRound(r: number) {
+        trialActive = true;
+        round = r;
+        if (roundTracker) roundTracker.textContent = `Round ${round} / ${MAX_ROUNDS}`;
+        if (modePill) {
+          modePill.textContent = `🎵 Trial Stage ${round}/3`;
+          modePill.className =
+            'rounded-full border border-amber-400/70 bg-amber-950/75 px-2 py-0.5 font-mono text-[10px] font-bold text-amber-200';
+        }
+        sequence = [];
+        const length = round + 2; // 3, 4, 5 notes
+        for (let i = 0; i < length; i++) {
+          sequence.push(Math.floor(Math.random() * 4));
+        }
+        playSequence();
+      }
+
+      startBtn?.addEventListener('click', () => {
+        markOrganStagesCleared(getAbyssalSeals().echoes ? 3 : 0);
+        startRound(1);
+      });
+
+      replayBtn?.addEventListener('click', () => {
+        if (!trialActive || sequence.length === 0 || isPlayingSequence) {
+          if (statusMsg) statusMsg.textContent = 'Start the Echo Trial first to hear a melody sequence.';
+          return;
+        }
+        playSequence();
+      });
+
+      function handleNotePress(note: number) {
+        if (isPlayingSequence) return;
+        flashKey(note, true);
+
+        if (!trialActive || sequence.length === 0) {
+          if (stepProgress) stepProgress.textContent = `Free Jam · ${NOTE_LABELS[note]}`;
+          return;
+        }
+
+        if (note === sequence[playerStep]) {
+          playerStep++;
+          if (stepProgress) stepProgress.textContent = `Step ${playerStep} / ${sequence.length}`;
+          if (playerStep === sequence.length) {
+            markOrganStagesCleared(round);
+            if (round < MAX_ROUNDS) {
+              if (statusMsg) {
+                statusMsg.textContent = `✨ Harmonic match! Advancing to Round ${round + 1}...`;
+              }
+              setTimeout(() => {
+                if (!cancelled) startRound(round + 1);
+              }, 850);
+            } else {
+              trialActive = false;
+              awardAbyssalSeal('echoes');
+              applyEchoesUnlockedUI();
+              FREQS.forEach((f, i) => setTimeout(() => playOrganTone(f, 450), i * 95));
+              emitCathedralWave('SEAL OF ECHOES!', '#c084fc');
+              if (modePill) {
+                modePill.textContent = '👑 Awakening Complete';
+                modePill.className =
+                  'rounded-full border border-emerald-400/70 bg-emerald-950/80 px-2 py-0.5 font-mono text-[10px] font-bold text-emerald-200';
+              }
+              if (statusMsg) {
+                statusMsg.innerHTML =
+                  '<span class="text-emerald-300 font-bold">🎉 SEAL OF ECHOES AWAKENED! Rose Window Blueprint unlocked below!</span>';
+              }
+              if (stepProgress) stepProgress.textContent = 'All 3 Stages Cleared!';
+            }
+          }
+        } else {
+          playerStep = 0;
+          playOrganTone(165, 220, 'sawtooth');
+          emitCathedralWave('DISCORDANT NOTE!', '#ef4444');
+          if (statusMsg) {
+            statusMsg.textContent = `❌ Discordant chime on Round ${round}! Replaying melody — listen again!`;
+          }
+          setTimeout(() => {
+            if (!cancelled && trialActive) playSequence();
+          }, 750);
+        }
+      }
+
+      organKeys.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const note = parseInt(btn.getAttribute('data-organ-note') || '0', 10);
+          handleNotePress(note);
+        });
+      });
+
+      const onCathHotkey = (e: KeyboardEvent) => {
+        const target = e.target as HTMLElement | null;
+        if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return;
+        if (e.key >= '1' && e.key <= '4') {
+          e.preventDefault();
+          handleNotePress(parseInt(e.key, 10) - 1);
+          return;
+        }
+        const k = e.key.toLowerCase();
+        const matched = document.querySelector<HTMLButtonElement>(`.cath-station-btn[data-key="${k}"]`);
+        if (matched) {
+          e.preventDefault();
+          activateCathStation(matched);
+        }
+      };
+      window.addEventListener('keydown', onCathHotkey);
+
+      // 4. The Obsidian Grimoire 2.0 Interactive Stepper
+      interface WarTale {
+        id: string;
+        chapter: string;
+        icon: string;
+        title: string;
+        severity: string;
+        metric: string;
+        rootCause: string;
+        solution: string;
+        pattern: string;
+        waveText: string;
+        waveColor: string;
+      }
+      const tales = (window as unknown as { __CATHEDRAL_WAR_STORIES__: WarTale[] }).__CATHEDRAL_WAR_STORIES__ || [];
+      let activeTale = 0;
+      const grimoireTabs = document.querySelectorAll<HTMLButtonElement>('[data-grimoire-tab]');
+
+      function renderTale(idx: number, withWave = false) {
+        const t = tales[idx];
+        if (!t) return;
+        activeTale = idx;
+
+        grimoireTabs.forEach((tab, i) => {
+          tab.className =
+            i === idx
+              ? 'grimoire-tab flex flex-col items-start rounded-xl border-2 border-[#fbbf24] bg-gradient-to-b from-[#3b0764] to-[#21043b] p-2.5 text-left text-[#fef3c7] shadow-[0_3px_0_#78350f] transition cursor-pointer'
+              : 'grimoire-tab flex flex-col items-start rounded-xl border-2 border-purple-900/60 bg-[#120624] p-2.5 text-left text-slate-300 hover:border-purple-500/70 transition cursor-pointer';
+        });
+
+        const ch = document.getElementById('grimoire-chapter');
+        const mt = document.getElementById('grimoire-metric');
+        const sv = document.getElementById('grimoire-severity');
+        const ti = document.getElementById('grimoire-title');
+        const rc = document.getElementById('grimoire-root');
+        const so = document.getElementById('grimoire-solution');
+        const pt = document.getElementById('grimoire-pattern');
+
+        if (ch) ch.textContent = t.chapter;
+        if (mt) mt.textContent = t.metric;
+        if (sv) sv.textContent = t.severity;
+        if (ti) ti.textContent = `${t.icon} ${t.title}`;
+        if (rc) rc.textContent = t.rootCause;
+        if (so) so.textContent = t.solution;
+        if (pt) pt.textContent = `Pattern: ${t.pattern}`;
+
+        if (withWave) {
+          emitCathedralWave(t.waveText, t.waveColor);
+        }
+      }
+
+      grimoireTabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+          const idx = parseInt(tab.getAttribute('data-grimoire-tab') || '0', 10);
+          playOrganTone(FREQS[idx % 4], 180);
+          renderTale(idx, true);
+        });
+      });
+
+      document.getElementById('btn-next-grimoire')?.addEventListener('click', () => {
+        const nxt = (activeTale + 1) % Math.max(1, tales.length);
+        playOrganTone(FREQS[nxt % 4], 180);
+        renderTale(nxt, true);
+      });
+
+      document.getElementById('btn-walk-grimoire')?.addEventListener('click', () => {
+        const t = tales[activeTale];
+        playOrganTone(523.25, 160);
+        window.dispatchEvent(new CustomEvent('town:locate', { detail: { id: 'war-stories-grimoire' } }));
+        if (t) emitCathedralWave(t.waveText, t.waveColor);
+      });
+
+      // 5. Confession Shrine Spirit Cleanse (+50% Speed Overclock Buff)
+      const shrineBtn = document.getElementById('btn-shrine-cleanse');
+      const shrineStatus = document.getElementById('shrine-buff-status');
+      let shrineTimer: number | null = null;
+
+      shrineBtn?.addEventListener('click', () => {
+        window.dispatchEvent(new CustomEvent('town:claim-lucky-egg'));
+        window.dispatchEvent(new CustomEvent('town:locate', { detail: { id: 'confession-shrine' } }));
+        emitCathedralWave('SPIRIT CLEANSED +50% SPD', '#38bdf8');
+        [523.25, 659.25, 783.99].forEach((f, idx) => setTimeout(() => playOrganTone(f, 220), idx * 75));
+
+        if (speakerEl) speakerEl.textContent = '🕯️ Spirit Cleanse Shrine (NE)';
+        if (dialogueEl) {
+          dialogueEl.textContent =
+            '“Spirit purified! You glide +50% faster across Shadow Cathedral and every Dark Castle realm for 25 seconds.”';
+        }
+
+        if (shrineTimer !== null) clearInterval(shrineTimer);
+        let rem = 25;
+        const updateBuff = () => {
+          if (!shrineStatus) return;
+          if (rem > 0) {
+            shrineStatus.textContent = `✨ ACTIVE +50% (${rem}s)`;
+            shrineStatus.className =
+              'rounded-full border border-sky-400/80 bg-sky-500/20 px-2 py-0.5 font-mono text-[9px] font-black text-sky-200 animate-pulse';
+          } else {
+            shrineStatus.textContent = 'READY';
+            shrineStatus.className =
+              'rounded-full border border-sky-400/40 bg-sky-950/70 px-2 py-0.5 font-mono text-[9px] font-bold text-sky-200';
+            if (shrineTimer !== null) {
+              clearInterval(shrineTimer);
+              shrineTimer = null;
+            }
+          }
+        };
+        updateBuff();
+        shrineTimer = window.setInterval(() => {
+          rem--;
+          updateBuff();
+        }, 1000);
+      });
+
+      document.addEventListener(
+        'astro:before-swap',
+        () => {
+          cancelled = true;
+          if (shrineTimer !== null) clearInterval(shrineTimer);
+          window.removeEventListener('keydown', onCathHotkey);
+        },
+        { once: true }
+      );
+    }
+
+    initCathedralPage();
+    document.addEventListener('astro:page-load', initCathedralPage);
+  </script>
+</TownLayout>

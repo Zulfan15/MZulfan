@@ -12,11 +12,15 @@ import {
 } from './townBackground';
 import {
   DIGI_COLS,
+  DIGI_DARK_CASTLE_GATE,
+  DIGI_KINGDOM_GATE,
   DIGI_ROWS,
   DIGI_PLAZA_CONSOLE,
   DIGI_RETURN_GATE,
+  DIGI_SKY_CASTLE_GATE,
   DIGI_ZONES,
 } from './digiMap';
+import { drawRoyalArchwayPortal } from './kingdomAssets';
 import { Tile, type TownMap } from './types';
 
 function hashTile(x: number, y: number): number {
@@ -50,8 +54,11 @@ export function createDigiBackgroundCanvas(map: TownMap): HTMLCanvasElement {
   // 5. Central Digi-Plaza Hex Crest & Zone Altar Details
   drawZoneDecorDetails(ctx);
 
-  // 6. North Return Gate Pad (X: 19..21, Y: 3..4)
+  // 6. North Return Gate Pad, South Royal Kingdom Gate Pad, West Dark Castle Gate (5, 22) & East Sky Castle Gate (36, 22)
   drawDigitalWarpPad(ctx, DIGI_RETURN_GATE.xMin, DIGI_RETURN_GATE.yMin, 'TOWN GATE');
+  drawRoyalArchwayPortal(ctx, DIGI_KINGDOM_GATE.xMin, DIGI_KINGDOM_GATE.yMin, 'KINGDOM');
+  drawDarkCastlePortalArch(ctx, DIGI_DARK_CASTLE_GATE.xMin, DIGI_DARK_CASTLE_GATE.yMin);
+  drawSkyCastleCloudPortal(ctx, DIGI_SKY_CASTLE_GATE.xMin, DIGI_SKY_CASTLE_GATE.yMin);
 
   // 7. DigiDex Master Console (2x2 at X: 19..20, Y: 20..21) + Zone Info Terminals
   drawDigiDexMasterConsole(ctx, DIGI_PLAZA_CONSOLE.x * TILE_SIZE, DIGI_PLAZA_CONSOLE.y * TILE_SIZE);
@@ -324,5 +331,128 @@ function drawHoloInfoTerminal(ctx: CanvasRenderingContext2D, px: number, py: num
   ctx.fillRect(px + 6, py + 3, 4, 4);
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(px + 7, py + 4, 2, 1);
+}
+
+function drawDarkCastlePortalArch(ctx: CanvasRenderingContext2D, tileX: number, tileY: number) {
+  const px = tileX * TILE_SIZE;
+  const py = tileY * TILE_SIZE;
+  const w = 3 * TILE_SIZE;
+  const h = 3 * TILE_SIZE;
+
+  ctx.save();
+  // Obsidian stone apron & crimson-violet bridge accent leading east toward X:9
+  ctx.fillStyle = '#181024';
+  ctx.fillRect(px - 2, py - 2, w + 36, h + 4);
+  ctx.fillStyle = '#2d1b4e';
+  ctx.fillRect(px, py + 12, w + 32, h - 24);
+  ctx.fillStyle = 'rgba(168, 85, 247, 0.35)';
+  ctx.fillRect(px + w, py + 16, 30, 1);
+  ctx.fillRect(px + w, py + 31, 30, 1);
+
+  // Obsidian Stone Portal Ring (centered on (5,22) -> px + 24, py + 24)
+  const cx = px + w / 2;
+  const cy = py + h / 2;
+
+  ctx.fillStyle = '#3b0764';
+  ctx.beginPath();
+  ctx.arc(cx, cy, 20, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.strokeStyle = '#6b21a8';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(cx, cy, 18, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // Abyssal Crimson-Violet Vortex Core
+  const grad = ctx.createRadialGradient(cx, cy, 2, cx, cy, 16);
+  grad.addColorStop(0, '#f43f5e');
+  grad.addColorStop(0.45, '#9333ea');
+  grad.addColorStop(1, '#1e0b36');
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.arc(cx, cy, 15, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Gothic Twin Side Braziers
+  for (const bx of [px + 2, px + w - 7]) {
+    ctx.fillStyle = '#27272a';
+    ctx.fillRect(bx, py + h - 10, 5, 8);
+    ctx.fillStyle = '#f97316';
+    ctx.fillRect(bx + 1, py + h - 13, 3, 4);
+    ctx.fillStyle = '#fde047';
+    ctx.fillRect(bx + 2, py + h - 12, 1, 2);
+  }
+
+  // Banner plaque
+  ctx.fillStyle = 'rgba(15, 7, 26, 0.92)';
+  ctx.fillRect(px + 2, py - 9, w - 4, 8);
+  ctx.strokeStyle = '#c084fc';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(px + 2, py - 9, w - 4, 8);
+  ctx.font = 'bold 5.5px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#f5d0fe';
+  ctx.fillText('DARK CASTLE', cx, py - 3);
+  ctx.restore();
+}
+
+function drawSkyCastleCloudPortal(ctx: CanvasRenderingContext2D, tileX: number, tileY: number) {
+  const px = tileX * TILE_SIZE;
+  const py = tileY * TILE_SIZE;
+  const w = 3 * TILE_SIZE;
+  const h = 3 * TILE_SIZE;
+  const cx = px + w / 2;
+  const cy = py + h / 2;
+
+  ctx.save();
+  // Cloud-white marble apron & sky-gold bridge guide connecting west toward X:31
+  ctx.fillStyle = '#e2e8f0';
+  ctx.fillRect(px - 34, py - 2, w + 36, h + 4);
+  ctx.fillStyle = '#38bdf8';
+  ctx.fillRect(px - 30, py + 12, w + 28, h - 24);
+  ctx.fillStyle = '#fbbf24';
+  ctx.fillRect(px - 28, py + 16, 26, 1);
+  ctx.fillRect(px - 28, py + 31, 26, 1);
+
+  // Winged Marble Portal Ring centered at (36, 22)
+  ctx.fillStyle = '#f8fafc';
+  ctx.beginPath();
+  ctx.arc(cx, cy, 20, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.strokeStyle = '#fbbf24';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.arc(cx, cy, 18, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // Radiant Sky-Blue Portal Core
+  const grad = ctx.createRadialGradient(cx, cy, 2, cx, cy, 16);
+  grad.addColorStop(0, '#ffffff');
+  grad.addColorStop(0.4, '#7dd3fc');
+  grad.addColorStop(0.85, '#0284c7');
+  grad.addColorStop(1, '#1e3a8a');
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.arc(cx, cy, 15, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Golden side wing accents
+  ctx.fillStyle = '#fef08a';
+  ctx.fillRect(px + 1, cy - 5, 4, 10);
+  ctx.fillRect(px + w - 5, cy - 5, 4, 10);
+
+  // Banner plaque
+  ctx.fillStyle = 'rgba(12, 74, 110, 0.94)';
+  ctx.fillRect(px + 2, py - 9, w - 4, 8);
+  ctx.strokeStyle = '#fde047';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(px + 2, py - 9, w - 4, 8);
+  ctx.font = 'bold 5.5px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#fef9c3';
+  ctx.fillText('SKY CASTLE', cx, py - 3);
+  ctx.restore();
 }
 

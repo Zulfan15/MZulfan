@@ -1,0 +1,478 @@
+---
+import TownLayout from '../layouts/TownLayout.astro';
+import WhereTo from '../components/WhereTo.astro';
+import { HARBOUR_LANDMARKS } from '../engine/harbourMap';
+import { MARITIME_SEALS_META, type MaritimeSealKey } from '../engine/harbourInteriorShared';
+
+const sealsList = Object.values(MARITIME_SEALS_META);
+
+interface LandmarkCard {
+  id: string;
+  icon: string;
+  badge: string;
+  title: string;
+  coords: string;
+  accent: string;
+  badgeClass: string;
+  desc: string;
+  interiorHref: string;
+  sealKey: MaritimeSealKey;
+  guardians: string;
+}
+
+const landmarkCards: LandmarkCard[] = [
+  {
+    id: 'harbour_lighthouse',
+    icon: '🗼',
+    badge: 'NORTHWEST BLUFF · BEACON',
+    title: 'Old Port Lighthouse',
+    coords: 'X: 9..13, Y: 2..12',
+    accent: 'border-[#f59e0b] bg-[#1f1910] text-[#fef3c7]',
+    badgeClass: 'border-[#d97706] bg-[#451a03] text-[#fde68a]',
+    desc: 'Coastal stone beacon tower showcasing Cloud, Edge Compute & Observability architecture alongside Beacon Prism Calibration.',
+    interiorHref: '/harbour/lighthouse',
+    sealKey: 'beacon',
+    guardians: 'Kyogre · Palkia · Azulongmon',
+  },
+  {
+    id: 'harbour_warehouse',
+    icon: '📦',
+    badge: 'NORTHEAST QUAY · CARGO',
+    title: 'Customs & Cargo Warehouse',
+    coords: 'X: 24..32, Y: 9..20',
+    accent: 'border-[#94a3b8] bg-[#141a24] text-[#f1f5f9]',
+    badgeClass: 'border-[#64748b] bg-[#1e293b] text-[#cbd5e1]',
+    desc: 'Harbour logistics fort storing Data Pipelines, Datasets, and the Royal Cargo Crane Manifest priority dispatch.',
+    interiorHref: '/harbour/warehouse',
+    sealKey: 'quartermaster',
+    guardians: 'Gyarados · Vikemon · Regigigas',
+  },
+  {
+    id: 'harbour_cottage',
+    icon: '🏡',
+    badge: 'WEST QUARTER · INN',
+    title: 'Harbourmaster Tudor Inn',
+    coords: 'X: 6..15, Y: 21..30',
+    accent: 'border-[#ef4444] bg-[#241114] text-[#fee2e2]',
+    badgeClass: 'border-[#dc2626] bg-[#450a0a] text-[#fecaca]',
+    desc: 'Half-timbered Tudor chartroom chronicling 6 Leadership & Lab Crew roles plus the 4-Waypoint Voyage Route Charter.',
+    interiorHref: '/harbour/inn',
+    sealKey: 'navigator',
+    guardians: 'Urshifu · Gardevoir · Plesiomon',
+  },
+  {
+    id: 'harbour_market',
+    icon: '⛵',
+    badge: 'SOUTHWEST · BAZAAR & BEACH',
+    title: 'Dockside Market Pavilion',
+    coords: 'X: 5..17, Y: 36..52',
+    accent: 'border-[#10b981] bg-[#0c2119] text-[#d1fae5]',
+    badgeClass: 'border-[#059669] bg-[#064e3b] text-[#a7f3d0]',
+    desc: 'Coastal stone pavilion enclosing a golden sand & coral tide-pool terrace, CV Charter, Honors & Appraisal Scales.',
+    interiorHref: '/harbour/market',
+    sealKey: 'guild',
+    guardians: 'Celebi · Sakuyamon · HerculesKabuterimon',
+  },
+  {
+    id: 'harbour_galleon',
+    icon: '🏴‍☠️',
+    badge: 'EAST PIERS · FLEET',
+    title: 'The Sovereign Brigantine',
+    coords: 'X: 23..39, Y: 27..41',
+    accent: 'border-[#38bdf8] bg-[#081d2c] text-[#e0f2fe]',
+    badgeClass: 'border-[#0284c7] bg-[#0c4a6e] text-[#bae6fd]',
+    desc: 'Flagship Admiral’s Great Cabin showcasing flagship production systems and the Helm & Broadside Timing Trial.',
+    interiorHref: '/harbour/galleon',
+    sealKey: 'armada',
+    guardians: 'Neptunemon · Garchomp · MetalSeadramon',
+  },
+];
+---
+
+<TownLayout
+  title="Harbour Town — Royal Port & Admiralty | Muhammad Zulfan"
+  description="Explore Harbour Town (45×60 tiles), entered from Royal Kingdom South Road (22, 59): 5 enterable maritime interiors, 5 Royal Maritime Seals, and the Sovereign Voyage Finale."
+  place="harbour"
+>
+  <div class="space-y-6 pb-10">
+    <!-- Hero Banner -->
+    <section
+      class="relative overflow-hidden rounded-2xl border-[3px] border-[#0284c7] bg-gradient-to-br from-[#061826] via-[#0a273d] to-[#0f172a] p-5 text-[#e0f2fe] shadow-[0_8px_0_#0c4a6e,0_16px_32px_rgba(2,132,199,0.28)]"
+    >
+      <div class="pointer-events-none absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-[#38bdf8] via-[#fde047] to-[#34d399]"></div>
+
+      <div class="relative z-10 space-y-3">
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="inline-flex items-center gap-1.5 rounded-full border-2 border-[#38bdf8] bg-[#082f49]/90 px-3 py-0.5 font-mono text-[10px] font-extrabold uppercase tracking-[0.14em] text-[#bae6fd]">
+            <span>⚓</span> HARBOUR TOWN · 5 INTERIORS
+          </span>
+          <span class="inline-flex items-center gap-1 rounded-full border-2 border-[#fde047] bg-[#422006]/85 px-2.5 py-0.5 font-mono text-[10px] font-black uppercase tracking-wider text-[#fef08a]">
+            SOUTH PORTAL: ROYAL KINGDOM (22, 59)
+          </span>
+          <span
+            id="harbour-hero-seal-badge"
+            class="inline-flex items-center gap-1 rounded-full border-2 border-[#34d399] bg-[#064e3b]/90 px-2.5 py-0.5 font-mono text-[10px] font-black uppercase tracking-wider text-[#a7f3d0]"
+          >
+            ⚓ 0 / 5 MARITIME SEALS
+          </span>
+        </div>
+
+        <h1 class="font-['Press_Start_2P',monospace] text-base leading-snug text-[#f8fafc] drop-shadow-[0_2px_0_#0c4a6e] sm:text-lg">
+          ⚓ HARBOUR TOWN &amp; ROYAL PORT
+        </h1>
+
+        <p class="max-w-2xl text-xs leading-relaxed text-[#cbd5e1] sm:text-sm">
+          Reached by marching down the southern stone road out of Royal Kingdom at <code class="rounded bg-[#0f172a] px-1.5 py-0.5 text-[#fde047]">(22, 59)</code>!
+          Explore a <strong class="text-[#7dd3fc]">45 × 60 tile</strong> coastal fortress-seaport featuring <strong class="text-[#fde047]">5 Enterable Maritime Interiors</strong>,
+          collect all <strong class="text-[#34d399]">5 Royal Maritime Seals</strong>, and awaken <strong class="text-[#fef08a]">Grand Admiral of Avalon</strong> aboard The Sovereign Brigantine!
+        </p>
+
+        <div class="flex flex-wrap gap-2 pt-1">
+          <button
+            type="button"
+            data-harbour-action="editor"
+            class="btn btn-sm border-2 border-[#fbbf24] bg-[#451a03] font-pixel text-[10px] text-[#fef3c7] hover:bg-[#78350f]"
+          >
+            🛠️ Town Editor 5.0 (E)
+          </button>
+          <button
+            type="button"
+            data-harbour-walk="harbour_galleon"
+            class="btn btn-sm border-2 border-[#38bdf8] bg-[#082f49] font-pixel text-[10px] text-[#e0f2fe] hover:bg-[#0284c7]"
+          >
+            🏴‍☠️ Walk to Sovereign Brigantine
+          </button>
+          <a
+            href="/harbour/lighthouse"
+            class="btn btn-sm border-2 border-[#f59e0b] bg-[#451a03] font-pixel text-[10px] text-[#fde68a] hover:bg-[#78350f]"
+          >
+            🗼 Enter Lighthouse
+          </a>
+          <a
+            href="/kingdom?from=harbour"
+            onclick="sessionStorage.setItem('kingdom:respawn', '22,57,up')"
+            class="btn btn-sm border-2 border-[#b45309] bg-[#451a03] font-pixel text-[10px] text-[#fef3c7] hover:bg-[#78350f]"
+          >
+            🏰 Return to Royal Kingdom
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Port Telemetry -->
+    <section class="card border-2 border-[#1e293b] bg-[#0a1622] p-4 text-[#e2e8f0]">
+      <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <h2 class="font-pixel text-xs uppercase tracking-wide text-[#7dd3fc]">
+          🧭 Maritime Chart &amp; Port Status
+        </h2>
+        <span class="rounded border border-[#38bdf8]/40 bg-[#082f49] px-2 py-0.5 font-mono text-[10px] text-[#bae6fd]">
+          Save Target: src/data/harbourLayout.json
+        </span>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div class="rounded-lg border border-[#1e293b] bg-[#0f1f30] p-2.5">
+          <div class="font-mono text-[10px] text-[#94a3b8]">DIMENSIONS</div>
+          <div class="font-pixel text-xs text-[#7dd3fc]">45 × 60 Tiles</div>
+        </div>
+        <div class="rounded-lg border border-[#1e293b] bg-[#0f1f30] p-2.5">
+          <div class="font-mono text-[10px] text-[#94a3b8]">NORTH ROAD</div>
+          <div class="font-pixel text-xs text-[#fde047]">(21..24, 0..1)</div>
+        </div>
+        <div class="rounded-lg border border-[#1e293b] bg-[#0f1f30] p-2.5">
+          <div class="font-mono text-[10px] text-[#94a3b8]">KINGDOM LINK</div>
+          <div class="font-pixel text-xs text-[#fca5a5]">Exit (22, 59)</div>
+        </div>
+        <div class="rounded-lg border border-[#1e293b] bg-[#0f1f30] p-2.5">
+          <div class="font-mono text-[10px] text-[#94a3b8]">SANCTUMS</div>
+          <div class="font-pixel text-xs text-[#86efac]">5 Interiors / {HARBOUR_LANDMARKS.length} Spots</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5 Royal Maritime Seals & Sovereign Voyage Finale -->
+    <section
+      id="harbour-voyage-finale"
+      class="relative overflow-hidden rounded-2xl border-[3px] border-[#38bdf8] bg-gradient-to-br from-[#081a2b] via-[#0c2640] to-[#0b1324] p-5 text-[#e0f2fe] shadow-[0_6px_0_#082f49]"
+    >
+      <div class="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <span class="inline-flex items-center gap-1.5 rounded border border-[#38bdf8] bg-[#082f49] px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-[#bae6fd]">
+            ⚓ ADMIRALTY QUEST FINALE · SOVEREIGN BRIGANTINE
+          </span>
+          <h2 class="mt-2 font-pixel text-sm text-[#fde047]">
+            The 5 Royal Maritime Seals of Avalon
+          </h2>
+          <p class="mt-1 max-w-2xl text-xs leading-relaxed text-[#cbd5e1]">
+            Enter each seaport sanctuary and complete its guardian trial to earn all 5 Royal Maritime Seals.
+            At <strong class="text-[#fde047]">5 / 5</strong>, sound the Sovereign Armada Salute for the title
+            <strong class="text-[#7dd3fc]">Grand Admiral of Avalon</strong> &amp; a permanent Tailwinds Overdrive blessing!
+          </p>
+        </div>
+
+        <div class="rounded-xl border-2 border-[#38bdf8]/60 bg-[#04101c]/90 px-3.5 py-2 text-right">
+          <div class="font-mono text-[10px] text-[#94a3b8]">SEAL PROGRESS</div>
+          <div id="voyage-seal-count" class="font-pixel text-base text-[#fde047]">0 / 5</div>
+        </div>
+      </div>
+
+      <!-- Progress Bar -->
+      <div class="mt-3 h-3 w-full overflow-hidden rounded-full border border-[#0284c7] bg-[#020617]">
+        <div
+          id="voyage-seal-bar"
+          class="h-full bg-gradient-to-r from-[#0284c7] via-[#38bdf8] to-[#fde047] transition-all duration-500"
+          style="width: 0%"
+        ></div>
+      </div>
+
+      <!-- 5 Seals + Finale Action Card (6 cards -> 3x2 grid) -->
+      <div class="mt-4 grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
+        {sealsList.map((seal) => (
+          <a
+            href={seal.route}
+            data-harbour-seal-card={seal.key}
+            class="group flex flex-col justify-between rounded-xl border-2 border-[#1e293b] bg-[#0a1624]/95 p-3 transition-all hover:-translate-y-0.5 hover:border-[#38bdf8]"
+          >
+            <div>
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-base" aria-hidden="true">{seal.icon}</span>
+                <span
+                  data-harbour-seal-status={seal.key}
+                  class="rounded border border-[#475569] bg-[#1e293b] px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase text-[#94a3b8]"
+                >
+                  🔒 SEALED
+                </span>
+              </div>
+              <div class="mt-1.5 font-pixel text-[10px] leading-snug text-[#f8fafc]">{seal.name}</div>
+              <div class="mt-0.5 font-mono text-[10px] font-semibold text-[#7dd3fc]">{seal.sanctum}</div>
+              <p class="mt-1 text-[11px] leading-snug text-[#cbd5e1]">{seal.trial}</p>
+            </div>
+            <div class="mt-2 font-mono text-[10px] font-bold text-[#fde047] group-hover:underline">
+              Enter Sanctum →
+            </div>
+          </a>
+        ))}
+
+        <!-- Grand Admiral Finale Card (6th slot) -->
+        <div
+          id="voyage-admiral-panel"
+          class="flex flex-col justify-between rounded-xl border-2 border-[#0284c7] bg-[#071f33] p-3"
+        >
+          <div>
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-base" aria-hidden="true">⚓</span>
+              <span
+                id="voyage-title-pill"
+                class="rounded border border-[#0369a1] bg-[#082f49] px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase text-[#bae6fd]"
+              >
+                FLEET MOORED
+              </span>
+            </div>
+            <div class="mt-1.5 font-pixel text-[10px] leading-snug text-[#fde047]">
+              Sovereign Voyage Finale
+            </div>
+            <p id="voyage-status-hint" class="mt-1 text-[11px] leading-snug text-[#e2e8f0]">
+              Gather all 5 Maritime Seals to hoist the Sovereign Admiral pennant and unleash Tailwinds Overdrive.
+            </p>
+          </div>
+
+          <button
+            id="btn-awaken-voyage"
+            type="button"
+            disabled
+            class="btn btn-sm mt-2.5 w-full border-2 border-[#38bdf8] bg-[#0369a1] font-pixel text-[9px] text-[#f8fafc] hover:bg-[#0284c7] disabled:cursor-not-allowed disabled:opacity-45"
+          >
+            🔒 Need 5/5 Seals
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Clickable Harbour Landmarks -->
+    <section class="space-y-3">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <h2 class="font-pixel text-xs uppercase tracking-wider text-[#fde047]">
+          🗺️ Harbour Landmarks — Walk Outside or Enter Interior
+        </h2>
+        <span class="font-mono text-[10px] text-[#94a3b8]">
+          Walk up to any building door / galleon gangplank (or click Enter Interior)
+        </span>
+      </div>
+
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        {landmarkCards.map((card) => (
+          <article
+            class={`flex flex-col justify-between rounded-xl border-2 p-3.5 transition-all ${card.accent}`}
+          >
+            <div>
+              <div class="mb-1.5 flex items-center justify-between gap-2">
+                <span class={`inline-flex items-center rounded border px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase ${card.badgeClass}`}>
+                  {card.badge}
+                </span>
+                <code class="font-mono text-[9px] opacity-80">{card.coords}</code>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-lg" aria-hidden="true">{card.icon}</span>
+                <h3 class="font-pixel text-[11px] leading-snug">{card.title}</h3>
+              </div>
+              <p class="mt-1.5 text-[11px] leading-relaxed opacity-90">{card.desc}</p>
+              <div class="mt-1.5 font-mono text-[10px] opacity-80">
+                🛡️ Guardians: <span class="font-semibold">{card.guardians}</span>
+              </div>
+            </div>
+            <div class="mt-3 flex flex-wrap gap-2">
+              <button
+                type="button"
+                data-harbour-walk={card.id}
+                class="btn btn-xs border border-current/40 bg-black/30 font-mono text-[10px] hover:bg-black/50"
+              >
+                🚶 Walk There
+              </button>
+              <a
+                href={card.interiorHref}
+                class="btn btn-xs border border-[#38bdf8]/70 bg-[#082f49]/85 font-mono text-[10px] font-bold text-[#bae6fd] hover:bg-[#0284c7]"
+              >
+                🚪 Enter Interior →
+              </a>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <WhereTo currentPath="/harbour" />
+  </div>
+
+  <script>
+    import {
+      MARITIME_SEALS_META,
+      awakenVoyage,
+      countMaritimeSeals,
+      getMaritimeSeals,
+      hasVoyageAwakened,
+      type MaritimeSealKey,
+    } from '../engine/harbourInteriorShared';
+
+    function renderVoyageProgress() {
+      const seals = getMaritimeSeals();
+      const count = countMaritimeSeals();
+      const awakened = hasVoyageAwakened();
+      const keys = Object.keys(MARITIME_SEALS_META) as MaritimeSealKey[];
+
+      const heroBadge = document.getElementById('harbour-hero-seal-badge');
+      if (heroBadge) {
+        heroBadge.textContent = awakened
+          ? '⚓ GRAND ADMIRAL OF AVALON · 5/5'
+          : `⚓ ${count} / 5 MARITIME SEALS`;
+      }
+
+      const countEl = document.getElementById('voyage-seal-count');
+      if (countEl) countEl.textContent = `${count} / 5`;
+
+      const barEl = document.getElementById('voyage-seal-bar');
+      if (barEl) barEl.style.width = `${Math.round((count / 5) * 100)}%`;
+
+      const missing: string[] = [];
+      for (const k of keys) {
+        const unlocked = Boolean(seals[k]);
+        const card = document.querySelector<HTMLElement>(`[data-harbour-seal-card="${k}"]`);
+        const status = document.querySelector<HTMLElement>(`[data-harbour-seal-status="${k}"]`);
+        if (card) {
+          card.style.borderColor = unlocked ? MARITIME_SEALS_META[k].color : '';
+          card.style.backgroundColor = unlocked ? 'rgba(8, 47, 73, 0.72)' : '';
+        }
+        if (status) {
+          status.textContent = unlocked ? '✓ UNLOCKED' : '🔒 SEALED';
+          status.className = unlocked
+            ? 'rounded border border-[#22c55e] bg-[#052e16] px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase text-[#86efac]'
+            : 'rounded border border-[#475569] bg-[#1e293b] px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase text-[#94a3b8]';
+        }
+        if (!unlocked) missing.push(MARITIME_SEALS_META[k].sanctum);
+      }
+
+      const titlePill = document.getElementById('voyage-title-pill');
+      const hintEl = document.getElementById('voyage-status-hint');
+      const awakenBtn = document.getElementById('btn-awaken-voyage') as HTMLButtonElement | null;
+      const panel = document.getElementById('voyage-admiral-panel');
+
+      if (awakened) {
+        if (titlePill) {
+          titlePill.textContent = '👑 GRAND ADMIRAL';
+          titlePill.className =
+            'rounded border border-[#fde047] bg-[#422006] px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase text-[#fef08a]';
+        }
+        if (hintEl) {
+          hintEl.textContent =
+            'Sovereign Armada commissioned! Click anytime to catch the Tailwinds (+50% Speed Blessing).';
+        }
+        if (panel) {
+          panel.classList.add('border-[#fde047]', 'bg-gradient-to-br', 'from-[#0c4a6e]', 'to-[#0f172a]');
+        }
+        if (awakenBtn) {
+          awakenBtn.disabled = false;
+          awakenBtn.textContent = '🌬️ Catch Tailwinds (+50% Speed)';
+        }
+      } else if (count >= 5) {
+        if (titlePill) titlePill.textContent = '⚡ READY TO SAIL';
+        if (hintEl) {
+          hintEl.textContent =
+            'All 5 Royal Maritime Seals aligned! Sound the Armada Salute to claim Grand Admiral of Avalon.';
+        }
+        if (awakenBtn) {
+          awakenBtn.disabled = false;
+          awakenBtn.textContent = '⚓ Awaken Sovereign Armada';
+        }
+      } else {
+        if (titlePill) titlePill.textContent = 'FLEET MOORED';
+        if (hintEl) {
+          const preview = missing.slice(0, 2).join(', ');
+          const extra = missing.length > 2 ? ` +${missing.length - 2} more` : '';
+          hintEl.textContent = `Remaining sanctums: ${preview}${extra}.`;
+        }
+        if (awakenBtn) {
+          awakenBtn.disabled = true;
+          awakenBtn.textContent = `🔒 Need ${5 - count} More Seal${5 - count === 1 ? '' : 's'}`;
+        }
+      }
+    }
+
+    function wireHarbourPage() {
+      renderVoyageProgress();
+
+      document.querySelectorAll<HTMLButtonElement>('[data-harbour-walk]').forEach((btn) => {
+        if (btn.dataset.wired === '1') return;
+        btn.dataset.wired = '1';
+        btn.addEventListener('click', () => {
+          const targetId = btn.getAttribute('data-harbour-walk');
+          if (!targetId) return;
+          document.querySelector<HTMLButtonElement>(`.town-label[data-id="${targetId}"]`)?.click();
+        });
+      });
+
+      document.querySelectorAll<HTMLButtonElement>('[data-harbour-action="editor"]').forEach((btn) => {
+        if (btn.dataset.wired === '1') return;
+        btn.dataset.wired = '1';
+        btn.addEventListener('click', () => {
+          document.getElementById('btn-toggle-editor')?.click();
+        });
+      });
+
+      const awakenBtn = document.getElementById('btn-awaken-voyage') as HTMLButtonElement | null;
+      if (awakenBtn && awakenBtn.dataset.wired !== '1') {
+        awakenBtn.dataset.wired = '1';
+        awakenBtn.addEventListener('click', () => {
+          if (countMaritimeSeals() < 5) return;
+          awakenVoyage();
+          window.dispatchEvent(new CustomEvent('town:claim-lucky-egg'));
+          renderVoyageProgress();
+        });
+      }
+    }
+
+    window.addEventListener('harbour:seal-updated', renderVoyageProgress);
+    window.addEventListener('harbour:voyage-awakened', renderVoyageProgress);
+
+    wireHarbourPage();
+    document.addEventListener('astro:page-load', wireHarbourPage);
+  </script>
+</TownLayout>

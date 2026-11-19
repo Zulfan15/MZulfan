@@ -1,0 +1,216 @@
+---
+import TownLayout from '../layouts/TownLayout.astro';
+import WhereTo from '../components/WhereTo.astro';
+import { SKY_CASTLE_LANDMARKS } from '../engine/skyCastleMap';
+
+const landmarkCards = [
+  {
+    id: 'sky_citadel',
+    icon: '👑',
+    badge: 'NORTH ISLAND · KEEP',
+    title: 'White Marble Sky Citadel',
+    coords: 'X: 13..30, Y: 2..14',
+    accent: 'border-[#38bdf8] bg-[#0a1e33] text-[#e0f2fe]',
+    badgeClass: 'border-[#0284c7] bg-[#0c4a6e] text-[#bae6fd]',
+    desc: 'White marble and sapphire-spired sovereign cloud fortress overlooking the celestial archipelago.',
+  },
+  {
+    id: 'sky_crystal_plaza',
+    icon: '💎',
+    badge: 'CENTER · SKY PLAZA',
+    title: 'Celestial Crystal Fountain',
+    coords: 'X: 14..30, Y: 24..35',
+    accent: 'border-[#f472b6] bg-[#231024] text-[#fce7f3]',
+    badgeClass: 'border-[#ec4899] bg-[#500724] text-[#fbcfe8]',
+    desc: 'White marble terrace ringed by cherry-blossom sakura trees and market stalls around a floating sky-crystal.',
+  },
+  {
+    id: 'sky_windmills',
+    icon: '🌬️',
+    badge: 'WEST ISLAND · WIND & DOCKS',
+    title: 'Twin Cloud Windmills & Sky-Piers',
+    coords: 'X: 1..10, Y: 19..48',
+    accent: 'border-[#22c55e] bg-[#0d2115] text-[#dcfce7]',
+    badgeClass: 'border-[#16a34a] bg-[#052e16] text-[#bbf7d0]',
+    desc: 'Walk past the spinning windmills, flower plots, and twin wooden sky-docks overlooking the open cloud sea.',
+  },
+  {
+    id: 'sky_tavern',
+    icon: '🏠',
+    badge: 'SOUTHWEST ISLAND · INN',
+    title: 'Cloudhaven Timber Inn',
+    coords: 'X: 12..18, Y: 39..45',
+    accent: 'border-[#f59e0b] bg-[#21180b] text-[#fef3c7]',
+    badgeClass: 'border-[#d97706] bg-[#451a03] text-[#fde68a]',
+    desc: 'Cozy half-timbered sky tavern serving warm sky-berry tea and cloud pastries beside cascading waterfalls.',
+  },
+  {
+    id: 'sky_observatory',
+    icon: '🔭',
+    badge: 'NORTHEAST ISLAND · ASTRAL',
+    title: 'Golden Astral Observatory',
+    coords: 'X: 35..40, Y: 19..26',
+    accent: 'border-[#a855f7] bg-[#1a0f2b] text-[#f3e8ff]',
+    badgeClass: 'border-[#9333ea] bg-[#3b0764] text-[#e9d5ff]',
+    desc: 'Brushed-gold starlight dome encircled by glowing amethyst clusters atop a waterfall cliff.',
+  },
+  {
+    id: 'sky_chapel',
+    icon: '⛪',
+    badge: 'SOUTHEAST ISLAND · SANCTUARY',
+    title: 'Radiant Sky Chapel',
+    coords: 'X: 34..40, Y: 38..46',
+    accent: 'border-[#60a5fa] bg-[#0e192d] text-[#dbeafe]',
+    badgeClass: 'border-[#2563eb] bg-[#172554] text-[#bfdbfe]',
+    desc: 'Serene white sanctuary chapel perched on a mossy cliff beside twin southern cloud waterfalls.',
+  },
+];
+---
+
+<TownLayout
+  title="Sky Castle — Floating Cloud Citadel | Muhammad Zulfan"
+  description="Explore Sky Castle (45×60 tiles), entered via Digi-Sanctuary East Portal (36, 22): White Marble Sky Citadel, Crystal Plaza, Twin Windmills, Golden Astral Observatory, and Radiant Sky Chapel."
+  place="sky-castle"
+>
+  <div class="space-y-6 pb-10">
+    <!-- Hero Banner -->
+    <section
+      class="relative overflow-hidden rounded-2xl border-[3px] border-[#38bdf8] bg-gradient-to-br from-[#08203a] via-[#0c355c] to-[#172554] p-5 text-[#f0f9ff] shadow-[0_8px_0_#0c4a6e,0_16px_32px_rgba(56,189,248,0.28)]"
+    >
+      <div class="pointer-events-none absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-[#f472b6] via-[#fef08a] to-[#38bdf8]"></div>
+
+      <div class="relative z-10 space-y-3">
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="inline-flex items-center gap-1.5 rounded-full border-2 border-[#7dd3fc] bg-[#082f49]/90 px-3 py-0.5 font-mono text-[10px] font-extrabold uppercase tracking-[0.14em] text-[#bae6fd]">
+            <span>☁️</span> SKY CASTLE · MAP 45×60
+          </span>
+          <span class="inline-flex items-center gap-1 rounded-full border-2 border-[#fbbf24] bg-[#451a03]/85 px-2.5 py-0.5 font-mono text-[10px] font-black uppercase tracking-wider text-[#fde68a]">
+            PORTAL LINK: DIGI-SANCTUARY (36, 22)
+          </span>
+        </div>
+
+        <h1 class="font-['Press_Start_2P',monospace] text-base leading-snug text-[#f8fafc] drop-shadow-[0_2px_0_#0369a1] sm:text-lg">
+          ☁️ SKY CASTLE ARCHIPELAGO
+        </h1>
+
+        <p class="max-w-xl text-xs leading-relaxed text-[#e0f2fe] sm:text-sm">
+          Reached through the winged cloud portal at <code class="rounded bg-[#082f49] px-1.5 py-0.5 text-[#fde047]">(36, 22)</code> on Digi-Sanctuary Island!
+          Traverse suspended bridges across <strong class="text-[#fde047]">{SKY_CASTLE_LANDMARKS.length} Celestial Landmarks</strong>,
+          customizable with <strong class="text-[#f9a8d4]">Town Editor 5.0</strong>.
+        </p>
+
+        <div class="flex flex-wrap gap-2 pt-1">
+          <button
+            type="button"
+            data-sky-action="editor"
+            class="btn btn-sm border-2 border-[#fbbf24] bg-[#451a03] font-pixel text-[10px] text-[#fef3c7] hover:bg-[#78350f]"
+          >
+            🛠️ Open Town Editor 5.0 (E)
+          </button>
+          <button
+            type="button"
+            data-sky-walk="sky_crystal_plaza"
+            class="btn btn-sm border-2 border-[#f472b6] bg-[#500724] font-pixel text-[10px] text-[#fce7f3] hover:bg-[#831843]"
+          >
+            💎 Walk to Crystal Plaza
+          </button>
+          <a
+            href="/digimon?from=sky-castle"
+            onclick="sessionStorage.setItem('digimon:respawn', '33,22,left')"
+            class="btn btn-sm border-2 border-[#38bdf8] bg-[#082f49] font-pixel text-[10px] text-[#e0f2fe] hover:bg-[#0284c7]"
+          >
+            🌀 Return to Digi-Sanctuary (36, 22)
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sky Chart Telemetry -->
+    <section class="card border-2 border-[#1e3a8a] bg-[#0a192f] p-4 text-[#e0f2fe]">
+      <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <h2 class="font-pixel text-xs uppercase tracking-wide text-[#7dd3fc]">
+          🧭 Celestial Chart &amp; Bridge Status
+        </h2>
+        <span class="rounded border border-[#38bdf8]/40 bg-[#082f49] px-2 py-0.5 font-mono text-[10px] text-[#bae6fd]">
+          Save Target: src/data/skyCastleLayout.json
+        </span>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div class="rounded-lg border border-[#1e3a8a] bg-[#0f2442] p-2.5">
+          <div class="font-mono text-[10px] text-[#93c5fd]">DIMENSIONS</div>
+          <div class="font-pixel text-xs text-[#f0f9ff]">45 × 60 Tiles</div>
+        </div>
+        <div class="rounded-lg border border-[#1e3a8a] bg-[#0f2442] p-2.5">
+          <div class="font-mono text-[10px] text-[#93c5fd]">SOUTH BRIDGE</div>
+          <div class="font-pixel text-xs text-[#fde047]">(21..23, 58..59)</div>
+        </div>
+        <div class="rounded-lg border border-[#1e3a8a] bg-[#0f2442] p-2.5">
+          <div class="font-mono text-[10px] text-[#93c5fd]">ENTRY LINK</div>
+          <div class="font-pixel text-xs text-[#7dd3fc]">Digimon (36, 22)</div>
+        </div>
+        <div class="rounded-lg border border-[#1e3a8a] bg-[#0f2442] p-2.5">
+          <div class="font-mono text-[10px] text-[#93c5fd]">SKY ISLANDS</div>
+          <div class="font-pixel text-xs text-[#fbcfe8]">{SKY_CASTLE_LANDMARKS.length} Monuments</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Clickable Sky Landmarks -->
+    <section class="space-y-3">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <h2 class="font-pixel text-xs uppercase tracking-wider text-[#fde047]">
+          🗺️ Celestial Islands — Click Any Card to Walk There
+        </h2>
+        <span class="font-mono text-[10px] text-[#93c5fd]">
+          Walk south across the Grand Sky-Bridge to return to Digi-Sanctuary (36, 22)
+        </span>
+      </div>
+
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        {landmarkCards.map((card) => (
+          <button
+            type="button"
+            data-sky-walk={card.id}
+            class={`group text-left rounded-xl border-2 p-3.5 transition-all hover:-translate-y-0.5 hover:brightness-110 cursor-pointer ${card.accent}`}
+          >
+            <div class="mb-1.5 flex items-center justify-between gap-2">
+              <span class={`inline-flex items-center rounded border px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase ${card.badgeClass}`}>
+                {card.badge}
+              </span>
+              <code class="font-mono text-[9px] opacity-80">{card.coords}</code>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-lg" aria-hidden="true">{card.icon}</span>
+              <h3 class="font-pixel text-[11px] leading-snug">{card.title}</h3>
+            </div>
+            <p class="mt-1.5 text-[11px] leading-relaxed opacity-90">{card.desc}</p>
+          </button>
+        ))}
+      </div>
+    </section>
+
+    <WhereTo currentPath="/sky-castle" />
+  </div>
+
+  <script>
+    function wireSkyCastlePage() {
+      document.querySelectorAll<HTMLButtonElement>('[data-sky-walk]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const targetId = btn.getAttribute('data-sky-walk');
+          if (!targetId) return;
+          document.querySelector<HTMLButtonElement>(`.town-label[data-id="${targetId}"]`)?.click();
+        });
+      });
+
+      document.querySelectorAll<HTMLButtonElement>('[data-sky-action="editor"]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          document.getElementById('btn-toggle-editor')?.click();
+        });
+      });
+    }
+
+    wireSkyCastlePage();
+    document.addEventListener('astro:page-load', wireSkyCastlePage);
+  </script>
+</TownLayout>

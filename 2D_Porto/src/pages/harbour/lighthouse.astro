@@ -1,0 +1,751 @@
+---
+import TownLayout from '../../layouts/TownLayout.astro';
+import WhereTo from '../../components/WhereTo.astro';
+import { profile } from '../../lib/profile';
+import { MARITIME_SEALS_META } from '../../engine/harbourInteriorShared';
+
+const allSeals = Object.values(MARITIME_SEALS_META);
+const aeroscan = profile.missions.find((m) => m.id === 'aeroscan');
+const foodlink = profile.missions.find((m) => m.id === 'foodlink');
+const hcia = profile.honors.find((h) => h.title.includes('Huawei'));
+
+const mirrors = [
+  {
+    id: 0,
+    code: 'PRISM I · CLOUD EDGE',
+    title: 'Cloudflare Workers & Astro CDN Mirror',
+    targetAngle: 0,
+    startAngle: 90,
+    note: 'Routes static pages + generated knowledge endpoints at the network edge with zero cold starts.',
+  },
+  {
+    id: 1,
+    code: 'PRISM II · GPU ENGINE',
+    title: 'YOLOv11s → ONNX → TensorRT 10 FP16 Mirror',
+    targetAngle: 0,
+    startAngle: 180,
+    note: 'Locks aerial classification throughput to ~1.8 ms/frame (>500 FPS) across 15 tactical aircraft classes.',
+  },
+  {
+    id: 2,
+    code: 'PRISM III · OBSERVABILITY',
+    title: 'Kubernetes HPA, /healthz & Kafka Outbox Mirror',
+    targetAngle: 0,
+    startAngle: 270,
+    note: 'Keeps RollingUpdate deployments, PostGIS spatial queries, and Redis Lua locks resilient under load.',
+  },
+  {
+    id: 3,
+    code: 'PRISM IV · HARBOR DEFENSE',
+    title: 'HCIA-Security V4.0 Firewall & NAT/VPN Mirror',
+    targetAngle: 0,
+    startAngle: 90,
+    note: 'Shields Avalon Port traffic through strict ACL policies, encrypted tunnels, and intrusion prevention.',
+  },
+];
+
+const infraPillars = [
+  {
+    badge: 'EDGE RUNTIME & CDN',
+    icon: '🛰️',
+    title: 'Astro Static + Cloudflare Worker Twin',
+    accent: 'border-[#0284c7] bg-[#f0f9ff] text-[#0c4a6e]',
+    metrics: ['0ms Cold Start', '36 Static Routes', 'YAML→TS Knowledge Sync'],
+    points: [
+      'Deterministic build-time Zod validation of profile.yaml powering pages, Stack Radar, DigiDex, and Worker knowledge.',
+      'Energy-saving 2D Canvas RAF sleep/wake cycle across outdoor 45×60 maps and 15×12 interiors.',
+    ],
+  },
+  {
+    badge: 'REAL-TIME EDGE CV',
+    icon: '⚡',
+    title: aeroscan?.title || 'AeroScan — Edge Aircraft Detector',
+    accent: 'border-[#d97706] bg-[#fffbeb] text-[#78350f]',
+    metrics: ['~1.8 ms / frame', '>500 FPS RTX 4060', '22.1 MB TRT FP16'],
+    points: aeroscan?.results.slice(1, 4) || [
+      'Compiled custom YOLOv11s PyTorch weights via ONNX into TensorRT 10 FP16.',
+      'Reached up to 87.9% mAP@50 across 15 military aircraft with live Streamlit command audits.',
+    ],
+  },
+  {
+    badge: 'DISTRIBUTED BACKEND',
+    icon: '⚓',
+    title: foodlink?.title || 'FoodLink — Cloud-Native Platform',
+    accent: 'border-[#059669] bg-[#ecfdf5] text-[#064e3b]',
+    metrics: ['32/32 Automated Tests', 'PostGIS + Redis 7', 'Kafka + Kubernetes'],
+    points: foodlink?.results.slice(0, 3) || [
+      'Laravel 12 / PHP 8.3 on PostgreSQL 16 row locks + PostGIS GIST spatial index.',
+      'Kubernetes RollingUpdate & HPA autoscaling validated by GitLab CI/CD.',
+    ],
+  },
+  {
+    badge: 'NETWORK SECURITY',
+    icon: '🛡️',
+    title: hcia?.title || 'Huawei HCIA-Security V4.0',
+    accent: 'border-[#4f46e5] bg-[#eef2ff] text-[#1e1b4b]',
+    metrics: ['Issued Jan 2025', 'Firewall & VPN', 'IDS / IPS Defense'],
+    points: [
+      hcia?.note || 'Firewall policies, NAT, VPN, intrusion prevention and network security fundamentals.',
+      '6× Lab Assistant at ITENAS covering Computer Networks, Database Systems, IoT & Robotics.',
+    ],
+  },
+];
+---
+
+<TownLayout
+  title="Old Port Lighthouse — Cloud, Edge & Beacon Trial | Harbour Town"
+  description="Climb Old Port Lighthouse (15×12) in Harbour Town: align the 4 Brass Fresnel Mirrors with Kyogre to unlock the Seal of the Beacon and explore Zulfan’s Cloud & Edge Architecture."
+  place="harbour-lighthouse"
+>
+  <article
+    class="lighthouse-page space-y-6 pb-10 text-[#0f172a]"
+    data-summary-text={`${profile.person.name} Cloud, Edge Architecture & Observability — Old Port Lighthouse guarded by Kyogre, Palkia & Azulongmon.`}
+  >
+    <!-- 1. ADMIRALTY COASTAL LIGHTHOUSE BANNER -->
+    <header class="relative overflow-hidden rounded-2xl border-[3px] border-[#0369a1] bg-gradient-to-b from-[#f8f5ea] via-[#efe7cf] to-[#e2d4b0] p-5 text-[#1e293b] shadow-[0_8px_0_#0c4a6e,0_18px_36px_rgba(12,74,110,0.32)]">
+      <div
+        class="pointer-events-none absolute inset-x-0 top-0 h-2 bg-[repeating-linear-gradient(90deg,#0c4a6e_0px,#0c4a6e_14px,#eab308_14px,#eab308_28px,#0284c7_28px,#0284c7_42px)]"
+        aria-hidden="true"
+      ></div>
+      <div
+        class="pointer-events-none absolute inset-x-0 bottom-0 h-2 bg-[repeating-linear-gradient(90deg,#0284c7_0px,#0284c7_14px,#eab308_14px,#eab308_28px,#0c4a6e_28px,#0c4a6e_42px)]"
+        aria-hidden="true"
+      ></div>
+
+      <div class="relative z-10 mt-1 flex flex-wrap items-start justify-between gap-4">
+        <div class="space-y-2">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="rounded-full border border-[#0c4a6e] bg-[#0c4a6e] px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[#e0f2fe]">
+              🗼 OLD PORT LIGHTHOUSE · ROYAL BEACON
+            </span>
+            <span
+              id="lh-seal-pill"
+              class="rounded-full border border-[#d97706]/60 bg-[#fef3c7] px-2.5 py-1 font-mono text-[10px] font-bold uppercase text-[#78350f]"
+            >
+              ⏳ Seal Unclaimed
+            </span>
+          </div>
+          <h1 class="font-display text-2xl font-black tracking-tight text-[#0f172a] sm:text-3xl">
+            🗼 Old Port Lighthouse &amp; Edge Observatory
+          </h1>
+          <p class="max-w-2xl text-sm leading-relaxed text-[#334155]">
+            Menara mercusuar batu benteng Avalon dijaga oleh <strong class="text-[#0369a1]">Kyogre</strong> bersama
+            <strong class="text-[#7e22ce]">Palkia</strong> &amp; <strong class="text-[#0284c7]">Azulongmon</strong>.
+            Putar dan selaraskan <strong>4 Cermin Prisma Fresnel</strong> menuju <code class="rounded bg-[#e2e8f0] px-1 font-mono font-bold">0° North</code> untuk mengklaim
+            <strong class="text-[#b45309]">Seal of the Beacon</strong> dan membedah telemetri Cloud &amp; Edge AI!
+          </p>
+        </div>
+
+        <!-- Live Admiralty Telemetry & Exit -->
+        <div class="flex flex-col items-end gap-2">
+          <div class="grid grid-cols-3 gap-2 rounded-xl border-2 border-[#0369a1] bg-[#f8fafc] px-3 py-2 text-center font-mono shadow-inner">
+            <div>
+              <div class="text-[9px] font-bold uppercase text-[#0369a1]">MIRRORS</div>
+              <div id="hero-mirror-score" class="text-sm font-black text-[#0f172a]">0 / 4</div>
+            </div>
+            <div>
+              <div class="text-[9px] font-bold uppercase text-[#0369a1]">BEACON</div>
+              <div id="hero-beacon-state" class="text-sm font-black text-[#b45309]">DRIFTING</div>
+            </div>
+            <div>
+              <div class="text-[9px] font-bold uppercase text-[#0369a1]">SEALS</div>
+              <div id="hero-seals-count" class="text-sm font-black text-[#059669]">0 / 5</div>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-end gap-2">
+            <button
+              id="lh-audio-toggle"
+              type="button"
+              class="cursor-pointer rounded-lg border-2 border-[#d97706] bg-[#fef3c7] px-2.5 py-1.5 font-mono text-[11px] font-bold text-[#78350f] transition hover:bg-[#fde68a]"
+            >
+              🔔 Beacon Chime: ON
+            </button>
+            <a
+              id="lh-exit-btn"
+              href="/harbour?from=lighthouse"
+              class="inline-flex items-center gap-1.5 rounded-lg border-2 border-[#0c4a6e] bg-gradient-to-b from-[#0284c7] to-[#0369a1] px-3 py-1.5 font-mono text-xs font-extrabold text-[#f8fafc] shadow-[0_3px_0_#082f49] transition hover:-translate-y-0.5 hover:brightness-110"
+            >
+              ⚓ Exit to Harbour
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tri-Guardian Dialogue Switcher Strip -->
+      <div class="relative z-10 mt-4 flex flex-col gap-3 rounded-xl border-2 border-[#0284c7]/45 bg-[#f8fafc]/95 p-3.5 sm:flex-row sm:items-center">
+        <div class="flex shrink-0 items-center gap-1.5">
+          <button
+            type="button"
+            data-lh-walk="kyogre"
+            data-speaker="🌊 Kyogre · Sovereign of the Tides"
+            data-quote="Calibrate all four brass mirrors to 0° Harbor North so every Royal Fleet vessel sails safely past the coastal shoals!"
+            data-fx-text="TIDAL BEACON SURGE!"
+            data-fx-color="#38bdf8"
+            class="flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl border-2 border-[#0284c7] bg-[#e0f2fe] text-xl shadow-[0_2px_0_#0c4a6e] transition hover:-translate-y-0.5"
+            title="Walk to Kyogre"
+          >
+            🌊
+          </button>
+          <button
+            type="button"
+            data-lh-walk="palkia"
+            data-speaker="🌌 Palkia · Spatial Edge Weaver"
+            data-quote="My spatial distortion compresses end-to-end distance: Astro static pages load instantly while TensorRT runs in ~1.8 ms/frame!"
+            data-fx-text="SPACIAL RIFT EDGE!"
+            data-fx-color="#c084fc"
+            class="flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl border-2 border-[#7e22ce] bg-[#f3e8ff] text-xl shadow-[0_2px_0_#581c87] transition hover:-translate-y-0.5"
+            title="Walk to Palkia"
+          >
+            🌌
+          </button>
+          <button
+            type="button"
+            data-lh-walk="azulongmon"
+            data-speaker="🐉 Azulongmon · Sovereign Azure Dragon"
+            data-quote="Electricity and observability keep distributed ports alive: inspect the Edge Telemetry Chart for PostGIS, Kafka, and Kubernetes health probes!"
+            data-fx-text="AURORA THUNDER BEAM!"
+            data-fx-color="#fde047"
+            class="flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl border-2 border-[#d97706] bg-[#fef3c7] text-xl shadow-[0_2px_0_#92400e] transition hover:-translate-y-0.5"
+            title="Walk to Azulongmon"
+          >
+            🐉
+          </button>
+        </div>
+
+        <div class="min-w-0 flex-1">
+          <div id="lh-speaker" class="font-mono text-[10px] font-black uppercase tracking-wider text-[#0369a1]">
+            🌊 Kyogre · Sovereign of the Tides
+          </div>
+          <p id="lh-dialogue" class="mt-0.5 text-xs italic leading-relaxed text-[#334155]">
+            “Rotate all 4 Brass Fresnel Mirrors to 0° Harbor North below to pierce the mist and unlock the Seal of the Beacon!”
+          </p>
+        </div>
+      </div>
+
+      <!-- 6 Tactile Quick-Walk Station Chips + Hotkeys -->
+      <nav aria-label="Quick walk Lighthouse stations" class="relative z-10 mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+        <button
+          type="button"
+          data-lh-walk="kyogre"
+          data-scroll-to="lh-beacon-trial"
+          data-hotkey="k"
+          class="lh-station-btn flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#0284c7] bg-white px-2.5 py-2 text-left shadow-[0_2px_0_#0c4a6e] transition hover:-translate-y-0.5 hover:bg-[#e0f2fe]"
+        >
+          <span class="flex items-center gap-1.5 truncate text-xs font-bold text-[#0f172a]">
+            <span>🌊</span>
+            <span class="truncate">Kyogre</span>
+          </span>
+          <kbd class="rounded border border-[#0284c7]/40 bg-[#e0f2fe] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#0c4a6e]">K</kbd>
+        </button>
+
+        <button
+          type="button"
+          data-lh-walk="beacon-prism"
+          data-scroll-to="lh-beacon-trial"
+          data-hotkey="p"
+          class="lh-station-btn flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#d97706] bg-white px-2.5 py-2 text-left shadow-[0_2px_0_#92400e] transition hover:-translate-y-0.5 hover:bg-[#fffbeb]"
+        >
+          <span class="flex items-center gap-1.5 truncate text-xs font-bold text-[#0f172a]">
+            <span>✨</span>
+            <span class="truncate">Prism Dial</span>
+          </span>
+          <kbd class="rounded border border-[#d97706]/40 bg-[#fef3c7] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#78350f]">P</kbd>
+        </button>
+
+        <button
+          type="button"
+          data-lh-walk="edge-radar"
+          data-scroll-to="lh-telemetry-section"
+          data-hotkey="r"
+          class="lh-station-btn flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#0284c7]/75 bg-white px-2.5 py-2 text-left shadow-[0_2px_0_#0369a1] transition hover:-translate-y-0.5 hover:bg-[#f0f9ff]"
+        >
+          <span class="flex items-center gap-1.5 truncate text-xs font-bold text-[#0f172a]">
+            <span>🛰️</span>
+            <span class="truncate">Edge Radar</span>
+          </span>
+          <kbd class="rounded border border-[#0284c7]/40 bg-[#e0f2fe] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#0c4a6e]">R</kbd>
+        </button>
+
+        <button
+          type="button"
+          data-lh-walk="astrolabe-desk"
+          data-scroll-to="lh-telemetry-section"
+          data-hotkey="a"
+          class="lh-station-btn flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#4f46e5]/75 bg-white px-2.5 py-2 text-left shadow-[0_2px_0_#312e81] transition hover:-translate-y-0.5 hover:bg-[#eef2ff]"
+        >
+          <span class="flex items-center gap-1.5 truncate text-xs font-bold text-[#0f172a]">
+            <span>🧭</span>
+            <span class="truncate">Astrolabe</span>
+          </span>
+          <kbd class="rounded border border-[#4f46e5]/40 bg-[#eef2ff] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#312e81]">A</kbd>
+        </button>
+
+        <button
+          type="button"
+          data-lh-walk="fresnel-lens"
+          data-scroll-to="lh-beacon-trial"
+          data-hotkey="l"
+          class="lh-station-btn flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#eab308] bg-white px-2.5 py-2 text-left shadow-[0_2px_0_#a16207] transition hover:-translate-y-0.5 hover:bg-[#fefce8]"
+        >
+          <span class="flex items-center gap-1.5 truncate text-xs font-bold text-[#0f172a]">
+            <span>💡</span>
+            <span class="truncate">Lens Array</span>
+          </span>
+          <kbd class="rounded border border-[#eab308]/40 bg-[#fef9c3] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#854d0e]">L</kbd>
+        </button>
+
+        <button
+          type="button"
+          data-lh-walk="signal-bell"
+          data-scroll-to="lh-seals-ledger"
+          data-hotkey="b"
+          class="lh-station-btn flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#059669]/75 bg-white px-2.5 py-2 text-left shadow-[0_2px_0_#064e3b] transition hover:-translate-y-0.5 hover:bg-[#ecfdf5]"
+        >
+          <span class="flex items-center gap-1.5 truncate text-xs font-bold text-[#0f172a]">
+            <span>🔔</span>
+            <span class="truncate">Fog Bell</span>
+          </span>
+          <kbd class="rounded border border-[#059669]/40 bg-[#d1fae5] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#065f46]">B</kbd>
+        </button>
+      </nav>
+    </header>
+
+    <!-- 2. MINI-GAME: BEACON PRISM CALIBRATION -->
+    <section
+      id="lh-beacon-trial"
+      class="rounded-2xl border-[3px] border-[#0c4a6e] bg-gradient-to-b from-[#fffdf7] to-[#f4ecda] p-5 text-[#1e293b] shadow-[0_6px_0_#0c4a6e]"
+    >
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b-2 border-[#0369a1]/20 pb-3">
+        <div>
+          <span class="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[#0369a1]">
+            TRIAL I · ROYAL FRESNEL CALIBRATION
+          </span>
+          <h2 class="mt-0.5 font-display text-lg font-black text-[#0f172a]">
+            ✨ Beacon Prism Calibration — Lock All 4 Mirrors to 0°
+          </h2>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <button
+            id="btn-lh-reset-mirrors"
+            type="button"
+            class="cursor-pointer rounded-lg border-2 border-[#64748b] bg-white px-3 py-1 font-mono text-[11px] font-bold text-[#334155] transition hover:bg-[#f1f5f9]"
+          >
+            🔄 Scramble Mirrors
+          </button>
+          <button
+            id="btn-lh-beacon-boost"
+            type="button"
+            class="hidden cursor-pointer rounded-lg border-2 border-[#d97706] bg-[#fef3c7] px-3 py-1 font-mono text-[11px] font-bold text-[#78350f] transition hover:bg-[#fde68a]"
+          >
+            ⚡ Activate Lighthouse Tailwind (+50% Speed)
+          </button>
+        </div>
+      </div>
+
+      <p class="mt-3 text-xs leading-relaxed text-[#475569]">
+        Klik setiap cermin kuningan di bawah ini untuk memutarnya searah jarum jam sebesar <strong>90°</strong>.
+        Setelah keempat prisma terkunci ke arah <strong class="text-[#0284c7]">0° Harbor True North</strong>, cahaya emas mercusuar akan menembus kabut Avalon Bay!
+      </p>
+
+      <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+        {mirrors.map((m) => (
+          <div
+            data-mirror-card={m.id}
+            data-start-angle={m.startAngle}
+            class="flex flex-col justify-between rounded-xl border-2 border-[#94a3b8] bg-white p-3.5 shadow-sm transition-all"
+          >
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <div class="font-mono text-[9px] font-extrabold uppercase tracking-wider text-[#0369a1]">
+                  {m.code}
+                </div>
+                <h3 class="mt-0.5 text-sm font-black text-[#0f172a]">{m.title}</h3>
+                <p class="mt-1 text-[11px] leading-relaxed text-[#475569]">{m.note}</p>
+              </div>
+
+              <button
+                type="button"
+                data-rotate-mirror={m.id}
+                class="flex h-14 w-14 shrink-0 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-[#d97706] bg-[#fffbeb] font-mono shadow-[0_2px_0_#92400e] transition hover:scale-105"
+                title="Rotate mirror 90° clockwise"
+              >
+                <span
+                  data-mirror-needle={m.id}
+                  class="inline-block text-lg transition-transform duration-200"
+                  style={`transform: rotate(${m.startAngle}deg)`}
+                >
+                  🔺
+                </span>
+                <span data-mirror-deg={m.id} class="text-[10px] font-black text-[#78350f]">
+                  {m.startAngle}°
+                </span>
+              </button>
+            </div>
+
+            <div class="mt-2.5 flex items-center justify-between border-t border-slate-200 pt-2 font-mono text-[10px]">
+              <span data-mirror-status={m.id} class="font-bold text-[#b45309]">
+                ⏳ Misaligned — Rotate to 0°
+              </span>
+              <span class="text-[#64748b]">Target: 0° N</span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div
+        id="lh-trial-banner"
+        class="mt-4 rounded-xl border-2 border-[#cbd5e1] bg-[#f8fafc] px-4 py-3 text-xs font-medium text-[#334155]"
+      >
+        🔭 Status Mercusuar: Menunggu kalibrasi 4 Cermin Fresnel. Klik tombol 🔺 pada tiap kartu untuk menyelaraskan sinar cahaya.
+      </div>
+    </section>
+
+    <!-- 3. CLOUD, EDGE ARCHITECTURE & OBSERVABILITY TELEMETRY -->
+    <section
+      id="lh-telemetry-section"
+      class="rounded-2xl border-[3px] border-[#0369a1] bg-gradient-to-b from-[#faf7ee] to-[#efe7d3] p-5 text-[#1e293b] shadow-[0_6px_0_#0c4a6e]"
+    >
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b-2 border-[#0369a1]/20 pb-3">
+        <div>
+          <span class="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[#0369a1]">
+            ARCHITECTURAL TELEMETRY &amp; EDGE INFRASTRUCTURE
+          </span>
+          <h2 class="mt-0.5 font-display text-lg font-black text-[#0f172a]">
+            🛰️ Cloud, Edge Compute &amp; Observability Chart
+          </h2>
+        </div>
+        <span class="rounded-full border border-[#0284c7]/40 bg-[#e0f2fe] px-3 py-1 font-mono text-[10px] font-bold text-[#0c4a6e]">
+          Verified Production Stack
+        </span>
+      </div>
+
+      <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+        {infraPillars.map((pillar) => (
+          <div class={`rounded-xl border-2 p-4 shadow-sm ${pillar.accent}`}>
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-mono text-[9px] font-extrabold uppercase tracking-wider opacity-80">
+                {pillar.badge}
+              </span>
+              <span class="text-lg" aria-hidden="true">{pillar.icon}</span>
+            </div>
+            <h3 class="mt-1 text-sm font-black">{pillar.title}</h3>
+
+            <div class="mt-2 flex flex-wrap gap-1.5">
+              {pillar.metrics.map((metric) => (
+                <span class="rounded-md border border-current/25 bg-white/75 px-2 py-0.5 font-mono text-[10px] font-bold">
+                  {metric}
+                </span>
+              ))}
+            </div>
+
+            <ul class="mt-2.5 space-y-1.5 text-xs leading-relaxed">
+              {pillar.points.map((pt) => (
+                <li class="flex items-start gap-1.5">
+                  <span class="mt-0.5 shrink-0 text-[10px]">▸</span>
+                  <span>{pt}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- 4. 5 ROYAL MARITIME SEALS HARBOR LEDGER -->
+    <section
+      id="lh-seals-ledger"
+      class="rounded-2xl border-[3px] border-[#0c4a6e] bg-gradient-to-b from-[#f8f5ea] to-[#ecdfc0] p-5 text-[#1e293b] shadow-[0_6px_0_#082f49]"
+    >
+      <div class="flex flex-wrap items-center justify-between gap-2 pb-3">
+        <div>
+          <span class="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[#0369a1]">
+            AVALON ROYAL ADMIRALTY PROGRESS
+          </span>
+          <h2 class="mt-0.5 font-display text-lg font-black text-[#0f172a]">
+            ⚓ 5 Royal Maritime Seals Ledger
+          </h2>
+        </div>
+        <a
+          href="/harbour"
+          class="rounded-lg border-2 border-[#0369a1] bg-[#e0f2fe] px-3 py-1 font-mono text-[11px] font-bold text-[#0c4a6e] hover:bg-[#bae6fd]"
+        >
+          Lihat Armada &amp; Finale →
+        </a>
+      </div>
+
+      <div class="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-5">
+        {allSeals.map((s) => (
+          <a
+            href={s.route}
+            data-ledger-seal={s.key}
+            class={`rounded-xl border-2 p-3 text-xs transition hover:-translate-y-0.5 ${
+              s.key === 'beacon'
+                ? 'border-[#0284c7] bg-[#e0f2fe]'
+                : 'border-[#cbd5e1] bg-white/85 hover:border-[#0369a1]'
+            }`}
+          >
+            <div class="flex items-center justify-between">
+              <span class="text-base">{s.icon}</span>
+              <span data-ledger-badge={s.key} class="font-mono text-[10px] font-bold text-[#64748b]">
+                🔒
+              </span>
+            </div>
+            <div class="mt-1.5 font-bold text-[#0f172a]">{s.sanctum}</div>
+            <div class="font-mono text-[9px] text-[#0369a1]">{s.name}</div>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <WhereTo currentPath="/harbour/lighthouse" />
+  </article>
+
+  <script>
+    import {
+      MARITIME_SEALS_META,
+      awardMaritimeSeal,
+      countMaritimeSeals,
+      getMaritimeSeals,
+      type MaritimeSealKey,
+    } from '../../engine/harbourInteriorShared';
+
+    let audioEnabled = true;
+    const mirrorAngles: number[] = [90, 180, 270, 90];
+
+    function playBeaconTone(freq = 587.33, dur = 0.22) {
+      if (!audioEnabled || typeof window === 'undefined') return;
+      try {
+        const Ctx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+        if (!Ctx) return;
+        const ctx = new Ctx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, ctx.currentTime);
+        gain.gain.setValueAtTime(0.08, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + dur);
+      } catch {
+        // ignore audio block
+      }
+    }
+
+    function triggerHarbourFx(text: string, color = '#fde047') {
+      window.dispatchEvent(new CustomEvent('town:harbour-fx', { detail: { text, color } }));
+    }
+
+    function syncSealsUi() {
+      const seals = getMaritimeSeals();
+      const total = countMaritimeSeals();
+
+      const countEl = document.getElementById('hero-seals-count');
+      if (countEl) countEl.textContent = `${total} / 5`;
+
+      const pill = document.getElementById('lh-seal-pill');
+      if (pill) {
+        if (seals.beacon) {
+          pill.textContent = '✓ Seal of the Beacon Claimed';
+          pill.className = 'rounded-full border border-[#16a34a] bg-[#dcfce7] px-2.5 py-1 font-mono text-[10px] font-bold uppercase text-[#166534]';
+        } else {
+          pill.textContent = '⏳ Seal of the Beacon Sealed';
+          pill.className = 'rounded-full border border-[#d97706]/60 bg-[#fef3c7] px-2.5 py-1 font-mono text-[10px] font-bold uppercase text-[#78350f]';
+        }
+      }
+
+      (Object.keys(MARITIME_SEALS_META) as MaritimeSealKey[]).forEach((k) => {
+        const badge = document.querySelector<HTMLElement>(`[data-ledger-badge="${k}"]`);
+        if (badge) badge.textContent = seals[k] ? '✓ CLAIMED' : '🔒 SEALED';
+      });
+    }
+
+    function renderMirrorsUi() {
+      let alignedCount = 0;
+      for (let i = 0; i < 4; i++) {
+        const angle = mirrorAngles[i] % 360;
+        const ok = angle === 0;
+        if (ok) alignedCount++;
+
+        const needle = document.querySelector<HTMLElement>(`[data-mirror-needle="${i}"]`);
+        const deg = document.querySelector<HTMLElement>(`[data-mirror-deg="${i}"]`);
+        const status = document.querySelector<HTMLElement>(`[data-mirror-status="${i}"]`);
+        const card = document.querySelector<HTMLElement>(`[data-mirror-card="${i}"]`);
+
+        if (needle) needle.style.transform = `rotate(${angle}deg)`;
+        if (deg) deg.textContent = `${angle}°`;
+        if (status) {
+          status.textContent = ok ? '✓ LOCKED 0° N — BEAM SYNCHRONIZED' : '⏳ Misaligned — Rotate to 0°';
+          status.className = ok ? 'font-bold text-[#15803d]' : 'font-bold text-[#b45309]';
+        }
+        if (card) {
+          card.classList.toggle('border-[#22c55e]', ok);
+          card.classList.toggle('bg-[#f0fdf4]', ok);
+          card.classList.toggle('border-[#94a3b8]', !ok);
+          card.classList.toggle('bg-white', !ok);
+        }
+      }
+
+      const scoreEl = document.getElementById('hero-mirror-score');
+      if (scoreEl) scoreEl.textContent = `${alignedCount} / 4`;
+
+      const stateEl = document.getElementById('hero-beacon-state');
+      const bannerEl = document.getElementById('lh-trial-banner');
+      const boostBtn = document.getElementById('btn-lh-beacon-boost');
+
+      if (alignedCount === 4) {
+        if (stateEl) {
+          stateEl.textContent = 'LOCKED';
+          stateEl.className = 'text-sm font-black text-[#15803d]';
+        }
+        if (bannerEl) {
+          bannerEl.className =
+            'mt-4 rounded-xl border-2 border-[#16a34a] bg-[#dcfce7] px-4 py-3 text-xs font-bold text-[#14532d]';
+          bannerEl.textContent =
+            '🗼 FRESNEL BEACON SYNCHRONIZED! Sinar emas menembus kabut Avalon Bay — Seal of the Beacon resmi tersemat!';
+        }
+        boostBtn?.classList.remove('hidden');
+
+        if (!getMaritimeSeals().beacon) {
+          awardMaritimeSeal('beacon');
+          triggerHarbourFx('BEACON LOCKED! SEAL EARNED', '#fde047');
+          playBeaconTone(783.99, 0.35);
+          setTimeout(() => playBeaconTone(1046.5, 0.45), 140);
+          syncSealsUi();
+        }
+      } else {
+        if (stateEl) {
+          stateEl.textContent = 'DRIFTING';
+          stateEl.className = 'text-sm font-black text-[#b45309]';
+        }
+        if (bannerEl) {
+          bannerEl.className =
+            'mt-4 rounded-xl border-2 border-[#cbd5e1] bg-[#f8fafc] px-4 py-3 text-xs font-medium text-[#334155]';
+          bannerEl.textContent = `🔭 Status Mercusuar: ${alignedCount}/4 Cermin Fresnel terkunci ke 0° Harbor North.`;
+        }
+      }
+    }
+
+    function wireLighthousePage() {
+      // Restore claimed state immediately if seal already unlocked previously
+      if (getMaritimeSeals().beacon) {
+        for (let i = 0; i < 4; i++) mirrorAngles[i] = 0;
+      }
+      syncSealsUi();
+      renderMirrorsUi();
+
+      const exitBtn = document.getElementById('lh-exit-btn');
+      if (exitBtn && exitBtn.dataset.wired !== '1') {
+        exitBtn.dataset.wired = '1';
+        exitBtn.addEventListener('click', () => {
+          try {
+            sessionStorage.setItem('harbour:respawn', '11,13,down');
+          } catch {}
+        });
+      }
+
+      const audioToggle = document.getElementById('lh-audio-toggle');
+      if (audioToggle && audioToggle.dataset.wired !== '1') {
+        audioToggle.dataset.wired = '1';
+        audioToggle.addEventListener('click', () => {
+          audioEnabled = !audioEnabled;
+          audioToggle.textContent = audioEnabled ? '🔔 Beacon Chime: ON' : '🔇 Beacon Chime: OFF';
+        });
+      }
+
+      document.querySelectorAll<HTMLButtonElement>('[data-rotate-mirror]').forEach((btn) => {
+        if (btn.dataset.wired === '1') return;
+        btn.dataset.wired = '1';
+        btn.addEventListener('click', () => {
+          const idx = Number(btn.getAttribute('data-rotate-mirror'));
+          if (Number.isNaN(idx)) return;
+          mirrorAngles[idx] = (mirrorAngles[idx] + 90) % 360;
+          const tones = [523.25, 587.33, 659.25, 783.99];
+          playBeaconTone(tones[mirrorAngles[idx] / 90] || 587.33, 0.16);
+          if (mirrorAngles[idx] === 0) {
+            triggerHarbourFx(`PRISM ${idx + 1} LOCKED!`, '#38bdf8');
+          }
+          renderMirrorsUi();
+        });
+      });
+
+      const resetBtn = document.getElementById('btn-lh-reset-mirrors');
+      if (resetBtn && resetBtn.dataset.wired !== '1') {
+        resetBtn.dataset.wired = '1';
+        resetBtn.addEventListener('click', () => {
+          mirrorAngles[0] = 90;
+          mirrorAngles[1] = 180;
+          mirrorAngles[2] = 270;
+          mirrorAngles[3] = 90;
+          playBeaconTone(440, 0.15);
+          renderMirrorsUi();
+        });
+      }
+
+      const boostBtn = document.getElementById('btn-lh-beacon-boost');
+      if (boostBtn && boostBtn.dataset.wired !== '1') {
+        boostBtn.dataset.wired = '1';
+        boostBtn.addEventListener('click', () => {
+          window.dispatchEvent(new CustomEvent('town:claim-lucky-egg'));
+          triggerHarbourFx('TAILWIND BOOST +50%!', '#34d399');
+          playBeaconTone(880, 0.35);
+        });
+      }
+
+      document.querySelectorAll<HTMLButtonElement>('[data-lh-walk]').forEach((btn) => {
+        if (btn.dataset.wired === '1') return;
+        btn.dataset.wired = '1';
+        btn.addEventListener('click', () => {
+          const propId = btn.getAttribute('data-lh-walk');
+          const scrollTo = btn.getAttribute('data-scroll-to');
+          const speaker = btn.getAttribute('data-speaker');
+          const quote = btn.getAttribute('data-quote');
+          const fxText = btn.getAttribute('data-fx-text');
+          const fxColor = btn.getAttribute('data-fx-color');
+
+          if (propId) {
+            document.querySelector<HTMLButtonElement>(`.town-label[data-id="${propId}"]`)?.click();
+          }
+          if (speaker && quote) {
+            const spEl = document.getElementById('lh-speaker');
+            const qtEl = document.getElementById('lh-dialogue');
+            if (spEl) spEl.textContent = speaker;
+            if (qtEl) qtEl.textContent = `“${quote}”`;
+          }
+          if (fxText) triggerHarbourFx(fxText, fxColor || '#fde047');
+          if (scrollTo) {
+            document.getElementById(scrollTo)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        });
+      });
+    }
+
+    function handleLhHotkey(e: KeyboardEvent) {
+      if (
+        document.activeElement instanceof HTMLInputElement ||
+        document.activeElement instanceof HTMLTextAreaElement ||
+        e.metaKey ||
+        e.ctrlKey ||
+        e.altKey
+      ) {
+        return;
+      }
+      if (e.key === 'Escape') {
+        const exitBtn = document.getElementById('lh-exit-btn') as HTMLAnchorElement | null;
+        exitBtn?.click();
+        return;
+      }
+      const matched = document.querySelector<HTMLButtonElement>(`.lh-station-btn[data-hotkey="${e.key.toLowerCase()}"]`);
+      if (matched) matched.click();
+    }
+
+    window.addEventListener('harbour:seal-updated', syncSealsUi);
+    window.addEventListener('keydown', handleLhHotkey);
+
+    wireLighthousePage();
+    document.addEventListener('astro:page-load', wireLighthousePage);
+  </script>
+</TownLayout>

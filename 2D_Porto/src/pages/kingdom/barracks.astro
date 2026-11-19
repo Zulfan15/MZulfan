@@ -1,0 +1,534 @@
+---
+import TownLayout from '../../layouts/TownLayout.astro';
+import WhereTo from '../../components/WhereTo.astro';
+import { profile } from '../../lib/profile';
+import { ROYAL_CRESTS_META } from '../../engine/kingdomInteriorShared';
+
+const allCrests = Object.values(ROYAL_CRESTS_META);
+const serviceCampaigns = profile.missions.filter((m) => m.type === 'crew_assignment');
+---
+
+<TownLayout
+  title="Knights' Barracks — Hall of Valor & Archery Drill | Muhammad Zulfan"
+  description="Enter Knights' Barracks inside Royal Kingdom: score 3 bullseyes in Lucario's 15s Archery Drill for the Crest of Valor and inspect Honors & Laboratory Leadership."
+  place="kingdom-barracks"
+>
+  <article class="barracks-page space-y-6 pb-10 text-[#1e1b18]">
+    <!-- 1. GARRISON HERALDIC MARQUEE BANNER (COBALT, SLATE & GOLD) -->
+    <header class="relative overflow-hidden rounded-2xl border-[3px] border-[#b45309] bg-gradient-to-b from-[#f8fafc] via-[#e2e8f0] to-[#cbd5e1] p-5 text-[#0f172a] shadow-[0_8px_0_#1e3a8a,0_18px_36px_rgba(15,23,42,0.3)]">
+      <div
+        class="pointer-events-none absolute inset-x-0 top-0 h-2 bg-[repeating-linear-gradient(90deg,#1e3a8a_0px,#1e3a8a_14px,#fbbf24_14px,#fbbf24_28px,#334155_28px,#334155_42px)]"
+        aria-hidden="true"
+      ></div>
+      <div
+        class="pointer-events-none absolute inset-x-0 bottom-0 h-2 bg-[repeating-linear-gradient(90deg,#334155_0px,#334155_14px,#fbbf24_14px,#fbbf24_28px,#1e3a8a_28px,#1e3a8a_42px)]"
+        aria-hidden="true"
+      ></div>
+
+      <div class="relative z-10 mt-1 flex flex-wrap items-start justify-between gap-4">
+        <div class="space-y-2">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="rounded-full border border-[#1e3a8a] bg-[#1e3a8a] px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[#fef3c7]">
+              🛡️ KNIGHTS' ORDER BARRACKS · EAST GARRISON
+            </span>
+            <span
+              id="bar-crest-pill"
+              class="rounded-full border border-[#b45309]/50 bg-[#fef3c7] px-2.5 py-1 font-mono text-[10px] font-bold uppercase text-[#78350f]"
+            >
+              ⏳ Crest Unclaimed
+            </span>
+          </div>
+          <h1 class="font-display text-2xl font-black tracking-tight text-[#0f172a] sm:text-3xl">
+            🛡️ Knights' Barracks &amp; Hall of Valor
+          </h1>
+          <p class="max-w-2xl text-sm leading-relaxed text-[#334155]">
+            Markas komando <strong class="text-[#1e3a8a]">Commander Lucario</strong> bersama <strong class="text-[#b45309]">Kentaurosmon</strong> &amp;
+            <strong class="text-[#1d4ed8]">Salamence</strong>. Cetak 3 bullseye dalam 15 detik untuk mengklaim <strong class="text-[#1e3a8a]">Crest of Valor</strong>!
+          </p>
+        </div>
+
+        <div class="flex flex-col items-end gap-2">
+          <div class="grid grid-cols-3 gap-2 rounded-xl border-2 border-[#1e3a8a] bg-white px-3 py-2 text-center font-mono shadow-inner">
+            <div>
+              <div class="text-[9px] font-bold uppercase text-[#475569]">BULLSEYE</div>
+              <div id="hero-bar-hits" class="text-sm font-black text-[#1e3a8a]">0 / 3</div>
+            </div>
+            <div>
+              <div class="text-[9px] font-bold uppercase text-[#475569]">TIMER</div>
+              <div id="hero-bar-timer" class="text-sm font-black text-[#b91c1c]">15.0s</div>
+            </div>
+            <div>
+              <div class="text-[9px] font-bold uppercase text-[#475569]">CRESTS</div>
+              <div id="hero-bar-crests" class="text-sm font-black text-[#15803d]">0 / 7</div>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-end gap-2">
+            <button
+              id="bar-audio-toggle"
+              type="button"
+              class="cursor-pointer rounded-lg border-2 border-[#1e3a8a] bg-white px-2.5 py-1.5 font-mono text-[11px] font-bold text-[#1e3a8a] hover:bg-[#eff6ff]"
+            >
+              🔊 Drill SFX: ON
+            </button>
+            <a
+              id="bar-exit-btn"
+              href="/kingdom?from=barracks"
+              class="inline-flex items-center gap-1.5 rounded-lg border-2 border-[#7f1d1d] bg-gradient-to-b from-[#b91c1c] to-[#7f1d1d] px-3 py-1.5 font-mono text-xs font-extrabold text-[#fef3c7] shadow-[0_3px_0_#450a0a] transition hover:-translate-y-0.5"
+            >
+              🚪 Exit to Kingdom
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tri-Guardian Dialogue Strip -->
+      <div class="relative z-10 mt-4 flex flex-col gap-3 rounded-xl border-2 border-[#1e3a8a]/40 bg-white/90 p-3.5 sm:flex-row sm:items-center">
+        <div class="flex shrink-0 items-center gap-1.5">
+          <button type="button" data-bar-walk="lucario" data-speaker="🛡️ Commander Lucario · Aura Tactician" data-quote="Precision under time pressure separates seasoned engineers from novices. Hit 3 bullseyes before the 15s horn sounds!" data-fx-text="AURA TARGET LOCK!" data-fx-color="#38bdf8" class="flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl border-2 border-[#1e3a8a] bg-[#dbeafe] text-xl shadow-[0_2px_0_#1e3a8a] transition hover:-translate-y-0.5">🛡️</button>
+          <button type="button" data-bar-walk="kentaurosmon" data-speaker="🐎 Kentaurosmon · Royal Vanguard" data-quote="Read Zulfan’s IDEA FEST 3 National Bronze Medal and Huawei HCIA-Security V4.0 honor plaques in the Hall of Valor!" data-fx-text="ODIN'S BREATH!" data-fx-color="#fbbf24" class="flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl border-2 border-[#d97706] bg-[#fef3c7] text-xl shadow-[0_2px_0_#92400e] transition hover:-translate-y-0.5">🐎</button>
+          <button type="button" data-bar-walk="salamence" data-speaker="🐲 Salamence · Sky Patrol" data-quote="Six full semesters mentoring students in Robotics, IoT, Computer Networks, OOP & Databases!" data-fx-text="SKY PATROL FLYBY!" data-fx-color="#60a5fa" class="flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl border-2 border-[#0284c7] bg-[#e0f2fe] text-xl shadow-[0_2px_0_#075985] transition hover:-translate-y-0.5">🐲</button>
+        </div>
+        <div class="min-w-0 flex-1">
+          <div id="bar-speaker" class="font-mono text-[10px] font-black uppercase tracking-wider text-[#1e3a8a]">
+            🛡️ Commander Lucario · Aura Tactician
+          </div>
+          <p id="bar-dialogue" class="mt-0.5 text-xs italic leading-relaxed text-[#334155]">
+            “Klik ‘Start 15s Archery Drill’ dan lepaskan anak panah tepat saat target berada di zona Bullseye merah-emas (41%–59%)!”
+          </p>
+        </div>
+      </div>
+
+      <!-- 6 Tactile Quick-Walk Station Cards -->
+      <nav aria-label="Quick walk Barracks stations" class="relative z-10 mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+        <button type="button" data-bar-walk="lucario" data-scroll-to="bar-archery-game" data-hotkey="l" class="bar-station-btn flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#1e3a8a] bg-white px-2.5 py-2 text-left shadow-[0_2px_0_#1e3a8a] transition hover:-translate-y-0.5 hover:bg-[#eff6ff]">
+          <span class="flex items-center gap-1.5 truncate text-xs font-bold"><span>🛡️</span><span class="truncate">Lucario</span></span>
+          <kbd class="rounded border border-[#1e3a8a]/40 bg-[#dbeafe] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#1e3a8a]">L</kbd>
+        </button>
+        <button type="button" data-bar-walk="archery-rack" data-scroll-to="bar-archery-game" data-hotkey="a" class="bar-station-btn flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#dc2626]/70 bg-white px-2.5 py-2 text-left shadow-[0_2px_0_#991b1b] transition hover:-translate-y-0.5 hover:bg-[#fef2f2]">
+          <span class="flex items-center gap-1.5 truncate text-xs font-bold"><span>🎯</span><span class="truncate">Archery</span></span>
+          <kbd class="rounded border border-[#dc2626]/40 bg-[#fee2e2] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#991b1b]">A</kbd>
+        </button>
+        <button type="button" data-bar-walk="honors-banner" data-scroll-to="bar-valor-section" data-hotkey="h" class="bar-station-btn flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#d97706] bg-white px-2.5 py-2 text-left shadow-[0_2px_0_#92400e] transition hover:-translate-y-0.5 hover:bg-[#fffbeb]">
+          <span class="flex items-center gap-1.5 truncate text-xs font-bold"><span>🏆</span><span class="truncate">Valor Hall</span></span>
+          <kbd class="rounded border border-[#d97706]/40 bg-[#fef3c7] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#92400e]">H</kbd>
+        </button>
+        <button type="button" data-bar-walk="kentaurosmon" data-scroll-to="bar-valor-section" data-hotkey="k" class="bar-station-btn flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#d97706] bg-white px-2.5 py-2 text-left shadow-[0_2px_0_#92400e] transition hover:-translate-y-0.5 hover:bg-[#fffbeb]">
+          <span class="flex items-center gap-1.5 truncate text-xs font-bold"><span>🐎</span><span class="truncate">Kentauros</span></span>
+          <kbd class="rounded border border-[#d97706]/40 bg-[#fef3c7] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#92400e]">K</kbd>
+        </button>
+        <button type="button" data-bar-walk="salamence" data-scroll-to="bar-archery-game" data-hotkey="s" class="bar-station-btn flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#0284c7] bg-white px-2.5 py-2 text-left shadow-[0_2px_0_#075985] transition hover:-translate-y-0.5 hover:bg-[#f0f9ff]">
+          <span class="flex items-center gap-1.5 truncate text-xs font-bold"><span>🐲</span><span class="truncate">Salamence</span></span>
+          <kbd class="rounded border border-[#0284c7]/40 bg-[#e0f2fe] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#075985]">S</kbd>
+        </button>
+        <button type="button" data-bar-walk="quarters-trunk" data-scroll-to="bar-relic-section" data-hotkey="v" class="bar-station-btn flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#15803d] bg-white px-2.5 py-2 text-left shadow-[0_2px_0_#14532d] transition hover:-translate-y-0.5 hover:bg-[#f0fdf4]">
+          <span class="flex items-center gap-1.5 truncate text-xs font-bold"><span>📦</span><span class="truncate">Coffer</span></span>
+          <kbd class="rounded border border-[#15803d]/40 bg-[#dcfce7] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#14532d]">V</kbd>
+        </button>
+      </nav>
+    </header>
+
+    <!-- 2. TRIAL I: 15-SECOND BULLSEYE ARCHERY DRILL -->
+    <section
+      id="bar-archery-game"
+      class="scroll-mt-6 rounded-2xl border-[3px] border-[#1e3a8a] bg-gradient-to-b from-[#fffdf7] to-[#eef2ff] p-5 shadow-[0_8px_0_#1e3a8a]"
+    >
+      <div class="flex flex-wrap items-start justify-between gap-3 border-b-2 border-[#1e3a8a]/20 pb-3.5">
+        <div>
+          <span class="font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-[#1e3a8a]">
+            TRIAL I · LUCARIO'S GARRISON DRILL
+          </span>
+          <h2 class="mt-0.5 font-display text-xl font-black text-[#0f172a]">
+            🎯 Moving Target Archery Range (3 Hits in 15s)
+          </h2>
+          <p class="mt-1 text-xs text-[#334155]">
+            Klik <strong class="text-[#1e3a8a]">Start Drill</strong> lalu tembak saat target 🎯 melintas tepat di garis bidik merah tengah (<strong>40% – 60%</strong>).
+          </p>
+        </div>
+
+        <button
+          id="bar-start-drill"
+          type="button"
+          class="cursor-pointer rounded-xl border-2 border-[#1e3a8a] bg-[#1e3a8a] px-4 py-2 font-mono text-xs font-black text-white shadow-[0_3px_0_#0f172a] hover:brightness-110"
+        >
+          ▶ Start 15s Archery Drill
+        </button>
+      </div>
+
+      <!-- Moving Target Range Lane -->
+      <div class="mt-4 rounded-xl border-2 border-[#334155] bg-[#0f172a] p-4 text-white shadow-inner">
+        <div class="flex items-center justify-between font-mono text-xs">
+          <span id="bar-drill-hits-text" class="font-bold text-[#38bdf8]">HITS: 0 / 3</span>
+          <span id="bar-drill-time-text" class="font-black text-[#fde047]">15.0s remaining</span>
+        </div>
+
+        <div class="relative mt-3 h-10 overflow-hidden rounded-xl border-2 border-[#475569] bg-[#1e293b]">
+          <!-- Center Sight Line -->
+          <div
+            class="pointer-events-none absolute inset-y-0 border-x-2 border-[#4ade80] bg-[#ef4444]/25"
+            style="left: 40%; width: 20%;"
+          ></div>
+          <!-- Moving Bullseye Target -->
+          <div
+            id="bar-target"
+            class="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 select-none text-2xl"
+            style="left: 50%;"
+          >
+            🎯
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4 flex flex-wrap items-center gap-3">
+        <button
+          id="bar-loose-arrow"
+          type="button"
+          class="cursor-pointer rounded-xl border-2 border-[#991b1b] bg-gradient-to-b from-[#ef4444] to-[#b91c1c] px-5 py-2.5 font-mono text-xs font-black uppercase text-white shadow-[0_4px_0_#7f1d1d] transition hover:-translate-y-0.5 active:translate-y-0.5"
+        >
+          🏹 Loose Arrow! [Space]
+        </button>
+        <span id="bar-drill-feedback" class="font-mono text-xs font-bold text-[#1e3a8a]">
+          Tekan “Start 15s Archery Drill” untuk memulai latihan.
+        </span>
+      </div>
+    </section>
+
+    <!-- 3. HALL OF VALOR: HONORS & 6 TEACHING / INTERNSHIP CAMPAIGNS -->
+    <section
+      id="bar-valor-section"
+      class="scroll-mt-6 rounded-2xl border-[3px] border-[#b45309] bg-gradient-to-b from-[#fffdf7] to-[#f4ead5] p-5 shadow-[0_8px_0_#78350f]"
+    >
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b-2 border-[#b45309]/30 pb-3">
+        <div>
+          <span class="font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-[#b45309]">
+            GARRISON CITATIONS · VERIFIED FROM PROFILE.YAML
+          </span>
+          <h2 class="mt-0.5 font-display text-xl font-black text-[#1e293b]">
+            🏆 Honors, Certifications &amp; 6 Service Campaigns
+          </h2>
+        </div>
+        <a href="/tower" class="rounded-lg border border-[#b45309] bg-[#fef3c7] px-3 py-1 font-mono text-[10px] font-bold text-[#78350f]">
+          Visit Tech Tower →
+        </a>
+      </div>
+
+      <!-- Honors Plaques -->
+      <div class="mt-4 grid gap-3 sm:grid-cols-2">
+        {profile.honors.map((h) => (
+          <div class="rounded-xl border-2 border-[#d97706] bg-white p-4">
+            <div class="flex items-center justify-between font-mono text-[10px] font-bold text-[#b45309]">
+              <span>🏅 {h.issuer}</span>
+              <span>{h.date}</span>
+            </div>
+            <h3 class="mt-1 font-display text-sm font-black text-[#1e293b]">{h.title}</h3>
+            <p class="mt-1.5 text-xs leading-relaxed text-[#44403c]">{h.note}</p>
+          </div>
+        ))}
+      </div>
+
+      <!-- 6 Crew Assignments (Robotics Coordinator, IoT, Internship, Labs) -->
+      <div class="mt-4 grid gap-3 md:grid-cols-2">
+        {serviceCampaigns.map((role) => (
+          <div class="rounded-xl border border-[#1e3a8a]/30 bg-white p-4">
+            <div class="flex flex-wrap items-center justify-between gap-1 font-mono text-[10px] font-bold text-[#1e3a8a]">
+              <span>🛡️ {role.org}</span>
+              <span>{role.start} → {role.end || 'Present'}</span>
+            </div>
+            <h3 class="mt-1 font-display text-sm font-black text-[#0f172a]">{role.title}</h3>
+            <p class="mt-1 text-xs text-[#44403c]">{role.summary}</p>
+            <div class="mt-2 flex flex-wrap gap-1">
+              {role.payload.map((tag) => (
+                <span class="rounded border border-[#b45309]/30 bg-[#fffbeb] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#78350f]">
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- 4. GARRISON RELIC COFFER & 7 CRESTS -->
+    <section
+      id="bar-relic-section"
+      class="scroll-mt-6 rounded-2xl border-[3px] border-[#b45309] bg-gradient-to-b from-[#fffdf7] to-[#f4ead5] p-5 shadow-[0_8px_0_#78350f]"
+    >
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b-2 border-[#b45309]/30 pb-3">
+        <h2 class="font-display text-xl font-black text-[#1e293b]">📦 Garrison Vault &amp; 7 Royal Crests</h2>
+        <span id="bar-crest-summary" class="rounded-full border border-[#1e3a8a] bg-[#1e3a8a] px-3 py-1 font-mono text-[11px] font-bold text-[#fef3c7]">
+          0 / 7 Crests Claimed
+        </span>
+      </div>
+
+      <div class="mt-4 grid gap-4 md:grid-cols-2">
+        <div class="rounded-xl border-2 border-[#1e3a8a]/50 bg-white p-4">
+          <div class="font-mono text-[10px] font-bold uppercase text-[#1e3a8a]">RELIC I · AURA VANGUARD MARCH</div>
+          <h3 class="mt-0.5 font-display text-base font-black text-[#1e293b]">⚡ Lucario Vanguard Sprint (+50% Speed)</h3>
+          <p class="mt-2 text-xs text-[#44403c]">Aktifkan aura kecepatan +50% selama 25 detik untuk menjelajahi garnisun dan kerajaan lebih cepat.</p>
+          <div class="mt-3 flex flex-wrap items-center gap-2">
+            <button id="bar-speed-btn" type="button" class="cursor-pointer rounded-xl border-2 border-[#1e3a8a] bg-[#1e3a8a] px-4 py-2 font-mono text-xs font-black text-white shadow-[0_3px_0_#0f172a]">
+              ⚡ Cast Vanguard Sprint
+            </button>
+            <span id="bar-speed-timer" class="font-mono text-xs font-bold text-[#1e3a8a]">Status: Ready</span>
+          </div>
+        </div>
+
+        <div class="rounded-xl border-2 border-[#b45309]/50 bg-white p-4">
+          <div class="font-mono text-[10px] font-bold uppercase text-[#b45309]">RELIC II · GARRISON COMMISSION</div>
+          <h3 class="mt-0.5 font-display text-base font-black text-[#1e293b]">🛡️ Knight Commander Citation</h3>
+          <div id="bar-locked-box" class="mt-2 rounded-lg border border-[#b91c1c]/30 bg-[#fef2f2] p-3 text-xs text-[#991b1b]">
+            Terkunci. Selesaikan <strong>3 Bullseye dalam 15 detik</strong> pada Lucario Archery Drill untuk membuka Crest of Valor.
+          </div>
+          <div id="bar-unlocked-box" class="mt-2 hidden rounded-lg border border-[#15803d]/40 bg-[#f0fdf4] p-3 text-xs text-[#14532d]">
+            <div class="font-mono text-[10px] font-bold uppercase text-[#15803d]">✅ CREST OF VALOR AWARDED!</div>
+            <p class="mt-1">Commander Lucario verifies 6+ practical mentorships, Huawei HCIA-Security V4.0, and National IDEA FEST Bronze Honors.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+        {allCrests.map((c) => (
+          <a href={c.route} class="flex items-center justify-between gap-2 rounded-xl border border-[#b45309]/40 bg-white px-3 py-2 text-xs hover:-translate-y-0.5 hover:border-[#1e3a8a]">
+            <span class="truncate font-bold">{c.icon} {c.name}</span>
+            <span data-bar-crest-badge={c.key} class="font-mono text-[10px] font-bold text-[#94a3b8]">🔒</span>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <WhereTo currentPath="/kingdom/barracks" />
+  </article>
+</TownLayout>
+
+<script>
+  import { awardRoyalCrest, countRoyalCrests, getRoyalCrests } from '../../engine/kingdomInteriorShared';
+
+  let barAudioOn = true;
+  let barAudioCtx: AudioContext | null = null;
+
+  function playArrowTone(freq: number, dur = 0.12, type: OscillatorType = 'triangle', peak = 0.1) {
+    if (!barAudioOn || typeof window === 'undefined') return;
+    try {
+      const Ctx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      if (!Ctx) return;
+      if (!barAudioCtx) barAudioCtx = new Ctx();
+      if (barAudioCtx.state === 'suspended') void barAudioCtx.resume();
+      const osc = barAudioCtx.createOscillator();
+      const gain = barAudioCtx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, barAudioCtx.currentTime);
+      gain.gain.setValueAtTime(peak, barAudioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, barAudioCtx.currentTime + dur);
+      osc.connect(gain);
+      gain.connect(barAudioCtx.destination);
+      osc.start();
+      osc.stop(barAudioCtx.currentTime + dur);
+    } catch {
+      // ignore
+    }
+  }
+
+  function emitBarWave(text: string, color = '#38bdf8') {
+    window.dispatchEvent(new CustomEvent('town:kingdom-fx', { detail: { text, color } }));
+  }
+
+  function initBarracksPage() {
+    const root = document.querySelector('.barracks-page');
+    if (!root) return;
+
+    let targetPos = 50;
+    let targetDir = 1;
+    let hits = 0;
+    let timeLeft = 15.0;
+    let drillActive = false;
+    let rafId: number | null = null;
+    let lastTs = performance.now();
+    let speedTimer: number | null = null;
+
+    document.getElementById('bar-exit-btn')?.addEventListener('click', () => {
+      try {
+        sessionStorage.setItem('kingdom:respawn', '37,31,down');
+      } catch {
+        // ignore
+      }
+    });
+
+    const audioBtn = document.getElementById('bar-audio-toggle');
+    audioBtn?.addEventListener('click', () => {
+      barAudioOn = !barAudioOn;
+      audioBtn.textContent = barAudioOn ? '🔊 Drill SFX: ON' : '🔇 Drill SFX: MUTED';
+      if (barAudioOn) playArrowTone(523.25);
+    });
+
+    const speakerEl = document.getElementById('bar-speaker');
+    const dialogueEl = document.getElementById('bar-dialogue');
+
+    const walkProp = (el: HTMLElement) => {
+      const id = el.dataset.barWalk;
+      if (id) window.dispatchEvent(new CustomEvent('town:walk-to', { detail: { id } }));
+      if (el.dataset.speaker && speakerEl) speakerEl.textContent = el.dataset.speaker;
+      if (el.dataset.quote && dialogueEl) dialogueEl.textContent = `“${el.dataset.quote}”`;
+      if (el.dataset.fxText) emitBarWave(el.dataset.fxText, el.dataset.fxColor || '#38bdf8');
+      if (el.dataset.scrollTo) {
+        document.getElementById(el.dataset.scrollTo)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      playArrowTone(440, 0.08);
+    };
+
+    document.querySelectorAll<HTMLElement>('[data-bar-walk]').forEach((btn) => {
+      btn.addEventListener('click', () => walkProp(btn));
+    });
+
+    function refreshCrests() {
+      const crests = getRoyalCrests();
+      const total = countRoyalCrests();
+      const hasValor = Boolean(crests.valor);
+
+      const hHits = document.getElementById('hero-bar-hits');
+      const hCrests = document.getElementById('hero-bar-crests');
+      const pill = document.getElementById('bar-crest-pill');
+      const summary = document.getElementById('bar-crest-summary');
+
+      if (hHits) hHits.textContent = `${hasValor ? 3 : hits} / 3`;
+      if (hCrests) hCrests.textContent = `${total} / 7`;
+      if (summary) summary.textContent = `${total} / 7 Crests Claimed`;
+      if (pill && hasValor) {
+        pill.textContent = '🛡️ Crest of Valor Claimed';
+        pill.className = 'rounded-full border border-[#15803d] bg-[#dcfce7] px-2.5 py-1 font-mono text-[10px] font-bold uppercase text-[#14532d]';
+      }
+      if (hasValor) {
+        document.getElementById('bar-locked-box')?.classList.add('hidden');
+        document.getElementById('bar-unlocked-box')?.classList.remove('hidden');
+      }
+
+      (['sovereignty', 'steel', 'fellowship', 'arcana', 'valor', 'grace', 'chivalry'] as const).forEach((k) => {
+        const badge = document.querySelector<HTMLElement>(`[data-bar-crest-badge="${k}"]`);
+        const ok = Boolean(crests[k]);
+        if (badge) {
+          badge.textContent = ok ? '✅' : '🔒';
+          badge.className = ok ? 'font-mono text-[10px] font-bold text-[#15803d]' : 'font-mono text-[10px] font-bold text-[#94a3b8]';
+        }
+      });
+    }
+
+    const targetEl = document.getElementById('bar-target');
+    const feedbackEl = document.getElementById('bar-drill-feedback');
+    const hitsText = document.getElementById('bar-drill-hits-text');
+    const timeText = document.getElementById('bar-drill-time-text');
+    const heroTimer = document.getElementById('hero-bar-timer');
+
+    function tickDrill(now: number) {
+      const dt = Math.min(0.05, (now - lastTs) / 1000);
+      lastTs = now;
+      if (drillActive) {
+        targetPos += targetDir * dt * 105;
+        if (targetPos >= 94) { targetPos = 94; targetDir = -1; }
+        else if (targetPos <= 6) { targetPos = 6; targetDir = 1; }
+        if (targetEl) targetEl.style.left = `${targetPos}%`;
+
+        timeLeft = Math.max(0, timeLeft - dt);
+        const fmt = `${timeLeft.toFixed(1)}s`;
+        if (timeText) timeText.textContent = `${fmt} remaining`;
+        if (heroTimer) heroTimer.textContent = fmt;
+
+        if (timeLeft <= 0) {
+          drillActive = false;
+          playArrowTone(180, 0.25, 'sawtooth', 0.08);
+          if (feedbackEl) feedbackEl.textContent = '⏱️ Waktu habis! Tekan "Start 15s Archery Drill" untuk mengulang.';
+        }
+      }
+      rafId = requestAnimationFrame(tickDrill);
+    }
+    rafId = requestAnimationFrame(tickDrill);
+
+    document.getElementById('bar-start-drill')?.addEventListener('click', () => {
+      drillActive = true;
+      hits = 0;
+      timeLeft = 15.0;
+      lastTs = performance.now();
+      if (hitsText) hitsText.textContent = 'HITS: 0 / 3';
+      if (feedbackEl) feedbackEl.textContent = '🏹 Bidik zona tengah 40%–60%! Tekan Loose Arrow!';
+      playArrowTone(523.25, 0.14);
+      emitBarWave('ARCHERY DRILL START!', '#38bdf8');
+      refreshCrests();
+    });
+
+    function looseArrow() {
+      if (!drillActive) {
+        if (feedbackEl) feedbackEl.textContent = 'Tekan "Start 15s Archery Drill" terlebih dahulu!';
+        return;
+      }
+      const inBullseye = targetPos >= 40 && targetPos <= 60;
+      if (inBullseye) {
+        hits += 1;
+        if (hitsText) hitsText.textContent = `HITS: ${hits} / 3`;
+        playArrowTone(783.99, 0.16);
+        emitBarWave(`BULLSEYE! (${hits}/3)`, '#4ade80');
+        if (hits >= 3) {
+          drillActive = false;
+          awardRoyalCrest('valor');
+          setTimeout(() => playArrowTone(987.77, 0.25), 90);
+          emitBarWave('CREST OF VALOR CLAIMED!', '#fbbf24');
+          if (feedbackEl) feedbackEl.textContent = '🏆 LUAR BIASA! 3 Bullseye tercapai — Crest of Valor diraih!';
+        } else if (feedbackEl) {
+          feedbackEl.textContent = `🎯 BULLSEYE tepat di tengah (${Math.round(targetPos)}%)! Sisa ${3 - hits} tembakan.`;
+        }
+      } else {
+        playArrowTone(196, 0.14, 'sawtooth', 0.08);
+        if (feedbackEl) feedbackEl.textContent = `💨 Meleset (${Math.round(targetPos)}%) — tunggu target masuk zona hijau-merah!`;
+      }
+      refreshCrests();
+    }
+
+    document.getElementById('bar-loose-arrow')?.addEventListener('click', looseArrow);
+
+    const onKey = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement | null)?.tagName;
+      if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
+      if (e.code === 'Space' && drillActive) {
+        e.preventDefault();
+        looseArrow();
+        return;
+      }
+      const matched = document.querySelector<HTMLElement>(`.bar-station-btn[data-hotkey="${e.key.toLowerCase()}"]`);
+      if (matched) {
+        e.preventDefault();
+        walkProp(matched);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+
+    document.getElementById('bar-speed-btn')?.addEventListener('click', () => {
+      window.dispatchEvent(new CustomEvent('town:claim-lucky-egg'));
+      emitBarWave('VANGUARD SPRINT +50%!', '#38bdf8');
+      playArrowTone(659.25, 0.14);
+      let left = 25;
+      const timerEl = document.getElementById('bar-speed-timer');
+      if (timerEl) timerEl.textContent = `⚡ Active: ${left}s`;
+      if (speedTimer !== null) clearInterval(speedTimer);
+      speedTimer = window.setInterval(() => {
+        left -= 1;
+        if (timerEl) timerEl.textContent = left > 0 ? `⚡ Active: ${left}s` : 'Status: Ready';
+        if (left <= 0 && speedTimer !== null) {
+          clearInterval(speedTimer);
+          speedTimer = null;
+        }
+      }, 1000);
+    });
+
+    refreshCrests();
+
+    document.addEventListener(
+      'astro:before-swap',
+      () => {
+        if (rafId !== null) cancelAnimationFrame(rafId);
+        if (speedTimer !== null) clearInterval(speedTimer);
+        window.removeEventListener('keydown', onKey);
+      },
+      { once: true }
+    );
+  }
+
+  initBarracksPage();
+  document.addEventListener('astro:page-load', initBarracksPage);
+</script>

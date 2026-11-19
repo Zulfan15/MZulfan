@@ -35,7 +35,226 @@ const dataPlaces = {
   garden: { name: 'Berry Garden', href: '/garden' },
   neighbour: { name: "Neighbour's House", href: '/neighbour' },
   digimon: { name: 'Digi-Sanctuary', href: '/digimon' },
+  kingdom: { name: 'Royal Kingdom', href: '/kingdom' },
+  harbour: { name: 'Harbour Town', href: '/harbour' },
+  'sky-castle': { name: 'Sky Castle', href: '/sky-castle' },
+  'dark-castle': { name: 'Dark Castle', href: '/dark-castle' },
+  'kingdom-castle': { name: 'Grand Throne Hall', href: '/kingdom/castle' },
+  'kingdom-blacksmith': { name: 'Dragonflame Blacksmith', href: '/kingdom/blacksmith' },
+  'kingdom-tavern': { name: 'Golden Griffin Tavern', href: '/kingdom/tavern' },
+  'kingdom-mage-tower': { name: 'Astral Mage Sanctum', href: '/kingdom/mage-tower' },
+  'kingdom-barracks': { name: "Knights' Barracks", href: '/kingdom/barracks' },
+  'kingdom-chapel': { name: 'Saint Avalon Abbey', href: '/kingdom/chapel' },
+  'kingdom-jousting': { name: 'Royal Jousting Arena', href: '/kingdom/jousting' },
+  'harbour-lighthouse': { name: 'Old Port Lighthouse', href: '/harbour/lighthouse' },
+  'harbour-warehouse': { name: 'Customs & Cargo Warehouse', href: '/harbour/warehouse' },
+  'harbour-inn': { name: 'Harbourmaster Tudor Inn', href: '/harbour/inn' },
+  'harbour-galleon': { name: 'The Sovereign Brigantine', href: '/harbour/galleon' },
+  'harbour-market': { name: 'Dockside Market Pavilion', href: '/harbour/market' },
 };
+
+const kingdomInteriorLabels: Record<
+  string,
+  {
+    hudTitle: string;
+    guideTitle: string;
+    guideText: string;
+    items: Array<{ id: string; kind: 'npc' | 'building'; icon: string; text: string }>;
+  }
+> = {
+  'kingdom-castle': {
+    hudTitle: '👑 Grand Throne Hall',
+    guideTitle: 'GRAND THRONE HALL · SOVEREIGN KEEP',
+    guideText: 'Walk along the red royal carpet to seek an audience with King Solgaleo, salute Omnimon & Gallantmon, or step on EXIT (7, 11) to return to Avalon.',
+    items: [
+      { id: 'solgaleo', kind: 'npc', icon: '🦁', text: 'Solgaleo' },
+      { id: 'royal-throne', kind: 'building', icon: '👑', text: 'Sun Throne' },
+      { id: 'royal-charter', kind: 'building', icon: '📜', text: 'Royal Charter' },
+      { id: 'treasury-coffer', kind: 'building', icon: '💎', text: 'Coffer' },
+      { id: 'omnimon', kind: 'npc', icon: '⚔️', text: 'Omnimon' },
+      { id: 'gallantmon', kind: 'npc', icon: '🛡️', text: 'Gallantmon' },
+      { id: 'sovereign-seal', kind: 'building', icon: '☀️', text: 'Sun Crest' },
+      { id: 'vanguard-display', kind: 'building', icon: '🛡️', text: 'Knight Armor' },
+      { id: 'diplomacy-lectern', kind: 'building', icon: '✉️', text: 'Envoy Desk' },
+    ],
+  },
+  'kingdom-blacksmith': {
+    hudTitle: '⚒️ Dragonflame Blacksmith',
+    guideTitle: 'DRAGONFLAME BLACKSMITH · ROYAL ARMORY',
+    guideText: 'Consult Master Smith Archaludon beside the hearth, strike the Royal Anvil, or meet Tyranitar & Cannondramon.',
+    items: [
+      { id: 'archaludon', kind: 'npc', icon: '⚒️', text: 'Archaludon' },
+      { id: 'dragon-hearth', kind: 'building', icon: '🔥', text: 'Blast Hearth' },
+      { id: 'armory-rack', kind: 'building', icon: '🗡️', text: 'Stack Armory' },
+      { id: 'quench-trough', kind: 'building', icon: '💧', text: 'Quench Bath' },
+      { id: 'tyranitar', kind: 'npc', icon: '🦖', text: 'Tyranitar' },
+      { id: 'cannondramon', kind: 'npc', icon: '🔩', text: 'Cannondramon' },
+      { id: 'master-anvil', kind: 'building', icon: '🔨', text: 'Royal Anvil' },
+      { id: 'smelting-bellows', kind: 'building', icon: '💨', text: 'Forge Bellows' },
+      { id: 'grindstone-bench', kind: 'building', icon: '🪨', text: 'Whetstone' },
+    ],
+  },
+  'kingdom-tavern': {
+    hudTitle: '🍺 Golden Griffin Tavern',
+    guideTitle: 'GOLDEN GRIFFIN TAVERN · FELLOWSHIP INN',
+    guideText: 'Order refreshments from Empoleon, inspect the Production Quest Board, or relax beside Snorlax & Samurott.',
+    items: [
+      { id: 'empoleon', kind: 'npc', icon: '🍺', text: 'Empoleon' },
+      { id: 'oak-bar', kind: 'building', icon: '🪵', text: 'Tavern Counter' },
+      { id: 'quest-board', kind: 'building', icon: '📋', text: 'Quest Board' },
+      { id: 'ale-barrels', kind: 'building', icon: '🛢️', text: 'Spiced Casks' },
+      { id: 'snorlax', kind: 'npc', icon: '🍖', text: 'Snorlax' },
+      { id: 'samurott', kind: 'npc', icon: '⚔️', text: 'Samurott' },
+      { id: 'banquet-table', kind: 'building', icon: '🕯️', text: 'Banquet Table' },
+      { id: 'hearth-fireplace', kind: 'building', icon: '🔥', text: 'Tavern Hearth' },
+      { id: 'bard-stage', kind: 'building', icon: '🪕', text: 'Bard Corner' },
+    ],
+  },
+  'kingdom-mage-tower': {
+    hudTitle: '🔮 Astral Mage Sanctum',
+    guideTitle: 'ASTRAL MAGE SANCTUM · ARCANE OBSERVATORY',
+    guideText: 'Align celestial research constellations with Archmage Mewtwo and twin guardians Latias & Latios.',
+    items: [
+      { id: 'mewtwo', kind: 'npc', icon: '🔮', text: 'Mewtwo' },
+      { id: 'astral-telescope', kind: 'building', icon: '🔭', text: 'Observatory' },
+      { id: 'arcana-grimoire', kind: 'building', icon: '📖', text: 'Research Codex' },
+      { id: 'ley-crystal', kind: 'building', icon: '✨', text: 'Mana Prism' },
+      { id: 'latias', kind: 'npc', icon: '❤️', text: 'Latias' },
+      { id: 'latios', kind: 'npc', icon: '💙', text: 'Latios' },
+      { id: 'rune-circle', kind: 'building', icon: '🌟', text: 'Rune Nexus' },
+      { id: 'alchemy-alembic', kind: 'building', icon: '⚗️', text: 'Alembic' },
+      { id: 'star-orrery', kind: 'building', icon: '🌌', text: 'Orrery' },
+    ],
+  },
+  'kingdom-barracks': {
+    hudTitle: "🛡️ Knights' Barracks",
+    guideTitle: "KNIGHTS' ORDER BARRACKS · HALL OF VALOR",
+    guideText: 'Train on the archery range with Commander Lucario, inspect verified honors, or greet Kentaurosmon & Salamence.',
+    items: [
+      { id: 'lucario', kind: 'npc', icon: '🛡️', text: 'Lucario' },
+      { id: 'war-map', kind: 'building', icon: '🗺️', text: 'War Table' },
+      { id: 'honors-banner', kind: 'building', icon: '🏆', text: 'Hall of Valor' },
+      { id: 'archery-rack', kind: 'building', icon: '🎯', text: 'Archery Range' },
+      { id: 'kentaurosmon', kind: 'npc', icon: '🐎', text: 'Kentaurosmon' },
+      { id: 'salamence', kind: 'npc', icon: '🐲', text: 'Salamence' },
+      { id: 'vanguard-crest', kind: 'building', icon: '⚔️', text: 'Honor Plinth' },
+      { id: 'training-dummy', kind: 'building', icon: '🥋', text: 'Sparring Post' },
+      { id: 'quarters-trunk', kind: 'building', icon: '📦', text: 'Valor Coffer' },
+    ],
+  },
+  'kingdom-chapel': {
+    hudTitle: '⛪ Saint Avalon Abbey',
+    guideTitle: 'SAINT AVALON ABBEY · STAINED-GLASS CHAPEL',
+    guideText: 'Harmonize the bronze bell carillon with Guardian Lugia beside Seraphimon & GuardiAngemon.',
+    items: [
+      { id: 'lugia', kind: 'npc', icon: '🕊️', text: 'Lugia' },
+      { id: 'rose-stained-glass', kind: 'building', icon: '🪟', text: 'Rose Window' },
+      { id: 'bell-carillon', kind: 'building', icon: '🔔', text: 'Bronze Bells' },
+      { id: 'contact-scroll', kind: 'building', icon: '📜', text: 'Envoy Scroll' },
+      { id: 'seraphimon', kind: 'npc', icon: '👼', text: 'Seraphimon' },
+      { id: 'guardiangemon', kind: 'npc', icon: '⚔️', text: 'GuardiAngemon' },
+      { id: 'grace-altar', kind: 'building', icon: '🕯️', text: 'Grace Altar' },
+      { id: 'chapel-pews', kind: 'building', icon: '🪑', text: 'Choir Pews' },
+      { id: 'blessing-font', kind: 'building', icon: '⛲', text: 'Grace Font' },
+    ],
+  },
+  'kingdom-jousting': {
+    hudTitle: '🐎 Royal Jousting Arena',
+    guideTitle: 'ROYAL JOUSTING ARENA · STONE COLOSSEUM',
+    guideText: 'Enter the central golden sand tilting pit inside the limestone castle arena to challenge Koraidon, BlackWarGreymon & Imperialdramon!',
+    items: [
+      { id: 'koraidon', kind: 'npc', icon: '🐎', text: 'Koraidon' },
+      { id: 'royal-pavilion', kind: 'building', icon: '🏟️', text: 'Castle Stand' },
+      { id: 'lance-rack', kind: 'building', icon: '🔱', text: 'Lance Rack' },
+      { id: 'herald-drum', kind: 'building', icon: '🥁', text: 'War Drums' },
+      { id: 'blackwargreymon', kind: 'npc', icon: '⚔️', text: 'BlackWarGreymon' },
+      { id: 'imp_fighter', kind: 'npc', icon: '🛡️', text: 'Imperialdramon' },
+      { id: 'sand-stable', kind: 'building', icon: '🐴', text: 'Cavalry Tack' },
+      { id: 'arena-scoreboard', kind: 'building', icon: '🏆', text: 'Tourney Board' },
+    ],
+  },
+  'harbour-lighthouse': {
+    hudTitle: '🗼 Old Port Lighthouse',
+    guideTitle: 'OLD PORT LIGHTHOUSE · ROYAL BEACON',
+    guideText: 'Ascend to the brass Fresnel lantern gallery watched over by Kyogre, Palkia & Azulongmon, or step on EXIT (7, 11) to return to Harbour Town.',
+    items: [
+      { id: 'kyogre', kind: 'npc', icon: '🌊', text: 'Kyogre' },
+      { id: 'fresnel-lens', kind: 'building', icon: '💡', text: 'Fresnel Prism' },
+      { id: 'edge-radar', kind: 'building', icon: '🛰️', text: 'Edge Radar' },
+      { id: 'astrolabe-desk', kind: 'building', icon: '🧭', text: 'Astrolabe' },
+      { id: 'palkia', kind: 'npc', icon: '🌌', text: 'Palkia' },
+      { id: 'azulongmon', kind: 'npc', icon: '🐉', text: 'Azulongmon' },
+      { id: 'beacon-prism', kind: 'building', icon: '✨', text: 'Beacon Dial' },
+      { id: 'signal-bell', kind: 'building', icon: '🔔', text: 'Fog Bell' },
+      { id: 'spiral-stairs', kind: 'building', icon: '🪜', text: 'Tower Stairs' },
+    ],
+  },
+  'harbour-warehouse': {
+    hudTitle: '📦 Customs & Cargo Warehouse',
+    guideTitle: 'CUSTOMS WAREHOUSE · ROYAL LOGISTICS',
+    guideText: 'Inspect data pipelines and balance royal supply crates alongside Quartermaster Gyarados, Vikemon & Regigigas.',
+    items: [
+      { id: 'gyarados', kind: 'npc', icon: '🐉', text: 'Gyarados' },
+      { id: 'crane-beam', kind: 'building', icon: '🏗️', text: 'Cargo Crane' },
+      { id: 'manifest-ledger', kind: 'building', icon: '📜', text: 'Manifests' },
+      { id: 'royal-crates', kind: 'building', icon: '📦', text: 'Supply Crates' },
+      { id: 'vikemon', kind: 'npc', icon: '🧊', text: 'Vikemon' },
+      { id: 'regigigas', kind: 'npc', icon: '🗿', text: 'Regigigas' },
+      { id: 'customs-scales', kind: 'building', icon: '⚖️', text: 'Brass Scales' },
+      { id: 'spice-barrels', kind: 'building', icon: '🛢️', text: 'Provisions' },
+      { id: 'sluice-gate', kind: 'building', icon: '🚪', text: 'Sluice Gate' },
+    ],
+  },
+  'harbour-inn': {
+    hudTitle: '🏡 Harbourmaster Tudor Inn',
+    guideTitle: 'HARBOURMASTER TUDOR INN · CHARTROOM',
+    guideText: 'Enjoy warm spiced sea-tea beside the brick hearth and chart sea voyages with Urshifu, Gardevoir & Plesiomon.',
+    items: [
+      { id: 'urshifu', kind: 'npc', icon: '🥋', text: 'Urshifu' },
+      { id: 'tudor-hearth', kind: 'building', icon: '🔥', text: 'Tudor Hearth' },
+      { id: 'tea-counter', kind: 'building', icon: '☕', text: 'Sea-Tea Bar' },
+      { id: 'ship-cabinet', kind: 'building', icon: '⛵', text: 'Ship Curios' },
+      { id: 'gardevoir', kind: 'npc', icon: '✨', text: 'Gardevoir' },
+      { id: 'plesiomon', kind: 'npc', icon: '🌊', text: 'Plesiomon' },
+      { id: 'chart-table', kind: 'building', icon: '🗺️', text: 'Chart Table' },
+      { id: 'sailors-log', kind: 'building', icon: '📖', text: 'Sailors’ Log' },
+      { id: 'garden-window', kind: 'building', icon: '🌺', text: 'Bay Window' },
+    ],
+  },
+  'harbour-galleon': {
+    hudTitle: '🏴‍☠️ The Sovereign Brigantine',
+    guideTitle: 'SOVEREIGN BRIGANTINE · ADMIRAL CABIN',
+    guideText: 'Take the brass helm inside the royal flagship gun-deck guarded by Lord Admiral Neptunemon, Garchomp & MetalSeadramon.',
+    items: [
+      { id: 'neptunemon', kind: 'npc', icon: '🔱', text: 'Neptunemon' },
+      { id: 'admiral-window', kind: 'building', icon: '🪟', text: 'Stern Gallery' },
+      { id: 'port-cannons', kind: 'building', icon: '💣', text: 'Broadside' },
+      { id: 'war-map', kind: 'building', icon: '🗺️', text: 'War Map' },
+      { id: 'garchomp', kind: 'npc', icon: '🦈', text: 'Garchomp' },
+      { id: 'metalseadramon', kind: 'npc', icon: '🐉', text: 'MetalSeadramon' },
+      { id: 'brass-helm', kind: 'building', icon: '☸️', text: 'Ship Helm' },
+      { id: 'treasure-chest', kind: 'building', icon: '💎', text: 'Strongbox' },
+      { id: 'ship-bell', kind: 'building', icon: '🔔', text: 'Brass Bell' },
+    ],
+  },
+  'harbour-market': {
+    hudTitle: '⛵ Dockside Market Pavilion',
+    guideTitle: 'DOCKSIDE MARKET PAVILION · CORAL EXCHANGE',
+    guideText: 'Walk across the golden sand & tide-pool pavilion to appraise trade contracts with Celebi, Sakuyamon & HerculesKabuterimon.',
+    items: [
+      { id: 'celebi', kind: 'npc', icon: '🌿', text: 'Celebi' },
+      { id: 'guild-crest-arch', kind: 'building', icon: '🏛️', text: 'Guild Arch' },
+      { id: 'cv-charter-stall', kind: 'building', icon: '📜', text: 'CV Charter' },
+      { id: 'pigeon-roost', kind: 'building', icon: '🕊️', text: 'Courier Roost' },
+      { id: 'sakuyamon', kind: 'npc', icon: '🦊', text: 'Sakuyamon' },
+      { id: 'herculeskabuterimon', kind: 'npc', icon: '🪲', text: 'HerculesK.' },
+      { id: 'coral-tidepool', kind: 'building', icon: '🐚', text: 'Coral Pool' },
+      { id: 'pearl-counter', kind: 'building', icon: '🦪', text: 'Pearl Stall' },
+      { id: 'trade-ledger', kind: 'building', icon: '⚖️', text: 'Appraisal' },
+    ],
+  },
+};
+const activeKingdomInteriorMeta = kingdomInteriorLabels[currentPlace];
 
 const githubUrl = profile.socials.find((s) => s.label === 'GitHub')?.url || 'https://github.com/Zulfan15';
 const linkedinUrl = profile.socials.find((s) => s.label === 'LinkedIn')?.url || 'https://www.linkedin.com/in/muhammad-zulfan-anggadhiputra';
@@ -62,7 +281,7 @@ const dataPlaceRooms = {
   data-places={JSON.stringify(dataPlaces)}
   data-links={JSON.stringify(dataLinks)}
   data-place-rooms={JSON.stringify(dataPlaceRooms)}
-  data-scene={currentPlace === 'about' ? 'home' : currentPlace === 'dev' ? 'dev' : currentPlace === 'lab' ? 'lab' : currentPlace === 'arcade' ? 'arcade' : currentPlace === 'reception' ? 'reception' : currentPlace === 'mart' ? 'mart' : currentPlace === 'tower' ? 'tower' : currentPlace === 'cafe' ? 'cafe' : currentPlace === 'arena' ? 'arena' : currentPlace === 'garden' ? 'garden' : currentPlace === 'neighbour' ? 'neighbour' : currentPlace === 'digimon' ? 'digimon' : 'town'}
+  data-scene={currentPlace === 'about' ? 'home' : currentPlace === 'dev' ? 'dev' : currentPlace === 'lab' ? 'lab' : currentPlace === 'arcade' ? 'arcade' : currentPlace === 'reception' ? 'reception' : currentPlace === 'mart' ? 'mart' : currentPlace === 'tower' ? 'tower' : currentPlace === 'cafe' ? 'cafe' : currentPlace === 'arena' ? 'arena' : currentPlace === 'garden' ? 'garden' : currentPlace === 'neighbour' ? 'neighbour' : currentPlace === 'digimon' ? 'digimon' : currentPlace === 'kingdom' ? 'kingdom' : currentPlace === 'harbour' ? 'harbour' : currentPlace === 'sky-castle' ? 'sky-castle' : currentPlace === 'dark-castle' ? 'dark-castle' : currentPlace === 'dark-cathedral' ? 'dark-cathedral' : currentPlace === 'dark-forge' ? 'dark-forge' : currentPlace === 'dark-manor' ? 'dark-manor' : currentPlace === 'dark-vault' ? 'dark-vault' : currentPlace.startsWith('kingdom-') || currentPlace.startsWith('harbour-') ? currentPlace : 'town'}
   data-retro={currentPlace === 'about' || currentPlace === 'dev' || currentPlace === 'lab' || currentPlace === 'arcade' || currentPlace === 'reception' || currentPlace === 'mart' || currentPlace === 'tower' || currentPlace === 'cafe' || currentPlace === 'arena' || currentPlace === 'garden' || currentPlace === 'neighbour' ? '' : undefined}
 >
   <h2 id="town-title" class="visually-hidden">Interactive Town Map</h2>
@@ -106,6 +325,24 @@ const dataPlaceRooms = {
           ? "🏡 Neighbour's House"
           : currentPlace === 'digimon'
           ? '👾 Digi-Sanctuary'
+          : currentPlace === 'kingdom'
+          ? '🏰 Royal Kingdom'
+          : currentPlace === 'harbour'
+          ? '⚓ Harbour Town'
+          : currentPlace === 'sky-castle'
+          ? '☁️ Sky Castle'
+          : currentPlace === 'dark-castle'
+          ? '🌑 Dark Castle'
+          : currentPlace === 'dark-cathedral'
+          ? '⛪ Shadow Cathedral'
+          : currentPlace === 'dark-forge'
+          ? '🔥 Crimson Reactor Forge'
+          : currentPlace === 'dark-manor'
+          ? '🏰 Demon Keep & Blood Manor'
+          : currentPlace === 'dark-vault'
+          ? '⏳ Chained Chrono Vault'
+          : activeKingdomInteriorMeta
+          ? activeKingdomInteriorMeta.hudTitle
           : '📍 Town Square'}
       </span>
       <span class="town-hud-badge">LIVE 2D</span>
@@ -742,11 +979,317 @@ const dataPlaceRooms = {
       <>
         <button type="button" class="town-label town-label--portal" data-id="digi-return" aria-label="Return to Zulfan's Town">
           <span class="town-label__icon" aria-hidden="true">🔙</span>
-          <span class="town-label__text">Kembali ke Kota</span>
+          <span class="town-label__text">Back to Town</span>
         </button>
         <button type="button" class="town-label town-label--portal" data-id="digidex-console" aria-label="Inspect DigiDex Master Console">
           <span class="town-label__icon" aria-hidden="true">📟</span>
           <span class="town-label__text">DigiDex Console</span>
+        </button>
+        <button type="button" class="town-label town-label--portal" data-id="kingdom-gate" aria-label="Enter Royal Kingdom Portal at (20, 40)">
+          <span class="town-label__icon" aria-hidden="true">🏰</span>
+          <span class="town-label__text">Royal Kingdom (20,40)</span>
+        </button>
+        <button type="button" class="town-label town-label--portal" data-id="dark-castle-gate" aria-label="Enter Dark Castle Portal at (5, 22)">
+          <span class="town-label__icon" aria-hidden="true">🌑</span>
+          <span class="town-label__text">Dark Castle (5,22)</span>
+        </button>
+        <button type="button" class="town-label town-label--portal" data-id="sky-castle-gate" aria-label="Enter Sky Castle Portal at (36, 22)">
+          <span class="town-label__icon" aria-hidden="true">☁️</span>
+          <span class="town-label__text">Sky Castle (36,22)</span>
+        </button>
+      </>
+    ) : currentPlace === 'sky-castle' ? (
+      <>
+        <button type="button" class="town-label town-label--portal" data-id="sky-castle-return" aria-label="Return South to Digi-Sanctuary at (36, 22)">
+          <span class="town-label__icon" aria-hidden="true">🌀</span>
+          <span class="town-label__text">Back to Digi-World</span>
+        </button>
+        <button type="button" class="town-label town-label--building" data-id="sky_citadel" aria-label="Walk to White Marble Sky Citadel">
+          <span class="town-label__icon" aria-hidden="true">👑</span>
+          <span class="town-label__text">Sky Citadel</span>
+        </button>
+        <button type="button" class="town-label town-label--portal" data-id="sky_crystal_plaza" aria-label="Inspect Celestial Crystal Fountain">
+          <span class="town-label__icon" aria-hidden="true">💎</span>
+          <span class="town-label__text">Crystal Plaza</span>
+        </button>
+        <button type="button" class="town-label town-label--building" data-id="sky_windmills" aria-label="Walk to Twin Cloud Windmills">
+          <span class="town-label__icon" aria-hidden="true">🌬️</span>
+          <span class="town-label__text">Sky Windmills</span>
+        </button>
+        <button type="button" class="town-label town-label--building" data-id="sky_tavern" aria-label="Walk to Cloudhaven Timber Inn">
+          <span class="town-label__icon" aria-hidden="true">🏠</span>
+          <span class="town-label__text">Cloudhaven Inn</span>
+        </button>
+        <button type="button" class="town-label town-label--building" data-id="sky_observatory" aria-label="Walk to Golden Astral Observatory">
+          <span class="town-label__icon" aria-hidden="true">🔭</span>
+          <span class="town-label__text">Observatory</span>
+        </button>
+        <button type="button" class="town-label town-label--building" data-id="sky_chapel" aria-label="Walk to Radiant Sky Chapel">
+          <span class="town-label__icon" aria-hidden="true">⛪</span>
+          <span class="town-label__text">Sky Chapel</span>
+        </button>
+      </>
+    ) : currentPlace === 'dark-castle' ? (
+      <>
+        <button type="button" class="town-label town-label--portal" data-id="dark-castle-return" aria-label="Return to Digi-Sanctuary at (5, 22)">
+          <span class="town-label__icon" aria-hidden="true">🌀</span>
+          <span class="town-label__text">Back to Digi-World</span>
+        </button>
+        <button type="button" class="town-label town-label--building" data-id="shadow-cathedral" aria-label="Walk to Shadow Cathedral">
+          <span class="town-label__icon" aria-hidden="true">⛪</span>
+          <span class="town-label__text">Shadow Cathedral</span>
+        </button>
+        <button type="button" class="town-label town-label--building" data-id="crimson-forge" aria-label="Walk to Crimson Reactor Forge">
+          <span class="town-label__icon" aria-hidden="true">🔥</span>
+          <span class="town-label__text">Crimson Forge</span>
+        </button>
+        <button type="button" class="town-label town-label--portal" data-id="obsidian-obelisk" aria-label="Inspect Central Obsidian Obelisk">
+          <span class="town-label__icon" aria-hidden="true">🔮</span>
+          <span class="town-label__text">Obsidian Obelisk</span>
+        </button>
+        <button type="button" class="town-label town-label--building" data-id="blood-manor" aria-label="Walk to Demon Keep & Blood Manor">
+          <span class="town-label__icon" aria-hidden="true">🏰</span>
+          <span class="town-label__text">Blood Manor</span>
+        </button>
+        <button type="button" class="town-label town-label--building" data-id="chrono-vault" aria-label="Walk to Chained Chrono Vault">
+          <span class="town-label__icon" aria-hidden="true">⏳</span>
+          <span class="town-label__text">Chrono Vault</span>
+        </button>
+      </>
+    ) : currentPlace === 'dark-cathedral' ? (
+      <>
+        <button type="button" class="town-label town-label--building" data-id="pipe-organ" aria-label="Play Echo Organ">
+          <span class="town-label__icon" aria-hidden="true">🎹</span>
+          <span class="town-label__text">Echo Organ</span>
+        </button>
+        <button type="button" class="town-label town-label--npc" data-id="lunala" aria-label="Commune with Lunala">
+          <span class="town-label__icon" aria-hidden="true">🌙</span>
+          <span class="town-label__text">Lunala</span>
+        </button>
+        <button type="button" class="town-label town-label--npc" data-id="necrozma" aria-label="Talk to Prism Necrozma">
+          <span class="town-label__icon" aria-hidden="true">💠</span>
+          <span class="town-label__text">Necrozma</span>
+        </button>
+        <button type="button" class="town-label town-label--npc" data-id="gardevoir" aria-label="Listen to Cantor Gardevoir">
+          <span class="town-label__icon" aria-hidden="true">✨</span>
+          <span class="town-label__text">Gardevoir</span>
+        </button>
+        <button type="button" class="town-label town-label--portal" data-id="stained-rose" aria-label="Rose Resonance Altar">
+          <span class="town-label__icon" aria-hidden="true">🔮</span>
+          <span class="town-label__text">Rose Altar</span>
+        </button>
+        <button type="button" class="town-label town-label--building" data-id="war-stories-grimoire" aria-label="Read Obsidian Grimoire">
+          <span class="town-label__icon" aria-hidden="true">📖</span>
+          <span class="town-label__text">Grimoire</span>
+        </button>
+        <button type="button" class="town-label town-label--building" data-id="confession-shrine" aria-label="Spirit Cleanse Shrine">
+          <span class="town-label__icon" aria-hidden="true">🕯️</span>
+          <span class="town-label__text">Spirit Shrine</span>
+        </button>
+        <button type="button" class="town-label town-label--building" data-id="east-pews" aria-label="Cathedral Bell Chimes">
+          <span class="town-label__icon" aria-hidden="true">🔔</span>
+          <span class="town-label__text">Bell Chimes</span>
+        </button>
+      </>
+    ) : currentPlace === 'dark-forge' ? (
+      <>
+        <button type="button" class="town-label town-label--npc" data-id="machinedramon" aria-label="Consult Machinedramon">
+          <span class="town-label__icon" aria-hidden="true">🤖</span>
+          <span class="town-label__text">Machinedramon</span>
+        </button>
+        <button type="button" class="town-label town-label--building" data-id="magma-core" aria-label="Inspect Magma Core">
+          <span class="town-label__icon" aria-hidden="true">🌋</span>
+          <span class="town-label__text">Magma Core</span>
+        </button>
+        <button type="button" class="town-label town-label--building" data-id="tech-anvil" aria-label="Forge Architecture">
+          <span class="town-label__icon" aria-hidden="true">🔨</span>
+          <span class="town-label__text">Tech Anvil</span>
+        </button>
+        <button type="button" class="town-label town-label--building" data-id="telemetry-terminal" aria-label="Thermal Telemetry">
+          <span class="town-label__icon" aria-hidden="true">📊</span>
+          <span class="town-label__text">Telemetry</span>
+        </button>
+        <button type="button" class="town-label town-label--npc" data-id="charizard" aria-label="Consult Charizard">
+          <span class="town-label__icon" aria-hidden="true">🔥</span>
+          <span class="town-label__text">Charizard</span>
+        </button>
+        <button type="button" class="town-label town-label--npc" data-id="groudon" aria-label="Consult Groudon">
+          <span class="town-label__icon" aria-hidden="true">🌋</span>
+          <span class="town-label__text">Groudon</span>
+        </button>
+        <button type="button" class="town-label town-label--building" data-id="forge-altar" aria-label="Inspect Core Pedestal">
+          <span class="town-label__icon" aria-hidden="true">⚙️</span>
+          <span class="town-label__text">Core Pedestal</span>
+        </button>
+        <button type="button" class="town-label town-label--building" data-id="coolant-valves" aria-label="Cryo Coolant">
+          <span class="town-label__icon" aria-hidden="true">❄️</span>
+          <span class="town-label__text">Cryo Valves</span>
+        </button>
+        <button type="button" class="town-label town-label--building" data-id="plasma-batteries" aria-label="Open Relic Coffer">
+          <span class="town-label__icon" aria-hidden="true">🔋</span>
+          <span class="town-label__text">Relic Coffer</span>
+        </button>
+      </>
+    ) : currentPlace === 'dark-manor' ? (
+      <>
+        <button type="button" class="town-label town-label--building" data-id="darkrai-throne" aria-label="Obsidian Throne">
+          <span class="town-label__icon" aria-hidden="true">👑</span>
+          <span class="town-label__text">Obsidian Throne</span>
+        </button>
+        <button type="button" class="town-label town-label--npc" data-id="darkrai" aria-label="Duel Darkrai">
+          <span class="town-label__icon" aria-hidden="true">🌑</span>
+          <span class="town-label__text">Darkrai</span>
+        </button>
+        <button type="button" class="town-label town-label--npc" data-id="giratina" aria-label="Consult Giratina">
+          <span class="town-label__icon" aria-hidden="true">🐉</span>
+          <span class="town-label__text">Giratina</span>
+        </button>
+        <button type="button" class="town-label town-label--npc" data-id="urshifu" aria-label="Train with Urshifu">
+          <span class="town-label__icon" aria-hidden="true">🥋</span>
+          <span class="town-label__text">Urshifu</span>
+        </button>
+        <button type="button" class="town-label town-label--building" data-id="crimson-altar" aria-label="Duel Altar">
+          <span class="town-label__icon" aria-hidden="true">⚔️</span>
+          <span class="town-label__text">Duel Altar</span>
+        </button>
+        <button type="button" class="town-label town-label--building" data-id="bug-gallery-1" aria-label="Phantom Bug Exhibit">
+          <span class="town-label__icon" aria-hidden="true">🖼️</span>
+          <span class="town-label__text">Phantom Bug</span>
+        </button>
+        <button type="button" class="town-label town-label--building" data-id="bug-gallery-2" aria-label="Ouroboros Exhibit">
+          <span class="town-label__icon" aria-hidden="true">🖼️</span>
+          <span class="town-label__text">Ouroboros Art</span>
+        </button>
+        <button type="button" class="town-label town-label--building" data-id="blood-fireplace" aria-label="Crimson Hearth">
+          <span class="town-label__icon" aria-hidden="true">🔥</span>
+          <span class="town-label__text">Crimson Hearth</span>
+        </button>
+        <button type="button" class="town-label town-label--building" data-id="demon-crenellations" aria-label="Gargoyle Perch & Valor Vault">
+          <span class="town-label__icon" aria-hidden="true">🦇</span>
+          <span class="town-label__text">Gargoyle Perch</span>
+        </button>
+      </>
+    ) : currentPlace === 'dark-vault' ? (
+      <>
+        <button type="button" class="town-label town-label--building" data-id="clockwork-face" aria-label="Grand Chronometer">
+          <span class="town-label__icon" aria-hidden="true">⏳</span>
+          <span class="town-label__text">Chronometer</span>
+        </button>
+        <button type="button" class="town-label town-label--npc" data-id="dialga" aria-label="Consult Dialga">
+          <span class="town-label__icon" aria-hidden="true">💎</span>
+          <span class="town-label__text">Dialga</span>
+        </button>
+        <button type="button" class="town-label town-label--npc" data-id="celebi" aria-label="Consult Celebi">
+          <span class="town-label__icon" aria-hidden="true">🌿</span>
+          <span class="town-label__text">Celebi</span>
+        </button>
+        <button type="button" class="town-label town-label--npc" data-id="chronomon" aria-label="Consult Chronomon DM">
+          <span class="town-label__icon" aria-hidden="true">🕰️</span>
+          <span class="town-label__text">Chronomon</span>
+        </button>
+        <button type="button" class="town-label town-label--building" data-id="time-capsule" aria-label="Astral Orrery & Time Capsule">
+          <span class="town-label__icon" aria-hidden="true">🕰️</span>
+          <span class="town-label__text">Astral Orrery</span>
+        </button>
+        <button type="button" class="town-label town-label--building" data-id="gear-pedestal-1" aria-label="NW Sun-Gear Foundry">
+          <span class="town-label__icon" aria-hidden="true">⚙️</span>
+          <span class="town-label__text">Sun Foundry</span>
+        </button>
+        <button type="button" class="town-label town-label--building" data-id="gear-pedestal-2" aria-label="NE Escapement Crystal Loom">
+          <span class="town-label__icon" aria-hidden="true">⏱️</span>
+          <span class="town-label__text">Crystal Loom</span>
+        </button>
+        <button type="button" class="town-label town-label--building" data-id="chrono-pendulum" aria-label="SW Chronicle Library & Horologe">
+          <span class="town-label__icon" aria-hidden="true">🔔</span>
+          <span class="town-label__text">Horologe</span>
+        </button>
+        <button type="button" class="town-label town-label--building" data-id="temporal-coffer" aria-label="SE Imperial Adamant Vault Safe">
+          <span class="town-label__icon" aria-hidden="true">🔐</span>
+          <span class="town-label__text">Vault Safe</span>
+        </button>
+      </>
+    ) : currentPlace === 'kingdom' ? (
+      <>
+        <button type="button" class="town-label town-label--portal" data-id="kingdom-return" aria-label="Return to Digi-Sanctuary Portal">
+          <span class="town-label__icon" aria-hidden="true">🌀</span>
+          <span class="town-label__text">Back to Digi-World</span>
+        </button>
+        <button type="button" class="town-label town-label--building" data-id="royal_castle" aria-label="Walk to Grand Royal Castle">
+          <span class="town-label__icon" aria-hidden="true">👑</span>
+          <span class="town-label__text">Royal Castle</span>
+        </button>
+        <button type="button" class="town-label town-label--building" data-id="blacksmith_forge" aria-label="Walk to Royal Blacksmith & Armory">
+          <span class="town-label__icon" aria-hidden="true">⚒️</span>
+          <span class="town-label__text">Blacksmith</span>
+        </button>
+        <button type="button" class="town-label town-label--building" data-id="medieval_tavern" aria-label="Walk to Golden Griffin Tavern">
+          <span class="town-label__icon" aria-hidden="true">🍺</span>
+          <span class="town-label__text">Griffin Tavern</span>
+        </button>
+        <button type="button" class="town-label town-label--building" data-id="mage_tower" aria-label="Walk to Arcane Mage Observatory">
+          <span class="town-label__icon" aria-hidden="true">🔮</span>
+          <span class="town-label__text">Mage Tower</span>
+        </button>
+        <button type="button" class="town-label town-label--building" data-id="knights_barracks" aria-label="Walk to Knights Barracks">
+          <span class="town-label__icon" aria-hidden="true">🛡️</span>
+          <span class="town-label__text">Barracks</span>
+        </button>
+        <button type="button" class="town-label town-label--building" data-id="jousting_arena" aria-label="Walk to Royal Jousting Arena">
+          <span class="town-label__icon" aria-hidden="true">🐎</span>
+          <span class="town-label__text">Jousting Arena</span>
+        </button>
+        <button type="button" class="town-label town-label--building" data-id="royal_chapel" aria-label="Walk to Royal Chapel & Belltower">
+          <span class="town-label__icon" aria-hidden="true">⛪</span>
+          <span class="town-label__text">Royal Chapel</span>
+        </button>
+        <button type="button" class="town-label town-label--portal" data-id="excalibur_shrine" aria-label="Inspect Excalibur Shrine">
+          <span class="town-label__icon" aria-hidden="true">⚔️</span>
+          <span class="town-label__text">Excalibur Shrine</span>
+        </button>
+        <button type="button" class="town-label town-label--portal" data-id="harbour-gate" aria-label="Travel South to Harbour Town at (22, 59)">
+          <span class="town-label__icon" aria-hidden="true">⚓</span>
+          <span class="town-label__text">Harbour Town (22,59)</span>
+        </button>
+      </>
+    ) : activeKingdomInteriorMeta ? (
+      <>
+        {activeKingdomInteriorMeta.items.map((item) => (
+          <button
+            type="button"
+            class={`town-label ${item.kind === 'npc' ? 'town-label--npc' : 'town-label--building'}`}
+            data-id={item.id}
+            aria-label={item.text}
+          >
+            <span class="town-label__icon" aria-hidden="true">{item.icon}</span>
+            <span class="town-label__text">{item.text}</span>
+          </button>
+        ))}
+      </>
+    ) : currentPlace === 'harbour' ? (
+      <>
+        <button type="button" class="town-label town-label--portal" data-id="harbour-return" aria-label="Return North to Royal Kingdom">
+          <span class="town-label__icon" aria-hidden="true">🏰</span>
+          <span class="town-label__text">Back to Kingdom</span>
+        </button>
+        <button type="button" class="town-label town-label--building" data-id="harbour_lighthouse" aria-label="Walk to Old Port Lighthouse">
+          <span class="town-label__icon" aria-hidden="true">🗼</span>
+          <span class="town-label__text">Lighthouse</span>
+        </button>
+        <button type="button" class="town-label town-label--building" data-id="harbour_warehouse" aria-label="Walk to Customs Warehouse">
+          <span class="town-label__icon" aria-hidden="true">📦</span>
+          <span class="town-label__text">Warehouse</span>
+        </button>
+        <button type="button" class="town-label town-label--building" data-id="harbour_cottage" aria-label="Walk to Harbourmaster Inn">
+          <span class="town-label__icon" aria-hidden="true">🏡</span>
+          <span class="town-label__text">Harbour Inn</span>
+        </button>
+        <button type="button" class="town-label town-label--building" data-id="harbour_market" aria-label="Walk to Dockside Market Square">
+          <span class="town-label__icon" aria-hidden="true">⛵</span>
+          <span class="town-label__text">Market Square</span>
+        </button>
+        <button type="button" class="town-label town-label--portal" data-id="harbour_galleon" aria-label="Inspect Sovereign Brigantine Ship">
+          <span class="town-label__icon" aria-hidden="true">🏴‍☠️</span>
+          <span class="town-label__text">Royal Galleon</span>
         </button>
       </>
     ) : (
@@ -1027,7 +1570,7 @@ const dataPlaceRooms = {
     <button
       class="town-guide__toggle"
       type="button"
-      aria-expanded={currentPlace === 'dev' || currentPlace === 'lab' || currentPlace === 'reception' || currentPlace === 'mart' || currentPlace === 'tower' || currentPlace === 'cafe' || currentPlace === 'arena' || currentPlace === 'garden' || currentPlace === 'neighbour' || currentPlace === 'digimon' ? 'true' : 'false'}
+      aria-expanded={currentPlace === 'dev' || currentPlace === 'lab' || currentPlace === 'reception' || currentPlace === 'mart' || currentPlace === 'tower' || currentPlace === 'cafe' || currentPlace === 'arena' || currentPlace === 'garden' || currentPlace === 'neighbour' || currentPlace === 'digimon' || currentPlace === 'kingdom' || currentPlace === 'harbour' || currentPlace === 'sky-castle' || currentPlace === 'dark-castle' ? 'true' : 'false'}
       aria-controls="town-guide-card"
       data-town-guide-toggle=""
     >
@@ -1039,15 +1582,17 @@ const dataPlaceRooms = {
       id="town-guide-card"
       role="region"
       aria-labelledby="town-guide-title"
-      hidden={currentPlace === 'dev' || currentPlace === 'lab' || currentPlace === 'reception' || currentPlace === 'mart' || currentPlace === 'tower' || currentPlace === 'cafe' || currentPlace === 'arena' || currentPlace === 'garden' || currentPlace === 'neighbour' || currentPlace === 'digimon' ? undefined : ''}
+      hidden={currentPlace === 'dev' || currentPlace === 'lab' || currentPlace === 'reception' || currentPlace === 'mart' || currentPlace === 'tower' || currentPlace === 'cafe' || currentPlace === 'arena' || currentPlace === 'garden' || currentPlace === 'neighbour' || currentPlace === 'digimon' || currentPlace === 'kingdom' || currentPlace === 'harbour' || currentPlace === 'sky-castle' || currentPlace === 'dark-castle' ? undefined : ''}
       data-town-guide-card=""
     >
       <div class="town-guide__body">
         <strong id="town-guide-title" data-town-guide-title="">
-          {currentPlace === 'about' ? 'CRATE & CLOSET' : currentPlace === 'dev' ? 'DEV CENTER' : currentPlace === 'lab' ? 'RESEARCH LAB' : currentPlace === 'arcade' ? 'Arcade' : currentPlace === 'reception' ? 'POKÉ CENTER · FRONT DESK' : currentPlace === 'mart' ? 'POKÉ MART · SERVICES & INVENTORY' : currentPlace === 'tower' ? 'TECH TOWER · INNOVATION & ENTERPRISE HQ' : currentPlace === 'cafe' ? 'POKÉ-CAFÉ & DEVELOPER ROASTERY BAR' : currentPlace === 'arena' ? 'COLOSSEUM GLADIATORIA · ARENA GLADIATOR' : currentPlace === 'garden' ? 'BOTANICAL BERRY PLANTATION & SAKURA CONSERVATORY' : currentPlace === 'neighbour' ? "NEIGHBOUR'S COTTAGE · FELLOW DEV GUILD" : currentPlace === 'digimon' ? 'DIGI-SANCTUARY ISLAND · DIGITAL WORLD' : 'Town Square'}
+          {currentPlace === 'about' ? 'CRATE & CLOSET' : currentPlace === 'dev' ? 'DEV CENTER' : currentPlace === 'lab' ? 'RESEARCH LAB' : currentPlace === 'arcade' ? 'Arcade' : currentPlace === 'reception' ? 'POKÉ CENTER · FRONT DESK' : currentPlace === 'mart' ? 'POKÉ MART · SERVICES & INVENTORY' : currentPlace === 'tower' ? 'TECH TOWER · INNOVATION & ENTERPRISE HQ' : currentPlace === 'cafe' ? 'POKÉ-CAFÉ & DEVELOPER ROASTERY BAR' : currentPlace === 'arena' ? 'COLOSSEUM GLADIATORIA · ARENA GLADIATOR' : currentPlace === 'garden' ? 'BOTANICAL BERRY PLANTATION & SAKURA CONSERVATORY' : currentPlace === 'neighbour' ? "NEIGHBOUR'S COTTAGE · FELLOW DEV GUILD" : currentPlace === 'digimon' ? 'DIGI-SANCTUARY ISLAND · DIGITAL WORLD' : currentPlace === 'kingdom' ? 'ROYAL KINGDOM OF AVALON · MEDIEVAL CITADEL' : activeKingdomInteriorMeta ? activeKingdomInteriorMeta.guideTitle : currentPlace === 'harbour' ? 'HARBOUR TOWN · ROYAL PORT' : currentPlace === 'sky-castle' ? 'SKY CASTLE · FLOATING CLOUD CITADEL' : currentPlace === 'dark-castle' ? 'DARK CASTLE · ABYSSAL CITADEL' : 'Town Square'}
         </strong>
         <p data-town-guide-text="">
-          {currentPlace === 'about'
+          {activeKingdomInteriorMeta
+            ? activeKingdomInteriorMeta.guideText
+            : currentPlace === 'about'
             ? "Pick a song on the jukebox, dig the crates for a Crate Match, call in a request at the DJ booth and browse the closet. The stairs at the back go up to Zulfan's place. Step on the mat to leave."
             : currentPlace === 'dev'
             ? "Mission control. Snorlax at the front desk is sleeping peacefully while guarding the logs. The viewscreen runs his projects, roles, school and honors; check the stack radar and the telemetry wall too. Step on the mat to leave."
@@ -1070,7 +1615,23 @@ const dataPlaceRooms = {
             : currentPlace === 'neighbour'
             ? "Welcome to Neighbour Maya's Cozy Dev Cottage! Greet Maya and Eevee, sip hot Oolong tea by the crackling fireplace, play PR Review Ping-Pong on the retro CRT, or pin a sticky note on the Neighbour Guestbook. Step on the south mat to exit."
             : currentPlace === 'digimon'
-            ? "Selamat datang di Digi-Sanctuary Island (40×45)! Jelajahi Central Digi-Plaza, periksa DigiDex Master Console, atau kunjungi 4 Zona Habitat Elemental (Flame Canyon, Cyber Dome, Cryo Bay, Holy Sanctuary). Buka Town Editor (E) untuk mendesain lantai dan menyiapkan ruang Digimon! Masuk ke North Return Gate untuk kembali ke Town."
+            ? "Welcome to Digi-Sanctuary Island (40×45)! Explore Central Digi-Plaza, inspect the DigiDex Master Console, or visit the 4 Elemental Habitat Zones. Head West to (5, 22) for the Dark Castle Void Gate, South to (20, 40) for the Royal Kingdom, or North Return Gate to Town."
+            : currentPlace === 'kingdom'
+            ? "Welcome to the Royal Kingdom of Avalon (45×60)! Walk past the Grand Royal Castle via the twin flanking courtyards, explore all 7 landmarks, march south to (22, 59) to visit Harbour Town, or step onto the North Drawbridge to return to Digi-Sanctuary."
+            : currentPlace === 'harbour'
+            ? "Welcome to Harbour Town (45×60)! Climb the bluff stairs to the Old Port Lighthouse, explore the Customs Warehouse, rest at Harbourmaster Inn, stroll across the twin wooden piers beside the Royal Brigantine, or walk north to return to Royal Kingdom (22, 59)."
+            : currentPlace === 'sky-castle'
+            ? "Welcome to Sky Castle (45×60)! Cross floating bridges between the White Marble Citadel, Crystal Plaza, Twin Cloud Windmills, Golden Astral Observatory, and Radiant Sky Chapel. Walk south down the Grand Sky-Bridge to return to Digi-Sanctuary (36, 22)."
+            : currentPlace === 'dark-castle'
+            ? "Welcome to Dark Castle (45×64)! Cross the crystal light bridges above the molten chasm to explore the Shadow Cathedral, Crimson Reactor Forge, Obsidian Obelisk, Blood Manor, and Chained Chrono Vault. Step into the North Abyssal Vortex to return to Digi-Sanctuary at (5, 22)."
+            : currentPlace === 'dark-cathedral'
+            ? "Welcome to the Shadow Cathedral (15×12)! Step forward along the amethyst carpet to play the Echo Organ Simon-Says Memory Puzzle, talk to Prism Necrozma & Gardevoir, or read The Obsidian Grimoire of engineering war stories."
+            : currentPlace === 'dark-forge'
+            ? "Welcome to the Crimson Reactor Forge (15×12)! Adjust the 3 geothermal plasma sliders to stabilize the blazing Magma Core, consult Machinedramon, or strike the Tech Stack Anvil to forge system architectures."
+            : currentPlace === 'dark-manor'
+            ? "Welcome to Demon Keep & Blood Manor (15×12)! March along the crimson runner to challenge Darkrai in a 4-round tactical debugging duel, train with Urshifu, or tour the Gallery of Cursed Bugs."
+            : currentPlace === 'dark-vault'
+            ? "Welcome to the Chained Chrono Vault (15×12)! Synchronize the 4 interlocking clockwork gears to shatter the temporal chains, commune with Dialga, or open the Portfolio Epoch Time-Capsule."
             : "An interactive pixel-art town. Walk into buildings to explore projects, lab research, and dev logs. Inspect social runes or talk to the Digital Twin."}
         </p>
       </div>
@@ -1718,7 +2279,19 @@ const dataPlaceRooms = {
     if (!canvas) return;
 
     const spawnPlace = (window as unknown as { __CURRENT_PLACE__: string }).__CURRENT_PLACE__ || 'town';
-    townConfig.setActiveWorld(spawnPlace === 'digimon' ? 'digimon' : 'town');
+    townConfig.setActiveWorld(
+      spawnPlace === 'digimon'
+        ? 'digimon'
+        : spawnPlace === 'kingdom'
+          ? 'kingdom'
+          : spawnPlace === 'harbour'
+            ? 'harbour'
+            : spawnPlace === 'sky-castle'
+              ? 'sky-castle'
+              : spawnPlace === 'dark-castle'
+                ? 'dark-castle'
+                : 'town'
+    );
     townConfig.loadFromStorage();
     if (typeof sessionStorage !== 'undefined' && spawnPlace !== 'town') {
       sessionStorage.setItem('town:last_place', spawnPlace);
@@ -2128,8 +2701,15 @@ const dataPlaceRooms = {
 
     const toggleTownEditor = () => {
       if (!engine) return;
-      if (engine.getScene() !== 'town' && engine.getScene() !== 'digimon') {
-        showToast('🛠️ Town Editor aktif di Peta Kota & Digi-Sanctuary. Mengalihkan ke Kota...');
+      if (
+        engine.getScene() !== 'town' &&
+        engine.getScene() !== 'digimon' &&
+        engine.getScene() !== 'kingdom' &&
+        engine.getScene() !== 'harbour' &&
+        engine.getScene() !== 'sky-castle' &&
+        engine.getScene() !== 'dark-castle'
+      ) {
+        showToast('🛠️ Town Editor aktif di Peta Kota, Digi-Sanctuary, Royal Kingdom, Harbour, Sky Castle & Dark Castle. Mengalihkan ke Kota...');
         sfx.select();
         setTimeout(() => {
           sessionStorage.setItem('town:respawn', townConfig.getExitRespawnForPlace(spawnPlace));
@@ -3685,7 +4265,7 @@ const dataPlaceRooms = {
               </div>
             `;
 
-            if (item.kind === 'digimon' && item.subType && (spawnPlace === 'digimon' || activeSpawnCategory === 'Dunia Digimon')) {
+            if (item.kind === 'digimon' && item.subType) {
               const iconEl = card.querySelector('.town-spawn-card__icon') as HTMLElement | null;
               if (iconEl) {
                 iconEl.setAttribute('data-digi-thumb', item.subType);

@@ -19,11 +19,30 @@ function townEditorDevPlugin() {
               body += chunk;
             }
             const data = JSON.parse(body);
-            const targetWorld = data?.target === 'digimon' ? 'digimon' : 'town';
+            const targetWorld =
+              data?.target === 'digimon'
+                ? 'digimon'
+                : data?.target === 'kingdom'
+                  ? 'kingdom'
+                  : data?.target === 'dark-castle'
+                    ? 'dark-castle'
+                    : data?.target === 'harbour'
+                      ? 'harbour'
+                      : data?.target === 'sky-castle'
+                        ? 'sky-castle'
+                        : 'town';
             const targetFile =
               targetWorld === 'digimon'
                 ? './src/data/digimonLayout.json'
-                : './src/data/townLayout.json';
+                : targetWorld === 'kingdom'
+                  ? './src/data/kingdomLayout.json'
+                  : targetWorld === 'dark-castle'
+                    ? './src/data/darkCastleLayout.json'
+                    : targetWorld === 'harbour'
+                      ? './src/data/harbourLayout.json'
+                      : targetWorld === 'sky-castle'
+                        ? './src/data/skyCastleLayout.json'
+                        : './src/data/townLayout.json';
             const targetPath = fileURLToPath(new URL(targetFile, import.meta.url));
             await fs.mkdir(path.dirname(targetPath), { recursive: true });
             const payload = {
@@ -96,7 +115,7 @@ export default defineConfig({
               },
               {
                 name: 'town-scenes',
-                test: /src[\\/]engine[\\/](.*Scene\.ts|digi(Map|Background|Catalog|SpriteLoader|Animator|monCatalog).*\.ts)/,
+                test: /src[\\/]engine[\\/](.*Scene\.ts|(digi|kingdom|darkCastle|harbour|skyCastle)(Map|Background|Assets|Catalog|SpriteLoader|Animator|monCatalog).*\.ts)/,
                 priority: 10,
               },
               {

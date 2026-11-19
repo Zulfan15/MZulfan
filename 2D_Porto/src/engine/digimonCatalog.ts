@@ -12,6 +12,10 @@ export interface OverworldPoseMap {
   front: number[];
   /** Frame indices within overworldBoxes for facing West/East (side walk) */
   side: number[];
+  /** Optional explicit East-facing frame indices (used by 8-dir sheets to avoid asymmetric flips) */
+  east?: number[];
+  /** Optional explicit West-facing frame indices (used by 8-dir sheets) */
+  west?: number[];
   /** Overworld action/attack frame indices */
   action?: number[];
   /** Which horizontal direction the raw side/front sprite faces natively */
@@ -31,6 +35,8 @@ export interface DigimonCatalogEntry {
   lore: string;
   credit: string;
   spriteSheetUrl: string;
+  /** Layout parser preset ('ds' default classic DS spritesheets, 'hd_8dir' 8-directional sheets) */
+  sheetFormat?: 'ds' | 'hd_8dir';
   /** Target overworld height in world pixels (~32-36px fits 2x2 footprint cleanly) */
   overworldTargetHeight?: number;
   iconBox?: SpriteBox;
@@ -54,6 +60,19 @@ export const DIGIMON_ZONE_COLORS: Record<
 const digiSheet = (fileName: string, stageFolder: 'Mega' | 'Ultimate' = 'Mega') =>
   `/assets/Digimon/DS _ DSi - Digimon World DS - ${stageFolder} Digimon - ${fileName}.png`;
 
+const digiSheet2 = (fileNameWithExt: string) =>
+  `/assets/Digimon%202/${encodeURIComponent(fileNameWithExt)}`;
+
+const HD_8DIR_POSE_MAP: OverworldPoseMap = {
+  back: [0],
+  front: [4],
+  side: [6],
+  west: [6],
+  east: [2],
+  action: [3, 2],
+  nativeFacing: 'left',
+};
+
 export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
   // ═══════════════════════════════════════════════════════════════
   // TIER 1 — 5 ICONIC STARTERS
@@ -61,7 +80,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
   {
     id: 'wargreymon',
     name: 'WarGreymon',
-    title: 'WarGreymon Sang Ksatria Naga Api',
+    title: 'WarGreymon, Flame Dragon Warrior',
     tier: 1,
     iconEmoji: '🔥',
     stage: 'Mega',
@@ -69,7 +88,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
     elementZone: 'flame',
     signatureMove: 'Terra Force & Great Tornado',
     lore:
-      'Ksatria Naga berzirah Chrome Digizoid dengan cakar Dramon Killer di kedua lengan. Memusatkan energi panas matahari menjadi bola penghancur Terra Force.',
+      'A Dragon Warrior clad in Chrome Digizoid armor wielding Dramon Killer gauntlets on both arms. Concentrates solar thermal energy into a devastating Terra Force sphere.',
     credit: 'Ripped by A.J. Nitro & Dazz (Digimon World DS)',
     spriteSheetUrl: digiSheet('WarGreymon'),
     overworldTargetHeight: 33,
@@ -105,7 +124,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
   {
     id: 'omnimon',
     name: 'Omnimon',
-    title: 'Omnimon (Omegamon) Sang Royal Knight Fusion',
+    title: 'Omnimon (Omegamon), Fusion Royal Knight',
     tier: 1,
     iconEmoji: '⚔️',
     stage: 'Mega',
@@ -113,7 +132,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
     elementZone: 'plaza',
     signatureMove: 'Transcendent Sword & Garuru Cannon',
     lore:
-      'Royal Knight legendaris hasil Jogress WarGreymon dan MetalGarurumon. Lengan kiri menghunus Grey Sword sementara lengan kanan menembakkan meriam es Garuru Cannon.',
+      'A legendary Royal Knight born from the Jogress of WarGreymon and MetalGarurumon. Wields the Grey Sword on its left arm and fires freezing blasts from the Garuru Cannon on its right.',
     credit: 'Ripped by Dazz, arranged by Mighty Jetters (Digimon World DS)',
     spriteSheetUrl: digiSheet('Omnimon'),
     overworldTargetHeight: 35,
@@ -149,7 +168,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
   {
     id: 'gallantmon',
     name: 'Gallantmon',
-    title: 'Gallantmon (Dukemon) Sang Tombak Suci',
+    title: 'Gallantmon (Dukemon), Crimson Holy Lance',
     tier: 1,
     iconEmoji: '🛡️',
     stage: 'Mega',
@@ -157,7 +176,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
     elementZone: 'holy',
     signatureMove: 'Lightning Joust & Shield of the Just',
     lore:
-      'Ksatria Royal Knights berzirah Chrome Digizoid murni yang membawa tombak suci Gram dan perisai Aegis. Menyeimbangkan kekuatan Virus dengan hati ksatria sejati.',
+      'A Royal Knight clad in pure Chrome Digizoid armor bearing the holy lance Gram and shield Aegis, balancing Virus power with a chivalrous heart.',
     credit: 'Ripped by Dazz, arranged by Mighty Jetters (Digimon World DS)',
     spriteSheetUrl: digiSheet('Gallantmon'),
     overworldTargetHeight: 34,
@@ -201,7 +220,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
     elementZone: 'cyber',
     signatureMove: 'Positron Laser & Giga Crusher',
     lore:
-      'Wujud humanoid ksatria naga purba yang membebaskan seluruh daya tempur terpendam Imperialdramon, dengan meriam Positron Laser di lengan kanan.',
+      'The humanoid dragon knight form that unleashes Imperialdramon’s latent combat might, armed with a Positron Laser cannon on its right arm.',
     credit: 'Ripped by redblueyellow, compiled by Radspyro & Dazz (Digimon World DS)',
     spriteSheetUrl: digiSheet('Imperialdramon Fighter Mode'),
     overworldTargetHeight: 35,
@@ -237,7 +256,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
   {
     id: 'beelzemon',
     name: 'Beelzemon',
-    title: 'Beelzemon (Beelzebumon) Demon Lord',
+    title: 'Beelzemon (Beelzebumon), Demon Lord',
     tier: 1,
     iconEmoji: '🔫',
     stage: 'Mega',
@@ -245,7 +264,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
     elementZone: 'flame',
     signatureMove: 'Double Impact & Darkness Claw',
     lore:
-      'Anggota Seven Great Demon Lords yang mengendarai Behemoth dengan sepasang shotgun Berenjena SDX. Cepat, liar, namun berjiwa ksatria saat melindungi rekan.',
+      'A member of the Seven Great Demon Lords who rides the Behemoth motorcycle wielding twin Berenjena SDX shotguns—fierce and untamed, yet fiercely loyal to allies.',
     credit: 'Ripped by redblueyellow (Digimon World DS)',
     spriteSheetUrl: digiSheet('Beelzemon'),
     overworldTargetHeight: 33,
@@ -291,7 +310,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
   {
     id: 'blackwargreymon',
     name: 'BlackWarGreymon',
-    title: 'BlackWarGreymon Ksatria Hitam',
+    title: 'BlackWarGreymon, Onyx Dragon Warrior',
     tier: 2,
     iconEmoji: '🖤',
     stage: 'Mega',
@@ -299,7 +318,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
     elementZone: 'flame',
     signatureMove: 'Terra Destroyer & Black Tornado',
     lore:
-      'Versi gelap WarGreymon yang lahir dari 100 Control Spires. Merenungi makna keberadaan jiwanya dengan kekuatan kehancuran Terra Destroyer.',
+      'A dark counterpart of WarGreymon born from 100 Control Spires, pondering the meaning of its existence while wielding the destructive Terra Destroyer.',
     credit: 'Digimon World DS Spritesheet Rip',
     spriteSheetUrl: digiSheet('BlackWarGreymon'),
     overworldTargetHeight: 33,
@@ -307,7 +326,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
   {
     id: 'seraphimon',
     name: 'Seraphimon',
-    title: 'Seraphimon Malaikat Tertinggi',
+    title: 'Seraphimon, Seraph of Light',
     tier: 2,
     iconEmoji: '😇',
     stage: 'Mega',
@@ -315,7 +334,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
     elementZone: 'holy',
     signatureMove: 'Strike of the Seven Stars & Testament',
     lore:
-      'Salah satu Three Great Angels berzirah perak-biru dengan sepuluh sayap emas, menurunkan hujan tujuh bintang penghukum kejahatan.',
+      'One of the Three Great Angels clad in silver-blue armor with ten golden wings, calling down seven radiant stars to judge all evil.',
     credit: 'Digimon World DS Spritesheet Rip',
     spriteSheetUrl: digiSheet('Seraphimon'),
     overworldTargetHeight: 35,
@@ -323,7 +342,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
   {
     id: 'sakuyamon',
     name: 'Sakuyamon',
-    title: 'Sakuyamon Pendeta Kitsune Emas',
+    title: 'Sakuyamon, Golden Kitsune Shrine Maiden',
     tier: 2,
     iconEmoji: '🦊',
     stage: 'Mega',
@@ -331,7 +350,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
     elementZone: 'holy',
     signatureMove: 'Spirit Strike & Amethyst Mandala',
     lore:
-      'Bentuk evolusi Biomerge Renamon dan Rika yang mengenakan zirah kuil emas serta tongkat Shakujo disertai empat roh rubah Kuda-Gitsune.',
+      'The Biomerge evolution of Renamon and Rika, wearing golden shrine armor and wielding a Shakujo staff accompanied by four Kuda-Gitsune fox spirits.',
     credit: 'Digimon World DS Spritesheet Rip',
     spriteSheetUrl: digiSheet('Sakuyamon'),
     overworldTargetHeight: 34,
@@ -347,7 +366,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
     elementZone: 'holy',
     signatureMove: 'Quo Vadis & Invincible Sword',
     lore:
-      'Wujud puncak Gallantmon bersayap malaikat bercahaya merah delima, memanggil tombak Gungnir dan pedang energi Blutgang.',
+      'The pinnacle form of Gallantmon bearing radiant crimson-winged angel armor, summoning the energy lance Gungnir and energy blade Blutgang.',
     credit: 'Ripped by Dazz, arranged by Mighty Jetters (Digimon World DS)',
     spriteSheetUrl: digiSheet('Gallantmon Crimson Mode'),
     overworldTargetHeight: 36,
@@ -363,7 +382,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
     elementZone: 'cyber',
     signatureMove: 'Infinity Cannon (Giga Cannon)',
     lore:
-      'Master Dark Masters penguasa kota mesin. Merakit bagian tubuh berbagai Digimon Cyborg menjadi benteng baja dengan meriam Infinity Cannon.',
+      'Master of the Dark Masters and ruler of the Machine City, assembled from Cyborg Digimon parts into a steel fortress armed with twin Infinity Cannons.',
     credit: 'Digimon World DS Spritesheet Rip',
     spriteSheetUrl: digiSheet('Machinedramon'),
     overworldTargetHeight: 35,
@@ -375,7 +394,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
   {
     id: 'metalseadramon',
     name: 'MetalSeadramon',
-    title: 'MetalSeadramon Penguasa Samudra Besi',
+    title: 'MetalSeadramon, Iron Ocean Sovereign',
     tier: 3,
     iconEmoji: '🐍',
     stage: 'Mega',
@@ -383,7 +402,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
     elementZone: 'aqua',
     signatureMove: 'River of Power (Ultimate Stream)',
     lore:
-      'Dark Masters penguasa lautan Digital World dengan tubuh sepenuhnya terlapis Chrome Digizoid dan meriam sinar hidung berdaya hancur tinggi.',
+      'Dark Master ruling the Digital World’s oceans with a body fully plated in Chrome Digizoid and a high-powered energy cannon mounted in its snout.',
     credit: 'Digimon World DS Spritesheet Rip',
     spriteSheetUrl: digiSheet('MetalSeadramon'),
     overworldTargetHeight: 34,
@@ -391,7 +410,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
   {
     id: 'phoenixmon',
     name: 'Phoenixmon',
-    title: 'Phoenixmon (Hououmon) Burung Suci',
+    title: 'Phoenixmon (Hououmon), Sacred Bird',
     tier: 3,
     iconEmoji: '🪶',
     stage: 'Mega',
@@ -399,7 +418,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
     elementZone: 'holy',
     signatureMove: 'Starlight Explosion & Crimson Flare',
     lore:
-      'Raja seluruh Digimon burung yang memiliki empat sayap keemasan serta Holy Ring suci di kakinya, menyebarkan hujan debu bintang penyembuh.',
+      'Ruler of all Bird Digimon bearing four golden wings and a sacred Holy Ring, scattering showers of healing stardust.',
     credit: 'Digimon World DS Spritesheet Rip',
     spriteSheetUrl: digiSheet('Phoenixmon'),
     overworldTargetHeight: 34,
@@ -407,7 +426,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
   {
     id: 'vikemon',
     name: 'Vikemon',
-    title: 'Vikemon Panglima Lautan Es',
+    title: 'Vikemon, Frozen Sea Commander',
     tier: 3,
     iconEmoji: '🔨',
     stage: 'Mega',
@@ -415,7 +434,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
     elementZone: 'aqua',
     signatureMove: 'Arctic Blizzard & Mjolnir Thunder',
     lore:
-      'Pemimpin suku Ikkakumon dan Zudomon di perairan beku utara. Mengayunkan gada berduri ganda Mjolnir dari Chrome Digizoid yang mampu memecah gunung es.',
+      'Chieftain of the Ikkakumon and Zudomon tribes in the frozen northern seas, swinging twin Chrome Digizoid spiked maces (Mjolnir) that shatter icebergs.',
     credit: 'Digimon World DS Spritesheet Rip',
     spriteSheetUrl: digiSheet('Vikemon'),
     overworldTargetHeight: 34,
@@ -423,7 +442,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
   {
     id: 'herculeskabuterimon',
     name: 'HerculesKabuterimon',
-    title: 'HerculesKabuterimon Raksasa Petir',
+    title: 'HerculesKabuterimon, Thunder Titan',
     tier: 3,
     iconEmoji: '🪲',
     stage: 'Mega',
@@ -431,7 +450,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
     elementZone: 'holy',
     signatureMove: 'Giga Blaster & Horn Buster',
     lore:
-      'Evolusi Mega kumbang tanduk emas berkekuatan tak tertandingi, memadukan kekuatan listrik Kuwagamon dan zirah Kabuterimon.',
+      'A Mega evolution of the golden horned beetle possessing unmatched power, combining Kuwagamon’s electric might with Kabuterimon’s armor.',
     credit: 'Ripped by Dazz, arranged by Mighty Jetters (Digimon World DS)',
     spriteSheetUrl: digiSheet('HerculesKabuterimon'),
     overworldTargetHeight: 34,
@@ -447,7 +466,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
     elementZone: 'cyber',
     signatureMove: 'Giant Missile & Burst Shot',
     lore:
-      'Mecha raksasa hasil Biomerge Terriermon dan Henry yang dipersenjatai penuh rudal balistik, laser bahu, dan meriam kembar.',
+      'A colossal mecha born from the Biomerge of Terriermon and Henry, heavily armed with ballistic missiles, shoulder lasers, and twin cannons.',
     credit: 'Digimon World DS Spritesheet Rip',
     spriteSheetUrl: digiSheet('MegaGargomon'),
     overworldTargetHeight: 35,
@@ -463,7 +482,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
     elementZone: 'flame',
     signatureMove: 'Pandemonium Flame & Mental Illusion',
     lore:
-      'Bentuk iblis terkuat dari Myotismon yang menyembunyikan meriam energi bahu Sodom & Gomorrah serta membakar musuh dalam api kegelapan.',
+      'The ultimate demonic form of Myotismon concealing twin shoulder energy cannons Sodom & Gomorrah and engulfing foes in dark flames.',
     credit: 'Digimon World DS Spritesheet Rip',
     spriteSheetUrl: digiSheet('MaloMyotismon'),
     overworldTargetHeight: 34,
@@ -471,7 +490,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
   {
     id: 'venommyotismon',
     name: 'VenomMyotismon',
-    title: 'VenomMyotismon Monster Bintang Merah',
+    title: 'VenomMyotismon, Crimson Star Beast',
     tier: 3,
     iconEmoji: '🧛',
     stage: 'Mega',
@@ -479,7 +498,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
     elementZone: 'flame',
     signatureMove: 'Venom Infusion & Chaos Flame',
     lore:
-      'Raja vampir yang membangkitkan insting buas raksasa bersayap merah dan menembakkan sinar perusak dari inti dadanya.',
+      'A vampire king that awakens primal beast instincts with crimson wings and fires destructive beams from the core in its chest.',
     credit: 'Digimon World DS Spritesheet Rip',
     spriteSheetUrl: digiSheet('VenomMyotismon'),
     overworldTargetHeight: 35,
@@ -491,7 +510,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
   {
     id: 'azulongmon',
     name: 'Azulongmon',
-    title: 'Azulongmon Sovereign Penjaga Timur',
+    title: 'Azulongmon, Sovereign of the East',
     tier: 4,
     iconEmoji: '🐉',
     stage: 'Mega',
@@ -499,7 +518,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
     elementZone: 'cyber',
     signatureMove: 'Aurora Force & Lightning Whip',
     lore:
-      'Salah satu Four Holy Beasts penjaga wilayah timur Digital World dengan tubuh naga petir berselubung awan badai dan empat mata biru.',
+      'One of the Four Holy Beasts guarding the eastern Digital World, a thunder dragon shrouded in storm clouds with four piercing blue eyes.',
     credit: 'Ripped by Radspyro (Digimon World DS)',
     spriteSheetUrl: digiSheet('Azulongmon'),
     overworldTargetHeight: 36,
@@ -507,7 +526,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
   {
     id: 'baihumon',
     name: 'Baihumon',
-    title: 'Baihumon Sovereign Macan Putih Barat',
+    title: 'Baihumon, White Tiger Sovereign',
     tier: 4,
     iconEmoji: '🐯',
     stage: 'Mega',
@@ -515,7 +534,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
     elementZone: 'cyber',
     signatureMove: 'Kongou & Iron Claw',
     lore:
-      'Four Holy Beasts penjaga sisi barat yang mengenakan helm baja berduri serta memiliki aura besi yang mampu membatukan musuh.',
+      'Holy Beast guarding the western quadrant, wearing a spiked steel helm and projecting an iron aura capable of petrifying adversaries.',
     credit: 'Digimon World DS Spritesheet Rip',
     spriteSheetUrl: digiSheet('Baihumon'),
     overworldTargetHeight: 35,
@@ -523,7 +542,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
   {
     id: 'zhuqiaomon',
     name: 'Zhuqiaomon',
-    title: 'Zhuqiaomon Sovereign Phoenix Selatan',
+    title: 'Zhuqiaomon, Southern Phoenix Sovereign',
     tier: 4,
     iconEmoji: '🦅',
     stage: 'Mega',
@@ -531,7 +550,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
     elementZone: 'flame',
     signatureMove: 'Blazing Helix & Sonic Phoenix',
     lore:
-      'Four Holy Beasts penjaga wilayah selatan yang terlahir kembali terus-menerus dari kobaran api suci abadi empat sayap phoenix.',
+      'Holy Beast guarding the southern skies, eternally reborn from the sacred flames of its four blazing phoenix wings.',
     credit: 'Digimon World DS Spritesheet Rip',
     spriteSheetUrl: digiSheet('Zhuqiaomon'),
     overworldTargetHeight: 36,
@@ -547,7 +566,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
     elementZone: 'flame',
     signatureMove: 'Mega Death & Positron Laser',
     lore:
-      'Naga purba bersayap raksasa berdaya tempur dahsyat yang dapat menembakkan meriam materi gelap Mega Death dari mulutnya.',
+      'A colossal winged ancient dragon of immense combat power capable of firing dark-matter blasts of Mega Death from its jaws.',
     credit: 'Digimon World DS Spritesheet Rip',
     spriteSheetUrl: digiSheet('Imperialdramon Dragon Mode'),
     overworldTargetHeight: 35,
@@ -563,7 +582,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
     elementZone: 'holy',
     signatureMove: 'Omni Blade (Omega Blade)',
     lore:
-      'Pendiri legendaris ordo Royal Knights setelah menerima kekuatan pedang suci Omni Blade dari Omnimon di puncak kehancuran.',
+      'Legendary founder of the Royal Knights order, forged upon receiving the sacred Omni Blade from Omnimon at the brink of destruction.',
     credit: 'Digimon World DS Spritesheet Rip',
     spriteSheetUrl: digiSheet('Imperialdramon Paladin Mode'),
     overworldTargetHeight: 35,
@@ -579,7 +598,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
     elementZone: 'flame',
     signatureMove: 'Dark Positron Laser & Giga Death',
     lore:
-      'Varian Virus gelap Imperialdramon dengan zirah obsidan hitam pekat yang menguasai jurus penghancur dimensi gelap.',
+      'A dark Virus variant of Imperialdramon encased in pitch-black obsidian armor, commanding devastating dark-dimension energy.',
     credit: 'Digimon World DS Spritesheet Rip',
     spriteSheetUrl: digiSheet('BlackImperialdramon'),
     overworldTargetHeight: 35,
@@ -587,7 +606,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
   {
     id: 'barbamon',
     name: 'Barbamon',
-    title: 'Barbamon Demon Lord Keserakahan',
+    title: 'Barbamon, Demon Lord of Greed',
     tier: 4,
     iconEmoji: '🪄',
     stage: 'Mega',
@@ -595,7 +614,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
     elementZone: 'flame',
     signatureMove: 'Pandemonium Lost & Death Lure',
     lore:
-      'Demon Lord berjubah panjang yang menguasai Network gelap demi menimbun seluruh harta Digital World dengan tongkat tengkorak Death Lure.',
+      'A long-robed Demon Lord manipulating the Dark Network to hoard every treasure in the Digital World with its skull staff Death Lure.',
     credit: 'Digimon World DS Spritesheet Rip',
     spriteSheetUrl: digiSheet('Barbamon'),
     overworldTargetHeight: 34,
@@ -611,7 +630,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
     elementZone: 'flame',
     signatureMove: 'Gift of Darkness & Lampranthus',
     lore:
-      'Demon Lord kemalasan yang mengamuk sekali setiap seribu tahun dengan rantai hitam melilit tubuh dan cakar apinya.',
+      'The Demon Lord of Sloth, awakening in a furious rampage once every thousand years wrapped in black chains and blazing claws.',
     credit: 'Digimon World DS Spritesheet Rip',
     spriteSheetUrl: digiSheet('Belphemon'),
     overworldTargetHeight: 35,
@@ -619,7 +638,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
   {
     id: 'kentaurosmon',
     name: 'Kentaurosmon',
-    title: 'Kentaurosmon (Sleipmon) Ksatria Utara',
+    title: 'Kentaurosmon (Sleipmon), Northern Knight',
     tier: 4,
     iconEmoji: '🏹',
     stage: 'Mega',
@@ -627,7 +646,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
     elementZone: 'holy',
     signatureMove: 'Bifröst & Odin’s Breath',
     lore:
-      'Royal Knight berwujud kentaur berkaki enam berzirah Red Digizoid yang menjaga segel es abadi di kutub utara Digital World.',
+      'A six-legged centaur Royal Knight clad in Red Digizoid armor, guarding ancient frozen seals beneath the northern pole of the Digital World.',
     credit: 'Ripped by Dazz, arranged by Mighty Jetters (Digimon World DS)',
     spriteSheetUrl: digiSheet('Kentaurosmon'),
     overworldTargetHeight: 35,
@@ -643,7 +662,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
     elementZone: 'holy',
     signatureMove: 'Heaven’s Ripper & Holy Espada',
     lore:
-      'Malaikat tempur dengan tubuh seluruhnya tersusun dari bilah pedang baja putih tajam yang membelah kejahatan secepat kilat.',
+      'A combat angel whose entire body is forged from razor-sharp white steel blades, cleaving through evil at blinding speed.',
     credit: 'Ripped by Dazz, arranged by Mighty Jetters (Digimon World DS)',
     spriteSheetUrl: digiSheet('GuardiAngemon'),
     overworldTargetHeight: 34,
@@ -651,7 +670,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
   {
     id: 'valkyrimon',
     name: 'Valkyrimon',
-    title: 'Valkyrimon Ksatria Angin Emas',
+    title: 'Valkyrimon, Golden Wind Knight',
     tier: 4,
     iconEmoji: '🕊️',
     stage: 'Mega',
@@ -659,7 +678,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
     elementZone: 'holy',
     signatureMove: 'Feral Sword (Fenrir Sword) & Aurvandil',
     lore:
-      'Digimon prajurit bersayap ditemani burung emas Freyja yang membekukan lawan lewat tebasan mutlak pedang Fenrir.',
+      'A winged warrior Digimon accompanied by the golden bird Freyja, freezing foes solid with absolute slashes of the Fenrir Sword.',
     credit: 'Digimon World DS Spritesheet Rip',
     spriteSheetUrl: digiSheet('Valkyrimon'),
     overworldTargetHeight: 34,
@@ -667,7 +686,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
   {
     id: 'varodurumon',
     name: 'Varodurumon',
-    title: 'Varodurumon Burung Cahaya Purba',
+    title: 'Varodurumon, Ancient Light Bird',
     tier: 4,
     iconEmoji: '🌟',
     stage: 'Mega',
@@ -675,7 +694,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
     elementZone: 'holy',
     signatureMove: 'Aurora Undulation & Purge Shine',
     lore:
-      'Burung mistis raksasa penguasa stratosfer tertinggi Digital World dengan bulu pelindung Aurora yang memurnikan kegelapan.',
+      'A giant mystical bird ruling the highest stratosphere of the Digital World with protective Aurora plumage that purifies darkness.',
     credit: 'Ripped by redblueyellow (Digimon World DS)',
     spriteSheetUrl: digiSheet('Varodurumon'),
     overworldTargetHeight: 35,
@@ -683,7 +702,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
   {
     id: 'crossmon',
     name: 'Crossmon',
-    title: 'Crossmon (Eaglemon) Kaisar Emas',
+    title: 'Crossmon (Eaglemon), Golden Emperor',
     tier: 4,
     iconEmoji: '🔱',
     stage: 'Mega',
@@ -691,7 +710,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
     elementZone: 'holy',
     signatureMove: 'Kaiser Phoenix & Mystic Break',
     lore:
-      'Garudamon berzirah Gold Digizoid murni penguasa langit, menyinari arena dengan sayap logam suci.',
+      'Ruler of the skies clad in pure Gold Digizoid armor, illuminating the battlefield with radiant sacred metal wings.',
     credit: 'Ripped by Dazz, arranged by Mighty Jetters (Digimon World DS)',
     spriteSheetUrl: digiSheet('Crossmon'),
     overworldTargetHeight: 35,
@@ -699,7 +718,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
   {
     id: 'chaosgallantmon',
     name: 'ChaosGallantmon',
-    title: 'ChaosGallantmon Ksatria Kekacauan',
+    title: 'ChaosGallantmon, Knight of Chaos',
     tier: 4,
     iconEmoji: '🟣',
     stage: 'Mega',
@@ -707,7 +726,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
     elementZone: 'flame',
     signatureMove: 'Demonic Disaster & Judecca Prison',
     lore:
-      'Sisi kelam Gallantmon berzirah ungu gelap dengan tombak iblis Balmung yang membawa energi kekacauan murni.',
+      'The dark reflection of Gallantmon clad in deep violet armor, wielding the demonic lance Balmung infused with pure chaotic energy.',
     credit: 'Ripped by Dazz, arranged by Mighty Jetters (Digimon World DS)',
     spriteSheetUrl: digiSheet('ChaosGallantmon'),
     overworldTargetHeight: 34,
@@ -723,7 +742,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
     elementZone: 'plaza',
     signatureMove: 'Chronos Flare & Flare Nova',
     lore:
-      'Pengendali waktu legendaris Digimon World DS yang bangun dalam wujud Destroy Mode ketika keseimbangan data mengalami kerusakan.',
+      'The legendary time-keeper of Digimon World DS, awakening in Destroy Mode whenever the data balance of the world falls into ruin.',
     credit: 'Ripped by Dazz, arranged by Mighty Jetters (Digimon World DS)',
     spriteSheetUrl: digiSheet('Chronomon DM'),
     overworldTargetHeight: 36,
@@ -731,7 +750,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
   {
     id: 'darkdramon',
     name: 'Darkdramon',
-    title: 'Darkdramon Pasukan Baja Hitam',
+    title: 'Darkdramon, Black Steel Brigade',
     tier: 4,
     iconEmoji: '💥',
     stage: 'Mega',
@@ -739,7 +758,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
     elementZone: 'cyber',
     signatureMove: 'Dark Roar & Gigastick Lance',
     lore:
-      'Digimon Cyborg rahasia Brigade D yang diciptakan dari data Tankdramon yang bangkit lewat Dark Matter bertegangan ekstrem.',
+      'A secret D-Brigade Cyborg Digimon forged from Tankdramon data and awakened through extreme high-voltage Dark Matter.',
     credit: 'Ripped by Dazz, arranged by Mighty Jetters (Digimon World DS)',
     spriteSheetUrl: digiSheet('Darkdramon'),
     overworldTargetHeight: 35,
@@ -747,7 +766,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
   {
     id: 'dorugoramon',
     name: 'Dorugoramon',
-    title: 'Dorugoramon Naga Imajinasi Terakhir',
+    title: 'Dorugoramon, Dragon of Final Imagination',
     tier: 4,
     iconEmoji: '🐲',
     stage: 'Mega',
@@ -755,7 +774,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
     elementZone: 'flame',
     signatureMove: 'Brave Metal & Doru Din',
     lore:
-      'Bentuk wujud naga X-Antibody yang mengkristalkan seluruh naluri bertarung purba Digital Core menjadi zirah putih perkasa.',
+      'An X-Antibody dragon form crystallizing the ancient primal combat instincts of a Digital Core into gleaming white armor.',
     credit: 'Digimon World DS Spritesheet Rip',
     spriteSheetUrl: digiSheet('Dorugoramon'),
     overworldTargetHeight: 35,
@@ -763,7 +782,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
   {
     id: 'cannondramon',
     name: 'Cannondramon',
-    title: 'Cannondramon Benteng Meriam',
+    title: 'Cannondramon, Cannon Fortress',
     tier: 4,
     iconEmoji: '💣',
     stage: 'Mega',
@@ -771,7 +790,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
     elementZone: 'cyber',
     signatureMove: 'Dynamo Cannon & Granite Burst',
     lore:
-      'Dinosaurus Cyborg berat dengan sepasang meriam punggung super-kaliber yang melindungi garis depan Steel Dome.',
+      'A heavy Cyborg Dinosaur armed with twin super-caliber dorsal cannons defending the frontlines of the Steel Dome.',
     credit: 'Digimon World DS Spritesheet Rip',
     spriteSheetUrl: digiSheet('Cannondramon'),
     overworldTargetHeight: 34,
@@ -779,7 +798,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
   {
     id: 'granlocomon',
     name: 'Granlocomon',
-    title: 'Granlocomon Lokomotif Baja Raksasa',
+    title: 'Granlocomon, Giant Steel Locomotive',
     tier: 4,
     iconEmoji: '🚂',
     stage: 'Mega',
@@ -787,7 +806,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
     elementZone: 'cyber',
     signatureMove: 'Destroy Rush & Wheel Grinder',
     lore:
-      'Digimon kereta raksasa berkecepatan supersonik yang menembus jalur jaringan data tanpa bisa dihentikan rintangan mana pun.',
+      'A supersonic giant train Digimon tearing down data network rails, unstoppable by any physical barrier.',
     credit: 'Digimon World DS Spritesheet Rip',
     spriteSheetUrl: digiSheet('Granlocomon'),
     overworldTargetHeight: 34,
@@ -795,7 +814,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
   {
     id: 'blackmegagargomon',
     name: 'BlackMegaGargomon',
-    title: 'BlackMegaGargomon Unit Stealth',
+    title: 'BlackMegaGargomon, Stealth Unit',
     tier: 4,
     iconEmoji: '🛸',
     stage: 'Mega',
@@ -803,7 +822,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
     elementZone: 'cyber',
     signatureMove: 'Black Bazooka & Stealth Burst',
     lore:
-      'Varian gelap MegaGargomon bersenjata lengkap untuk operasi tempur malam dengan roket siluman berpemandu panas.',
+      'A dark variant of MegaGargomon outfitted for night-ops combat with heat-seeking stealth missiles.',
     credit: 'Digimon World DS Spritesheet Rip',
     spriteSheetUrl: digiSheet('BlackMegaGargomon'),
     overworldTargetHeight: 35,
@@ -811,7 +830,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
   {
     id: 'neptunemon',
     name: 'Neptunemon',
-    title: 'Neptunemon Olympos XII Lautan',
+    title: 'Neptunemon, Olympos XII of the Seas',
     tier: 4,
     iconEmoji: '🔱',
     stage: 'Mega',
@@ -819,7 +838,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
     elementZone: 'aqua',
     signatureMove: 'Vortex Penetrate & Wave of Depth',
     lore:
-      'Dewa laut anggota Olympos XII bersisik Blue Digizoid paling ringan yang memegang tombak hidup King’s Bite.',
+      'Sea deity of the Olympos XII clad in feather-light Blue Digizoid scales, wielding the living trident King’s Bite.',
     credit: 'Digimon World DS Spritesheet Rip',
     spriteSheetUrl: digiSheet('Neptunemon'),
     overworldTargetHeight: 35,
@@ -827,7 +846,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
   {
     id: 'plesiomon',
     name: 'Plesiomon',
-    title: 'Plesiomon Suara Mistis Laut Dalam',
+    title: 'Plesiomon, Mystical Deep-Sea Voice',
     tier: 4,
     iconEmoji: '🐋',
     stage: 'Mega',
@@ -835,7 +854,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
     elementZone: 'aqua',
     signatureMove: 'Sorrow Blue & Shaking Pulse',
     lore:
-      'Digimon laut purba langka berkilau putih perak yang membungkus diri dalam kabut tebal serta melumpuhkan lawan dengan nyanyian sedih.',
+      'A rare ancient sea Digimon shimmering in silver-white, cloaking itself in thick mist while subduing foes with a haunting song.',
     credit: 'Digimon World DS Spritesheet Rip',
     spriteSheetUrl: digiSheet('Plesiomon'),
     overworldTargetHeight: 33,
@@ -843,7 +862,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
   {
     id: 'rizegreymon',
     name: 'RizeGreymon',
-    title: 'RizeGreymon Cyborg Sayap Logam',
+    title: 'RizeGreymon, Metal-Winged Cyborg',
     tier: 4,
     iconEmoji: '🔥',
     stage: 'Ultimate',
@@ -851,10 +870,374 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
     elementZone: 'flame',
     signatureMove: 'Trident Revolver & Solid Strike',
     lore:
-      'Satu-satunya Digimon Ultimate dalam koleksi dengan separuh tubuh termekanisasi dan meriam Trident Revolver Chrome Digizoid.',
+      'The sole Ultimate Digimon in the roster, half-mechanized and wielding the Chrome Digizoid Trident Revolver cannon.',
     credit: 'Digimon World DS Spritesheet Rip',
     spriteSheetUrl: digiSheet('RizeGreymon', 'Ultimate'),
     overworldTargetHeight: 33,
+  },
+
+  // ═══════════════════════════════════════════════════════════════
+  // DIGIMON 2 COLLECTION — 20 HD 8-DIRECTIONAL SOVEREIGNS & KNIGHTS
+  // ═══════════════════════════════════════════════════════════════
+  {
+    id: 'regulusmon',
+    name: 'Regulusmon',
+    title: 'Regulusmon, Dark Dragon Scourge',
+    tier: 3,
+    iconEmoji: '🦇',
+    stage: 'Mega',
+    attribute: 'Virus',
+    elementZone: 'cyber',
+    signatureMove: 'Caldead & Grantres',
+    lore:
+      'A ruthless dragon warrior cloaked in pitch-black wings and a spiked shield arm radiating corrupted magenta aura.',
+    credit: 'Digimon 2 HD 8-Directional Sprite Collection',
+    spriteSheetUrl: digiSheet2('Regulusmon.jpg'),
+    sheetFormat: 'hd_8dir',
+    overworldTargetHeight: 35,
+    overworldPoseMap: HD_8DIR_POSE_MAP,
+  },
+  {
+    id: 'omnimon_zwart_d',
+    name: 'Omnimon Zwart D',
+    title: 'Omnimon Zwart Defeat, Ruin Knight',
+    tier: 2,
+    iconEmoji: '🖤',
+    stage: 'Ultra',
+    attribute: 'Virus',
+    elementZone: 'cyber',
+    signatureMove: 'Supreme Cannon & Runic Greatsword',
+    lore:
+      'A shattered berserk form of Omnimon Zwart weeping dark crimson energy from cracked black Digizoid armor and tattered mantle.',
+    credit: 'Digimon 2 HD 8-Directional Sprite Collection',
+    spriteSheetUrl: digiSheet2('Omnimon Zwart Defeat.png'),
+    sheetFormat: 'hd_8dir',
+    overworldTargetHeight: 36,
+    overworldPoseMap: HD_8DIR_POSE_MAP,
+  },
+  {
+    id: 'omnimon_alter_b',
+    name: 'Omnimon Alter-B',
+    title: 'Omnimon Alter-B, Black Eclipse Knight',
+    tier: 2,
+    iconEmoji: '🌑',
+    stage: 'Ultra',
+    attribute: 'Virus',
+    elementZone: 'cyber',
+    signatureMove: 'Grey Cannon & Garuru Sword',
+    lore:
+      'A dark fusion of BlitzGreymon and CresGarurumon coated in obsidian alloy, reversing sword and cannon configurations.',
+    credit: 'Digimon 2 HD 8-Directional Sprite Collection',
+    spriteSheetUrl: digiSheet2('Omnimon Alter-B.png'),
+    sheetFormat: 'hd_8dir',
+    overworldTargetHeight: 36,
+    overworldPoseMap: HD_8DIR_POSE_MAP,
+  },
+  {
+    id: 'craniamon_x',
+    name: 'Craniamon X',
+    title: 'Craniamon (X-Antibody), Soul Guard',
+    tier: 2,
+    iconEmoji: '💀',
+    stage: 'Mega',
+    attribute: 'Vaccine',
+    elementZone: 'cyber',
+    signatureMove: 'End Waltz & Avalon Barrier',
+    lore:
+      'An X-Antibody Royal Knight clad in violet skeletal armor wielding the twin-headed spear Claíomh Solais.',
+    credit: 'Digimon 2 HD 8-Directional Sprite Collection',
+    spriteSheetUrl: digiSheet2('Craniamon X Antibody.png'),
+    sheetFormat: 'hd_8dir',
+    overworldTargetHeight: 35,
+    overworldPoseMap: HD_8DIR_POSE_MAP,
+  },
+  {
+    id: 'craniamon_enbarrmon',
+    name: 'Craniamon Steed',
+    title: 'Craniamon + Enbarrmon, Dullahan Cavalry',
+    tier: 4,
+    iconEmoji: '🐎',
+    stage: 'Ultra',
+    attribute: 'Vaccine',
+    elementZone: 'cyber',
+    signatureMove: 'Spectral Lance Charge',
+    lore:
+      'Craniamon mounted atop the ghostly armored steed Enbarrmon, charging through castle lists with an enormous tilting lance.',
+    credit: 'Digimon 2 HD 8-Directional Sprite Collection',
+    spriteSheetUrl: digiSheet2('Craniamon and Enbarrmon.png'),
+    sheetFormat: 'hd_8dir',
+    overworldTargetHeight: 36,
+    overworldPoseMap: HD_8DIR_POSE_MAP,
+  },
+  {
+    id: 'fenriloogamon_tm',
+    name: 'Fenriloogamon T.',
+    title: 'Fenriloogamon: Takemikazuchi',
+    tier: 4,
+    iconEmoji: '🐺',
+    stage: 'Ultra',
+    attribute: 'Virus',
+    elementZone: 'aqua',
+    signatureMove: 'Ragnarok & Lightning Blade Takemikazuchi',
+    lore:
+      'A mythical azure flame wolf-knight gripping the sacred thunder sword Takemikazuchi in its jaws.',
+    credit: 'Digimon 2 HD 8-Directional Sprite Collection',
+    spriteSheetUrl: digiSheet2('Fenriloogamon Takemikazuchi.jpg'),
+    sheetFormat: 'hd_8dir',
+    overworldTargetHeight: 35,
+    overworldPoseMap: HD_8DIR_POSE_MAP,
+  },
+  {
+    id: 'jupitermon_wm',
+    name: 'Jupitermon WM',
+    title: 'Jupitermon: Wrath Mode, Thunder King',
+    tier: 4,
+    iconEmoji: '⚡',
+    stage: 'Ultra',
+    attribute: 'Vaccine',
+    elementZone: 'holy',
+    signatureMove: 'Wide Plasment & Thunder Sword',
+    lore:
+      'Leader of the Olympos XII engulfed in golden lightning bolts, gripping a colossal thunder-forged greatsword.',
+    credit: 'Digimon 2 HD 8-Directional Sprite Collection',
+    spriteSheetUrl: digiSheet2('Jupitermon Wrath Mode.jpg'),
+    sheetFormat: 'hd_8dir',
+    overworldTargetHeight: 36,
+    overworldPoseMap: HD_8DIR_POSE_MAP,
+  },
+  {
+    id: 'bryweludramon',
+    name: 'Bryweludramon',
+    title: 'Bryweludramon, Scarlet Shield Dragon',
+    tier: 2,
+    iconEmoji: '🛡️',
+    stage: 'Mega',
+    attribute: 'Data',
+    elementZone: 'flame',
+    signatureMove: 'Red Flare & Blast Shield',
+    lore:
+      'An impenetrable red-armored fortress dragon bearing twin towering Chrome Digizoid shields and blue solar flames.',
+    credit: 'Digimon 2 HD 8-Directional Sprite Collection',
+    spriteSheetUrl: digiSheet2('Bryweludramon.png'),
+    sheetFormat: 'hd_8dir',
+    overworldTargetHeight: 35,
+    overworldPoseMap: HD_8DIR_POSE_MAP,
+  },
+  {
+    id: 'gracenovamon',
+    name: 'GraceNovamon',
+    title: 'GraceNovamon, Galactic Nova Colossus',
+    tier: 4,
+    iconEmoji: '🌌',
+    stage: 'Ultra',
+    attribute: 'Vaccine',
+    elementZone: 'plaza',
+    signatureMove: 'Caloris Tempest & Finger of Dawn',
+    lore:
+      'Jogress of Apollomon and Dianamon whose flowing cloak contains spinning nebulae and solar-lunar gauntlets.',
+    credit: 'Digimon 2 HD 8-Directional Sprite Collection',
+    spriteSheetUrl: digiSheet2('GraceNovamon.png'),
+    sheetFormat: 'hd_8dir',
+    overworldTargetHeight: 36,
+    overworldPoseMap: HD_8DIR_POSE_MAP,
+  },
+  {
+    id: 'gaiomon_itto',
+    name: 'Gaiomon Itto',
+    title: 'Gaiomon: Itto Mode, Crimson Ronin',
+    tier: 3,
+    iconEmoji: '⚔️',
+    stage: 'Mega',
+    attribute: 'Virus',
+    elementZone: 'flame',
+    signatureMove: 'Kikurin & Crimson Greatsword',
+    lore:
+      'A master draconic samurai clad in lacquered crimson armor wielding a colossal serrated war-blade.',
+    credit: 'Digimon 2 HD 8-Directional Sprite Collection',
+    spriteSheetUrl: digiSheet2('Gaiomon Itto Mode.png'),
+    sheetFormat: 'hd_8dir',
+    overworldTargetHeight: 36,
+    overworldPoseMap: HD_8DIR_POSE_MAP,
+  },
+  {
+    id: 'heavymetaldramon',
+    name: 'HeavyMetaldramon',
+    title: 'HeavyMetaldramon, Sonic Abyss Wyrm',
+    tier: 3,
+    iconEmoji: '🎸',
+    stage: 'Mega',
+    attribute: 'Virus',
+    elementZone: 'cyber',
+    signatureMove: 'Flying Destruction & Hellfire Chord',
+    lore:
+      'A serpentine cybernetic dragon sporting crystalline distortion wings and sub-zero bass-cannon shockwaves.',
+    credit: 'Digimon 2 HD 8-Directional Sprite Collection',
+    spriteSheetUrl: digiSheet2('HeavyMetaldramon.jpg'),
+    sheetFormat: 'hd_8dir',
+    overworldTargetHeight: 35,
+    overworldPoseMap: HD_8DIR_POSE_MAP,
+  },
+  {
+    id: 'kazuchimon',
+    name: 'Kazuchimon',
+    title: 'Kazuchimon, Emerald Lightning Shogun',
+    tier: 3,
+    iconEmoji: '⚡',
+    stage: 'Mega',
+    attribute: 'Vaccine',
+    elementZone: 'plaza',
+    signatureMove: 'Mighty Thunder Strike',
+    lore:
+      'A storm-forged warrior wrapped in sacred shimenawa ropes wielding twin emerald plasma katanas.',
+    credit: 'Digimon 2 HD 8-Directional Sprite Collection',
+    spriteSheetUrl: digiSheet2('Kazuchimon.jpg'),
+    sheetFormat: 'hd_8dir',
+    overworldTargetHeight: 35,
+    overworldPoseMap: HD_8DIR_POSE_MAP,
+  },
+  {
+    id: 'examon_x',
+    name: 'Examon X',
+    title: 'Examon (X-Antibody), Dragon Emperor',
+    tier: 4,
+    iconEmoji: '🐉',
+    stage: 'Ultra',
+    attribute: 'Data',
+    elementZone: 'holy',
+    signatureMove: 'Pendragon’s Glory & Ambrosius Blade',
+    lore:
+      'The supreme Dragon Emperor Royal Knight empowered by the X-Antibody, commanding radiant emerald energy lances.',
+    credit: 'Digimon 2 HD 8-Directional Sprite Collection',
+    spriteSheetUrl: digiSheet2('Examon X Antibody.png'),
+    sheetFormat: 'hd_8dir',
+    overworldTargetHeight: 37,
+    overworldPoseMap: HD_8DIR_POSE_MAP,
+  },
+  {
+    id: 'kentaurosmon_x',
+    name: 'Kentaurosmon X',
+    title: 'Kentaurosmon (X-Antibody), Radiant Bow',
+    tier: 4,
+    iconEmoji: '🏹',
+    stage: 'Mega',
+    attribute: 'Vaccine',
+    elementZone: 'holy',
+    signatureMove: 'Bifrost & Odin’s Breath',
+    lore:
+      'An evolved Sleipmon clad in scarlet draconic barding drawing an incandescent holy star-bow across the battlefield.',
+    credit: 'Digimon 2 HD 8-Directional Sprite Collection',
+    spriteSheetUrl: digiSheet2('Kentaurosmon X Antibody.png'),
+    sheetFormat: 'hd_8dir',
+    overworldTargetHeight: 36,
+    overworldPoseMap: HD_8DIR_POSE_MAP,
+  },
+  {
+    id: 'amaterasumon',
+    name: 'Amaterasumon',
+    title: 'Amaterasumon, Solar Radiance Sovereign',
+    tier: 4,
+    iconEmoji: '☀️',
+    stage: 'Ultra',
+    attribute: 'Vaccine',
+    elementZone: 'holy',
+    signatureMove: 'Heavenly Mirror of Dawn',
+    lore:
+      'A celestial sun goddess framed by twin golden wing-fans bearing sacred balance crests and radiant halos.',
+    credit: 'Digimon 2 HD 8-Directional Sprite Collection',
+    spriteSheetUrl: digiSheet2('Amaterasumon.png'),
+    sheetFormat: 'hd_8dir',
+    overworldTargetHeight: 36,
+    overworldPoseMap: HD_8DIR_POSE_MAP,
+  },
+  {
+    id: 'vortexdramon',
+    name: 'Vortexdramon',
+    title: 'Vortexdramon, Azure Tempest Wyrm',
+    tier: 3,
+    iconEmoji: '🌪️',
+    stage: 'Mega',
+    attribute: 'Data',
+    elementZone: 'aqua',
+    signatureMove: 'Cyclone Lance & Prism Gales',
+    lore:
+      'A sleek winged sea-sky dragon surfing high-altitude winds with iridescent crystal pinions and coiled storm tail.',
+    credit: 'Digimon 2 HD 8-Directional Sprite Collection',
+    spriteSheetUrl: digiSheet2('Vortexdramon.jpg'),
+    sheetFormat: 'hd_8dir',
+    overworldTargetHeight: 35,
+    overworldPoseMap: HD_8DIR_POSE_MAP,
+  },
+  {
+    id: 'fanglongmon_rm',
+    name: 'Fanglongmon RM',
+    title: 'Fanglongmon: Ruin Mode, Abyssal Wyrm',
+    tier: 4,
+    iconEmoji: '🐲',
+    stage: 'Ultra',
+    attribute: 'Virus',
+    elementZone: 'cyber',
+    signatureMove: 'Taiji Ruin & Blue Soul Orbs',
+    lore:
+      'The primordial Earth Sovereign Dragon tainted by dark ruin flames, crowned by four hovering azure spirit fires.',
+    credit: 'Digimon 2 HD 8-Directional Sprite Collection',
+    spriteSheetUrl: digiSheet2('Fanglongmon Ruin Mode.png'),
+    sheetFormat: 'hd_8dir',
+    overworldTargetHeight: 36,
+    overworldPoseMap: HD_8DIR_POSE_MAP,
+  },
+  {
+    id: 'titamon_skull',
+    name: 'Titamon & SkullB.',
+    title: 'Titamon + SkullBaluchimon, Bone Titan',
+    tier: 4,
+    iconEmoji: '🦴',
+    stage: 'Ultra',
+    attribute: 'Virus',
+    elementZone: 'cyber',
+    signatureMove: 'Soul Chopper & Abyssal Trample',
+    lore:
+      'The furious Titan commander riding the winged mechanical bone-steed SkullBaluchimon with the colossal Soul Chopper blade.',
+    credit: 'Digimon 2 HD 8-Directional Sprite Collection',
+    spriteSheetUrl: digiSheet2('Titamon and SkullBaluchimon.png'),
+    sheetFormat: 'hd_8dir',
+    overworldTargetHeight: 36,
+    overworldPoseMap: HD_8DIR_POSE_MAP,
+  },
+  {
+    id: 'shoutmon_ex6',
+    name: 'Shoutmon EX6',
+    title: 'Shoutmon EX6, Golden Winged Sovereign',
+    tier: 4,
+    iconEmoji: '🪽',
+    stage: 'Ultra',
+    attribute: 'Data',
+    elementZone: 'holy',
+    signatureMove: 'Meteor Buster & Six-Wing Judgement',
+    lore:
+      'A six-winged armored champion forged from united Digimon wills, gripping a radiant greatsword and plasma cannon.',
+    credit: 'Digimon 2 HD 8-Directional Sprite Collection',
+    spriteSheetUrl: digiSheet2('Shoutmon EX6.png'),
+    sheetFormat: 'hd_8dir',
+    overworldTargetHeight: 36,
+    overworldPoseMap: HD_8DIR_POSE_MAP,
+  },
+  {
+    id: 'fiery_biker_warrior',
+    name: 'Nezhamon',
+    title: 'Nezhamon, Multi-Armed Fiery Biker Warrior',
+    tier: 3,
+    iconEmoji: '🏍️',
+    stage: 'Mega',
+    attribute: 'Data',
+    elementZone: 'flame',
+    signatureMove: 'Lotus Turbo Wheel & Blazing Sabers',
+    lore:
+      'A six-armed warrior roaring across the road astride a flame-wheeled cyberbike, wielding twin fire blades, ice spear, and chain flail.',
+    credit: 'Digimon 2 HD 8-Directional Sprite Collection',
+    spriteSheetUrl: digiSheet2('Fiery Biker Warrior.png'),
+    sheetFormat: 'hd_8dir',
+    overworldTargetHeight: 34,
+    overworldPoseMap: HD_8DIR_POSE_MAP,
   },
 ];
 

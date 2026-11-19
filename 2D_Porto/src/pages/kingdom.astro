@@ -1,0 +1,539 @@
+---
+import TownLayout from '../layouts/TownLayout.astro';
+import WhereTo from '../components/WhereTo.astro';
+import { KINGDOM_ZONES } from '../engine/kingdomMap';
+import { ROYAL_CRESTS_META, type RoyalCrestKey } from '../engine/kingdomInteriorShared';
+import kingdomLayout from '../data/kingdomLayout.json';
+
+const crestList = Object.values(ROYAL_CRESTS_META);
+
+interface LandmarkCard {
+  id: string;
+  icon: string;
+  badge: string;
+  title: string;
+  coords: string;
+  accent: string;
+  badgeClass: string;
+  desc: string;
+  interiorHref?: string;
+  crestKey?: RoyalCrestKey;
+  guardians?: string;
+}
+
+const landmarkCards: LandmarkCard[] = [
+  {
+    id: 'royal_castle',
+    icon: '👑',
+    badge: 'NORTH CITADEL · KEEP',
+    title: 'Grand Royal Castle',
+    coords: 'X: 17..27, Y: 10..19',
+    accent: 'border-[#fbbf24] bg-[#1f160c] text-[#fef3c7]',
+    badgeClass: 'border-[#f59e0b] bg-[#451a03] text-[#fde68a]',
+    desc: 'Twin-turret sovereign fortress housing the Grand Throne Hall, Education Charter, and Solgaleo’s Royal Audience.',
+    interiorHref: '/kingdom/castle',
+    crestKey: 'sovereignty',
+    guardians: 'Solgaleo · Omnimon · Gallantmon',
+  },
+  {
+    id: 'blacksmith_forge',
+    icon: '⚒️',
+    badge: 'WEST WARD · ARMORY',
+    title: 'Royal Blacksmith & Forge',
+    coords: 'X: 5..12, Y: 13..18',
+    accent: 'border-[#ea580c] bg-[#24130c] text-[#fed7aa]',
+    badgeClass: 'border-[#fb923c] bg-[#431407] text-[#fdba74]',
+    desc: 'Blazing dragonflame armory showcasing the full Technical Arsenal alongside Archaludon’s Anvil Tempering trial.',
+    interiorHref: '/kingdom/blacksmith',
+    crestKey: 'steel',
+    guardians: 'Archaludon · Tyranitar · Cannondramon',
+  },
+  {
+    id: 'medieval_tavern',
+    icon: '🍺',
+    badge: 'EAST WARD · INN',
+    title: 'The Golden Griffin Tavern',
+    coords: 'X: 32..40, Y: 12..19',
+    accent: 'border-[#d97706] bg-[#20160b] text-[#fde68a]',
+    badgeClass: 'border-[#f59e0b] bg-[#451a03] text-[#fcd34d]',
+    desc: 'Warm oak guild hall displaying Launched Missions on the Quest Board, plus Snorlax’s Royal Stew Overdrive feast.',
+    interiorHref: '/kingdom/tavern',
+    crestKey: 'fellowship',
+    guardians: 'Empoleon · Snorlax · Samurott',
+  },
+  {
+    id: 'excalibur_shrine',
+    icon: '⚔️',
+    badge: 'CENTER · EXCALIBUR PLAZA',
+    title: 'Excalibur Sword Shrine',
+    coords: 'X: 19..25, Y: 27..30',
+    accent: 'border-[#facc15] bg-[#1c190c] text-[#fef9c3]',
+    badgeClass: 'border-[#eab308] bg-[#422006] text-[#fde047]',
+    desc: 'Octagonal royal stone plinth in the Grand Central Plaza. Collect all 7 Royal Crests to draw Excalibur and earn Knight of Avalon.',
+  },
+  {
+    id: 'mage_tower',
+    icon: '🔮',
+    badge: 'WEST WARD · ARCANE',
+    title: 'Arcane Mage Observatory',
+    coords: 'X: 5..10, Y: 25..34',
+    accent: 'border-[#818cf8] bg-[#121127] text-[#e0e7ff]',
+    badgeClass: 'border-[#6366f1] bg-[#1e1b4b] text-[#c7d2fe]',
+    desc: 'Sapphire starlit spire containing AI/ML & Computer Vision research scrolls and Mewtwo’s 5-Rune Constellation Trial.',
+    interiorHref: '/kingdom/mage-tower',
+    crestKey: 'arcana',
+    guardians: 'Mewtwo · Latias · Latios',
+  },
+  {
+    id: 'knights_barracks',
+    icon: '🛡️',
+    badge: 'EAST WARD · GARRISON',
+    title: 'Knights’ Garrison & Barracks',
+    coords: 'X: 33..40, Y: 25..30',
+    accent: 'border-[#94a3b8] bg-[#141923] text-[#f1f5f9]',
+    badgeClass: 'border-[#64748b] bg-[#1e293b] text-[#cbd5e1]',
+    desc: 'Vanguard stronghold chronicling 6 Lab & Industry Campaigns, Honors Ledger, and Lucario’s 15-second Archery Drill.',
+    interiorHref: '/kingdom/barracks',
+    crestKey: 'valor',
+    guardians: 'Lucario · Kentaurosmon · Salamence',
+  },
+  {
+    id: 'jousting_arena',
+    icon: '🐎',
+    badge: 'SOUTHWEST · LISTS',
+    title: 'Royal Tournament & Jousting Arena',
+    coords: 'X: 5..17, Y: 39..49',
+    accent: 'border-[#ef4444] bg-[#250f12] text-[#fee2e2]',
+    badgeClass: 'border-[#dc2626] bg-[#450a0a] text-[#fca5a5]',
+    desc: 'Limestone stone-castle colosseum enclosing a Central Golden Sand Tilting Pit, Engine Telemetry, and Koraidon’s Lance Clash.',
+    interiorHref: '/kingdom/jousting',
+    crestKey: 'chivalry',
+    guardians: 'Koraidon · BlackWarGreymon · Imperialdramon FM',
+  },
+  {
+    id: 'royal_chapel',
+    icon: '⛪',
+    badge: 'SOUTHEAST · CATHEDRAL',
+    title: 'Royal Chapel & Belltower',
+    coords: 'X: 29..38, Y: 39..49',
+    accent: 'border-[#38bdf8] bg-[#0d1926] text-[#e0f2fe]',
+    badgeClass: 'border-[#0284c7] bg-[#082f49] text-[#bae6fd]',
+    desc: 'Sunlit Gothic abbey featuring Core Engineering Principles, Envoy Contacts, and Lugia’s 3-Round Cathedral Bell Hymn.',
+    interiorHref: '/kingdom/chapel',
+    crestKey: 'grace',
+    guardians: 'Lugia · Seraphimon · GuardiAngemon',
+  },
+];
+---
+
+<TownLayout
+  title="Royal Kingdom of Avalon — Medieval Citadel | Muhammad Zulfan"
+  description="Explore the Royal Kingdom of Avalon (45×60 tiles): a handcrafted medieval citadel featuring 7 enterable heraldic interiors, 7 Royal Crests, and the Excalibur Shrine Finale."
+  place="kingdom"
+>
+  <div class="space-y-6 pb-10">
+    <!-- Hero Banner -->
+    <section
+      class="relative overflow-hidden rounded-2xl border-[3px] border-[#b45309] bg-gradient-to-br from-[#141016] via-[#21181c] to-[#111827] p-5 text-[#fef3c7] shadow-[0_8px_0_#451a03,0_16px_32px_rgba(180,83,9,0.28)]"
+    >
+      <div class="pointer-events-none absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-[#dc2626] via-[#fbbf24] to-[#dc2626]"></div>
+
+      <div class="relative z-10 space-y-3">
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="inline-flex items-center gap-1.5 rounded-full border-2 border-[#fbbf24] bg-[#451a03]/90 px-3 py-0.5 font-mono text-[10px] font-extrabold uppercase tracking-[0.14em] text-[#fde68a]">
+            <span>🏰</span> MEDIEVAL KINGDOM · 7 INTERIORS
+          </span>
+          <span class="inline-flex items-center gap-1 rounded-full border-2 border-[#dc2626] bg-[#450a0a]/90 px-2.5 py-0.5 font-mono text-[10px] font-black uppercase tracking-wider text-[#fecaca]">
+            PORTAL LINK: DIGI-SANCTUARY (20, 40)
+          </span>
+          <span
+            id="kingdom-hero-crest-badge"
+            class="inline-flex items-center gap-1 rounded-full border-2 border-[#eab308] bg-[#422006]/90 px-2.5 py-0.5 font-mono text-[10px] font-black uppercase tracking-wider text-[#fef08a]"
+          >
+            🏆 0 / 7 ROYAL CRESTS
+          </span>
+        </div>
+
+        <h1 class="font-['Press_Start_2P',monospace] text-base leading-snug text-[#fef3c7] drop-shadow-[0_2px_0_#451a03] sm:text-lg">
+          👑 ROYAL KINGDOM OF AVALON
+        </h1>
+
+        <p class="max-w-2xl text-xs leading-relaxed text-[#e7e5e4] sm:text-sm">
+          Welcome beyond the Ancient Stone Archway at <code class="rounded bg-[#0f172a] px-1.5 py-0.5 text-[#fde047]">(20, 40)</code>!
+          Explore a full <strong class="text-[#fde047]">45 × 60 tile</strong> medieval fortress with
+          <strong class="text-[#fde68a]">7 Grand Enterable Sanctums</strong>, unite all <strong class="text-[#fca5a5]">7 Royal Crests</strong>
+          across each guardian trial, and draw <strong class="text-[#fef08a]">Excalibur</strong> at the central plaza.
+        </p>
+
+        <div class="flex flex-wrap gap-2 pt-1">
+          <button
+            type="button"
+            data-kingdom-action="editor"
+            class="btn btn-sm border-2 border-[#fbbf24] bg-[#451a03] font-pixel text-[10px] text-[#fef3c7] hover:bg-[#78350f]"
+          >
+            🛠️ Town Editor 5.0 (E)
+          </button>
+          <button
+            type="button"
+            data-kingdom-walk="excalibur_shrine"
+            class="btn btn-sm border-2 border-[#f59e0b] bg-[#292524] font-pixel text-[10px] text-[#fde68a] hover:bg-[#44403c]"
+          >
+            ⚔️ Walk to Excalibur Shrine
+          </button>
+          <a
+            href="/kingdom/castle"
+            class="btn btn-sm border-2 border-[#eab308] bg-[#422006] font-pixel text-[10px] text-[#fef08a] hover:bg-[#713f12]"
+          >
+            👑 Enter Throne Hall
+          </a>
+          <a
+            href="/harbour"
+            class="btn btn-sm border-2 border-[#06b6d4] bg-[#083344] font-pixel text-[10px] text-[#cffafe] hover:bg-[#0e7490]"
+          >
+            ⚓ Harbour Town Exit
+          </a>
+          <a
+            href="/digimon?from=kingdom"
+            onclick="sessionStorage.setItem('digimon:respawn', '20,38,up')"
+            class="btn btn-sm border-2 border-[#0284c7] bg-[#082f49] font-pixel text-[10px] text-[#e0f2fe] hover:bg-[#0369a1]"
+          >
+            🌀 Digi-Sanctuary
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Citadel Telemetry Strip -->
+    <section class="card border-2 border-[#44403c] bg-[#181416] p-4 text-[#f5f5f4]">
+      <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <h2 class="font-pixel text-xs uppercase tracking-wide text-[#fbbf24]">
+          📜 Citadel Cartography &amp; Layout Status
+        </h2>
+        <span class="rounded border border-[#fbbf24]/40 bg-[#451a03] px-2 py-0.5 font-mono text-[10px] text-[#fde68a]">
+          Save Target: src/data/kingdomLayout.json
+        </span>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div class="rounded-lg border border-[#44403c] bg-[#1c1917] p-2.5">
+          <div class="font-mono text-[10px] text-[#a8a29e]">MAP DIMENSIONS</div>
+          <div class="font-pixel text-xs text-[#fde68a]">45 × 60 Tiles</div>
+        </div>
+        <div class="rounded-lg border border-[#44403c] bg-[#1c1917] p-2.5">
+          <div class="font-mono text-[10px] text-[#a8a29e]">ENTRY / RETURN</div>
+          <div class="font-pixel text-xs text-[#67e8f9]">Spawn (22, 8)</div>
+        </div>
+        <div class="rounded-lg border border-[#44403c] bg-[#1c1917] p-2.5">
+          <div class="font-mono text-[10px] text-[#a8a29e]">SANCTUMS &amp; CUSTOM</div>
+          <div class="font-pixel text-xs text-[#86efac]">
+            7 Interiors + {kingdomLayout.buildings.length}
+          </div>
+        </div>
+        <div class="rounded-lg border border-[#44403c] bg-[#1c1917] p-2.5">
+          <div class="font-mono text-[10px] text-[#a8a29e]">CITADEL WARDS</div>
+          <div class="font-pixel text-xs text-[#fca5a5]">
+            {Object.keys(KINGDOM_ZONES).length} Zones
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7 Royal Crests & Excalibur Shrine Finale -->
+    <section
+      id="kingdom-excalibur-finale"
+      class="relative overflow-hidden rounded-2xl border-[3px] border-[#eab308] bg-gradient-to-br from-[#1b150d] via-[#261a10] to-[#111827] p-5 text-[#fef3c7] shadow-[0_6px_0_#422006]"
+    >
+      <div class="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <span class="inline-flex items-center gap-1.5 rounded border border-[#fbbf24] bg-[#451a03] px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-[#fde68a]">
+            ⚔️ SOVEREIGN QUEST FINALE · EXCALIBUR SHRINE
+          </span>
+          <h2 class="mt-2 font-pixel text-sm text-[#fef08a]">
+            The 7 Royal Crests of Avalon
+          </h2>
+          <p class="mt-1 max-w-2xl text-xs leading-relaxed text-[#e7e5e4]">
+            Enter all 7 kingdom buildings and complete each guardian’s trial to forge the 7 Royal Crests.
+            Once 7 / 7 are united, draw <strong class="text-[#fde047]">Excalibur</strong> from the stone plinth for the title
+            <strong class="text-[#fde68a]">Knight of Avalon</strong> and an Overdrive Speed Blessing.
+          </p>
+        </div>
+
+        <div class="rounded-xl border-2 border-[#fbbf24]/60 bg-[#0f172a]/85 px-3.5 py-2 text-right">
+          <div class="font-mono text-[10px] text-[#cbd5e1]">CREST PROGRESS</div>
+          <div id="excalibur-crest-count" class="font-pixel text-base text-[#fde047]">0 / 7</div>
+        </div>
+      </div>
+
+      <!-- Progress Bar -->
+      <div class="mt-3 h-3 w-full overflow-hidden rounded-full border border-[#78350f] bg-[#0f172a]">
+        <div
+          id="excalibur-crest-bar"
+          class="h-full bg-gradient-to-r from-[#d97706] via-[#fbbf24] to-[#fde047] transition-all duration-500"
+          style="width: 0%"
+        ></div>
+      </div>
+
+      <!-- 7 Crests Grid -->
+      <div class="mt-4 grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
+        {crestList.map((crest) => (
+          <a
+            href={crest.route}
+            data-crest-card={crest.key}
+            class="group flex flex-col justify-between rounded-xl border-2 border-[#44403c] bg-[#141115]/95 p-3 transition-all hover:-translate-y-0.5 hover:border-[#fbbf24]"
+          >
+            <div>
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-base" aria-hidden="true">{crest.icon}</span>
+                <span
+                  data-crest-status={crest.key}
+                  class="rounded border border-[#57534e] bg-[#292524] px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase text-[#a8a29e]"
+                >
+                  🔒 SEALED
+                </span>
+              </div>
+              <div class="mt-1.5 font-pixel text-[10px] leading-snug text-[#fef3c7]">{crest.name}</div>
+              <div class="mt-0.5 font-mono text-[10px] font-semibold text-[#fbbf24]">{crest.sanctum}</div>
+              <p class="mt-1 text-[11px] leading-snug text-[#d6d3d1]">{crest.trial}</p>
+            </div>
+            <div class="mt-2 font-mono text-[10px] font-bold text-[#fde047] group-hover:underline">
+              Enter Sanctum →
+            </div>
+          </a>
+        ))}
+
+        <!-- Knight of Avalon Finale Card (8th slot in 4-col grid) -->
+        <div
+          id="excalibur-knighthood-panel"
+          class="flex flex-col justify-between rounded-xl border-2 border-[#ca8a04] bg-[#1c1509] p-3"
+        >
+          <div>
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-base" aria-hidden="true">⚔️</span>
+              <span
+                id="excalibur-title-pill"
+                class="rounded border border-[#78350f] bg-[#451a03] px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase text-[#fcd34d]"
+              >
+                STONE BOUND
+              </span>
+            </div>
+            <div class="mt-1.5 font-pixel text-[10px] leading-snug text-[#fef08a]">
+              Excalibur Finale
+            </div>
+            <p id="excalibur-status-hint" class="mt-1 text-[11px] leading-snug text-[#e7e5e4]">
+              Unite all 7 Crests to break the stone seal and awaken the sovereign blade.
+            </p>
+          </div>
+
+          <button
+            id="btn-draw-excalibur"
+            type="button"
+            disabled
+            class="btn btn-sm mt-2.5 w-full border-2 border-[#fbbf24] bg-[#78350f] font-pixel text-[9px] text-[#fef3c7] hover:bg-[#b45309] disabled:cursor-not-allowed disabled:opacity-45"
+          >
+            🔒 Need 7/7 Crests
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive Royal Chronicle Directory -->
+    <section class="space-y-3">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <h2 class="font-pixel text-xs uppercase tracking-wider text-[#fbbf24]">
+          🗺️ Royal Landmarks — Walk Outside or Enter Any Sanctum
+        </h2>
+        <span class="font-mono text-[10px] text-[#a8a29e]">
+          Walk up to a building door (or click Enter Interior) to explore inside
+        </span>
+      </div>
+
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        {landmarkCards.map((card) => (
+          <article
+            class={`flex flex-col justify-between rounded-xl border-2 p-3.5 transition-all ${card.accent}`}
+          >
+            <div>
+              <div class="mb-1.5 flex items-center justify-between gap-2">
+                <span class={`inline-flex items-center rounded border px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase ${card.badgeClass}`}>
+                  {card.badge}
+                </span>
+                <code class="font-mono text-[9px] opacity-80">{card.coords}</code>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-lg" aria-hidden="true">{card.icon}</span>
+                <h3 class="font-pixel text-[11px] leading-snug">{card.title}</h3>
+              </div>
+              <p class="mt-1.5 text-[11px] leading-relaxed opacity-90">{card.desc}</p>
+              {card.guardians && (
+                <div class="mt-1.5 font-mono text-[10px] opacity-80">
+                  🛡️ Guardians: <span class="font-semibold">{card.guardians}</span>
+                </div>
+              )}
+            </div>
+
+            <div class="mt-3 flex flex-wrap gap-2">
+              <button
+                type="button"
+                data-kingdom-walk={card.id}
+                class="btn btn-xs border border-current/40 bg-black/30 font-mono text-[10px] hover:bg-black/50"
+              >
+                🚶 Walk There
+              </button>
+              {card.interiorHref ? (
+                <a
+                  href={card.interiorHref}
+                  class="btn btn-xs border border-[#fbbf24]/70 bg-[#451a03]/80 font-mono text-[10px] font-bold text-[#fef08a] hover:bg-[#78350f]"
+                >
+                  🚪 Enter Interior →
+                </a>
+              ) : (
+                <a
+                  href="#kingdom-excalibur-finale"
+                  class="btn btn-xs border border-[#fbbf24]/70 bg-[#451a03]/80 font-mono text-[10px] font-bold text-[#fef08a] hover:bg-[#78350f]"
+                >
+                  ⚔️ Excalibur Trial
+                </a>
+              )}
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <WhereTo currentPath="/kingdom" />
+  </div>
+
+  <script>
+    import {
+      ROYAL_CRESTS_META,
+      awakenExcalibur,
+      countRoyalCrests,
+      getRoyalCrests,
+      hasExcaliburAwakened,
+      type RoyalCrestKey,
+    } from '../engine/kingdomInteriorShared';
+
+    function renderExcaliburProgress() {
+      const crests = getRoyalCrests();
+      const count = countRoyalCrests();
+      const awakened = hasExcaliburAwakened();
+      const keys = Object.keys(ROYAL_CRESTS_META) as RoyalCrestKey[];
+
+      const heroBadge = document.getElementById('kingdom-hero-crest-badge');
+      if (heroBadge) {
+        heroBadge.textContent = awakened
+          ? '👑 KNIGHT OF AVALON · 7/7'
+          : `🏆 ${count} / 7 ROYAL CRESTS`;
+      }
+
+      const countEl = document.getElementById('excalibur-crest-count');
+      if (countEl) countEl.textContent = `${count} / 7`;
+
+      const barEl = document.getElementById('excalibur-crest-bar');
+      if (barEl) barEl.style.width = `${Math.round((count / 7) * 100)}%`;
+
+      const missing: string[] = [];
+      for (const k of keys) {
+        const unlocked = Boolean(crests[k]);
+        const card = document.querySelector<HTMLElement>(`[data-crest-card="${k}"]`);
+        const status = document.querySelector<HTMLElement>(`[data-crest-status="${k}"]`);
+        if (card) {
+          card.style.borderColor = unlocked ? ROYAL_CRESTS_META[k].color : '';
+          card.style.backgroundColor = unlocked ? 'rgba(69, 26, 3, 0.45)' : '';
+        }
+        if (status) {
+          status.textContent = unlocked ? '✓ UNLOCKED' : '🔒 SEALED';
+          status.className = unlocked
+            ? 'rounded border border-[#22c55e] bg-[#052e16] px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase text-[#86efac]'
+            : 'rounded border border-[#57534e] bg-[#292524] px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase text-[#a8a29e]';
+        }
+        if (!unlocked) missing.push(ROYAL_CRESTS_META[k].sanctum);
+      }
+
+      const titlePill = document.getElementById('excalibur-title-pill');
+      const hintEl = document.getElementById('excalibur-status-hint');
+      const drawBtn = document.getElementById('btn-draw-excalibur') as HTMLButtonElement | null;
+      const panel = document.getElementById('excalibur-knighthood-panel');
+
+      if (awakened) {
+        if (titlePill) {
+          titlePill.textContent = '👑 KNIGHT OF AVALON';
+          titlePill.className =
+            'rounded border border-[#fbbf24] bg-[#78350f] px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase text-[#fef08a]';
+        }
+        if (hintEl) {
+          hintEl.textContent =
+            'Excalibur shines in full glory! Click below anytime to renew your +50% Overdrive Sprint blessing.';
+        }
+        if (panel) {
+          panel.classList.add('border-[#fbbf24]', 'bg-gradient-to-br', 'from-[#422006]', 'to-[#1c1917]');
+        }
+        if (drawBtn) {
+          drawBtn.disabled = false;
+          drawBtn.textContent = '✨ Renew Excalibur Overdrive (+50% Speed)';
+        }
+      } else if (count >= 7) {
+        if (titlePill) titlePill.textContent = '⚡ SEAL BROKEN';
+        if (hintEl) {
+          hintEl.textContent =
+            'All 7 Royal Crests resonate as one! Draw Excalibur now to claim Knight of Avalon.';
+        }
+        if (drawBtn) {
+          drawBtn.disabled = false;
+          drawBtn.textContent = '⚔️ Draw Excalibur from the Stone';
+        }
+      } else {
+        if (titlePill) titlePill.textContent = 'STONE BOUND';
+        if (hintEl) {
+          const preview = missing.slice(0, 3).join(', ');
+          const extra = missing.length > 3 ? ` +${missing.length - 3} more` : '';
+          hintEl.textContent = `Remaining sanctums: ${preview}${extra}.`;
+        }
+        if (drawBtn) {
+          drawBtn.disabled = true;
+          drawBtn.textContent = `🔒 Need ${7 - count} More Crest${7 - count === 1 ? '' : 's'}`;
+        }
+      }
+    }
+
+    function wireKingdomPage() {
+      renderExcaliburProgress();
+
+      document.querySelectorAll<HTMLButtonElement>('[data-kingdom-walk]').forEach((btn) => {
+        if (btn.dataset.wired === '1') return;
+        btn.dataset.wired = '1';
+        btn.addEventListener('click', () => {
+          const targetId = btn.getAttribute('data-kingdom-walk');
+          if (!targetId) return;
+          const labelBtn = document.querySelector<HTMLButtonElement>(`.town-label[data-id="${targetId}"]`);
+          labelBtn?.click();
+        });
+      });
+
+      document.querySelectorAll<HTMLButtonElement>('[data-kingdom-action="editor"]').forEach((btn) => {
+        if (btn.dataset.wired === '1') return;
+        btn.dataset.wired = '1';
+        btn.addEventListener('click', () => {
+          document.getElementById('btn-toggle-editor')?.click();
+        });
+      });
+
+      const drawBtn = document.getElementById('btn-draw-excalibur') as HTMLButtonElement | null;
+      if (drawBtn && drawBtn.dataset.wired !== '1') {
+        drawBtn.dataset.wired = '1';
+        drawBtn.addEventListener('click', () => {
+          if (countRoyalCrests() < 7) return;
+          awakenExcalibur();
+          window.dispatchEvent(new CustomEvent('town:claim-lucky-egg'));
+          renderExcaliburProgress();
+        });
+      }
+    }
+
+    window.addEventListener('kingdom:crest-updated', renderExcaliburProgress);
+    window.addEventListener('kingdom:excalibur-awakened', renderExcaliburProgress);
+
+    wireKingdomPage();
+    document.addEventListener('astro:page-load', wireKingdomPage);
+  </script>
+</TownLayout>

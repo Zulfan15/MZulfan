@@ -1,0 +1,340 @@
+---
+import TownLayout from '../layouts/TownLayout.astro';
+import WhereTo from '../components/WhereTo.astro';
+import { DARK_CASTLE_LANDMARKS } from '../engine/darkCastleMap';
+
+const landmarkCards = [
+  {
+    id: 'shadow-cathedral',
+    icon: '⛪',
+    badge: 'NORTHWEST WARD · BASILICA',
+    title: 'Shadow Cathedral',
+    coords: 'X: 4..13, Y: 12..21',
+    route: '/dark-castle/cathedral',
+    sealKey: 'echoes',
+    sealName: 'Seal of Echoes 🟣',
+    accent: 'border-[#9333ea] bg-[#1a0d2b] text-[#f3e8ff]',
+    badgeClass: 'border-[#a855f7] bg-[#3b0764] text-[#e9d5ff]',
+    desc: 'Twin obsidian spires with glowing stained-glass arches. Features the Echo Organ Memory Puzzle & War Stories.',
+  },
+  {
+    id: 'crimson-forge',
+    icon: '🔥',
+    badge: 'NORTHEAST WARD · REACTOR',
+    title: 'Crimson Reactor Forge',
+    coords: 'X: 31..42, Y: 14..24',
+    route: '/dark-castle/forge',
+    sealKey: 'ember',
+    sealName: 'Seal of Ember 🔥',
+    accent: 'border-[#f43f5e] bg-[#260b16] text-[#ffe4e6]',
+    badgeClass: 'border-[#e11d48] bg-[#4c0519] text-[#fecdd3]',
+    desc: 'Magitech foundry with geothermal magma core. Features the Load-Balancer Mini-Game & Tech Stack Anvil.',
+  },
+  {
+    id: 'obsidian-obelisk',
+    icon: '🔮',
+    badge: 'CENTER · CRYSTAL NEXUS',
+    title: 'Obsidian Obelisk Ring',
+    coords: 'X: 17..27, Y: 25..33',
+    accent: 'border-[#c084fc] bg-[#160e26] text-[#f5d0fe]',
+    badgeClass: 'border-[#9333ea] bg-[#2e1065] text-[#e9d5ff]',
+    desc: 'Central floating nexus anchoring four crystal light bridges. Requires 4 Abyssal Seals to awaken.',
+  },
+  {
+    id: 'blood-manor',
+    icon: '🏰',
+    badge: 'SOUTHWEST WARD · KEEP',
+    title: 'Demon Keep & Blood Manor',
+    coords: 'X: 6..17, Y: 38..51',
+    route: '/dark-castle/manor',
+    sealKey: 'valor',
+    sealName: 'Seal of Valor 🩸',
+    accent: 'border-[#dc2626] bg-[#230b11] text-[#fee2e2]',
+    badgeClass: 'border-[#b91c1c] bg-[#450a0a] text-[#fecaca]',
+    desc: 'Gargoyle-guarded manor with grand crimson runner. Features the Shadow Logic Duel vs Darkrai & Bug Gallery.',
+  },
+  {
+    id: 'chrono-vault',
+    icon: '⏳',
+    badge: 'SOUTHEAST WARD · SANCTUM',
+    title: 'Chained Chrono Vault',
+    coords: 'X: 29..38, Y: 39..49',
+    route: '/dark-castle/vault',
+    sealKey: 'eternity',
+    sealName: 'Seal of Eternity ⏳',
+    accent: 'border-[#eab308] bg-[#1c160c] text-[#fef9c3]',
+    badgeClass: 'border-[#ca8a04] bg-[#422006] text-[#fde047]',
+    desc: 'Golden clockwork temple anchored by colossal iron chains. Features the 4-Gear Clockwork Lock & Time-Capsule.',
+  },
+];
+---
+
+<TownLayout
+  title="Dark Castle — Abyssal Citadel | Muhammad Zulfan"
+  description="Explore the Dark Castle Abyssal Citadel (45×64 tiles), entered via Digi-Sanctuary West Portal (5, 22), featuring Shadow Cathedral, Crimson Reactor Forge, Obsidian Obelisk, Blood Manor, and Chained Chrono Vault."
+  place="dark-castle"
+>
+  <div class="space-y-6 pb-10">
+    <!-- Hero Banner -->
+    <section
+      class="relative overflow-hidden rounded-2xl border-[3px] border-[#9333ea] bg-gradient-to-br from-[#090512] via-[#1c0b2e] to-[#240a18] p-5 text-[#f3e8ff] shadow-[0_8px_0_#2e1065,0_16px_32px_rgba(147,51,234,0.3)]"
+    >
+      <div class="pointer-events-none absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-[#f43f5e] via-[#a855f7] to-[#f43f5e]"></div>
+
+      <div class="relative z-10 space-y-3">
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="inline-flex items-center gap-1.5 rounded-full border-2 border-[#c084fc] bg-[#2e1065]/90 px-3 py-0.5 font-mono text-[10px] font-extrabold uppercase tracking-[0.14em] text-[#f5d0fe]">
+            <span>🌑</span> DARK CASTLE · MAP 45×64
+          </span>
+          <span class="inline-flex items-center gap-1 rounded-full border-2 border-[#f43f5e] bg-[#4c0519]/90 px-2.5 py-0.5 font-mono text-[10px] font-black uppercase tracking-wider text-[#fecdd3]">
+            PORTAL LINK: DIGI-SANCTUARY (5, 22)
+          </span>
+        </div>
+
+        <h1 class="font-['Press_Start_2P',monospace] text-base leading-snug text-[#f5d0fe] drop-shadow-[0_2px_0_#3b0764] sm:text-lg">
+          🌑 DARK CASTLE CITADEL
+        </h1>
+
+        <p class="max-w-xl text-xs leading-relaxed text-[#e9d5ff] sm:text-sm">
+          Reached through the obsidian void archway at <code class="rounded bg-[#090512] px-1.5 py-0.5 text-[#f43f5e]">(5, 22)</code> on Digi-Sanctuary Island!
+          Traverse glowing crystal bridges across molten rifts to enter <strong class="text-[#fde047]">4 Unique Interior Sanctuaries</strong>,
+          gather the <strong class="text-[#c084fc]">4 Abyssal Seals</strong>, and awaken the <strong class="text-[#f43f5e]">Central Obsidian Obelisk</strong>.
+        </p>
+
+        <div class="flex flex-wrap gap-2 pt-1">
+          <button
+            type="button"
+            data-dark-action="editor"
+            class="btn btn-sm border-2 border-[#c084fc] bg-[#2e1065] font-pixel text-[10px] text-[#f3e8ff] hover:bg-[#4c1d95]"
+          >
+            🛠️ Open Town Editor 5.0 (E)
+          </button>
+          <button
+            type="button"
+            data-dark-walk="obsidian-obelisk"
+            class="btn btn-sm border-2 border-[#f43f5e] bg-[#4c0519] font-pixel text-[10px] text-[#ffe4e6] hover:bg-[#881337]"
+          >
+            🔮 Walk to Obsidian Obelisk
+          </button>
+          <a
+            href="/digimon?from=dark-castle"
+            onclick="sessionStorage.setItem('digimon:respawn', '8,22,right')"
+            class="btn btn-sm border-2 border-[#0284c7] bg-[#082f49] font-pixel text-[10px] text-[#e0f2fe] hover:bg-[#0369a1]"
+          >
+            🌀 Return to Digi-Sanctuary (5, 22)
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4 Abyssal Seals HUD Progress Banner -->
+    <section class="card border-2 border-[#581c87] bg-[#120724] p-4 text-[#f3e8ff] space-y-3">
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-[#3b0764] pb-2">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">🔮</span>
+          <h2 class="font-pixel text-xs uppercase tracking-wide text-[#c084fc]">
+            The Four Abyssal Seals &amp; Obelisk Awakening
+          </h2>
+        </div>
+        <span id="abyssal-seals-count" class="rounded border border-[#c084fc] bg-[#3b0764] px-2.5 py-0.5 font-mono text-xs font-bold text-[#f5d0fe]">
+          0 / 4 Seals
+        </span>
+      </div>
+
+      <!-- 4 Seal Badges Grid -->
+      <div class="grid grid-cols-2 gap-2 sm:grid-cols-4 font-mono text-[10px]">
+        <div id="seal-card-echoes" class="flex items-center gap-2 rounded-lg border border-[#3b0764] bg-[#1c0d36] p-2 text-[#d8b4fe] opacity-50 transition-all">
+          <span class="text-base">🟣</span>
+          <div>
+            <div class="font-bold">Echoes</div>
+            <div class="text-[9px] text-[#a78bfa]">Cathedral (NW)</div>
+          </div>
+        </div>
+
+        <div id="seal-card-ember" class="flex items-center gap-2 rounded-lg border border-[#4c0519] bg-[#240a12] p-2 text-[#fda4af] opacity-50 transition-all">
+          <span class="text-base">🔥</span>
+          <div>
+            <div class="font-bold">Ember</div>
+            <div class="text-[9px] text-[#fb7185]">Forge (NE)</div>
+          </div>
+        </div>
+
+        <div id="seal-card-valor" class="flex items-center gap-2 rounded-lg border border-[#450a0a] bg-[#24080e] p-2 text-[#fca5a5] opacity-50 transition-all">
+          <span class="text-base">🩸</span>
+          <div>
+            <div class="font-bold">Valor</div>
+            <div class="text-[9px] text-[#f87171]">Manor (SW)</div>
+          </div>
+        </div>
+
+        <div id="seal-card-eternity" class="flex items-center gap-2 rounded-lg border border-[#422006] bg-[#241a0b] p-2 text-[#fde68a] opacity-50 transition-all">
+          <span class="text-base">⏳</span>
+          <div>
+            <div class="font-bold">Eternity</div>
+            <div class="text-[9px] text-[#fde047]">Vault (SE)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Obelisk Awakening Message (shown when 4/4 seals gathered) -->
+      <div id="obelisk-awakened-banner" class="hidden rounded-xl border-2 border-[#f59e0b] bg-gradient-to-r from-[#451a03] via-[#3b0764] to-[#451a03] p-3 text-center text-xs text-[#fef3c7] animate-pulse">
+        ✨ <strong>SOVEREIGN OF THE ABYSS:</strong> All 4 Abyssal Seals are united! The Central Obsidian Obelisk blazes with radiant cosmic power!
+      </div>
+    </section>
+
+    <!-- Map Telemetry -->
+    <section class="card border-2 border-[#3b0764] bg-[#10081c] p-4 text-[#f3e8ff]">
+      <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <h2 class="font-pixel text-xs uppercase tracking-wide text-[#c084fc]">
+          🗺️ Abyssal Rift Telemetry &amp; Landmarks
+        </h2>
+        <span class="rounded border border-[#a855f7]/40 bg-[#2e1065] px-2 py-0.5 font-mono text-[10px] text-[#e9d5ff]">
+          Save Target: src/data/darkCastleLayout.json
+        </span>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div class="rounded-lg border border-[#3b0764] bg-[#160b26] p-2.5">
+          <div class="font-mono text-[10px] text-[#a78bfa]">DIMENSIONS</div>
+          <div class="font-pixel text-xs text-[#f5d0fe]">45 × 64 Tiles</div>
+        </div>
+        <div class="rounded-lg border border-[#3b0764] bg-[#160b26] p-2.5">
+          <div class="font-mono text-[10px] text-[#a78bfa]">NORTH PORTAL</div>
+          <div class="font-pixel text-xs text-[#fb7185]">(21..23, 7..8)</div>
+        </div>
+        <div class="rounded-lg border border-[#3b0764] bg-[#160b26] p-2.5">
+          <div class="font-mono text-[10px] text-[#a78bfa]">ENTRY LINK</div>
+          <div class="font-pixel text-xs text-[#67e8f9]">Digimon (5, 22)</div>
+        </div>
+        <div class="rounded-lg border border-[#3b0764] bg-[#160b26] p-2.5">
+          <div class="font-mono text-[10px] text-[#a78bfa]">INTERIORS</div>
+          <div class="font-pixel text-xs text-[#fde047]">4 Sanctuaries</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Clickable Landmarks & Interior Buildings Directory -->
+    <section class="space-y-3">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <h2 class="font-pixel text-xs uppercase tracking-wider text-[#f5d0fe]">
+          🏰 Citadel Wards &amp; Interior Sanctuaries
+        </h2>
+        <span class="font-mono text-[10px] text-[#a78bfa]">
+          Walk onto any building entrance or click "Enter Inside"
+        </span>
+      </div>
+
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        {landmarkCards.map((card) => (
+          <div
+            class={`text-left rounded-xl border-2 p-3.5 flex flex-col justify-between ${card.accent}`}
+          >
+            <div>
+              <div class="mb-1.5 flex items-center justify-between gap-2">
+                <span class={`inline-flex items-center rounded border px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase ${card.badgeClass}`}>
+                  {card.badge}
+                </span>
+                <code class="font-mono text-[9px] opacity-80">{card.coords}</code>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-lg" aria-hidden="true">{card.icon}</span>
+                <h3 class="font-pixel text-[11px] leading-snug">{card.title}</h3>
+              </div>
+              <p class="mt-1.5 text-[11px] leading-relaxed opacity-90">{card.desc}</p>
+            </div>
+
+            <div class="mt-3 flex flex-wrap gap-2 pt-2 border-t border-white/10">
+              <button
+                type="button"
+                data-dark-walk={card.id}
+                class="btn btn-xs border border-white/20 bg-black/40 font-pixel text-[9px] hover:bg-black/60 cursor-pointer"
+              >
+                🚶 Walk to Entrance
+              </button>
+              {card.route && (
+                <a
+                  href={card.route}
+                  class="btn btn-xs border border-amber-400/50 bg-amber-500/20 font-pixel text-[9px] text-amber-200 hover:bg-amber-500/30"
+                >
+                  🚪 Enter Inside
+                </a>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <WhereTo currentPath="/dark-castle" />
+  </div>
+
+  <script>
+    import { getAbyssalSeals, countAbyssalSeals, isAllSealsUnlocked } from '../engine/darkInteriorShared';
+
+    function wireDarkCastlePage() {
+      // 1. Sync Abyssal Seals on Dark Castle main page
+      const seals = getAbyssalSeals();
+      const count = countAbyssalSeals(seals);
+      const countEl = document.getElementById('abyssal-seals-count');
+      if (countEl) {
+        countEl.textContent = `${count} / 4 Seals`;
+        if (count === 4) {
+          countEl.className = 'rounded border border-[#22c55e] bg-[#052e16] px-2.5 py-0.5 font-mono text-xs font-bold text-[#86efac]';
+        }
+      }
+
+      // Individual Seal Badges
+      if (seals.echoes) {
+        const c = document.getElementById('seal-card-echoes');
+        if (c) {
+          c.classList.remove('opacity-50');
+          c.classList.add('border-[#c084fc]', 'ring-1', 'ring-[#c084fc]');
+        }
+      }
+      if (seals.ember) {
+        const c = document.getElementById('seal-card-ember');
+        if (c) {
+          c.classList.remove('opacity-50');
+          c.classList.add('border-[#f43f5e]', 'ring-1', 'ring-[#f43f5e]');
+        }
+      }
+      if (seals.valor) {
+        const c = document.getElementById('seal-card-valor');
+        if (c) {
+          c.classList.remove('opacity-50');
+          c.classList.add('border-[#ef4444]', 'ring-1', 'ring-[#ef4444]');
+        }
+      }
+      if (seals.eternity) {
+        const c = document.getElementById('seal-card-eternity');
+        if (c) {
+          c.classList.remove('opacity-50');
+          c.classList.add('border-[#fbbf24]', 'ring-1', 'ring-[#fbbf24]');
+        }
+      }
+
+      if (isAllSealsUnlocked(seals)) {
+        const banner = document.getElementById('obelisk-awakened-banner');
+        if (banner) banner.classList.remove('hidden');
+      }
+
+      // 2. Button Handlers
+      document.querySelectorAll<HTMLButtonElement>('[data-dark-walk]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const targetId = btn.getAttribute('data-dark-walk');
+          if (!targetId) return;
+          document.querySelector<HTMLButtonElement>(`.town-label[data-id="${targetId}"]`)?.click();
+        });
+      });
+
+      document.querySelectorAll<HTMLButtonElement>('[data-dark-action="editor"]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          document.getElementById('btn-toggle-editor')?.click();
+        });
+      });
+    }
+
+    wireDarkCastlePage();
+    document.addEventListener('astro:page-load', wireDarkCastlePage);
+  </script>
+</TownLayout>

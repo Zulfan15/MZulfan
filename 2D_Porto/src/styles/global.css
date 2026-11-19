@@ -182,6 +182,18 @@
     }
   }
   .town-wrap { @apply relative min-h-0 overflow-hidden bg-[#162e1d]; }
+  html[data-place="kingdom"] .town,
+  html[data-place="harbour"] .town,
+  html[data-place="sky-castle"] .town,
+  html[data-place="dark-castle"] .town,
+  html[data-place^="dark-"] .town,
+  html[data-place="kingdom"] .town-wrap,
+  html[data-place="harbour"] .town-wrap,
+  html[data-place="sky-castle"] .town-wrap,
+  html[data-place="dark-castle"] .town-wrap,
+  html[data-place^="dark-"] .town-wrap {
+    background: #000000 !important;
+  }
 
   /* ────────── Town stage & labels (si-dan.com exact styles) ────────── */
   /* ────────── Visually Hidden Screen Reader utility ────────── */
@@ -1458,8 +1470,12 @@
     @apply flex-1 overflow-y-auto px-3 sm:px-6 py-4;
     background: transparent;
   }
-  html:not([data-place="home"]):not(:has(.mcp)):not([data-place="dev"]):not([data-place="arcade"]) .panel__body {
+  html:not([data-place="home"]):not(:has(.mcp)):not([data-place="dev"]):not([data-place="arcade"]):not([data-place^="dark-"]) .panel__body {
     background: #fcf8ef;
+  }
+  html[data-place^="dark-"] .panel__body {
+    background: radial-gradient(circle at top right, rgba(99, 102, 241, 0.08), transparent 45%), #090910 !important;
+    color: #e2e8f0 !important;
   }
   html[data-place="home"] .panel__body,
   html:has(.mcp--shop) .panel__body {
@@ -2064,6 +2080,67 @@ html[data-place="arcade"] .panel__tab {
   background: #1e1938;
   color: var(--mcp-cyan, #22d3ee);
   border-color: var(--mcp-line, #372a5a);
+}
+
+/* ───────────────────────── Dark Castle & Obsidian Sanctums Theme ───────────────────────── */
+html[data-place^="dark-"] .panel {
+  background: #090910;
+  color: #e2e8f0;
+}
+
+html[data-place^="dark-"] .panel__bar,
+html[data-place^="dark-"] .panel__footer {
+  background: #06060c !important;
+  border-color: #27223a !important;
+  color: #94a3b8 !important;
+}
+
+html[data-place^="dark-"] .panel__where {
+  color: #f8fafc !important;
+}
+
+html[data-place="dark-vault"] .panel__where,
+html[data-place="dark-vault"] .panel__footer a {
+  color: #fbbf24 !important;
+}
+
+html[data-place^="dark-"] .panel__footer a {
+  color: #c084fc !important;
+}
+
+html[data-place^="dark-"] .panel__back {
+  border-color: #3b3355;
+  background: #131120;
+  color: #f1f5f9;
+  box-shadow: 2px 2px #030306;
+}
+
+html[data-place^="dark-"] .panel__back:hover {
+  background: #fbbf24;
+  color: #090910;
+  border-color: #fbbf24;
+}
+
+html[data-place^="dark-"] .panel__tab {
+  background: #131120;
+  color: #fbbf24;
+  border-color: #3b3355;
+}
+
+html[data-place^="dark-"] .panel__preset-btn {
+  color: #94a3b8;
+  border-color: transparent;
+}
+
+html[data-place^="dark-"] .panel__preset-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #f8fafc;
+}
+
+html[data-place^="dark-"] .panel__preset-btn.is-active {
+  background: rgba(251, 191, 36, 0.16);
+  color: #fde68a;
+  border-color: rgba(251, 191, 36, 0.35);
 }
 
 /* ─── MCP Base Layout & Typography ─── */

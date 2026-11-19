@@ -1,0 +1,586 @@
+---
+import TownLayout from '../../layouts/TownLayout.astro';
+import WhereTo from '../../components/WhereTo.astro';
+import { profile } from '../../lib/profile';
+import { ROYAL_CRESTS_META } from '../../engine/kingdomInteriorShared';
+
+const allCrests = Object.values(ROYAL_CRESTS_META);
+const weaponsByCategory = [
+  { key: 'Languages & Frameworks', icon: '🗡️', bladePrefix: 'Valyrian Longsword' },
+  { key: 'AI / ML & Vision', icon: '🏹', bladePrefix: 'Runebow Optic' },
+  { key: 'Data & Backend', icon: '🛡️', bladePrefix: 'Aegis Fortress Shield' },
+  { key: 'Cloud, IoT & Tooling', icon: '⚒️', bladePrefix: 'Siege Warhammer' },
+];
+
+const forgeWeapons = [
+  { id: 'tensorrt', label: '🗡️ Blade of TensorRT (~1.8 ms)', note: 'PyTorch 2.6 + YOLOv11s + ONNX FP16 Edge Vision Edge' },
+  { id: 'postgis', label: '🛡️ Halberd of PostGIS & Kafka', note: 'Laravel 12 + Redis Atomic Cache + Spatial Cloud Outbox' },
+  { id: 'typescript', label: '⚒️ Hammer of TypeScript Canvas', note: 'Astro Islands + 60 FPS Offscreen Game Engine Runtime' },
+  { id: 'esp32', label: '⚙️ Gauntlet of ESP32 Robotics', note: 'Microcontroller Telemetry + C Firmware + Flutter Dashboard' },
+];
+---
+
+<TownLayout
+  title="Dragonflame Blacksmith — Stack Armory & Forge | Muhammad Zulfan"
+  description="Enter Dragonflame Blacksmith inside Royal Kingdom: strike the anvil in the Gold Zone 3 times with Archaludon for the Crest of Steel and inspect Zulfan's weaponized tech stack."
+  place="kingdom-blacksmith"
+>
+  <article class="blacksmith-page space-y-6 pb-10 text-[#1e1b18]">
+    <!-- 1. HERALDIC SMITHY MARQUEE BANNER (WARM PARCHMENT, EMBER BRONZE & STEEL) -->
+    <header class="relative overflow-hidden rounded-2xl border-[3px] border-[#b45309] bg-gradient-to-b from-[#fffaf0] via-[#f7e7cb] to-[#ead2ac] p-5 text-[#2c1e12] shadow-[0_8px_0_#78350f,0_18px_36px_rgba(44,30,18,0.35)]">
+      <div
+        class="pointer-events-none absolute inset-x-0 top-0 h-2 bg-[repeating-linear-gradient(90deg,#ea580c_0px,#ea580c_14px,#fbbf24_14px,#fbbf24_28px,#44403c_28px,#44403c_42px)]"
+        aria-hidden="true"
+      ></div>
+      <div
+        class="pointer-events-none absolute inset-x-0 bottom-0 h-2 bg-[repeating-linear-gradient(90deg,#44403c_0px,#44403c_14px,#fbbf24_14px,#fbbf24_28px,#ea580c_28px,#ea580c_42px)]"
+        aria-hidden="true"
+      ></div>
+
+      <div class="relative z-10 mt-1 flex flex-wrap items-start justify-between gap-4">
+        <div class="space-y-2">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="rounded-full border border-[#9a3412] bg-[#9a3412] px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[#fef3c7]">
+              ⚒️ DRAGONFLAME BLACKSMITH · WEST ARMORY
+            </span>
+            <span
+              id="bs-crest-pill"
+              class="rounded-full border border-[#b45309]/50 bg-[#fef3c7] px-2.5 py-1 font-mono text-[10px] font-bold uppercase text-[#78350f]"
+            >
+              ⏳ Crest Unclaimed
+            </span>
+          </div>
+          <h1 class="font-display text-2xl font-black tracking-tight text-[#1e293b] sm:text-3xl">
+            ⚒️ Dragonflame Blacksmith &amp; Tech Armory
+          </h1>
+          <p class="max-w-2xl text-sm leading-relaxed text-[#44403c]">
+            Tempa baja rekayasa bersama pandai besi <strong class="text-[#b45309]">Archaludon</strong>, <strong class="text-[#3f6212]">Tyranitar</strong>, dan
+            <strong class="text-[#c2410c]">Cannondramon</strong>. Hentikan ayunan palu tepat di zona emas 3× untuk menambang <strong class="text-[#9a3412]">Crest of Steel</strong>!
+          </p>
+        </div>
+
+        <div class="flex flex-col items-end gap-2">
+          <div class="grid grid-cols-3 gap-2 rounded-xl border-2 border-[#b45309] bg-[#fffbeb] px-3 py-2 text-center font-mono shadow-inner">
+            <div>
+              <div class="text-[9px] font-bold uppercase text-[#92400e]">TEMPER</div>
+              <div id="hero-bs-hits" class="text-sm font-black text-[#c2410c]">0 / 3</div>
+            </div>
+            <div>
+              <div class="text-[9px] font-bold uppercase text-[#92400e]">STEEL</div>
+              <div id="hero-bs-state" class="text-sm font-black text-[#b45309]">RAW</div>
+            </div>
+            <div>
+              <div class="text-[9px] font-bold uppercase text-[#92400e]">CRESTS</div>
+              <div id="hero-bs-crests" class="text-sm font-black text-[#15803d]">0 / 7</div>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-end gap-2">
+            <button
+              id="bs-audio-toggle"
+              type="button"
+              class="cursor-pointer rounded-lg border-2 border-[#b45309] bg-[#fef3c7] px-2.5 py-1.5 font-mono text-[11px] font-bold text-[#78350f] transition hover:bg-[#fde68a]"
+            >
+              🔊 Anvil SFX: ON
+            </button>
+            <a
+              id="bs-exit-btn"
+              href="/kingdom?from=blacksmith"
+              class="inline-flex items-center gap-1.5 rounded-lg border-2 border-[#7f1d1d] bg-gradient-to-b from-[#b91c1c] to-[#7f1d1d] px-3 py-1.5 font-mono text-xs font-extrabold text-[#fef3c7] shadow-[0_3px_0_#450a0a] transition hover:-translate-y-0.5"
+            >
+              🚪 Exit to Kingdom
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tri-Guardian Dialogue Strip -->
+      <div class="relative z-10 mt-4 flex flex-col gap-3 rounded-xl border-2 border-[#b45309]/50 bg-[#fffbeb]/95 p-3.5 sm:flex-row sm:items-center">
+        <div class="flex shrink-0 items-center gap-1.5">
+          <button
+            type="button"
+            data-bs-walk="archaludon"
+            data-speaker="⚒️ Archaludon · Master Alloy Smith"
+            data-quote="True production engineering tempers raw code through rigorous benchmarks. Strike the anvil 3 times in the golden band!"
+            data-fx-text="CLANG! ALLOY FORGED!"
+            data-fx-color="#fb923c"
+            class="flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl border-2 border-[#d97706] bg-[#fef3c7] text-xl shadow-[0_2px_0_#92400e] transition hover:-translate-y-0.5"
+          >
+            ⚒️
+          </button>
+          <button
+            type="button"
+            data-bs-walk="tyranitar"
+            data-speaker="🦖 Tyranitar · Armor Plate Crag"
+            data-quote="My tectonic hide guards Zulfan’s full Stack Armory on the West rack—4 complete engineering domains ready for battle!"
+            data-fx-text="ARMORY TEMPERED!"
+            data-fx-color="#4ade80"
+            class="flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl border-2 border-[#4d7c0f] bg-[#ecfccb] text-xl shadow-[0_2px_0_#365314] transition hover:-translate-y-0.5"
+          >
+            🦖
+          </button>
+          <button
+            type="button"
+            data-bs-walk="cannondramon"
+            data-speaker="🔩 Cannondramon · Blast Boiler"
+            data-quote="High pressure makes sharp TensorRT engines! Drink from the NE Quench Bath for +50% smithing sprint speed."
+            data-fx-text="FURNACE BLAST!"
+            data-fx-color="#f97316"
+            class="flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl border-2 border-[#c2410c] bg-[#ffedd5] text-xl shadow-[0_2px_0_#7c2d12] transition hover:-translate-y-0.5"
+          >
+            🔩
+          </button>
+        </div>
+
+        <div class="min-w-0 flex-1">
+          <div id="bs-speaker" class="font-mono text-[10px] font-black uppercase tracking-wider text-[#9a3412]">
+            ⚒️ Archaludon · Master Alloy Smith
+          </div>
+          <p id="bs-dialogue" class="mt-0.5 text-xs italic leading-relaxed text-[#44403c]">
+            “Strike the glowing anvil timing bar 3 times inside the golden zone (40%–60%) to forge a Valyrian Tech Blade!”
+          </p>
+        </div>
+      </div>
+
+      <!-- 6 Tactile Quick-Walk Station Cards -->
+      <nav aria-label="Quick walk Blacksmith stations" class="relative z-10 mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+        <button type="button" data-bs-walk="archaludon" data-scroll-to="bs-forge-game" data-hotkey="a" class="bs-station-btn flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#d97706] bg-white px-2.5 py-2 text-left shadow-[0_2px_0_#b45309] transition hover:-translate-y-0.5 hover:bg-[#fff7ed]">
+          <span class="flex items-center gap-1.5 truncate text-xs font-bold"><span>⚒️</span><span class="truncate">Archaludon</span></span>
+          <kbd class="rounded border border-[#b45309]/40 bg-[#fef3c7] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#78350f]">A</kbd>
+        </button>
+        <button type="button" data-bs-walk="master-anvil" data-scroll-to="bs-forge-game" data-hotkey="m" class="bs-station-btn flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#ea580c] bg-white px-2.5 py-2 text-left shadow-[0_2px_0_#9a3412] transition hover:-translate-y-0.5 hover:bg-[#fff7ed]">
+          <span class="flex items-center gap-1.5 truncate text-xs font-bold"><span>🔨</span><span class="truncate">Anvil</span></span>
+          <kbd class="rounded border border-[#ea580c]/40 bg-[#ffedd5] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#9a3412]">M</kbd>
+        </button>
+        <button type="button" data-bs-walk="armory-rack" data-scroll-to="bs-armory-section" data-hotkey="r" class="bs-station-btn flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#1e3a8a]/70 bg-white px-2.5 py-2 text-left shadow-[0_2px_0_#1e3a8a] transition hover:-translate-y-0.5 hover:bg-[#eff6ff]">
+          <span class="flex items-center gap-1.5 truncate text-xs font-bold"><span>🗡️</span><span class="truncate">Armory</span></span>
+          <kbd class="rounded border border-[#1e3a8a]/40 bg-[#dbeafe] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#1e3a8a]">R</kbd>
+        </button>
+        <button type="button" data-bs-walk="tyranitar" data-scroll-to="bs-armory-section" data-hotkey="t" class="bs-station-btn flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#4d7c0f] bg-white px-2.5 py-2 text-left shadow-[0_2px_0_#365314] transition hover:-translate-y-0.5 hover:bg-[#f7fee7]">
+          <span class="flex items-center gap-1.5 truncate text-xs font-bold"><span>🦖</span><span class="truncate">Tyranitar</span></span>
+          <kbd class="rounded border border-[#4d7c0f]/40 bg-[#ecfccb] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#365314]">T</kbd>
+        </button>
+        <button type="button" data-bs-walk="cannondramon" data-scroll-to="bs-forge-game" data-hotkey="c" class="bs-station-btn flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#c2410c] bg-white px-2.5 py-2 text-left shadow-[0_2px_0_#7c2d12] transition hover:-translate-y-0.5 hover:bg-[#fff7ed]">
+          <span class="flex items-center gap-1.5 truncate text-xs font-bold"><span>🔩</span><span class="truncate">Cannon</span></span>
+          <kbd class="rounded border border-[#c2410c]/40 bg-[#ffedd5] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#7c2d12]">C</kbd>
+        </button>
+        <button type="button" data-bs-walk="quench-trough" data-scroll-to="bs-relic-section" data-hotkey="q" class="bs-station-btn flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#0284c7] bg-white px-2.5 py-2 text-left shadow-[0_2px_0_#075985] transition hover:-translate-y-0.5 hover:bg-[#f0f9ff]">
+          <span class="flex items-center gap-1.5 truncate text-xs font-bold"><span>💧</span><span class="truncate">Quench</span></span>
+          <kbd class="rounded border border-[#0284c7]/40 bg-[#e0f2fe] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#075985]">Q</kbd>
+        </button>
+      </nav>
+    </header>
+
+    <!-- 2. TRIAL I: FORGE TIMING MINI-GAME -->
+    <section
+      id="bs-forge-game"
+      class="scroll-mt-6 rounded-2xl border-[3px] border-[#b45309] bg-gradient-to-b from-[#fffdf7] to-[#f4ead5] p-5 shadow-[0_8px_0_#78350f]"
+    >
+      <div class="flex flex-wrap items-start justify-between gap-3 border-b-2 border-[#b45309]/30 pb-3.5">
+        <div>
+          <span class="font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-[#c2410c]">
+            TRIAL I · ANVIL HAMMER TIMING
+          </span>
+          <h2 class="mt-0.5 font-display text-xl font-black text-[#1e293b]">
+            🔨 Temper the Valyrian Blade (3 Golden Strikes)
+          </h2>
+          <p class="mt-1 text-xs text-[#44403c]">
+            Pilih blueprint senjata lalu tekan <strong class="text-[#b45309]">Strike Anvil</strong> tepat saat jarum bergerak melewati pita emas tengah (<strong>38% – 62%</strong>).
+          </p>
+        </div>
+
+        <button
+          id="bs-reset-forge"
+          type="button"
+          class="cursor-pointer rounded-lg border border-[#b45309]/50 bg-[#fef3c7] px-3 py-1.5 font-mono text-[11px] font-bold text-[#78350f] hover:bg-[#fde68a]"
+        >
+          ↺ Reheat Ingot
+        </button>
+      </div>
+
+      <!-- Weapon Template Selector -->
+      <div class="mt-4">
+        <label class="block rounded-xl border border-[#b45309]/40 bg-white p-3">
+          <span class="block font-mono text-[10px] font-bold uppercase text-[#92400e]">CHOOSE WEAPON SCHEMATIC</span>
+          <select id="bs-weapon-select" class="mt-1 w-full cursor-pointer rounded-lg border border-[#d97706] bg-[#fffbeb] px-3 py-2 font-mono text-xs font-bold text-[#1e293b]">
+            {forgeWeapons.map((w) => (
+              <option value={w.id} data-note={w.note}>{w.label}</option>
+            ))}
+          </select>
+        </label>
+      </div>
+
+      <!-- Animated Swing Gauge -->
+      <div class="mt-4 rounded-xl border-2 border-[#78350f] bg-[#29201b] p-4 text-[#fef3c7] shadow-inner">
+        <div class="flex items-center justify-between font-mono text-xs">
+          <span class="font-bold text-[#fde68a]">ANVIL HAMMER SWEET SPOT</span>
+          <span id="bs-gauge-status" class="font-black text-[#fb923c]">STRIKES: 0 / 3</span>
+        </div>
+
+        <div class="relative mt-3 h-7 overflow-hidden rounded-full border-2 border-[#451a03] bg-[#140e0b]">
+          <!-- Gold Sweet Spot Zone: 38% to 62% (width 24%) -->
+          <div
+            class="pointer-events-none absolute inset-y-0 border-x-2 border-[#4ade80] bg-[#fbbf24]/30"
+            style="left: 38%; width: 24%;"
+          ></div>
+          <!-- Moving Needle -->
+          <div
+            id="bs-needle"
+            class="absolute inset-y-0 w-2 -translate-x-1/2 rounded bg-[#fef08a] shadow-[0_0_10px_#fbbf24]"
+            style="left: 10%;"
+          ></div>
+        </div>
+
+        <div class="mt-2 flex items-center justify-between font-mono text-[10px] text-[#fed7aa]/80">
+          <span>0% Cold</span>
+          <span class="font-bold text-[#fde047]">▲ Optimal Forge Band: 38% – 62%</span>
+          <span>100% Brittle</span>
+        </div>
+      </div>
+
+      <div class="mt-4 flex flex-wrap items-center gap-3">
+        <button
+          id="bs-strike-btn"
+          type="button"
+          class="cursor-pointer rounded-xl border-2 border-[#78350f] bg-gradient-to-b from-[#fbbf24] to-[#d97706] px-5 py-2.5 font-mono text-xs font-black uppercase tracking-wider text-[#1e1b18] shadow-[0_4px_0_#78350f] transition hover:-translate-y-0.5 hover:brightness-105 active:translate-y-0.5"
+        >
+          🔨 Strike Anvil! [Space]
+        </button>
+        <span id="bs-strike-feedback" class="font-mono text-xs font-bold text-[#78350f]">
+          Menunggu 3 pukulan tepat sasaran di zona emas...
+        </span>
+      </div>
+    </section>
+
+    <!-- 3. WEAPONIZED STACK ARMORY (GROUNDED IN PROFILE.YAML) -->
+    <section
+      id="bs-armory-section"
+      class="scroll-mt-6 rounded-2xl border-[3px] border-[#1e3a8a] bg-gradient-to-b from-[#fffdf7] to-[#f4ead5] p-5 shadow-[0_8px_0_#1e3a8a]"
+    >
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b-2 border-[#1e3a8a]/20 pb-3">
+        <div>
+          <span class="font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-[#b45309]">
+            THE STACK ARMORY · VERIFIED FROM PROFILE.YAML
+          </span>
+          <h2 class="mt-0.5 font-display text-xl font-black text-[#1e293b]">
+            🗡️ Forged Arsenal — {profile.stack.reduce((acc, s) => acc + s.items.length, 0)} Production Technologies
+          </h2>
+        </div>
+        <a href="/dev" class="rounded-lg border border-[#1e3a8a] bg-[#1e3a8a] px-3 py-1 font-mono text-[10px] font-bold text-[#fef3c7] hover:brightness-110">
+          Open Radar in /dev →
+        </a>
+      </div>
+
+      <div class="mt-4 grid gap-4 md:grid-cols-2">
+        {profile.stack.map((quadrant) => {
+          const meta = weaponsByCategory.find((w) => w.key === quadrant.category) || weaponsByCategory[0];
+          return (
+            <div class="rounded-xl border-2 border-[#b45309]/40 bg-white p-4">
+              <div class="flex items-center justify-between gap-2 border-b border-[#e7dcc4] pb-2">
+                <h3 class="font-display text-sm font-black text-[#1e293b]">
+                  {meta.icon} {quadrant.category}
+                </h3>
+                <span class="rounded bg-[#fef3c7] px-2 py-0.5 font-mono text-[10px] font-bold text-[#78350f]">
+                  {quadrant.items.length} Weapons
+                </span>
+              </div>
+              <div class="mt-3 flex flex-wrap gap-1.5">
+                {quadrant.items.map((tech) => (
+                  <span class="rounded-md border border-[#b45309]/35 bg-[#fffbeb] px-2 py-1 font-mono text-[11px] font-bold text-[#2c1e12]">
+                    {tech}
+                  </span>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+
+    <!-- 4. QUENCH VAULT, DRAGONFLAME HASTE & 7 CRESTS -->
+    <section
+      id="bs-relic-section"
+      class="scroll-mt-6 rounded-2xl border-[3px] border-[#b45309] bg-gradient-to-b from-[#fffdf7] to-[#f4ead5] p-5 shadow-[0_8px_0_#78350f]"
+    >
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b-2 border-[#b45309]/30 pb-3">
+        <h2 class="font-display text-xl font-black text-[#1e293b]">
+          💧 Quench Vault &amp; 7 Royal Crests
+        </h2>
+        <span id="bs-crest-summary" class="rounded-full border border-[#1e3a8a] bg-[#1e3a8a] px-3 py-1 font-mono text-[11px] font-bold text-[#fef3c7]">
+          0 / 7 Crests Claimed
+        </span>
+      </div>
+
+      <div class="mt-4 grid gap-4 md:grid-cols-2">
+        <div class="rounded-xl border-2 border-[#0284c7]/50 bg-white p-4">
+          <div class="font-mono text-[10px] font-bold uppercase text-[#0284c7]">RELIC I · QUENCH STEAM BOOST</div>
+          <h3 class="mt-0.5 font-display text-base font-black text-[#1e293b]">⚡ Forge Overclock (+50% Speed)</h3>
+          <p class="mt-2 text-xs text-[#44403c]">
+            Celupkan baja panas ke bak pendingin untuk memicu dorongan uap +50% kecepatan lari selama 25 detik.
+          </p>
+          <div class="mt-3 flex flex-wrap items-center gap-2">
+            <button id="bs-speed-btn" type="button" class="cursor-pointer rounded-xl border-2 border-[#0284c7] bg-[#0284c7] px-4 py-2 font-mono text-xs font-black text-white shadow-[0_3px_0_#075985]">
+              ⚡ Activate Steam Boost
+            </button>
+            <span id="bs-speed-timer" class="font-mono text-xs font-bold text-[#0369a1]">Status: Ready</span>
+          </div>
+        </div>
+
+        <div class="rounded-xl border-2 border-[#b45309]/50 bg-white p-4">
+          <div class="font-mono text-[10px] font-bold uppercase text-[#b45309]">RELIC II · FORGED BLADE CERTIFICATE</div>
+          <h3 class="mt-0.5 font-display text-base font-black text-[#1e293b]">🗡️ Masterwork Alloy Ledger</h3>
+          <div id="bs-locked-box" class="mt-2 rounded-lg border border-[#b91c1c]/30 bg-[#fef2f2] p-3 text-xs text-[#991b1b]">
+            Terkunci. Raih 3 pukulan zona emas di <strong>Anvil Hammer Timing</strong> untuk menambang Crest of Steel.
+          </div>
+          <div id="bs-unlocked-box" class="mt-2 hidden rounded-lg border border-[#15803d]/40 bg-[#f0fdf4] p-3 text-xs text-[#14532d]">
+            <div class="font-mono text-[10px] font-bold uppercase text-[#15803d]">✅ CREST OF STEEL MINTED!</div>
+            <p id="bs-forged-blade-summary" class="mt-1 font-semibold">
+              Tempered Blade forged &amp; verified by Master Smith Archaludon.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+        {allCrests.map((c) => (
+          <a
+            href={c.route}
+            data-bs-crest-card={c.key}
+            class="flex items-center justify-between gap-2 rounded-xl border border-[#b45309]/40 bg-white px-3 py-2 text-xs transition hover:-translate-y-0.5 hover:border-[#1e3a8a]"
+          >
+            <span class="truncate font-bold">{c.icon} {c.name}</span>
+            <span data-bs-crest-badge={c.key} class="font-mono text-[10px] font-bold text-[#94a3b8]">🔒</span>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <WhereTo currentPath="/kingdom/blacksmith" />
+  </article>
+</TownLayout>
+
+<script>
+  import { awardRoyalCrest, countRoyalCrests, getRoyalCrests } from '../../engine/kingdomInteriorShared';
+
+  let bsAudioOn = true;
+  let bsAudioCtx: AudioContext | null = null;
+
+  function playAnvilTone(freq: number, dur = 0.14, type: OscillatorType = 'triangle', peak = 0.12) {
+    if (!bsAudioOn || typeof window === 'undefined') return;
+    try {
+      const Ctx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      if (!Ctx) return;
+      if (!bsAudioCtx) bsAudioCtx = new Ctx();
+      if (bsAudioCtx.state === 'suspended') void bsAudioCtx.resume();
+      const osc = bsAudioCtx.createOscillator();
+      const gain = bsAudioCtx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, bsAudioCtx.currentTime);
+      gain.gain.setValueAtTime(peak, bsAudioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, bsAudioCtx.currentTime + dur);
+      osc.connect(gain);
+      gain.connect(bsAudioCtx.destination);
+      osc.start();
+      osc.stop(bsAudioCtx.currentTime + dur);
+    } catch {
+      // ignore
+    }
+  }
+
+  function emitBsWave(text: string, color = '#fb923c') {
+    window.dispatchEvent(new CustomEvent('town:kingdom-fx', { detail: { text, color } }));
+  }
+
+  function initBlacksmithPage() {
+    const root = document.querySelector('.blacksmith-page');
+    if (!root) return;
+
+    let needlePct = 15;
+    let needleDir = 1;
+    let strikes = getRoyalCrests().steel ? 3 : 0;
+    let rafId: number | null = null;
+    let speedTimer: number | null = null;
+    let lastTs = performance.now();
+
+    document.getElementById('bs-exit-btn')?.addEventListener('click', () => {
+      try {
+        sessionStorage.setItem('kingdom:respawn', '8,20,down');
+      } catch {
+        // ignore
+      }
+    });
+
+    const audioBtn = document.getElementById('bs-audio-toggle');
+    audioBtn?.addEventListener('click', () => {
+      bsAudioOn = !bsAudioOn;
+      audioBtn.textContent = bsAudioOn ? '🔊 Anvil SFX: ON' : '🔇 Anvil SFX: MUTED';
+      if (bsAudioOn) playAnvilTone(587.33, 0.12);
+    });
+
+    const speakerEl = document.getElementById('bs-speaker');
+    const dialogueEl = document.getElementById('bs-dialogue');
+
+    const walkProp = (el: HTMLElement) => {
+      const id = el.dataset.bsWalk;
+      if (id) window.dispatchEvent(new CustomEvent('town:walk-to', { detail: { id } }));
+      if (el.dataset.speaker && speakerEl) speakerEl.textContent = el.dataset.speaker;
+      if (el.dataset.quote && dialogueEl) dialogueEl.textContent = `“${el.dataset.quote}”`;
+      if (el.dataset.fxText) emitBsWave(el.dataset.fxText, el.dataset.fxColor || '#fb923c');
+      if (el.dataset.scrollTo) {
+        document.getElementById(el.dataset.scrollTo)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      playAnvilTone(440, 0.08);
+    };
+
+    document.querySelectorAll<HTMLElement>('[data-bs-walk]').forEach((btn) => {
+      btn.addEventListener('click', () => walkProp(btn));
+    });
+
+    function refreshCrests() {
+      const crests = getRoyalCrests();
+      const total = countRoyalCrests();
+      const hasSteel = Boolean(crests.steel);
+
+      const hHits = document.getElementById('hero-bs-hits');
+      const hState = document.getElementById('hero-bs-state');
+      const hCrests = document.getElementById('hero-bs-crests');
+      const pill = document.getElementById('bs-crest-pill');
+      const summary = document.getElementById('bs-crest-summary');
+      const gStatus = document.getElementById('bs-gauge-status');
+
+      if (hHits) hHits.textContent = `${hasSteel ? 3 : strikes} / 3`;
+      if (hCrests) hCrests.textContent = `${total} / 7`;
+      if (summary) summary.textContent = `${total} / 7 Crests Claimed`;
+      if (gStatus) gStatus.textContent = hasSteel ? 'TEMPERED (3 / 3) ✅' : `STRIKES: ${strikes} / 3`;
+      if (hState) {
+        hState.textContent = hasSteel ? 'TEMPERED' : 'RAW';
+        hState.className = hasSteel ? 'text-sm font-black text-[#15803d]' : 'text-sm font-black text-[#b45309]';
+      }
+      if (pill && hasSteel) {
+        pill.textContent = '⚒️ Crest of Steel Claimed';
+        pill.className = 'rounded-full border border-[#15803d] bg-[#dcfce7] px-2.5 py-1 font-mono text-[10px] font-bold uppercase text-[#14532d]';
+      }
+
+      if (hasSteel) {
+        document.getElementById('bs-locked-box')?.classList.add('hidden');
+        document.getElementById('bs-unlocked-box')?.classList.remove('hidden');
+      }
+
+      (['sovereignty', 'steel', 'fellowship', 'arcana', 'valor', 'grace', 'chivalry'] as const).forEach((k) => {
+        const badge = document.querySelector<HTMLElement>(`[data-bs-crest-badge="${k}"]`);
+        const ok = Boolean(crests[k]);
+        if (badge) {
+          badge.textContent = ok ? '✅' : '🔒';
+          badge.className = ok ? 'font-mono text-[10px] font-bold text-[#15803d]' : 'font-mono text-[10px] font-bold text-[#94a3b8]';
+        }
+      });
+    }
+
+    const needleEl = document.getElementById('bs-needle');
+    const feedbackEl = document.getElementById('bs-strike-feedback');
+
+    function tickNeedle(now: number) {
+      const dt = Math.min(0.05, (now - lastTs) / 1000);
+      lastTs = now;
+      if (strikes < 3) {
+        needlePct += needleDir * dt * 115;
+        if (needlePct >= 97) {
+          needlePct = 97;
+          needleDir = -1;
+        } else if (needlePct <= 3) {
+          needlePct = 3;
+          needleDir = 1;
+        }
+        if (needleEl) needleEl.style.left = `${needlePct}%`;
+      }
+      rafId = requestAnimationFrame(tickNeedle);
+    }
+    rafId = requestAnimationFrame(tickNeedle);
+
+    function performStrike() {
+      if (strikes >= 3) {
+        if (feedbackEl) feedbackEl.textContent = '✅ Pedang sudah selesai ditempa! Klik Reheat Ingot untuk mencoba lagi.';
+        return;
+      }
+      const inGold = needlePct >= 38 && needlePct <= 62;
+      if (inGold) {
+        strikes += 1;
+        playAnvilTone(220, 0.1, 'sawtooth', 0.11);
+        setTimeout(() => playAnvilTone(783.99, 0.25, 'triangle', 0.14), 35);
+        emitBsWave(`CLANG! (${strikes}/3)`, '#fde047');
+        if (strikes >= 3) {
+          awardRoyalCrest('steel');
+          const sel = document.getElementById('bs-weapon-select') as HTMLSelectElement | null;
+          const optText = sel?.options[sel.selectedIndex]?.text || 'Valyrian Blade';
+          const summaryP = document.getElementById('bs-forged-blade-summary');
+          if (summaryP) summaryP.textContent = `Tempered "${optText}" sealed with Master Smith Archaludon!`;
+          if (feedbackEl) feedbackEl.textContent = `🔥 SEMPURNA! ${optText} berhasil ditempa — Crest of Steel diraih!`;
+          emitBsWave('CREST OF STEEL CLAIMED!', '#4ade80');
+        } else if (feedbackEl) {
+          feedbackEl.textContent = `⚒️ Tepat di zona emas (${Math.round(needlePct)}%)! Butuh ${3 - strikes} pukulan lagi.`;
+        }
+      } else {
+        playAnvilTone(146.83, 0.18, 'sawtooth', 0.08);
+        emitBsWave('OFF TARGET!', '#ef4444');
+        if (feedbackEl) feedbackEl.textContent = `💨 Meleset (${Math.round(needlePct)}%) — targetkan di antara 38%–62%!`;
+      }
+      refreshCrests();
+    }
+
+    document.getElementById('bs-strike-btn')?.addEventListener('click', performStrike);
+    document.getElementById('bs-reset-forge')?.addEventListener('click', () => {
+      strikes = 0;
+      if (feedbackEl) feedbackEl.textContent = '🔥 Ingot dipanaskan ulang — bidik 3 pukulan di zona emas!';
+      refreshCrests();
+    });
+
+    const onKey = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement | null)?.tagName;
+      if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
+      if (e.code === 'Space') {
+        e.preventDefault();
+        performStrike();
+        return;
+      }
+      const matched = document.querySelector<HTMLElement>(`.bs-station-btn[data-hotkey="${e.key.toLowerCase()}"]`);
+      if (matched) {
+        e.preventDefault();
+        walkProp(matched);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+
+    document.getElementById('bs-speed-btn')?.addEventListener('click', () => {
+      window.dispatchEvent(new CustomEvent('town:claim-lucky-egg'));
+      emitBsWave('STEAM BOOST +50% SPD!', '#38bdf8');
+      playAnvilTone(659.25, 0.15);
+      let left = 25;
+      const timerEl = document.getElementById('bs-speed-timer');
+      if (timerEl) timerEl.textContent = `⚡ Active: ${left}s`;
+      if (speedTimer !== null) clearInterval(speedTimer);
+      speedTimer = window.setInterval(() => {
+        left -= 1;
+        if (timerEl) timerEl.textContent = left > 0 ? `⚡ Active: ${left}s` : 'Status: Ready';
+        if (left <= 0 && speedTimer !== null) {
+          clearInterval(speedTimer);
+          speedTimer = null;
+        }
+      }, 1000);
+    });
+
+    refreshCrests();
+
+    document.addEventListener(
+      'astro:before-swap',
+      () => {
+        if (rafId !== null) cancelAnimationFrame(rafId);
+        if (speedTimer !== null) clearInterval(speedTimer);
+        window.removeEventListener('keydown', onKey);
+      },
+      { once: true }
+    );
+  }
+
+  initBlacksmithPage();
+  document.addEventListener('astro:page-load', initBlacksmithPage);
+</script>

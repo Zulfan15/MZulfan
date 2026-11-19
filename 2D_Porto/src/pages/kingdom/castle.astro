@@ -1,0 +1,870 @@
+---
+import TownLayout from '../../layouts/TownLayout.astro';
+import WhereTo from '../../components/WhereTo.astro';
+import { profile } from '../../lib/profile';
+import { ROYAL_CRESTS_META } from '../../engine/kingdomInteriorShared';
+
+const githubUrl = profile.socials.find((s) => s.label === 'GitHub')?.url || 'https://github.com/Zulfan15';
+const linkedinUrl = profile.socials.find((s) => s.label === 'LinkedIn')?.url || 'https://www.linkedin.com/in/muhammad-zulfan-anggadhiputra';
+const emailUrl = profile.socials.find((s) => s.label === 'Email')?.url || `mailto:${profile.person.email}`;
+const edu = profile.education[0];
+const allCrests = Object.values(ROYAL_CRESTS_META);
+
+const audienceQuestions = [
+  {
+    round: 1,
+    badge: 'DECREE I · EDGE COMPUTER VISION',
+    prompt:
+      'AeroScan must classify 15 aircraft types at >60 FPS on consumer GPUs. Which optimization strategy did Zulfan deploy to reach ~1.8 ms per frame?',
+    options: [
+      {
+        label: 'Compile YOLOv11s → ONNX → TensorRT 10 FP16 Engine (~22.1 MB weights)',
+        correct: true,
+        feedback: '🦁 King Solgaleo nods: "Precisely! FP16 TensorRT 10 slashed inference latency down to ~1.8 ms/frame (>500 FPS) on an RTX 4060."',
+      },
+      {
+        label: 'Send raw 4K PNG frames sequentially over unbatched REST polling',
+        correct: false,
+        feedback: 'Omnimon raises an eyebrow: "Serialization overhead would starve the GPU! Try TensorRT FP16 compilation instead."',
+      },
+      {
+        label: 'Run unquantized Python CPU loops per pixel inside browser DOM',
+        correct: false,
+        feedback: 'Gallantmon shakes his shield: "CPU-only loops cannot sustain real-time aerial feeds! Look to TensorRT acceleration."',
+      },
+    ],
+  },
+  {
+    round: 2,
+    badge: 'DECREE II · CLOUD-NATIVE CONSISTENCY',
+    prompt:
+      'FoodLink coordinates urgent food-surplus rescues across concurrent merchants and couriers. Which stack keeps geospatial queries and async events decoupled?',
+    options: [
+      {
+        label: 'Store comma-separated coordinates in local text files without caching',
+        correct: false,
+        feedback: 'Gallantmon warns: "Flat text files collapse under concurrent claims and spatial radius searches!"',
+      },
+      {
+        label: 'Laravel 12 backed by PostGIS spatial indexing, Redis caching, Kafka streams & Kubernetes',
+        correct: true,
+        feedback: '🦁 King Solgaleo proclaims: "Spot on! PostGIS handles geospatial indexing while Redis & Kafka absorb real-time bursts cleanly."',
+      },
+      {
+        label: 'Restart the single database container between every merchant claim',
+        correct: false,
+        feedback: 'Omnimon chuckles: "Zero-downtime systems require Redis & Kafka pipelines, not container restarts!"',
+      },
+    ],
+  },
+  {
+    round: 3,
+    badge: 'DECREE III · LEADERSHIP & RESEARCH CREDENTIALS',
+    prompt:
+      'During his Informatics studies at ITENAS Bandung (GPA 3.49 / 4.00), how did Zulfan pair academic research with hands-on systems engineering?',
+    options: [
+      {
+        label: '6× Lab Assistant, Robotics Lab Coordinator, 99.56% F1 Spam Thesis & IDEA FEST 3 Bronze',
+        correct: true,
+        feedback: '🦁 King Solgaleo roars: "Royally verified! You know Avalon’s Grand Architect inside and out — the Crest of Sovereignty is yours!"',
+      },
+      {
+        label: 'Focused strictly on memorizing theory without shipping lab hardware or competitions',
+        correct: false,
+        feedback: 'King Solgaleo replies: "False! Zulfan served 6 terms as Lab Assistant, led the Robotics Lab, and won National Bronze at IDEA FEST 3."',
+      },
+      {
+        label: 'Abandoned backend engineering altogether during sophomore semester',
+        correct: false,
+        feedback: 'Gallantmon replies: "On the contrary — he expanded from Database/OOP labs into Cloud, IoT, and Edge Computer Vision."',
+      },
+    ],
+  },
+];
+---
+
+<TownLayout
+  title="Grand Throne Hall — Avalon Royal Charter | Muhammad Zulfan"
+  description="Enter Grand Throne Hall inside Royal Kingdom: complete King Solgaleo's 3-Round Royal Audience, inspect Zulfan's Illuminated Royal Charter, and track all 7 Royal Crests."
+  place="kingdom-castle"
+>
+  <article class="castle-page space-y-6 pb-10 text-[#1e1b18]" data-summary-text={`${profile.person.name} — ${profile.person.title}. ${profile.person.summary}`}>
+    <!-- 1. HERALDIC SOVEREIGN MARQUEE BANNER (PARCHMENT, COBALT & GOLD) -->
+    <header class="relative overflow-hidden rounded-2xl border-[3px] border-[#b45309] bg-gradient-to-b from-[#fffdf7] via-[#f8eed8] to-[#ecdcba] p-5 text-[#2c1e12] shadow-[0_8px_0_#78350f,0_18px_36px_rgba(44,30,18,0.35)]">
+      <div
+        class="pointer-events-none absolute inset-x-0 top-0 h-2 bg-[repeating-linear-gradient(90deg,#1e3a8a_0px,#1e3a8a_14px,#fbbf24_14px,#fbbf24_28px,#b91c1c_28px,#b91c1c_42px)]"
+        aria-hidden="true"
+      ></div>
+      <div
+        class="pointer-events-none absolute inset-x-0 bottom-0 h-2 bg-[repeating-linear-gradient(90deg,#b91c1c_0px,#b91c1c_14px,#fbbf24_14px,#fbbf24_28px,#1e3a8a_28px,#1e3a8a_42px)]"
+        aria-hidden="true"
+      ></div>
+
+      <div class="relative z-10 mt-1 flex flex-wrap items-start justify-between gap-4">
+        <div class="space-y-2">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="rounded-full border border-[#1e3a8a] bg-[#1e3a8a] px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[#fef3c7]">
+              👑 GRAND THRONE HALL · AVALON KEEP
+            </span>
+            <span
+              id="castle-crest-pill"
+              class="rounded-full border border-[#b45309]/50 bg-[#fef3c7] px-2.5 py-1 font-mono text-[10px] font-bold uppercase text-[#78350f]"
+            >
+              ⏳ Crest Unclaimed
+            </span>
+          </div>
+          <h1 class="font-display text-2xl font-black tracking-tight text-[#1e293b] sm:text-3xl">
+            👑 Royal Throne Hall of Avalon
+          </h1>
+          <p class="max-w-2xl text-sm leading-relaxed text-[#44403c]">
+            Selamat datang di ruang singgasana <strong class="text-[#b45309]">King Solgaleo</strong> bersama dua Ksatria Kerajaan
+            <strong class="text-[#1e3a8a]">Omnimon</strong> &amp; <strong class="text-[#b91c1c]">Gallantmon</strong>. Jawab 3 dekrit audiensi untuk mengklaim
+            <strong class="text-[#b45309]">Crest of Sovereignty</strong> dan membuka Piagam Eksekutif Zulfan.
+          </p>
+        </div>
+
+        <!-- Live Royal Telemetry Tablet & Exit -->
+        <div class="flex flex-col items-end gap-2">
+          <div class="grid grid-cols-3 gap-2 rounded-xl border-2 border-[#b45309] bg-[#fffbeb] px-3 py-2 text-center font-mono shadow-inner">
+            <div>
+              <div class="text-[9px] font-bold uppercase text-[#92400e]">AUDIENCE</div>
+              <div id="hero-audience-score" class="text-sm font-black text-[#1e3a8a]">0 / 3</div>
+            </div>
+            <div>
+              <div class="text-[9px] font-bold uppercase text-[#92400e]">SOVEREIGN</div>
+              <div id="hero-sovereign-state" class="text-sm font-black text-[#b45309]">SEALED</div>
+            </div>
+            <div>
+              <div class="text-[9px] font-bold uppercase text-[#92400e]">CRESTS</div>
+              <div id="hero-crests-count" class="text-sm font-black text-[#15803d]">0 / 7</div>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-end gap-2">
+            <button
+              id="castle-audio-toggle"
+              type="button"
+              class="cursor-pointer rounded-lg border-2 border-[#b45309] bg-[#fef3c7] px-2.5 py-1.5 font-mono text-[11px] font-bold text-[#78350f] transition hover:bg-[#fde68a]"
+            >
+              🎺 Fanfare Audio: ON
+            </button>
+            <a
+              id="castle-exit-btn"
+              href="/kingdom?from=castle"
+              class="inline-flex items-center gap-1.5 rounded-lg border-2 border-[#7f1d1d] bg-gradient-to-b from-[#b91c1c] to-[#7f1d1d] px-3 py-1.5 font-mono text-xs font-extrabold text-[#fef3c7] shadow-[0_3px_0_#450a0a] transition hover:-translate-y-0.5 hover:brightness-110"
+            >
+              🚪 Exit to Kingdom
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tri-Guardian Interactive Dialogue Strip -->
+      <div class="relative z-10 mt-4 flex flex-col gap-3 rounded-xl border-2 border-[#b45309]/50 bg-[#fffbeb]/95 p-3.5 sm:flex-row sm:items-center">
+        <div class="flex shrink-0 items-center gap-1.5">
+          <button
+            type="button"
+            data-castle-walk="solgaleo"
+            data-speaker="🦁 King Solgaleo · Sun Sovereign"
+            data-quote="Stand proud in the light of Avalon! Answer the 3 architectural decrees below to prove your mastery of Zulfan’s craft."
+            data-fx-text="ROAR OF SOVEREIGNTY!"
+            data-fx-color="#fbbf24"
+            class="flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl border-2 border-[#d97706] bg-[#fef3c7] text-xl shadow-[0_2px_0_#92400e] transition hover:-translate-y-0.5"
+            title="Walk to Solgaleo"
+          >
+            🦁
+          </button>
+          <button
+            type="button"
+            data-castle-walk="omnimon"
+            data-speaker="⚔️ Omnimon · White Sword Knight"
+            data-quote="Speed and precision matter in battle and in production: examine how AeroScan achieves ~1.8 ms TensorRT inference!"
+            data-fx-text="GREY SWORD EDGE!"
+            data-fx-color="#38bdf8"
+            class="flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl border-2 border-[#1e3a8a] bg-[#dbeafe] text-xl shadow-[0_2px_0_#1e3a8a] transition hover:-translate-y-0.5"
+            title="Walk to Omnimon"
+          >
+            ⚔️
+          </button>
+          <button
+            type="button"
+            data-castle-walk="gallantmon"
+            data-speaker="🛡️ Gallantmon · Crimson Paladin"
+            data-quote="My shield guards transactional integrity. Read the Royal Charter on the left plinth for ITENAS credentials & direct envoy links!"
+            data-fx-text="AEGIS SHIELDWARD!"
+            data-fx-color="#ef4444"
+            class="flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl border-2 border-[#b91c1c] bg-[#fee2e2] text-xl shadow-[0_2px_0_#7f1d1d] transition hover:-translate-y-0.5"
+            title="Walk to Gallantmon"
+          >
+            🛡️
+          </button>
+        </div>
+
+        <div class="min-w-0 flex-1">
+          <div id="castle-speaker" class="font-mono text-[10px] font-black uppercase tracking-wider text-[#1e3a8a]">
+            🦁 King Solgaleo · Sun Sovereign
+          </div>
+          <p id="castle-dialogue" class="mt-0.5 text-xs italic leading-relaxed text-[#44403c]">
+            “Stand proud in the light of Avalon! Complete all 3 Royal Audience decrees or inspect the Illuminated Charter of Muhammad Zulfan.”
+          </p>
+        </div>
+      </div>
+
+      <!-- 6 Tactile Quick-Walk Station Medal Cards + Keyboard Hotkeys -->
+      <nav aria-label="Quick walk Throne Hall stations" class="relative z-10 mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+        <button
+          type="button"
+          data-castle-walk="solgaleo"
+          data-scroll-to="throne-audience-section"
+          data-hotkey="k"
+          class="castle-station-btn flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#d97706] bg-white px-2.5 py-2 text-left shadow-[0_2px_0_#b45309] transition hover:-translate-y-0.5 hover:bg-[#fef3c7]"
+        >
+          <span class="flex items-center gap-1.5 truncate text-xs font-bold text-[#1e293b]">
+            <span>🦁</span>
+            <span class="truncate">Solgaleo</span>
+          </span>
+          <kbd class="rounded border border-[#b45309]/40 bg-[#fef3c7] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#78350f]">K</kbd>
+        </button>
+
+        <button
+          type="button"
+          data-castle-walk="royal-charter"
+          data-scroll-to="throne-charter-section"
+          data-hotkey="r"
+          class="castle-station-btn flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#1e3a8a]/70 bg-white px-2.5 py-2 text-left shadow-[0_2px_0_#1e3a8a] transition hover:-translate-y-0.5 hover:bg-[#eff6ff]"
+        >
+          <span class="flex items-center gap-1.5 truncate text-xs font-bold text-[#1e293b]">
+            <span>📜</span>
+            <span class="truncate">Charter</span>
+          </span>
+          <kbd class="rounded border border-[#1e3a8a]/40 bg-[#dbeafe] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#1e3a8a]">R</kbd>
+        </button>
+
+        <button
+          type="button"
+          data-castle-walk="omnimon"
+          data-scroll-to="throne-audience-section"
+          data-hotkey="o"
+          class="castle-station-btn flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#1e3a8a]/70 bg-white px-2.5 py-2 text-left shadow-[0_2px_0_#1e3a8a] transition hover:-translate-y-0.5 hover:bg-[#eff6ff]"
+        >
+          <span class="flex items-center gap-1.5 truncate text-xs font-bold text-[#1e293b]">
+            <span>⚔️</span>
+            <span class="truncate">Omnimon</span>
+          </span>
+          <kbd class="rounded border border-[#1e3a8a]/40 bg-[#dbeafe] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#1e3a8a]">O</kbd>
+        </button>
+
+        <button
+          type="button"
+          data-castle-walk="gallantmon"
+          data-scroll-to="throne-charter-section"
+          data-hotkey="g"
+          class="castle-station-btn flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#b91c1c]/70 bg-white px-2.5 py-2 text-left shadow-[0_2px_0_#7f1d1d] transition hover:-translate-y-0.5 hover:bg-[#fef2f2]"
+        >
+          <span class="flex items-center gap-1.5 truncate text-xs font-bold text-[#1e293b]">
+            <span>🛡️</span>
+            <span class="truncate">Gallantmon</span>
+          </span>
+          <kbd class="rounded border border-[#b91c1c]/40 bg-[#fee2e2] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#991b1b]">G</kbd>
+        </button>
+
+        <button
+          type="button"
+          data-castle-walk="treasury-coffer"
+          data-scroll-to="throne-relic-section"
+          data-hotkey="t"
+          class="castle-station-btn flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#d97706] bg-white px-2.5 py-2 text-left shadow-[0_2px_0_#b45309] transition hover:-translate-y-0.5 hover:bg-[#fef3c7]"
+        >
+          <span class="flex items-center gap-1.5 truncate text-xs font-bold text-[#1e293b]">
+            <span>💎</span>
+            <span class="truncate">Treasury</span>
+          </span>
+          <kbd class="rounded border border-[#b45309]/40 bg-[#fef3c7] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#78350f]">T</kbd>
+        </button>
+
+        <button
+          type="button"
+          data-castle-walk="sovereign-seal"
+          data-scroll-to="throne-relic-section"
+          data-hotkey="s"
+          class="castle-station-btn flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#d97706] bg-white px-2.5 py-2 text-left shadow-[0_2px_0_#b45309] transition hover:-translate-y-0.5 hover:bg-[#fef3c7]"
+        >
+          <span class="flex items-center gap-1.5 truncate text-xs font-bold text-[#1e293b]">
+            <span>☀️</span>
+            <span class="truncate">Sun Crest</span>
+          </span>
+          <kbd class="rounded border border-[#b45309]/40 bg-[#fef3c7] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#78350f]">S</kbd>
+        </button>
+      </nav>
+    </header>
+
+    <!-- 2. TRIAL I: ROYAL AUDIENCE WITH KING SOLGALEO (3-ROUND Q&A) -->
+    <section
+      id="throne-audience-section"
+      class="scroll-mt-6 rounded-2xl border-[3px] border-[#b45309] bg-gradient-to-b from-[#fffdf7] to-[#f4ead5] p-5 shadow-[0_8px_0_#78350f]"
+    >
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b-2 border-[#b45309]/30 pb-3.5">
+        <div>
+          <span class="font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-[#1e3a8a]">
+            TRIAL I · SOVEREIGN EVALUATION
+          </span>
+          <h2 class="mt-0.5 font-display text-xl font-black text-[#1e293b]">
+            🦁 Royal Audience — Prove Mastery for the Crest
+          </h2>
+          <p class="mt-1 text-xs text-[#44403c]">
+            Selesaikan ke-3 Dekrit Pertanyaan Sang Raja untuk meraih <strong class="text-[#b45309]">👑 Crest of Sovereignty</strong> dan membuka Piagam Eksekutif.
+          </p>
+        </div>
+
+        <button
+          id="audience-reset-btn"
+          type="button"
+          class="cursor-pointer rounded-lg border border-[#b45309]/60 bg-[#fef3c7] px-3 py-1.5 font-mono text-[11px] font-bold text-[#78350f] transition hover:bg-[#fde68a]"
+        >
+          ↺ Replay Audience
+        </button>
+      </div>
+
+      <!-- Progress Stepper -->
+      <div class="mt-4 grid grid-cols-3 gap-2">
+        {audienceQuestions.map((q) => (
+          <div
+            data-round-pill={q.round}
+            class="rounded-xl border-2 border-[#d6c7aa] bg-white px-3 py-2 text-center font-mono text-[10px] font-bold text-[#78716c]"
+          >
+            Decree {q.round}
+          </div>
+        ))}
+      </div>
+
+      <!-- Active Decree Card -->
+      <div id="audience-card" class="mt-4 rounded-xl border-2 border-[#1e3a8a]/50 bg-white p-4 shadow-inner">
+        {audienceQuestions.map((q, idx) => (
+          <div data-audience-round={q.round} class={idx === 0 ? 'space-y-3' : 'hidden space-y-3'}>
+            <div class="flex items-center justify-between">
+              <span class="rounded bg-[#1e3a8a] px-2 py-0.5 font-mono text-[10px] font-bold uppercase text-[#fef3c7]">
+                {q.badge}
+              </span>
+              <span class="font-mono text-[10px] font-bold text-[#78350f]">Round {q.round} of 3</span>
+            </div>
+            <p class="text-sm font-bold leading-snug text-[#1e293b]">{q.prompt}</p>
+            <div class="grid gap-2">
+              {q.options.map((opt) => (
+                <button
+                  type="button"
+                  data-round={q.round}
+                  data-correct={opt.correct ? 'true' : 'false'}
+                  data-feedback={opt.feedback}
+                  class="audience-option-btn cursor-pointer rounded-xl border-2 border-[#e7dcc4] bg-[#fffdf7] px-3.5 py-2.5 text-left text-xs font-semibold text-[#1e293b] transition hover:border-[#1e3a8a] hover:bg-[#eff6ff]"
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        ))}
+
+        <div id="audience-complete-banner" class="hidden rounded-xl border-2 border-[#15803d] bg-[#f0fdf4] p-4 text-center">
+          <div class="text-2xl">👑</div>
+          <h3 class="mt-1 font-display text-base font-black text-[#14532d]">
+            ALL 3 DECREES PASSED — CREST OF SOVEREIGNTY CLAIMED!
+          </h3>
+          <p class="mt-1 text-xs text-[#166534]">
+            Piagam Eksekutif di Royal Treasury &amp; 1/7 progres Excalibur Finale kini telah aktif.
+          </p>
+        </div>
+
+        <p id="audience-feedback" class="mt-3 rounded-lg border border-[#b45309]/30 bg-[#fffbeb] px-3 py-2 font-mono text-[11px] font-bold text-[#78350f]">
+          🦁 King Solgaleo awaits your counsel on Decree 1...
+        </p>
+      </div>
+    </section>
+
+    <!-- 3. THE ILLUMINATED ROYAL CHARTER (VERIFIED PROFILE & EDUCATION) -->
+    <section
+      id="throne-charter-section"
+      class="scroll-mt-6 rounded-2xl border-[3px] border-[#1e3a8a] bg-gradient-to-b from-[#fffdf7] to-[#f4ead5] p-5 shadow-[0_8px_0_#1e3a8a]"
+    >
+      <div class="flex flex-wrap items-start justify-between gap-3 border-b-2 border-[#1e3a8a]/20 pb-3.5">
+        <div>
+          <span class="font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-[#b45309]">
+            THE ROYAL CHARTER · NW LECTERN ARCHIVE
+          </span>
+          <h2 class="mt-0.5 font-display text-xl font-black text-[#1e293b]">
+            📜 Sovereign Profile &amp; Lineage of {profile.person.short_name}
+          </h2>
+        </div>
+        <span class="rounded-full border border-[#15803d]/40 bg-[#dcfce7] px-3 py-1 font-mono text-[10px] font-bold text-[#14532d]">
+          {profile.person.open_to}
+        </span>
+      </div>
+
+      <div class="mt-4 grid gap-4 md:grid-cols-2">
+        <!-- Identity & Current Quest -->
+        <div class="rounded-xl border-2 border-[#b45309]/40 bg-white p-4 space-y-2.5">
+          <div class="font-mono text-[10px] font-bold uppercase tracking-wider text-[#b45309]">
+            I. ROYAL DECREE OF IDENTITY
+          </div>
+          <h3 class="font-display text-lg font-black text-[#1e293b]">{profile.person.name}</h3>
+          <div class="font-mono text-xs font-bold text-[#1e3a8a]">
+            {profile.person.title} · 📍 {profile.person.location}
+          </div>
+          <p class="text-xs leading-relaxed text-[#44403c]">{profile.person.summary}</p>
+          <div class="rounded-lg border border-[#1e3a8a]/25 bg-[#eff6ff] p-3 text-xs text-[#1e3a8a]">
+            <div class="font-mono text-[10px] font-bold uppercase">⚡ ACTIVE CAMPAIGN · {profile.person.now.role}</div>
+            <p class="mt-1 leading-relaxed text-[#1e293b]">{profile.person.now.blurb}</p>
+          </div>
+        </div>
+
+        <!-- Education & Academy Highlights -->
+        <div class="rounded-xl border-2 border-[#b45309]/40 bg-white p-4 space-y-2.5">
+          <div class="font-mono text-[10px] font-bold uppercase tracking-wider text-[#1e3a8a]">
+            II. ACADEMY CHARTER · ITENAS BANDUNG
+          </div>
+          {edu && (
+            <>
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <h3 class="font-display text-base font-black text-[#1e293b]">{edu.school}</h3>
+                <span class="rounded-full border border-[#d97706] bg-[#fef3c7] px-2.5 py-0.5 font-mono text-[11px] font-black text-[#78350f]">
+                  GPA {edu.gpa}
+                </span>
+              </div>
+              <div class="font-mono text-xs font-bold text-[#78350f]">
+                {edu.degree} ({edu.start} → {edu.end})
+              </div>
+              <ul class="space-y-1.5 text-xs text-[#44403c]">
+                {edu.highlights.map((item) => (
+                  <li class="flex items-start gap-2">
+                    <span class="text-[#b45309]">✦</span>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+
+          <div class="flex flex-wrap gap-1.5 pt-2">
+            {profile.person.interests.map((interest) => (
+              <span class="rounded-md border border-[#b45309]/30 bg-[#fffbeb] px-2 py-0.5 font-mono text-[10px] font-bold text-[#78350f]">
+                {interest}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <!-- Direct Envoy Action Bar -->
+      <div class="mt-4 flex flex-wrap items-center gap-2 rounded-xl border-2 border-[#b45309]/40 bg-[#fffbeb] p-3">
+        <span class="font-mono text-[10px] font-bold uppercase tracking-wider text-[#78350f] mr-1">
+          ✉️ ROYAL ENVOYS:
+        </span>
+        <a
+          href={profile.person.cv}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="rounded-lg border-2 border-[#b45309] bg-[#fbbf24] px-3 py-1.5 font-mono text-[11px] font-black text-[#1e1b18] transition hover:brightness-105"
+        >
+          📄 Download CV PDF
+        </a>
+        <a
+          href={githubUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="rounded-lg border border-[#1e3a8a]/50 bg-white px-3 py-1.5 font-mono text-[11px] font-bold text-[#1e3a8a] hover:bg-[#eff6ff]"
+        >
+          💻 GitHub
+        </a>
+        <a
+          href={linkedinUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="rounded-lg border border-[#1e3a8a]/50 bg-white px-3 py-1.5 font-mono text-[11px] font-bold text-[#1e3a8a] hover:bg-[#eff6ff]"
+        >
+          🔗 LinkedIn
+        </a>
+        <a
+          href={emailUrl}
+          class="rounded-lg border border-[#b91c1c]/50 bg-white px-3 py-1.5 font-mono text-[11px] font-bold text-[#991b1b] hover:bg-[#fef2f2]"
+        >
+          ✉️ Email
+        </a>
+        <a
+          href="/twin"
+          class="rounded-lg border border-[#15803d]/50 bg-[#dcfce7] px-3 py-1.5 font-mono text-[11px] font-bold text-[#14532d] hover:brightness-105"
+        >
+          💬 Ask Digital Twin →
+        </a>
+      </div>
+    </section>
+
+    <!-- 4. ROYAL TREASURY COFFER, SOLAR GRACE BUFF & 7 CRESTS OF AVALON -->
+    <section
+      id="throne-relic-section"
+      class="scroll-mt-6 rounded-2xl border-[3px] border-[#b45309] bg-gradient-to-b from-[#fffdf7] to-[#f4ead5] p-5 shadow-[0_8px_0_#78350f]"
+    >
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b-2 border-[#b45309]/30 pb-3">
+        <div>
+          <span class="font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-[#b45309]">
+            ROYAL TREASURY · NE &amp; CENTER PEDESTAL
+          </span>
+          <h2 class="mt-0.5 font-display text-xl font-black text-[#1e293b]">
+            💎 Royal Coffer &amp; 7 Crests of Avalon
+          </h2>
+        </div>
+        <span id="treasury-crest-summary" class="rounded-full border border-[#1e3a8a] bg-[#1e3a8a] px-3 py-1 font-mono text-[11px] font-bold text-[#fef3c7]">
+          0 / 7 Crests Claimed
+        </span>
+      </div>
+
+      <div class="mt-4 grid gap-4 md:grid-cols-2">
+        <!-- Relic I: Solar Grace Speed Buff -->
+        <div class="rounded-xl border-2 border-[#d97706]/60 bg-white p-4">
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <span class="font-mono text-[10px] font-bold uppercase text-[#b45309]">RELIC I · SOLGALEO SUNBLESSING</span>
+              <h3 class="mt-0.5 font-display text-base font-black text-[#1e293b]">
+                ☀️ Solar Grace (+50% Speed Buff)
+              </h3>
+            </div>
+            <span class="text-2xl">☀️</span>
+          </div>
+          <p class="mt-2 text-xs leading-relaxed text-[#44403c]">
+            Serap cahaya surya King Solgaleo untuk mempercepat langkah menjelajahi seluruh Aula Kerajaan &amp; peta Avalon sebesar <strong>+50%</strong> selama 25 detik.
+          </p>
+          <div class="mt-3 flex flex-wrap items-center gap-2">
+            <button
+              id="castle-solar-buff-btn"
+              type="button"
+              class="cursor-pointer rounded-xl border-2 border-[#b45309] bg-gradient-to-b from-[#fbbf24] to-[#d97706] px-4 py-2 font-mono text-xs font-black text-[#1e1b18] shadow-[0_3px_0_#78350f] transition hover:-translate-y-0.5"
+            >
+              ☀️ Cast Solar Grace (+50%)
+            </button>
+            <span id="castle-solar-timer" class="font-mono text-xs font-bold text-[#78350f]">
+              Status: Ready
+            </span>
+          </div>
+        </div>
+
+        <!-- Relic II: Signed Royal Decree -->
+        <div class="rounded-xl border-2 border-[#1e3a8a]/50 bg-white p-4">
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <span class="font-mono text-[10px] font-bold uppercase text-[#1e3a8a]">RELIC II · SIGNED EXECUTIVE DECREE</span>
+              <h3 class="mt-0.5 font-display text-base font-black text-[#1e293b]">
+                📜 Seal of Avalon Summary
+              </h3>
+            </div>
+            <span id="decree-lock-icon" class="text-2xl">🔒</span>
+          </div>
+
+          <div id="decree-locked-box" class="mt-2 rounded-lg border border-[#b91c1c]/30 bg-[#fef2f2] p-3 text-xs text-[#991b1b]">
+            Terkunci. Jawab ketiga pertanyaan <strong>Royal Audience</strong> di atas untuk membuka Piagam Eksekutif &amp; tombol salin cepat.
+          </div>
+
+          <div id="decree-unlocked-box" class="mt-2 hidden space-y-2 rounded-lg border border-[#15803d]/40 bg-[#f0fdf4] p-3 text-xs text-[#14532d]">
+            <div class="font-mono text-[10px] font-bold uppercase text-[#15803d]">
+              ✅ ROYAL AUDIENCE COMPLETE · DECREE UNLOCKED
+            </div>
+            <p class="leading-relaxed">
+              {profile.person.name} — {profile.person.title} (ITENAS GPA 3.49/4.00, 6× Lab Assistant, AeroScan YOLOv11+TensorRT &amp; FoodLink Cloud-Native Architect).
+            </p>
+            <div class="flex flex-wrap gap-2 pt-1">
+              <button
+                id="copy-royal-bio-btn"
+                type="button"
+                class="cursor-pointer rounded border border-[#15803d] bg-[#15803d] px-2.5 py-1 font-mono text-[10px] font-bold text-white hover:brightness-110"
+              >
+                📋 Copy Recruiter Bio
+              </button>
+              <a
+                href={profile.person.cv}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="rounded border border-[#b45309] bg-[#fef3c7] px-2.5 py-1 font-mono text-[10px] font-bold text-[#78350f]"
+              >
+                📄 Open CV PDF →
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Relic III: 7 Royal Crests Ledger -->
+      <div class="mt-4 rounded-xl border-2 border-[#b45309]/50 bg-[#fffbeb] p-4">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <span class="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[#78350f]">
+            RELIC III · 7 ROYAL CRESTS REGISTRY (EXCALIBUR FINALE AT 7/7)
+          </span>
+          <span class="font-mono text-[10px] font-bold text-[#1e3a8a]">Visit all 7 Avalon Sanctums</span>
+        </div>
+        <div class="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+          {allCrests.map((c) => (
+            <a
+              href={c.route}
+              data-crest-card={c.key}
+              class="flex items-center justify-between gap-2 rounded-xl border border-[#b45309]/40 bg-white px-3 py-2.5 text-xs transition hover:-translate-y-0.5 hover:border-[#1e3a8a]"
+            >
+              <div class="min-w-0">
+                <div class="truncate font-bold text-[#1e293b]">{c.icon} {c.name}</div>
+                <div class="truncate font-mono text-[10px] text-[#78350f]">{c.sanctum}</div>
+              </div>
+              <span data-crest-badge={c.key} class="shrink-0 font-mono text-[10px] font-bold text-[#94a3b8]">
+                🔒
+              </span>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <WhereTo currentPath="/kingdom/castle" />
+  </article>
+</TownLayout>
+
+<script>
+  import { awardRoyalCrest, countRoyalCrests, getRoyalCrests } from '../../engine/kingdomInteriorShared';
+
+  let castleAudioEnabled = true;
+  let audioCtx: AudioContext | null = null;
+
+  function playFanfareNote(freq: number, duration = 0.16, type: OscillatorType = 'triangle', peak = 0.11) {
+    if (!castleAudioEnabled || typeof window === 'undefined') return;
+    try {
+      const Ctx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      if (!Ctx) return;
+      if (!audioCtx) audioCtx = new Ctx();
+      if (audioCtx.state === 'suspended') void audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      gain.gain.setValueAtTime(peak, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration);
+    } catch {
+      // ignore autoplay block
+    }
+  }
+
+  function emitKingdomWave(text: string, color = '#fbbf24') {
+    window.dispatchEvent(new CustomEvent('town:kingdom-fx', { detail: { text, color } }));
+  }
+
+  function initThroneHallPage() {
+    const root = document.querySelector<HTMLElement>('.castle-page');
+    if (!root) return;
+
+    let solarTimer: number | null = null;
+
+    document.getElementById('castle-exit-btn')?.addEventListener('click', () => {
+      try {
+        sessionStorage.setItem('kingdom:respawn', '22,20,down');
+      } catch {
+        // ignore
+      }
+    });
+
+    const audioBtn = document.getElementById('castle-audio-toggle');
+    audioBtn?.addEventListener('click', () => {
+      castleAudioEnabled = !castleAudioEnabled;
+      audioBtn.textContent = castleAudioEnabled ? '🎺 Fanfare Audio: ON' : '🔇 Fanfare Audio: MUTED';
+      if (castleAudioEnabled) playFanfareNote(523.25, 0.14);
+    });
+
+    const speakerEl = document.getElementById('castle-speaker');
+    const dialogueEl = document.getElementById('castle-dialogue');
+
+    const walkStation = (el: HTMLElement) => {
+      const propId = el.dataset.castleWalk;
+      if (propId) window.dispatchEvent(new CustomEvent('town:walk-to', { detail: { id: propId } }));
+      if (el.dataset.speaker && speakerEl) speakerEl.textContent = el.dataset.speaker;
+      if (el.dataset.quote && dialogueEl) dialogueEl.textContent = `“${el.dataset.quote}”`;
+      if (el.dataset.fxText) emitKingdomWave(el.dataset.fxText, el.dataset.fxColor || '#fbbf24');
+      if (el.dataset.scrollTo) {
+        document.getElementById(el.dataset.scrollTo)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      playFanfareNote(440, 0.1);
+    };
+
+    document.querySelectorAll<HTMLElement>('[data-castle-walk]').forEach((btn) => {
+      btn.addEventListener('click', () => walkStation(btn));
+    });
+
+    const onHotkey = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement | null)?.tagName;
+      if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      const matched = document.querySelector<HTMLElement>(`.castle-station-btn[data-hotkey="${e.key.toLowerCase()}"]`);
+      if (matched) {
+        e.preventDefault();
+        walkStation(matched);
+      }
+    };
+    window.addEventListener('keydown', onHotkey);
+
+    // Hydrate Royal Crests & Unlocked Decree State
+    function refreshCrestUI(solvedRounds: number) {
+      const crests = getRoyalCrests();
+      const total = countRoyalCrests();
+      const hasSov = Boolean(crests.sovereignty);
+
+      const heroScore = document.getElementById('hero-audience-score');
+      const heroState = document.getElementById('hero-sovereign-state');
+      const heroCount = document.getElementById('hero-crests-count');
+      const summary = document.getElementById('treasury-crest-summary');
+      const pill = document.getElementById('castle-crest-pill');
+      const lockedBox = document.getElementById('decree-locked-box');
+      const unlockedBox = document.getElementById('decree-unlocked-box');
+      const lockIcon = document.getElementById('decree-lock-icon');
+
+      if (heroScore) heroScore.textContent = hasSov ? '3 / 3' : `${solvedRounds} / 3`;
+      if (heroCount) heroCount.textContent = `${total} / 7`;
+      if (summary) summary.textContent = `${total} / 7 Crests Claimed`;
+      if (heroState) {
+        heroState.textContent = hasSov ? 'CLAIMED' : 'SEALED';
+        heroState.className = hasSov ? 'text-sm font-black text-[#15803d]' : 'text-sm font-black text-[#b45309]';
+      }
+
+      if (pill && hasSov) {
+        pill.textContent = '👑 Crest of Sovereignty Claimed';
+        pill.className = 'rounded-full border border-[#15803d] bg-[#dcfce7] px-2.5 py-1 font-mono text-[10px] font-bold uppercase text-[#14532d]';
+      }
+
+      if (hasSov) {
+        lockedBox?.classList.add('hidden');
+        unlockedBox?.classList.remove('hidden');
+        if (lockIcon) lockIcon.textContent = '🔓';
+      }
+
+      (['sovereignty', 'steel', 'fellowship', 'arcana', 'valor', 'grace', 'chivalry'] as const).forEach((k) => {
+        const badge = document.querySelector<HTMLElement>(`[data-crest-badge="${k}"]`);
+        const card = document.querySelector<HTMLElement>(`[data-crest-card="${k}"]`);
+        const ok = Boolean(crests[k]);
+        if (badge) {
+          badge.textContent = ok ? '✅' : '🔒';
+          badge.className = ok ? 'shrink-0 font-mono text-[10px] font-bold text-[#15803d]' : 'shrink-0 font-mono text-[10px] font-bold text-[#94a3b8]';
+        }
+        if (card && ok) {
+          card.classList.add('border-[#15803d]', 'bg-[#f0fdf4]');
+        }
+      });
+    }
+
+    // Royal Audience 3-Round Trial State Machine
+    let currentRound = 1;
+    let passedRounds = getRoyalCrests().sovereignty ? 3 : 0;
+
+    function showRound(roundNum: number) {
+      const roundEls = document.querySelectorAll<HTMLElement>('[data-audience-round]');
+      const completeBanner = document.getElementById('audience-complete-banner');
+      roundEls.forEach((el) => {
+        const r = Number(el.dataset.audienceRound);
+        el.classList.toggle('hidden', r !== roundNum || passedRounds >= 3);
+      });
+      completeBanner?.classList.toggle('hidden', passedRounds < 3);
+
+      document.querySelectorAll<HTMLElement>('[data-round-pill]').forEach((pillEl) => {
+        const r = Number(pillEl.dataset.roundPill);
+        if (r <= passedRounds) {
+          pillEl.textContent = `✅ Decree ${r}`;
+          pillEl.className = 'rounded-xl border-2 border-[#15803d] bg-[#dcfce7] px-3 py-2 text-center font-mono text-[10px] font-black text-[#14532d]';
+        } else if (r === currentRound) {
+          pillEl.textContent = `🦁 Decree ${r}`;
+          pillEl.className = 'rounded-xl border-2 border-[#1e3a8a] bg-[#dbeafe] px-3 py-2 text-center font-mono text-[10px] font-black text-[#1e3a8a]';
+        } else {
+          pillEl.textContent = `⏳ Decree ${r}`;
+          pillEl.className = 'rounded-xl border-2 border-[#d6c7aa] bg-white px-3 py-2 text-center font-mono text-[10px] font-bold text-[#78716c]';
+        }
+      });
+    }
+
+    const audienceFeedback = document.getElementById('audience-feedback');
+    document.querySelectorAll<HTMLButtonElement>('.audience-option-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        if (passedRounds >= 3) return;
+        const isCorrect = btn.dataset.correct === 'true';
+        const fb = btn.dataset.feedback || '';
+        if (audienceFeedback) audienceFeedback.textContent = fb;
+
+        if (isCorrect) {
+          passedRounds = currentRound;
+          playFanfareNote(523.25, 0.14);
+          setTimeout(() => playFanfareNote(659.25, 0.18), 90);
+          emitKingdomWave(`DECREE ${passedRounds} PASSED!`, '#fbbf24');
+
+          if (passedRounds >= 3) {
+            awardRoyalCrest('sovereignty');
+            setTimeout(() => playFanfareNote(783.99, 0.28), 180);
+            emitKingdomWave('CREST OF SOVEREIGNTY!', '#16a34a');
+          } else {
+            currentRound += 1;
+          }
+          showRound(currentRound);
+          refreshCrestUI(passedRounds);
+        } else {
+          playFanfareNote(196, 0.2, 'sawtooth', 0.08);
+          emitKingdomWave('RECONSIDER COUNSEL!', '#ef4444');
+        }
+      });
+    });
+
+    document.getElementById('audience-reset-btn')?.addEventListener('click', () => {
+      currentRound = 1;
+      passedRounds = 0;
+      if (audienceFeedback) audienceFeedback.textContent = '🦁 King Solgaleo reopens Royal Audience — Decree 1 awaits!';
+      showRound(1);
+      refreshCrestUI(0);
+    });
+
+    // Solar Grace (+50% Speed Buff)
+    document.getElementById('castle-solar-buff-btn')?.addEventListener('click', () => {
+      window.dispatchEvent(new CustomEvent('town:claim-lucky-egg'));
+      emitKingdomWave('SOLAR GRACE +50% SPD!', '#fbbf24');
+      playFanfareNote(587.33, 0.16);
+      setTimeout(() => playFanfareNote(880, 0.22), 100);
+
+      let left = 25;
+      const label = document.getElementById('castle-solar-timer');
+      if (label) label.textContent = `☀️ Active: ${left}s`;
+      if (solarTimer !== null) clearInterval(solarTimer);
+      solarTimer = window.setInterval(() => {
+        left -= 1;
+        if (label) label.textContent = left > 0 ? `☀️ Active: ${left}s` : 'Status: Ready';
+        if (left <= 0 && solarTimer !== null) {
+          clearInterval(solarTimer);
+          solarTimer = null;
+        }
+      }, 1000);
+    });
+
+    // Copy Recruiter Bio
+    document.getElementById('copy-royal-bio-btn')?.addEventListener('click', async () => {
+      const bio = root.dataset.summaryText || '';
+      try {
+        await navigator.clipboard.writeText(bio);
+        const btn = document.getElementById('copy-royal-bio-btn');
+        if (btn) btn.textContent = '✅ Copied Summary!';
+      } catch {
+        // ignore clipboard block
+      }
+    });
+
+    refreshCrestUI(passedRounds);
+    showRound(passedRounds >= 3 ? 3 : currentRound);
+
+    document.addEventListener(
+      'astro:before-swap',
+      () => {
+        if (solarTimer !== null) clearInterval(solarTimer);
+        window.removeEventListener('keydown', onHotkey);
+      },
+      { once: true }
+    );
+  }
+
+  initThroneHallPage();
+  document.addEventListener('astro:page-load', initThroneHallPage);
+</script>

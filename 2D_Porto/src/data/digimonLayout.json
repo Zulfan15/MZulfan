@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updatedAt": "2026-11-12T05:42:29.378Z",
+  "updatedAt": "2026-11-19T05:36:56.704Z",
   "buildings": [
     {
       "id": "omnimon_mwd2fdww",
@@ -431,8 +431,8 @@
     {
       "id": "granlocomon_mwd4dvd8",
       "name": "Granlocomon Lokomotif Baja Raksasa #1",
-      "x": 30,
-      "y": 23,
+      "x": 24,
+      "y": 25,
       "w": 2,
       "h": 2,
       "kind": "digimon",
@@ -443,8 +443,8 @@
     {
       "id": "blackmegagargomon_mwd4e5gs",
       "name": "BlackMegaGargomon Unit Stealth #1",
-      "x": 9,
-      "y": 23,
+      "x": 15,
+      "y": 25,
       "w": 2,
       "h": 2,
       "kind": "digimon",
@@ -455,8 +455,8 @@
     {
       "id": "neptunemon_mwd4eclq",
       "name": "Neptunemon Olympos XII Lautan #1",
-      "x": 9,
-      "y": 19,
+      "x": 15,
+      "y": 18,
       "w": 2,
       "h": 2,
       "kind": "digimon",
@@ -467,8 +467,8 @@
     {
       "id": "plesiomon_mwd4f3ti",
       "name": "Plesiomon Suara Mistis Laut Dalam #1",
-      "x": 30,
-      "y": 19,
+      "x": 24,
+      "y": 18,
       "w": 2,
       "h": 2,
       "kind": "digimon",
@@ -479,8 +479,8 @@
     {
       "id": "rizegreymon_mwd4fak8",
       "name": "RizeGreymon Cyborg Sayap Logam #1",
-      "x": 19,
-      "y": 25,
+      "x": 30,
+      "y": 11,
       "w": 2,
       "h": 2,
       "kind": "digimon",

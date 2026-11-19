@@ -1,0 +1,59 @@
+{
+  "version": 2,
+  "updatedAt": "2026-11-18T03:48:38.018Z",
+  "buildings": [],
+  "tiles": [
+    [
+      "34,29",
+      "walkable_override"
+    ],
+    [
+      "34,30",
+      "walkable_override"
+    ],
+    [
+      "35,30",
+      "walkable_override"
+    ],
+    [
+      "35,29",
+      "walkable_override"
+    ],
+    [
+      "37,29",
+      "walkable_override"
+    ],
+    [
+      "36,29",
+      "walkable_override"
+    ],
+    [
+      "36,30",
+      "walkable_override"
+    ],
+    [
+      "37,30",
+      "walkable_override"
+    ],
+    [
+      "27,48",
+      "walkable_override"
+    ],
+    [
+      "26,48",
+      "walkable_override"
+    ],
+    [
+      "25,48",
+      "walkable_override"
+    ],
+    [
+      "29,48",
+      "walkable_override"
+    ],
+    [
+      "28,48",
+      "walkable_override"
+    ]
+  ]
+}

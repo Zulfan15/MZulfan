@@ -4,9 +4,13 @@
  */
 import canonicalLayout from '../data/townLayout.json';
 import digimonCanonicalLayout from '../data/digimonLayout.json';
+import kingdomCanonicalLayout from '../data/kingdomLayout.json';
+import darkCastleCanonicalLayout from '../data/darkCastleLayout.json';
+import harbourCanonicalLayout from '../data/harbourLayout.json';
+import skyCastleCanonicalLayout from '../data/skyCastleLayout.json';
 import { DIGIMON_CATALOG } from './digimonCatalog';
 
-export type WorldTarget = 'town' | 'digimon';
+export type WorldTarget = 'town' | 'digimon' | 'kingdom' | 'dark-castle' | 'harbour' | 'sky-castle';
 
 export interface BuildingLayout {
   id: string;
@@ -60,6 +64,7 @@ export type EditorCategoryKey =
   | 'Perabot & Lampu'
   | 'Dunia Pokémon'
   | 'Dunia Digimon'
+  | '🏰 Kerajaan Medieval'
   | 'Tech & AI'
   | 'Fasilitas & Kota';
 
@@ -76,6 +81,7 @@ export const EDITOR_CATEGORY_META: Record<string, EditorCategoryMeta> = {
   perabot: { id: 'perabot', label: 'Perabot & Lampu', shortLabel: 'Perabot & Lampu', icon: '🪑', defaultKind: 'bench' },
   pokemon: { id: 'pokemon', label: 'Dunia Pokémon', shortLabel: 'Pokémon', icon: '⚡', defaultKind: 'npc' },
   digimon: { id: 'digimon', label: 'Dunia Digimon', shortLabel: 'Digimon', icon: '👾', defaultKind: 'npc' },
+  kingdom: { id: 'kingdom', label: '🏰 Kerajaan Medieval', shortLabel: 'Medieval', icon: '🏰', defaultKind: 'object' },
   tech: { id: 'tech', label: 'Tech & AI', shortLabel: 'Tech & AI', icon: '💻', defaultKind: 'object' },
   fasilitas: { id: 'fasilitas', label: 'Fasilitas & Kota', shortLabel: 'Fasilitas & Kota', icon: '⛲', defaultKind: 'object' },
 };
@@ -85,6 +91,7 @@ export const SPAWNABLE_CATALOG_GROUPS: EditorCategoryKey[] = [
   'Perabot & Lampu',
   'Dunia Pokémon',
   'Dunia Digimon',
+  '🏰 Kerajaan Medieval',
   'Tech & AI',
   'Fasilitas & Kota',
 ];
@@ -96,7 +103,7 @@ export interface SpawnableTemplate {
   category: EditorCategoryKey;
   w: number;
   h: number;
-  kind: 'tree' | 'bush' | 'bench' | 'lamp' | 'flowerbed' | 'object' | 'npc' | 'sign' | 'digimon';
+  kind: 'building' | 'tree' | 'bush' | 'bench' | 'lamp' | 'flowerbed' | 'object' | 'npc' | 'sign' | 'digimon';
   subType?: string;
   desc: string;
   defaultDialogue?: string;
@@ -1158,6 +1165,187 @@ export const SPAWNABLE_TEMPLATES: SpawnableTemplate[] = [
     desc: 'Pagar pembatas besi & bibir batu tepi laut / dermaga (1x1)',
     defaultDialogue: 'Pagar pembatas tepi air yang kokoh di tepi laut. Melindungi pejalan kaki dari deburan ombak teluk.',
   },
+  // 🏰 7. Kerajaan Medieval (7 Bangunan Utama + 8 Dekorasi & NPC Kerajaan)
+  {
+    id: 'tpl_royal_castle',
+    name: 'Grand Royal Citadel',
+    icon: '🏰',
+    category: '🏰 Kerajaan Medieval',
+    w: 11,
+    h: 9,
+    kind: 'building',
+    subType: 'royal_castle',
+    desc: 'Kastil batu megah bermenara kembar & portcullis (11×9)',
+    defaultDialogue: 'Grand Royal Citadel of Avalon: Istana utama kerajaan bermahkota panji singa emas.',
+  },
+  {
+    id: 'tpl_blacksmith_forge',
+    name: 'Dragonflame Blacksmith',
+    icon: '⚒️',
+    category: '🏰 Kerajaan Medieval',
+    w: 7,
+    h: 6,
+    kind: 'building',
+    subType: 'blacksmith_forge',
+    desc: 'Bengkel pandai besi dengan tungku menyala & cerobong batu (7×6)',
+    defaultDialogue: 'Dragonflame Blacksmith: Pandai besi kerajaan menempa pedang baja dan perisai ksatria.',
+  },
+  {
+    id: 'tpl_medieval_tavern',
+    name: 'The Golden Griffin Inn',
+    icon: '🍺',
+    category: '🏰 Kerajaan Medieval',
+    w: 8,
+    h: 6,
+    kind: 'building',
+    subType: 'medieval_tavern',
+    desc: 'Penginapan Tudor half-timbered berjendela lentera hangat (8×6)',
+    defaultDialogue: 'The Golden Griffin Inn: Penginapan dan kedai hangat untuk para pengelana kerajaan.',
+  },
+  {
+    id: 'tpl_mage_tower',
+    name: 'Astral Mage Sanctum',
+    icon: '📜',
+    category: '🏰 Kerajaan Medieval',
+    w: 6,
+    h: 8,
+    kind: 'building',
+    subType: 'mage_tower',
+    desc: 'Menara penyihir tinggi berkubah ungu & astrolab emas (6×8)',
+    defaultDialogue: 'Astral Mage Sanctum: Menara perpustakaan sihir dan astrolab kuno.',
+  },
+  {
+    id: 'tpl_knights_barracks',
+    name: "Knights' Order Barracks",
+    icon: '🛡️',
+    category: '🏰 Kerajaan Medieval',
+    w: 7,
+    h: 7,
+    kind: 'building',
+    subType: 'knights_barracks',
+    desc: 'Barak garnisun ksatria berlambang perisai perak-merah (7×7)',
+    defaultDialogue: "Knights' Order Barracks: Markas garnisun ksatria pelindung benteng Avalon.",
+  },
+  {
+    id: 'tpl_jousting_arena',
+    name: 'Royal Jousting Arena',
+    icon: '🏇',
+    category: '🏰 Kerajaan Medieval',
+    w: 11,
+    h: 9,
+    kind: 'building',
+    subType: 'jousting_arena',
+    desc: 'Lapangan turnamen berkuda dengan paviliun merah-emas (11×9)',
+    defaultDialogue: 'Royal Jousting Arena: Arena turnamen ksatria dan adu ketangkasan berkuda.',
+  },
+  {
+    id: 'tpl_royal_chapel',
+    name: 'Stained-Glass Abbey',
+    icon: '🔔',
+    category: '🏰 Kerajaan Medieval',
+    w: 10,
+    h: 9,
+    kind: 'building',
+    subType: 'royal_chapel',
+    desc: 'Katedral Gotik bermenara lonceng & jendela mawar warna-warni (10×9)',
+    defaultDialogue: 'Saint Avalon Abbey: Katedral Gotik dengan kaca patri suci dan lonceng perunggu.',
+  },
+  {
+    id: 'tpl_market_stall',
+    name: 'Medieval Market Stall',
+    icon: '🏪',
+    category: '🏰 Kerajaan Medieval',
+    w: 3,
+    h: 2,
+    kind: 'object',
+    subType: 'market_stall',
+    desc: 'Kios pasar abad pertengahan beratap kain belang (3×2)',
+    defaultDialogue: 'Kios pedagang guild bazaar yang menjual zirah, ramuan, dan roti hangat.',
+  },
+  {
+    id: 'tpl_watchtower',
+    name: 'Battlement Watchtower',
+    icon: '🗼',
+    category: '🏰 Kerajaan Medieval',
+    w: 3,
+    h: 4,
+    kind: 'object',
+    subType: 'watchtower',
+    desc: 'Menara pengawas sudut benteng batu beratap runcing (3×4)',
+    defaultDialogue: 'Menara pengawal batu yang menjaga perimeter parit kastil.',
+  },
+  {
+    id: 'tpl_excalibur_shrine',
+    name: 'Excalibur Stone Pedestal',
+    icon: '⚔️',
+    category: '🏰 Kerajaan Medieval',
+    w: 2,
+    h: 2,
+    kind: 'object',
+    subType: 'excalibur_shrine',
+    desc: 'Altar air mancur batu dengan pedang suci Excalibur tertancap (2×2)',
+    defaultDialogue: 'Sword in the Stone: Pedang legendaris Excalibur berkilau di jantung Excalibur Plaza.',
+  },
+  {
+    id: 'tpl_royal_banner',
+    name: 'Heraldic Banner Pole',
+    icon: '🚩',
+    category: '🏰 Kerajaan Medieval',
+    w: 1,
+    h: 2,
+    kind: 'object',
+    subType: 'royal_banner',
+    desc: 'Tiang panji kerajaan merah-emas berkibar (1×2)',
+    defaultDialogue: 'Panji singa emas kebesaran Kerajaan Avalon.',
+  },
+  {
+    id: 'tpl_medieval_brazier',
+    name: 'Cast-Iron Fire Brazier',
+    icon: '🔥',
+    category: '🏰 Kerajaan Medieval',
+    w: 1,
+    h: 1,
+    kind: 'object',
+    subType: 'medieval_brazier',
+    desc: 'Tungku obor besi menyala hangat khas kastil (1×1)',
+    defaultDialogue: 'Tungku api besi menyala menerangi halaman kastil di malam hari.',
+  },
+  {
+    id: 'tpl_weapon_rack',
+    name: 'Knight Weapon Rack',
+    icon: '🗡️',
+    category: '🏰 Kerajaan Medieval',
+    w: 2,
+    h: 1,
+    kind: 'object',
+    subType: 'weapon_rack',
+    desc: 'Rak pedang baja, perisai heraldik & perlengkapan ksatria (2×1)',
+    defaultDialogue: 'Rak senjata ksatria berisi pedang tempa dan perisai kehormatan.',
+  },
+  {
+    id: 'tpl_wooden_cart',
+    name: 'Merchant Supply Cart',
+    icon: '🛒',
+    category: '🏰 Kerajaan Medieval',
+    w: 2,
+    h: 2,
+    kind: 'object',
+    subType: 'wooden_cart',
+    desc: 'Gerobak kayu pedagang pengangkut jerami & tong kayu ek (2×2)',
+    defaultDialogue: 'Gerobak logistik pedagang yang mengangkut perbekalan menuju bazaar dan penginapan.',
+  },
+  {
+    id: 'tpl_royal_knight',
+    name: 'Royal Citadel Guard',
+    icon: '💂',
+    category: '🏰 Kerajaan Medieval',
+    w: 1,
+    h: 1,
+    kind: 'npc',
+    subType: 'royal_knight',
+    desc: 'NPC Ksatria berzirah perak-merah bersenjata tombak jaga (1×1)',
+    defaultDialogue: "SIR KNIGHT: 'Salam hormat, Pengelana! Kerajaan Avalon senantiasa aman di bawah penjagaan kami.'",
+  },
 ];
 
 export interface TownStateSnapshot {
@@ -1174,6 +1362,10 @@ export type TileTypeKey =
   | 'lava_rock'
   | 'cryo_ice'
   | 'holy_marble'
+  | 'castle_flagstone'
+  | 'royal_carpet'
+  | 'tudor_cobble'
+  | 'drawbridge_wood'
   | 'water'
   | 'hedge'
   | 'fence'
@@ -1184,6 +1376,10 @@ export type TileTypeKey =
 
 export const TILE_BRUSH_TYPES: { id: TileTypeKey; name: string; icon: string; desc: string }[] = [
   { id: 'cobble', name: 'Jalan Batu', icon: '🪨', desc: 'Cobblestone Street' },
+  { id: 'castle_flagstone', name: 'Batu Benteng', icon: '🏰', desc: 'Medieval Citadel Flagstone Courtyard' },
+  { id: 'royal_carpet', name: 'Karpet Kerajaan', icon: '🟥', desc: 'Royal Crimson & Gold Carpet' },
+  { id: 'tudor_cobble', name: 'Cobble Medieval', icon: '🧱', desc: 'Tudor Warm Medieval Street' },
+  { id: 'drawbridge_wood', name: 'Papan Jembatan', icon: '🪵', desc: 'Iron-Riveted Drawbridge Oak Planks' },
   { id: 'lab_paver', name: 'Paving Lab', icon: '🏢', desc: 'High-Tech Modern Pavers' },
   { id: 'dev_paver', name: 'Lantai Megah', icon: '🏛️', desc: 'Palace Manor Pavers' },
   { id: 'cyber_grid', name: 'Lantai Siber', icon: '🧩', desc: 'Cyber & Steel Dome Circuit Grid' },
@@ -1204,6 +1400,10 @@ export const DEFAULT_BUILDINGS: BuildingLayout[] = canonicalLayout.buildings as 
 
 const STORAGE_KEY_TOWN = 'zulfan_town_custom_layout_v1';
 const STORAGE_KEY_DIGIMON = 'zulfan_digimon_custom_layout_v1';
+const STORAGE_KEY_KINGDOM = 'zulfan_kingdom_custom_layout_v1';
+const STORAGE_KEY_DARK_CASTLE = 'zulfan_dark_castle_custom_layout_v1';
+const STORAGE_KEY_HARBOUR = 'zulfan_harbour_custom_layout_v1';
+const STORAGE_KEY_SKY_CASTLE = 'zulfan_sky_castle_custom_layout_v1';
 
 const PURGED_LEGACY_IDS = new Set([
   'lamp_cafe_1',
@@ -1250,11 +1450,21 @@ class TownConfigManager {
   }
 
   public getBounds(): { w: number; h: number } {
-    return this.activeWorld === 'digimon' ? { w: 40, h: 45 } : { w: 45, h: 64 };
+    if (this.activeWorld === 'digimon') return { w: 40, h: 45 };
+    if (this.activeWorld === 'kingdom') return { w: 45, h: 60 };
+    if (this.activeWorld === 'harbour') return { w: 45, h: 60 };
+    if (this.activeWorld === 'sky-castle') return { w: 45, h: 60 };
+    if (this.activeWorld === 'dark-castle') return { w: 45, h: 64 };
+    return { w: 45, h: 64 };
   }
 
   private getStorageKey(): string {
-    return this.activeWorld === 'digimon' ? STORAGE_KEY_DIGIMON : STORAGE_KEY_TOWN;
+    if (this.activeWorld === 'digimon') return STORAGE_KEY_DIGIMON;
+    if (this.activeWorld === 'kingdom') return STORAGE_KEY_KINGDOM;
+    if (this.activeWorld === 'harbour') return STORAGE_KEY_HARBOUR;
+    if (this.activeWorld === 'sky-castle') return STORAGE_KEY_SKY_CASTLE;
+    if (this.activeWorld === 'dark-castle') return STORAGE_KEY_DARK_CASTLE;
+    return STORAGE_KEY_TOWN;
   }
 
   private getCanonicalSource(): { buildings: BuildingLayout[]; tiles: [string, TileTypeKey][] } {
@@ -1262,6 +1472,30 @@ class TownConfigManager {
       return {
         buildings: (digimonCanonicalLayout.buildings || []) as BuildingLayout[],
         tiles: (digimonCanonicalLayout.tiles || []) as [string, TileTypeKey][],
+      };
+    }
+    if (this.activeWorld === 'kingdom') {
+      return {
+        buildings: (kingdomCanonicalLayout.buildings || []) as BuildingLayout[],
+        tiles: (kingdomCanonicalLayout.tiles || []) as [string, TileTypeKey][],
+      };
+    }
+    if (this.activeWorld === 'harbour') {
+      return {
+        buildings: (harbourCanonicalLayout.buildings || []) as BuildingLayout[],
+        tiles: (harbourCanonicalLayout.tiles || []) as [string, TileTypeKey][],
+      };
+    }
+    if (this.activeWorld === 'sky-castle') {
+      return {
+        buildings: (skyCastleCanonicalLayout.buildings || []) as BuildingLayout[],
+        tiles: (skyCastleCanonicalLayout.tiles || []) as [string, TileTypeKey][],
+      };
+    }
+    if (this.activeWorld === 'dark-castle') {
+      return {
+        buildings: (darkCastleCanonicalLayout.buildings || []) as BuildingLayout[],
+        tiles: (darkCastleCanonicalLayout.tiles || []) as [string, TileTypeKey][],
       };
     }
     return {
@@ -1543,10 +1777,14 @@ class TownConfigManager {
       orientation:
         tpl.kind === 'npc' ||
         tpl.kind === 'digimon' ||
+        tpl.kind === 'building' ||
         tpl.category === 'Dunia Pokémon' ||
         tpl.category === 'Dunia Digimon'
           ? 'S'
           : 'N',
+      ...(tpl.kind === 'building'
+        ? { doorX: clampedX + Math.floor(tpl.w / 2), doorY: clampedY + tpl.h - 1 }
+        : {}),
       dialogue: tpl.defaultDialogue,
     };
 
@@ -1777,7 +2015,18 @@ class TownConfigManager {
   }
 
   public async saveToDisk(): Promise<{ success: boolean; message: string }> {
-    const targetFile = this.activeWorld === 'digimon' ? 'src/data/digimonLayout.json' : 'src/data/townLayout.json';
+    const targetFile =
+      this.activeWorld === 'digimon'
+        ? 'src/data/digimonLayout.json'
+        : this.activeWorld === 'kingdom'
+          ? 'src/data/kingdomLayout.json'
+          : this.activeWorld === 'harbour'
+            ? 'src/data/harbourLayout.json'
+            : this.activeWorld === 'sky-castle'
+              ? 'src/data/skyCastleLayout.json'
+              : this.activeWorld === 'dark-castle'
+            ? 'src/data/darkCastleLayout.json'
+            : 'src/data/townLayout.json';
     const data = {
       target: this.activeWorld,
       buildings: Array.from(this.buildings.values()).filter((b) => !b.hidden),
@@ -1819,7 +2068,13 @@ class TownConfigManager {
       if (!raw) return;
       const parsed = JSON.parse(raw);
 
-      if (this.activeWorld === 'digimon') {
+      if (
+        this.activeWorld === 'digimon' ||
+        this.activeWorld === 'kingdom' ||
+        this.activeWorld === 'harbour' ||
+        this.activeWorld === 'sky-castle' ||
+        this.activeWorld === 'dark-castle'
+      ) {
         if (Array.isArray(parsed.buildings)) {
           for (const b of parsed.buildings) {
             if (!b.id) continue;
@@ -2246,6 +2501,14 @@ class TownConfigManager {
     const clean = (place || '').replace(/^\/+|\/+$/g, '').toLowerCase();
     if (!clean || clean === 'town') return '22,28,down';
     if (clean === 'digimon') return '22,58,up';
+    if (clean === 'kingdom') return '20,38,up';
+    if (clean === 'harbour') return '22,57,up';
+    if (clean === 'sky-castle') return '33,22,left';
+    if (clean === 'dark-castle') return '8,22,right';
+    if (clean === 'dark-cathedral' || clean === 'dark-castle/cathedral' || clean === 'cathedral') return '9,21,down';
+    if (clean === 'dark-forge' || clean === 'dark-castle/forge' || clean === 'forge') return '33,25,down';
+    if (clean === 'dark-manor' || clean === 'dark-castle/manor' || clean === 'manor') return '11,52,down';
+    if (clean === 'dark-vault' || clean === 'dark-castle/vault' || clean === 'vault') return '34,50,down';
 
     const aliasToBuildingId: Record<string, string> = {
       dev: 'dev',

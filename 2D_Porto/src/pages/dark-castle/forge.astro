@@ -1,0 +1,1021 @@
+---
+import TownLayout from '../../layouts/TownLayout.astro';
+import WhereTo from '../../components/WhereTo.astro';
+import { profile } from '../../lib/profile';
+import { ABYSSAL_SEALS_META, type AbyssalSealKey } from '../../engine/darkInteriorShared';
+
+const githubUrl = profile.socials.find((s) => s.label === 'GitHub')?.url || 'https://github.com/Zulfan15';
+
+const sanctumCards: Array<{ key: AbyssalSealKey; href: string; label: string }> = [
+  { key: 'echoes', href: '/dark-castle/cathedral', label: 'Shadow Cathedral' },
+  { key: 'ember', href: '/dark-castle/forge', label: 'Crimson Reactor Forge' },
+  { key: 'valor', href: '/dark-castle/manor', label: 'Blood Manor' },
+  { key: 'eternity', href: '/dark-castle/vault', label: 'Chained Chrono Vault' },
+];
+
+const anvilPresets = [
+  { id: 'aeroscan', core: 'python-tensorrt', target: 'jetson-edge', label: '👁️ AeroScan Vision' },
+  { id: 'foodlink', core: 'go-postgres', target: 'high-concurrency', label: '🍲 FoodLink Outbox' },
+  { id: 'cloudflare', core: 'rust-wasm', target: 'edge-worker', label: '⚡ Edge WASM Worker' },
+  { id: 'portfolio-2d', core: 'ts-astro', target: 'canvas-engine', label: '🎮 60 FPS Pixel World' },
+];
+---
+
+<TownLayout
+  title="Crimson Reactor Forge — Magitech Foundry & Chaos Bench | Muhammad Zulfan"
+  description="Enter the Crimson Reactor Forge inside Dark Castle: stabilize the Geothermal Magma Core for the Seal of Ember and forge production systems on the Tech Stack Anvil."
+  place="dark-forge"
+>
+  <article class="forge-page space-y-6 pb-10 text-[#fff1f2]">
+    <!-- 1. IMPERIAL FOUNDRY MARQUEE BANNER (CRIMSON STEEL & GILDED BRASS) -->
+    <header class="relative overflow-hidden rounded-2xl border-[3px] border-[#b45309] bg-gradient-to-b from-[#27090e] via-[#360d14] to-[#110407] p-5 text-[#fff1f2] shadow-[0_10px_0_#450a0a,0_18px_36px_rgba(0,0,0,0.68)]">
+      <!-- Top & Bottom Repeating Brass-Crimson Fretwork Trim -->
+      <div
+        class="pointer-events-none absolute inset-x-0 top-0 h-2 bg-[repeating-linear-gradient(90deg,#fbbf24_0px,#fbbf24_12px,#dc2626_12px,#dc2626_24px)] opacity-90"
+        aria-hidden="true"
+      ></div>
+      <div
+        class="pointer-events-none absolute inset-x-0 bottom-0 h-2 bg-[repeating-linear-gradient(90deg,#dc2626_0px,#dc2626_12px,#fbbf24_12px,#fbbf24_24px)] opacity-90"
+        aria-hidden="true"
+      ></div>
+
+      <div class="relative z-10 mt-1 flex flex-wrap items-start justify-between gap-4">
+        <div class="space-y-2">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="rounded-full border border-[#fbbf24]/50 bg-[#7c2d12]/80 px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-[#fde68a]">
+              🌋 DARK CASTLE EAST SANCTUM · GEOTHERMAL FOUNDRY
+            </span>
+            <span
+              id="forge-ember-pill"
+              class="rounded-full border border-[#fb923c]/40 bg-[#450a0a]/80 px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-wider text-[#fed7aa]"
+            >
+              ⏳ Seal of Ember Unclaimed
+            </span>
+          </div>
+          <h1 class="font-display text-2xl font-black tracking-tight text-[#fef3c7] drop-shadow-[0_2px_0_#450a0a] sm:text-3xl">
+            Crimson Reactor Forge
+          </h1>
+          <p class="max-w-2xl text-sm leading-relaxed text-[#fecdd3]">
+            Selamat datang di pusat rekayasa termal kastil. Kendalikan katup inti bersama <strong class="text-[#fde047]">Machinedramon</strong>,
+            <strong class="text-[#fdba74]">Charizard</strong>, &amp; <strong class="text-[#fca5a5]">Groudon</strong> untuk menambang
+            <strong class="text-[#fef08a]">Seal of Ember</strong> dan menempakan kombinasi arsitektur produksi di Tech Anvil.
+          </p>
+        </div>
+
+        <!-- Live Reactor Telemetry Tablet & Citadel Exit -->
+        <div class="flex flex-col items-end gap-2">
+          <div class="grid grid-cols-3 gap-2 rounded-xl border-2 border-[#b45309]/80 bg-[#1a0609]/95 px-3 py-2 text-center font-mono shadow-inner">
+            <div>
+              <div class="text-[9px] font-bold uppercase tracking-wider text-[#fdba74]">CORE LOAD</div>
+              <div id="hero-load-readout" class="text-sm font-black text-[#fef08a]">64%</div>
+            </div>
+            <div>
+              <div class="text-[9px] font-bold uppercase tracking-wider text-[#fdba74]">FORGES</div>
+              <div id="hero-forges-count" class="text-sm font-black text-[#fed7aa]">0</div>
+            </div>
+            <div>
+              <div class="text-[9px] font-bold uppercase tracking-wider text-[#fdba74]">SEALS</div>
+              <div id="hero-seals-count" class="text-sm font-black text-[#fde047]">0/4</div>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-end gap-2">
+            <button
+              id="forge-audio-toggle"
+              type="button"
+              class="cursor-pointer rounded-lg border-2 border-[#b45309] bg-[#450a0a] px-2.5 py-1.5 font-mono text-[11px] font-bold text-[#fde68a] transition hover:bg-[#7c2d12]"
+            >
+              🔊 Synth FX: ON
+            </button>
+            <a
+              id="forge-exit-btn"
+              href="/dark-castle?from=forge"
+              class="inline-flex items-center gap-1.5 rounded-lg border-2 border-[#fbbf24] bg-gradient-to-b from-[#d97706] to-[#92400e] px-3 py-1.5 font-mono text-xs font-extrabold text-[#fffbeb] shadow-[0_3px_0_#451a03] transition hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0"
+            >
+              🚪 Exit to Citadel
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tri-Guardian Dialogue Strip -->
+      <div class="relative z-10 mt-4 flex items-center gap-3 rounded-xl border border-[#fb923c]/35 bg-[#190508]/85 px-3.5 py-2.5 text-xs">
+        <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[#f59e0b]/60 bg-[#450a0a] text-base">
+          🤖
+        </span>
+        <div class="min-w-0 flex-1">
+          <div class="font-mono text-[10px] font-bold uppercase tracking-wider text-[#fbbf24]">
+            Machinedramon · Thermal Foundry AI
+          </div>
+          <p id="forge-guardian-quote" class="truncate text-[#fed7aa]">
+            "PERINGATAN REAKTOR: Turunkan &amp; seimbangkan 3 katup antara 95%–100% selama 5 detik untuk mengklaim Seal of Ember!"
+          </p>
+        </div>
+      </div>
+
+      <!-- 6 Tactile Quick-Walk Station Medal Cards + Keyboard Hotkeys -->
+      <nav aria-label="Quick walk forge stations" class="relative z-10 mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+        <button
+          type="button"
+          data-walk-to="magma-core"
+          class="group flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#b45309]/70 bg-[#2d0b11]/90 px-2.5 py-2 text-left transition hover:-translate-y-0.5 hover:border-[#fbbf24] hover:bg-[#45111a]"
+        >
+          <span class="flex items-center gap-2 text-xs font-bold text-[#fef3c7]">
+            <span>🌋</span>
+            <span>Magma Core</span>
+          </span>
+          <kbd class="rounded border border-[#fbbf24]/40 bg-[#1a0609] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#fde047]">R</kbd>
+        </button>
+
+        <button
+          type="button"
+          data-walk-to="tech-anvil"
+          class="group flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#b45309]/70 bg-[#2d0b11]/90 px-2.5 py-2 text-left transition hover:-translate-y-0.5 hover:border-[#fbbf24] hover:bg-[#45111a]"
+        >
+          <span class="flex items-center gap-2 text-xs font-bold text-[#fef3c7]">
+            <span>🔨</span>
+            <span>Tech Anvil</span>
+          </span>
+          <kbd class="rounded border border-[#fbbf24]/40 bg-[#1a0609] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#fde047]">A</kbd>
+        </button>
+
+        <button
+          type="button"
+          data-walk-to="telemetry-terminal"
+          class="group flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#b45309]/70 bg-[#2d0b11]/90 px-2.5 py-2 text-left transition hover:-translate-y-0.5 hover:border-[#fbbf24] hover:bg-[#45111a]"
+        >
+          <span class="flex items-center gap-2 text-xs font-bold text-[#fef3c7]">
+            <span>📊</span>
+            <span>Telemetry</span>
+          </span>
+          <kbd class="rounded border border-[#fbbf24]/40 bg-[#1a0609] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#fde047]">T</kbd>
+        </button>
+
+        <button
+          type="button"
+          data-walk-to="charizard"
+          class="group flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#b45309]/70 bg-[#2d0b11]/90 px-2.5 py-2 text-left transition hover:-translate-y-0.5 hover:border-[#fbbf24] hover:bg-[#45111a]"
+        >
+          <span class="flex items-center gap-2 text-xs font-bold text-[#fef3c7]">
+            <span>🔥</span>
+            <span>Charizard</span>
+          </span>
+          <kbd class="rounded border border-[#fbbf24]/40 bg-[#1a0609] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#fde047]">C</kbd>
+        </button>
+
+        <button
+          type="button"
+          data-walk-to="coolant-valves"
+          class="group flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#b45309]/70 bg-[#2d0b11]/90 px-2.5 py-2 text-left transition hover:-translate-y-0.5 hover:border-[#fbbf24] hover:bg-[#45111a]"
+        >
+          <span class="flex items-center gap-2 text-xs font-bold text-[#fef3c7]">
+            <span>❄️</span>
+            <span>Cryo Valves</span>
+          </span>
+          <kbd class="rounded border border-[#fbbf24]/40 bg-[#1a0609] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#fde047]">V</kbd>
+        </button>
+
+        <button
+          type="button"
+          data-walk-to="plasma-batteries"
+          class="group flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#b45309]/70 bg-[#2d0b11]/90 px-2.5 py-2 text-left transition hover:-translate-y-0.5 hover:border-[#fbbf24] hover:bg-[#45111a]"
+        >
+          <span class="flex items-center gap-2 text-xs font-bold text-[#fef3c7]">
+            <span>🔋</span>
+            <span>Relic Coffer</span>
+          </span>
+          <kbd class="rounded border border-[#fbbf24]/40 bg-[#1a0609] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#fde047]">L</kbd>
+        </button>
+      </nav>
+    </header>
+
+    <!-- 2. MAGMA CORE LOAD-BALANCER 2.0 MINI-GAME -->
+    <section
+      id="forge-reactor-game"
+      class="rounded-2xl border-[3px] border-[#b45309] bg-gradient-to-b from-[#23080d] to-[#120407] p-5 shadow-[0_8px_0_#450a0a,0_16px_28px_rgba(0,0,0,0.55)]"
+    >
+      <div class="flex flex-wrap items-start justify-between gap-4 border-b border-[#fbbf24]/25 pb-4">
+        <div>
+          <span class="font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-[#fdba74]">
+            TRIAL I · GEOTHERMAL LOAD-BALANCER 2.0
+          </span>
+          <h2 class="mt-1 font-display text-xl font-black text-[#fef3c7]">
+            🔥 Magma Core Stabilizer Challenge
+          </h2>
+          <p class="mt-1 text-xs leading-relaxed text-[#fecdd3]">
+            Kalibrasikan ketiga katup nonlinear untuk mempertahankan daya output pada
+            <strong class="text-[#86efac]">Zona Optimal 95% – 100%</strong> selama
+            <strong class="text-[#fde047]">5.0 detik</strong> berturut-turut guna menambang
+            <strong class="text-[#fb923c]">🔥 Seal of Ember</strong>.
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            data-preset-p="20"
+            data-preset-t="25"
+            data-preset-c="20"
+            class="forge-preset-btn cursor-pointer rounded-lg border border-[#38bdf8]/50 bg-[#0c4a6e]/40 px-2.5 py-1 font-mono text-[10px] font-bold text-[#bae6fd] transition hover:bg-[#0c4a6e]/75"
+          >
+            ❄️ Cryo Idle
+          </button>
+          <button
+            type="button"
+            data-preset-p="34"
+            data-preset-t="35"
+            data-preset-c="30"
+            class="forge-preset-btn cursor-pointer rounded-lg border border-[#fbbf24]/50 bg-[#78350f]/50 px-2.5 py-1 font-mono text-[10px] font-bold text-[#fde68a] transition hover:bg-[#78350f]"
+          >
+            ⚖️ Tune Near-Opt
+          </button>
+          <button
+            type="button"
+            id="forge-reset-valves"
+            class="cursor-pointer rounded-lg border border-[#ef4444]/60 bg-[#7f1d1d]/60 px-2.5 py-1 font-mono text-[10px] font-bold text-[#fecaca] transition hover:bg-[#991b1b]"
+          >
+            🧯 Purge Core
+          </button>
+        </div>
+      </div>
+
+      <!-- Visual Thermal Threshold Bar + Hold Timer HUD -->
+      <div class="mt-4 rounded-xl border-2 border-[#b45309]/60 bg-[#0d0306] p-4 shadow-inner">
+        <div class="flex flex-wrap items-center justify-between gap-2 font-mono text-xs">
+          <span class="font-bold text-[#fed7aa]">THERMAL FLUX OUTPUT</span>
+          <span id="reactor-readout" class="text-sm font-black text-[#fdba74]">64% · UNDERLOAD</span>
+        </div>
+
+        <!-- Bar with Green Sweet Spot Overlay (95%..100% mapped onto 0..120%) -->
+        <div class="relative mt-2.5 h-6 overflow-hidden rounded-full border-2 border-[#451a03] bg-[#1c090e]">
+          <!-- Optimal Zone Marker: 95/120 = 79.16%, width = 5/120 = 4.17% (widened visually slightly with bracket guides) -->
+          <div
+            class="pointer-events-none absolute inset-y-0 z-10 border-x-2 border-[#4ade80] bg-[#22c55e]/25"
+            style="left: 79.16%; width: 4.5%;"
+            title="Optimal Band: 95% - 100%"
+          ></div>
+          <!-- Overload Danger Marker: >100% -->
+          <div
+            class="pointer-events-none absolute inset-y-0 right-0 z-0 bg-[#ef4444]/15"
+            style="width: 16.6%;"
+          ></div>
+          <div
+            id="reactor-bar"
+            class="relative z-20 h-full bg-gradient-to-r from-[#f59e0b] to-[#ea580c] transition-all duration-100"
+            style="width: 53%"
+          ></div>
+        </div>
+
+        <div class="mt-2 flex items-center justify-between font-mono text-[10px] text-[#fca5a5]/80">
+          <span>0% Cryo Idle</span>
+          <span class="font-bold text-[#4ade80]">▲ Target Window: 95% – 100%</span>
+          <span class="font-bold text-[#f87171]">120% Meltdown!</span>
+        </div>
+
+        <!-- 5.0s Hold Lock Progress -->
+        <div class="mt-3 rounded-lg border border-[#b45309]/40 bg-[#1b080d] p-2.5">
+          <div class="flex items-center justify-between font-mono text-[11px]">
+            <span class="font-bold text-[#fde68a]">CONTAINMENT LOCK TIMER</span>
+            <span id="reactor-lock-text" class="font-bold text-[#fed7aa]">Hold 5.0s in Green Zone</span>
+          </div>
+          <div class="mt-1.5 h-2 overflow-hidden rounded-full bg-[#2e1017]">
+            <div
+              id="reactor-lock-bar"
+              class="h-full w-0 bg-gradient-to-r from-[#22c55e] to-[#fde047] transition-all duration-100"
+            ></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3 Sliders -->
+      <div class="mt-4 grid gap-3 sm:grid-cols-3">
+        <label class="block rounded-xl border border-[#fb923c]/30 bg-[#1b070c] p-3 transition hover:border-[#fbbf24]/60">
+          <div class="flex justify-between font-mono text-[11px] font-bold text-[#fed7aa]">
+            <span>❄️ Coolant Flush</span>
+            <span id="val-p" class="text-[#fde047]">25%</span>
+          </div>
+          <input
+            id="slider-p"
+            type="range"
+            min="0"
+            max="100"
+            value="25"
+            class="mt-2 w-full cursor-pointer accent-[#38bdf8]"
+          />
+          <p class="mt-1 font-mono text-[10px] text-[#fca5a5]/70">Weight: 1.10× flux gain</p>
+        </label>
+
+        <label class="block rounded-xl border border-[#fb923c]/30 bg-[#1b070c] p-3 transition hover:border-[#fbbf24]/60">
+          <div class="flex justify-between font-mono text-[11px] font-bold text-[#fed7aa]">
+            <span>🧲 Magnetic Confinement</span>
+            <span id="val-t" class="text-[#fde047]">25%</span>
+          </div>
+          <input
+            id="slider-t"
+            type="range"
+            min="0"
+            max="100"
+            value="25"
+            class="mt-2 w-full cursor-pointer accent-[#fb923c]"
+          />
+          <p class="mt-1 font-mono text-[10px] text-[#fca5a5]/70">Weight: 0.95× flux gain</p>
+        </label>
+
+        <label class="block rounded-xl border border-[#fb923c]/30 bg-[#1b070c] p-3 transition hover:border-[#fbbf24]/60">
+          <div class="flex justify-between font-mono text-[11px] font-bold text-[#fed7aa]">
+            <span>⚙️ Dampening Rods</span>
+            <span id="val-c" class="text-[#fde047]">18%</span>
+          </div>
+          <input
+            id="slider-c"
+            type="range"
+            min="0"
+            max="100"
+            value="18"
+            class="mt-2 w-full cursor-pointer accent-[#fbbf24]"
+          />
+          <p class="mt-1 font-mono text-[10px] text-[#fca5a5]/70">Weight: 0.80× flux gain</p>
+        </label>
+      </div>
+
+      <p id="forge-seal-status" class="mt-4 font-mono text-xs font-bold text-[#fed7aa]">
+        Status: Menunggu stabilisasi 5 detik di zona Optimal (95% – 100%)...
+      </p>
+    </section>
+
+    <!-- 3. THE TECH STACK ANVIL 2.0 (ARCHITECTURE & TELEMETRY MATRIX) -->
+    <section
+      id="forge-tech-anvil"
+      class="rounded-2xl border-[3px] border-[#b45309] bg-gradient-to-b from-[#23080d] to-[#120407] p-5 shadow-[0_8px_0_#450a0a,0_16px_28px_rgba(0,0,0,0.55)]"
+    >
+      <div class="flex flex-wrap items-start justify-between gap-3 border-b border-[#fbbf24]/25 pb-4">
+        <div>
+          <span class="font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-[#fdba74]">
+            TRIAL II · ARCHITECTURE FORGE &amp; TELEMETRY BENCH
+          </span>
+          <h2 class="mt-1 font-display text-xl font-black text-[#fef3c7]">
+            🔨 The Tech Stack Anvil 2.0
+          </h2>
+          <p class="mt-1 text-xs leading-relaxed text-[#fecdd3]">
+            Pilih kombinasi <strong class="text-[#fde047]">Core Engine</strong> dan <strong class="text-[#fde047]">Target Realm</strong> untuk menempa cetak biru sistem lengkap beserta estimasi latensi p99 dan trade-off arsitektur.
+          </p>
+        </div>
+
+        <!-- Preset Production Chips -->
+        <div class="flex flex-wrap gap-1.5">
+          {anvilPresets.map((preset) => (
+            <button
+              type="button"
+              class="anvil-preset-btn cursor-pointer rounded-lg border border-[#fbbf24]/40 bg-[#450a0a]/80 px-2.5 py-1 font-mono text-[10px] font-bold text-[#fde68a] transition hover:border-[#fbbf24] hover:bg-[#7c2d12]"
+              data-core={preset.core}
+              data-target={preset.target}
+            >
+              {preset.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div class="mt-4 grid gap-3 sm:grid-cols-2">
+        <label class="block rounded-xl border border-[#fb923c]/30 bg-[#1b070c] p-3">
+          <span class="block font-mono text-[10px] font-bold uppercase tracking-wider text-[#fdba74]">
+            ⚙️ Core Runtime / Engine
+          </span>
+          <select
+            id="anvil-core"
+            class="mt-1.5 w-full cursor-pointer rounded-lg border border-[#b45309] bg-[#0e0306] px-3 py-2 font-mono text-xs font-bold text-[#fef3c7]"
+          >
+            <option value="rust-wasm">🦀 Rust / WebAssembly Core</option>
+            <option value="go-postgres">🐹 Go Concurrency + PostgreSQL</option>
+            <option value="python-tensorrt">🐍 Python + YOLOv11 / TensorRT</option>
+            <option value="ts-astro">⚡ TypeScript + Astro Islands</option>
+          </select>
+        </label>
+
+        <label class="block rounded-xl border border-[#fb923c]/30 bg-[#1b070c] p-3">
+          <span class="block font-mono text-[10px] font-bold uppercase tracking-wider text-[#fdba74]">
+            🌐 Target Execution Realm
+          </span>
+          <select
+            id="anvil-target"
+            class="mt-1.5 w-full cursor-pointer rounded-lg border border-[#b45309] bg-[#0e0306] px-3 py-2 font-mono text-xs font-bold text-[#fef3c7]"
+          >
+            <option value="edge-worker">☁️ Cloudflare Global Edge Worker</option>
+            <option value="jetson-edge">🤖 NVIDIA Edge GPU / Drone Unit</option>
+            <option value="high-concurrency">🚀 High-Concurrency Donation Burst</option>
+            <option value="canvas-engine">🎮 60 FPS Browser Canvas World</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="mt-4 flex flex-wrap items-center gap-3">
+        <button
+          id="anvil-forge-btn"
+          type="button"
+          class="cursor-pointer rounded-xl border-2 border-[#fbbf24] bg-gradient-to-b from-[#ea580c] to-[#9a3412] px-5 py-2.5 font-mono text-xs font-black uppercase tracking-wider text-[#fffbeb] shadow-[0_4px_0_#450a0a] transition hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0.5"
+        >
+          🔨 Strike Anvil &amp; Forge Blueprint
+        </button>
+        <span id="anvil-feedback-toast" class="font-mono text-[11px] font-bold text-[#fde68a]">
+          Siap ditempa — pilih preset atau kombinasi di atas.
+        </span>
+      </div>
+
+      <!-- Forged Telemetry & Trade-off Output Card -->
+      <div id="anvil-output" class="mt-4 rounded-xl border-2 border-[#fbbf24]/50 bg-[#0d0306] p-4 shadow-inner">
+        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-[#fbbf24]/20 pb-2.5">
+          <div>
+            <span id="anvil-badge" class="rounded bg-[#7c2d12] px-2 py-0.5 font-mono text-[10px] font-bold uppercase text-[#fde68a]">
+              FORGED TELEMETRY SPEC
+            </span>
+            <h3 id="anvil-title" class="mt-1 font-display text-base font-black text-[#fef3c7]">
+              Edge-Native Zero-Cold-Start Compute
+            </h3>
+          </div>
+          <a
+            id="anvil-route-link"
+            href="/dev"
+            class="rounded-lg border border-[#fb923c]/60 bg-[#450a0a] px-3 py-1 font-mono text-[11px] font-bold text-[#fde68a] transition hover:bg-[#7c2d12]"
+          >
+            Inspect in /dev →
+          </a>
+        </div>
+
+        <div class="mt-3 grid gap-2 sm:grid-cols-3 font-mono text-xs">
+          <div class="rounded-lg border border-[#fb923c]/25 bg-[#1b070c] px-3 py-2">
+            <div class="text-[9px] font-bold uppercase text-[#fdba74]">P99 LATENCY</div>
+            <div id="anvil-latency" class="mt-0.5 text-sm font-black text-[#4ade80]">4.2 ms</div>
+          </div>
+          <div class="rounded-lg border border-[#fb923c]/25 bg-[#1b070c] px-3 py-2">
+            <div class="text-[9px] font-bold uppercase text-[#fdba74]">THROUGHPUT</div>
+            <div id="anvil-throughput" class="mt-0.5 text-sm font-black text-[#fde047]">18,500 RPS</div>
+          </div>
+          <div class="rounded-lg border border-[#fb923c]/25 bg-[#1b070c] px-3 py-2">
+            <div class="text-[9px] font-bold uppercase text-[#fdba74]">MEMORY FOOTPRINT</div>
+            <div id="anvil-memory" class="mt-0.5 text-sm font-black text-[#38bdf8]">2.8 MB RSS</div>
+          </div>
+        </div>
+
+        <p id="anvil-desc" class="mt-3 text-xs leading-relaxed text-[#fecdd3]">
+          Kombinasi Rust/WASM di Cloudflare Worker menghasilkan deterministik sandboxing tanpa JVM/container cold start, ideal untuk validasi kriptografis dan inferensi aturan ringan.
+        </p>
+        <div class="mt-2.5 rounded-lg border border-[#fbbf24]/25 bg-[#19060b] px-3 py-2 font-mono text-[11px] text-[#fde68a]">
+          <strong>⚖️ Architectural Trade-Off:</strong> <span id="anvil-tradeoff">Strict memory limits (128 MB) &amp; no OS threads; offload batch SQL berat ke PostgreSQL queue.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. FOUNDRY COFFER, OVERDRIVE BUFF & ABYSSAL SEALS TRACKER -->
+    <section
+      id="forge-relic-section"
+      class="rounded-2xl border-[3px] border-[#b45309] bg-gradient-to-b from-[#23080d] to-[#120407] p-5 shadow-[0_8px_0_#450a0a,0_16px_28px_rgba(0,0,0,0.55)]"
+    >
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-[#fbbf24]/25 pb-3">
+        <div>
+          <span class="font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-[#fdba74]">
+            CHAMBER OF EMBERS · SEALS &amp; OVERDRIVE RELICS
+          </span>
+          <h2 class="mt-1 font-display text-xl font-black text-[#fef3c7]">
+            🔋 Foundry Coffer &amp; 4 Abyssal Seals
+          </h2>
+        </div>
+        <span class="rounded-full border border-[#fbbf24]/40 bg-[#450a0a] px-3 py-1 font-mono text-[11px] font-bold text-[#fde68a]">
+          Refuel Speed &amp; Architecture Mastery
+        </span>
+      </div>
+
+      <div class="mt-4 grid gap-4 md:grid-cols-2">
+        <!-- Relic I: Geothermal Overdrive +50% Sprint Buff -->
+        <div class="rounded-xl border-2 border-[#fbbf24]/50 bg-[#1a070c] p-4">
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <span class="font-mono text-[10px] font-bold uppercase tracking-wider text-[#fdba74]">
+                RELIC I · PLASMA CAPACITOR
+              </span>
+              <h3 class="mt-0.5 font-display text-base font-black text-[#fef3c7]">
+                ⚡ Geothermal Overdrive (+50% Speed)
+              </h3>
+            </div>
+            <span class="text-2xl">🔋</span>
+          </div>
+          <p class="mt-2 text-xs leading-relaxed text-[#fecdd3]">
+            Alirkan energi kondensor plasma langsung ke bot petualang untuk mempercepat lari menjelajahi Foundry dan halaman Dark Castle sebesar <strong>+50%</strong> selama 25 detik.
+          </p>
+          <div class="mt-3 flex flex-wrap items-center gap-2">
+            <button
+              id="forge-overdrive-btn"
+              type="button"
+              class="cursor-pointer rounded-xl border-2 border-[#fbbf24] bg-gradient-to-b from-[#f59e0b] to-[#b45309] px-4 py-2 font-mono text-xs font-black text-[#1c070a] shadow-[0_3px_0_#451a03] transition hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0"
+            >
+              ⚡ Activate Overdrive Buff
+            </button>
+            <span id="forge-overdrive-timer" class="font-mono text-xs font-bold text-[#fde68a]">
+              Status: Ready
+            </span>
+          </div>
+        </div>
+
+        <!-- Relic II: Unlocked Edge TensorRT & Outbox Pattern Blueprint -->
+        <div class="rounded-xl border-2 border-[#fb923c]/40 bg-[#1a070c] p-4">
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <span class="font-mono text-[10px] font-bold uppercase tracking-wider text-[#fdba74]">
+                RELIC II · MASTERWORK SCHEMATIC
+              </span>
+              <h3 class="mt-0.5 font-display text-base font-black text-[#fef3c7]">
+                🌋 Ember Foundry Blueprint
+              </h3>
+            </div>
+            <span id="relic-blueprint-icon" class="text-2xl">🔒</span>
+          </div>
+
+          <div id="relic-blueprint-locked" class="mt-2 rounded-lg border border-[#ef4444]/35 bg-[#120407] p-3 text-xs text-[#fca5a5]">
+            Terkunci. Seimbangkan <strong>Magma Core Stabilizer</strong> di zona 95%–100% selama 5 detik untuk membuka catatan produksi Zero-Copy Edge &amp; Outbox Relay!
+          </div>
+
+          <div id="relic-blueprint-unlocked" class="mt-2 hidden space-y-2 rounded-lg border border-[#4ade80]/40 bg-[#071f14] p-3 text-xs text-[#dcfce7]">
+            <div class="font-mono text-[10px] font-bold uppercase text-[#86efac]">
+              ✅ SEAL OF EMBER CLAIMED · BLUEPRINT UNLOCKED
+            </div>
+            <p class="leading-relaxed">
+              <strong>AeroScan + FoodLink Foundry Standard:</strong> Pisahkan hot path inferensi (FP16 TensorRT pre-allocated pinned buffers @ 45+ FPS) dari stateful ACID mutation menggunakan PostgreSQL transactional outbox + Redis idempotency lock.
+            </p>
+            <div class="flex flex-wrap gap-2 pt-1">
+              <a href="/lab" class="rounded border border-[#4ade80]/50 bg-[#064e3b] px-2.5 py-1 font-mono text-[10px] font-bold text-[#a7f3d0] hover:brightness-110">
+                🧪 Visit /lab →
+              </a>
+              <a href={githubUrl} target="_blank" rel="noopener noreferrer" class="rounded border border-[#fbbf24]/50 bg-[#451a03] px-2.5 py-1 font-mono text-[10px] font-bold text-[#fde68a] hover:brightness-110">
+                💻 GitHub Repos →
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Relic III: Sovereign 4 Abyssal Seals Tracker -->
+      <div class="mt-4 rounded-xl border-2 border-[#b45309]/50 bg-[#140508] p-4">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <span class="font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-[#fbbf24]">
+            RELIC III · DARK CASTLE SOVEREIGN SEAL REGISTRY
+          </span>
+          <span id="forge-seals-summary" class="font-mono text-xs font-black text-[#fde047]">
+            0 / 4 Abyssal Seals Claimed
+          </span>
+        </div>
+        <div class="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+          {sanctumCards.map((card) => {
+            const meta = ABYSSAL_SEALS_META[card.key];
+            return (
+              <a
+                href={card.href}
+                data-seal-card={card.key}
+                class="flex items-center justify-between gap-2 rounded-xl border border-[#fb923c]/30 bg-[#1e080d] px-3 py-2.5 text-xs transition hover:-translate-y-0.5 hover:border-[#fbbf24]"
+              >
+                <div class="min-w-0">
+                  <div class="font-bold text-[#fef3c7]">{meta.icon} {meta.name}</div>
+                  <div class="truncate font-mono text-[10px] text-[#fdba74]/80">{card.label}</div>
+                </div>
+                <span data-seal-badge={card.key} class="shrink-0 font-mono text-[10px] font-bold text-[#fca5a5]">
+                  🔒
+                </span>
+              </a>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+
+    <WhereTo currentPath="/dark-castle/forge" />
+  </article>
+</TownLayout>
+
+<script>
+  import { awardAbyssalSeal, countAbyssalSeals, getAbyssalSeals } from '../../engine/darkInteriorShared';
+
+  // --- Shared Synth WebAudio FX ---
+  let forgeAudioEnabled = true;
+  let audioCtx: AudioContext | null = null;
+
+  function playForgeTone(freq: number, duration = 0.14, type: OscillatorType = 'triangle', gainPeak = 0.12) {
+    if (!forgeAudioEnabled || typeof window === 'undefined') return;
+    try {
+      const Ctx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      if (!Ctx) return;
+      if (!audioCtx) audioCtx = new Ctx();
+      if (audioCtx.state === 'suspended') void audioCtx.resume();
+
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      gain.gain.setValueAtTime(gainPeak, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration);
+    } catch {
+      // ignore autoplay block
+    }
+  }
+
+  function playAnvilStrike() {
+    playForgeTone(196, 0.12, 'sawtooth', 0.11);
+    setTimeout(() => playForgeTone(587.33, 0.22, 'triangle', 0.14), 45);
+    setTimeout(() => playForgeTone(880, 0.26, 'sine', 0.08), 110);
+  }
+
+  function emitForgeWave(text: string, color = '#fb923c') {
+    window.dispatchEvent(new CustomEvent('town:forge-fx', { detail: { text, color } }));
+  }
+
+  function initForgePage() {
+    const pageRoot = document.querySelector('.forge-page');
+    if (!pageRoot) return;
+
+    let greenTimer: number | null = null;
+    let overdriveTimer: number | null = null;
+
+    // --- Exit Respawn Persistence ---
+    const exitBtn = document.getElementById('forge-exit-btn');
+    exitBtn?.addEventListener('click', () => {
+      try {
+        sessionStorage.setItem('dark-castle:respawn', '33,25,down');
+      } catch {
+        // ignore storage errors
+      }
+    });
+
+    // --- Audio Toggle ---
+    const audioToggle = document.getElementById('forge-audio-toggle');
+    audioToggle?.addEventListener('click', () => {
+      forgeAudioEnabled = !forgeAudioEnabled;
+      audioToggle.textContent = forgeAudioEnabled ? '🔊 Synth FX: ON' : '🔇 Synth FX: MUTED';
+      if (forgeAudioEnabled) playForgeTone(523.25, 0.12, 'triangle', 0.1);
+    });
+
+    // --- Quick-Walk Medals & Keyboard Hotkeys ---
+    const walkTo = (id: string) => {
+      window.dispatchEvent(new CustomEvent('town:walk-to', { detail: { id } }));
+      playForgeTone(392, 0.08, 'sine', 0.07);
+    };
+
+    document.querySelectorAll<HTMLElement>('[data-walk-to]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const id = btn.dataset.walkTo;
+        if (id) walkTo(id);
+      });
+    });
+
+    const hotkeyMap: Record<string, string> = {
+      r: 'magma-core',
+      a: 'tech-anvil',
+      t: 'telemetry-terminal',
+      c: 'charizard',
+      v: 'coolant-valves',
+      l: 'plasma-batteries',
+    };
+
+    const onForgeHotkey = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement | null)?.tagName;
+      if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      const targetId = hotkeyMap[e.key.toLowerCase()];
+      if (targetId) {
+        walkTo(targetId);
+      }
+    };
+    window.addEventListener('keydown', onForgeHotkey);
+
+    // --- Seal UI Hydration ---
+    function refreshSealUI() {
+      const seals = getAbyssalSeals();
+      const count = countAbyssalSeals();
+      const emberClaimed = Boolean(seals.ember);
+
+      const emberPill = document.getElementById('forge-ember-pill');
+      const heroSeals = document.getElementById('hero-seals-count');
+      const summaryEl = document.getElementById('forge-seals-summary');
+      const lockedBox = document.getElementById('relic-blueprint-locked');
+      const unlockedBox = document.getElementById('relic-blueprint-unlocked');
+      const lockIcon = document.getElementById('relic-blueprint-icon');
+
+      if (heroSeals) heroSeals.textContent = `${count}/4`;
+      if (summaryEl) summaryEl.textContent = `${count} / 4 Abyssal Seals Claimed`;
+
+      if (emberPill) {
+        emberPill.textContent = emberClaimed ? '🔥 Seal of Ember Claimed' : '⏳ Seal of Ember Unclaimed';
+        emberPill.className = emberClaimed
+          ? 'rounded-full border border-[#4ade80]/60 bg-[#064e3b] px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-wider text-[#a7f3d0]'
+          : 'rounded-full border border-[#fb923c]/40 bg-[#450a0a]/80 px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-wider text-[#fed7aa]';
+      }
+
+      if (emberClaimed) {
+        lockedBox?.classList.add('hidden');
+        unlockedBox?.classList.remove('hidden');
+        if (lockIcon) lockIcon.textContent = '🔓';
+        const sealStatusEl = document.getElementById('forge-seal-status');
+        if (sealStatusEl) {
+          sealStatusEl.textContent = '🔥 SEAL OF EMBER LOCKED IN! Reaktor stabil — Cetak Biru & Vault Registry diperbarui.';
+          sealStatusEl.className = 'mt-4 font-mono text-xs font-bold text-[#4ade80]';
+        }
+      }
+
+      (['echoes', 'ember', 'valor', 'eternity'] as const).forEach((key) => {
+        const badge = document.querySelector<HTMLElement>(`[data-seal-badge="${key}"]`);
+        const card = document.querySelector<HTMLElement>(`[data-seal-card="${key}"]`);
+        const has = Boolean(seals[key]);
+        if (badge) {
+          badge.textContent = has ? '✅ CLAIMED' : '🔒';
+          badge.className = has
+            ? 'shrink-0 font-mono text-[10px] font-bold text-[#4ade80]'
+            : 'shrink-0 font-mono text-[10px] font-bold text-[#fca5a5]';
+        }
+        if (card && has) {
+          card.classList.add('border-[#4ade80]/50', 'bg-[#071f14]');
+        }
+      });
+    }
+
+    // --- TRIAL I: Magma Core Stabilizer 2.0 ---
+    const sliderP = document.getElementById('slider-p') as HTMLInputElement | null;
+    const sliderT = document.getElementById('slider-t') as HTMLInputElement | null;
+    const sliderC = document.getElementById('slider-c') as HTMLInputElement | null;
+    const valP = document.getElementById('val-p');
+    const valT = document.getElementById('val-t');
+    const valC = document.getElementById('val-c');
+    const reactorReadout = document.getElementById('reactor-readout');
+    const heroLoadReadout = document.getElementById('hero-load-readout');
+    const reactorBar = document.getElementById('reactor-bar');
+    const reactorLockText = document.getElementById('reactor-lock-text');
+    const reactorLockBar = document.getElementById('reactor-lock-bar');
+    const sealStatus = document.getElementById('forge-seal-status');
+    const guardianQuote = document.getElementById('forge-guardian-quote');
+
+    let greenElapsed = 0;
+
+    function evaluateReactor() {
+      if (!sliderP || !sliderT || !sliderC || !reactorReadout || !reactorBar || !sealStatus) return;
+      const p = Number(sliderP.value);
+      const t = Number(sliderT.value);
+      const c = Number(sliderC.value);
+      if (valP) valP.textContent = `${p}%`;
+      if (valT) valT.textContent = `${t}%`;
+      if (valC) valC.textContent = `${c}%`;
+
+      const totalLoad = Math.min(120, Math.round(p * 1.1 + t * 0.95 + c * 0.8));
+      const widthPct = Math.min(100, Math.round((totalLoad / 120) * 100));
+      reactorBar.style.width = `${widthPct}%`;
+      if (heroLoadReadout) heroLoadReadout.textContent = `${totalLoad}%`;
+
+      if (totalLoad >= 95 && totalLoad <= 100) {
+        reactorReadout.textContent = `${totalLoad}% · OPTIMAL RESONANCE`;
+        reactorReadout.className = 'text-sm font-black text-[#4ade80]';
+        reactorBar.className = 'relative z-20 h-full bg-gradient-to-r from-[#22c55e] to-[#4ade80] transition-all duration-100';
+        if (guardianQuote) {
+          guardianQuote.textContent = '"SEMPURNA! Pertahankan resin panas di zona hijau selama 5 detik penuh!"';
+        }
+
+        if (greenTimer === null) {
+          playForgeTone(523.25, 0.14, 'sine', 0.1);
+          greenTimer = window.setInterval(() => {
+            greenElapsed += 0.25;
+            const pct = Math.min(100, (greenElapsed / 5) * 100);
+            if (reactorLockBar) reactorLockBar.style.width = `${pct}%`;
+            if (reactorLockText) {
+              reactorLockText.textContent = `Locking: ${Math.min(5, greenElapsed).toFixed(1)}s / 5.0s`;
+            }
+
+            if (greenElapsed >= 5) {
+              if (greenTimer !== null) clearInterval(greenTimer);
+              greenTimer = null;
+              awardAbyssalSeal('ember');
+              emitForgeWave('SEAL OF EMBER CLAIMED!', '#4ade80');
+              playForgeTone(659.25, 0.16, 'triangle', 0.14);
+              setTimeout(() => playForgeTone(880, 0.25, 'triangle', 0.14), 120);
+              refreshSealUI();
+            } else if (!getAbyssalSeals().ember) {
+              sealStatus.textContent = `Menahan Zona Optimal (${greenElapsed.toFixed(1)}s / 5.0s)...`;
+              sealStatus.className = 'mt-4 font-mono text-xs font-bold text-[#fde047]';
+            }
+          }, 250);
+        }
+      } else {
+        if (greenTimer !== null) {
+          clearInterval(greenTimer);
+          greenTimer = null;
+        }
+        greenElapsed = 0;
+        if (reactorLockBar) reactorLockBar.style.width = '0%';
+        if (reactorLockText) reactorLockText.textContent = 'Hold 5.0s in Green Zone (95% – 100%)';
+
+        if (totalLoad > 100) {
+          reactorReadout.textContent = `${totalLoad}% · OVERLOAD WARNING!`;
+          reactorReadout.className = 'text-sm font-black text-[#f87171]';
+          reactorBar.className = 'relative z-20 h-full bg-gradient-to-r from-[#ef4444] to-[#b91c1c] transition-all duration-100';
+          if (guardianQuote) {
+            guardianQuote.textContent = '"TERLALU PANAS! Kurangi katup sebelum wadah Magma Core mengalami meltdown!"';
+          }
+        } else {
+          reactorReadout.textContent = `${totalLoad}% · UNDERLOAD`;
+          reactorReadout.className = 'text-sm font-black text-[#fdba74]';
+          reactorBar.className = 'relative z-20 h-full bg-gradient-to-r from-[#f59e0b] to-[#ea580c] transition-all duration-100';
+        }
+      }
+    }
+
+    [sliderP, sliderT, sliderC].forEach((s) => s?.addEventListener('input', evaluateReactor));
+
+    document.querySelectorAll<HTMLElement>('.forge-preset-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        if (!sliderP || !sliderT || !sliderC) return;
+        sliderP.value = btn.dataset.presetP || '25';
+        sliderT.value = btn.dataset.presetT || '25';
+        sliderC.value = btn.dataset.presetC || '18';
+        playForgeTone(440, 0.1, 'sine', 0.08);
+        evaluateReactor();
+      });
+    });
+
+    document.getElementById('forge-reset-valves')?.addEventListener('click', () => {
+      if (!sliderP || !sliderT || !sliderC) return;
+      sliderP.value = '25';
+      sliderT.value = '25';
+      sliderC.value = '18';
+      emitForgeWave('CRYO PURGE TRIGGERED!', '#38bdf8');
+      playForgeTone(293.66, 0.16, 'sawtooth', 0.09);
+      evaluateReactor();
+    });
+
+    // --- TRIAL II: Tech Stack Anvil 2.0 ---
+    interface BlueprintSpec {
+      title: string;
+      badge: string;
+      latency: string;
+      throughput: string;
+      memory: string;
+      desc: string;
+      tradeoff: string;
+      routeHref: string;
+      routeLabel: string;
+      waveColor: string;
+    }
+
+    const blueprints: Record<string, BlueprintSpec> = {
+      'rust-wasm::edge-worker': {
+        title: 'Edge-Native Zero-Cold-Start Compute',
+        badge: 'CLOUDFLARE WORKER · WASM',
+        latency: '4.2 ms p99',
+        throughput: '18,500 RPS',
+        memory: '2.8 MB RSS',
+        desc: 'Menjalankan modul Rust terkompilasi ke WASM tepat di PoP terdekat dengan pengguna untuk validasi kriptografis, parser binary, dan rate-limiting instan.',
+        tradeoff: 'Batas memori ketat (128 MB) & tanpa OS multithreading — offload transaksi berat ke PostgreSQL worker terpisah.',
+        routeHref: '/dev',
+        routeLabel: 'Inspect Systems in /dev →',
+        waveColor: '#fb923c',
+      },
+      'python-tensorrt::jetson-edge': {
+        title: 'AeroScan Real-Time Vision Telemetry Pipeline',
+        badge: 'EDGE AI · YOLOv11 + TENSORRT',
+        latency: '14.8 ms / frame',
+        throughput: '45+ FPS Stream',
+        memory: '42 MB Pinned',
+        desc: 'Pipeline Computer Vision YOLOv11 dikompilasi ke FP16 TensorRT Engine dengan pinned buffers RAII agar bebas memory leak meski berjalan 72+ jam nonstop.',
+        tradeoff: 'Engine plan terikat dengan arsitektur GPU target — wajib build image terpisah per seri Jetson/GPU.',
+        routeHref: '/lab',
+        routeLabel: 'Test Live in /lab →',
+        waveColor: '#38bdf8',
+      },
+      'go-postgres::high-concurrency': {
+        title: 'FoodLink Atomic Ledger & Transactional Outbox',
+        badge: 'CONCURRENT BACKEND · ACID',
+        latency: '9.4 ms p99',
+        throughput: '14,200 RPS',
+        memory: '64 MB Heap',
+        desc: 'Menghubungkan goroutine worker pool dengan PostgreSQL SELECT FOR UPDATE & outbox relay agar klaim donasi paralel bebas race condition & double-spend.',
+        tradeoff: 'Row locking ketat menurunkan throughput tulis pada satu record panas; pecah antrean memakai Redis Lua singleflight.',
+        routeHref: '/tower',
+        routeLabel: 'Open Command Tower →',
+        waveColor: '#fde047',
+      },
+      'ts-astro::canvas-engine': {
+        title: '60 FPS Multi-Map Offscreen Canvas World',
+        badge: 'FRONTEND ARCHITECTURE · ZERO BLOAT',
+        latency: '< 1.8 ms / frame',
+        throughput: '60 FPS Locked',
+        memory: '18 MB GPU Cache',
+        desc: 'Merender lapisan terrain statis ke offscreen backing canvas sekali saat map dimuat, lalu hanya menganimasikan karakter & partikel ringan dengan Sleep-on-Idle.',
+        tradeoff: 'Membutuhkan sinkronisasi koordinat DOM button overlays saat viewport di-zoom agar aksesibilitas tetap terjaga.',
+        routeHref: '/dev',
+        routeLabel: 'View Portfolio Architecture →',
+        waveColor: '#c084fc',
+      },
+    };
+
+    let forgeCount = 0;
+
+    function renderAnvilBlueprint(triggerFx: boolean) {
+      const coreEl = document.getElementById('anvil-core') as HTMLSelectElement | null;
+      const targetEl = document.getElementById('anvil-target') as HTMLSelectElement | null;
+      if (!coreEl || !targetEl) return;
+
+      const core = coreEl.value;
+      const target = targetEl.value;
+      const exactKey = `${core}::${target}`;
+      const spec: BlueprintSpec = blueprints[exactKey] ?? {
+        title: `Hybrid Forged Stack (${core.toUpperCase()} × ${target.toUpperCase()})`,
+        badge: 'CUSTOM HYBRID ARCHITECTURE',
+        latency: '11.5 ms p99',
+        throughput: '11,000 RPS',
+        memory: '48 MB Steady',
+        desc: `Menggabungkan ketangguhan ${coreEl.options[coreEl.selectedIndex]?.text || core} ke realm ${targetEl.options[targetEl.selectedIndex]?.text || target} lewat antarmuka kontrak eksplisit, telemetry metric guard, dan graceful circuit breaker.`,
+        tradeoff: 'Kombinasi lintas-domain menuntut observability tracing ketat (OpenTelemetry) untuk melacak bottleneck serialisasi.',
+        routeHref: '/dev',
+        routeLabel: 'Explore Benchmarks in /dev →',
+        waveColor: '#fbbf24',
+      };
+
+      const setEl = (id: string, val: string) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = val;
+      };
+      setEl('anvil-title', spec.title);
+      setEl('anvil-badge', spec.badge);
+      setEl('anvil-latency', spec.latency);
+      setEl('anvil-throughput', spec.throughput);
+      setEl('anvil-memory', spec.memory);
+      setEl('anvil-desc', spec.desc);
+      setEl('anvil-tradeoff', spec.tradeoff);
+
+      const routeLink = document.getElementById('anvil-route-link') as HTMLAnchorElement | null;
+      if (routeLink) {
+        routeLink.href = spec.routeHref;
+        routeLink.textContent = spec.routeLabel;
+      }
+
+      if (triggerFx) {
+        forgeCount += 1;
+        const countEl = document.getElementById('hero-forges-count');
+        if (countEl) countEl.textContent = String(forgeCount);
+        const toast = document.getElementById('anvil-feedback-toast');
+        if (toast) toast.textContent = `🔥 Blueprint "${spec.title}" ditempa!`;
+        playAnvilStrike();
+        emitForgeWave('STACK FORGED!', spec.waveColor);
+      }
+    }
+
+    document.getElementById('anvil-forge-btn')?.addEventListener('click', () => renderAnvilBlueprint(true));
+
+    document.querySelectorAll<HTMLElement>('.anvil-preset-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const coreEl = document.getElementById('anvil-core') as HTMLSelectElement | null;
+        const targetEl = document.getElementById('anvil-target') as HTMLSelectElement | null;
+        if (coreEl && btn.dataset.core) coreEl.value = btn.dataset.core;
+        if (targetEl && btn.dataset.target) targetEl.value = btn.dataset.target;
+        renderAnvilBlueprint(true);
+      });
+    });
+
+    // --- RELIC I: Geothermal Overdrive (+50% Speed Buff) ---
+    let overdriveLeft = 0;
+
+    document.getElementById('forge-overdrive-btn')?.addEventListener('click', () => {
+      window.dispatchEvent(new CustomEvent('town:claim-lucky-egg'));
+      emitForgeWave('GEOTHERMAL OVERDRIVE +50%!', '#fbbf24');
+      playForgeTone(659.25, 0.14, 'triangle', 0.12);
+      setTimeout(() => playForgeTone(987.77, 0.2, 'sine', 0.1), 90);
+
+      overdriveLeft = 25;
+      const timerLabel = document.getElementById('forge-overdrive-timer');
+      if (timerLabel) timerLabel.textContent = `⚡ Active: ${overdriveLeft}s`;
+      if (overdriveTimer !== null) clearInterval(overdriveTimer);
+      overdriveTimer = window.setInterval(() => {
+        overdriveLeft -= 1;
+        if (timerLabel) {
+          timerLabel.textContent = overdriveLeft > 0 ? `⚡ Active: ${overdriveLeft}s` : 'Status: Ready';
+        }
+        if (overdriveLeft <= 0 && overdriveTimer !== null) {
+          clearInterval(overdriveTimer);
+          overdriveTimer = null;
+        }
+      }, 1000);
+    });
+
+    refreshSealUI();
+    evaluateReactor();
+    renderAnvilBlueprint(false);
+
+    document.addEventListener(
+      'astro:before-swap',
+      () => {
+        if (greenTimer !== null) clearInterval(greenTimer);
+        if (overdriveTimer !== null) clearInterval(overdriveTimer);
+        window.removeEventListener('keydown', onForgeHotkey);
+      },
+      { once: true }
+    );
+  }
+
+  initForgePage();
+  document.addEventListener('astro:page-load', initForgePage);
+</script>

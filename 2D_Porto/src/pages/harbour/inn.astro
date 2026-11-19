@@ -1,0 +1,646 @@
+---
+import TownLayout from '../../layouts/TownLayout.astro';
+import WhereTo from '../../components/WhereTo.astro';
+import { crewAssignments, profile } from '../../lib/profile';
+import { MARITIME_SEALS_META } from '../../engine/harbourInteriorShared';
+
+const allSeals = Object.values(MARITIME_SEALS_META);
+
+// 4-step chronological & safe archipelago waypoints (plus reefs to avoid)
+const chartNodes = [
+  { id: 'c0', row: 0, col: 0, kind: 'waypoint', step: 1, icon: '🗄️', title: 'Database Lab Harbor', sub: 'ITENAS (2024–2025)' },
+  { id: 'c1', row: 0, col: 1, kind: 'reef', step: 0, icon: '🪨', title: 'Jagged Coral Shoal', sub: 'Hazard' },
+  { id: 'c2', row: 0, col: 2, kind: 'waypoint', step: 2, icon: '☕', title: 'OOP & Network Isles', sub: 'Java · MikroTik' },
+  { id: 'c3', row: 0, col: 3, kind: 'reef', step: 0, icon: '🌀', title: 'Squall Maelstrom', sub: 'Hazard' },
+  { id: 'c4', row: 1, col: 0, kind: 'reef', step: 0, icon: '🌪️', title: 'Riptide Strait', sub: 'Hazard' },
+  { id: 'c5', row: 1, col: 1, kind: 'waypoint', step: 3, icon: '🏢', title: 'PT Dwi Purwa Dock', sub: 'Software Dev Intern' },
+  { id: 'c6', row: 1, col: 2, kind: 'reef', step: 0, icon: '🪨', title: 'Sunken Breakwater', sub: 'Hazard' },
+  { id: 'c7', row: 1, col: 3, kind: 'waypoint', step: 4, icon: '🤖', title: 'Robotics Coordinator', sub: 'ITENAS 2026 Flagship' },
+];
+---
+
+<TownLayout
+  title="Harbourmaster Tudor Inn — Leadership & Voyage Route | Harbour Town"
+  description="Enter Harbourmaster Tudor Inn (15×12) in Harbour Town: chart the 4-Waypoint Sea Passage with Urshifu to unlock the Seal of the Navigator and read Zulfan’s crew mentorship chronicles."
+  place="harbour-inn"
+>
+  <article
+    class="inn-page space-y-6 pb-10 text-[#0f172a]"
+    data-summary-text={`${profile.person.name} Leadership, Mentorship & Crew Chronicles — Harbourmaster Tudor Inn guarded by Urshifu, Gardevoir & Plesiomon.`}
+  >
+    <!-- 1. TUDOR CHARTROOM HERO BANNER -->
+    <header class="relative overflow-hidden rounded-2xl border-[3px] border-[#b91c1c] bg-gradient-to-b from-[#fffaf0] via-[#f7ead2] to-[#e9d5b0] p-5 text-[#2c1e12] shadow-[0_8px_0_#7f1d1d,0_18px_36px_rgba(127,29,29,0.28)]">
+      <div
+        class="pointer-events-none absolute inset-x-0 top-0 h-2 bg-[repeating-linear-gradient(90deg,#991b1b_0px,#991b1b_14px,#f59e0b_14px,#f59e0b_28px,#0369a1_28px,#0369a1_42px)]"
+        aria-hidden="true"
+      ></div>
+      <div
+        class="pointer-events-none absolute inset-x-0 bottom-0 h-2 bg-[repeating-linear-gradient(90deg,#0369a1_0px,#0369a1_14px,#f59e0b_14px,#f59e0b_28px,#991b1b_28px,#991b1b_42px)]"
+        aria-hidden="true"
+      ></div>
+
+      <div class="relative z-10 mt-1 flex flex-wrap items-start justify-between gap-4">
+        <div class="space-y-2">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="rounded-full border border-[#991b1b] bg-[#991b1b] px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[#fef3c7]">
+              🏡 HARBOURMASTER TUDOR INN · CHARTROOM
+            </span>
+            <span
+              id="inn-seal-pill"
+              class="rounded-full border border-[#d97706]/60 bg-[#fef3c7] px-2.5 py-1 font-mono text-[10px] font-bold uppercase text-[#78350f]"
+            >
+              ⏳ Seal Unclaimed
+            </span>
+          </div>
+          <h1 class="font-display text-2xl font-black tracking-tight text-[#1e293b] sm:text-3xl">
+            🏡 Harbourmaster Tudor Inn &amp; Crew Hall
+          </h1>
+          <p class="max-w-2xl text-sm leading-relaxed text-[#44403c]">
+            Penginapan hangat berdinding kayu ek dan batu kapur di tepi taman bunga — dijaga oleh
+            <strong class="text-[#334155]">Urshifu</strong> bersama <strong class="text-[#059669]">Gardevoir</strong> &amp; <strong class="text-[#0284c7]">Plesiomon</strong>.
+            Petakan <strong>4 Titik Rute Pelayaran</strong> dari Pelabuhan #1 hingga #4 untuk mengklaim <strong class="text-[#b91c1c]">Seal of the Navigator</strong>!
+          </p>
+        </div>
+
+        <div class="flex flex-col items-end gap-2">
+          <div class="grid grid-cols-3 gap-2 rounded-xl border-2 border-[#b91c1c] bg-[#fffbeb] px-3 py-2 text-center font-mono shadow-inner">
+            <div>
+              <div class="text-[9px] font-bold uppercase text-[#991b1b]">WAYPOINTS</div>
+              <div id="hero-route-score" class="text-sm font-black text-[#1e3a8a]">0 / 4</div>
+            </div>
+            <div>
+              <div class="text-[9px] font-bold uppercase text-[#991b1b]">PASSAGE</div>
+              <div id="hero-route-state" class="text-sm font-black text-[#b45309]">CHARTING</div>
+            </div>
+            <div>
+              <div class="text-[9px] font-bold uppercase text-[#991b1b]">SEALS</div>
+              <div id="hero-inn-seals" class="text-sm font-black text-[#15803d]">0 / 5</div>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-end gap-2">
+            <button
+              id="inn-audio-toggle"
+              type="button"
+              class="cursor-pointer rounded-lg border-2 border-[#d97706] bg-[#fef3c7] px-2.5 py-1.5 font-mono text-[11px] font-bold text-[#78350f] transition hover:bg-[#fde68a]"
+            >
+              🔔 Bell Audio: ON
+            </button>
+            <a
+              id="inn-exit-btn"
+              href="/harbour?from=inn"
+              class="inline-flex items-center gap-1.5 rounded-lg border-2 border-[#7f1d1d] bg-gradient-to-b from-[#b91c1c] to-[#7f1d1d] px-3 py-1.5 font-mono text-xs font-extrabold text-[#fef3c7] shadow-[0_3px_0_#450a0a] transition hover:-translate-y-0.5 hover:brightness-110"
+            >
+              ⚓ Exit to Harbour
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tri-Guardian Dialogue Switcher -->
+      <div class="relative z-10 mt-4 flex flex-col gap-3 rounded-xl border-2 border-[#b91c1c]/35 bg-[#fffbeb]/95 p-3.5 sm:flex-row sm:items-center">
+        <div class="flex shrink-0 items-center gap-1.5">
+          <button
+            type="button"
+            data-inn-walk="urshifu"
+            data-speaker="🥋 Urshifu · Fleet Harbourmaster"
+            data-quote="True leadership plots every leg of the voyage in order: guide the crew from Database Lab all the way to Robotics Coordinator!"
+            data-fx-text="SURGING CAPTAIN COMMAND!"
+            data-fx-color="#f87171"
+            class="flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl border-2 border-[#334155] bg-[#f1f5f9] text-xl shadow-[0_2px_0_#1e293b] transition hover:-translate-y-0.5"
+            title="Walk to Urshifu"
+          >
+            🥋
+          </button>
+          <button
+            type="button"
+            data-inn-walk="gardevoir"
+            data-speaker="✨ Gardevoir · Harmony Tactician"
+            data-quote="Six semesters of laboratory mentoring across Computer Networks, Java OOP, IoT & Robotics built the steady judgment behind every launch."
+            data-fx-text="EMPATHIC HARMONY!"
+            data-fx-color="#34d399"
+            class="flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl border-2 border-[#059669] bg-[#d1fae5] text-xl shadow-[0_2px_0_#065f46] transition hover:-translate-y-0.5"
+            title="Walk to Gardevoir"
+          >
+            ✨
+          </button>
+          <button
+            type="button"
+            data-inn-walk="plesiomon"
+            data-speaker="🌊 Plesiomon · Archipelago Scout"
+            data-quote="Avoid the jagged reefs and squalls on the Chart Table! Once your route locks in, brew spiced sea-tea for +50% Overdrive speed."
+            data-fx-text="CLEAR TIDE PASSAGE!"
+            data-fx-color="#38bdf8"
+            class="flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl border-2 border-[#0284c7] bg-[#e0f2fe] text-xl shadow-[0_2px_0_#0c4a6e] transition hover:-translate-y-0.5"
+            title="Walk to Plesiomon"
+          >
+            🌊
+          </button>
+        </div>
+
+        <div class="min-w-0 flex-1">
+          <div id="inn-speaker" class="font-mono text-[10px] font-black uppercase tracking-wider text-[#991b1b]">
+            🥋 Urshifu · Fleet Harbourmaster
+          </div>
+          <p id="inn-dialogue" class="mt-0.5 text-xs italic leading-relaxed text-[#44403c]">
+            “Connect waypoints Step 1 → Step 4 on the Nautical Chart below while dodging reefs to claim the Seal of the Navigator!”
+          </p>
+        </div>
+      </div>
+
+      <!-- 6 Quick-Walk Station Chips + Hotkeys -->
+      <nav aria-label="Quick walk Inn stations" class="relative z-10 mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+        <button
+          type="button"
+          data-inn-walk="urshifu"
+          data-scroll-to="inn-route-trial"
+          data-hotkey="u"
+          class="inn-station-btn flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#334155] bg-white px-2.5 py-2 text-left shadow-[0_2px_0_#1e293b] transition hover:-translate-y-0.5 hover:bg-[#f1f5f9]"
+        >
+          <span class="flex items-center gap-1.5 truncate text-xs font-bold text-[#0f172a]">
+            <span>🥋</span>
+            <span class="truncate">Urshifu</span>
+          </span>
+          <kbd class="rounded border border-[#334155]/40 bg-[#f1f5f9] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#334155]">U</kbd>
+        </button>
+
+        <button
+          type="button"
+          data-inn-walk="chart-table"
+          data-scroll-to="inn-route-trial"
+          data-hotkey="c"
+          class="inn-station-btn flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#b91c1c] bg-white px-2.5 py-2 text-left shadow-[0_2px_0_#7f1d1d] transition hover:-translate-y-0.5 hover:bg-[#fef2f2]"
+        >
+          <span class="flex items-center gap-1.5 truncate text-xs font-bold text-[#0f172a]">
+            <span>🗺️</span>
+            <span class="truncate">Chart Table</span>
+          </span>
+          <kbd class="rounded border border-[#b91c1c]/40 bg-[#fee2e2] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#991b1b]">C</kbd>
+        </button>
+
+        <button
+          type="button"
+          data-inn-walk="tea-counter"
+          data-scroll-to="inn-route-trial"
+          data-hotkey="t"
+          class="inn-station-btn flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#d97706] bg-white px-2.5 py-2 text-left shadow-[0_2px_0_#92400e] transition hover:-translate-y-0.5 hover:bg-[#fffbeb]"
+        >
+          <span class="flex items-center gap-1.5 truncate text-xs font-bold text-[#0f172a]">
+            <span>☕</span>
+            <span class="truncate">Sea-Tea</span>
+          </span>
+          <kbd class="rounded border border-[#d97706]/40 bg-[#fef3c7] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#78350f]">T</kbd>
+        </button>
+
+        <button
+          type="button"
+          data-inn-walk="tudor-hearth"
+          data-scroll-to="inn-crew-section"
+          data-hotkey="h"
+          class="inn-station-btn flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#ea580c] bg-white px-2.5 py-2 text-left shadow-[0_2px_0_#9a3412] transition hover:-translate-y-0.5 hover:bg-[#fff7ed]"
+        >
+          <span class="flex items-center gap-1.5 truncate text-xs font-bold text-[#0f172a]">
+            <span>🔥</span>
+            <span class="truncate">Hearth</span>
+          </span>
+          <kbd class="rounded border border-[#ea580c]/40 bg-[#ffedd5] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#9a3412]">H</kbd>
+        </button>
+
+        <button
+          type="button"
+          data-inn-walk="ship-cabinet"
+          data-scroll-to="inn-crew-section"
+          data-hotkey="b"
+          class="inn-station-btn flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#0284c7] bg-white px-2.5 py-2 text-left shadow-[0_2px_0_#0c4a6e] transition hover:-translate-y-0.5 hover:bg-[#f0f9ff]"
+        >
+          <span class="flex items-center gap-1.5 truncate text-xs font-bold text-[#0f172a]">
+            <span>⛵</span>
+            <span class="truncate">Ship Curios</span>
+          </span>
+          <kbd class="rounded border border-[#0284c7]/40 bg-[#e0f2fe] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#0c4a6e]">B</kbd>
+        </button>
+
+        <button
+          type="button"
+          data-inn-walk="sailors-log"
+          data-scroll-to="inn-crew-section"
+          data-hotkey="l"
+          class="inn-station-btn flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#059669] bg-white px-2.5 py-2 text-left shadow-[0_2px_0_#064e3b] transition hover:-translate-y-0.5 hover:bg-[#ecfdf5]"
+        >
+          <span class="flex items-center gap-1.5 truncate text-xs font-bold text-[#0f172a]">
+            <span>📖</span>
+            <span class="truncate">Crew Log</span>
+          </span>
+          <kbd class="rounded border border-[#059669]/40 bg-[#d1fae5] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#065f46]">L</kbd>
+        </button>
+      </nav>
+    </header>
+
+    <!-- 2. MINI-GAME: VOYAGE ROUTE CHARTER -->
+    <section
+      id="inn-route-trial"
+      class="rounded-2xl border-[3px] border-[#b91c1c] bg-gradient-to-b from-[#fffdf7] to-[#f4e9d3] p-5 text-[#1e293b] shadow-[0_6px_0_#7f1d1d]"
+    >
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b-2 border-[#b91c1c]/20 pb-3">
+        <div>
+          <span class="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[#991b1b]">
+            TRIAL III · ARCHIPELAGO SEA PASSAGE
+          </span>
+          <h2 class="mt-0.5 font-display text-lg font-black text-[#0f172a]">
+            🧭 Voyage Route Charter — Plot Step 1 → Step 4 Safely
+          </h2>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <button
+            id="btn-inn-reset-route"
+            type="button"
+            class="cursor-pointer rounded-lg border-2 border-[#64748b] bg-white px-3 py-1 font-mono text-[11px] font-bold text-[#334155] transition hover:bg-[#f1f5f9]"
+          >
+            🔄 Clear Chart
+          </button>
+          <button
+            id="btn-inn-tea-buff"
+            type="button"
+            class="cursor-pointer rounded-lg border-2 border-[#d97706] bg-[#fef3c7] px-3 py-1 font-mono text-[11px] font-bold text-[#78350f] transition hover:bg-[#fde68a]"
+          >
+            ☕ Sip Spiced Sea-Tea (+50% Speed)
+          </button>
+        </div>
+      </div>
+
+      <p class="mt-3 text-xs leading-relaxed text-[#475569]">
+        Klik 4 titik jalur aman sesuai urutan kronologis karier dari <strong class="text-[#1e3a8a]">Step 1 → 2 → 3 → 4</strong>. Hindari karang &amp; pusaran badai di peta!
+      </p>
+
+      <div class="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
+        {chartNodes.map((node) => (
+          <button
+            type="button"
+            data-route-node={node.id}
+            data-node-kind={node.kind}
+            data-node-step={node.step}
+            class={`flex cursor-pointer flex-col justify-between rounded-xl border-2 p-3 text-left transition-all hover:-translate-y-0.5 ${
+              node.kind === 'waypoint'
+                ? 'border-[#0284c7] bg-[#f0f9ff] hover:bg-[#e0f2fe]'
+                : 'border-[#cbd5e1] bg-[#f8fafc] opacity-85 hover:border-[#ef4444]'
+            }`}
+          >
+            <div class="flex items-center justify-between gap-1">
+              <span class="text-lg" aria-hidden="true">{node.icon}</span>
+              <span
+                data-route-badge={node.id}
+                class={`rounded px-1.5 py-0.5 font-mono text-[9px] font-black uppercase ${
+                  node.kind === 'waypoint'
+                    ? 'border border-[#0284c7]/40 bg-white text-[#0369a1]'
+                    : 'border border-[#fca5a5] bg-[#fef2f2] text-[#b91c1c]'
+                }`}
+              >
+                {node.kind === 'waypoint' ? `STEP ${node.step}` : 'HAZARD'}
+              </span>
+            </div>
+            <div class="mt-1.5 text-xs font-black text-[#0f172a]">{node.title}</div>
+            <div class="mt-0.5 font-mono text-[10px] text-[#475569]">{node.sub}</div>
+          </button>
+        ))}
+      </div>
+
+      <div
+        id="inn-trial-banner"
+        class="mt-4 rounded-xl border-2 border-[#cbd5e1] bg-[#f8fafc] px-4 py-3 text-xs font-medium text-[#334155]"
+      >
+        🧭 Status Pelayaran: Mulai dengan mengklik <strong>STEP 1 — Database Lab Harbor</strong>.
+      </div>
+    </section>
+
+    <!-- 3. LEADERSHIP, MENTORSHIP & CREW CHRONICLES -->
+    <section
+      id="inn-crew-section"
+      class="rounded-2xl border-[3px] border-[#991b1b] bg-gradient-to-b from-[#faf6ec] to-[#eedfc2] p-5 text-[#1e293b] shadow-[0_6px_0_#7f1d1d]"
+    >
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b-2 border-[#991b1b]/20 pb-3">
+        <div>
+          <span class="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[#991b1b]">
+            ADMIRALTY CREW LOGBOOK ({crewAssignments.length} ROLES)
+          </span>
+          <h2 class="mt-0.5 font-display text-lg font-black text-[#0f172a]">
+            📖 Leadership, Lab Instruction &amp; Industry Voyages
+          </h2>
+        </div>
+        <span class="rounded-full border border-[#b91c1c]/40 bg-[#fee2e2] px-3 py-1 font-mono text-[10px] font-bold text-[#7f1d1d]">
+          ITENAS &amp; Industry Proven
+        </span>
+      </div>
+
+      <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+        {crewAssignments.map((role) => (
+          <article class="rounded-xl border-2 border-[#d97706]/50 bg-white p-4 shadow-sm">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <span class="rounded bg-[#451a03] px-2 py-0.5 font-mono text-[9px] font-bold uppercase text-[#fde68a]">
+                {role.org}
+              </span>
+              <span class="font-mono text-[10px] font-bold text-[#78350f]">
+                {role.start} → {role.end || 'Present'}
+              </span>
+            </div>
+            <h3 class="mt-1.5 text-sm font-black text-[#0f172a]">{role.title}</h3>
+            <p class="mt-1 text-xs leading-relaxed text-[#475569]">{role.summary}</p>
+            <ul class="mt-2 space-y-1 text-[11px] text-[#334155]">
+              {role.results.map((res) => (
+                <li class="flex items-start gap-1.5">
+                  <span class="mt-0.5 shrink-0 text-[10px] text-[#b91c1c]">▸</span>
+                  <span>{res}</span>
+                </li>
+              ))}
+            </ul>
+            <div class="mt-2.5 flex flex-wrap gap-1">
+              {role.payload.map((tag) => (
+                <span class="rounded border border-[#cbd5e1] bg-[#f8fafc] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#334155]">
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <!-- 4. 5 ROYAL MARITIME SEALS HARBOR LEDGER -->
+    <section
+      id="inn-seals-ledger"
+      class="rounded-2xl border-[3px] border-[#0c4a6e] bg-gradient-to-b from-[#f8f5ea] to-[#ecdfc0] p-5 text-[#1e293b] shadow-[0_6px_0_#082f49]"
+    >
+      <div class="flex flex-wrap items-center justify-between gap-2 pb-3">
+        <div>
+          <span class="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[#0369a1]">
+            AVALON ROYAL ADMIRALTY PROGRESS
+          </span>
+          <h2 class="mt-0.5 font-display text-lg font-black text-[#0f172a]">
+            ⚓ 5 Royal Maritime Seals Ledger
+          </h2>
+        </div>
+        <a
+          href="/harbour"
+          class="rounded-lg border-2 border-[#0369a1] bg-[#e0f2fe] px-3 py-1 font-mono text-[11px] font-bold text-[#0c4a6e] hover:bg-[#bae6fd]"
+        >
+          Lihat Armada &amp; Finale →
+        </a>
+      </div>
+
+      <div class="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-5">
+        {allSeals.map((s) => (
+          <a
+            href={s.route}
+            data-ledger-seal={s.key}
+            class={`rounded-xl border-2 p-3 text-xs transition hover:-translate-y-0.5 ${
+              s.key === 'navigator'
+                ? 'border-[#b91c1c] bg-[#fef2f2]'
+                : 'border-[#cbd5e1] bg-white/85 hover:border-[#0369a1]'
+            }`}
+          >
+            <div class="flex items-center justify-between">
+              <span class="text-base">{s.icon}</span>
+              <span data-ledger-badge={s.key} class="font-mono text-[10px] font-bold text-[#64748b]">
+                🔒
+              </span>
+            </div>
+            <div class="mt-1.5 font-bold text-[#0f172a]">{s.sanctum}</div>
+            <div class="font-mono text-[9px] text-[#0369a1]">{s.name}</div>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <WhereTo currentPath="/harbour/inn" />
+  </article>
+
+  <script>
+    import {
+      MARITIME_SEALS_META,
+      awardMaritimeSeal,
+      countMaritimeSeals,
+      getMaritimeSeals,
+      type MaritimeSealKey,
+    } from '../../engine/harbourInteriorShared';
+
+    let audioEnabled = true;
+    let nextStep = 1;
+
+    function playInnTone(freq = 523.25, dur = 0.2) {
+      if (!audioEnabled || typeof window === 'undefined') return;
+      try {
+        const Ctx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+        if (!Ctx) return;
+        const ctx = new Ctx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, ctx.currentTime);
+        gain.gain.setValueAtTime(0.08, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + dur);
+      } catch {
+        // ignore audio failure
+      }
+    }
+
+    function triggerInnFx(text: string, color = '#f87171') {
+      window.dispatchEvent(new CustomEvent('town:harbour-fx', { detail: { text, color } }));
+    }
+
+    function syncInnSealsUi() {
+      const seals = getMaritimeSeals();
+      const total = countMaritimeSeals();
+      const countEl = document.getElementById('hero-inn-seals');
+      if (countEl) countEl.textContent = `${total} / 5`;
+
+      const pill = document.getElementById('inn-seal-pill');
+      if (pill) {
+        if (seals.navigator) {
+          pill.textContent = '✓ Seal of the Navigator Claimed';
+          pill.className = 'rounded-full border border-[#16a34a] bg-[#dcfce7] px-2.5 py-1 font-mono text-[10px] font-bold uppercase text-[#166534]';
+        } else {
+          pill.textContent = '⏳ Seal of the Navigator Sealed';
+          pill.className = 'rounded-full border border-[#d97706]/60 bg-[#fef3c7] px-2.5 py-1 font-mono text-[10px] font-bold uppercase text-[#78350f]';
+        }
+      }
+
+      (Object.keys(MARITIME_SEALS_META) as MaritimeSealKey[]).forEach((k) => {
+        const badge = document.querySelector<HTMLElement>(`[data-ledger-badge="${k}"]`);
+        if (badge) badge.textContent = seals[k] ? '✓ CLAIMED' : '🔒 SEALED';
+      });
+    }
+
+    function renderRouteUi() {
+      const doneCount = nextStep - 1;
+      const scoreEl = document.getElementById('hero-route-score');
+      if (scoreEl) scoreEl.textContent = `${doneCount} / 4`;
+
+      const stateEl = document.getElementById('hero-route-state');
+      const bannerEl = document.getElementById('inn-trial-banner');
+
+      document.querySelectorAll<HTMLButtonElement>('[data-route-node]').forEach((btn) => {
+        const kind = btn.getAttribute('data-node-kind');
+        const step = Number(btn.getAttribute('data-node-step') || 0);
+        if (kind !== 'waypoint') return;
+        const reached = step < nextStep;
+        btn.classList.toggle('border-[#16a34a]', reached);
+        btn.classList.toggle('bg-[#dcfce7]', reached);
+        btn.classList.toggle('border-[#0284c7]', !reached);
+        btn.classList.toggle('bg-[#f0f9ff]', !reached);
+      });
+
+      if (doneCount >= 4) {
+        if (stateEl) {
+          stateEl.textContent = 'CHARTED';
+          stateEl.className = 'text-sm font-black text-[#15803d]';
+        }
+        if (bannerEl) {
+          bannerEl.className =
+            'mt-4 rounded-xl border-2 border-[#16a34a] bg-[#dcfce7] px-4 py-3 text-xs font-bold text-[#14532d]';
+          bannerEl.textContent =
+            '🧭 SAFE PASSAGE CHARTED! Rute 4 titik melewati kepulauan selesai — Seal of the Navigator resmi tersemat!';
+        }
+        if (!getMaritimeSeals().navigator) {
+          awardMaritimeSeal('navigator');
+          triggerInnFx('VOYAGE CHARTED! SEAL EARNED', '#34d399');
+          playInnTone(659.25, 0.25);
+          setTimeout(() => playInnTone(987.77, 0.35), 140);
+          syncInnSealsUi();
+        }
+      } else {
+        if (stateEl) {
+          stateEl.textContent = 'CHARTING';
+          stateEl.className = 'text-sm font-black text-[#b45309]';
+        }
+        if (bannerEl) {
+          bannerEl.className =
+            'mt-4 rounded-xl border-2 border-[#cbd5e1] bg-[#f8fafc] px-4 py-3 text-xs font-medium text-[#334155]';
+          bannerEl.innerHTML = `🧭 Status Pelayaran: Hubungkan <strong>STEP ${nextStep}</strong> berikutnya sambil menghindari batu karang (${doneCount}/4 terhubung).`;
+        }
+      }
+    }
+
+    function wireInnPage() {
+      if (getMaritimeSeals().navigator) nextStep = 5;
+      syncInnSealsUi();
+      renderRouteUi();
+
+      const exitBtn = document.getElementById('inn-exit-btn');
+      if (exitBtn && exitBtn.dataset.wired !== '1') {
+        exitBtn.dataset.wired = '1';
+        exitBtn.addEventListener('click', () => {
+          try {
+            sessionStorage.setItem('harbour:respawn', '10,30,down');
+          } catch {}
+        });
+      }
+
+      const audioBtn = document.getElementById('inn-audio-toggle');
+      if (audioBtn && audioBtn.dataset.wired !== '1') {
+        audioBtn.dataset.wired = '1';
+        audioBtn.addEventListener('click', () => {
+          audioEnabled = !audioEnabled;
+          audioBtn.textContent = audioEnabled ? '🔔 Bell Audio: ON' : '🔇 Bell Audio: OFF';
+        });
+      }
+
+      const teaBtn = document.getElementById('btn-inn-tea-buff');
+      if (teaBtn && teaBtn.dataset.wired !== '1') {
+        teaBtn.dataset.wired = '1';
+        teaBtn.addEventListener('click', () => {
+          window.dispatchEvent(new CustomEvent('town:claim-lucky-egg'));
+          triggerInnFx('SEA-TEA OVERDRIVE +50%!', '#fbbf24');
+          playInnTone(783.99, 0.28);
+        });
+      }
+
+      document.querySelectorAll<HTMLButtonElement>('[data-route-node]').forEach((btn) => {
+        if (btn.dataset.wired === '1') return;
+        btn.dataset.wired = '1';
+        btn.addEventListener('click', () => {
+          const kind = btn.getAttribute('data-node-kind');
+          const step = Number(btn.getAttribute('data-node-step') || 0);
+          if (nextStep > 4) return;
+          if (kind === 'reef') {
+            playInnTone(196, 0.28);
+            triggerInnFx('SHOAL HAZARD! RE-CHART', '#ef4444');
+            nextStep = 1;
+          } else if (step === nextStep) {
+            playInnTone(440 + step * 88, 0.18);
+            triggerInnFx(`WAYPOINT ${step} LOGGED!`, '#38bdf8');
+            nextStep++;
+          } else if (step > nextStep) {
+            playInnTone(220, 0.22);
+            triggerInnFx(`FOLLOW STEP ${nextStep} FIRST!`, '#f59e0b');
+            nextStep = 1;
+          }
+          renderRouteUi();
+        });
+      });
+
+      const resetBtn = document.getElementById('btn-inn-reset-route');
+      if (resetBtn && resetBtn.dataset.wired !== '1') {
+        resetBtn.dataset.wired = '1';
+        resetBtn.addEventListener('click', () => {
+          nextStep = 1;
+          playInnTone(349.23, 0.14);
+          renderRouteUi();
+        });
+      }
+
+      document.querySelectorAll<HTMLButtonElement>('[data-inn-walk]').forEach((btn) => {
+        if (btn.dataset.wired === '1') return;
+        btn.dataset.wired = '1';
+        btn.addEventListener('click', () => {
+          const propId = btn.getAttribute('data-inn-walk');
+          const scrollTo = btn.getAttribute('data-scroll-to');
+          const speaker = btn.getAttribute('data-speaker');
+          const quote = btn.getAttribute('data-quote');
+          const fxText = btn.getAttribute('data-fx-text');
+          const fxColor = btn.getAttribute('data-fx-color');
+
+          if (propId) {
+            document.querySelector<HTMLButtonElement>(`.town-label[data-id="${propId}"]`)?.click();
+          }
+          if (speaker && quote) {
+            const spEl = document.getElementById('inn-speaker');
+            const qtEl = document.getElementById('inn-dialogue');
+            if (spEl) spEl.textContent = speaker;
+            if (qtEl) qtEl.textContent = `“${quote}”`;
+          }
+          if (fxText) triggerInnFx(fxText, fxColor || '#f87171');
+          if (scrollTo) {
+            document.getElementById(scrollTo)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        });
+      });
+    }
+
+    function handleInnHotkey(e: KeyboardEvent) {
+      if (
+        document.activeElement instanceof HTMLInputElement ||
+        document.activeElement instanceof HTMLTextAreaElement ||
+        e.metaKey ||
+        e.ctrlKey ||
+        e.altKey
+      ) {
+        return;
+      }
+      if (e.key === 'Escape') {
+        (document.getElementById('inn-exit-btn') as HTMLAnchorElement | null)?.click();
+        return;
+      }
+      document.querySelector<HTMLButtonElement>(`.inn-station-btn[data-hotkey="${e.key.toLowerCase()}"]`)?.click();
+    }
+
+    window.addEventListener('harbour:seal-updated', syncInnSealsUi);
+    window.addEventListener('keydown', handleInnHotkey);
+
+    wireInnPage();
+    document.addEventListener('astro:page-load', wireInnPage);
+  </script>
+</TownLayout>

@@ -47,7 +47,7 @@ import { DIGIMON_CATALOG } from '../engine/digimonCatalog';
       type="button"
       id="digidex-close"
       class="w-8 h-8 rounded-lg border border-[#334155] bg-[#0f172a] hover:bg-rose-950/80 hover:border-rose-400 text-[#cbd5e1] hover:text-white font-bold text-sm cursor-pointer transition-colors flex items-center justify-center shrink-0"
-      aria-label="Tutup DigiDex Modal"
+      aria-label="Close DigiDex Modal"
     >
       ✕
     </button>
@@ -98,11 +98,11 @@ import { DIGIMON_CATALOG } from '../engine/digimonCatalog';
             id="btn-digidex-companion"
             class="sm:w-auto py-2.5 px-3 rounded-xl border-2 border-[#38bdf8]/70 bg-[#082f49] hover:bg-[#0284c7] active:translate-y-0.5 text-[#e0f2fe] font-['Press_Start_2P',monospace] text-[9px] sm:text-[10px] tracking-wide shadow-[0_4px_0_#0c4a6e] cursor-pointer transition-all flex items-center justify-center gap-1.5"
           >
-            <span>🤝 Ajak Jalan Bersama</span>
+            <span>🤝 Walk Together</span>
           </button>
         </div>
-        <p class="text-center font-mono text-[10px] text-[#64748b]">
-          Animasi Battle Idle (3 Frame · ~6 FPS) &amp; Serangan Khas (2 Frame) — Tekan Spasi / X untuk serang
+        <p id="digidex-stage-hint" class="text-center font-mono text-[10px] text-[#64748b]">
+          Battle Idle Animation (3 Frames · ~6 FPS) &amp; Signature Attack (2 Frames) — Press Space / X to attack
         </p>
       </div>
 
@@ -111,7 +111,7 @@ import { DIGIMON_CATALOG } from '../engine/digimonCatalog';
         <div class="space-y-3">
           <div class="rounded-xl border border-[#f59e0b]/40 bg-[#1c1208]/75 p-3">
             <div class="font-mono text-[10px] font-bold uppercase tracking-wider text-[#fbbf24] mb-1">
-              ⚡ Jurus Khas (Signature Move)
+              ⚡ Signature Move
             </div>
             <div id="digidex-move-name" class="font-pixel text-xs sm:text-sm font-bold text-[#fef3c7]">
               Terra Force &amp; Great Tornado
@@ -120,10 +120,10 @@ import { DIGIMON_CATALOG } from '../engine/digimonCatalog';
 
           <div class="rounded-xl border border-[#1e293b] bg-[#0a162b] p-3 space-y-2">
             <div class="font-mono text-[10px] font-bold uppercase tracking-wider text-[#38bdf8]">
-              📖 Arsip DigiDex
+              📖 DigiDex Archive
             </div>
             <p id="digidex-lore" class="text-xs leading-relaxed text-[#e2e8f0]">
-              Memuat catatan Digital World...
+              Loading Digital World archive...
             </p>
             <div
               id="digidex-custom-note"
@@ -134,8 +134,8 @@ import { DIGIMON_CATALOG } from '../engine/digimonCatalog';
 
         <div class="rounded-xl border border-[#1e293b] bg-[#071020] p-3 space-y-1">
           <div class="flex items-center justify-between gap-2 font-mono text-[10px]">
-            <span class="text-[#94a3b8]">STATUS PETA:</span>
-            <span id="digidex-coords-text" class="text-[#86efac] font-bold">Terpasang di Peta</span>
+            <span class="text-[#94a3b8]">MAP STATUS:</span>
+            <span id="digidex-coords-text" class="text-[#86efac] font-bold">Placed on Map</span>
           </div>
           <div class="font-mono text-[9px] text-[#64748b] truncate" id="digidex-credit">
             Credit: Digimon World DS Rip
@@ -148,15 +148,15 @@ import { DIGIMON_CATALOG } from '../engine/digimonCatalog';
     <div class="pt-3 border-t border-[#1e293b]">
       <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
         <span class="font-mono text-[10px] font-bold uppercase tracking-wider text-[#94a3b8]">
-          👾 Roster DigiDex Tier 1–4 ({DIGIMON_CATALOG.length})
+          👾 DigiDex Roster Tier 1–4 ({DIGIMON_CATALOG.length})
         </span>
         <span class="font-mono text-[9px] text-[#64748b]">
-          Titik hijau = terpasang ·🤝 = partner aktif
+          Green dot = placed · 🤝 = active partner
         </span>
       </div>
       <div class="flex flex-wrap gap-1.5 mb-2" id="digidex-tier-filters">
         {[
-          { key: 'all', label: `Semua (${DIGIMON_CATALOG.length})` },
+          { key: 'all', label: `All (${DIGIMON_CATALOG.length})` },
           { key: '1', label: `Tier 1 (${DIGIMON_CATALOG.filter((d) => d.tier === 1).length})` },
           { key: '2', label: `Tier 2 (${DIGIMON_CATALOG.filter((d) => d.tier === 2).length})` },
           { key: '3', label: `Tier 3 (${DIGIMON_CATALOG.filter((d) => d.tier === 3).length})` },
@@ -315,7 +315,8 @@ import { DIGIMON_CATALOG } from '../engine/digimonCatalog';
       if (!entry || !iconSlot) return;
       const applyMini = (url: string | null) => {
         if (!url) return;
-        iconSlot.innerHTML = `<img src="${url}" alt="${entry.name}" class="w-5 h-5 object-contain" style="image-rendering:pixelated;" />`;
+        const imgStyle = entry.sheetFormat === 'hd_8dir' ? '' : 'style="image-rendering:pixelated;"';
+        iconSlot.innerHTML = `<img src="${url}" alt="${entry.name}" class="w-5 h-5 object-contain" ${imgStyle} />`;
       };
       const cached = requestDigimonSprites(id, () => {
         const loaded = getDigimonSpritesSync(id);
@@ -349,8 +350,8 @@ import { DIGIMON_CATALOG } from '../engine/digimonCatalog';
         typeof localStorage !== 'undefined' ? localStorage.getItem('digimon:active_companion') : null;
       const isPartner = activeCompanion === activeEntry.id;
       btnCompanion.innerHTML = isPartner
-        ? '<span>👟 Istirahatkan Partner</span>'
-        : '<span>🤝 Ajak Jalan Bersama</span>';
+        ? '<span>👟 Rest Partner</span>'
+        : '<span>🤝 Walk Together</span>';
       btnCompanion.className = isPartner
         ? "sm:w-auto py-2.5 px-3 rounded-xl border-2 border-[#34d399] bg-[#064e3b] hover:bg-[#065f46] active:translate-y-0.5 text-[#d1fae5] font-['Press_Start_2P',monospace] text-[9px] sm:text-[10px] tracking-wide shadow-[0_4px_0_#022c22] cursor-pointer transition-all flex items-center justify-center gap-1.5"
         : "sm:w-auto py-2.5 px-3 rounded-xl border-2 border-[#38bdf8]/70 bg-[#082f49] hover:bg-[#0284c7] active:translate-y-0.5 text-[#e0f2fe] font-['Press_Start_2P',monospace] text-[9px] sm:text-[10px] tracking-wide shadow-[0_4px_0_#0c4a6e] cursor-pointer transition-all flex items-center justify-center gap-1.5";
@@ -388,7 +389,8 @@ import { DIGIMON_CATALOG } from '../engine/digimonCatalog';
       if (!iconBox) return;
       const loaded = getDigimonSpritesSync(entry.id);
       if (loaded?.iconDataUrl) {
-        iconBox.innerHTML = `<img src="${loaded.iconDataUrl}" alt="${entry.name}" class="w-9 h-9 object-contain" style="image-rendering:pixelated;" />`;
+        const imgStyle = entry.sheetFormat === 'hd_8dir' ? '' : 'style="image-rendering:pixelated;"';
+        iconBox.innerHTML = `<img src="${loaded.iconDataUrl}" alt="${entry.name}" class="w-9 h-9 object-contain" ${imgStyle} />`;
       } else {
         iconBox.textContent = entry.iconEmoji;
       }
@@ -427,26 +429,40 @@ import { DIGIMON_CATALOG } from '../engine/digimonCatalog';
 
       if (coordsEl) {
         if (detail?.x !== undefined && detail?.y !== undefined) {
-          coordsEl.textContent = `Koordinat (${detail.x}, ${detail.y}) · Aktif di Peta`;
+          coordsEl.textContent = `Coords (${detail.x}, ${detail.y}) · Active on Map`;
         } else if (placedInst) {
-          coordsEl.textContent = `Koordinat (${placedInst.x}, ${placedInst.y}) · Aktif di Peta`;
+          coordsEl.textContent = `Coords (${placedInst.x}, ${placedInst.y}) · Active on Map`;
         } else {
-          coordsEl.textContent = 'Katalog Siap Pasang (Town Editor)';
+          coordsEl.textContent = 'Ready to Place in Catalog (Town Editor)';
         }
       }
 
       syncHeaderIcon(entry);
+      const stageHintEl = document.getElementById('digidex-stage-hint');
+      const syncAnimBadges = () => {
+        const loaded = getDigimonSpritesSync(entry.id);
+        const idleLen = loaded?.largeIdle?.length || (entry.sheetFormat === 'hd_8dir' ? 1 : 3);
+        const atkLen = loaded?.largeAttack?.length || 2;
+        if (animPill && !attackPhaseActive) {
+          animPill.textContent = idleLen > 1 ? `● BATTLE IDLE (${idleLen}F)` : '● BATTLE STANCE';
+          animPill.className =
+            'px-2 py-0.5 rounded bg-[#091526]/90 border border-[#00f0ff]/60 font-mono text-[9px] font-bold uppercase text-[#67e8f9]';
+        }
+        if (stageHintEl) {
+          stageHintEl.textContent =
+            idleLen > 1
+              ? `Battle Idle Animation (${idleLen} Frames · ~6 FPS) & Signature Attack (${atkLen} Frames) — Press Space / X to attack`
+              : `3/4 Combat Stance (8-Directional HD Sprite) & Signature Attack (${atkLen} Frames) — Press Space / X to attack`;
+        }
+      };
+
+      syncAnimBadges();
       requestDigimonSprites(entry.id, () => {
         if (activeEntry.id === entry.id) {
           syncHeaderIcon(entry);
+          syncAnimBadges();
         }
       });
-
-      if (animPill) {
-        animPill.textContent = '● BATTLE IDLE (3F)';
-        animPill.className =
-          'px-2 py-0.5 rounded bg-[#091526]/90 border border-[#00f0ff]/60 font-mono text-[9px] font-bold uppercase text-[#67e8f9]';
-      }
 
       updateRosterPlacedBadges();
     };
@@ -502,8 +518,10 @@ import { DIGIMON_CATALOG } from '../engine/digimonCatalog';
       if (attackPhaseActive && atkElapsed >= 1350) {
         attackPhaseActive = false;
         particles = [];
+        const curSprites = getDigimonSpritesSync(activeEntry.id);
+        const idleCount = curSprites?.largeIdle?.length || 3;
         if (animPill) {
-          animPill.textContent = '● BATTLE IDLE (3F)';
+          animPill.textContent = idleCount > 1 ? `● BATTLE IDLE (${idleCount}F)` : '● BATTLE STANCE';
           animPill.className =
             'px-2 py-0.5 rounded bg-[#091526]/90 border border-[#00f0ff]/60 font-mono text-[9px] font-bold uppercase text-[#67e8f9]';
         }
@@ -606,8 +624,9 @@ import { DIGIMON_CATALOG } from '../engine/digimonCatalog';
         }
 
         if (frame) {
-          const maxStageW = 240;
-          const maxStageH = 166;
+          const isHd8Dir = activeEntry.sheetFormat === 'hd_8dir';
+          const maxStageW = isHd8Dir ? 214 : 240;
+          const maxStageH = isHd8Dir ? 144 : 166;
           const scale = Math.min(maxStageW / frame.width, maxStageH / frame.height);
           const drawW = Math.round(frame.width * scale);
           const drawH = Math.round(frame.height * scale);
@@ -622,7 +641,13 @@ import { DIGIMON_CATALOG } from '../engine/digimonCatalog';
           ctx.ellipse(w / 2, floorY, Math.min(62, drawW * 0.42), 10, 0, 0, Math.PI * 2);
           ctx.fill();
 
-          ctx.imageSmoothingEnabled = false;
+          ctx.save();
+          if (isHd8Dir) {
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+          } else {
+            ctx.imageSmoothingEnabled = false;
+          }
           ctx.drawImage(
             frame.canvas,
             Math.round((w - drawW) / 2),
@@ -630,6 +655,7 @@ import { DIGIMON_CATALOG } from '../engine/digimonCatalog';
             drawW,
             drawH
           );
+          ctx.restore();
         }
       } else {
         ctx.fillStyle = theme.primary;

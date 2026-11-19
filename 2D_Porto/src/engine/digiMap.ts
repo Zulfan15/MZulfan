@@ -20,6 +20,45 @@ export const DIGI_RETURN_GATE = {
   terraceYMax: 6,
 } as const;
 
+export const DIGI_KINGDOM_GATE = {
+  xMin: 19,
+  xMax: 21,
+  yMin: 40,
+  yMax: 41,
+  centerX: 20,
+  centerY: 40,
+  terraceXMin: 18,
+  terraceXMax: 22,
+  terraceYMin: 38,
+  terraceYMax: 42,
+} as const;
+
+export const DIGI_DARK_CASTLE_GATE = {
+  xMin: 4,
+  xMax: 6,
+  yMin: 21,
+  yMax: 23,
+  centerX: 5,
+  centerY: 22,
+  terraceXMin: 4,
+  terraceXMax: 7,
+  terraceYMin: 20,
+  terraceYMax: 24,
+} as const;
+
+export const DIGI_SKY_CASTLE_GATE = {
+  xMin: 35,
+  xMax: 37,
+  yMin: 21,
+  yMax: 23,
+  centerX: 36,
+  centerY: 22,
+  terraceXMin: 34,
+  terraceXMax: 38,
+  terraceYMin: 20,
+  terraceYMax: 24,
+} as const;
+
 export const DIGI_PLAZA_CONSOLE = {
   id: 'digidex-console',
   x: 19,
@@ -118,8 +157,38 @@ export function createDigiMap(_data: TownData): TownMap {
   fillRect(12, 21, 14, 23, Tile.PATH, 0);  // West Plaza Connector
   fillRect(29, 18, 31, 26, Tile.PATH, 0);  // East Lateral Bridge (Zona 2 <-> Zona 4)
   fillRect(26, 21, 28, 23, Tile.PATH, 0);  // East Plaza Connector
-  fillRect(19, 27, 21, 37, Tile.PATH, 0);  // South Spinal Bridge + Ocean Overlook Pier
+  fillRect(19, 27, 21, 39, Tile.PATH, 0);  // South Spinal Bridge leading down to Kingdom Portal (20, 40)
+  fillRect(
+    DIGI_KINGDOM_GATE.terraceXMin,
+    DIGI_KINGDOM_GATE.terraceYMin,
+    DIGI_KINGDOM_GATE.terraceXMax,
+    DIGI_KINGDOM_GATE.terraceYMax,
+    Tile.PLAZA,
+    0
+  );
   fillRect(17, 31, 23, 33, Tile.PATH, 0);  // Lower Horizontal Bridge (Zona 3 <-> South Spine <-> Zona 4)
+
+  // 4b. West Dark Castle Void Pier & Terrace centered at (5, 22)
+  fillRect(
+    DIGI_DARK_CASTLE_GATE.terraceXMin,
+    DIGI_DARK_CASTLE_GATE.terraceYMin,
+    DIGI_DARK_CASTLE_GATE.terraceXMax,
+    DIGI_DARK_CASTLE_GATE.terraceYMax,
+    Tile.PLAZA,
+    0
+  );
+  fillRect(4, 21, 9, 23, Tile.PATH, 0);    // Walkable bridge from West Lateral Bridge (9, 22) straight to Dark Castle Portal (5, 22)
+
+  // 4c. East Sky Castle Cloud Pier & Terrace centered at (36, 22)
+  fillRect(
+    DIGI_SKY_CASTLE_GATE.terraceXMin,
+    DIGI_SKY_CASTLE_GATE.terraceYMin,
+    DIGI_SKY_CASTLE_GATE.terraceXMax,
+    DIGI_SKY_CASTLE_GATE.terraceYMax,
+    Tile.PLAZA,
+    0
+  );
+  fillRect(31, 21, 37, 23, Tile.PATH, 0);  // Walkable bridge from East Lateral Bridge (31, 22) straight to Sky Castle Portal (36, 22)
 
   // 5. DigiDex Master Console (2x2 solid centerpiece at Central Digi-Plaza X: 19..20, Y: 20..21)
   fillRect(
@@ -131,11 +200,26 @@ export function createDigiMap(_data: TownData): TownMap {
     1
   );
 
-  // 6. Warp Trigger Doors back to Zulfan's Town at (22, 58) facing 'up'
+  // 6. Warp Trigger Doors back to Zulfan's Town at (22, 58) + South Kingdom Portal at (20, 40)
   const doors = new Map<number, string>();
   for (let y = DIGI_RETURN_GATE.yMin; y <= DIGI_RETURN_GATE.yMax; y++) {
     for (let x = DIGI_RETURN_GATE.xMin; x <= DIGI_RETURN_GATE.xMax; x++) {
       doors.set(y * w + x, '/?from=digimon');
+    }
+  }
+  for (let y = DIGI_KINGDOM_GATE.yMin; y <= DIGI_KINGDOM_GATE.yMax; y++) {
+    for (let x = DIGI_KINGDOM_GATE.xMin; x <= DIGI_KINGDOM_GATE.xMax; x++) {
+      doors.set(y * w + x, '/kingdom');
+    }
+  }
+  for (let y = DIGI_DARK_CASTLE_GATE.yMin; y <= DIGI_DARK_CASTLE_GATE.yMax; y++) {
+    for (let x = DIGI_DARK_CASTLE_GATE.xMin; x <= DIGI_DARK_CASTLE_GATE.xMax; x++) {
+      doors.set(y * w + x, '/dark-castle');
+    }
+  }
+  for (let y = DIGI_SKY_CASTLE_GATE.yMin; y <= DIGI_SKY_CASTLE_GATE.yMax; y++) {
+    for (let x = DIGI_SKY_CASTLE_GATE.xMin; x <= DIGI_SKY_CASTLE_GATE.xMax; x++) {
+      doors.set(y * w + x, '/sky-castle');
     }
   }
 
@@ -218,6 +302,10 @@ export function createDigiMap(_data: TownData): TownMap {
     { x: 10, y: 32, radius: 58, color: 'cyan' },
     { x: 30, y: 32, radius: 58, color: 'gold' },
     { x: 20, y: 36, radius: 46, color: 'cyan' },
+    { x: 5, y: 22, radius: 60, color: 'magenta' },
+    { x: 8, y: 22, radius: 42, color: 'magenta' },
+    { x: 36, y: 22, radius: 62, color: 'cyan' },
+    { x: 33, y: 22, radius: 44, color: 'gold' },
   ];
 
   return {

@@ -8,46 +8,46 @@ const habitatZones = [
   {
     id: 'flame-dragon',
     icon: '🔥',
-    badge: 'ZONA I · BARAT LAUT',
+    badge: 'ZONE I · NORTHWEST',
     title: 'Flame & Dragon Canyon',
     coords: 'X: 4–16, Y: 7–17',
-    floor: 'lava_rock (Batu Vulkanik)',
+    floor: 'lava_rock (Volcanic Stone)',
     accent: 'border-[#ea580c] bg-[#24120c] text-[#fed7aa]',
     badgeClass: 'border-[#fb923c] bg-[#431407] text-[#fdba74]',
-    desc: 'Ngarai basalt retak dengan bara vulkanik hangat — zona ideal untuk Greymon-line, Agumon, Guilmon, dan Gallantmon.',
+    desc: 'Cracked basalt canyon glowing with warm volcanic embers — ideal habitat for the Greymon line, Agumon, Guilmon, and Gallantmon.',
   },
   {
     id: 'cyber-steel',
     icon: '⚙️',
-    badge: 'ZONA II · TIMUR LAUT',
+    badge: 'ZONE II · NORTHEAST',
     title: 'Cyber & Steel Dome',
     coords: 'X: 24–36, Y: 7–17',
     floor: 'cyber_grid (Cyber Grid)',
     accent: 'border-[#0284c7] bg-[#09182e] text-[#bae6fd]',
     badgeClass: 'border-[#38bdf8] bg-[#082f49] text-[#7dd3fc]',
-    desc: 'Dek sirkuit neon & pad baja digital untuk Omegamon, Machinedramon, MetalGarurumon, dan partner teknologi.',
+    desc: 'Neon circuit deck & digital steel pads built for Omegamon, Machinedramon, MetalGarurumon, and cybernetic partners.',
   },
   {
     id: 'aqua-cryo',
     icon: '❄️',
-    badge: 'ZONA III · BARAT DAYA',
+    badge: 'ZONE III · SOUTHWEST',
     title: 'Aqua & Cryo Bay',
     coords: 'X: 4–16, Y: 27–38',
-    floor: 'cryo_ice (Lantai Es)',
+    floor: 'cryo_ice (Cryo Ice Floor)',
     accent: 'border-[#06b6d4] bg-[#071f2c] text-[#cffafe]',
     badgeClass: 'border-[#22d3ee] bg-[#083344] text-[#67e8f9]',
-    desc: 'Teluk kristal es berkilau di tepian Digital Ocean — dirancang untuk Gomamon, Seadramon, dan Vikemon.',
+    desc: 'Glimmering ice-crystal bay along the Digital Ocean shoreline — crafted for Gomamon, Seadramon, and Vikemon.',
   },
   {
     id: 'verdant-holy',
     icon: '🌿',
-    badge: 'ZONA IV · TENGGARA',
+    badge: 'ZONE IV · SOUTHEAST',
     title: 'Verdant & Holy Sanctuary',
     coords: 'X: 24–36, Y: 27–38',
-    floor: 'holy_marble + Padang Suci',
+    floor: 'holy_marble + Sacred Meadow',
     accent: 'border-[#ca8a04] bg-[#132215] text-[#fef3c7]',
     badgeClass: 'border-[#fbbf24] bg-[#422006] text-[#fde047]',
-    desc: 'Padang rumput suci dengan altar marmer keemasan — ruang bagi Patamon, Seraphimon, Angewomon, dan Palmon-line.',
+    desc: 'Sacred meadow crowned by golden marble altars — home to Patamon, Seraphimon, Angewomon, and the Palmon line.',
   },
 ];
 ---
@@ -70,7 +70,7 @@ const habitatZones = [
             <span>👾</span> DIGITAL WORLD · MAP 40×45
           </span>
           <span class="inline-flex items-center gap-1 rounded-full border-2 border-[#fbbf24] bg-[#422006]/85 px-2.5 py-0.5 font-mono text-[10px] font-black uppercase tracking-wider text-[#fde047]">
-            FASE 4 · 40 DIGIMON, PATROL &amp; COMPANION
+            PHASE 4 · 40 DIGIMON, PATROL &amp; COMPANION
           </span>
         </div>
 
@@ -79,9 +79,9 @@ const habitatZones = [
         </h1>
 
         <p class="max-w-xl text-xs leading-relaxed text-[#cbd5e1] sm:text-sm">
-          Selamat datang di pulau Digital World berdimensi <strong class="text-[#67e8f9]">40 × 45 tile</strong>!
-          Terhubung langsung dari South Boulevard Portal <code class="rounded bg-[#0f172a] px-1.5 py-0.5 text-[#fde047]">(22, 60)</code> di Zulfan&apos;s Town.
-          Seluruh pulau bebas dikustomisasi memakai <strong class="text-[#fde047]">Town Editor 2.0</strong> — dilengkapi 40 Digimon Tier 1–4, 4-Direction Patrol AI, dan Companion Jalan Bersama.
+          Welcome to the <strong class="text-[#67e8f9]">40 × 45 tile</strong> Digital World island!
+          Directly connected via the South Boulevard Portal <code class="rounded bg-[#0f172a] px-1.5 py-0.5 text-[#fde047]">(22, 60)</code> in Zulfan&apos;s Town.
+          The entire island is freely customizable with <strong class="text-[#fde047]">Town Editor 2.0</strong> — featuring 40 Tier 1–4 Digimon, 4-Direction Patrol AI, and Walk-Together Companions.
         </p>
 
         <div class="flex flex-wrap gap-2 pt-1">
@@ -90,7 +90,7 @@ const habitatZones = [
             data-digi-action="showcase"
             class="btn btn-sm border-2 border-[#00f0ff] bg-[#082f49] font-pixel text-[10px] text-[#e0f2fe] hover:bg-[#0284c7]"
           >
-            📖 Buka DigiDex Showcase
+            📖 Open DigiDex Showcase
           </button>
           <button
             type="button"
@@ -105,21 +105,39 @@ const habitatZones = [
             data-digi-action="patrol"
             class="btn btn-sm border-2 border-[#34d399] bg-[#064e3b] font-pixel text-[10px] text-[#d1fae5] hover:bg-[#065f46]"
           >
-            🚶 Patrol Digimon: AKTIF
+            🚶 Digimon Patrol: ACTIVE
           </button>
           <button
             type="button"
             data-digi-action="editor"
             class="btn btn-sm border-2 border-[#fbbf24] bg-[#451a03] font-pixel text-[10px] text-[#fef3c7] hover:bg-[#78350f]"
           >
-            🛠️ Buka Town Editor 2.0 (E)
+            🛠️ Open Town Editor 2.0 (E)
           </button>
+          <a
+            href="/kingdom"
+            class="btn btn-sm border-2 border-[#dc2626] bg-[#450a0a] font-pixel text-[10px] text-[#fef2f2] hover:bg-[#7f1d1d]"
+          >
+            🏰 Royal Kingdom Portal (20, 40)
+          </a>
+          <a
+            href="/dark-castle"
+            class="btn btn-sm border-2 border-[#9333ea] bg-[#2e1065] font-pixel text-[10px] text-[#f3e8ff] hover:bg-[#581c87]"
+          >
+            🌑 Dark Castle Portal (5, 22)
+          </a>
+          <a
+            href="/sky-castle"
+            class="btn btn-sm border-2 border-[#38bdf8] bg-[#0c4a6e] font-pixel text-[10px] text-[#f0f9ff] hover:bg-[#0284c7]"
+          >
+            ☁️ Sky Castle Portal (36, 22)
+          </a>
           <a
             href="/?from=digimon"
             onclick="sessionStorage.setItem('town:respawn', '22,58,up')"
             class="btn btn-sm border-2 border-[#475569] bg-[#1e293b] font-pixel text-[10px] text-[#f1f5f9] hover:bg-[#334155]"
           >
-            🔙 Kembali ke Zulfan&apos;s Town
+            🔙 Back to Zulfan&apos;s Town
           </a>
         </div>
       </div>
@@ -129,7 +147,7 @@ const habitatZones = [
     <section class="card border-2 border-[#1e293b] bg-[#0b1324] p-4 text-[#e2e8f0]">
       <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
         <h2 class="font-pixel text-xs uppercase tracking-wide text-[#67e8f9]">
-          📟 DigiDex Master Console — Telemetry Fase 4
+          📟 DigiDex Master Console — Phase 4 Telemetry
         </h2>
         <span class="rounded border border-[#00f0ff]/40 bg-[#082f49] px-2 py-0.5 font-mono text-[10px] text-[#67e8f9]">
           Save Target: src/data/digimonLayout.json
@@ -138,7 +156,7 @@ const habitatZones = [
 
       <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <div class="rounded-lg border border-[#1e293b] bg-[#0f172a] p-2.5">
-          <div class="font-mono text-[10px] text-[#94a3b8]">DIMENSI PETA</div>
+          <div class="font-mono text-[10px] text-[#94a3b8]">MAP DIMENSIONS</div>
           <div class="font-pixel text-xs text-[#67e8f9]">40 × 45 Tiles</div>
         </div>
         <div class="rounded-lg border border-[#1e293b] bg-[#0f172a] p-2.5">
@@ -146,22 +164,22 @@ const habitatZones = [
           <div class="font-pixel text-xs text-[#fde047]">(19..21, 3..4)</div>
         </div>
         <div class="rounded-lg border border-[#1e293b] bg-[#0f172a] p-2.5">
-          <div class="font-mono text-[10px] text-[#94a3b8]">KATALOG DIGIMON</div>
+          <div class="font-mono text-[10px] text-[#94a3b8]">DIGIMON CATALOG</div>
           <div class="font-pixel text-xs text-[#86efac]" id="digi-placed-count">
-            {DIGIMON_CATALOG.length} Total Tier 1–4 ({digimonLayout.buildings.length} terpasang)
+            {DIGIMON_CATALOG.length} Total Tier 1–4 ({digimonLayout.buildings.length} placed)
           </div>
         </div>
         <div class="rounded-lg border border-[#1e293b] bg-[#0f172a] p-2.5">
           <div class="font-mono text-[10px] text-[#94a3b8]">DIGIMON COMPANION</div>
           <div class="flex items-center justify-between gap-2">
             <span class="font-pixel text-[10px] text-[#fde047] truncate" id="digi-companion-status">
-              Belum dipilih
+              Not selected
             </span>
             <button
               type="button"
               id="btn-rest-digi-companion"
               class="hidden rounded border border-[#fb7185]/60 bg-[#4c0519] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#fecdd3] hover:bg-[#881337] cursor-pointer shrink-0"
-              title="Istirahatkan Digimon Companion"
+              title="Rest Digimon Companion"
             >
               👟 Rest
             </button>
@@ -172,11 +190,11 @@ const habitatZones = [
       <div class="mt-3 border-t border-[#1e293b] pt-3">
         <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
           <span class="font-mono text-[10px] uppercase tracking-wider text-[#94a3b8]">
-            Katalog Lengkap 40 Digimon Tier 1–4 (Klik untuk Showcase &amp; Ajak Companion)
+            Complete {DIGIMON_CATALOG.length} Digimon Catalog Tier 1–4 (Click for Showcase &amp; Companion)
           </span>
           <div class="flex flex-wrap gap-1.5" id="digi-page-tier-filters">
             {[
-              { key: 'all', label: `Semua (${DIGIMON_CATALOG.length})` },
+              { key: 'all', label: `All (${DIGIMON_CATALOG.length})` },
               { key: '1', label: `Tier 1 (${DIGIMON_CATALOG.filter((d) => d.tier === 1).length})` },
               { key: '2', label: `Tier 2 (${DIGIMON_CATALOG.filter((d) => d.tier === 2).length})` },
               { key: '3', label: `Tier 3 (${DIGIMON_CATALOG.filter((d) => d.tier === 3).length})` },
@@ -218,9 +236,9 @@ const habitatZones = [
     <section class="space-y-3">
       <div class="flex items-center justify-between">
         <h2 class="font-pixel text-xs uppercase tracking-wider text-ink">
-          🏝️ Empat Zona Habitat Elemental
+          🏝️ Four Elemental Habitat Zones
         </h2>
-        <span class="font-mono text-[11px] text-ink-soft">Terhubung Cyber Bridges</span>
+        <span class="font-mono text-[11px] text-ink-soft">Connected by Cyber Bridges</span>
       </div>
 
       <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -234,7 +252,7 @@ const habitatZones = [
             </div>
             <h3 class="font-pixel text-xs font-bold">{zone.title}</h3>
             <p class="mt-1 text-xs leading-relaxed opacity-90">{zone.desc}</p>
-            <div class="mt-2 font-mono text-[10px] opacity-75">Lantai Default: {zone.floor}</div>
+            <div class="mt-2 font-mono text-[10px] opacity-75">Default Floor: {zone.floor}</div>
           </article>
         ))}
       </div>
@@ -253,7 +271,7 @@ const habitatZones = [
       const placed = townConfig
         .getBuildings()
         .filter((b) => b.kind === 'digimon' && !b.hidden).length;
-      countEl.textContent = `${DIGIMON_CATALOG.length} Total Tier 1–4 (${placed} terpasang)`;
+      countEl.textContent = `${DIGIMON_CATALOG.length} Total Tier 1–4 (${placed} placed)`;
     }
 
     function refreshCompanionBar() {
@@ -267,7 +285,7 @@ const habitatZones = [
         statusEl.textContent = `${entry.iconEmoji} ${entry.name}`;
         restBtn?.classList.remove('hidden');
       } else {
-        statusEl.textContent = 'Belum dipilih';
+        statusEl.textContent = 'Not selected';
         restBtn?.classList.add('hidden');
       }
     }
@@ -279,7 +297,7 @@ const habitatZones = [
         typeof explicit === 'boolean'
           ? explicit
           : typeof localStorage === 'undefined' || localStorage.getItem('digimon:patrol_enabled') !== 'false';
-      patrolBtn.textContent = enabled ? '🚶 Patrol Digimon: AKTIF' : '⏸️ Patrol Digimon: PAUSE';
+      patrolBtn.textContent = enabled ? '🚶 Digimon Patrol: ACTIVE' : '⏸️ Digimon Patrol: PAUSED';
       patrolBtn.className = enabled
         ? 'btn btn-sm border-2 border-[#34d399] bg-[#064e3b] font-pixel text-[10px] text-[#d1fae5] hover:bg-[#065f46]'
         : 'btn btn-sm border-2 border-[#64748b] bg-[#1e293b] font-pixel text-[10px] text-[#cbd5e1] hover:bg-[#334155]';

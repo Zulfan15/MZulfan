@@ -1,0 +1,485 @@
+---
+import TownLayout from '../../layouts/TownLayout.astro';
+import WhereTo from '../../components/WhereTo.astro';
+import { profile } from '../../lib/profile';
+import { ROYAL_CRESTS_META } from '../../engine/kingdomInteriorShared';
+
+const allCrests = Object.values(ROYAL_CRESTS_META);
+const researchMissions = profile.missions.filter((m) => m.research);
+
+const runeSteps = [
+  { step: 1, icon: '📊', name: 'I. Curated Dataset & Features', detail: 'Transform 12 GB noisy raw annotations or obfuscated text into stratified splits & clean features.' },
+  { step: 2, icon: '🧪', name: 'II. Classical Baseline & Transfer Learning', detail: 'Benchmark TF-IDF / Random Forest or fine-tune PyTorch YOLOv11 / InceptionV3 checkpoints.' },
+  { step: 3, icon: '📈', name: 'III. Stratified Validation & Confusion Matrix', detail: 'Audit precision, recall, F1 (e.g. 99.56%), and mAP@50 error classes rigorously.' },
+  { step: 4, icon: '⚡', name: 'IV. ONNX & TensorRT FP16 Distillation', detail: 'Compile FP16 weights (~22.1 MB) to eliminate host-device memory bottlenecks.' },
+  { step: 5, icon: '🛰️', name: 'V. Real-Time Edge Deployment', detail: 'Serve ~1.8 ms/frame live webcam & aerial detection streams inside production telemetry.' },
+];
+
+// Render buttons in shuffled puzzle order while storing true step order
+const shuffledRunes = [runeSteps[2], runeSteps[0], runeSteps[4], runeSteps[1], runeSteps[3]];
+---
+
+<TownLayout
+  title="Astral Mage Sanctum — ML Constellation & Research Codex | Muhammad Zulfan"
+  description="Enter Astral Mage Sanctum inside Royal Kingdom: align the 5 ML Pipeline Star Runes with Mewtwo, Latias & Latios for the Crest of Arcana and read Zulfan's AI research."
+  place="kingdom-mage-tower"
+>
+  <article class="mage-page space-y-6 pb-10 text-[#1e1b18]">
+    <!-- 1. ASTRAL OBSERVATORY BANNER (CELESTIAL INDIGO, PARCHMENT & GOLD) -->
+    <header class="relative overflow-hidden rounded-2xl border-[3px] border-[#6366f1] bg-gradient-to-b from-[#f5f3ff] via-[#ede9fe] to-[#ddd6fe] p-5 text-[#1e1b4b] shadow-[0_8px_0_#312e81,0_18px_36px_rgba(49,46,129,0.28)]">
+      <div class="pointer-events-none absolute inset-x-0 top-0 h-2 bg-[repeating-linear-gradient(90deg,#4f46e5_0px,#4f46e5_14px,#fbbf24_14px,#fbbf24_28px,#7e22ce_28px,#7e22ce_42px)]" aria-hidden="true"></div>
+      <div class="pointer-events-none absolute inset-x-0 bottom-0 h-2 bg-[repeating-linear-gradient(90deg,#7e22ce_0px,#7e22ce_14px,#fbbf24_14px,#fbbf24_28px,#4f46e5_28px,#4f46e5_42px)]" aria-hidden="true"></div>
+
+      <div class="relative z-10 mt-1 flex flex-wrap items-start justify-between gap-4">
+        <div class="space-y-2">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="rounded-full border border-[#4338ca] bg-[#312e81] px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[#fef3c7]">
+              🔮 ASTRAL MAGE SANCTUM · WEST SPIRE
+            </span>
+            <span id="mage-crest-pill" class="rounded-full border border-[#6366f1]/50 bg-white px-2.5 py-1 font-mono text-[10px] font-bold uppercase text-[#312e81]">
+              ⏳ Crest Unclaimed
+            </span>
+          </div>
+          <h1 class="font-display text-2xl font-black tracking-tight text-[#1e1b4b] sm:text-3xl">
+            🔮 Astral Mage Sanctum &amp; Research Codex
+          </h1>
+          <p class="max-w-2xl text-sm leading-relaxed text-[#312e81]">
+            Observatorium riset AI bersama <strong class="text-[#7e22ce]">Archmage Mewtwo</strong> serta roh kembar <strong class="text-[#be123c]">Latias</strong> &amp;
+            <strong class="text-[#0369a1]">Latios</strong>. Susun kelima rasi rune ML Engineering secara berurutan (1 → 5) untuk meraih <strong class="text-[#6d28d9]">Crest of Arcana</strong>!
+          </p>
+        </div>
+
+        <div class="flex flex-col items-end gap-2">
+          <div class="grid grid-cols-3 gap-2 rounded-xl border-2 border-[#4338ca] bg-white px-3 py-2 text-center font-mono shadow-inner">
+            <div>
+              <div class="text-[9px] font-bold uppercase text-[#4338ca]">RUNES</div>
+              <div id="hero-mage-runes" class="text-sm font-black text-[#6d28d9]">0 / 5</div>
+            </div>
+            <div>
+              <div class="text-[9px] font-bold uppercase text-[#4338ca]">ARCANA</div>
+              <div id="hero-mage-state" class="text-sm font-black text-[#b45309]">SEALED</div>
+            </div>
+            <div>
+              <div class="text-[9px] font-bold uppercase text-[#4338ca]">CRESTS</div>
+              <div id="hero-mage-crests" class="text-sm font-black text-[#15803d]">0 / 7</div>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-end gap-2">
+            <button id="mage-audio-toggle" type="button" class="cursor-pointer rounded-lg border-2 border-[#4338ca] bg-white px-2.5 py-1.5 font-mono text-[11px] font-bold text-[#312e81]">
+              ✨ Astral SFX: ON
+            </button>
+            <a id="mage-exit-btn" href="/kingdom?from=mage-tower" class="inline-flex items-center gap-1.5 rounded-lg border-2 border-[#7f1d1d] bg-gradient-to-b from-[#b91c1c] to-[#7f1d1d] px-3 py-1.5 font-mono text-xs font-extrabold text-[#fef3c7] shadow-[0_3px_0_#450a0a] transition hover:-translate-y-0.5">
+              🚪 Exit to Kingdom
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tri-Guardian Dialogue Strip -->
+      <div class="relative z-10 mt-4 flex flex-col gap-3 rounded-xl border-2 border-[#6366f1]/40 bg-white/95 p-3.5 sm:flex-row sm:items-center">
+        <div class="flex shrink-0 items-center gap-1.5">
+          <button type="button" data-mage-walk="mewtwo" data-speaker="🔮 Archmage Mewtwo · Neural Sage" data-quote="Intelligence is architecture, not magic. Align all 5 Machine Learning pipeline steps in true execution order below!" data-fx-text="PSYSTRIKE CONSTELLATION!" data-fx-color="#c084fc" class="flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl border-2 border-[#7e22ce] bg-[#f3e8ff] text-xl shadow-[0_2px_0_#581c87] transition hover:-translate-y-0.5">🔮</button>
+          <button type="button" data-mage-walk="latias" data-speaker="❤️ Latias · Feature Oracle" data-quote="Inspect Zulfan’s Thesis on Indonesian YouTube gambling spam: 1,000 char trigrams + Random Forest achieved 99.56% F1!" data-fx-text="MIST BALL CLARITY!" data-fx-color="#f43f5e" class="flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl border-2 border-[#e11d48] bg-[#ffe4e6] text-xl shadow-[0_2px_0_#9f1239] transition hover:-translate-y-0.5">❤️</button>
+          <button type="button" data-mage-walk="latios" data-speaker="💙 Latios · TensorRT Jet" data-quote="ONNX + TensorRT FP16 compilation compresses edge inference down to ~1.8 ms/frame. Claim Eon Haste below!" data-fx-text="LUSTER PURGE!" data-fx-color="#38bdf8" class="flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl border-2 border-[#0284c7] bg-[#e0f2fe] text-xl shadow-[0_2px_0_#075985] transition hover:-translate-y-0.5">💙</button>
+        </div>
+        <div class="min-w-0 flex-1">
+          <div id="mage-speaker" class="font-mono text-[10px] font-black uppercase tracking-wider text-[#4338ca]">
+            🔮 Archmage Mewtwo · Neural Sage
+          </div>
+          <p id="mage-dialogue" class="mt-0.5 text-xs italic leading-relaxed text-[#312e81]">
+            “Klik kelima Rune Bintang sesuai urutan alur ML Engineering: I. Curated Data → II. Baseline/Transfer → III. Validation → IV. ONNX/TensorRT → V. Edge Deploy!”
+          </p>
+        </div>
+      </div>
+
+      <!-- 6 Tactile Quick-Walk Station Cards -->
+      <nav aria-label="Quick walk Mage Tower stations" class="relative z-10 mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+        <button type="button" data-mage-walk="mewtwo" data-scroll-to="mage-rune-game" data-hotkey="m" class="mage-station-btn flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#7e22ce] bg-white px-2.5 py-2 text-left shadow-[0_2px_0_#581c87] transition hover:-translate-y-0.5">
+          <span class="flex items-center gap-1.5 truncate text-xs font-bold"><span>🔮</span><span class="truncate">Mewtwo</span></span>
+          <kbd class="rounded border border-[#7e22ce]/40 bg-[#f3e8ff] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#6b21a8]">M</kbd>
+        </button>
+        <button type="button" data-mage-walk="rune-circle" data-scroll-to="mage-rune-game" data-hotkey="r" class="mage-station-btn flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#4f46e5] bg-white px-2.5 py-2 text-left shadow-[0_2px_0_#312e81] transition hover:-translate-y-0.5">
+          <span class="flex items-center gap-1.5 truncate text-xs font-bold"><span>🌟</span><span class="truncate">Nexus</span></span>
+          <kbd class="rounded border border-[#4f46e5]/40 bg-[#e0e7ff] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#3730a3]">R</kbd>
+        </button>
+        <button type="button" data-mage-walk="arcana-grimoire" data-scroll-to="mage-grimoire-section" data-hotkey="g" class="mage-station-btn flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#d97706] bg-white px-2.5 py-2 text-left shadow-[0_2px_0_#92400e] transition hover:-translate-y-0.5">
+          <span class="flex items-center gap-1.5 truncate text-xs font-bold"><span>📖</span><span class="truncate">Codex</span></span>
+          <kbd class="rounded border border-[#d97706]/40 bg-[#fef3c7] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#78350f]">G</kbd>
+        </button>
+        <button type="button" data-mage-walk="latias" data-scroll-to="mage-grimoire-section" data-hotkey="l" class="mage-station-btn flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#e11d48] bg-white px-2.5 py-2 text-left shadow-[0_2px_0_#9f1239] transition hover:-translate-y-0.5">
+          <span class="flex items-center gap-1.5 truncate text-xs font-bold"><span>❤️</span><span class="truncate">Latias</span></span>
+          <kbd class="rounded border border-[#e11d48]/40 bg-[#ffe4e6] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#be123c]">L</kbd>
+        </button>
+        <button type="button" data-mage-walk="latios" data-scroll-to="mage-relic-section" data-hotkey="t" class="mage-station-btn flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#0284c7] bg-white px-2.5 py-2 text-left shadow-[0_2px_0_#075985] transition hover:-translate-y-0.5">
+          <span class="flex items-center gap-1.5 truncate text-xs font-bold"><span>💙</span><span class="truncate">Latios</span></span>
+          <kbd class="rounded border border-[#0284c7]/40 bg-[#e0f2fe] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#0369a1]">T</kbd>
+        </button>
+        <button type="button" data-mage-walk="ley-crystal" data-scroll-to="mage-relic-section" data-hotkey="p" class="mage-station-btn flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#6366f1] bg-white px-2.5 py-2 text-left shadow-[0_2px_0_#312e81] transition hover:-translate-y-0.5">
+          <span class="flex items-center gap-1.5 truncate text-xs font-bold"><span>✨</span><span class="truncate">Prism</span></span>
+          <kbd class="rounded border border-[#6366f1]/40 bg-[#e0e7ff] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#312e81]">P</kbd>
+        </button>
+      </nav>
+    </header>
+
+    <!-- 2. TRIAL I: RUNE CONSTELLATION (5-STEP ML PIPELINE PUZZLE) -->
+    <section
+      id="mage-rune-game"
+      class="scroll-mt-6 rounded-2xl border-[3px] border-[#6366f1] bg-gradient-to-b from-[#fffdf7] to-[#eef2ff] p-5 shadow-[0_8px_0_#312e81]"
+    >
+      <div class="flex flex-wrap items-start justify-between gap-3 border-b-2 border-[#6366f1]/25 pb-3.5">
+        <div>
+          <span class="font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-[#4f46e5]">
+            TRIAL I · ASTRAL PIPELINE ALIGNMENT
+          </span>
+          <h2 class="mt-0.5 font-display text-xl font-black text-[#1e1b4b]">
+            🌟 Align the 5 ML Engineering Star Runes (1 → 5)
+          </h2>
+          <p class="mt-1 text-xs text-[#312e81]">
+            Urutkan kelima tahap eksperimen ML &amp; optimasi edge AI di bawah secara berurutan untuk menambang <strong class="text-[#6d28d9]">🔮 Crest of Arcana</strong>.
+          </p>
+        </div>
+
+        <button id="mage-reset-runes" type="button" class="cursor-pointer rounded-lg border border-[#6366f1] bg-white px-3 py-1.5 font-mono text-[11px] font-bold text-[#312e81] hover:bg-[#e0e7ff]">
+          ↺ Reset Runes
+        </button>
+      </div>
+
+      <div class="mt-4 grid gap-2.5">
+        {shuffledRunes.map((r) => (
+          <button
+            type="button"
+            data-rune-step={r.step}
+            class="mage-rune-btn cursor-pointer rounded-xl border-2 border-[#c7d2fe] bg-white p-3.5 text-left transition hover:-translate-y-0.5 hover:border-[#6366f1]"
+          >
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-display text-sm font-black text-[#1e1b4b]">
+                {r.icon} {r.name}
+              </span>
+              <span data-rune-badge={r.step} class="rounded bg-[#f1f5f9] px-2 py-0.5 font-mono text-[10px] font-bold text-[#64748b]">
+                UNALIGNED
+              </span>
+            </div>
+            <p class="mt-1 text-xs text-[#475569]">{r.detail}</p>
+          </button>
+        ))}
+      </div>
+
+      <p id="mage-rune-feedback" class="mt-4 rounded-lg border border-[#6366f1]/30 bg-white px-3 py-2 font-mono text-xs font-bold text-[#312e81]">
+        🔮 Mewtwo: "Mulai dengan Langkah 1 (Curated Dataset &amp; Features)..."
+      </p>
+    </section>
+
+    <!-- 3. RESEARCH GRIMOIRE (VERIFIED FROM PROFILE.RESEARCH & MISSIONS) -->
+    <section
+      id="mage-grimoire-section"
+      class="scroll-mt-6 rounded-2xl border-[3px] border-[#b45309] bg-gradient-to-b from-[#fffdf7] to-[#f4ead5] p-5 shadow-[0_8px_0_#78350f]"
+    >
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b-2 border-[#b45309]/30 pb-3">
+        <div>
+          <span class="font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-[#7e22ce]">
+            THE ARCANA CODEX · VERIFIED RESEARCH &amp; LABS
+          </span>
+          <h2 class="mt-0.5 font-display text-xl font-black text-[#1e293b]">
+            📖 AI, Computer Vision &amp; NLP Chronicles
+          </h2>
+        </div>
+        <a href="/lab" class="rounded-lg border border-[#4338ca] bg-[#312e81] px-3 py-1 font-mono text-[10px] font-bold text-[#fef3c7]">
+          Open Live /lab →
+        </a>
+      </div>
+
+      <div class="mt-4 rounded-xl border-2 border-[#6366f1]/40 bg-white p-4">
+        <div class="font-mono text-[10px] font-bold uppercase text-[#4338ca]">RESEARCH STATEMENT</div>
+        <p class="mt-1 text-sm font-semibold leading-relaxed text-[#1e1b4b]">“{profile.research.statement}”</p>
+        <div class="mt-3 grid gap-3 md:grid-cols-2">
+          <div>
+            <div class="font-mono text-[10px] font-bold uppercase text-[#b45309]">CORE METHODOLOGY</div>
+            <ul class="mt-1.5 space-y-1 text-xs text-[#44403c]">
+              {profile.research.methods.map((m) => (
+                <li class="flex items-start gap-1.5"><span class="text-[#7e22ce]">✦</span><span>{m}</span></li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <div class="font-mono text-[10px] font-bold uppercase text-[#0284c7]">NEXT OBSERVATORY FRONTIERS</div>
+            <ul class="mt-1.5 space-y-1 text-xs text-[#44403c]">
+              {profile.research.next.map((n) => (
+                <li class="flex items-start gap-1.5"><span class="text-[#0284c7]">✦</span><span>{n}</span></li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4 grid gap-3 md:grid-cols-3">
+        {researchMissions.map((rm) => (
+          <div class="rounded-xl border border-[#6366f1]/40 bg-white p-4 space-y-2">
+            <div class="font-mono text-[10px] font-bold text-[#6d28d9]">{rm.start} → {rm.end || 'Active'}</div>
+            <h3 class="font-display text-sm font-black text-[#1e1b4b]">{rm.title}</h3>
+            <p class="text-xs leading-relaxed text-[#44403c]">{rm.summary}</p>
+            <div class="flex flex-wrap gap-1">
+              {rm.payload.slice(0, 5).map((t) => (
+                <span class="rounded border border-[#6366f1]/30 bg-[#f5f3ff] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#4338ca]">{t}</span>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- 4. ASTRAL RELIC VAULT & 7 CRESTS -->
+    <section
+      id="mage-relic-section"
+      class="scroll-mt-6 rounded-2xl border-[3px] border-[#6366f1] bg-gradient-to-b from-[#fffdf7] to-[#eef2ff] p-5 shadow-[0_8px_0_#312e81]"
+    >
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b-2 border-[#6366f1]/25 pb-3">
+        <h2 class="font-display text-xl font-black text-[#1e1b4b]">✨ Astral Prism Vault &amp; 7 Crests</h2>
+        <span id="mage-crest-summary" class="rounded-full border border-[#312e81] bg-[#312e81] px-3 py-1 font-mono text-[11px] font-bold text-[#fef3c7]">
+          0 / 7 Crests Claimed
+        </span>
+      </div>
+
+      <div class="mt-4 grid gap-4 md:grid-cols-2">
+        <div class="rounded-xl border-2 border-[#0284c7]/40 bg-white p-4">
+          <div class="font-mono text-[10px] font-bold uppercase text-[#0284c7]">RELIC I · EON TWIN WARP</div>
+          <h3 class="mt-0.5 font-display text-base font-black text-[#1e1b4b]">💙 Latios Jetstream (+50% Speed)</h3>
+          <p class="mt-2 text-xs text-[#44403c]">Serap dorongan Eon Jetstream (+50% kecepatan selama 25 detik) melintasi Royal Kingdom.</p>
+          <div class="mt-3 flex flex-wrap items-center gap-2">
+            <button id="mage-speed-btn" type="button" class="cursor-pointer rounded-xl border-2 border-[#0284c7] bg-[#0284c7] px-4 py-2 font-mono text-xs font-black text-white shadow-[0_3px_0_#075985]">
+              ✨ Cast Eon Jetstream
+            </button>
+            <span id="mage-speed-timer" class="font-mono text-xs font-bold text-[#0369a1]">Status: Ready</span>
+          </div>
+        </div>
+
+        <div class="rounded-xl border-2 border-[#7e22ce]/40 bg-white p-4">
+          <div class="font-mono text-[10px] font-bold uppercase text-[#7e22ce]">RELIC II · EDGE OPTIMIZATION CODEX</div>
+          <h3 class="mt-0.5 font-display text-base font-black text-[#1e1b4b]">🔮 TensorRT Blueprint</h3>
+          <div id="mage-locked-box" class="mt-2 rounded-lg border border-[#b91c1c]/30 bg-[#fef2f2] p-3 text-xs text-[#991b1b]">
+            Terkunci. Urutkan kelima <strong>ML Star Runes</strong> (1 → 5) untuk membuka Crest of Arcana!
+          </div>
+          <div id="mage-unlocked-box" class="mt-2 hidden rounded-lg border border-[#15803d]/40 bg-[#f0fdf4] p-3 text-xs text-[#14532d]">
+            <div class="font-mono text-[10px] font-bold uppercase text-[#15803d]">✅ CREST OF ARCANA AWAKENED!</div>
+            <p class="mt-1">Pipeline ML: 10-fold CV baseline + ONNX/TensorRT FP16 edge deployment tervalidasi oleh Archmage Mewtwo.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+        {allCrests.map((c) => (
+          <a href={c.route} class="flex items-center justify-between gap-2 rounded-xl border border-[#6366f1]/40 bg-white px-3 py-2 text-xs hover:-translate-y-0.5 hover:border-[#312e81]">
+            <span class="truncate font-bold">{c.icon} {c.name}</span>
+            <span data-mage-crest-badge={c.key} class="font-mono text-[10px] font-bold text-[#94a3b8]">🔒</span>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <WhereTo currentPath="/kingdom/mage-tower" />
+  </article>
+</TownLayout>
+
+<script>
+  import { awardRoyalCrest, countRoyalCrests, getRoyalCrests } from '../../engine/kingdomInteriorShared';
+
+  let mageAudioOn = true;
+  let mageAudioCtx: AudioContext | null = null;
+
+  function playAstralNote(freq: number, dur = 0.14, type: OscillatorType = 'sine') {
+    if (!mageAudioOn || typeof window === 'undefined') return;
+    try {
+      const Ctx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      if (!Ctx) return;
+      if (!mageAudioCtx) mageAudioCtx = new Ctx();
+      if (mageAudioCtx.state === 'suspended') void mageAudioCtx.resume();
+      const osc = mageAudioCtx.createOscillator();
+      const gain = mageAudioCtx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, mageAudioCtx.currentTime);
+      gain.gain.setValueAtTime(0.11, mageAudioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, mageAudioCtx.currentTime + dur);
+      osc.connect(gain);
+      gain.connect(mageAudioCtx.destination);
+      osc.start();
+      osc.stop(mageAudioCtx.currentTime + dur);
+    } catch {
+      // ignore
+    }
+  }
+
+  function emitMageWave(text: string, color = '#c084fc') {
+    window.dispatchEvent(new CustomEvent('town:kingdom-fx', { detail: { text, color } }));
+  }
+
+  function initMageTowerPage() {
+    const root = document.querySelector('.mage-page');
+    if (!root) return;
+
+    let nextExpected = getRoyalCrests().arcana ? 6 : 1;
+    let speedTimer: number | null = null;
+
+    document.getElementById('mage-exit-btn')?.addEventListener('click', () => {
+      try {
+        sessionStorage.setItem('kingdom:respawn', '8,36,down');
+      } catch {
+        // ignore
+      }
+    });
+
+    const audioBtn = document.getElementById('mage-audio-toggle');
+    audioBtn?.addEventListener('click', () => {
+      mageAudioOn = !mageAudioOn;
+      audioBtn.textContent = mageAudioOn ? '✨ Astral SFX: ON' : '🔇 Astral SFX: MUTED';
+      if (mageAudioOn) playAstralNote(587.33);
+    });
+
+    const speakerEl = document.getElementById('mage-speaker');
+    const dialogueEl = document.getElementById('mage-dialogue');
+
+    const walkProp = (el: HTMLElement) => {
+      const id = el.dataset.mageWalk;
+      if (id) window.dispatchEvent(new CustomEvent('town:walk-to', { detail: { id } }));
+      if (el.dataset.speaker && speakerEl) speakerEl.textContent = el.dataset.speaker;
+      if (el.dataset.quote && dialogueEl) dialogueEl.textContent = `“${el.dataset.quote}”`;
+      if (el.dataset.fxText) emitMageWave(el.dataset.fxText, el.dataset.fxColor || '#c084fc');
+      if (el.dataset.scrollTo) {
+        document.getElementById(el.dataset.scrollTo)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      playAstralNote(523.25, 0.1);
+    };
+
+    document.querySelectorAll<HTMLElement>('[data-mage-walk]').forEach((btn) => {
+      btn.addEventListener('click', () => walkProp(btn));
+    });
+
+    function refreshUI() {
+      const crests = getRoyalCrests();
+      const total = countRoyalCrests();
+      const hasArc = Boolean(crests.arcana);
+      const solved = hasArc ? 5 : Math.max(0, nextExpected - 1);
+
+      const hRunes = document.getElementById('hero-mage-runes');
+      const hState = document.getElementById('hero-mage-state');
+      const hCrests = document.getElementById('hero-mage-crests');
+      const pill = document.getElementById('mage-crest-pill');
+      const summary = document.getElementById('mage-crest-summary');
+
+      if (hRunes) hRunes.textContent = `${solved} / 5`;
+      if (hCrests) hCrests.textContent = `${total} / 7`;
+      if (summary) summary.textContent = `${total} / 7 Crests Claimed`;
+      if (hState) {
+        hState.textContent = hasArc ? 'ALIGNED' : 'SEALED';
+        hState.className = hasArc ? 'text-sm font-black text-[#15803d]' : 'text-sm font-black text-[#b45309]';
+      }
+      if (pill && hasArc) {
+        pill.textContent = '🔮 Crest of Arcana Claimed';
+        pill.className = 'rounded-full border border-[#15803d] bg-[#dcfce7] px-2.5 py-1 font-mono text-[10px] font-bold uppercase text-[#14532d]';
+      }
+
+      if (hasArc) {
+        document.getElementById('mage-locked-box')?.classList.add('hidden');
+        document.getElementById('mage-unlocked-box')?.classList.remove('hidden');
+      }
+
+      document.querySelectorAll<HTMLElement>('[data-rune-step]').forEach((btn) => {
+        const s = Number(btn.dataset.runeStep);
+        const b = btn.querySelector<HTMLElement>(`[data-rune-badge="${s}"]`);
+        const isAligned = s < nextExpected;
+        if (b) {
+          b.textContent = isAligned ? '✅ ALIGNED' : 'UNALIGNED';
+          b.className = isAligned
+            ? 'rounded bg-[#dcfce7] px-2 py-0.5 font-mono text-[10px] font-bold text-[#14532d]'
+            : 'rounded bg-[#f1f5f9] px-2 py-0.5 font-mono text-[10px] font-bold text-[#64748b]';
+        }
+        btn.classList.toggle('border-[#15803d]', isAligned);
+        btn.classList.toggle('bg-[#f0fdf4]', isAligned);
+      });
+
+      (['sovereignty', 'steel', 'fellowship', 'arcana', 'valor', 'grace', 'chivalry'] as const).forEach((k) => {
+        const badge = document.querySelector<HTMLElement>(`[data-mage-crest-badge="${k}"]`);
+        const ok = Boolean(crests[k]);
+        if (badge) {
+          badge.textContent = ok ? '✅' : '🔒';
+          badge.className = ok ? 'font-mono text-[10px] font-bold text-[#15803d]' : 'font-mono text-[10px] font-bold text-[#94a3b8]';
+        }
+      });
+    }
+
+    const feedbackEl = document.getElementById('mage-rune-feedback');
+    const stepTones = [523.25, 587.33, 659.25, 783.99, 987.77];
+
+    document.querySelectorAll<HTMLButtonElement>('.mage-rune-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        if (nextExpected > 5) return;
+        const step = Number(btn.dataset.runeStep);
+        if (step === nextExpected) {
+          playAstralNote(stepTones[step - 1] || 659.25, 0.16);
+          emitMageWave(`RUNE ${step}/5 ALIGNED!`, '#c084fc');
+          nextExpected += 1;
+          if (nextExpected > 5) {
+            awardRoyalCrest('arcana');
+            emitMageWave('CONSTELLATION COMPLETE!', '#4ade80');
+            if (feedbackEl) feedbackEl.textContent = '✨ SEMPURNA! Kelima Rune Pipeline ML selaras — Crest of Arcana diraih!';
+          } else if (feedbackEl) {
+            feedbackEl.textContent = `🔮 Tepat! Langkah ${step} terkunci. Pilih Langkah ${nextExpected} selanjutnya.`;
+          }
+          refreshUI();
+        } else if (step > nextExpected) {
+          playAstralNote(196, 0.16, 'sawtooth');
+          emitMageWave('OUT OF ORDER!', '#ef4444');
+          if (feedbackEl) feedbackEl.textContent = `⚠️ Urutan melompat! Saat ini sistem membutuhkan Langkah ${nextExpected}.`;
+        }
+      });
+    });
+
+    document.getElementById('mage-reset-runes')?.addEventListener('click', () => {
+      nextExpected = 1;
+      if (feedbackEl) feedbackEl.textContent = '🔮 Mulai ulang dari Langkah 1 (Curated Dataset & Features)...';
+      refreshUI();
+    });
+
+    document.getElementById('mage-speed-btn')?.addEventListener('click', () => {
+      window.dispatchEvent(new CustomEvent('town:claim-lucky-egg'));
+      emitMageWave('EON JETSTREAM +50% SPD!', '#38bdf8');
+      playAstralNote(783.99, 0.16);
+      let left = 25;
+      const timerEl = document.getElementById('mage-speed-timer');
+      if (timerEl) timerEl.textContent = `✨ Active: ${left}s`;
+      if (speedTimer !== null) clearInterval(speedTimer);
+      speedTimer = window.setInterval(() => {
+        left -= 1;
+        if (timerEl) timerEl.textContent = left > 0 ? `✨ Active: ${left}s` : 'Status: Ready';
+        if (left <= 0 && speedTimer !== null) {
+          clearInterval(speedTimer);
+          speedTimer = null;
+        }
+      }, 1000);
+    });
+
+    const onKey = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement | null)?.tagName;
+      if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
+      const matched = document.querySelector<HTMLElement>(`.mage-station-btn[data-hotkey="${e.key.toLowerCase()}"]`);
+      if (matched) {
+        e.preventDefault();
+        walkProp(matched);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+
+    refreshUI();
+
+    document.addEventListener(
+      'astro:before-swap',
+      () => {
+        if (speedTimer !== null) clearInterval(speedTimer);
+        window.removeEventListener('keydown', onKey);
+      },
+      { once: true }
+    );
+  }
+
+  initMageTowerPage();
+  document.addEventListener('astro:page-load', initMageTowerPage);
+</script>

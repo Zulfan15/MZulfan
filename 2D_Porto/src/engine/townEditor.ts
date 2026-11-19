@@ -894,8 +894,19 @@ export class TownEditor {
     unreachable: { name: string; x: number; y: number }[];
   } {
     const map = this.engine.getMap();
-    const isDigi = this.engine.getScene() === 'digimon';
-    const spawn = isDigi ? { x: 20, y: 6 } : { x: 18, y: 12 };
+    const scene = this.engine.getScene();
+    const spawn =
+      scene === 'digimon'
+        ? { x: 20, y: 6 }
+        : scene === 'kingdom'
+          ? { x: 22, y: 8 }
+          : scene === 'harbour'
+            ? { x: 22, y: 3 }
+            : scene === 'sky-castle'
+              ? { x: 22, y: 55 }
+              : scene === 'dark-castle'
+                ? { x: 22, y: 11 }
+                : { x: 18, y: 12 };
 
     const visited = new Set<string>();
     const queue: { x: number; y: number }[] = [spawn];
@@ -1086,11 +1097,16 @@ export class TownEditor {
     }
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    const isDigi = this.engine.getScene() === 'digimon';
+    const scene = this.engine.getScene();
+    const isDigi = scene === 'digimon';
+    const isKingdom = scene === 'kingdom';
+    const isHarbour = scene === 'harbour';
+    const isSkyCastle = scene === 'sky-castle';
+    const isDarkCastle = scene === 'dark-castle';
     for (let y = 0; y < map.h; y++) {
       for (let x = 0; x < map.w; x++) {
         const override = townConfig.getTileOverride(x, y);
-        let color = isDigi ? '#162338' : '#5aa33a';
+        let color = isDigi ? '#162338' : isKingdom ? '#468737' : isHarbour ? '#0284c7' : isSkyCastle ? '#38bdf8' : isDarkCastle ? '#1e1030' : '#5aa33a';
         if (override) {
           switch (override) {
             case 'cobble':
@@ -1098,8 +1114,20 @@ export class TownEditor {
             case 'dev_paver':
               color = '#8b939c';
               break;
+            case 'castle_flagstone':
+              color = '#94a3b8';
+              break;
+            case 'royal_carpet':
+              color = '#991b1b';
+              break;
+            case 'tudor_cobble':
+              color = '#a89078';
+              break;
+            case 'drawbridge_wood':
+              color = '#734524';
+              break;
             case 'water':
-              color = isDigi ? '#071428' : '#38bdf8';
+              color = isDigi ? '#071428' : isKingdom ? '#0c4a6e' : '#38bdf8';
               break;
             case 'hedge':
               color = '#255e2b';
@@ -1143,6 +1171,23 @@ export class TownEditor {
             else if (g === 8) color = '#1e293b';
             else if (g === 7) color = y < 20 ? '#9a3412' : '#7dd3fc';
             else if (g === 0) color = '#4d8c35';
+          } else if (isKingdom) {
+            if (g === 3) color = '#0c4a6e';
+            else if (g === 6) color = '#64748b';
+            else if (g === 1) color = '#a89078';
+            else if (g === 8) color = '#94a3b8';
+            else if (g === 0) color = '#468737';
+          } else if (isDarkCastle) {
+            if (g === 3) color = '#12071d';
+            else if (g === 6) color = '#4c1d95';
+            else if (g === 1) color = '#6d28d9';
+            else if (g === 8) color = '#3b2458';
+          } else if (isHarbour || isSkyCastle) {
+            if (g === 3) color = isSkyCastle ? '#38bdf8' : '#0284c7';
+            else if (g === 7) color = '#e2c48c';
+            else if (g === 1) color = '#94a3b8';
+            else if (g === 8) color = isSkyCastle ? '#f8fafc' : '#cbd5e1';
+            else if (g === 0) color = '#468737';
           } else {
             if (g === 1 || g === 8) color = '#9ca3af';
             else if (g === 3) color = '#38bdf8';
@@ -1283,7 +1328,8 @@ export class TownEditor {
 
   public eraseTilesBatch(points: { x: number; y: number }[]) {
     const map = this.engine.getMap();
-    const isDigi = this.engine.getScene() === 'digimon';
+    const scene = this.engine.getScene();
+    const isOutdoorVariant = scene === 'digimon' || scene === 'kingdom' || scene === 'harbour' || scene === 'sky-castle' || scene === 'dark-castle';
     const toSetGrass: { x: number; y: number; tile: TileTypeKey }[] = [];
     const toRemove: { x: number; y: number }[] = [];
 
@@ -1292,8 +1338,8 @@ export class TownEditor {
       const baseVal = map.ground[pt.y * map.w + pt.x];
       const curOverride = townConfig.getTileOverride(pt.x, pt.y);
 
-      if (isDigi) {
-        // On Digi-Sanctuary, erasing restores the underlying Digital Sanctuary zone floor
+      if (isOutdoorVariant) {
+        // On Digi-Sanctuary / Kingdom, erasing restores the underlying zone floor
         if (curOverride) {
           toRemove.push(pt);
         }
@@ -1431,11 +1477,11 @@ export class TownEditor {
               (selB.doorX !== undefined
                 ? selB.doorX
                 : selB.x + Math.floor(selB.w / 2)) *
-                TILE_SIZE +
+              TILE_SIZE +
               TILE_SIZE / 2;
             const doorPinY =
               (selB.doorY !== undefined ? selB.doorY : selB.y + selB.h) *
-                TILE_SIZE +
+              TILE_SIZE +
               TILE_SIZE / 2;
             const distDoor = Math.hypot(
               worldPos.x - doorPinX,
@@ -1536,14 +1582,14 @@ export class TownEditor {
                 b.doorX !== undefined
                   ? b.doorX
                   : b.kind === 'building'
-                  ? b.x + Math.floor(b.w / 2)
-                  : undefined,
+                    ? b.x + Math.floor(b.w / 2)
+                    : undefined,
               doorY:
                 b.doorY !== undefined
                   ? b.doorY
                   : b.kind === 'building'
-                  ? b.y + b.h
-                  : undefined,
+                    ? b.y + b.h
+                    : undefined,
               labelX: b.labelX,
               labelY: b.labelY,
             });
@@ -2784,12 +2830,12 @@ export class TownEditor {
         this.state.tool === 'brush' || this.state.tool === 'erase';
       const footprint = isBrushLike
         ? getBrushFootprint(
-            this.state.hoverTile.x,
-            this.state.hoverTile.y,
-            this.state.brushSize,
-            map.w,
-            map.h
-          )
+          this.state.hoverTile.x,
+          this.state.hoverTile.y,
+          this.state.brushSize,
+          map.w,
+          map.h
+        )
         : [this.state.hoverTile];
 
       const isErase = this.state.tool === 'erase';
@@ -2923,12 +2969,12 @@ export class TownEditor {
           b.orientation === 'W'
             ? ' ⬅️ Kiri'
             : b.orientation === 'E'
-            ? ' ➡️ Kanan'
-            : b.orientation === 'S'
-            ? ' ⬇️ Depan'
-            : b.orientation === 'N'
-            ? ' ⬆️ Belakang'
-            : '';
+              ? ' ➡️ Kanan'
+              : b.orientation === 'S'
+                ? ' ⬇️ Depan'
+                : b.orientation === 'N'
+                  ? ' ⬆️ Belakang'
+                  : '';
         const orientStr = b.orientation ? ` [${b.orientation}${orientLabel}]` : '';
         const zStr = b.zIndex ? ` (Z:${b.zIndex})` : '';
         ctx.fillText(

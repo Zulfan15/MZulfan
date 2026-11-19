@@ -1,0 +1,456 @@
+---
+import TownLayout from '../../layouts/TownLayout.astro';
+import WhereTo from '../../components/WhereTo.astro';
+import { ROYAL_CRESTS_META } from '../../engine/kingdomInteriorShared';
+
+const allCrests = Object.values(ROYAL_CRESTS_META);
+
+const interactiveBuilds = [
+  { href: '/digimon', icon: '👾', title: 'Digi-Sanctuary Island', badge: 'MULTI-WORLD ENGINE', desc: 'Pulau 4 elemen dengan patroli spritesheet Digimon World DS & 3 portal dunia.' },
+  { href: '/dark-castle', icon: '🌑', title: 'Dark Castle Citadel', badge: '4 BOSS SANCTUMS', desc: '4 bangunan interaktif dengan puzzle WebAudio, Reactor Stabilizer, Logical Duel & Gear Sync.' },
+  { href: '/arcade', icon: '🕹️', title: 'Kalah Alpha-Beta Bot', badge: 'MINIMAX AI', desc: 'Pertarungan papan strategi melawan algoritma Alpha-Beta Pruning.' },
+  { href: '/tower', icon: '🏢', title: 'Tech Tower Telemetry HQ', badge: 'IOT & CLOUD NOC', desc: 'Sandbox prototipe ESP32 Tank & arsitektur jaringan Huawei HCIA-Security.' },
+];
+---
+
+<TownLayout
+  title="Royal Jousting Arena — Stone Colosseum & Sand Lists | Muhammad Zulfan"
+  description="Enter Royal Jousting Arena inside Royal Kingdom: step onto the golden sand tilting arena inside a stone castle fortress and defeat Koraidon for the Crest of Chivalry."
+  place="kingdom-jousting"
+>
+  <article class="jousting-page space-y-6 pb-10 text-[#1e1b18]">
+    <!-- 1. STONE COLOSSEUM MARQUEE BANNER (SANDSTONE, CRIMSON & GOLD) -->
+    <header class="relative overflow-hidden rounded-2xl border-[3px] border-[#b91c1c] bg-gradient-to-b from-[#fef2f2] via-[#fee2e2] to-[#f7d9b9] p-5 text-[#2c1e12] shadow-[0_8px_0_#7f1d1d,0_18px_36px_rgba(127,29,29,0.28)]">
+      <div class="pointer-events-none absolute inset-x-0 top-0 h-2 bg-[repeating-linear-gradient(90deg,#b91c1c_0px,#b91c1c_14px,#fbbf24_14px,#fbbf24_28px,#475569_28px,#475569_42px)]" aria-hidden="true"></div>
+      <div class="pointer-events-none absolute inset-x-0 bottom-0 h-2 bg-[repeating-linear-gradient(90deg,#475569_0px,#475569_14px,#fbbf24_14px,#fbbf24_28px,#b91c1c_28px,#b91c1c_42px)]" aria-hidden="true"></div>
+
+      <div class="relative z-10 mt-1 flex flex-wrap items-start justify-between gap-4">
+        <div class="space-y-2">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="rounded-full border border-[#991b1b] bg-[#991b1b] px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[#fef3c7]">
+              🐎 STONE CASTLE COLOSSEUM · GOLDEN SAND LISTS
+            </span>
+            <span id="jou-crest-pill" class="rounded-full border border-[#b45309]/50 bg-[#fef3c7] px-2.5 py-1 font-mono text-[10px] font-bold uppercase text-[#78350f]">
+              ⏳ Crest Unclaimed
+            </span>
+          </div>
+          <h1 class="font-display text-2xl font-black tracking-tight text-[#1e293b] sm:text-3xl">
+            🐎 Royal Jousting Arena &amp; Sand Lists
+          </h1>
+          <p class="max-w-2xl text-sm leading-relaxed text-[#44403c]">
+            Koloseum dinding batu kapur dengan <strong>arena pasir turnamen di tengah</strong>! Adu ketepatan tombak bersama <strong class="text-[#b91c1c]">Knight Koraidon</strong>,
+            <strong class="text-[#334155]">BlackWarGreymon</strong>, &amp; <strong class="text-[#1d4ed8]">Imperialdramon FM</strong> untuk meraih <strong class="text-[#991b1b]">Crest of Chivalry</strong>.
+          </p>
+        </div>
+
+        <div class="flex flex-col items-end gap-2">
+          <div class="grid grid-cols-3 gap-2 rounded-xl border-2 border-[#b91c1c] bg-white px-3 py-2 text-center font-mono shadow-inner">
+            <div>
+              <div class="text-[9px] font-bold uppercase text-[#991b1b]">PASSES</div>
+              <div id="hero-jou-score" class="text-sm font-black text-[#b91c1c]">0 / 3</div>
+            </div>
+            <div>
+              <div class="text-[9px] font-bold uppercase text-[#991b1b]">CHIVALRY</div>
+              <div id="hero-jou-state" class="text-sm font-black text-[#b45309]">CHALLENGER</div>
+            </div>
+            <div>
+              <div class="text-[9px] font-bold uppercase text-[#991b1b]">CRESTS</div>
+              <div id="hero-jou-crests" class="text-sm font-black text-[#15803d]">0 / 7</div>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-end gap-2">
+            <button id="jou-audio-toggle" type="button" class="cursor-pointer rounded-lg border-2 border-[#b91c1c] bg-white px-2.5 py-1.5 font-mono text-[11px] font-bold text-[#7f1d1d]">
+              🎺 Tourney SFX: ON
+            </button>
+            <a id="jou-exit-btn" href="/kingdom?from=jousting" class="inline-flex items-center gap-1.5 rounded-lg border-2 border-[#7f1d1d] bg-gradient-to-b from-[#b91c1c] to-[#7f1d1d] px-3 py-1.5 font-mono text-xs font-extrabold text-[#fef3c7] shadow-[0_3px_0_#450a0a] transition hover:-translate-y-0.5">
+              🚪 Exit to Kingdom
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tri-Guardian Dialogue Strip -->
+      <div class="relative z-10 mt-4 flex flex-col gap-3 rounded-xl border-2 border-[#b91c1c]/40 bg-white/95 p-3.5 sm:flex-row sm:items-center">
+        <div class="flex shrink-0 items-center gap-1.5">
+          <button type="button" data-jou-walk="koraidon" data-speaker="🐎 Steed Knight Koraidon · Winged King" data-quote="Gallop down the golden sand tilt lane! Strike ‘Couch Lance!’ cleanly inside the Gold Clashing Zone 3 times!" data-fx-text="APEX COLLISION!" data-fx-color="#ef4444" class="flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl border-2 border-[#b91c1c] bg-[#fee2e2] text-xl shadow-[0_2px_0_#7f1d1d] transition hover:-translate-y-0.5">🐎</button>
+          <button type="button" data-jou-walk="blackwargreymon" data-speaker="⚔️ BlackWarGreymon · West Flank" data-quote="I respect only decisive impact. Every millisecond counts—both on these sand lists and inside 60 FPS canvas combat!" data-fx-text="TERRA DESTROYER!" data-fx-color="#f97316" class="flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl border-2 border-[#334155] bg-[#f1f5f9] text-xl shadow-[0_2px_0_#0f172a] transition hover:-translate-y-0.5">⚔️</button>
+          <button type="button" data-jou-walk="imp_fighter" data-speaker="🛡️ Imperialdramon FM · East Flank" data-quote="Inspect all 4 interactive arena & simulation engines Zulfan built across this portfolio below!" data-fx-text="POSITRON LASER!" data-fx-color="#38bdf8" class="flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl border-2 border-[#1d4ed8] bg-[#dbeafe] text-xl shadow-[0_2px_0_#1e3a8a] transition hover:-translate-y-0.5">🛡️</button>
+        </div>
+        <div class="min-w-0 flex-1">
+          <div id="jou-speaker" class="font-mono text-[10px] font-black uppercase tracking-wider text-[#991b1b]">
+            🐎 Steed Knight Koraidon · Winged King
+          </div>
+          <p id="jou-dialogue" class="mt-0.5 text-xs italic leading-relaxed text-[#44403c]">
+            “Klik ‘Couch Lance!’ saat benturan ksatria tepat di zona emas tengah arena pasir untuk memenangkan Crest of Chivalry!”
+          </p>
+        </div>
+      </div>
+
+      <!-- 6 Tactile Quick-Walk Station Cards -->
+      <nav aria-label="Quick walk Jousting Arena stations" class="relative z-10 mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+        <button type="button" data-jou-walk="koraidon" data-scroll-to="jou-duel-game" data-hotkey="k" class="jou-station-btn flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#b91c1c] bg-white px-2.5 py-2 text-left shadow-[0_2px_0_#7f1d1d] transition hover:-translate-y-0.5">
+          <span class="flex items-center gap-1.5 truncate text-xs font-bold"><span>🐎</span><span class="truncate">Koraidon</span></span>
+          <kbd class="rounded border border-[#b91c1c]/40 bg-[#fee2e2] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#991b1b]">K</kbd>
+        </button>
+        <button type="button" data-jou-walk="lance-rack" data-scroll-to="jou-duel-game" data-hotkey="l" class="jou-station-btn flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#d97706] bg-white px-2.5 py-2 text-left shadow-[0_2px_0_#92400e] transition hover:-translate-y-0.5">
+          <span class="flex items-center gap-1.5 truncate text-xs font-bold"><span>🔱</span><span class="truncate">Lances</span></span>
+          <kbd class="rounded border border-[#d97706]/40 bg-[#fef3c7] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#78350f]">L</kbd>
+        </button>
+        <button type="button" data-jou-walk="blackwargreymon" data-scroll-to="jou-duel-game" data-hotkey="b" class="jou-station-btn flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#334155] bg-white px-2.5 py-2 text-left shadow-[0_2px_0_#0f172a] transition hover:-translate-y-0.5">
+          <span class="flex items-center gap-1.5 truncate text-xs font-bold"><span>⚔️</span><span class="truncate">B.WarGreymon</span></span>
+          <kbd class="rounded border border-[#334155]/40 bg-[#f1f5f9] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#0f172a]">B</kbd>
+        </button>
+        <button type="button" data-jou-walk="imp_fighter" data-scroll-to="jou-showcase-section" data-hotkey="i" class="jou-station-btn flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#1d4ed8] bg-white px-2.5 py-2 text-left shadow-[0_2px_0_#1e3a8a] transition hover:-translate-y-0.5">
+          <span class="flex items-center gap-1.5 truncate text-xs font-bold"><span>🛡️</span><span class="truncate">Imperial</span></span>
+          <kbd class="rounded border border-[#1d4ed8]/40 bg-[#dbeafe] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#1e3a8a]">I</kbd>
+        </button>
+        <button type="button" data-jou-walk="herald-drum" data-scroll-to="jou-relic-section" data-hotkey="d" class="jou-station-btn flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#ea580c] bg-white px-2.5 py-2 text-left shadow-[0_2px_0_#9a3412] transition hover:-translate-y-0.5">
+          <span class="flex items-center gap-1.5 truncate text-xs font-bold"><span>🥁</span><span class="truncate">Drums</span></span>
+          <kbd class="rounded border border-[#ea580c]/40 bg-[#ffedd5] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#9a3412]">D</kbd>
+        </button>
+        <button type="button" data-jou-walk="arena-scoreboard" data-scroll-to="jou-relic-section" data-hotkey="t" class="jou-station-btn flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-[#b45309] bg-white px-2.5 py-2 text-left shadow-[0_2px_0_#78350f] transition hover:-translate-y-0.5">
+          <span class="flex items-center gap-1.5 truncate text-xs font-bold"><span>🏆</span><span class="truncate">Tourney</span></span>
+          <kbd class="rounded border border-[#b45309]/40 bg-[#fef3c7] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#78350f]">T</kbd>
+        </button>
+      </nav>
+    </header>
+
+    <!-- 2. TRIAL I: SAND LISTS JOUSTING CHARGE DUEL -->
+    <section
+      id="jou-duel-game"
+      class="scroll-mt-6 rounded-2xl border-[3px] border-[#b91c1c] bg-gradient-to-b from-[#fffdf7] to-[#fef2f2] p-5 shadow-[0_8px_0_#7f1d1d]"
+    >
+      <div class="flex flex-wrap items-start justify-between gap-3 border-b-2 border-[#b91c1c]/25 pb-3.5">
+        <div>
+          <span class="font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-[#b91c1c]">
+            TRIAL I · GOLDEN SAND JOUSTING CLASH
+          </span>
+          <h2 class="mt-0.5 font-display text-xl font-black text-[#1e293b]">
+            🐎 Joust Against Knight Koraidon (3 Perfect Passes)
+          </h2>
+          <p class="mt-1 text-xs text-[#44403c]">
+            Arahkan tombak saat dua penanda ksatria bertemu tepat di titik benturan emas tengah (<strong>39% – 61%</strong>) sebanyak <strong>3 kali</strong> untuk mengklaim <strong class="text-[#b91c1c]">🐎 Crest of Chivalry</strong>!
+          </p>
+        </div>
+
+        <button id="jou-reset-btn" type="button" class="cursor-pointer rounded-lg border border-[#b91c1c] bg-white px-3 py-1.5 font-mono text-[11px] font-bold text-[#7f1d1d] hover:bg-[#fee2e2]">
+          ↺ Remount Steed
+        </button>
+      </div>
+
+      <div class="mt-4 rounded-xl border-2 border-[#78350f] bg-gradient-to-b from-[#d99b43] to-[#b87b29] p-4 text-white shadow-inner">
+        <div class="flex items-center justify-between font-mono text-xs text-[#fffbeb]">
+          <span class="font-bold">GOLDEN SAND TILTING LANE</span>
+          <span id="jou-clash-status" class="font-black text-[#fef08a]">CLEAN PASSES: 0 / 3</span>
+        </div>
+
+        <div class="relative mt-3 h-10 overflow-hidden rounded-xl border-2 border-[#78350f] bg-[#8f5b1a]">
+          <div
+            class="pointer-events-none absolute inset-y-0 border-x-2 border-[#4ade80] bg-[#fbbf24]/35"
+            style="left: 39%; width: 22%;"
+          ></div>
+          <div
+            id="jou-rider"
+            class="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 select-none text-2xl"
+            style="left: 15%;"
+          >
+            🐎💨
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4 flex flex-wrap items-center gap-3">
+        <button id="jou-strike-btn" type="button" class="cursor-pointer rounded-xl border-2 border-[#7f1d1d] bg-gradient-to-b from-[#ef4444] to-[#b91c1c] px-5 py-2.5 font-mono text-xs font-black uppercase text-white shadow-[0_4px_0_#7f1d1d] transition hover:-translate-y-0.5 active:translate-y-0.5">
+          🔱 Couch Lance! [Space]
+        </button>
+        <span id="jou-feedback" class="font-mono text-xs font-bold text-[#991b1b]">
+          Siapkan tombak dan klik "Couch Lance!" saat Koraidon melintasi zona benturan emas!
+        </span>
+      </div>
+    </section>
+
+    <!-- 3. INTERACTIVE ARENAS & SIMULATION ENGINES SHOWCASE -->
+    <section
+      id="jou-showcase-section"
+      class="scroll-mt-6 rounded-2xl border-[3px] border-[#b45309] bg-gradient-to-b from-[#fffdf7] to-[#f4ead5] p-5 shadow-[0_8px_0_#78350f]"
+    >
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b-2 border-[#b45309]/30 pb-3">
+        <div>
+          <span class="font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-[#b45309]">
+            REALMS OF INTERACTION · ENGINE SHOWCASE
+          </span>
+          <h2 class="mt-0.5 font-display text-xl font-black text-[#1e293b]">
+            ⚔️ Playable Realms &amp; Game AI Engines
+          </h2>
+        </div>
+        <a href="/kingdom" class="rounded-lg border border-[#b45309] bg-[#fef3c7] px-3 py-1 font-mono text-[10px] font-bold text-[#78350f]">
+          Avalon Excalibur Hub →
+        </a>
+      </div>
+
+      <div class="mt-4 grid gap-3 sm:grid-cols-2">
+        {interactiveBuilds.map((item) => (
+          <a href={item.href} class="rounded-xl border-2 border-[#b45309]/40 bg-white p-4 transition hover:-translate-y-0.5 hover:border-[#b91c1c]">
+            <div class="flex items-center justify-between">
+              <span class="text-xl">{item.icon}</span>
+              <span class="rounded bg-[#fee2e2] px-2 py-0.5 font-mono text-[9px] font-bold text-[#991b1b]">{item.badge}</span>
+            </div>
+            <h3 class="mt-1.5 font-display text-sm font-black text-[#1e293b]">{item.title}</h3>
+            <p class="mt-1 text-xs leading-relaxed text-[#44403c]">{item.desc}</p>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <!-- 4. TOURNEY VAULT & 7 ROYAL CRESTS -->
+    <section
+      id="jou-relic-section"
+      class="scroll-mt-6 rounded-2xl border-[3px] border-[#b91c1c] bg-gradient-to-b from-[#fffdf7] to-[#fef2f2] p-5 shadow-[0_8px_0_#7f1d1d]"
+    >
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b-2 border-[#b91c1c]/25 pb-3">
+        <h2 class="font-display text-xl font-black text-[#1e293b]">🏆 Tournament Vault &amp; 7 Crests</h2>
+        <span id="jou-crest-summary" class="rounded-full border border-[#b91c1c] bg-[#b91c1c] px-3 py-1 font-mono text-[11px] font-bold text-white">
+          0 / 7 Crests Claimed
+        </span>
+      </div>
+
+      <div class="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border-2 border-[#ea580c]/40 bg-white p-4">
+        <div>
+          <div class="font-mono text-[10px] font-bold uppercase text-[#ea580c]">RELIC I · WAR DRUM CAVALRY GALLOP</div>
+          <h3 class="mt-0.5 font-display text-base font-black text-[#1e293b]">🐎 Koraidon Gallop (+50% Speed)</h3>
+          <p class="mt-1 text-xs text-[#44403c]">Genderang perang memacu kecepatan langkah sebesar +50% selama 25 detik!</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="jou-speed-btn" type="button" class="cursor-pointer rounded-xl border-2 border-[#ea580c] bg-[#ea580c] px-4 py-2 font-mono text-xs font-black text-white shadow-[0_3px_0_#9a3412]">
+            🥁 Sound Gallop Buff
+          </button>
+          <span id="jou-speed-timer" class="font-mono text-xs font-bold text-[#9a3412]">Ready</span>
+        </div>
+      </div>
+
+      <div class="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+        {allCrests.map((c) => (
+          <a href={c.route} class="flex items-center justify-between gap-2 rounded-xl border border-[#b91c1c]/40 bg-white px-3 py-2 text-xs hover:-translate-y-0.5 hover:border-[#b91c1c]">
+            <span class="truncate font-bold">{c.icon} {c.name}</span>
+            <span data-jou-crest-badge={c.key} class="font-mono text-[10px] font-bold text-[#94a3b8]">🔒</span>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <WhereTo currentPath="/kingdom/jousting" />
+  </article>
+</TownLayout>
+
+<script>
+  import { awardRoyalCrest, countRoyalCrests, getRoyalCrests } from '../../engine/kingdomInteriorShared';
+
+  let jouAudioOn = true;
+  let jouAudioCtx: AudioContext | null = null;
+
+  function playJoustTone(freq: number, dur = 0.14, type: OscillatorType = 'triangle') {
+    if (!jouAudioOn || typeof window === 'undefined') return;
+    try {
+      const Ctx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      if (!Ctx) return;
+      if (!jouAudioCtx) jouAudioCtx = new Ctx();
+      if (jouAudioCtx.state === 'suspended') void jouAudioCtx.resume();
+      const osc = jouAudioCtx.createOscillator();
+      const gain = jouAudioCtx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, jouAudioCtx.currentTime);
+      gain.gain.setValueAtTime(0.12, jouAudioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, jouAudioCtx.currentTime + dur);
+      osc.connect(gain);
+      gain.connect(jouAudioCtx.destination);
+      osc.start();
+      osc.stop(jouAudioCtx.currentTime + dur);
+    } catch {
+      // ignore
+    }
+  }
+
+  function emitJouWave(text: string, color = '#ef4444') {
+    window.dispatchEvent(new CustomEvent('town:kingdom-fx', { detail: { text, color } }));
+  }
+
+  function initJoustingPage() {
+    const root = document.querySelector('.jousting-page');
+    if (!root) return;
+
+    let riderPct = 15;
+    let riderDir = 1;
+    let passes = getRoyalCrests().chivalry ? 3 : 0;
+    let rafId: number | null = null;
+    let lastTs = performance.now();
+    let speedTimer: number | null = null;
+
+    document.getElementById('jou-exit-btn')?.addEventListener('click', () => {
+      try {
+        sessionStorage.setItem('kingdom:respawn', '12,45,down');
+      } catch {
+        // ignore
+      }
+    });
+
+    const audioBtn = document.getElementById('jou-audio-toggle');
+    audioBtn?.addEventListener('click', () => {
+      jouAudioOn = !jouAudioOn;
+      audioBtn.textContent = jouAudioOn ? '🎺 Tourney SFX: ON' : '🔇 Tourney SFX: MUTED';
+      if (jouAudioOn) playJoustTone(587.33);
+    });
+
+    const speakerEl = document.getElementById('jou-speaker');
+    const dialogueEl = document.getElementById('jou-dialogue');
+
+    const walkProp = (el: HTMLElement) => {
+      const id = el.dataset.jouWalk;
+      if (id) window.dispatchEvent(new CustomEvent('town:walk-to', { detail: { id } }));
+      if (el.dataset.speaker && speakerEl) speakerEl.textContent = el.dataset.speaker;
+      if (el.dataset.quote && dialogueEl) dialogueEl.textContent = `“${el.dataset.quote}”`;
+      if (el.dataset.fxText) emitJouWave(el.dataset.fxText, el.dataset.fxColor || '#ef4444');
+      if (el.dataset.scrollTo) {
+        document.getElementById(el.dataset.scrollTo)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      playJoustTone(440, 0.08);
+    };
+
+    document.querySelectorAll<HTMLElement>('[data-jou-walk]').forEach((btn) => {
+      btn.addEventListener('click', () => walkProp(btn));
+    });
+
+    function refreshCrests() {
+      const crests = getRoyalCrests();
+      const total = countRoyalCrests();
+      const hasChiv = Boolean(crests.chivalry);
+
+      const hScore = document.getElementById('hero-jou-score');
+      const hState = document.getElementById('hero-jou-state');
+      const hCrests = document.getElementById('hero-jou-crests');
+      const pill = document.getElementById('jou-crest-pill');
+      const summary = document.getElementById('jou-crest-summary');
+      const cStatus = document.getElementById('jou-clash-status');
+
+      if (hScore) hScore.textContent = `${hasChiv ? 3 : passes} / 3`;
+      if (hCrests) hCrests.textContent = `${total} / 7`;
+      if (summary) summary.textContent = `${total} / 7 Crests Claimed`;
+      if (cStatus) cStatus.textContent = hasChiv ? 'CHAMPION (3 / 3) ✅' : `CLEAN PASSES: ${passes} / 3`;
+      if (hState) {
+        hState.textContent = hasChiv ? 'CHAMPION' : 'CHALLENGER';
+        hState.className = hasChiv ? 'text-sm font-black text-[#15803d]' : 'text-sm font-black text-[#b45309]';
+      }
+      if (pill && hasChiv) {
+        pill.textContent = '🐎 Crest of Chivalry Claimed';
+        pill.className = 'rounded-full border border-[#15803d] bg-[#dcfce7] px-2.5 py-1 font-mono text-[10px] font-bold uppercase text-[#14532d]';
+      }
+
+      (['sovereignty', 'steel', 'fellowship', 'arcana', 'valor', 'grace', 'chivalry'] as const).forEach((k) => {
+        const badge = document.querySelector<HTMLElement>(`[data-jou-crest-badge="${k}"]`);
+        const ok = Boolean(crests[k]);
+        if (badge) {
+          badge.textContent = ok ? '✅' : '🔒';
+          badge.className = ok ? 'font-mono text-[10px] font-bold text-[#15803d]' : 'font-mono text-[10px] font-bold text-[#94a3b8]';
+        }
+      });
+    }
+
+    const riderEl = document.getElementById('jou-rider');
+    const feedbackEl = document.getElementById('jou-feedback');
+
+    function tickGallop(now: number) {
+      const dt = Math.min(0.05, (now - lastTs) / 1000);
+      lastTs = now;
+      if (passes < 3) {
+        riderPct += riderDir * dt * 112;
+        if (riderPct >= 95) { riderPct = 95; riderDir = -1; }
+        else if (riderPct <= 5) { riderPct = 5; riderDir = 1; }
+        if (riderEl) riderEl.style.left = `${riderPct}%`;
+      }
+      rafId = requestAnimationFrame(tickGallop);
+    }
+    rafId = requestAnimationFrame(tickGallop);
+
+    function couchLance() {
+      if (passes >= 3) {
+        if (feedbackEl) feedbackEl.textContent = '✅ Anda sudah menyandang Crest of Chivalry! Klik Remount Steed untuk bertanding lagi.';
+        return;
+      }
+      const inZone = riderPct >= 39 && riderPct <= 61;
+      if (inZone) {
+        passes += 1;
+        playJoustTone(587.33, 0.14);
+        setTimeout(() => playJoustTone(880, 0.2), 70);
+        emitJouWave(`CLEAN TILT! (${passes}/3)`, '#fbbf24');
+        if (passes >= 3) {
+          awardRoyalCrest('chivalry');
+          emitJouWave('CREST OF CHIVALRY!', '#4ade80');
+          if (feedbackEl) feedbackEl.textContent = '🏆 KEMENANGAN TURNAMENT! Koraidon memberi hormat — Crest of Chivalry diraih!';
+        } else if (feedbackEl) {
+          feedbackEl.textContent = `🔱 Benturan tombak telak (${Math.round(riderPct)}%)! Butuh ${3 - passes} pass lagi.`;
+        }
+      } else {
+        playJoustTone(174.61, 0.18, 'sawtooth');
+        emitJouWave('GLANCING MISS!', '#ef4444');
+        if (feedbackEl) feedbackEl.textContent = `💨 Tergelincir di pasir (${Math.round(riderPct)}%) — targetkan 39%–61%!`;
+      }
+      refreshCrests();
+    }
+
+    document.getElementById('jou-strike-btn')?.addEventListener('click', couchLance);
+    document.getElementById('jou-reset-btn')?.addEventListener('click', () => {
+      passes = 0;
+      if (feedbackEl) feedbackEl.textContent = '🐎 Koraidon bersiap di ujung jalur pasir — bidik zona emas!';
+      refreshCrests();
+    });
+
+    document.getElementById('jou-speed-btn')?.addEventListener('click', () => {
+      window.dispatchEvent(new CustomEvent('town:claim-lucky-egg'));
+      emitJouWave('CAVALRY GALLOP +50%!', '#f59e0b');
+      playJoustTone(659.25, 0.16);
+      let left = 25;
+      const tEl = document.getElementById('jou-speed-timer');
+      if (tEl) tEl.textContent = `🐎 ${left}s`;
+      if (speedTimer !== null) clearInterval(speedTimer);
+      speedTimer = window.setInterval(() => {
+        left -= 1;
+        if (tEl) tEl.textContent = left > 0 ? `🐎 ${left}s` : 'Ready';
+        if (left <= 0 && speedTimer !== null) {
+          clearInterval(speedTimer);
+          speedTimer = null;
+        }
+      }, 1000);
+    });
+
+    const onKey = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement | null)?.tagName;
+      if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
+      if (e.code === 'Space') {
+        e.preventDefault();
+        couchLance();
+        return;
+      }
+      const matched = document.querySelector<HTMLElement>(`.jou-station-btn[data-hotkey="${e.key.toLowerCase()}"]`);
+      if (matched) {
+        e.preventDefault();
+        walkProp(matched);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+
+    refreshCrests();
+
+    document.addEventListener(
+      'astro:before-swap',
+      () => {
+        if (rafId !== null) cancelAnimationFrame(rafId);
+        if (speedTimer !== null) clearInterval(speedTimer);
+        window.removeEventListener('keydown', onKey);
+      },
+      { once: true }
+    );
+  }
+
+  initJoustingPage();
+  document.addEventListener('astro:page-load', initJoustingPage);
+</script>

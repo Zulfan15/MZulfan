@@ -2,6 +2,14 @@ import { Tile, type TownMap } from './types';
 import { TILE_SIZE } from './sprites';
 import { MAP_W, MAP_H, DIGI_GATE_PORTAL } from './map';
 import { townConfig, type TileTypeKey } from './townConfig';
+import {
+  renderCastleFlagstoneTile,
+  renderDrawbridgeWoodTile,
+  renderMedievalBuildingByType,
+  renderMedievalPropByType,
+  renderRoyalCarpetTile,
+  renderTudorCobbleTile,
+} from './kingdomAssets';
 
 /**
  * Procedural 2D Pixel-Art Town Map Generator.
@@ -1724,6 +1732,14 @@ export function renderTileOverrideByKey(
     renderCryoIceTile(ctx, px, py, x, y);
   } else if (tileKey === 'holy_marble') {
     renderHolyMarbleTile(ctx, px, py, x, y);
+  } else if (tileKey === 'castle_flagstone') {
+    renderCastleFlagstoneTile(ctx, px, py, x, y);
+  } else if (tileKey === 'royal_carpet') {
+    renderRoyalCarpetTile(ctx, px, py, x, y);
+  } else if (tileKey === 'tudor_cobble') {
+    renderTudorCobbleTile(ctx, px, py, x, y);
+  } else if (tileKey === 'drawbridge_wood') {
+    renderDrawbridgeWoodTile(ctx, px, py, x, y);
   }
 }
 
@@ -3565,14 +3581,22 @@ export function drawDigitalWarpPad(
  */
 export function renderConfiguredExtraEntities(ctx: CanvasRenderingContext2D) {
   const extraEntities = townConfig.getBuildings().filter(
-    (b) => (b.kind === 'object' || b.kind === 'sign' || b.kind === 'npc') && !b.hidden
+    (b) => (b.kind === 'object' || b.kind === 'sign' || b.kind === 'npc' || (b.kind === 'building' && townConfig.getActiveWorld() === 'town')) && !b.hidden
   );
   for (const obj of extraEntities) {
-    if (['fountain', 'basin', 'kiosk', 'gazebo', 'camp', 'campfire', 'podium', 'telescope', 'vending', 'statue', 'garden', 'contest'].includes(obj.id)) {
+    if (['fountain', 'basin', 'kiosk', 'gazebo', 'camp', 'campfire', 'podium', 'telescope', 'vending', 'statue', 'garden', 'contest', 'home', 'dev', 'lab', 'reception', 'shop', 'arcade', 'office', 'villa'].includes(obj.id)) {
       continue;
     }
     const px = obj.x * TILE_SIZE;
     const py = obj.y * TILE_SIZE;
+
+    // Special handling for spawned medieval buildings or props/NPCs
+    if (obj.kind === 'building' && renderMedievalBuildingByType(ctx, obj.subType || obj.id, px, py, obj.w, obj.h)) {
+      continue;
+    }
+    if (renderMedievalPropByType(ctx, obj.subType, px, py, obj.w, obj.h, obj.orientation || 'S')) {
+      continue;
+    }
 
     // Special handling for maritime railing
     if (obj.subType === 'fence_water') {

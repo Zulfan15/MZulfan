@@ -4,12 +4,73 @@ import { createTownBackgroundCanvas, drawPikachu } from './townBackground';
 import {
   createDigiMap,
   DIGI_COLS,
+  DIGI_DARK_CASTLE_GATE,
+  DIGI_KINGDOM_GATE,
   DIGI_PLAZA_CONSOLE,
   DIGI_RETURN_GATE,
   DIGI_ROWS,
+  DIGI_SKY_CASTLE_GATE,
   DIGI_SPAWN,
 } from './digiMap';
 import { createDigiBackgroundCanvas } from './digiBackground';
+import {
+  createSkyCastleMap,
+  SKY_CASTLE_COLS,
+  SKY_CASTLE_LANDMARKS,
+  SKY_CASTLE_RETURN_GATE,
+  SKY_CASTLE_ROWS,
+  SKY_CASTLE_SPAWN,
+} from './skyCastleMap';
+import { createSkyCastleBackgroundCanvas } from './skyCastleBackground';
+import {
+  createKingdomMap,
+  KINGDOM_BUILDING_DOORS,
+  KINGDOM_COLS,
+  KINGDOM_HARBOUR_GATE,
+  KINGDOM_LANDMARKS,
+  KINGDOM_RETURN_GATE,
+  KINGDOM_ROWS,
+  KINGDOM_SPAWN,
+} from './kingdomMap';
+import {
+  getKingdomInteriorConfig,
+  isKingdomInteriorScene,
+  type KingdomInteriorSceneId,
+} from './kingdom/kingdomInteriorsRegistry';
+import { triggerKingdomWave } from './kingdom/kingdomSceneBase';
+import { createKingdomBackgroundCanvas } from './kingdomBackground';
+import {
+  createHarbourMap,
+  HARBOUR_BUILDING_DOORS,
+  HARBOUR_COLS,
+  HARBOUR_LANDMARKS,
+  HARBOUR_RETURN_GATE,
+  HARBOUR_ROWS,
+  HARBOUR_SPAWN,
+} from './harbourMap';
+import {
+  getHarbourInteriorConfig,
+  isHarbourInteriorScene,
+  type HarbourInteriorSceneId,
+} from './harbour/harbourInteriorsRegistry';
+import { triggerHarbourWave } from './harbour/harbourSceneBase';
+import { createHarbourBackgroundCanvas } from './harbourBackground';
+import {
+  createDarkCastleMap,
+  DARK_CASTLE_COLS,
+  DARK_CASTLE_LANDMARKS,
+  DARK_CASTLE_RETURN_GATE,
+  DARK_CASTLE_ROWS,
+  DARK_CASTLE_SPAWN,
+} from './darkCastleMap';
+import { CATHEDRAL_COLS, CATHEDRAL_ROWS, CATHEDRAL_SPAWN, CATHEDRAL_COLLISION, CATHEDRAL_PROPS, renderCathedralScene, triggerCathedralEchoWave } from './cathedralScene';
+import { FORGE_COLS, FORGE_ROWS, FORGE_SPAWN, FORGE_COLLISION, FORGE_PROPS, renderForgeScene, triggerForgePlasmaWave } from './forgeScene';
+import { MANOR_COLS, MANOR_ROWS, MANOR_SPAWN, MANOR_COLLISION, MANOR_PROPS, renderManorScene, triggerManorShadowWave } from './manorScene';
+import { VAULT_COLS, VAULT_ROWS, VAULT_SPAWN, VAULT_COLLISION, VAULT_PROPS, renderVaultScene, triggerVaultChronoWave } from './vaultScene';
+import { isAllSealsUnlocked } from './darkInteriorShared';
+import { awakenExcalibur, countRoyalCrests } from './kingdomInteriorShared';
+import { awakenVoyage, countMaritimeSeals } from './harbourInteriorShared';
+import { createDarkCastleBackgroundCanvas } from './darkCastleBackground';
 import { DigimonPatrolController } from './digimonAnimator';
 import {
   DIGIMON_CATALOG,
@@ -291,7 +352,7 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
   private ctx: CanvasRenderingContext2D;
   map: TownMap;
   private callbacks: EngineCallbacks;
-  private currentScene: 'town' | 'home' | 'dev' | 'lab' | 'arcade' | 'reception' | 'mart' | 'tower' | 'cafe' | 'arena' | 'garden' | 'neighbour' | 'digimon' = 'town';
+  private currentScene: 'town' | 'home' | 'dev' | 'lab' | 'arcade' | 'reception' | 'mart' | 'tower' | 'cafe' | 'arena' | 'garden' | 'neighbour' | 'digimon' | 'kingdom' | 'harbour' | 'sky-castle' | 'dark-castle' | 'dark-cathedral' | 'dark-forge' | 'dark-manor' | 'dark-vault' | KingdomInteriorSceneId | HarbourInteriorSceneId = 'town';
   private homeFloor: '1F' | '2F' = '1F';
   public activeTowerFloor: '1F' | '2F' | '3F' | '4F' = '1F';
   private devBackgroundCanvas: HTMLCanvasElement | null = null;
@@ -340,6 +401,10 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
   private neighbourBackgroundCanvas: HTMLCanvasElement | null = null;
   private townBackgroundCanvas: HTMLCanvasElement | null = null;
   private digiBackgroundCanvas: HTMLCanvasElement | null = null;
+  private kingdomBackgroundCanvas: HTMLCanvasElement | null = null;
+  private harbourBackgroundCanvas: HTMLCanvasElement | null = null;
+  private skyCastleBackgroundCanvas: HTMLCanvasElement | null = null;
+  private darkCastleBackgroundCanvas: HTMLCanvasElement | null = null;
   private digimonPatrol = new DigimonPatrolController();
   public townAtmosphere: TownAtmosphere = 'day';
   public weather: TownWeather = 'petals';
@@ -463,7 +528,18 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
     if (!ctx) throw new Error('Could not get 2D context');
     this.ctx = ctx;
     this.callbacks = callbacks;
-    this.map = initialSpawn === 'digimon' ? createDigiMap(townData) : createTownMap(townData);
+    this.map =
+      initialSpawn === 'digimon'
+        ? createDigiMap(townData)
+        : initialSpawn === 'kingdom'
+          ? createKingdomMap(townData)
+          : initialSpawn === 'harbour'
+            ? createHarbourMap(townData)
+            : initialSpawn === 'sky-castle'
+              ? createSkyCastleMap(townData)
+              : initialSpawn === 'dark-castle'
+                ? createDarkCastleMap(townData)
+                : createTownMap(townData);
 
     if (initialSpawn === 'about' || initialSpawn === 'home') {
       this.currentScene = 'home';
@@ -550,11 +626,200 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
       this.cameraY = (NEIGHBOUR_ROWS * TILE_SIZE) / 2;
     } else if (initialSpawn === 'digimon') {
       this.currentScene = 'digimon';
-      this.playerPos = { x: DIGI_SPAWN.x, y: DIGI_SPAWN.y };
-      this.playerTarget = { x: DIGI_SPAWN.x, y: DIGI_SPAWN.y };
-      this.playerDir = DIGI_SPAWN.dir;
+      let sx = DIGI_SPAWN.x;
+      let sy = DIGI_SPAWN.y;
+      let sdir: Dir = DIGI_SPAWN.dir;
+      const digiRespawn = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('digimon:respawn') : null;
+      if (typeof sessionStorage !== 'undefined') sessionStorage.removeItem('digimon:respawn');
+      if (digiRespawn) {
+        const [rx, ry, rdir] = digiRespawn.split(',');
+        if (!isNaN(Number(rx)) && !isNaN(Number(ry))) {
+          sx = Number(rx);
+          sy = Number(ry);
+          if (rdir === 'up' || rdir === 'down' || rdir === 'left' || rdir === 'right') sdir = rdir;
+        }
+      } else if (typeof window !== 'undefined' && window.location.search.includes('from=kingdom')) {
+        sx = 20;
+        sy = 38;
+        sdir = 'up';
+      } else if (typeof window !== 'undefined' && window.location.search.includes('from=dark-castle')) {
+        sx = 8;
+        sy = 22;
+        sdir = 'right';
+      } else if (typeof window !== 'undefined' && window.location.search.includes('from=sky-castle')) {
+        sx = 33;
+        sy = 22;
+        sdir = 'left';
+      }
+      this.playerPos = { x: sx, y: sy };
+      this.playerTarget = { x: sx, y: sy };
+      this.playerDir = sdir;
       this.cameraX = (DIGI_COLS * TILE_SIZE) / 2;
       this.cameraY = (DIGI_ROWS * TILE_SIZE) / 2;
+    } else if (initialSpawn === 'kingdom') {
+      this.currentScene = 'kingdom';
+      let kx = KINGDOM_SPAWN.x;
+      let ky = KINGDOM_SPAWN.y;
+      let kdir: Dir = KINGDOM_SPAWN.dir;
+      const kingdomRespawn = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('kingdom:respawn') : null;
+      if (typeof sessionStorage !== 'undefined') sessionStorage.removeItem('kingdom:respawn');
+      if (kingdomRespawn) {
+        const [rx, ry, rdir] = kingdomRespawn.split(',');
+        if (!isNaN(Number(rx)) && !isNaN(Number(ry))) {
+          kx = Number(rx);
+          ky = Number(ry);
+          if (rdir === 'up' || rdir === 'down' || rdir === 'left' || rdir === 'right') kdir = rdir;
+        }
+      } else if (typeof window !== 'undefined') {
+        if (window.location.search.includes('from=harbour')) {
+          kx = 22;
+          ky = 57;
+          kdir = 'up';
+        } else {
+          for (const [slug, door] of Object.entries(KINGDOM_BUILDING_DOORS)) {
+            if (window.location.search.includes(`from=${slug}`)) {
+              kx = door.spawn.x;
+              ky = door.spawn.y;
+              kdir = door.spawn.dir;
+              break;
+            }
+          }
+        }
+      }
+      this.playerPos = { x: kx, y: ky };
+      this.playerTarget = { x: kx, y: ky };
+      this.playerDir = kdir;
+      this.cameraX = (KINGDOM_COLS * TILE_SIZE) / 2;
+      this.cameraY = (KINGDOM_ROWS * TILE_SIZE) / 2;
+    } else if (isKingdomInteriorScene(initialSpawn)) {
+      const cfg = getKingdomInteriorConfig(initialSpawn)!;
+      this.currentScene = cfg.id;
+      this.playerPos = { x: cfg.spawn.x, y: cfg.spawn.y };
+      this.playerTarget = { x: cfg.spawn.x, y: cfg.spawn.y };
+      this.playerDir = cfg.spawn.dir;
+      this.cameraX = (cfg.cols * TILE_SIZE) / 2;
+      this.cameraY = (cfg.rows * TILE_SIZE) / 2;
+      for (const pkmId of cfg.pmPreloads) {
+        this.pmdAnimator.preloadPokemon(pkmId);
+      }
+      for (const digiId of cfg.digimonPreloads) {
+        requestDigimonSprites(digiId, () => this.wake());
+      }
+    } else if (initialSpawn === 'harbour') {
+      this.currentScene = 'harbour';
+      let hx = HARBOUR_SPAWN.x;
+      let hy = HARBOUR_SPAWN.y;
+      let hdir: Dir = HARBOUR_SPAWN.dir;
+      const harbourRespawn = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('harbour:respawn') : null;
+      if (typeof sessionStorage !== 'undefined') sessionStorage.removeItem('harbour:respawn');
+      if (harbourRespawn) {
+        const [rx, ry, rdir] = harbourRespawn.split(',');
+        if (!isNaN(Number(rx)) && !isNaN(Number(ry))) {
+          hx = Number(rx);
+          hy = Number(ry);
+          if (rdir === 'up' || rdir === 'down' || rdir === 'left' || rdir === 'right') hdir = rdir;
+        }
+      } else if (typeof window !== 'undefined') {
+        for (const [slug, door] of Object.entries(HARBOUR_BUILDING_DOORS)) {
+          if (window.location.search.includes(`from=${slug}`)) {
+            hx = door.spawn.x;
+            hy = door.spawn.y;
+            hdir = door.spawn.dir;
+            break;
+          }
+        }
+      }
+      this.playerPos = { x: hx, y: hy };
+      this.playerTarget = { x: hx, y: hy };
+      this.playerDir = hdir;
+      this.cameraX = (HARBOUR_COLS * TILE_SIZE) / 2;
+      this.cameraY = (HARBOUR_ROWS * TILE_SIZE) / 2;
+    } else if (isHarbourInteriorScene(initialSpawn)) {
+      const cfg = getHarbourInteriorConfig(initialSpawn)!;
+      this.currentScene = cfg.id;
+      this.playerPos = { x: cfg.spawn.x, y: cfg.spawn.y };
+      this.playerTarget = { x: cfg.spawn.x, y: cfg.spawn.y };
+      this.playerDir = cfg.spawn.dir;
+      this.cameraX = (cfg.cols * TILE_SIZE) / 2;
+      this.cameraY = (cfg.rows * TILE_SIZE) / 2;
+      for (const pkmId of cfg.pmPreloads) {
+        this.pmdAnimator.preloadPokemon(pkmId);
+      }
+      for (const digiId of cfg.digimonPreloads) {
+        requestDigimonSprites(digiId, () => this.wake());
+      }
+    } else if (initialSpawn === 'sky-castle') {
+      this.currentScene = 'sky-castle';
+      this.playerPos = { x: SKY_CASTLE_SPAWN.x, y: SKY_CASTLE_SPAWN.y };
+      this.playerTarget = { x: SKY_CASTLE_SPAWN.x, y: SKY_CASTLE_SPAWN.y };
+      this.playerDir = SKY_CASTLE_SPAWN.dir;
+      this.cameraX = (SKY_CASTLE_COLS * TILE_SIZE) / 2;
+      this.cameraY = (SKY_CASTLE_ROWS * TILE_SIZE) / 2;
+    } else if (initialSpawn === 'dark-castle') {
+      this.currentScene = 'dark-castle';
+      let dx = DARK_CASTLE_SPAWN.x;
+      let dy = DARK_CASTLE_SPAWN.y;
+      let ddir: Dir = DARK_CASTLE_SPAWN.dir;
+      const darkRespawn = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('dark-castle:respawn') : null;
+      if (typeof sessionStorage !== 'undefined') sessionStorage.removeItem('dark-castle:respawn');
+      if (darkRespawn) {
+        const [rx, ry, rdir] = darkRespawn.split(',');
+        if (!isNaN(Number(rx)) && !isNaN(Number(ry))) {
+          dx = Number(rx);
+          dy = Number(ry);
+          if (rdir === 'up' || rdir === 'down' || rdir === 'left' || rdir === 'right') ddir = rdir;
+        }
+      } else if (typeof window !== 'undefined') {
+        if (window.location.search.includes('from=cathedral')) { dx = 9; dy = 21; ddir = 'down'; }
+        else if (window.location.search.includes('from=forge')) { dx = 33; dy = 25; ddir = 'down'; }
+        else if (window.location.search.includes('from=manor')) { dx = 11; dy = 52; ddir = 'down'; }
+        else if (window.location.search.includes('from=vault')) { dx = 34; dy = 50; ddir = 'down'; }
+      }
+      this.playerPos = { x: dx, y: dy };
+      this.playerTarget = { x: dx, y: dy };
+      this.playerDir = ddir;
+      this.cameraX = (DARK_CASTLE_COLS * TILE_SIZE) / 2;
+      this.cameraY = (DARK_CASTLE_ROWS * TILE_SIZE) / 2;
+    } else if (initialSpawn === 'dark-cathedral') {
+      this.currentScene = 'dark-cathedral';
+      this.playerPos = { x: CATHEDRAL_SPAWN.x, y: CATHEDRAL_SPAWN.y };
+      this.playerTarget = { x: CATHEDRAL_SPAWN.x, y: CATHEDRAL_SPAWN.y };
+      this.playerDir = CATHEDRAL_SPAWN.dir;
+      this.cameraX = (CATHEDRAL_COLS * TILE_SIZE) / 2;
+      this.cameraY = (CATHEDRAL_ROWS * TILE_SIZE) / 2;
+      this.pmdAnimator.preloadPokemon('lunala');
+      this.pmdAnimator.preloadPokemon('necrozma');
+      this.pmdAnimator.preloadPokemon('gardevoir');
+    } else if (initialSpawn === 'dark-forge') {
+      this.currentScene = 'dark-forge';
+      this.playerPos = { x: FORGE_SPAWN.x, y: FORGE_SPAWN.y };
+      this.playerTarget = { x: FORGE_SPAWN.x, y: FORGE_SPAWN.y };
+      this.playerDir = FORGE_SPAWN.dir;
+      this.cameraX = (FORGE_COLS * TILE_SIZE) / 2;
+      this.cameraY = (FORGE_ROWS * TILE_SIZE) / 2;
+      this.pmdAnimator.preloadPokemon('charizard');
+      this.pmdAnimator.preloadPokemon('groudon');
+      requestDigimonSprites('machinedramon', () => this.wake());
+    } else if (initialSpawn === 'dark-manor') {
+      this.currentScene = 'dark-manor';
+      this.playerPos = { x: MANOR_SPAWN.x, y: MANOR_SPAWN.y };
+      this.playerTarget = { x: MANOR_SPAWN.x, y: MANOR_SPAWN.y };
+      this.playerDir = MANOR_SPAWN.dir;
+      this.cameraX = (MANOR_COLS * TILE_SIZE) / 2;
+      this.cameraY = (MANOR_ROWS * TILE_SIZE) / 2;
+      this.pmdAnimator.preloadPokemon('darkrai');
+      this.pmdAnimator.preloadPokemon('giratina');
+      this.pmdAnimator.preloadPokemon('urshifu');
+    } else if (initialSpawn === 'dark-vault') {
+      this.currentScene = 'dark-vault';
+      this.playerPos = { x: VAULT_SPAWN.x, y: VAULT_SPAWN.y };
+      this.playerTarget = { x: VAULT_SPAWN.x, y: VAULT_SPAWN.y };
+      this.playerDir = VAULT_SPAWN.dir;
+      this.cameraX = (VAULT_COLS * TILE_SIZE) / 2;
+      this.cameraY = (VAULT_ROWS * TILE_SIZE) / 2;
+      this.pmdAnimator.preloadPokemon('dialga');
+      this.pmdAnimator.preloadPokemon('celebi');
+      requestDigimonSprites('chronomon_dm', () => this.wake());
     } else {
       this.currentScene = 'town';
       let spawnX = 22;
@@ -715,7 +980,11 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
       sfx.setBgmTheme(this.townAtmosphere);
 
       const savedFollower =
-        this.currentScene === 'digimon'
+        this.currentScene === 'digimon' ||
+          this.currentScene === 'kingdom' ||
+          this.currentScene === 'harbour' ||
+          this.currentScene === 'sky-castle' ||
+          this.currentScene === 'dark-castle'
           ? (() => {
             const digiSaved = localStorage.getItem('digimon:active_companion');
             return digiSaved === 'none'
@@ -822,12 +1091,23 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
   }
 
   isWorldScene(): boolean {
-    return this.currentScene === 'town' || this.currentScene === 'digimon';
+    return (
+      this.currentScene === 'town' ||
+      this.currentScene === 'digimon' ||
+      this.currentScene === 'kingdom' ||
+      this.currentScene === 'harbour' ||
+      this.currentScene === 'sky-castle' ||
+      this.currentScene === 'dark-castle'
+    );
   }
 
   public invalidateBackgroundCanvas() {
     this.townBackgroundCanvas = null;
     this.digiBackgroundCanvas = null;
+    this.kingdomBackgroundCanvas = null;
+    this.harbourBackgroundCanvas = null;
+    this.skyCastleBackgroundCanvas = null;
+    this.darkCastleBackgroundCanvas = null;
   }
 
   public getCanvas(): HTMLCanvasElement {
@@ -1829,7 +2109,13 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
           }
         }
       }
-      if (this.currentScene === 'digimon') {
+      if (
+        this.currentScene === 'digimon' ||
+        this.currentScene === 'kingdom' ||
+        this.currentScene === 'harbour' ||
+        this.currentScene === 'sky-castle' ||
+        this.currentScene === 'dark-castle'
+      ) {
         return [...this.map.lamps, ...lamps];
       }
       return lamps;
@@ -1847,6 +2133,10 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
     if (this.isWorldScene()) {
       this.townBackgroundCanvas = null;
       this.digiBackgroundCanvas = null;
+      this.kingdomBackgroundCanvas = null;
+      this.harbourBackgroundCanvas = null;
+      this.skyCastleBackgroundCanvas = null;
+      this.darkCastleBackgroundCanvas = null;
     }
 
     this.canvas.width = Math.round(rect.width * dpr);
@@ -1945,6 +2235,21 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
       this.defaultZoom = Math.max(Math.min(zoomW, zoomH), 1.8 * dpr);
       this.cameraX = (NEIGHBOUR_COLS * TILE_SIZE) / 2;
       this.cameraY = (NEIGHBOUR_ROWS * TILE_SIZE) / 2;
+    } else if (
+      this.currentScene === 'dark-cathedral' ||
+      this.currentScene === 'dark-forge' ||
+      this.currentScene === 'dark-manor' ||
+      this.currentScene === 'dark-vault' ||
+      isKingdomInteriorScene(this.currentScene) ||
+      isHarbourInteriorScene(this.currentScene)
+    ) {
+      const targetW = 17.5 * TILE_SIZE;
+      const targetH = 14 * TILE_SIZE;
+      const zoomW = this.canvas.width / targetW;
+      const zoomH = this.canvas.height / targetH;
+      this.defaultZoom = Math.max(Math.min(zoomW, zoomH), 1.6 * dpr);
+      this.cameraX = (15 * TILE_SIZE) / 2;
+      this.cameraY = (12 * TILE_SIZE) / 2;
     } else {
       const targetW = this.map.w * TILE_SIZE * 1.05;
       const zoomW = this.canvas.width / targetW;
@@ -2009,6 +2314,12 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
       this.currentScene !== 'garden' &&
       this.currentScene !== 'neighbour' &&
       this.currentScene !== 'digimon' &&
+      this.currentScene !== 'dark-cathedral' &&
+      this.currentScene !== 'dark-forge' &&
+      this.currentScene !== 'dark-manor' &&
+      this.currentScene !== 'dark-vault' &&
+      !isKingdomInteriorScene(this.currentScene) &&
+      !isHarbourInteriorScene(this.currentScene) &&
       !this.isMoving &&
       this.path.length === 0 &&
       !this.marker &&
@@ -2161,6 +2472,60 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
         return;
       }
 
+      // In Dark Interior, Kingdom Interior & Harbour Interior scenes: clicking on props or NPCs walks to or interacts with them
+      if (
+        this.currentScene === 'dark-cathedral' ||
+        this.currentScene === 'dark-forge' ||
+        this.currentScene === 'dark-manor' ||
+        this.currentScene === 'dark-vault' ||
+        isKingdomInteriorScene(this.currentScene) ||
+        isHarbourInteriorScene(this.currentScene)
+      ) {
+        const kingdomCfg = getKingdomInteriorConfig(this.currentScene);
+        const harbourCfg = getHarbourInteriorConfig(this.currentScene);
+        const propsList = kingdomCfg
+          ? kingdomCfg.props
+          : harbourCfg
+            ? harbourCfg.props
+            : this.currentScene === 'dark-cathedral'
+              ? CATHEDRAL_PROPS
+              : this.currentScene === 'dark-forge'
+                ? FORGE_PROPS
+                : this.currentScene === 'dark-manor'
+                  ? MANOR_PROPS
+                  : VAULT_PROPS;
+
+        const hitProp = propsList.find(
+          (p) => targetTileX >= p.x && targetTileX < p.x + p.w && targetTileY >= p.y && targetTileY < p.y + p.h
+        );
+
+        if (hitProp) {
+          const isAdjacent =
+            this.playerPos.x >= hitProp.x - 1 &&
+            this.playerPos.x <= hitProp.x + hitProp.w &&
+            this.playerPos.y >= hitProp.y - 1 &&
+            this.playerPos.y <= hitProp.y + hitProp.h;
+
+          if (isAdjacent) {
+            if (this.playerPos.x < hitProp.x) this.playerDir = 'right';
+            else if (this.playerPos.x >= hitProp.x + hitProp.w) this.playerDir = 'left';
+            else if (this.playerPos.y < hitProp.y) this.playerDir = 'down';
+            else if (this.playerPos.y >= hitProp.y + hitProp.h) this.playerDir = 'up';
+            this.interactFacing(hitProp.id);
+            this.wake();
+            return;
+          }
+
+          this.walkToObject(hitProp.id);
+          this.wake();
+          return;
+        }
+
+        this.pendingTarget = null;
+        this.walkTo(targetTileX, targetTileY);
+        return;
+      }
+
       // In Tech Tower: clicking on any prop or NPC walks to and interacts with it!
       if (this.currentScene === 'tower') {
         const isXurkitreeHit = (
@@ -2211,8 +2576,8 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
         const hitProp = isPheromosaHit
           ? LAB_PROPS.find((p) => p.id === 'pheromosa')
           : LAB_PROPS.find(
-              (p) => targetTileX >= p.x && targetTileX < p.x + p.w && targetTileY >= p.y && targetTileY < p.y + p.h
-            );
+            (p) => targetTileX >= p.x && targetTileX < p.x + p.w && targetTileY >= p.y && targetTileY < p.y + p.h
+          );
 
         if (hitProp) {
           const isAdjacent =
@@ -2257,6 +2622,79 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
             this.walkTo(doorX, doorY);
             return;
           }
+        }
+      }
+
+      // If clicking inside a Dark Castle landmark or North Vortex portal, walk to its entrance
+      if (this.currentScene === 'dark-castle') {
+        if (targetTileX >= 20 && targetTileX <= 24 && targetTileY >= 4 && targetTileY <= 8) {
+          this.walkToObject('dark-castle-return');
+          return;
+        }
+        const hitDarkLandmark = DARK_CASTLE_LANDMARKS.find(
+          (lm) => targetTileX >= lm.x && targetTileX < lm.x + lm.w && targetTileY >= lm.y && targetTileY < lm.y + lm.h
+        );
+        if (hitDarkLandmark) {
+          this.walkToObject(hitDarkLandmark.id);
+          return;
+        }
+      }
+
+      // If clicking inside a Kingdom landmark, North Drawbridge Gate, or South Harbour Gate (22, 59), walk directly there
+      if (this.currentScene === 'kingdom') {
+        if (targetTileX >= 20 && targetTileX <= 24 && targetTileY >= 2 && targetTileY <= 6) {
+          this.walkToObject('kingdom-return');
+          return;
+        }
+        if (targetTileX >= 21 && targetTileX <= 23 && targetTileY >= 57 && targetTileY <= 59) {
+          this.walkToObject('harbour-gate');
+          return;
+        }
+        const hitKingdomLandmark = KINGDOM_LANDMARKS.find(
+          (lm) => targetTileX >= lm.x && targetTileX < lm.x + lm.w && targetTileY >= lm.y && targetTileY < lm.y + lm.h
+        );
+        if (hitKingdomLandmark) {
+          this.walkToObject(hitKingdomLandmark.id);
+          return;
+        }
+        const hitKingdomEntity = townConfig.getBuildings().find((b) => {
+          if (b.hidden) return false;
+          if (b.kind !== 'building' && b.kind !== 'object') return false;
+          return targetTileX >= b.x && targetTileX < b.x + b.w && targetTileY >= b.y && targetTileY < b.y + b.h;
+        });
+        if (hitKingdomEntity) {
+          this.walkToObject(hitKingdomEntity.id);
+          return;
+        }
+      }
+
+      // If clicking inside a Sky Castle landmark or South Sky-Bridge Return Gate, walk directly there
+      if (this.currentScene === 'sky-castle') {
+        if (targetTileX >= 21 && targetTileX <= 23 && targetTileY >= 57 && targetTileY <= 59) {
+          this.walkToObject('sky-castle-return');
+          return;
+        }
+        const hitSkyLandmark = SKY_CASTLE_LANDMARKS.find(
+          (lm) => targetTileX >= lm.x && targetTileX < lm.x + lm.w && targetTileY >= lm.y && targetTileY < lm.y + lm.h
+        );
+        if (hitSkyLandmark) {
+          this.walkToObject(hitSkyLandmark.id);
+          return;
+        }
+      }
+
+      // If clicking inside a Harbour landmark or North Kingdom Return Road, walk directly there
+      if (this.currentScene === 'harbour') {
+        if (targetTileX >= 21 && targetTileX <= 24 && targetTileY >= 0 && targetTileY <= 2) {
+          this.walkToObject('harbour-return');
+          return;
+        }
+        const hitHarbourLandmark = HARBOUR_LANDMARKS.find(
+          (lm) => targetTileX >= lm.x && targetTileX < lm.x + lm.w && targetTileY >= lm.y && targetTileY < lm.y + lm.h
+        );
+        if (hitHarbourLandmark) {
+          this.walkToObject(hitHarbourLandmark.id);
+          return;
         }
       }
 
@@ -2657,8 +3095,8 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
       window.dispatchEvent(
         new CustomEvent('town:editor-toast', {
           detail: next
-            ? '🚶 Patrol Digimon Otomatis: AKTIF (Digimon bebas berjalan di pulau)'
-            : '⏸️ Patrol Digimon Otomatis: NONAKTIF (Digimon kembali ke posisi asli)',
+            ? '🚶 Auto Digimon Patrol: ACTIVE (Digimon roam freely across the island)'
+            : '⏸️ Auto Digimon Patrol: PAUSED (Digimon returned to anchor tiles)',
         })
       );
       this.wake();
@@ -2713,6 +3151,48 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
     };
     window.addEventListener('town:neighbour-fx', onNeighbourFx);
 
+    const onVaultFx = (e: Event) => {
+      const ce = e as CustomEvent<{ text?: string; color?: string }>;
+      triggerVaultChronoWave(ce.detail?.text || 'TEMPORAL SHIFT +90! ⚙️', ce.detail?.color || '#fbbf24');
+      this.wake();
+    };
+    window.addEventListener('town:vault-fx', onVaultFx);
+
+    const onManorFx = (e: Event) => {
+      const ce = e as CustomEvent<{ text?: string; color?: string }>;
+      triggerManorShadowWave(ce.detail?.text || 'NIGHTMARE COUNTERED!', ce.detail?.color || '#ef4444');
+      this.wake();
+    };
+    window.addEventListener('town:manor-fx', onManorFx);
+
+    const onCathedralFx = (e: Event) => {
+      const ce = e as CustomEvent<{ text?: string; color?: string }>;
+      triggerCathedralEchoWave(ce.detail?.text || 'ECHO HARMONY!', ce.detail?.color || '#c084fc');
+      this.wake();
+    };
+    window.addEventListener('town:cathedral-fx', onCathedralFx);
+
+    const onForgeFx = (e: Event) => {
+      const ce = e as CustomEvent<{ text?: string; color?: string }>;
+      triggerForgePlasmaWave(ce.detail?.text || 'REACTOR STABILIZED!', ce.detail?.color || '#fb923c');
+      this.wake();
+    };
+    window.addEventListener('town:forge-fx', onForgeFx);
+
+    const onKingdomFx = (e: Event) => {
+      const ce = e as CustomEvent<{ text?: string; color?: string }>;
+      triggerKingdomWave(this.currentScene, ce.detail?.text || 'AVALON BLESSING!', ce.detail?.color || '#fbbf24');
+      this.wake();
+    };
+    window.addEventListener('town:kingdom-fx', onKingdomFx);
+
+    const onHarbourFx = (e: Event) => {
+      const ce = e as CustomEvent<{ text?: string; color?: string }>;
+      triggerHarbourWave(this.currentScene, ce.detail?.text || 'ADMIRALTY SALUTE!', ce.detail?.color || '#38bdf8');
+      this.wake();
+    };
+    window.addEventListener('town:harbour-fx', onHarbourFx);
+
     this.unbindEvents.push(
       () => window.removeEventListener('keydown', onKeyDown),
       () => window.removeEventListener('keyup', onKeyUp),
@@ -2744,6 +3224,12 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
       () => window.removeEventListener('town:arena-fx', onArenaFx),
       () => window.removeEventListener('town:garden-fx', onGardenFx),
       () => window.removeEventListener('town:neighbour-fx', onNeighbourFx),
+      () => window.removeEventListener('town:vault-fx', onVaultFx),
+      () => window.removeEventListener('town:manor-fx', onManorFx),
+      () => window.removeEventListener('town:cathedral-fx', onCathedralFx),
+      () => window.removeEventListener('town:forge-fx', onForgeFx),
+      () => window.removeEventListener('town:kingdom-fx', onKingdomFx),
+      () => window.removeEventListener('town:harbour-fx', onHarbourFx),
       () => window.removeEventListener('digimon:set-companion', onSetDigiCompanion),
       () => window.removeEventListener('digimon:toggle-patrol', onToggleDigiPatrol)
     );
@@ -2776,7 +3262,9 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
                           ? GARDEN_COLS
                           : this.currentScene === 'neighbour'
                             ? NEIGHBOUR_COLS
-                            : this.map.w;
+                            : this.currentScene === 'dark-cathedral' || this.currentScene === 'dark-forge' || this.currentScene === 'dark-manor' || this.currentScene === 'dark-vault' || isKingdomInteriorScene(this.currentScene) || isHarbourInteriorScene(this.currentScene)
+                              ? 15
+                              : this.map.w;
     const rows =
       this.currentScene === 'home'
         ? (is2F ? HOME2F_ROWS : HOME_ROWS)
@@ -2800,11 +3288,19 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
                           ? GARDEN_ROWS
                           : this.currentScene === 'neighbour'
                             ? NEIGHBOUR_ROWS
-                            : this.map.h;
+                            : this.currentScene === 'dark-cathedral' || this.currentScene === 'dark-forge' || this.currentScene === 'dark-manor' || this.currentScene === 'dark-vault' || isKingdomInteriorScene(this.currentScene) || isHarbourInteriorScene(this.currentScene)
+                              ? 12
+                              : this.map.h;
     if (targetX < 0 || targetX >= cols || targetY < 0 || targetY >= rows) return;
     const start = this.isMoving ? this.playerTarget : this.playerPos;
+    const kingdomCfgWalk = getKingdomInteriorConfig(this.currentScene);
+    const harbourCfgWalk = getHarbourInteriorConfig(this.currentScene);
     const collisionMap =
-      this.currentScene === 'home'
+      kingdomCfgWalk
+        ? kingdomCfgWalk.collision
+        : harbourCfgWalk
+          ? harbourCfgWalk.collision
+          : this.currentScene === 'home'
         ? is2F
           ? HOME2F_COLLISION
           : HOME_COLLISION
@@ -2828,7 +3324,15 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
                           ? GARDEN_COLLISION
                           : this.currentScene === 'neighbour'
                             ? NEIGHBOUR_COLLISION
-                            : this.getEffectiveCollisionMap();
+                            : this.currentScene === 'dark-cathedral'
+                              ? CATHEDRAL_COLLISION
+                              : this.currentScene === 'dark-forge'
+                                ? FORGE_COLLISION
+                                : this.currentScene === 'dark-manor'
+                                  ? MANOR_COLLISION
+                                  : this.currentScene === 'dark-vault'
+                                    ? VAULT_COLLISION
+                                    : this.getEffectiveCollisionMap();
 
     let destX = targetX;
     let destY = targetY;
@@ -2910,8 +3414,11 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
 
       // Check if coordinate is inside entity footprint
       if (x >= b.x && x < b.x + b.w && y >= b.y && y < b.y + b.h) {
-        // Buildings: footprint is solid EXCEPT entrance door
+        // Buildings: footprint is solid EXCEPT entrance door (keep Kingdom medieval building footprints solid so player stops at portcullis front tile)
         if (b.kind === 'building') {
+          if (this.currentScene === 'kingdom') {
+            return false;
+          }
           const doorX = b.doorX !== undefined ? b.doorX : b.x + Math.floor(b.w / 2);
           const doorY = b.doorY !== undefined ? b.doorY : b.y + b.h - 1;
           const isDoor =
@@ -2926,7 +3433,7 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
       }
     }
 
-    // 3. Tile override clearing base fence/obstacle (or extending Digi-Sanctuary bridges over Digital Ocean)
+    // 3. Tile override clearing base fence/obstacle (or extending Digi-Sanctuary / Kingdom bridges over water)
     if (
       override === 'grass' ||
       override === 'cobble' ||
@@ -2936,12 +3443,21 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
       override === 'cyber_grid' ||
       override === 'lava_rock' ||
       override === 'cryo_ice' ||
-      override === 'holy_marble'
+      override === 'holy_marble' ||
+      override === 'castle_flagstone' ||
+      override === 'royal_carpet' ||
+      override === 'tudor_cobble' ||
+      override === 'drawbridge_wood'
     ) {
       const baseGround = this.map.ground[y * this.map.w + x];
       if (
         baseGround === Tile.FENCE ||
-        (this.currentScene === 'digimon' && baseGround === Tile.WATER) ||
+        ((this.currentScene === 'digimon' ||
+          this.currentScene === 'kingdom' ||
+          this.currentScene === 'harbour' ||
+          this.currentScene === 'sky-castle' ||
+          this.currentScene === 'dark-castle') &&
+          baseGround === Tile.WATER) ||
         ((x === 38 || x === 39) && y === 30)
       ) {
         return true;
@@ -3110,6 +3626,42 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
   }
 
   public walkToObject(id: string) {
+    if (
+      this.currentScene === 'dark-cathedral' ||
+      this.currentScene === 'dark-forge' ||
+      this.currentScene === 'dark-manor' ||
+      this.currentScene === 'dark-vault' ||
+      isKingdomInteriorScene(this.currentScene) ||
+      isHarbourInteriorScene(this.currentScene)
+    ) {
+      this.pendingTarget = id;
+      const kingdomCfg = getKingdomInteriorConfig(this.currentScene);
+      const harbourCfg = getHarbourInteriorConfig(this.currentScene);
+      const propsList = kingdomCfg
+        ? kingdomCfg.props
+        : harbourCfg
+          ? harbourCfg.props
+          : this.currentScene === 'dark-cathedral'
+            ? CATHEDRAL_PROPS
+            : this.currentScene === 'dark-forge'
+              ? FORGE_PROPS
+              : this.currentScene === 'dark-manor'
+                ? MANOR_PROPS
+                : VAULT_PROPS;
+      const prop = propsList.find((p) => p.id === id);
+      if (prop) {
+        const candidates = [
+          { x: prop.x + Math.floor(prop.w / 2), y: prop.y + prop.h },
+          { x: prop.x + Math.floor(prop.w / 2), y: prop.y - 1 },
+          { x: prop.x - 1, y: prop.y + Math.floor(prop.h / 2) },
+          { x: prop.x + prop.w, y: prop.y + Math.floor(prop.h / 2) },
+        ];
+        const valid = candidates.find((c) => this.canWalk(c.x, c.y)) || { x: 7, y: 6 };
+        this.walkTo(valid.x, valid.y);
+      }
+      return;
+    }
+
     if (this.currentScene === 'tower') {
       this.pendingTarget = id;
       switch (id) {
@@ -3560,6 +4112,18 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
     }
 
     if (cfg && cfg.doorX !== undefined && cfg.doorY !== undefined) {
+      if (this.currentScene === 'kingdom' && cfg.kind === 'building') {
+        const frontY = cfg.doorY + 1;
+        this.pendingTarget = id;
+        if (this.playerPos.x === cfg.doorX && this.playerPos.y === frontY) {
+          this.playerDir = 'up';
+          this.interactFacing(id);
+          this.wake();
+        } else {
+          this.walkTo(cfg.doorX, frontY);
+        }
+        return;
+      }
       if (cfg.kind === 'building' && cfg.id !== 'arena') {
         this.pendingTarget = null;
       } else {
@@ -3572,14 +4136,35 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
     // Dynamic fallback for custom/moved objects in town layout
     if (cfg) {
       if (cfg.kind === 'building') {
-        this.pendingTarget = null;
-        this.walkTo(cfg.x + Math.floor(cfg.w / 2), cfg.y + cfg.h);
+        if (this.currentScene === 'kingdom') {
+          const destX = cfg.x + Math.floor(cfg.w / 2);
+          const destY = cfg.y + cfg.h;
+          this.pendingTarget = id;
+          if (this.playerPos.x === destX && this.playerPos.y === destY) {
+            this.playerDir = 'up';
+            this.interactFacing(id);
+            this.wake();
+          } else {
+            this.walkTo(destX, destY);
+          }
+        } else {
+          this.pendingTarget = null;
+          this.walkTo(cfg.x + Math.floor(cfg.w / 2), cfg.y + cfg.h);
+        }
       } else if (cfg.kind === 'npc') {
         this.pendingTarget = id;
         this.walkTo(cfg.x, cfg.y + 1);
       } else {
+        const destX = cfg.x + Math.floor(cfg.w / 2);
+        const destY = cfg.y + cfg.h;
         this.pendingTarget = id;
-        this.walkTo(cfg.x + Math.floor(cfg.w / 2), cfg.y + cfg.h);
+        if (this.playerPos.x === destX && this.playerPos.y === destY) {
+          this.playerDir = 'up';
+          this.interactFacing(id);
+          this.wake();
+        } else {
+          this.walkTo(destX, destY);
+        }
       }
       return;
     }
@@ -3738,6 +4323,90 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
         this.pendingTarget = 'digidex-console';
         this.walkTo(19, 22);
         break;
+      case 'kingdom-gate':
+        this.pendingTarget = null;
+        this.walkTo(20, 40);
+        break;
+      case 'kingdom-return':
+        this.pendingTarget = null;
+        this.walkTo(22, 4);
+        break;
+      case 'harbour-gate':
+        this.pendingTarget = null;
+        this.walkTo(22, 59);
+        break;
+      case 'harbour-return':
+        this.pendingTarget = null;
+        this.walkTo(22, 0);
+        break;
+      case 'dark-castle-gate':
+        this.pendingTarget = null;
+        this.walkTo(5, 22);
+        break;
+      case 'dark-castle-return':
+        this.pendingTarget = null;
+        this.walkTo(22, 8);
+        break;
+      case 'sky-castle-gate':
+        this.pendingTarget = null;
+        this.walkTo(36, 22);
+        break;
+      case 'sky-castle-return':
+        this.pendingTarget = null;
+        this.walkTo(22, 59);
+        break;
+      default: {
+        if (this.currentScene === 'kingdom') {
+          const lm = KINGDOM_LANDMARKS.find((item) => item.id === id);
+          if (lm) {
+            this.pendingTarget = lm.id;
+            if (this.playerPos.x === lm.interactX && this.playerPos.y === lm.interactY) {
+              this.playerDir = 'up';
+              this.interactFacing(lm.id);
+              this.wake();
+            } else {
+              this.walkTo(lm.interactX, lm.interactY);
+            }
+          }
+        } else if (this.currentScene === 'harbour') {
+          const lm = HARBOUR_LANDMARKS.find((item) => item.id === id);
+          if (lm) {
+            this.pendingTarget = lm.id;
+            if (this.playerPos.x === lm.interactX && this.playerPos.y === lm.interactY) {
+              this.playerDir = 'up';
+              this.interactFacing(lm.id);
+              this.wake();
+            } else {
+              this.walkTo(lm.interactX, lm.interactY);
+            }
+          }
+        } else if (this.currentScene === 'sky-castle') {
+          const lm = SKY_CASTLE_LANDMARKS.find((item) => item.id === id);
+          if (lm) {
+            this.pendingTarget = lm.id;
+            if (this.playerPos.x === lm.interactX && this.playerPos.y === lm.interactY) {
+              this.playerDir = 'up';
+              this.interactFacing(lm.id);
+              this.wake();
+            } else {
+              this.walkTo(lm.interactX, lm.interactY);
+            }
+          }
+        } else if (this.currentScene === 'dark-castle') {
+          const lm = DARK_CASTLE_LANDMARKS.find((item) => item.id === id);
+          if (lm) {
+            this.pendingTarget = lm.id;
+            if (this.playerPos.x === lm.interactX && this.playerPos.y === lm.interactY) {
+              this.playerDir = 'up';
+              this.interactFacing(lm.id);
+              this.wake();
+            } else {
+              this.walkTo(lm.interactX, lm.interactY);
+            }
+          }
+        }
+        break;
+      }
     }
   }
 
@@ -3858,6 +4527,32 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
     if (this.currentScene === 'neighbour') {
       if (x < 0 || x >= NEIGHBOUR_COLS || y < 0 || y >= NEIGHBOUR_ROWS) return false;
       return NEIGHBOUR_COLLISION[y * NEIGHBOUR_COLS + x] === 0;
+    }
+    if (this.currentScene === 'dark-cathedral') {
+      if (x < 0 || x >= CATHEDRAL_COLS || y < 0 || y >= CATHEDRAL_ROWS) return false;
+      return CATHEDRAL_COLLISION[y * CATHEDRAL_COLS + x] === 0;
+    }
+    if (this.currentScene === 'dark-forge') {
+      if (x < 0 || x >= FORGE_COLS || y < 0 || y >= FORGE_ROWS) return false;
+      return FORGE_COLLISION[y * FORGE_COLS + x] === 0;
+    }
+    if (this.currentScene === 'dark-manor') {
+      if (x < 0 || x >= MANOR_COLS || y < 0 || y >= MANOR_ROWS) return false;
+      return MANOR_COLLISION[y * MANOR_COLS + x] === 0;
+    }
+    if (this.currentScene === 'dark-vault') {
+      if (x < 0 || x >= VAULT_COLS || y < 0 || y >= VAULT_ROWS) return false;
+      return VAULT_COLLISION[y * VAULT_COLS + x] === 0;
+    }
+    const kingdomCfg = getKingdomInteriorConfig(this.currentScene);
+    if (kingdomCfg) {
+      if (x < 0 || x >= kingdomCfg.cols || y < 0 || y >= kingdomCfg.rows) return false;
+      return kingdomCfg.collision[y * kingdomCfg.cols + x] === 0;
+    }
+    const harbourCfg = getHarbourInteriorConfig(this.currentScene);
+    if (harbourCfg) {
+      if (x < 0 || x >= harbourCfg.cols || y < 0 || y >= harbourCfg.rows) return false;
+      return harbourCfg.collision[y * harbourCfg.cols + x] === 0;
     }
     return this.isTileWalkable(x, y);
   }
@@ -4947,6 +5642,38 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
 
   private exitCurrentSceneToTown() {
     sfx.door();
+    if (this.currentScene === 'dark-cathedral') {
+      if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('dark-castle:respawn', '9,21,down');
+      this.callbacks.onNavigate('/dark-castle?from=cathedral');
+      return;
+    }
+    if (this.currentScene === 'dark-forge') {
+      if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('dark-castle:respawn', '33,25,down');
+      this.callbacks.onNavigate('/dark-castle?from=forge');
+      return;
+    }
+    if (this.currentScene === 'dark-manor') {
+      if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('dark-castle:respawn', '11,52,down');
+      this.callbacks.onNavigate('/dark-castle?from=manor');
+      return;
+    }
+    if (this.currentScene === 'dark-vault') {
+      if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('dark-castle:respawn', '34,50,down');
+      this.callbacks.onNavigate('/dark-castle?from=vault');
+      return;
+    }
+    const kingdomExitCfg = getKingdomInteriorConfig(this.currentScene);
+    if (kingdomExitCfg) {
+      if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('kingdom:respawn', kingdomExitCfg.exitRespawn);
+      this.callbacks.onNavigate(kingdomExitCfg.exitRoute);
+      return;
+    }
+    const harbourExitCfg = getHarbourInteriorConfig(this.currentScene);
+    if (harbourExitCfg) {
+      if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('harbour:respawn', harbourExitCfg.exitRespawn);
+      this.callbacks.onNavigate(harbourExitCfg.exitRoute);
+      return;
+    }
     if (typeof sessionStorage !== 'undefined') {
       sessionStorage.setItem('town:respawn', townConfig.getExitRespawnForPlace(this.currentScene));
     }
@@ -4962,6 +5689,22 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
       garden: { x: 7, y: 11 },
       neighbour: { x: 7, y: 11 },
       reception: { x: 7, y: 11 },
+      'dark-cathedral': { x: 7, y: 11 },
+      'dark-forge': { x: 7, y: 11 },
+      'dark-manor': { x: 7, y: 11 },
+      'dark-vault': { x: 7, y: 11 },
+      'kingdom-castle': { x: 7, y: 11 },
+      'kingdom-blacksmith': { x: 7, y: 11 },
+      'kingdom-tavern': { x: 7, y: 11 },
+      'kingdom-mage-tower': { x: 7, y: 11 },
+      'kingdom-barracks': { x: 7, y: 11 },
+      'kingdom-chapel': { x: 7, y: 11 },
+      'kingdom-jousting': { x: 7, y: 11 },
+      'harbour-lighthouse': { x: 7, y: 11 },
+      'harbour-warehouse': { x: 7, y: 11 },
+      'harbour-inn': { x: 7, y: 11 },
+      'harbour-galleon': { x: 7, y: 11 },
+      'harbour-market': { x: 7, y: 11 },
       arcade: { x: 9, y: 13 },
       lab: { x: 6, y: 14 },
       dev: { x: 7, y: 18 },
@@ -5037,7 +5780,7 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
       }
     }
 
-    // Static door fallback (Town <-> Digi-Sanctuary portal gates or non-town scenes; skip stale town building doors)
+    // Static door fallback (Town <-> Digi-Sanctuary <-> Medieval Kingdom portal gates or non-town scenes; skip stale town building doors)
     const route = this.map.doors.get(tileIdx);
     if (route) {
       const isTownPortal =
@@ -5049,6 +5792,18 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
         sfx.door();
         if (this.currentScene === 'digimon' && route.startsWith('/?from=digimon') && typeof sessionStorage !== 'undefined') {
           sessionStorage.setItem('town:respawn', '22,58,up');
+        }
+        if (this.currentScene === 'kingdom' && route.startsWith('/digimon?from=kingdom') && typeof sessionStorage !== 'undefined') {
+          sessionStorage.setItem('digimon:respawn', '20,38,up');
+        }
+        if (this.currentScene === 'dark-castle' && route.startsWith('/digimon?from=dark-castle') && typeof sessionStorage !== 'undefined') {
+          sessionStorage.setItem('digimon:respawn', '8,22,right');
+        }
+        if (this.currentScene === 'sky-castle' && route.startsWith('/digimon?from=sky-castle') && typeof sessionStorage !== 'undefined') {
+          sessionStorage.setItem('digimon:respawn', '33,22,left');
+        }
+        if (this.currentScene === 'harbour' && route.startsWith('/kingdom?from=harbour') && typeof sessionStorage !== 'undefined') {
+          sessionStorage.setItem('kingdom:respawn', '22,57,up');
         }
         this.callbacks.onNavigate(route);
         return;
@@ -5193,6 +5948,365 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
 
   public interactFacing(targetId?: string) {
     const activeTarget = targetId || this.pendingTarget;
+    const activeKingdomInterior = getKingdomInteriorConfig(this.currentScene);
+    if (activeKingdomInterior) {
+      const fx = this.playerPos.x + (this.playerDir === 'right' ? 1 : this.playerDir === 'left' ? -1 : 0);
+      const fy = this.playerPos.y + (this.playerDir === 'down' ? 1 : this.playerDir === 'up' ? -1 : 0);
+      const prop =
+        activeKingdomInterior.props.find((p) => p.id === activeTarget) ||
+        activeKingdomInterior.props.find((p) => fx >= p.x && fx < p.x + p.w && fy >= p.y && fy < p.y + p.h);
+
+      if (prop) {
+        sfx.select();
+        triggerKingdomWave(activeKingdomInterior.id, prop.label.toUpperCase(), activeKingdomInterior.waveColor);
+        const desc =
+          prop.hint ||
+          (prop.target.type === 'note' ? prop.target.text : `Interacted with ${prop.label}.`);
+        if (this.callbacks.onBubble) {
+          this.callbacks.onBubble(prop.label, desc, [
+            {
+              label: `${activeKingdomInterior.icon} Open Sanctum Section`,
+              onClick: () => {
+                const target = document.getElementById(prop.scrollTarget || 'content');
+                target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              },
+            },
+          ]);
+        } else {
+          this.callbacks.onDialogue(prop.label, [desc]);
+        }
+        this.pendingTarget = null;
+        this.wake();
+      }
+      return;
+    }
+
+    const activeHarbourInterior = getHarbourInteriorConfig(this.currentScene);
+    if (activeHarbourInterior) {
+      const fx = this.playerPos.x + (this.playerDir === 'right' ? 1 : this.playerDir === 'left' ? -1 : 0);
+      const fy = this.playerPos.y + (this.playerDir === 'down' ? 1 : this.playerDir === 'up' ? -1 : 0);
+      const prop =
+        activeHarbourInterior.props.find((p) => p.id === activeTarget) ||
+        activeHarbourInterior.props.find((p) => fx >= p.x && fx < p.x + p.w && fy >= p.y && fy < p.y + p.h);
+
+      if (prop) {
+        sfx.select();
+        triggerHarbourWave(activeHarbourInterior.id, prop.label.toUpperCase(), activeHarbourInterior.waveColor);
+        const desc =
+          prop.hint ||
+          (prop.target.type === 'note' ? prop.target.text : `Interacted with ${prop.label}.`);
+        if (this.callbacks.onBubble) {
+          this.callbacks.onBubble(prop.label, desc, [
+            {
+              label: `${activeHarbourInterior.icon} Open Sanctum Section`,
+              onClick: () => {
+                const target = document.getElementById(prop.scrollTarget || 'content');
+                target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              },
+            },
+          ]);
+        } else {
+          this.callbacks.onDialogue(prop.label, [desc]);
+        }
+        this.pendingTarget = null;
+        this.wake();
+      }
+      return;
+    }
+
+    if (
+      this.currentScene === 'dark-cathedral' ||
+      this.currentScene === 'dark-forge' ||
+      this.currentScene === 'dark-manor' ||
+      this.currentScene === 'dark-vault' ||
+      isKingdomInteriorScene(this.currentScene)
+    ) {
+      const propsList =
+        this.currentScene === 'dark-cathedral'
+          ? CATHEDRAL_PROPS
+          : this.currentScene === 'dark-forge'
+            ? FORGE_PROPS
+            : this.currentScene === 'dark-manor'
+              ? MANOR_PROPS
+              : VAULT_PROPS;
+
+      const fx = this.playerPos.x + (this.playerDir === 'right' ? 1 : this.playerDir === 'left' ? -1 : 0);
+      const fy = this.playerPos.y + (this.playerDir === 'down' ? 1 : this.playerDir === 'up' ? -1 : 0);
+
+      const prop =
+        propsList.find((p) => p.id === activeTarget) ||
+        propsList.find((p) => fx >= p.x && fx < p.x + p.w && fy >= p.y && fy < p.y + p.h);
+
+      if (prop) {
+        sfx.select();
+        const actionMap: Record<string, { title: string; desc: string; buttonLabel: string; scrollTarget: string }> = {
+          lunala: {
+            title: '🌙 Lunala · Choir Matriarch',
+            desc: '"Through moonlight harmonics, chaotic production logs sing in order. Synchronize all 3 rounds on the Grand Echo Organ to claim the Seal of Echoes!"',
+            buttonLabel: '🎹 Play Echo Organ',
+            scrollTarget: 'cathedral-echo-puzzle',
+          },
+          'pipe-organ': {
+            title: '🎹 Grand Echoes Pipe Organ',
+            desc: 'Resonant golden organ pipes tuned to four harmonic WebAudio frequencies (C4 · E4 · G4 · C5). Reproduce 3 sequences to earn the Seal of Echoes!',
+            buttonLabel: '🎵 Play Echo Organ',
+            scrollTarget: 'cathedral-echo-puzzle',
+          },
+          'stained-rose': {
+            title: '🔮 Harmonic Rose Resonance Altar',
+            desc: 'The luminous heart of the Sunken Choir Nave. Glows violet and gold when all four organ tones synchronize.',
+            buttonLabel: '✨ Inspect Echo Puzzle',
+            scrollTarget: 'cathedral-echo-puzzle',
+          },
+          necrozma: {
+            title: '💠 Prism Necrozma · Nocturne Keeper',
+            desc: '"Listen closely through the prism to the four celestial organ tones and mirror every sequence faithfully!"',
+            buttonLabel: '🎵 Challenge Necrozma',
+            scrollTarget: 'cathedral-echo-puzzle',
+          },
+          gardevoir: {
+            title: '✨ Cantor Gardevoir · Keeper of Lore',
+            desc: '"I chronicle Zulfan’s deepest production war stories in The Obsidian Grimoire—from Redis stampedes to OpenCV frame leaks."',
+            buttonLabel: '📖 Read Grimoire',
+            scrollTarget: 'cathedral-grimoire',
+          },
+          'war-stories-grimoire': {
+            title: '📖 The Obsidian Grimoire (NW)',
+            desc: 'Illuminated manuscript recording 4 battlefield software engineering rescues and architecture transformations.',
+            buttonLabel: '📖 Open Grimoire',
+            scrollTarget: 'cathedral-grimoire',
+          },
+          'confession-shrine': {
+            title: '🕯️ Spirit Cleanse & Confession Shrine (NE)',
+            desc: 'Cleanse cognitive stack traces and bestow a +50% speed blessing inside the Cathedral Relic Coffer!',
+            buttonLabel: '🕯️ Open Spirit Shrine',
+            scrollTarget: 'cathedral-relic-section',
+          },
+          'east-pews': {
+            title: '🔔 Brass Cathedral Chimes (SE)',
+            desc: 'Tuned cathedral chimes protecting the WebAudio Synthesis Blueprint and Dark Castle Seal Tracker.',
+            buttonLabel: '🟣 Open Relic Coffer',
+            scrollTarget: 'cathedral-relic-section',
+          },
+          'magma-core': {
+            title: '🌋 Crimson Geothermal Reactor Core',
+            desc: 'Overclocked dark-matter turbines threaten to melt the east ward. Balance all 3 valve sliders between 95%–100% for 5 seconds to claim the Seal of Ember!',
+            buttonLabel: '⚡ Stabilize Reactor',
+            scrollTarget: 'forge-reactor-game',
+          },
+          'tech-anvil': {
+            title: '🔨 The Tech Stack Anvil (NW)',
+            desc: 'Combine Core Engines and Target Realms to forge production architecture blueprints, latency budgets, and trade-offs.',
+            buttonLabel: '🔨 Open Tech Anvil',
+            scrollTarget: 'forge-tech-anvil',
+          },
+          machinedramon: {
+            title: '🤖 Machinedramon · Forge Master',
+            desc: '"SYSTEM ALERT: Geothermal pressure critical! Balance Coolant Flush, Magnetic Confinement, and Dampening Rods inside 95–100% Optimal Zone!"',
+            buttonLabel: '⚡ Stabilize Core',
+            scrollTarget: 'forge-reactor-game',
+          },
+          'telemetry-terminal': {
+            title: '📊 Reactor Telemetry Console (NE)',
+            desc: 'Streams live thermal flux waveforms, throughput ceilings, and forged memory latency budgets.',
+            buttonLabel: '🔨 Forge Blueprint',
+            scrollTarget: 'forge-tech-anvil',
+          },
+          charizard: {
+            title: '🔥 Charizard · Smelting Ignition',
+            desc: '"GRAAAH! Keep the blast furnace blazing hot—strike raw Rust & TensorRT code on the NW Tech Anvil!"',
+            buttonLabel: '🔨 Ignite Anvil',
+            scrollTarget: 'forge-tech-anvil',
+          },
+          groudon: {
+            title: '🌋 Groudon · Tectonic Core Warden',
+            desc: '"THE MAGMA PLATES RUMBLE! Channel geothermal output cleanly or summon +50% Overdrive Speed from the SE Relic Coffer."',
+            buttonLabel: '🔋 Inspect Coffer',
+            scrollTarget: 'forge-relic-section',
+          },
+          'forge-altar': {
+            title: '⚙️ Chaos Turbine Core Pedestal',
+            desc: 'Levitating geothermal gyroscope synchronizing every conduit across the Crimson Reactor Forge.',
+            buttonLabel: '⚡ Tune Reactor',
+            scrollTarget: 'forge-reactor-game',
+          },
+          'coolant-valves': {
+            title: '❄️ Liquid Nitrogen Cryo Valves (SW)',
+            desc: 'High-pressure cryogenic conduits feeding sub-zero coolant straight to the magma chamber.',
+            buttonLabel: '⚡ Tune Coolants',
+            scrollTarget: 'forge-reactor-game',
+          },
+          'plasma-batteries': {
+            title: '🔋 Plasma Capacitor Vault & Coffer (SE)',
+            desc: 'Activate +50% Geothermal Overdrive Sprint, unlock the Edge TensorRT Blueprint, and track your 4 Abyssal Seals.',
+            buttonLabel: '🔋 Open Relic Coffer',
+            scrollTarget: 'forge-relic-section',
+          },
+          'darkrai-throne': {
+            title: '👑 Obsidian Nightmare Throne',
+            desc: 'Darkrai awaits a challenger brave enough to resolve production system crises in tactical debugging combat.',
+            buttonLabel: '⚔️ Start Shadow Trial',
+            scrollTarget: 'manor-shadow-duel',
+          },
+          darkrai: {
+            title: '🌑 Darkrai · Sovereign of Nightmares',
+            desc: '"Show me your engineering resolve! Counter distributed locks, memory leaks, TensorRT bottlenecks, and cache stampedes to claim the Seal of Valor!"',
+            buttonLabel: '⚔️ Duel Darkrai',
+            scrollTarget: 'manor-shadow-duel',
+          },
+          giratina: {
+            title: '🐉 Giratina · Distortion Rift Arbiter',
+            desc: '"Through the Distortion World I witness every sub-pixel glitch and cache cascade. Inspect the Cursed Bug Gallery to purify the code!"',
+            buttonLabel: '🖼️ View Bug Gallery',
+            scrollTarget: 'manor-bug-gallery',
+          },
+          urshifu: {
+            title: '🥋 Urshifu · Manor Sentinel of Valor',
+            desc: '"Hmph! Channel Wicked Blow focus or claim my Valor Ward in the Relic Coffer to gain +50% movement speed across all Dark Castle wards!"',
+            buttonLabel: '🥋 Open Relic Coffer',
+            scrollTarget: 'manor-relic-section',
+          },
+          'crimson-altar': {
+            title: '⚔️ Sunken Arena Duel Altar',
+            desc: 'Crossed crimson blades consecrated for tactical system-design trials against Darkrai.',
+            buttonLabel: '⚔️ Enter Duel',
+            scrollTarget: 'manor-shadow-duel',
+          },
+          'bug-gallery-1': {
+            title: '🖼️ Gallery of Cursed Bugs (NW)',
+            desc: 'Exhibit I: The Floating-Point Phantom & Cache Stampede Hydra—complete with Cursed vs. Pure Code inspections.',
+            buttonLabel: '🖼️ Inspect Exhibits',
+            scrollTarget: 'manor-bug-gallery',
+          },
+          'bug-gallery-2': {
+            title: '🖼️ The Render Ouroboros Exhibit (NE)',
+            desc: 'Exhibit II: Unconditional 60fps render loops and zombie DOM listener leaks, fixed with Wake-on-Demand Governors.',
+            buttonLabel: '🖼️ Inspect Code Diff',
+            scrollTarget: 'manor-bug-gallery',
+          },
+          'blood-fireplace': {
+            title: '🔥 Crimson Abyssal Hearth (SW)',
+            desc: 'Spectral blue-crimson flames crackle softly beside the sanctuary hearth, restoring resolve for night debugging.',
+            buttonLabel: '⚔️ Resume Shadow Duel',
+            scrollTarget: 'manor-shadow-duel',
+          },
+          'demon-crenellations': {
+            title: '🦇 Winged Gargoyle & Valor Safe (SE)',
+            desc: 'A perched obsidian gargoyle guarding Darkrai’s Production Incident Runbook inside the sealed Valor vault.',
+            buttonLabel: '🩸 Inspect Valor Relics',
+            scrollTarget: 'manor-relic-section',
+          },
+          'clockwork-face': {
+            title: '⏳ Grand Astronomical Chronometer',
+            desc: 'Four interlocking brass gears bind this sapphire sanctum. Align all four to 12:00 to shatter the chains and earn the Seal of Eternity!',
+            buttonLabel: '⚙️ Align Clockwork Gears',
+            scrollTarget: 'vault-clockwork-section',
+          },
+          dialga: {
+            title: '💎 Dialga · Sovereign of Time',
+            desc: '"Temporal threads weave past launches into future systems. Align the four brass gears to unlock my Adamant Coffer, or explore the Time-Machine!"',
+            buttonLabel: '⚙️ Synchronize Gears',
+            scrollTarget: 'vault-clockwork-section',
+          },
+          celebi: {
+            title: '🌿 Celebi · Time-Travel Envoy',
+            desc: '"Bii! I drifted across the Forest of Time straight into the Grand Horologium! Step through Zulfan’s 4 Engineering Epochs with me!"',
+            buttonLabel: '🕰️ Open Time-Machine',
+            scrollTarget: 'vault-chronology-section',
+          },
+          chronomon: {
+            title: '🕰️ Chronomon DM · Sovereign Time-Keeper',
+            desc: '"Every epoch inside this vault is verified—from Huawei CyberSec & YOLOv11 Edge AI to custom 60 FPS TypeScript engines!"',
+            buttonLabel: '🕰️ Inspect Chronology',
+            scrollTarget: 'vault-chronology-section',
+          },
+          'time-capsule': {
+            title: '🕰️ Celestial Orrery & Epoch Time-Capsule',
+            desc: 'The glowing heart of the Sunken Astrolabe Pit, chronicling Muhammad Zulfan’s engineering eras across software, CV robotics, and 2D game worlds.',
+            buttonLabel: '📜 Open Time-Capsule',
+            scrollTarget: 'vault-chronology-section',
+          },
+          'gear-pedestal-1': {
+            title: '⚙️ I. NW Sun-Gear Brass Foundry',
+            desc: 'Steam-driven outer bronze ring that advances Gear I (+3h) and drives Gear II (+3h) in unison.',
+            buttonLabel: '⚙️ Turn Sun Gear',
+            scrollTarget: 'vault-clockwork-section',
+          },
+          'gear-pedestal-2': {
+            title: '⏱️ II. NE Escapement Crystal Loom',
+            desc: 'Synchronizes Escapement crystal oscillators cleanly across the orthogonal vault channels toward 12:00.',
+            buttonLabel: '⚙️ Turn Escapement',
+            scrollTarget: 'vault-clockwork-section',
+          },
+          'chrono-pendulum': {
+            title: '🔔 SW Chronicle Library & Horologe',
+            desc: 'Swings in sub-millisecond precision beside bound engineering journals, keeping temporal drift below 0.001ms.',
+            buttonLabel: '📜 View Archives',
+            scrollTarget: 'vault-chronology-section',
+          },
+          'temporal-coffer': {
+            title: '🔐 SE Imperial Adamant Vault Safe',
+            desc: 'Sealed by the 4-Gear Clockwork Lock. Unlock the Seal of Eternity to inspect Zulfan’s 2D Canvas Engine Blueprint & Time Relics!',
+            buttonLabel: '🔓 Open Coffer',
+            scrollTarget: 'vault-artifact-section',
+          },
+        };
+
+        const item = actionMap[prop.id];
+        if (this.currentScene === 'dark-vault') {
+          const waveColor =
+            prop.id === 'celebi' ? '#34d399' : prop.id === 'clockwork-face' || prop.id === 'dialga' ? '#38bdf8' : '#fbbf24';
+          triggerVaultChronoWave(
+            prop.id === 'dialga'
+              ? 'ROAR OF TIME!'
+              : prop.id === 'celebi'
+                ? 'TIME TRAVEL RIPPLE!'
+                : 'CHRONO RESONANCE!',
+            waveColor
+          );
+        } else if (this.currentScene === 'dark-manor') {
+          const waveColor =
+            prop.id === 'giratina' ? '#a855f7' : prop.id === 'urshifu' ? '#fde047' : '#ef4444';
+          triggerManorShadowWave(
+            prop.id === 'darkrai'
+              ? 'DARK VOID CHALLENGE!'
+              : prop.id === 'giratina'
+                ? 'SHADOW FORCE RIFT!'
+                : prop.id === 'urshifu'
+                  ? 'WICKED VALOR WARD!'
+                  : 'VALOR RESONANCE!',
+            waveColor
+          );
+        } else if (this.currentScene === 'dark-cathedral') {
+          const waveColor =
+            prop.id === 'lunala' ? '#fde047' : prop.id === 'confession-shrine' ? '#38bdf8' : '#c084fc';
+          triggerCathedralEchoWave(
+            prop.id === 'lunala'
+              ? 'MOONGEIST ECHO!'
+              : prop.id === 'pipe-organ'
+                ? 'HARMONIC CHORD!'
+                : prop.id === 'confession-shrine'
+                  ? 'SPIRIT CLEANSED!'
+                  : 'ECHO RESONANCE!',
+            waveColor
+          );
+        }
+        if (item && this.callbacks.onBubble) {
+          this.callbacks.onBubble(item.title, item.desc, [
+            {
+              label: item.buttonLabel,
+              onClick: () => {
+                const el = document.getElementById(item.scrollTarget);
+                el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              },
+            },
+          ]);
+        }
+        this.wake();
+        return;
+      }
+    }
+
     if (this.currentScene === 'tower') {
       const fx = this.playerPos.x + DIRS[this.playerDir].x;
       const fy = this.playerPos.y + DIRS[this.playerDir].y;
@@ -6639,15 +7753,15 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
                   },
                   ...(this.activeFollower
                     ? [
-                        {
-                          label: `⚡ Cast ${this.activeFollower.name} Move`,
-                          onClick: () => {
-                            if (this.activeFollower) {
-                              this.triggerSignatureMove(this.activeFollower.id, 4, 3);
-                            }
-                          },
+                      {
+                        label: `⚡ Cast ${this.activeFollower.name} Move`,
+                        onClick: () => {
+                          if (this.activeFollower) {
+                            this.triggerSignatureMove(this.activeFollower.id, 4, 3);
+                          }
                         },
-                      ]
+                      },
+                    ]
                     : []),
                 ]
               );
@@ -7868,10 +8982,10 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
       sfx.select();
       if (sign.id === 'digidex-console') {
         const placedDigi = townConfig.getBuildings().filter((b) => b.kind === 'digimon' && !b.hidden);
-        const liveText = `DIGIDEX MASTER CONSOLE — Digi-Sanctuary Island (40×45). Terdeteksi ${placedDigi.length} entitas Digimon terpasang di pulau & ${DIGIMON_CATALOG.length} Digimon aktif di Katalog (Tier 1–4).`;
+        const liveText = `DIGIDEX MASTER CONSOLE — Digi-Sanctuary Island (40×45). Detected ${placedDigi.length} Digimon entities placed on the island & ${DIGIMON_CATALOG.length} active Digimon in Catalog (Tier 1–4).`;
         const consoleActions = [
           {
-            label: '📖 Buka DigiDex Showcase & Roster',
+            label: '📖 Open DigiDex Showcase & Roster',
             onClick: () => {
               window.dispatchEvent(
                 new CustomEvent('digimon:open-modal', { detail: { mode: 'roster' } })
@@ -7879,7 +8993,7 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
             },
           },
           {
-            label: '🛠️ Buka Town Editor (E)',
+            label: '🛠️ Open Town Editor (E)',
             onClick: () => document.getElementById('btn-toggle-editor')?.click(),
           },
         ];
@@ -7973,7 +9087,47 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
       }
     }
 
-    // 2b. Check Custom Placed Objects, NPCs, Signs, Props from townConfig
+    // 2b. Check Custom Placed Objects, NPCs, Signs, Props from townConfig (plus Kingdoms built-in landmark triggers)
+    const matchedKingdomLandmark =
+      this.currentScene === 'kingdom'
+        ? KINGDOM_LANDMARKS.find(
+          (lm) =>
+            (activeTarget && (lm.id === activeTarget || lm.subType === activeTarget)) ||
+            (this.playerPos.x === lm.interactX && this.playerPos.y === lm.interactY) ||
+            (fx === lm.interactX && fy === lm.interactY - 1)
+        )
+        : undefined;
+
+    const matchedHarbourLandmark =
+      this.currentScene === 'harbour'
+        ? HARBOUR_LANDMARKS.find(
+          (lm) =>
+            (activeTarget && lm.id === activeTarget) ||
+            (this.playerPos.x === lm.interactX && this.playerPos.y === lm.interactY) ||
+            (fx === lm.interactX && fy === lm.interactY - 1)
+        )
+        : undefined;
+
+    const matchedSkyLandmark =
+      this.currentScene === 'sky-castle'
+        ? SKY_CASTLE_LANDMARKS.find(
+          (lm) =>
+            (activeTarget && lm.id === activeTarget) ||
+            (this.playerPos.x === lm.interactX && this.playerPos.y === lm.interactY) ||
+            (fx === lm.interactX && fy === lm.interactY - 1)
+        )
+        : undefined;
+
+    const matchedDarkLandmark =
+      this.currentScene === 'dark-castle'
+        ? DARK_CASTLE_LANDMARKS.find(
+          (lm) =>
+            (activeTarget && lm.id === activeTarget) ||
+            (this.playerPos.x === lm.interactX && this.playerPos.y === lm.interactY) ||
+            (fx === lm.interactX && fy === lm.interactY - 1)
+        )
+        : undefined;
+
     const customPlaced =
       (activeTarget
         ? townConfig.getBuildings().find((b) => !b.hidden && (b.id === activeTarget || b.subType === activeTarget))
@@ -7994,7 +9148,118 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
           this.playerPos.y <= anchor.y + anchor.h
         );
         return inFacing || isAdjacent;
-      });
+      }) ||
+      (matchedKingdomLandmark
+        ? {
+          id: matchedKingdomLandmark.id,
+          name: matchedKingdomLandmark.name,
+          subType: matchedKingdomLandmark.subType,
+          kind: 'building' as const,
+          x: matchedKingdomLandmark.x,
+          y: matchedKingdomLandmark.y,
+          w: matchedKingdomLandmark.w,
+          h: matchedKingdomLandmark.h,
+          dialogue: matchedKingdomLandmark.dialogue,
+        }
+        : undefined) ||
+      (matchedHarbourLandmark
+        ? {
+          id: matchedHarbourLandmark.id,
+          name: matchedHarbourLandmark.name,
+          subType: matchedHarbourLandmark.id,
+          kind: 'building' as const,
+          x: matchedHarbourLandmark.x,
+          y: matchedHarbourLandmark.y,
+          w: matchedHarbourLandmark.w,
+          h: matchedHarbourLandmark.h,
+          dialogue: matchedHarbourLandmark.dialogue,
+        }
+        : undefined) ||
+      (matchedSkyLandmark
+        ? {
+          id: matchedSkyLandmark.id,
+          name: matchedSkyLandmark.name,
+          subType: matchedSkyLandmark.id,
+          kind: 'building' as const,
+          x: matchedSkyLandmark.x,
+          y: matchedSkyLandmark.y,
+          w: matchedSkyLandmark.w,
+          h: matchedSkyLandmark.h,
+          dialogue: matchedSkyLandmark.dialogue,
+        }
+        : undefined) ||
+      (matchedDarkLandmark
+        ? {
+          id: matchedDarkLandmark.id,
+          name: matchedDarkLandmark.name,
+          subType: matchedDarkLandmark.id,
+          kind: 'building' as const,
+          x: matchedDarkLandmark.x,
+          y: matchedDarkLandmark.y,
+          w: matchedDarkLandmark.w,
+          h: matchedDarkLandmark.h,
+          dialogue: matchedDarkLandmark.lines ? matchedDarkLandmark.lines.join(' ') : matchedDarkLandmark.title,
+        }
+        : undefined);
+
+    if (matchedDarkLandmark) {
+      sfx.select();
+      let title = matchedDarkLandmark.title;
+      let text = matchedDarkLandmark.lines ? matchedDarkLandmark.lines.join(' ') : matchedDarkLandmark.title;
+      let actions: Array<{ label: string; href?: string; onClick?: () => void }> = [];
+
+      if (matchedDarkLandmark.id === 'shadow-cathedral') {
+        actions.push({
+          label: '🚪 Enter Shadow Cathedral (/dark-castle/cathedral)',
+          href: '/dark-castle/cathedral',
+        });
+      } else if (matchedDarkLandmark.id === 'crimson-forge') {
+        actions.push({
+          label: '🚪 Enter Crimson Reactor Forge (/dark-castle/forge)',
+          href: '/dark-castle/forge',
+        });
+      } else if (matchedDarkLandmark.id === 'blood-manor') {
+        actions.push({
+          label: '🚪 Enter Demon Keep & Blood Manor (/dark-castle/manor)',
+          href: '/dark-castle/manor',
+        });
+      } else if (matchedDarkLandmark.id === 'chrono-vault') {
+        actions.push({
+          label: '🚪 Enter Chained Chrono Vault (/dark-castle/vault)',
+          href: '/dark-castle/vault',
+        });
+      } else if (matchedDarkLandmark.id === 'obsidian-obelisk') {
+        if (isAllSealsUnlocked()) {
+          title = '🔮 Obsidian Obelisk Ring — AWAKENED';
+          text = 'SOVEREIGN OF THE ABYSS: All 4 Abyssal Seals are united! The Rift is stabilized and the central monolith radiates supreme cosmic power!';
+          gameStore.addStamp('battle');
+          actions.push({
+            label: '✨ Sovereign of the Abyss (Cosmic Aura)',
+            onClick: () => {
+              sfx.fly();
+              this.spawnFlyBurst(22, 29);
+              this.wake();
+            },
+          });
+        } else {
+          actions.push({
+            label: '🔮 Touch Arcane Obsidian Runes',
+            onClick: () => {
+              sfx.confirm();
+              this.wake();
+            },
+          });
+        }
+      }
+
+      if (this.callbacks.onBubble) {
+        this.callbacks.onBubble(title, text, actions);
+      } else {
+        this.callbacks.onDialogue(title, [text]);
+      }
+      this.wake();
+      return;
+    }
 
     if (activeTarget === 'kiosk' || activeTarget === 'cafe' || activeTarget === 'bar' || customPlaced?.id === 'kiosk') {
       sfx.select();
@@ -8143,11 +9408,11 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
       const tpl = SPAWNABLE_TEMPLATES.find(
         (t) => t.id === customPlaced.id || t.id === 'tpl_' + customPlaced.id || t.subType === customPlaced.subType || t.subType === customPlaced.id
       );
-      if (customPlaced.dialogue || tpl?.defaultDialogue || customPlaced.kind === 'npc' || customPlaced.kind === 'digimon' || customPlaced.kind === 'sign') {
+      if (customPlaced.dialogue || tpl?.defaultDialogue || customPlaced.kind === 'npc' || customPlaced.kind === 'digimon' || customPlaced.kind === 'sign' || this.currentScene === 'kingdom' || this.currentScene === 'harbour' || this.currentScene === 'sky-castle') {
         sfx.select();
 
         let action: BubbleAction | BubbleAction[] | undefined;
-        let dialogueText = customPlaced.dialogue || tpl?.defaultDialogue || `${customPlaced.name} berdiri di koordinat (${customPlaced.x}, ${customPlaced.y}).`;
+        let dialogueText = customPlaced.dialogue || tpl?.defaultDialogue || `${customPlaced.name} stands at coordinates (${customPlaced.x}, ${customPlaced.y}).`;
 
         if (customPlaced.link) {
           action = { label: 'Buka / Kunjungi ↗', href: customPlaced.link };
@@ -8632,6 +9897,368 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
               onClick: () => this.setActiveFollower('salamence'),
             },
           ];
+        } else if (customPlaced.subType === 'royal_castle') {
+          dialogueText =
+            customPlaced.dialogue ||
+            tpl?.defaultDialogue ||
+            'Grand Royal Castle of Avalon 👑 — Sovereign Keep & Throne Hall overlooking the entire citadel.';
+          action = [
+            {
+              label: '👑 Enter Grand Throne Hall →',
+              href: '/kingdom/castle',
+            },
+            {
+              label: '⚔️ Visit Excalibur Shrine',
+              onClick: () => this.walkToObject('excalibur_shrine'),
+            },
+            {
+              label: '🌀 Return to Digi-Sanctuary (20, 40)',
+              href: '/digimon?from=kingdom',
+            },
+          ];
+        } else if (customPlaced.subType === 'blacksmith_forge') {
+          dialogueText =
+            customPlaced.dialogue ||
+            tpl?.defaultDialogue ||
+            'Royal Blacksmith & Armory ⚒️ — Glowing furnace where Valyrian-grade blades & shields are forged.';
+          action = [
+            {
+              label: '⚒️ Enter Dragonflame Blacksmith →',
+              href: '/kingdom/blacksmith',
+            },
+            {
+              label: '🔨 Spark the Royal Anvil',
+              onClick: () => {
+                sfx.confirm();
+                this.spawnFlyBurst(customPlaced.x + 2, customPlaced.y + 2);
+                this.callbacks.onBubble?.(
+                  customPlaced.name,
+                  'CLANG! Hot sparks fly off the master anvil as a newly tempered knightsword shines bright!'
+                );
+              },
+            },
+          ];
+        } else if (customPlaced.subType === 'medieval_tavern') {
+          dialogueText =
+            customPlaced.dialogue ||
+            tpl?.defaultDialogue ||
+            'The Golden Griffin Inn & Tavern 🍺 — Warm hearthfire, hearty feast, and travellers’ tales.';
+          action = [
+            {
+              label: '🍺 Enter Golden Griffin Tavern →',
+              href: '/kingdom/tavern',
+            },
+            {
+              label: '🍖 Rest & Feast (+100 Energy)',
+              onClick: () => {
+                sfx.heal();
+                this.callbacks.onRefill();
+                this.callbacks.onBubble?.(
+                  customPlaced.name,
+                  'A warm bowl of royal stew and spiced cider restored your stamina to 100%!'
+                );
+              },
+            },
+          ];
+        } else if (customPlaced.subType === 'mage_tower') {
+          dialogueText =
+            customPlaced.dialogue ||
+            tpl?.defaultDialogue ||
+            'Arcane Mage Observatory 🔮 — Astral crystal spire channeling dimensional ley-lines across worlds.';
+          action = [
+            {
+              label: '🔮 Enter Astral Mage Sanctum →',
+              href: '/kingdom/mage-tower',
+            },
+            {
+              label: '✨ Cast Astral Resonance',
+              onClick: () => {
+                sfx.fly();
+                this.spawnFlyBurst(customPlaced.x + 2, customPlaced.y + 1);
+                this.callbacks.onBubble?.(
+                  customPlaced.name,
+                  'Runes orbit the crystal spire, harmonizing the bridge between Kingdom Citadel and Digi-Sanctuary!'
+                );
+              },
+            },
+          ];
+        } else if (customPlaced.subType === 'knights_barracks') {
+          dialogueText =
+            customPlaced.dialogue ||
+            tpl?.defaultDialogue ||
+            'Garrison & Knights’ Barracks 🛡️ — Training hall of the Royal Vanguard and Gate Wardens.';
+          action = [
+            {
+              label: "🛡️ Enter Knights' Barracks →",
+              href: '/kingdom/barracks',
+            },
+            {
+              label: '🐎 Inspect Jousting Arena',
+              onClick: () => this.walkToObject('jousting_arena'),
+            },
+          ];
+        } else if (customPlaced.subType === 'jousting_arena') {
+          dialogueText =
+            customPlaced.dialogue ||
+            tpl?.defaultDialogue ||
+            'Royal Tournament & Jousting Arena 🐎 — Stone colosseum pavilion surrounding the golden sand knights’ lists.';
+          action = [
+            {
+              label: '🐎 Enter Stone Jousting Arena →',
+              href: '/kingdom/jousting',
+            },
+            {
+              label: '🎺 Sound Tournament Fanfare',
+              onClick: () => {
+                sfx.select();
+                this.spawnFlyBurst(customPlaced.x + 3, customPlaced.y + 2);
+              },
+            },
+          ];
+        } else if (customPlaced.subType === 'royal_chapel') {
+          dialogueText =
+            customPlaced.dialogue ||
+            tpl?.defaultDialogue ||
+            'Royal Cathedral & Sanctuary Bell ⛪ — Peaceful stained-glass nave offering grace and renewal.';
+          action = [
+            {
+              label: '⛪ Enter Saint Avalon Abbey →',
+              href: '/kingdom/chapel',
+            },
+            {
+              label: '💚 Receive Royal Blessing (+100 Energy)',
+              onClick: () => {
+                sfx.heal();
+                this.callbacks.onRefill();
+                this.callbacks.onBubble?.(
+                  customPlaced.name,
+                  'The cathedral bell chimes gently—your HP and Focus have been fully restored!'
+                );
+              },
+            },
+          ];
+        } else if (customPlaced.subType === 'excalibur_shrine') {
+          const collected = countRoyalCrests();
+          dialogueText =
+            collected >= 7
+              ? 'Excalibur Shrine ⚔️✨: All 7/7 Royal Crests glow in golden unison! The sovereign blade yields to the Knight of Avalon!'
+              : customPlaced.dialogue ||
+                tpl?.defaultDialogue ||
+                `Sword in the Stone — Excalibur Shrine ⚔️✨ (${collected}/7 Royal Crests): Only one bearing all 7 Crests may awaken the sovereign blade!`;
+          action = {
+            label:
+              collected >= 7
+                ? '⚔️ Draw Excalibur from the Stone (7/7 Ready!)'
+                : `✨ Draw the Light of Excalibur (${collected}/7 Crests)`,
+            onClick: () => {
+              const latestCount = countRoyalCrests();
+              sfx.heal();
+              this.callbacks.onRefill();
+              this.spawnFlyBurst(customPlaced.x + 1, customPlaced.y + 1);
+              if (latestCount >= 7) {
+                awakenExcalibur();
+                sfx.confirm();
+                this.spawnFlyBurst(customPlaced.x - 1, customPlaced.y + 1);
+                this.spawnFlyBurst(customPlaced.x + 3, customPlaced.y + 1);
+                this.spawnFlyBurst(customPlaced.x + 1, customPlaced.y - 1);
+                this.wake();
+                this.callbacks.onBubble?.(
+                  '⚔️ EXCALIBUR AWAKENED — KNIGHT OF AVALON!',
+                  'All 7 Royal Crests resonate in golden harmony! You draw Excalibur from the ancient stone plinth — earning the sovereign title Knight of Avalon and blessing the entire Royal Citadel!',
+                  [
+                    {
+                      label: '👑 Visit Royal Throne Hall',
+                      href: '/kingdom/castle',
+                    },
+                    {
+                      label: '📜 View Knighthood Certificate',
+                      onClick: () => {
+                        const target = document.getElementById('kingdom-excalibur-finale');
+                        target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      },
+                    },
+                  ]
+                );
+              } else {
+                this.wake();
+                this.callbacks.onBubble?.(
+                  'Excalibur Shrine ⚔️✨',
+                  `A pillar of golden light erupts from the stone plinth and restores your energy, yet ${7 - latestCount} Royal Crest seal(s) still bind the blade (${latestCount}/7 collected).`,
+                  [
+                    {
+                      label: '📜 Check Royal Crest Registry',
+                      onClick: () => {
+                        const target = document.getElementById('kingdom-excalibur-finale');
+                        target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      },
+                    },
+                  ]
+                );
+              }
+            },
+          };
+        } else if (customPlaced.subType === 'harbour_cottage') {
+          action = [
+            {
+              label: '🚪 Enter Harbourmaster Tudor Inn',
+              href: '/harbour/inn',
+            },
+            {
+              label: '☕ Rest & Sea-Breeze Tea (+100 Energy)',
+              onClick: () => {
+                sfx.heal();
+                this.callbacks.onRefill();
+                this.callbacks.onBubble?.(
+                  customPlaced.name,
+                  'A steaming pot of spiced harbour tea and fresh bread restored your stamina to 100%!'
+                );
+              },
+            },
+          ];
+        } else if (customPlaced.subType === 'harbour_lighthouse') {
+          action = [
+            {
+              label: '🚪 Enter Old Port Lighthouse',
+              href: '/harbour/lighthouse',
+            },
+            {
+              label: '💡 Sweep Beacon Light',
+              onClick: () => {
+                sfx.fly();
+                this.spawnFlyBurst(11, 5);
+                this.callbacks.onBubble?.(
+                  customPlaced.name,
+                  'The great glass lantern rotates, casting a warm golden beam across the Azure Harbour!'
+                );
+              },
+            },
+          ];
+        } else if (customPlaced.subType === 'harbour_warehouse') {
+          action = {
+            label: '🚪 Enter Customs & Cargo Warehouse',
+            href: '/harbour/warehouse',
+          };
+        } else if (customPlaced.subType === 'harbour_market') {
+          action = {
+            label: '🚪 Enter Dockside Market Pavilion',
+            href: '/harbour/market',
+          };
+        } else if (customPlaced.subType === 'harbour_galleon') {
+          const sealCount = countMaritimeSeals();
+          dialogueText =
+            sealCount >= 5
+              ? 'THE SOVEREIGN BRIGANTINE ⚓✨ (5/5 Maritime Seals Ready!): The twin sails billow in azure gold — sound the Grand Admiral’s Armada Salute!'
+              : customPlaced.dialogue ||
+                tpl?.defaultDialogue ||
+                `THE SOVEREIGN BRIGANTINE (${sealCount}/5 Maritime Seals): Gather all 5 Royal Maritime Seals across Avalon Bay to awaken the Grand Fleet!`;
+          action = [
+            {
+              label: '🚪 Board The Sovereign Brigantine',
+              href: '/harbour/galleon',
+            },
+            {
+              label:
+                sealCount >= 5
+                  ? '⚓ Awaken Sovereign Armada (5/5 Ready!)'
+                  : `🔔 Ring Ship Brass Bell (${sealCount}/5 Seals)`,
+              onClick: () => {
+                const latestSeals = countMaritimeSeals();
+                sfx.confirm();
+                this.spawnFlyBurst(30, 35);
+                if (latestSeals >= 5) {
+                  awakenVoyage();
+                  this.callbacks.onRefill();
+                  this.spawnFlyBurst(26, 28);
+                  this.spawnFlyBurst(34, 39);
+                  this.wake();
+                  this.callbacks.onBubble?.(
+                    '⚓ GRAND ADMIRAL OF AVALON — SOVEREIGN VOYAGE!',
+                    'All 5 Royal Maritime Seals gleam across the deck! Twin broadside cannons thunder a golden salute as you earn the title Grand Admiral of Avalon!',
+                    [
+                      {
+                        label: '🏴‍☠️ Enter Admiral’s Great Cabin',
+                        href: '/harbour/galleon',
+                      },
+                      {
+                        label: '📜 View Admiralty Certificate',
+                        onClick: () => {
+                          const target = document.getElementById('harbour-voyage-finale');
+                          target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        },
+                      },
+                    ]
+                  );
+                } else {
+                  this.wake();
+                  this.callbacks.onBubble?.(
+                    'The Sovereign Brigantine ⚓',
+                    `The quarterdeck brass bell rings clear across Avalon Bay! Collect ${5 - latestSeals} more Maritime Seal(s) (${latestSeals}/5) to unlock the Grand Admiral’s Sovereign Armada Salute.`,
+                    [
+                      {
+                        label: '📜 Check Maritime Seals Progress',
+                        onClick: () => {
+                          const target = document.getElementById('harbour-voyage-finale');
+                          target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        },
+                      },
+                    ]
+                  );
+                }
+              },
+            },
+            {
+              label: '🏰 Return to Royal Kingdom (22, 59)',
+              href: '/kingdom?from=harbour',
+            },
+          ];
+        } else if (customPlaced.subType === 'sky_tavern') {
+          action = {
+            label: '🍵 Rest & Sky-Berry Tea (+100 Energy)',
+            onClick: () => {
+              sfx.heal();
+              this.callbacks.onRefill();
+              this.callbacks.onBubble?.(
+                customPlaced.name,
+                'A warm pot of sky-berry infusion and cloud cakes restored your stamina to 100%!'
+              );
+            },
+          };
+        } else if (customPlaced.subType === 'sky_observatory') {
+          action = {
+            label: '✨ Harmonize Amethyst Crystals',
+            onClick: () => {
+              sfx.fly();
+              this.spawnFlyBurst(38, 22);
+              this.callbacks.onBubble?.(
+                customPlaced.name,
+                'Celestial starlight resonates through the golden dome, linking Sky Castle to Digi-Sanctuary!'
+              );
+            },
+          };
+        } else if (customPlaced.subType === 'sky_crystal_plaza') {
+          action = {
+            label: '💎 Touch the Sky Crystal (+100 Energy)',
+            onClick: () => {
+              sfx.heal();
+              this.callbacks.onRefill();
+              this.spawnFlyBurst(22, 29);
+              this.callbacks.onBubble?.(
+                customPlaced.name,
+                'Pure sky mana ripples through the white marble plaza, restoring your energy to full!'
+              );
+            },
+          };
+        } else if (customPlaced.subType === 'sky_citadel') {
+          action = [
+            {
+              label: '💎 Visit Crystal Plaza',
+              onClick: () => this.walkToObject('sky_crystal_plaza'),
+            },
+            {
+              label: '🌀 Return to Digi-Sanctuary (36, 22)',
+              href: '/digimon?from=sky-castle',
+            },
+          ];
         }
 
         if (Array.isArray(action) && customPlaced.subType) {
@@ -9086,6 +10713,104 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
       return;
     }
 
+    if (
+      this.currentScene === 'dark-cathedral' ||
+      this.currentScene === 'dark-forge' ||
+      this.currentScene === 'dark-manor' ||
+      this.currentScene === 'dark-vault' ||
+      isKingdomInteriorScene(this.currentScene) ||
+      isHarbourInteriorScene(this.currentScene)
+    ) {
+      const cathedralLabels: Record<string, { x: number; y: number; w: number; h: number; lift?: number }> = {
+        'pipe-organ': { x: 6, y: 1, w: 3, h: 1, lift: 0.95 },
+        lunala: { x: 7, y: 2, w: 1, h: 1, lift: 1.35 },
+        'war-stories-grimoire': { x: 1, y: 3, w: 2, h: 2, lift: 0.55 },
+        'confession-shrine': { x: 12, y: 3, w: 2, h: 2, lift: 0.55 },
+        necrozma: { x: 2, y: 6, w: 1, h: 1, lift: 1.05 },
+        gardevoir: { x: 12, y: 6, w: 1, h: 1, lift: 1.05 },
+        'stained-rose': { x: 7, y: 6, w: 1, h: 1, lift: 1.05 },
+        'west-pews': { x: 1, y: 8, w: 2, h: 2, lift: 0.5 },
+        'east-pews': { x: 12, y: 8, w: 2, h: 2, lift: 0.5 },
+      };
+
+      const forgeLabels: Record<string, { x: number; y: number; w: number; h: number; lift?: number }> = {
+        machinedramon: { x: 7, y: 2, w: 1, h: 1, lift: 0.72 },
+        'magma-core': { x: 6, y: 1, w: 3, h: 2, lift: 0.88 },
+        'tech-anvil': { x: 1, y: 3, w: 2, h: 2, lift: 0.55 },
+        'telemetry-terminal': { x: 12, y: 3, w: 2, h: 2, lift: 0.55 },
+        charizard: { x: 2, y: 6, w: 1, h: 1, lift: 0.68 },
+        groudon: { x: 12, y: 6, w: 1, h: 1, lift: 0.68 },
+        'forge-altar': { x: 7, y: 6, w: 1, h: 1, lift: 0.6 },
+        'coolant-valves': { x: 1, y: 8, w: 2, h: 2, lift: 0.55 },
+        'plasma-batteries': { x: 12, y: 8, w: 2, h: 2, lift: 0.55 },
+      };
+
+      const manorLabels: Record<string, { x: number; y: number; w: number; h: number; lift?: number }> = {
+        'darkrai-throne': { x: 6, y: 1, w: 3, h: 1, lift: 0.95 },
+        darkrai: { x: 7, y: 2, w: 1, h: 1, lift: 1.35 },
+        'bug-gallery-1': { x: 1, y: 3, w: 2, h: 2, lift: 0.55 },
+        'bug-gallery-2': { x: 12, y: 3, w: 2, h: 2, lift: 0.55 },
+        giratina: { x: 2, y: 6, w: 1, h: 1, lift: 1.15 },
+        urshifu: { x: 12, y: 6, w: 1, h: 1, lift: 1.05 },
+        'crimson-altar': { x: 7, y: 6, w: 1, h: 1, lift: 1.05 },
+        'blood-fireplace': { x: 1, y: 8, w: 2, h: 2, lift: 0.5 },
+        'demon-crenellations': { x: 12, y: 8, w: 2, h: 2, lift: 0.5 },
+      };
+
+      const vaultLabels: Record<string, { x: number; y: number; w: number; h: number; lift?: number }> = {
+        'clockwork-face': { x: 6, y: 1, w: 3, h: 1, lift: 0.95 },
+        dialga: { x: 7, y: 2, w: 1, h: 1, lift: 1.35 },
+        'gear-pedestal-1': { x: 1, y: 3, w: 2, h: 2, lift: 0.55 },
+        'gear-pedestal-2': { x: 12, y: 3, w: 2, h: 2, lift: 0.55 },
+        celebi: { x: 2, y: 6, w: 1, h: 1, lift: 1.05 },
+        chronomon: { x: 12, y: 6, w: 1, h: 1, lift: 1.15 },
+        'time-capsule': { x: 7, y: 6, w: 1, h: 1, lift: 1.05 },
+        'chrono-pendulum': { x: 1, y: 8, w: 2, h: 2, lift: 0.5 },
+        'temporal-coffer': { x: 12, y: 8, w: 2, h: 2, lift: 0.5 },
+      };
+
+      const kingdomLabelsCfg = getKingdomInteriorConfig(this.currentScene);
+      const harbourLabelsCfg = getHarbourInteriorConfig(this.currentScene);
+      const currentDarkLabels = kingdomLabelsCfg
+        ? kingdomLabelsCfg.labels
+        : harbourLabelsCfg
+          ? harbourLabelsCfg.labels
+          : this.currentScene === 'dark-cathedral'
+            ? cathedralLabels
+            : this.currentScene === 'dark-forge'
+              ? forgeLabels
+              : this.currentScene === 'dark-manor'
+                ? manorLabels
+                : vaultLabels;
+
+      const buttons = container.querySelectorAll<HTMLButtonElement>('.town-label');
+      buttons.forEach((btn) => {
+        const id = btn.getAttribute('data-id');
+        if (!id || !currentDarkLabels[id]) {
+          btn.style.visibility = 'hidden';
+          btn.style.display = 'none';
+          return;
+        }
+
+        btn.style.display = '';
+        const obj = currentDarkLabels[id];
+        const worldX = (obj.x + obj.w / 2) * TILE_SIZE;
+        const worldY = (obj.y - (obj.lift ?? 0)) * TILE_SIZE;
+
+        const canvasX = this.canvas.width / 2 + (worldX - this.cameraX) * this.zoom;
+        const canvasY = this.canvas.height / 2 + (worldY - this.cameraY) * this.zoom;
+
+        const cssX = canvasX / dpr;
+        const cssY = canvasY / dpr;
+
+        btn.style.left = String(Math.round(cssX)) + 'px';
+        btn.style.top = String(Math.round(cssY)) + 'px';
+        btn.style.transform = '';
+        btn.style.visibility = 'visible';
+      });
+      return;
+    }
+
     if (this.currentScene === 'neighbour') {
       const neighbourLabels: Record<string, { x: number; y: number; w: number; h: number; lift?: number }> = {
         'neighbour-maya': { x: 6, y: 3, w: 1, h: 1, lift: 1.45 },
@@ -9279,6 +11004,9 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
       const digiLabels: Record<string, { x: number; y: number; w: number; h: number; lift?: number }> = {
         'digi-return': { x: DIGI_RETURN_GATE.xMin, y: DIGI_RETURN_GATE.yMin, w: 3, h: 2, lift: 0.35 },
         'digidex-console': { x: DIGI_PLAZA_CONSOLE.x, y: DIGI_PLAZA_CONSOLE.y, w: DIGI_PLAZA_CONSOLE.w, h: DIGI_PLAZA_CONSOLE.h, lift: 0.4 },
+        'kingdom-gate': { x: DIGI_KINGDOM_GATE.xMin, y: DIGI_KINGDOM_GATE.yMin, w: 3, h: 2, lift: 0.45 },
+        'dark-castle-gate': { x: DIGI_DARK_CASTLE_GATE.xMin, y: DIGI_DARK_CASTLE_GATE.yMin, w: 3, h: 3, lift: 0.35 },
+        'sky-castle-gate': { x: DIGI_SKY_CASTLE_GATE.xMin, y: DIGI_SKY_CASTLE_GATE.yMin, w: 3, h: 3, lift: 0.35 },
       };
 
       const buttons = container.querySelectorAll<HTMLButtonElement>('.town-label');
@@ -9292,6 +11020,169 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
 
         btn.style.display = '';
         const obj = digiLabels[id];
+        const worldX = (obj.x + obj.w / 2) * TILE_SIZE;
+        const worldY = (obj.y - (obj.lift ?? 0)) * TILE_SIZE;
+
+        const canvasX = this.canvas.width / 2 + (worldX - this.cameraX) * this.zoom;
+        const canvasY = this.canvas.height / 2 + (worldY - this.cameraY) * this.zoom;
+
+        const cssX = canvasX / dpr;
+        let cssY = canvasY / dpr;
+        if (cssY < 24) cssY = 24;
+
+        const visible = cssX > -60 && cssX < rect.width + 60 && cssY > -40 && cssY < rect.height + 40;
+        btn.style.left = `${Math.round(cssX)}px`;
+        btn.style.top = `${Math.round(cssY)}px`;
+        btn.style.transform = '';
+        btn.style.visibility = visible ? 'visible' : 'hidden';
+      });
+
+      this.updateTransformBubble(dpr, rect);
+      return;
+    }
+
+    if (this.currentScene === 'kingdom') {
+      const kingdomLabels: Record<string, { x: number; y: number; w: number; h: number; lift?: number }> = {
+        'kingdom-return': { x: KINGDOM_RETURN_GATE.xMin, y: KINGDOM_RETURN_GATE.yMin, w: 3, h: 2, lift: 0.9 },
+        'harbour-gate': { x: KINGDOM_HARBOUR_GATE.xMin, y: KINGDOM_HARBOUR_GATE.yMin, w: 3, h: 1, lift: 1.0 },
+      };
+      for (const lm of KINGDOM_LANDMARKS) {
+        kingdomLabels[lm.id] = { x: lm.x, y: lm.y, w: lm.w, h: lm.h, lift: 0.35 };
+      }
+
+      const buttons = container.querySelectorAll<HTMLButtonElement>('.town-label');
+      buttons.forEach((btn) => {
+        const id = btn.getAttribute('data-id');
+        if (!id || !kingdomLabels[id]) {
+          btn.style.visibility = 'hidden';
+          btn.style.display = 'none';
+          return;
+        }
+
+        btn.style.display = '';
+        btn.style.opacity = '';
+        btn.style.pointerEvents = '';
+        const obj = kingdomLabels[id];
+        const worldX = (obj.x + obj.w / 2) * TILE_SIZE;
+        const worldY = (obj.y - (obj.lift ?? 0)) * TILE_SIZE;
+
+        const canvasX = this.canvas.width / 2 + (worldX - this.cameraX) * this.zoom;
+        const canvasY = this.canvas.height / 2 + (worldY - this.cameraY) * this.zoom;
+
+        const cssX = canvasX / dpr;
+        let cssY = canvasY / dpr;
+        if (cssY < 24) cssY = 24;
+
+        const visible = cssX > -60 && cssX < rect.width + 60 && cssY > -40 && cssY < rect.height + 40;
+        btn.style.left = `${Math.round(cssX)}px`;
+        btn.style.top = `${Math.round(cssY)}px`;
+        btn.style.transform = '';
+        btn.style.visibility = visible ? 'visible' : 'hidden';
+      });
+
+      this.updateTransformBubble(dpr, rect);
+      return;
+    }
+
+    if (this.currentScene === 'harbour') {
+      const harbourLabels: Record<string, { x: number; y: number; w: number; h: number; lift?: number }> = {
+        'harbour-return': { x: HARBOUR_RETURN_GATE.xMin, y: HARBOUR_RETURN_GATE.yMin + 1, w: 4, h: 2, lift: 0.3 },
+      };
+      for (const lm of HARBOUR_LANDMARKS) {
+        harbourLabels[lm.id] = { x: lm.x, y: lm.y, w: lm.w, h: lm.h, lift: 0.3 };
+      }
+
+      const buttons = container.querySelectorAll<HTMLButtonElement>('.town-label');
+      buttons.forEach((btn) => {
+        const id = btn.getAttribute('data-id');
+        if (!id || !harbourLabels[id]) {
+          btn.style.visibility = 'hidden';
+          btn.style.display = 'none';
+          return;
+        }
+
+        btn.style.display = '';
+        const obj = harbourLabels[id];
+        const worldX = (obj.x + obj.w / 2) * TILE_SIZE;
+        const worldY = (obj.y - (obj.lift ?? 0)) * TILE_SIZE;
+
+        const canvasX = this.canvas.width / 2 + (worldX - this.cameraX) * this.zoom;
+        const canvasY = this.canvas.height / 2 + (worldY - this.cameraY) * this.zoom;
+
+        const cssX = canvasX / dpr;
+        let cssY = canvasY / dpr;
+        if (cssY < 24) cssY = 24;
+
+        const visible = cssX > -60 && cssX < rect.width + 60 && cssY > -40 && cssY < rect.height + 40;
+        btn.style.left = `${Math.round(cssX)}px`;
+        btn.style.top = `${Math.round(cssY)}px`;
+        btn.style.transform = '';
+        btn.style.visibility = visible ? 'visible' : 'hidden';
+      });
+
+      this.updateTransformBubble(dpr, rect);
+      return;
+    }
+
+    if (this.currentScene === 'sky-castle') {
+      const skyLabels: Record<string, { x: number; y: number; w: number; h: number; lift?: number }> = {
+        'sky-castle-return': { x: SKY_CASTLE_RETURN_GATE.xMin, y: SKY_CASTLE_RETURN_GATE.yMin - 1, w: 3, h: 2, lift: 0.2 },
+      };
+      for (const lm of SKY_CASTLE_LANDMARKS) {
+        skyLabels[lm.id] = { x: lm.x, y: lm.y, w: lm.w, h: lm.h, lift: 0.3 };
+      }
+
+      const buttons = container.querySelectorAll<HTMLButtonElement>('.town-label');
+      buttons.forEach((btn) => {
+        const id = btn.getAttribute('data-id');
+        if (!id || !skyLabels[id]) {
+          btn.style.visibility = 'hidden';
+          btn.style.display = 'none';
+          return;
+        }
+
+        btn.style.display = '';
+        const obj = skyLabels[id];
+        const worldX = (obj.x + obj.w / 2) * TILE_SIZE;
+        const worldY = (obj.y - (obj.lift ?? 0)) * TILE_SIZE;
+
+        const canvasX = this.canvas.width / 2 + (worldX - this.cameraX) * this.zoom;
+        const canvasY = this.canvas.height / 2 + (worldY - this.cameraY) * this.zoom;
+
+        const cssX = canvasX / dpr;
+        let cssY = canvasY / dpr;
+        if (cssY < 24) cssY = 24;
+
+        const visible = cssX > -60 && cssX < rect.width + 60 && cssY > -40 && cssY < rect.height + 40;
+        btn.style.left = `${Math.round(cssX)}px`;
+        btn.style.top = `${Math.round(cssY)}px`;
+        btn.style.transform = '';
+        btn.style.visibility = visible ? 'visible' : 'hidden';
+      });
+
+      this.updateTransformBubble(dpr, rect);
+      return;
+    }
+
+    if (this.currentScene === 'dark-castle') {
+      const darkLabels: Record<string, { x: number; y: number; w: number; h: number; lift?: number }> = {
+        'dark-castle-return': { x: DARK_CASTLE_RETURN_GATE.xMin, y: DARK_CASTLE_RETURN_GATE.yMin - 3, w: 3, h: 3, lift: 0.2 },
+      };
+      for (const lm of DARK_CASTLE_LANDMARKS) {
+        darkLabels[lm.id] = { x: lm.x, y: lm.y, w: lm.w, h: lm.h, lift: -0.25 };
+      }
+
+      const buttons = container.querySelectorAll<HTMLButtonElement>('.town-label');
+      buttons.forEach((btn) => {
+        const id = btn.getAttribute('data-id');
+        if (!id || !darkLabels[id]) {
+          btn.style.visibility = 'hidden';
+          btn.style.display = 'none';
+          return;
+        }
+
+        btn.style.display = '';
+        const obj = darkLabels[id];
         const worldX = (obj.x + obj.w / 2) * TILE_SIZE;
         const worldY = (obj.y - (obj.lift ?? 0)) * TILE_SIZE;
 
@@ -9876,6 +11767,67 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
       return;
     }
 
+    if (
+      this.currentScene === 'dark-cathedral' ||
+      this.currentScene === 'dark-forge' ||
+      this.currentScene === 'dark-manor' ||
+      this.currentScene === 'dark-vault' ||
+      isKingdomInteriorScene(this.currentScene) ||
+      isHarbourInteriorScene(this.currentScene)
+    ) {
+      this.cameraX = (15 * TILE_SIZE) / 2;
+      this.cameraY = (12 * TILE_SIZE) / 2;
+
+      ctx.save();
+      ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      ctx.fillStyle = '#000000';
+      ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+      ctx.translate(this.canvas.width / 2, this.canvas.height / 2);
+      ctx.scale(this.zoom, this.zoom);
+      ctx.translate(-this.cameraX, -this.cameraY);
+
+      if (this.cameraShakeTime > 0) {
+        const shakeX = (Math.random() - 0.5) * this.cameraShakeIntensity;
+        const shakeY = (Math.random() - 0.5) * this.cameraShakeIntensity;
+        ctx.translate(shakeX, shakeY);
+      }
+
+      if (this.currentScene === 'dark-cathedral') {
+        renderCathedralScene(ctx, this.tick, this.pmdAnimator);
+      } else if (this.currentScene === 'dark-forge') {
+        renderForgeScene(ctx, this.tick, this.pmdAnimator);
+      } else if (this.currentScene === 'dark-manor') {
+        renderManorScene(ctx, this.tick, this.pmdAnimator);
+      } else if (this.currentScene === 'dark-vault') {
+        renderVaultScene(ctx, this.tick, this.pmdAnimator);
+      } else if (isKingdomInteriorScene(this.currentScene)) {
+        getKingdomInteriorConfig(this.currentScene)?.render(ctx, this.tick, this.pmdAnimator);
+      } else {
+        getHarbourInteriorConfig(this.currentScene)?.render(ctx, this.tick, this.pmdAnimator);
+      }
+
+      this.renderPathAndMarker(ctx);
+
+      const drawX =
+        (this.playerPos.x + (this.playerTarget.x - this.playerPos.x) * this.moveProgress) * TILE_SIZE;
+      const drawY =
+        (this.playerPos.y + (this.playerTarget.y - this.playerPos.y) * this.moveProgress) * TILE_SIZE;
+      const stepFrame = this.isMoving ? Math.floor(this.moveProgress * 4) : 0;
+
+      // Scale player cleanly (0.68x centered at feet) so Ash matches overworld RPG proportions
+      ctx.save();
+      ctx.translate(drawX + 8, drawY + 15);
+      ctx.scale(0.68, 0.68);
+      drawCharacter(ctx, this.playerPalette, this.playerDir, stepFrame, -8, -15, 1);
+      ctx.restore();
+
+      ctx.restore();
+
+      this.updateDomLabels();
+      return;
+    }
+
     if (this.currentScene === 'neighbour') {
       this.cameraX = (NEIGHBOUR_COLS * TILE_SIZE) / 2;
       this.cameraY = (NEIGHBOUR_ROWS * TILE_SIZE) / 2;
@@ -10081,8 +12033,16 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
     ctx.save();
     ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-    // Dark surround backdrop (Deep data sea on /digimon, dark forest on Town)
-    ctx.fillStyle = this.currentScene === 'digimon' ? '#040a18' : '#162e1d';
+    // Dark surround backdrop (Deep data sea on /digimon, pure black framing for Kingdom/Harbour/Sky/Dark maps, dark forest on Town)
+    ctx.fillStyle =
+      this.currentScene === 'digimon'
+        ? '#040a18'
+        : this.currentScene === 'kingdom' ||
+          this.currentScene === 'harbour' ||
+          this.currentScene === 'sky-castle' ||
+          this.currentScene === 'dark-castle'
+          ? '#000000'
+          : '#162e1d';
     ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
     // Apply zoom & center camera
@@ -10103,11 +12063,90 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
       }
       ctx.drawImage(this.digiBackgroundCanvas, 0, 0);
 
-      // Animated Digital Return Gate & DigiDex Console holographic pulse
+      // Animated Digital Return Gate, Kingdom Portal Gate, Dark Castle Void Gate, Sky Castle Cloud Gate & DigiDex Console holographic pulses
       this.renderPortalPulseOverlay(ctx, DIGI_RETURN_GATE.xMin, DIGI_RETURN_GATE.yMin);
+      this.renderPortalPulseOverlay(ctx, DIGI_KINGDOM_GATE.xMin, DIGI_KINGDOM_GATE.yMin);
+      this.renderPortalPulseOverlay(ctx, DIGI_DARK_CASTLE_GATE.xMin, DIGI_DARK_CASTLE_GATE.yMin + 0.5);
+      this.renderPortalPulseOverlay(ctx, DIGI_SKY_CASTLE_GATE.xMin, DIGI_SKY_CASTLE_GATE.yMin + 0.5);
       const pulse = 0.25 + 0.2 * Math.sin(this.tick * 0.08);
       ctx.fillStyle = `rgba(0, 240, 255, ${pulse})`;
       ctx.fillRect(DIGI_PLAZA_CONSOLE.x * TILE_SIZE + 8, DIGI_PLAZA_CONSOLE.y * TILE_SIZE + 6, 16, 2);
+    } else if (this.currentScene === 'sky-castle') {
+      // 1. Sky Castle 45x60 Floating Citadel Canvas backed by cloud illustration
+      if (!this.skyCastleBackgroundCanvas) {
+        this.skyCastleBackgroundCanvas = createSkyCastleBackgroundCanvas(this.map, () => {
+          this.invalidateBackgroundCanvas();
+          this.wake();
+        });
+      }
+      ctx.drawImage(this.skyCastleBackgroundCanvas, 0, 0);
+    } else if (this.currentScene === 'dark-castle') {
+      // 1. Dark Castle 45x64 Citadel Canvas backed by pixel-art image
+      if (!this.darkCastleBackgroundCanvas) {
+        this.darkCastleBackgroundCanvas = createDarkCastleBackgroundCanvas(this.map, () => {
+          this.invalidateBackgroundCanvas();
+          this.wake();
+        });
+      }
+      ctx.drawImage(this.darkCastleBackgroundCanvas, 0, 0);
+
+      // Subtle living pulse on North Abyssal Vortex & Obsidian Obelisk Ring
+      const pulse = 0.14 + 0.12 * Math.sin(this.tick * 0.07);
+      ctx.fillStyle = `rgba(244, 63, 94, ${pulse})`;
+      ctx.beginPath();
+      ctx.arc(22.5 * TILE_SIZE, 6.2 * TILE_SIZE, 26, 0, Math.PI * 2);
+      ctx.fill();
+
+      const allSealsAwakened = isAllSealsUnlocked();
+      if (allSealsAwakened) {
+        // Radiant cosmic awakening: Expanding gold & violet auroral halo
+        const cosmicPulse = 0.45 + 0.35 * Math.sin(this.tick * 0.1);
+        ctx.fillStyle = `rgba(251, 191, 36, ${cosmicPulse * 0.4})`;
+        ctx.beginPath();
+        ctx.arc(22.5 * TILE_SIZE, 29 * TILE_SIZE, 38, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = `rgba(244, 63, 94, ${0.6 + cosmicPulse * 0.4})`;
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.ellipse(22.5 * TILE_SIZE, 29 * TILE_SIZE, 30, 13, 0, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // 4 orbiting cosmic star runes
+        for (let i = 0; i < 4; i++) {
+          const ang = (i * Math.PI) / 2 + this.tick * 0.04;
+          const sx = 22.5 * TILE_SIZE + Math.cos(ang) * 28;
+          const sy = 29 * TILE_SIZE + Math.sin(ang) * 12;
+          ctx.fillStyle = i % 2 === 0 ? '#fbbf24' : '#c084fc';
+          ctx.fillRect(sx - 2, sy - 2, 4, 4);
+        }
+      } else {
+        ctx.strokeStyle = `rgba(192, 132, 252, ${0.22 + pulse})`;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.ellipse(22.5 * TILE_SIZE, 29 * TILE_SIZE, 26, 10, 0, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
+      this.renderPortalPulseOverlay(ctx, DARK_CASTLE_RETURN_GATE.xMin, DARK_CASTLE_RETURN_GATE.yMin);
+    } else if (this.currentScene === 'harbour') {
+      // 1. Harbour Town 45x60 Coastal Canvas backed by pixel-art image
+      if (!this.harbourBackgroundCanvas) {
+        this.harbourBackgroundCanvas = createHarbourBackgroundCanvas(this.map, () => {
+          this.invalidateBackgroundCanvas();
+          this.wake();
+        });
+      }
+      ctx.drawImage(this.harbourBackgroundCanvas, 0, 0);
+    } else if (this.currentScene === 'kingdom') {
+      // 1. Royal Kingdom 45x60 Citadel Canvas backed by pixel-art image
+      if (!this.kingdomBackgroundCanvas) {
+        this.kingdomBackgroundCanvas = createKingdomBackgroundCanvas(this.map, () => {
+          this.invalidateBackgroundCanvas();
+          this.wake();
+        });
+      }
+      ctx.drawImage(this.kingdomBackgroundCanvas, 0, 0);
     } else {
       // 1. Procedural 2D Pixel-Art Background Canvas (Handcrafted Pokémon Gen 4/5 style)
       if (!this.townBackgroundCanvas) {
@@ -10248,18 +12287,35 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
 
       // Portal twilight/night halo on top of evening atmosphere
       if (this.townAtmosphere === 'sunset' || this.townAtmosphere === 'night') {
-        const gateX = this.currentScene === 'digimon' ? DIGI_RETURN_GATE.xMin : DIGI_GATE_PORTAL.xMin;
-        const gateY = this.currentScene === 'digimon' ? DIGI_RETURN_GATE.yMin : DIGI_GATE_PORTAL.yMin;
-        const gcx = (gateX + 1.5) * TILE_SIZE;
-        const gcy = (gateY + 1) * TILE_SIZE;
-        const halo = ctx.createRadialGradient(gcx, gcy, 4, gcx, gcy, 38);
-        halo.addColorStop(0, 'rgba(0, 240, 255, 0.48)');
-        halo.addColorStop(0.55, 'rgba(251, 191, 36, 0.18)');
-        halo.addColorStop(1, 'rgba(0, 240, 255, 0)');
-        ctx.fillStyle = halo;
-        ctx.beginPath();
-        ctx.arc(gcx, gcy, 38, 0, Math.PI * 2);
-        ctx.fill();
+        const portalCoords =
+          this.currentScene === 'digimon'
+            ? [
+              { x: DIGI_RETURN_GATE.xMin, y: DIGI_RETURN_GATE.yMin, inner: 'rgba(0, 240, 255, 0.48)', mid: 'rgba(251, 191, 36, 0.18)' },
+              { x: DIGI_KINGDOM_GATE.xMin, y: DIGI_KINGDOM_GATE.yMin, inner: 'rgba(251, 191, 36, 0.48)', mid: 'rgba(220, 38, 38, 0.20)' },
+              { x: DIGI_DARK_CASTLE_GATE.xMin, y: DIGI_DARK_CASTLE_GATE.yMin + 0.5, inner: 'rgba(244, 63, 94, 0.50)', mid: 'rgba(147, 51, 234, 0.24)' },
+              { x: DIGI_SKY_CASTLE_GATE.xMin, y: DIGI_SKY_CASTLE_GATE.yMin + 0.5, inner: 'rgba(125, 211, 252, 0.52)', mid: 'rgba(251, 191, 36, 0.24)' },
+            ]
+            : this.currentScene === 'kingdom'
+              ? [{ x: KINGDOM_RETURN_GATE.xMin, y: KINGDOM_RETURN_GATE.yMin, inner: 'rgba(251, 191, 36, 0.45)', mid: 'rgba(56, 189, 248, 0.18)' }]
+              : this.currentScene === 'harbour'
+                ? [{ x: HARBOUR_RETURN_GATE.xMin, y: HARBOUR_RETURN_GATE.yMin, inner: 'rgba(251, 191, 36, 0.40)', mid: 'rgba(56, 189, 248, 0.16)' }]
+                : this.currentScene === 'sky-castle'
+                  ? [{ x: SKY_CASTLE_RETURN_GATE.xMin, y: SKY_CASTLE_RETURN_GATE.yMin - 1, inner: 'rgba(125, 211, 252, 0.48)', mid: 'rgba(251, 191, 36, 0.22)' }]
+                  : this.currentScene === 'dark-castle'
+                    ? [{ x: DARK_CASTLE_RETURN_GATE.xMin, y: DARK_CASTLE_RETURN_GATE.yMin - 1, inner: 'rgba(244, 63, 94, 0.52)', mid: 'rgba(147, 51, 234, 0.26)' }]
+                    : [{ x: DIGI_GATE_PORTAL.xMin, y: DIGI_GATE_PORTAL.yMin, inner: 'rgba(0, 240, 255, 0.48)', mid: 'rgba(251, 191, 36, 0.18)' }];
+        for (const p of portalCoords) {
+          const gcx = (p.x + 1.5) * TILE_SIZE;
+          const gcy = (p.y + 1) * TILE_SIZE;
+          const halo = ctx.createRadialGradient(gcx, gcy, 4, gcx, gcy, 38);
+          halo.addColorStop(0, p.inner);
+          halo.addColorStop(0.55, p.mid);
+          halo.addColorStop(1, 'rgba(0, 240, 255, 0)');
+          ctx.fillStyle = halo;
+          ctx.beginPath();
+          ctx.arc(gcx, gcy, 38, 0, Math.PI * 2);
+          ctx.fill();
+        }
       }
 
       // Rainy weather cool ambient wash
