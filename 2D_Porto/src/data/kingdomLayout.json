@@ -1,6 +1,85 @@
 {
   "version": 2,
-  "updatedAt": "2026-11-17T15:08:00.000Z",
-  "buildings": [],
+  "updatedAt": "2026-11-19T09:29:52.952Z",
+  "buildings": [
+    {
+      "id": "gaspiritamon_mwnaz8zc",
+      "name": "Gaspiritamon, Rune-Wolf Valkyrie #1",
+      "x": 25,
+      "y": 34,
+      "w": 2,
+      "h": 2,
+      "kind": "digimon",
+      "subType": "gaspiritamon",
+      "orientation": "S",
+      "dialogue": "GASPIRITAMON (Mega · Data): \"A frost-clad runic knight wielding a glowing hammer and round shield beside an ethereal wolf forged from glacial spirit flames.\" Jurus Khas: Fenrir Maelstrom.",
+      "scaleMultiplier": 1,
+      "behavior": "patrol_small"
+    },
+    {
+      "id": "mastemon_mwnazxq0",
+      "name": "Mastemon, Jogress of Light & Shadow #1",
+      "x": 19,
+      "y": 34,
+      "w": 2,
+      "h": 2,
+      "kind": "digimon",
+      "subType": "mastemon",
+      "orientation": "S",
+      "dialogue": "MASTEMON (Mega · Vaccine): \"A transcendent angel forged by uniting holy light and fallen darkness, opening portals between dimensions with twelve asymmetric wings.\" Jurus Khas: Chaos Degradation.",
+      "behavior": "patrol_small"
+    },
+    {
+      "id": "shogun_alphamon_mwnb08dm",
+      "name": "Shogun Alphamon, Onyx Steed Samurai #1",
+      "x": 14,
+      "y": 29,
+      "w": 2,
+      "h": 2,
+      "kind": "digimon",
+      "subType": "shogun_alphamon",
+      "orientation": "S",
+      "dialogue": "SHOGUN ALPHAMON (Ultra · Vaccine): \"A samurai warlord riding an armored ebony warhorse with blazing hooves, bearing dual battle standards and a golden naginata.\" Jurus Khas: Crimson Naginata Charge.",
+      "behavior": "patrol_small"
+    },
+    {
+      "id": "holloknightmon_mwnb0hnt",
+      "name": "Holloknightmon, Sun-Winged Arbiter #1",
+      "x": 29,
+      "y": 29,
+      "w": 2,
+      "h": 2,
+      "kind": "digimon",
+      "subType": "holloknightmon",
+      "orientation": "S",
+      "dialogue": "HOLLOKNIGHTMON (Mega · Vaccine): \"An ivory four-armed paladin crowned with solar spokes and glowing amber wings, delivering judgment with a silver greatsword.\" Jurus Khas: Radiance Decree."
+    },
+    {
+      "id": "ragnaloardmon_mwnb0und",
+      "name": "Ragnaloardmon, Legend-Arms Sovereign #1",
+      "x": 17,
+      "y": 29,
+      "w": 2,
+      "h": 2,
+      "kind": "digimon",
+      "subType": "ragnaloardmon",
+      "orientation": "S",
+      "dialogue": "RAGNALOARDMON (Ultra · Virus): \"The Legend-Arms fusion knight cloaked in living inferno flames, wielding both the golden sword Durandamon and red dragon shield Bryweludramon.\" Jurus Khas: Direct Smasher.",
+      "behavior": "patrol_small"
+    },
+    {
+      "id": "jesmon_x_mwncmo7d",
+      "name": "Jesmon (X Antibody), Judgment Blade #1",
+      "x": 26,
+      "y": 24,
+      "w": 2,
+      "h": 2,
+      "kind": "digimon",
+      "subType": "jesmon_x",
+      "orientation": "S",
+      "dialogue": "JESMON X (Ultra · Data): \"An unbreakable Royal Knight awakened by the X-Antibody, sheathing itself in crimson and chrome blades that strike before malice can act.\" Jurus Khas: Tekken Seibai.",
+      "behavior": "patrol_small"
+    }
+  ],
   "tiles": []
 }

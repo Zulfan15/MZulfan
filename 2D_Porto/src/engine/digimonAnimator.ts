@@ -76,7 +76,8 @@ export class DigimonPatrolController {
     playerX: number,
     playerY: number,
     editorActive: boolean,
-    isBaseTerrainWalkable: (tx: number, ty: number) => boolean
+    isBaseTerrainWalkable: (tx: number, ty: number) => boolean,
+    scene: string = 'digimon'
   ): boolean {
     const activeIds = new Set<string>();
     let anyMoving = false;
@@ -148,8 +149,8 @@ export class DigimonPatrolController {
           for (let ox = 0; ox < bw && footprintClear; ox++) {
             const tx = nx + ox;
             const ty = ny + oy;
-            // Avoid North Return Gate pad (19..21, 3..5) and Digidex Console (19..20, 20..21)
-            if (tx >= 19 && tx <= 21 && ty >= 3 && ty <= 5) {
+            // Avoid North Return Gate pad (19..21, 3..5) on /digimon
+            if (scene === 'digimon' && tx >= 19 && tx <= 21 && ty >= 3 && ty <= 5) {
               footprintClear = false;
               break;
             }

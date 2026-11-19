@@ -495,7 +495,16 @@ function isHdChromaGreen(p: RgbaColor, bg: RgbaColor, strict = false): boolean {
 function stripHdCaptionGlyphs(d: Uint8ClampedArray, sw: number, sh: number): void {
   const total = sw * sh;
   const compId = new Int32Array(total);
-  const compStats: Array<{ minX: number; maxX: number; minY: number; maxY: number; count: number; whiteCount: number }> = [];
+  const compStats: Array<{
+    minX: number;
+    maxX: number;
+    minY: number;
+    maxY: number;
+    count: number;
+    whiteCount: number;
+    darkCount: number;
+    satCount: number;
+  }> = [];
   const queue = new Int32Array(total);
   let nextId = 0;
 
@@ -515,6 +524,8 @@ function stripHdCaptionGlyphs(d: Uint8ClampedArray, sw: number, sh: number): voi
     let maxY = iy;
     let count = 0;
     let whiteCount = 0;
+    let darkCount = 0;
+    let satCount = 0;
 
     while (head < tail) {
       const idx = queue[head++];
@@ -522,7 +533,12 @@ function stripHdCaptionGlyphs(d: Uint8ClampedArray, sw: number, sh: number): voi
       const y = (idx - x) / sw;
       const off = idx * 4;
       count++;
-      if (d[off] >= 185 && d[off + 1] >= 185 && d[off + 2] >= 185) whiteCount++;
+      const r = d[off];
+      const g = d[off + 1];
+      const b = d[off + 2];
+      if (r >= 185 && g >= 185 && b >= 185) whiteCount++;
+      if (r <= 72 && g <= 72 && b <= 72) darkCount++;
+      if (Math.max(r, g, b) - Math.min(r, g, b) > 40) satCount++;
       if (x < minX) minX = x;
       if (x > maxX) maxX = x;
       if (y < minY) minY = y;
@@ -540,17 +556,33 @@ function stripHdCaptionGlyphs(d: Uint8ClampedArray, sw: number, sh: number): voi
       if (y < sh - 1) tryNeighbor(idx + sw);
     }
 
-    compStats.push({ minX, maxX, minY, maxY, count, whiteCount });
+    compStats.push({ minX, maxX, minY, maxY, count, whiteCount, darkCount, satCount });
   }
+
+  let maxCompCount = 0;
+  for (const s of compStats) {
+    if (s.count > maxCompCount) maxCompCount = s.count;
+  }
+  const bodyThreshold = Math.max(5500, Math.floor(maxCompCount * 0.14));
 
   let bodyMinY = sh;
   let bodyMaxY = 0;
   let foundBody = false;
   for (const s of compStats) {
-    if (s.count >= 1600) {
+    const ch = s.maxY - s.minY + 1;
+    if (s.count >= bodyThreshold || ch >= 145) {
       foundBody = true;
       if (s.minY < bodyMinY) bodyMinY = s.minY;
       if (s.maxY > bodyMaxY) bodyMaxY = s.maxY;
+    }
+  }
+  if (!foundBody) {
+    for (const s of compStats) {
+      if (s.count >= 1600) {
+        foundBody = true;
+        if (s.minY < bodyMinY) bodyMinY = s.minY;
+        if (s.maxY > bodyMaxY) bodyMaxY = s.maxY;
+      }
     }
   }
   if (!foundBody) return;
@@ -560,11 +592,50 @@ function stripHdCaptionGlyphs(d: Uint8ClampedArray, sw: number, sh: number): voi
     const s = compStats[idIdx];
     const cw = s.maxX - s.minX + 1;
     const ch = s.maxY - s.minY + 1;
-    const isTinyGlyph = cw <= 52 && ch <= 48 && s.count <= 950;
-    if (!isTinyGlyph) continue;
     const whiteRatio = s.whiteCount / Math.max(1, s.count);
-    const inCaptionEdge = s.maxY <= bodyMinY + 24 || s.minY >= bodyMaxY - 24 || s.minY <= 72 || s.maxY >= sh - 108;
-    if (inCaptionEdge && (whiteRatio >= 0.25 || ch <= 38)) {
+    const darkRatio = s.darkCount / Math.max(1, s.count);
+    const bwRatio = (s.whiteCount + s.darkCount) / Math.max(1, s.count);
+    const satRatio = s.satCount / Math.max(1, s.count);
+    const inTopBand = s.maxY <= 215;
+    const inBotBand = s.minY >= sh - 165;
+
+    const isTinyGlyph = cw <= 56 && ch <= 52 && s.count <= 1150;
+    const inCaptionEdge =
+      s.maxY <= bodyMinY + 18 ||
+      s.minY >= bodyMaxY - 18 ||
+      (s.minY <= 185 && s.maxY <= 215 && whiteRatio >= 0.22 && bwRatio >= 0.68 && satRatio <= 0.12) ||
+      s.maxY >= sh - 115;
+
+    const isOutlinedWhiteBanner =
+      ch <= 108 &&
+      cw >= 20 &&
+      cw <= 460 &&
+      s.count <= 28000 &&
+      s.count < maxCompCount * 0.35 &&
+      (s.maxY <= bodyMinY - 2 || s.minY >= bodyMaxY + 2 || (satRatio <= 0.12 && (inTopBand || inBotBand))) &&
+      whiteRatio >= 0.16 &&
+      bwRatio >= 0.68;
+
+    const isMergedBlackCaption =
+      ch <= 48 &&
+      s.count <= 4500 &&
+      s.minY >= bodyMaxY + 4 &&
+      s.minY >= sh - 125 &&
+      darkRatio >= 0.65;
+
+    const isTopMarginGlyph =
+      cw <= 38 &&
+      ch <= 36 &&
+      s.count <= 500 &&
+      s.maxY <= 52 &&
+      bwRatio >= 0.72;
+
+    if (
+      (isTinyGlyph && inCaptionEdge && (whiteRatio >= 0.22 || ch <= 40)) ||
+      isOutlinedWhiteBanner ||
+      isMergedBlackCaption ||
+      isTopMarginGlyph
+    ) {
       removeComp[idIdx + 1] = 1;
     }
   }
@@ -592,54 +663,62 @@ function sliceHd8DirSheet(
   const fullData = sheetCtx.getImageData(0, 0, w, h).data;
   const sheetBg = getPixelRgba(fullData, w, 16, Math.floor(h * 0.35));
 
-  const rowNonBg = (y: number, xStart: number, xEnd: number): number => {
+  const getRowBg = (y: number): RgbaColor => {
+    const cy = Math.max(0, Math.min(h - 1, y));
+    const left = getPixelRgba(fullData, w, 14, cy);
+    if (left.g > left.r + 18 && left.g > left.b + 12) return left;
+    const right = getPixelRgba(fullData, w, w - 15, cy);
+    if (right.g > right.r + 18 && right.g > right.b + 12) return right;
+    return sheetBg;
+  };
+
+  const rowNonBg = (y: number, xStart: number, xEnd: number, bgOverride?: RgbaColor, stepX = 8): number => {
+    const rowBg = bgOverride ?? getRowBg(y);
     let hits = 0;
-    for (let x = xStart; x < xEnd; x += 8) {
+    for (let x = xStart; x < xEnd; x += stepX) {
       const p = getPixelRgba(fullData, w, x, y);
-      if (!isHdChromaGreen(p, sheetBg, false)) hits++;
+      if (!isHdChromaGreen(p, rowBg, false) && !isHdChromaGreen(p, sheetBg, false)) hits++;
     }
     return hits;
   };
 
   const findWidestGapMid = (yFrom: number, yTo: number, fallback: number): number => {
-    let bestLen = 0;
-    let bestMid = fallback;
-    let curStart = -1;
-    for (let y = yFrom; y <= yTo; y += 2) {
-      if (rowNonBg(y, 20, w - 20) <= 2) {
-        if (curStart < 0) curStart = y;
-      } else if (curStart >= 0) {
-        const len = y - curStart;
+    const scan = (maxAllowedHits: number): { len: number; mid: number } => {
+      let bestLen = 0;
+      let bestMid = fallback;
+      let curStart = -1;
+      for (let y = yFrom; y <= yTo; y += 2) {
+        if (rowNonBg(y, 20, w - 20, undefined, 2) <= maxAllowedHits) {
+          if (curStart < 0) curStart = y;
+        } else if (curStart >= 0) {
+          const len = y - curStart;
+          if (len > bestLen) {
+            bestLen = len;
+            bestMid = Math.floor((curStart + y) / 2);
+          }
+          curStart = -1;
+        }
+      }
+      if (curStart >= 0) {
+        const len = yTo - curStart;
         if (len > bestLen) {
           bestLen = len;
-          bestMid = Math.floor((curStart + y) / 2);
+          bestMid = Math.floor((curStart + yTo) / 2);
         }
-        curStart = -1;
       }
-    }
-    if (curStart >= 0) {
-      const len = yTo - curStart;
-      if (len > bestLen) bestMid = Math.floor((curStart + yTo) / 2);
-    }
-    return bestMid;
+      return { len: bestLen, mid: bestMid };
+    };
+    const strict = scan(0);
+    if (strict.len >= 6) return strict.mid;
+    return scan(2).mid;
   };
 
-  let headerEnd = 165;
-  for (let y = 108; y <= 220; y += 2) {
-    if (rowNonBg(y, 220, w - 40) <= 1 && rowNonBg(Math.min(h - 1, y + 4), 220, w - 40) <= 2) {
-      headerEnd = y;
-      break;
-    }
-  }
-  const splitY = findWidestGapMid(820, 1015, Math.floor(h * 0.51));
-  const stripStart = findWidestGapMid(1555, Math.min(h - 40, 1665), Math.floor(h * 0.895));
-
-  // Extract Top-Left Mugshot Icon cleanly (detect vertical gap before title text)
-  let iconEndX = Math.min(225, Math.floor(w * 0.098));
+  // Detect Top-Left Mugshot width first (up to x=285) so title scan avoids wide circular icons
+  let iconEndX = Math.min(246, Math.floor(w * 0.105));
   let bestGapHits = 999;
-  for (let x = 128; x <= Math.min(238, w - 40); x += 2) {
+  for (let x = 128; x <= Math.min(285, w - 40); x += 2) {
     let colHits = 0;
-    for (let y = 10; y <= Math.min(185, h - 10); y += 3) {
+    for (let y = 10; y <= Math.min(210, h - 10); y += 4) {
       const p = getPixelRgba(fullData, w, x, y);
       if (!isHdChromaGreen(p, sheetBg, false)) colHits++;
     }
@@ -650,11 +729,128 @@ function sliceHd8DirSheet(
     }
   }
 
+  const titleScanX = Math.max(275, iconEndX + 8);
+  let headerEnd = 165;
+  for (let y = 112; y <= 235; y += 2) {
+    if (
+      rowNonBg(y, titleScanX, w - 40, sheetBg, 4) <= 1 &&
+      rowNonBg(Math.min(h - 1, y + 4), titleScanX, w - 40, sheetBg, 4) <= 2
+    ) {
+      headerEnd = y;
+      break;
+    }
+  }
+
+  // Detect exact vertical bottom of Top-Left Mugshot Icon (may extend below titleEnd into Col 0 top-left)
+  let mugBottomY = headerEnd;
+  for (let y = Math.max(112, headerEnd - 12); y <= Math.min(290, h - 20); y += 2) {
+    let hits = 0;
+    for (let x = 12; x <= iconEndX; x += 3) {
+      const p = getPixelRgba(fullData, w, x, y);
+      if (!isHdChromaGreen(p, sheetBg, false)) hits++;
+    }
+    if (hits === 0) {
+      mugBottomY = y;
+      break;
+    }
+  }
+
+  const splitY = findWidestGapMid(820, 1015, Math.floor(h * 0.51));
+  const stripStart = findWidestGapMid(1555, Math.min(h - 40, 1665), Math.floor(h * 0.895));
+
+  const cleanHdChromaRegion = (
+    d: Uint8ClampedArray,
+    rw: number,
+    rh: number,
+    bgs: RgbaColor[],
+    seedStep = 4,
+    extraBorderMatch?: (p: RgbaColor) => boolean,
+    interiorMaxDist = 28
+  ) => {
+    const isStrictInteriorGreen = (p: RgbaColor): boolean =>
+      bgs.some(
+        (bg) =>
+          isHdChromaGreen(p, bg, true) ||
+          (interiorMaxDist > 28 &&
+            colorDist(p, bg) <= interiorMaxDist &&
+            p.g > p.r + 36 &&
+            p.g > p.b + 28)
+      );
+
+    // 1. Border flood-fill chroma erase
+    floodEraseFromBorder(
+      d,
+      rw,
+      rh,
+      (p) => bgs.some((bg) => isHdChromaGreen(p, bg, false)) || Boolean(extraBorderMatch?.(p))
+    );
+
+    // 2. Interior trapped chroma-green loop erase (strict match so green bodies/scales remain untouched)
+    const q = new Int32Array(rw * rh * 2);
+    for (let py = 2; py < rh - 2; py += seedStep) {
+      for (let px = 2; px < rw - 2; px += seedStep) {
+        const idx = (py * rw + px) * 4;
+        if (d[idx + 3] < 20) continue;
+        const p = { r: d[idx], g: d[idx + 1], b: d[idx + 2], a: d[idx + 3] };
+        if (!isStrictInteriorGreen(p)) continue;
+        let head = 0;
+        let tail = 0;
+        q[tail++] = px;
+        q[tail++] = py;
+        d[idx + 3] = 0;
+        while (head < tail) {
+          const cx = q[head++];
+          const cy = q[head++];
+          const trySeed = (nx: number, ny: number) => {
+            const noff = (ny * rw + nx) * 4;
+            if (d[noff + 3] < 20) return;
+            const np = { r: d[noff], g: d[noff + 1], b: d[noff + 2], a: d[noff + 3] };
+            if (isStrictInteriorGreen(np)) {
+              d[noff + 3] = 0;
+              q[tail++] = nx;
+              q[tail++] = ny;
+            }
+          };
+          if (cx > 0) trySeed(cx - 1, cy);
+          if (cx < rw - 1) trySeed(cx + 1, cy);
+          if (cy > 0) trySeed(cx, cy - 1);
+          if (cy < rh - 1) trySeed(cx, cy + 1);
+        }
+      }
+    }
+
+    // 3. Soft 1px outline green-halo despill around freshly erased borders
+    const toDespill: number[] = [];
+    for (let py = 1; py < rh - 1; py++) {
+      for (let px = 1; px < rw - 1; px++) {
+        const idx = (py * rw + px) * 4;
+        if (d[idx + 3] < 20) continue;
+        const touchesTransparent =
+          d[((py - 1) * rw + px) * 4 + 3] < 20 ||
+          d[((py + 1) * rw + px) * 4 + 3] < 20 ||
+          d[(py * rw + (px - 1)) * 4 + 3] < 20 ||
+          d[(py * rw + (px + 1)) * 4 + 3] < 20;
+        if (!touchesTransparent) continue;
+        const p = { r: d[idx], g: d[idx + 1], b: d[idx + 2], a: d[idx + 3] };
+        if (p.g > p.r + 24 && p.g > p.b + 18 && bgs.some((bg) => colorDist(p, bg) <= 135)) {
+          toDespill.push(idx);
+        }
+      }
+    }
+    for (const off of toDespill) {
+      if (d[off + 1] > d[off] + 45 && d[off + 1] > d[off + 2] + 35) {
+        d[off + 3] = 0;
+      } else {
+        d[off + 1] = Math.min(d[off + 1], Math.max(d[off], d[off + 2]) + 6);
+      }
+    }
+  };
+
   const iconBox: SpriteBox = {
     x: 12,
     y: 4,
     w: Math.max(96, iconEndX - 12),
-    h: Math.min(188, Math.max(136, headerEnd + 24)),
+    h: Math.min(285, Math.max(150, mugBottomY + 8)),
   };
   let icon: ProcessedSpriteFrame | null = null;
   let iconDataUrl: string | null = null;
@@ -669,14 +865,17 @@ function sliceHd8DirSheet(
       const idArr = iData.data;
       const tlColor = getPixelRgba(idArr, iconBox.w, 2, 2);
       const brColor = getPixelRgba(idArr, iconBox.w, iconBox.w - 3, iconBox.h - 3);
-      floodEraseFromBorder(
+      const iconBgs: RgbaColor[] = [sheetBg];
+      if (tlColor.g > tlColor.r + 22 && tlColor.g > tlColor.b + 16) iconBgs.push(tlColor);
+      if (brColor.g > brColor.r + 22 && brColor.g > brColor.b + 16) iconBgs.push(brColor);
+      cleanHdChromaRegion(
         idArr,
         iconBox.w,
         iconBox.h,
-        (p) =>
-          isHdChromaGreen(p, sheetBg, false) ||
-          colorDist(p, tlColor) <= 28 ||
-          colorDist(p, brColor) <= 28
+        iconBgs,
+        2,
+        (p) => colorDist(p, tlColor) <= 28 || colorDist(p, brColor) <= 28,
+        68
       );
 
       // Keep only the main mugshot component (drop any stray title fragments or noise specks)
@@ -759,16 +958,116 @@ function sliceHd8DirSheet(
   const overworld: ProcessedSpriteFrame[] = [];
   const largeFrames: ProcessedSpriteFrame[] = [];
 
+  const detectRowColumnRanges = (y0: number, y1: number): Array<[number, number]> => {
+    const rowH = Math.max(32, y1 - y0);
+    const sy0 = y0 + Math.floor(rowH * 0.14);
+    const sy1 = y1 - Math.floor(rowH * 0.16);
+    const stepX = 8;
+    const stepY = 12;
+    const bins = Math.floor(w / stepX);
+    const colHits = new Int32Array(bins);
+    for (let bx = 0; bx < bins; bx++) {
+      const x = bx * stepX;
+      let hits = 0;
+      for (let y = sy0; y < sy1; y += stepY) {
+        const p = getPixelRgba(fullData, w, x, y);
+        const rbg = getRowBg(y);
+        if (!isHdChromaGreen(p, rbg, false) && !isHdChromaGreen(p, sheetBg, false)) hits++;
+      }
+      colHits[bx] = hits;
+    }
+
+    const gaps: Array<{ start: number; end: number; mid: number }> = [];
+    let gStart = -1;
+    for (let bx = 0; bx < bins; bx++) {
+      if (colHits[bx] <= 1) {
+        if (gStart < 0) gStart = bx;
+      } else if (gStart >= 0) {
+        const x0 = gStart * stepX;
+        const x1 = bx * stepX;
+        if (x1 - x0 >= 16 && x0 > 120 && x1 < w - 120) {
+          gaps.push({ start: x0, end: x1, mid: Math.floor((x0 + x1) / 2) });
+        }
+        gStart = -1;
+      }
+    }
+
+    if (gaps.length === 3) {
+      return [
+        [0, gaps[0].mid],
+        [gaps[0].mid, gaps[1].mid],
+        [gaps[1].mid, gaps[2].mid],
+        [gaps[2].mid, w],
+      ];
+    }
+
+    // Handle 3-column wide rows (e.g. massive wingspan where Row 1 holds N, NE, E only)
+    if (gaps.length === 2 && gaps[0].mid > Math.floor(w * 0.34)) {
+      const qBinStart = Math.max(0, Math.floor((w * 0.18) / stepX));
+      const qBinEnd = Math.min(bins - 1, Math.floor((w * 0.31) / stepX));
+      let minQHits = 999;
+      for (let bx = qBinStart; bx <= qBinEnd; bx++) {
+        if (colHits[bx] < minQHits) minQHits = colHits[bx];
+      }
+      if (minQHits >= 5) {
+        return [
+          [0, gaps[0].mid],
+          [gaps[0].mid, gaps[1].mid],
+          [gaps[1].mid, w],
+        ];
+      }
+    }
+
+    // Standard 4-column split refined to local minimum-occupancy valleys near k * w / 4
+    const cuts = [0, 0, 0, 0, w];
+    for (let k = 1; k <= 3; k++) {
+      const nomX = Math.floor((k * w) / 4);
+      const bFrom = Math.max(0, Math.floor((nomX - 140) / stepX));
+      const bTo = Math.min(bins - 1, Math.floor((nomX + 140) / stepX));
+      let bestBx = Math.floor(nomX / stepX);
+      let bestScore = colHits[bestBx];
+      for (let bx = bFrom; bx <= bTo; bx++) {
+        if (colHits[bx] < bestScore) {
+          bestScore = colHits[bx];
+          bestBx = bx;
+        }
+      }
+      cuts[k] = bestScore <= 3 ? bestBx * stepX : nomX;
+    }
+    return [
+      [cuts[0], cuts[1]],
+      [cuts[1], cuts[2]],
+      [cuts[2], cuts[3]],
+      [cuts[3], cuts[4]],
+    ];
+  };
+
+  const flipFrameH = (src: ProcessedSpriteFrame): ProcessedSpriteFrame => {
+    const fc = document.createElement('canvas');
+    fc.width = src.width;
+    fc.height = src.height;
+    const fctx = fc.getContext('2d');
+    if (fctx) {
+      fctx.translate(src.width, 0);
+      fctx.scale(-1, 1);
+      fctx.drawImage(src.canvas, 0, 0);
+    }
+    return { canvas: fc, width: src.width, height: src.height };
+  };
+
   const rowRanges: Array<[number, number]> = [
     [headerEnd, splitY],
     [splitY, stripStart],
   ];
+  let row1ColCount = 4;
 
-  for (const [y0, y1] of rowRanges) {
+  for (let rIdx = 0; rIdx < rowRanges.length; rIdx++) {
+    const [y0, y1] = rowRanges[rIdx];
     const ch = Math.max(16, y1 - y0);
-    for (let col = 0; col < 4; col++) {
-      const x0 = Math.floor((col * w) / 4);
-      const x1 = Math.floor(((col + 1) * w) / 4);
+    const colRanges = detectRowColumnRanges(y0, y1);
+    if (rIdx === 0) row1ColCount = colRanges.length;
+
+    for (const [x0, x1] of colRanges) {
       const cw = Math.max(16, x1 - x0);
 
       const work = document.createElement('canvas');
@@ -781,70 +1080,37 @@ function sliceHd8DirSheet(
       const imgData = wctx.getImageData(0, 0, cw, ch);
       const d = imgData.data;
 
-      // 1. Border flood-fill chroma erase
-      floodEraseFromBorder(d, cw, ch, (p) => isHdChromaGreen(p, sheetBg, false));
-
-      // 2. Interior trapped chroma-green loop erase (strict match so green bodies/swords remain untouched)
-      const q = new Int32Array(cw * ch * 2);
-      for (let py = 2; py < ch - 2; py += 4) {
-        for (let px = 2; px < cw - 2; px += 4) {
-          const idx = (py * cw + px) * 4;
-          if (d[idx + 3] < 20) continue;
-          const p = { r: d[idx], g: d[idx + 1], b: d[idx + 2], a: d[idx + 3] };
-          if (!isHdChromaGreen(p, sheetBg, true)) continue;
-          let head = 0;
-          let tail = 0;
-          q[tail++] = px;
-          q[tail++] = py;
-          d[idx + 3] = 0;
-          while (head < tail) {
-            const cx = q[head++];
-            const cy = q[head++];
-            const trySeed = (nx: number, ny: number) => {
-              const noff = (ny * cw + nx) * 4;
-              if (d[noff + 3] < 20) return;
-              const np = { r: d[noff], g: d[noff + 1], b: d[noff + 2], a: d[noff + 3] };
-              if (isHdChromaGreen(np, sheetBg, true)) {
-                d[noff + 3] = 0;
-                q[tail++] = nx;
-                q[tail++] = ny;
-              }
-            };
-            if (cx > 0) trySeed(cx - 1, cy);
-            if (cx < cw - 1) trySeed(cx + 1, cy);
-            if (cy > 0) trySeed(cx, cy - 1);
-            if (cy < ch - 1) trySeed(cx, cy + 1);
+      // Wipe any bottom overhang of the top-left mugshot icon inside Row 1 Col 0 (NORTH)
+      if (rIdx === 0 && x0 === 0 && mugBottomY > y0) {
+        const maskW = Math.min(cw, iconEndX + 8);
+        const maskH = Math.min(ch, mugBottomY + 4 - y0);
+        for (let py = 0; py < maskH; py++) {
+          for (let px = 0; px < maskW; px++) {
+            d[(py * cw + px) * 4 + 3] = 0;
           }
         }
       }
 
-      // 3. Soft 1px outline green-halo despill around freshly erased borders
-      const toDespill: number[] = [];
-      for (let py = 1; py < ch - 1; py++) {
-        for (let px = 1; px < cw - 1; px++) {
-          const idx = (py * cw + px) * 4;
-          if (d[idx + 3] < 20) continue;
-          const touchesTransparent =
-            d[((py - 1) * cw + px) * 4 + 3] < 20 ||
-            d[((py + 1) * cw + px) * 4 + 3] < 20 ||
-            d[(py * cw + (px - 1)) * 4 + 3] < 20 ||
-            d[(py * cw + (px + 1)) * 4 + 3] < 20;
-          if (!touchesTransparent) continue;
-          const p = { r: d[idx], g: d[idx + 1], b: d[idx + 2], a: d[idx + 3] };
-          if (p.g > p.r + 24 && p.g > p.b + 18 && colorDist(p, sheetBg) <= 135) {
-            toDespill.push(idx);
-          }
-        }
-      }
-      for (const off of toDespill) {
-        if (d[off + 1] > d[off] + 45 && d[off + 1] > d[off + 2] + 35) {
-          d[off + 3] = 0;
-        } else {
-          d[off + 1] = Math.min(d[off + 1], Math.max(d[off], d[off + 2]) + 6);
+      // Collect local green shades across top/bottom/mid corners so gradient backdrops key evenly
+      const cellBgs: RgbaColor[] = [sheetBg];
+      const probePts: Array<[number, number]> = [
+        [2, 2],
+        [cw - 3, 2],
+        [2, Math.floor(ch * 0.5)],
+        [cw - 3, Math.floor(ch * 0.5)],
+        [2, ch - 3],
+        [cw - 3, ch - 3],
+      ];
+      for (const [px, py] of probePts) {
+        const sp = getPixelRgba(d, cw, px, py);
+        if (sp.a >= 200 && sp.g > sp.r + 18 && sp.g > sp.b + 12) {
+          cellBgs.push(sp);
         }
       }
 
-      // 4. Remove white text labels ("NORTH (BACK)", etc.)
+      cleanHdChromaRegion(d, cw, ch, cellBgs, 4);
+
+      // 4. Remove white/black text labels ("NORTH (BACK)", "SOUTH-WEST (FRONT-LEFT)", etc.)
       stripHdCaptionGlyphs(d, cw, ch);
 
       wctx.putImageData(imgData, 0, 0);
@@ -853,6 +1119,20 @@ function sliceHd8DirSheet(
       const lgFrame = trimAndResizeFrame(work, d, cw, ch, 220);
       if (owFrame) overworld.push(owFrame);
       if (lgFrame) largeFrames.push(lgFrame);
+    }
+
+    // If Row 1 only had 3 wide sprites (N, NE, E), push placeholder for SE (index 3) to mirror SW later
+    if (rIdx === 0 && row1ColCount === 3 && overworld.length === 3) {
+      overworld.push(flipFrameH(overworld[2]));
+      if (largeFrames.length === 3) largeFrames.push(flipFrameH(largeFrames[2]));
+    }
+  }
+
+  // Replace placeholder SE (index 3) with true mirrored SW (index 5) once Row 2 finishes
+  if (row1ColCount === 3 && overworld.length >= 6) {
+    overworld[3] = flipFrameH(overworld[5]);
+    if (largeFrames.length >= 6) {
+      largeFrames[3] = flipFrameH(largeFrames[5]);
     }
   }
 
@@ -897,7 +1177,7 @@ function loadAndSliceEntry(entry: DigimonCatalogEntry): Promise<SlicedDigimonSpr
         ctx.imageSmoothingEnabled = false;
         ctx.drawImage(img, 0, 0);
 
-        if (entry.sheetFormat === 'hd_8dir') {
+        if (entry.sheetFormat === 'hd_8dir' && !entry.overworldBoxes?.length) {
           const slicedHd = sliceHd8DirSheet(entry.id, ctx, img.width, img.height);
           if (slicedHd) {
             spriteCache.set(entry.id, slicedHd);

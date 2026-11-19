@@ -2724,7 +2724,7 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
         townConfig.getBuildings().find((b) => {
           if (b.hidden || (b.kind !== 'npc' && b.kind !== 'digimon')) return false;
           const anchor =
-            b.kind === 'digimon' && this.currentScene === 'digimon'
+            b.kind === 'digimon'
               ? this.digimonPatrol.getInteractAnchor(b)
               : { x: b.x, y: b.y, w: b.w, h: b.h };
           return (
@@ -2738,7 +2738,7 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
       if (hitNpc) {
         const cfg = townConfig.getBuilding(hitNpc.id);
         const anchor =
-          cfg?.kind === 'digimon' && this.currentScene === 'digimon'
+          cfg?.kind === 'digimon'
             ? this.digimonPatrol.getInteractAnchor(cfg)
             : null;
         const defaultNpcSize = [
@@ -3394,7 +3394,7 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
       if (b.id === 'arena' || b.id === 'garden' || b.id === 'contest') continue;
 
       // Patrol Digimon occupy their active patrol footprint (ignored during own terrain sampling)
-      if (b.kind === 'digimon' && this.currentScene === 'digimon') {
+      if (b.kind === 'digimon') {
         if (ignoreDigimon) continue;
         const anchor = this.digimonPatrol.getInteractAnchor(b);
         if (x >= anchor.x && x < anchor.x + anchor.w && y >= anchor.y && y < anchor.y + anchor.h) {
@@ -4671,14 +4671,16 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
       this.salamenceAttackTick--;
     }
 
-    if (this.currentScene === 'digimon') {
+    const buildings = townConfig.getBuildings();
+    if (this.currentScene === 'digimon' || buildings.some((b) => b.kind === 'digimon' && !b.hidden)) {
       const patrolMoving = this.digimonPatrol.update(
         dt,
-        townConfig.getBuildings(),
+        buildings,
         this.playerPos.x,
         this.playerPos.y,
         Boolean(this.editor?.isEnabled()),
-        (tx, ty) => this.checkTileWalkableOnFoot(tx, ty, true)
+        (tx, ty) => this.checkTileWalkableOnFoot(tx, ty, true),
+        this.currentScene
       );
       if (patrolMoving) {
         this.wake();
@@ -9137,7 +9139,7 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
         // Skip major indoor buildings which have their own doors
         if (['dev', 'lab', 'home', 'shop', 'arcade', 'reception', 'office', 'tower'].includes(b.id)) return false;
         const anchor =
-          b.kind === 'digimon' && this.currentScene === 'digimon'
+          b.kind === 'digimon'
             ? this.digimonPatrol.getInteractAnchor(b)
             : { x: b.x, y: b.y, w: b.w, h: b.h };
         const inFacing = fx >= anchor.x && fx < anchor.x + anchor.w && fy >= anchor.y && fy < anchor.y + anchor.h;
@@ -9422,10 +9424,7 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
             requestDigimonSprites(entry.id, () => this.wake());
             const modalEl = typeof document !== 'undefined' ? document.getElementById('digidex-modal') : null;
             if (modalEl) {
-              const anchor =
-                this.currentScene === 'digimon'
-                  ? this.digimonPatrol.getInteractAnchor(customPlaced)
-                  : { x: customPlaced.x, y: customPlaced.y, w: customPlaced.w, h: customPlaced.h };
+              const anchor = this.digimonPatrol.getInteractAnchor(customPlaced);
               this.spawnFlyBurst(anchor.x + 1, anchor.y + 1);
               this.wake();
               window.dispatchEvent(
@@ -12440,15 +12439,7 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
       const entry = getDigimonById(digiId);
       if (!entry) continue;
 
-      const pose =
-        this.currentScene === 'digimon'
-          ? this.digimonPatrol.getRenderPose(b)
-          : {
-            tileX: b.x,
-            tileY: b.y,
-            orientation: (b.orientation || 'S') as 'N' | 'S' | 'E' | 'W',
-            isWalking: false,
-          };
+      const pose = this.digimonPatrol.getRenderPose(b);
       const bwPx = Math.max(TILE_SIZE, (b.w || 2) * TILE_SIZE);
       const bhPx = Math.max(TILE_SIZE, (b.h || 2) * TILE_SIZE);
       const centerX = pose.tileX * TILE_SIZE + bwPx / 2;
