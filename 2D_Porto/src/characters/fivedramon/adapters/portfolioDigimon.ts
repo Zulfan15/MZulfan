@@ -1,0 +1,61 @@
+import type { DigimonCatalogEntry, OverworldPoseMap } from '../../../engine/digimonCatalog';
+import type { SlicedDigimonSprites } from '../../../engine/digiSpriteLoader';
+import { loadFivedramon } from '../fivedramon.loader';
+import { FIVEDRAMON_META } from '../fivedramon.meta';
+
+/**
+ * Layout inside `adaptFivedramonForPortfolio().overworld`:
+ * - [0..7]   : idle (`S, SW, W, NW, N, NE, E, SE`) from `idle.png`
+ * - [8..39]  : walk (`S(8..11), SW(12..15), W(16..19), NW(20..23), N(24..27), NE(28..31), E(32..35), SE(36..39)`) from `walk-cycle.png`
+ * - [40..47] : elemental breath & Grand Cross Breaker battle frames (`0..7`) from `battle.png`
+ */
+export const FIVEDRAMON_PORTFOLIO_POSE_MAP: OverworldPoseMap = {
+  back: [24, 25, 26, 27],
+  front: [8, 9, 10, 11],
+  side: [16, 17, 18, 19],
+  west: [16, 17, 18, 19],
+  east: [32, 33, 34, 35],
+  idle: {
+    front: [0],
+    west: [2],
+    back: [4],
+    east: [6],
+  },
+  action: [42, 46, 47, 45],
+  nativeFacing: 'left',
+};
+
+export const FIVEDRAMON_PORTFOLIO_ENTRY: DigimonCatalogEntry = {
+  ...FIVEDRAMON_META,
+  spriteSheetUrl: '/assets/characters/fivedramon/fivedramon.jpg',
+  overworldPoseMap: FIVEDRAMON_PORTFOLIO_POSE_MAP,
+};
+
+/** Loads `fivedramon` via the standalone character module and adapts it to `SlicedDigimonSprites`. */
+export async function adaptFivedramonForPortfolio(): Promise<SlicedDigimonSprites | null> {
+  try {
+    const set = await loadFivedramon();
+    const idle = set.groups.idle ?? [];
+    const walk = set.groups.walk ?? [];
+    const battle = set.groups.battle ?? [];
+    const hd = set.groups.hd ?? [];
+
+    // DigiDex Battle Idle showcases South & South-West HD portraits,
+    // while Signature Attack unleashes Twin Elemental Breath & Grand Cross Breaker from `battle.png`.
+    const largeIdle = [hd[0], hd[1]].filter(Boolean);
+    const largeAttack = [battle[2], battle[6], battle[7], battle[5]].filter(Boolean);
+    const overworld = [...idle, ...walk, ...battle];
+
+    return {
+      id: FIVEDRAMON_META.id,
+      icon: set.icon,
+      iconDataUrl: set.iconDataUrl,
+      largeIdle: largeIdle.length > 0 ? largeIdle : overworld.slice(0, 1),
+      largeAttack: largeAttack.length > 0 ? largeAttack : battle.slice(0, 2),
+      overworld,
+      loadedAt: set.loadedAt,
+    };
+  } catch {
+    return null;
+  }
+}

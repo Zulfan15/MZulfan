@@ -1,3 +1,21 @@
+import { adaptFivedramonForPortfolio } from '../characters/fivedramon/adapters/portfolioDigimon';
+import { FIVEDRAMON_META } from '../characters/fivedramon/fivedramon.meta';
+import { adaptGaspiritamonForPortfolio } from '../characters/gaspiritamon/adapters/portfolioDigimon';
+import { GASPIRITAMON_META } from '../characters/gaspiritamon/gaspiritamon.meta';
+import { adaptHolloknightmonForPortfolio } from '../characters/holloknightmon/adapters/portfolioDigimon';
+import { HOLLOKNIGHTMON_META } from '../characters/holloknightmon/holloknightmon.meta';
+import { adaptJesmonXForPortfolio } from '../characters/jesmon_x/adapters/portfolioDigimon';
+import { JESMON_X_META } from '../characters/jesmon_x/jesmon_x.meta';
+import { adaptMastenamonForPortfolio } from '../characters/mastenamon/adapters/portfolioDigimon';
+import { MASTENAMON_META } from '../characters/mastenamon/mastenamon.meta';
+import { adaptMazagamonForPortfolio } from '../characters/mazagamon/adapters/portfolioDigimon';
+import { MAZAGAMON_META } from '../characters/mazagamon/mazagamon.meta';
+import { adaptPlusiamonForPortfolio } from '../characters/plusiamon/adapters/portfolioDigimon';
+import { PLUSIAMON_META } from '../characters/plusiamon/plusiamon.meta';
+import { adaptRagnaloardmonForPortfolio } from '../characters/ragnaloardmon/adapters/portfolioDigimon';
+import { RAGNALOARDMON_META } from '../characters/ragnaloardmon/ragnaloardmon.meta';
+import { adaptShogunAlphamonForPortfolio } from '../characters/shogun_alphamon/adapters/portfolioDigimon';
+import { SHOGUN_ALPHAMON_META } from '../characters/shogun_alphamon/shogun_alphamon.meta';
 import {
   getDigimonById,
   type DigimonCatalogEntry,
@@ -28,8 +46,28 @@ interface RgbaColor {
   a: number;
 }
 
+export type CustomDigimonSpriteLoader = () => Promise<SlicedDigimonSprites | null>;
+
 const spriteCache = new Map<string, SlicedDigimonSprites>();
 const inflightRequests = new Map<string, Promise<SlicedDigimonSprites | null>>();
+const customLoaders = new Map<string, CustomDigimonSpriteLoader>();
+
+/**
+ * Registers a standalone multi-sheet character module loader for a catalog Digimon id.
+ */
+export function registerCustomDigimonSource(id: string, loader: CustomDigimonSpriteLoader) {
+  customLoaders.set(id, loader);
+}
+
+registerCustomDigimonSource(FIVEDRAMON_META.id, adaptFivedramonForPortfolio);
+registerCustomDigimonSource(GASPIRITAMON_META.id, adaptGaspiritamonForPortfolio);
+registerCustomDigimonSource(HOLLOKNIGHTMON_META.id, adaptHolloknightmonForPortfolio);
+registerCustomDigimonSource(JESMON_X_META.id, adaptJesmonXForPortfolio);
+registerCustomDigimonSource(MASTENAMON_META.id, adaptMastenamonForPortfolio);
+registerCustomDigimonSource(MAZAGAMON_META.id, adaptMazagamonForPortfolio);
+registerCustomDigimonSource(PLUSIAMON_META.id, adaptPlusiamonForPortfolio);
+registerCustomDigimonSource(RAGNALOARDMON_META.id, adaptRagnaloardmonForPortfolio);
+registerCustomDigimonSource(SHOGUN_ALPHAMON_META.id, adaptShogunAlphamonForPortfolio);
 const listeners = new Map<string, Set<() => void>>();
 
 function notifyLoaded(id: string) {
@@ -73,9 +111,9 @@ function isSafeGlobalChromaColor(c: RgbaColor): boolean {
   return false;
 }
 
-function isOuterBgPixel(p: RgbaColor, outerBg: RgbaColor): boolean {
+function isOuterBgPixel(p: RgbaColor, outerBg: RgbaColor, tol = 12): boolean {
   if (p.a < 20) return true;
-  if (outerBg.a >= 20 && colorDist(p, outerBg) <= 12) return true;
+  if (outerBg.a >= 20 && colorDist(p, outerBg) <= tol) return true;
   return false;
 }
 
@@ -141,7 +179,9 @@ function detectFrameBackground(
   d: Uint8ClampedArray,
   sw: number,
   sh: number,
-  outerBg: RgbaColor
+  outerBg: RgbaColor,
+  outerTol = 12,
+  inset = 0
 ): { localBg: RgbaColor; isAlreadyTransparent: boolean } {
   if (outerBg.a < 20) {
     let perimTotal = 0;
@@ -164,7 +204,7 @@ function detectFrameBackground(
   const counts = new Map<string, { color: RgbaColor; hits: number }>();
   const recordHit = (x: number, y: number): boolean => {
     const p = getPixelRgba(d, sw, x, y);
-    if (isOuterBgPixel(p, outerBg)) return false;
+    if (isOuterBgPixel(p, outerBg, outerTol)) return false;
     const key = `${p.r},${p.g},${p.b}`;
     const prev = counts.get(key);
     if (prev) {
@@ -175,22 +215,26 @@ function detectFrameBackground(
     return true;
   };
 
-  const stepX = Math.max(1, Math.floor(sw / 24));
-  const stepY = Math.max(1, Math.floor(sh / 24));
+  const xMin = Math.min(sw - 1, Math.max(0, inset));
+  const xMax = Math.max(xMin, sw - 1 - inset);
+  const yMin = Math.min(sh - 1, Math.max(0, inset));
+  const yMax = Math.max(yMin, sh - 1 - inset);
+  const stepX = Math.max(1, Math.floor((xMax - xMin + 1) / 24));
+  const stepY = Math.max(1, Math.floor((yMax - yMin + 1) / 24));
 
-  for (let x = 0; x < sw; x += stepX) {
-    for (let y = 0; y < sh; y++) {
+  for (let x = xMin; x <= xMax; x += stepX) {
+    for (let y = yMin; y <= yMax; y++) {
       if (recordHit(x, y)) break;
     }
-    for (let y = sh - 1; y >= 0; y--) {
+    for (let y = yMax; y >= yMin; y--) {
       if (recordHit(x, y)) break;
     }
   }
-  for (let y = 0; y < sh; y += stepY) {
-    for (let x = 0; x < sw; x++) {
+  for (let y = yMin; y <= yMax; y += stepY) {
+    for (let x = xMin; x <= xMax; x++) {
       if (recordHit(x, y)) break;
     }
-    for (let x = sw - 1; x >= 0; x--) {
+    for (let x = xMax; x >= xMin; x--) {
       if (recordHit(x, y)) break;
     }
   }
@@ -226,7 +270,9 @@ function sliceAndCleanBox(
   sheetH: number,
   box: SpriteBox,
   outerBg: RgbaColor,
-  edgeOnlyFlood = false
+  edgeOnlyFlood = false,
+  excludeIconBox?: SpriteBox,
+  isJpg = false
 ): ProcessedSpriteFrame | null {
   const sx = Math.max(0, Math.floor(box.x));
   const sy = Math.max(0, Math.floor(box.y));
@@ -245,22 +291,124 @@ function sliceAndCleanBox(
   const imgData = wctx.getImageData(0, 0, sw, sh);
   const d = imgData.data;
 
-  // Step A: Erase edge-connected outer sheet padding (e.g. L-notch corners around uneven boxes)
+  // Guard against top-left mugshot icon leaking into adjacent largeIdle[0] box
+  if (excludeIconBox && !edgeOnlyFlood) {
+    const ex0 = Math.max(0, Math.floor(excludeIconBox.x - 2) - sx);
+    const ey0 = Math.max(0, Math.floor(excludeIconBox.y - 2) - sy);
+    const ex1 = Math.min(sw, Math.ceil(excludeIconBox.x + excludeIconBox.w + 4) - sx);
+    const ey1 = Math.min(sh, Math.ceil(excludeIconBox.y + excludeIconBox.h + 4) - sy);
+    for (let py = ey0; py < ey1; py++) {
+      for (let px = ex0; px < ex1; px++) {
+        d[(py * sw + px) * 4 + 3] = 0;
+      }
+    }
+  }
+
+  // Step A: Erase edge-connected outer sheet padding (tolerant to JPG compression when needed)
   if (outerBg.a >= 20) {
-    floodEraseFromBorder(d, sw, sh, (p) => colorDist(p, outerBg) <= 14);
+    const outerTol = isJpg ? 54 : 14;
+    floodEraseFromBorder(d, sw, sh, (p) => colorDist(p, outerBg) <= outerTol);
   }
 
   if (edgeOnlyFlood) {
-    const cornerBg = getPixelRgba(d, sw, 0, 0);
+    const cornerBg = getPixelRgba(d, sw, isJpg ? 4 : 0, isJpg ? 4 : 0);
     if (cornerBg.a >= 20) {
-      floodEraseFromBorder(d, sw, sh, (p) => colorDist(p, cornerBg) <= 18);
+      floodEraseFromBorder(
+        d,
+        sw,
+        sh,
+        (p) =>
+          colorDist(p, cornerBg) <= (isJpg ? 52 : 18) ||
+          (isJpg && p.r <= 82 && p.g >= p.b - 4 && p.g >= p.r + 52 && p.g >= 100)
+      );
     }
   } else {
-    const { localBg, isAlreadyTransparent } = detectFrameBackground(d, sw, sh, outerBg);
+    const { localBg, isAlreadyTransparent } = detectFrameBackground(
+      d,
+      sw,
+      sh,
+      outerBg,
+      isJpg ? 48 : 12,
+      isJpg ? 6 : 0
+    );
     if (isAlreadyTransparent) {
       for (let i = 0; i < d.length; i += 4) {
         if (d[i + 3] < 20) d[i + 3] = 0;
       }
+    } else if (isJpg && localBg.a >= 20) {
+      // Lossy JPG DS sheets (e.g. dark teal outer + mint inner box + transition seam): flood border + interior + despill
+      const isJpgKey = (p: RgbaColor, strict: boolean): boolean => {
+        if (p.a < 20) return true;
+        const dO = outerBg.a >= 20 ? colorDist(p, outerBg) : 999;
+        const dM = colorDist(p, localBg);
+        if (strict) {
+          const teal = dO <= 42 && p.r <= 42 && p.g >= 88 && p.g <= 165 && Math.abs(p.g - p.b) <= 30;
+          const mint = dM <= 48 && p.g > p.r + 65 && p.g > p.b + 16;
+          return teal || mint;
+        }
+        const maxBgB = Math.max(outerBg.a >= 20 ? outerBg.b : 0, localBg.b) + 18;
+        const seam =
+          p.r <= 84 && p.b <= maxBgB && p.g >= p.b - 4 && p.g >= p.r + 50 && p.g >= 100;
+        return (
+          seam ||
+          (dO <= 56 && p.r <= 54 && Math.abs(p.g - p.b) <= 36) ||
+          (dM <= 64 && p.g > p.r + 48 && p.g > p.b + 12)
+        );
+      };
+      floodEraseFromBorder(d, sw, sh, (p) => isJpgKey(p, false));
+      const q = new Int32Array(sw * sh * 2);
+      for (let py = 2; py < sh - 2; py += 2) {
+        for (let px = 2; px < sw - 2; px += 2) {
+          const idx = (py * sw + px) * 4;
+          if (d[idx + 3] < 20) continue;
+          const p = { r: d[idx], g: d[idx + 1], b: d[idx + 2], a: d[idx + 3] };
+          if (!isJpgKey(p, true)) continue;
+          let head = 0;
+          let tail = 0;
+          q[tail++] = px;
+          q[tail++] = py;
+          d[idx + 3] = 0;
+          while (head < tail) {
+            const cx = q[head++];
+            const cy = q[head++];
+            const seedN = (nx: number, ny: number) => {
+              const noff = (ny * sw + nx) * 4;
+              if (d[noff + 3] < 20) return;
+              const np = { r: d[noff], g: d[noff + 1], b: d[noff + 2], a: d[noff + 3] };
+              if (isJpgKey(np, true)) {
+                d[noff + 3] = 0;
+                q[tail++] = nx;
+                q[tail++] = ny;
+              }
+            };
+            if (cx > 0) seedN(cx - 1, cy);
+            if (cx < sw - 1) seedN(cx + 1, cy);
+            if (cy > 0) seedN(cx, cy - 1);
+            if (cy < sh - 1) seedN(cx, cy + 1);
+          }
+        }
+      }
+      const despill: number[] = [];
+      for (let py = 1; py < sh - 1; py++) {
+        for (let px = 1; px < sw - 1; px++) {
+          const idx = (py * sw + px) * 4;
+          if (d[idx + 3] < 20) continue;
+          const touchesEmpty =
+            d[((py - 1) * sw + px) * 4 + 3] < 20 ||
+            d[((py + 1) * sw + px) * 4 + 3] < 20 ||
+            d[(py * sw + (px - 1)) * 4 + 3] < 20 ||
+            d[(py * sw + (px + 1)) * 4 + 3] < 20;
+          if (!touchesEmpty) continue;
+          const p = { r: d[idx], g: d[idx + 1], b: d[idx + 2], a: d[idx + 3] };
+          if (
+            (colorDist(p, localBg) <= 95 && p.g > p.r + 30) ||
+            (outerBg.a >= 20 && colorDist(p, outerBg) <= 80 && p.r < 55 && p.g > p.r + 24 && Math.abs(p.g - p.b) <= 34)
+          ) {
+            despill.push(idx);
+          }
+        }
+      }
+      for (const off of despill) d[off + 3] = 0;
     } else if (localBg.a >= 20 && isSafeGlobalChromaColor(localBg)) {
       const tol = 14;
       for (let i = 0; i < d.length; i += 4) {
@@ -1156,6 +1304,47 @@ function sliceHd8DirSheet(
   };
 }
 
+function hasLossyOuterPadding(
+  ctx: CanvasRenderingContext2D,
+  sheetW: number,
+  sheetH: number,
+  outerBg: RgbaColor
+): boolean {
+  if (outerBg.a < 200) return false;
+  const nearColors = new Set<string>();
+  const sampleW = Math.min(sheetW, 320);
+  const sampleH = Math.min(sheetH, 240);
+  const topData = ctx.getImageData(0, 0, sampleW, Math.min(sheetH, 5)).data;
+  for (let i = 0; i < topData.length; i += 8) {
+    const p: RgbaColor = {
+      r: topData[i],
+      g: topData[i + 1],
+      b: topData[i + 2],
+      a: topData[i + 3],
+    };
+    const dist = colorDist(p, outerBg);
+    if (dist > 0 && dist <= 28) {
+      nearColors.add(`${p.r},${p.g},${p.b}`);
+      if (nearColors.size >= 4) return true;
+    }
+  }
+  const rightData = ctx.getImageData(Math.max(0, sheetW - 4), 0, Math.min(sheetW, 4), sampleH).data;
+  for (let i = 0; i < rightData.length; i += 8) {
+    const p: RgbaColor = {
+      r: rightData[i],
+      g: rightData[i + 1],
+      b: rightData[i + 2],
+      a: rightData[i + 3],
+    };
+    const dist = colorDist(p, outerBg);
+    if (dist > 0 && dist <= 28) {
+      nearColors.add(`${p.r},${p.g},${p.b}`);
+      if (nearColors.size >= 4) return true;
+    }
+  }
+  return false;
+}
+
 function loadAndSliceEntry(entry: DigimonCatalogEntry): Promise<SlicedDigimonSprites | null> {
   if (typeof window === 'undefined' || typeof Image === 'undefined') {
     return Promise.resolve(null);
@@ -1215,8 +1404,11 @@ function loadAndSliceEntry(entry: DigimonCatalogEntry): Promise<SlicedDigimonSpr
             ? entry.overworldBoxes
             : detected?.overworldBoxes || [];
 
+        const isJpg =
+          /\.jpe?g(?:$|\?)/i.test(entry.spriteSheetUrl) ||
+          hasLossyOuterPadding(ctx, img.width, img.height, outerBg);
         const icon = iconBox
-          ? sliceAndCleanBox(ctx, img.width, img.height, iconBox, outerBg, true)
+          ? sliceAndCleanBox(ctx, img.width, img.height, iconBox, outerBg, true, undefined, isJpg)
           : null;
         let iconDataUrl: string | null = null;
         if (icon) {
@@ -1228,15 +1420,15 @@ function loadAndSliceEntry(entry: DigimonCatalogEntry): Promise<SlicedDigimonSpr
         }
 
         const largeIdle = idleBoxes
-          .map((b) => sliceAndCleanBox(ctx, img.width, img.height, b, outerBg, false))
+          .map((b) => sliceAndCleanBox(ctx, img.width, img.height, b, outerBg, false, iconBox, isJpg))
           .filter((f): f is ProcessedSpriteFrame => f !== null);
 
         const largeAttack = atkBoxes
-          .map((b) => sliceAndCleanBox(ctx, img.width, img.height, b, outerBg, false))
+          .map((b) => sliceAndCleanBox(ctx, img.width, img.height, b, outerBg, false, iconBox, isJpg))
           .filter((f): f is ProcessedSpriteFrame => f !== null);
 
         const overworld = owBoxes
-          .map((b) => sliceAndCleanBox(ctx, img.width, img.height, b, outerBg, false))
+          .map((b) => sliceAndCleanBox(ctx, img.width, img.height, b, outerBg, false, iconBox, isJpg))
           .filter((f): f is ProcessedSpriteFrame => f !== null);
 
         const sliced: SlicedDigimonSprites = {
@@ -1286,12 +1478,28 @@ export function requestDigimonSprites(id: string, onReady?: () => void): SlicedD
   }
 
   if (!inflightRequests.has(id)) {
-    const entry = getDigimonById(id);
-    if (!entry) return null;
-    const req = loadAndSliceEntry(entry).finally(() => {
-      inflightRequests.delete(id);
-    });
-    inflightRequests.set(id, req);
+    const customLoader = customLoaders.get(id);
+    if (customLoader) {
+      const req = customLoader()
+        .then((res) => {
+          if (res) {
+            spriteCache.set(id, res);
+            notifyLoaded(id);
+          }
+          return res;
+        })
+        .finally(() => {
+          inflightRequests.delete(id);
+        });
+      inflightRequests.set(id, req);
+    } else {
+      const entry = getDigimonById(id);
+      if (!entry) return null;
+      const req = loadAndSliceEntry(entry).finally(() => {
+        inflightRequests.delete(id);
+      });
+      inflightRequests.set(id, req);
+    }
   }
 
   return null;
@@ -1359,12 +1567,20 @@ export function selectDigimonOverworldFrame(
   }
 
   if (orientation === 'N') {
+    if (!isWalking && pose.idle?.back?.length) {
+      const idx = pose.idle.back[Math.floor(tick / stepDiv) % pose.idle.back.length];
+      return { frame: frames[idx] || frames[0], flipX: false };
+    }
     const pool = pose.back.length ? pose.back : [0];
     const idx = pool[Math.floor(tick / stepDiv) % pool.length];
     return { frame: frames[idx] || frames[0], flipX: false };
   }
 
   if (orientation === 'E') {
+    if (!isWalking && pose.idle?.east?.length) {
+      const idx = pose.idle.east[Math.floor(tick / 24) % pose.idle.east.length];
+      return { frame: frames[idx] || frames[0], flipX: false };
+    }
     if (pose.east && pose.east.length > 0) {
       const idx = pose.east[Math.floor(tick / (isWalking ? 9 : 24)) % pose.east.length];
       return { frame: frames[idx] || frames[0], flipX: false };
@@ -1375,6 +1591,10 @@ export function selectDigimonOverworldFrame(
   }
 
   if (orientation === 'W') {
+    if (!isWalking && pose.idle?.west?.length) {
+      const idx = pose.idle.west[Math.floor(tick / 24) % pose.idle.west.length];
+      return { frame: frames[idx] || frames[0], flipX: false };
+    }
     if (pose.west && pose.west.length > 0) {
       const idx = pose.west[Math.floor(tick / (isWalking ? 9 : 24)) % pose.west.length];
       return { frame: frames[idx] || frames[0], flipX: false };
@@ -1385,6 +1605,10 @@ export function selectDigimonOverworldFrame(
   }
 
   // South / Front walk or idle animation
+  if (!isWalking && pose.idle?.front?.length) {
+    const idx = pose.idle.front[Math.floor(tick / 34) % pose.idle.front.length];
+    return { frame: frames[idx] || frames[0], flipX: false };
+  }
   const hasExplicitEastWest = Boolean(pose.east?.length || pose.west?.length);
   const pool =
     isWalking && !hasExplicitEastWest

@@ -1,3 +1,13 @@
+import { FIVEDRAMON_PORTFOLIO_ENTRY } from '../characters/fivedramon/adapters/portfolioDigimon';
+import { GASPIRITAMON_PORTFOLIO_ENTRY } from '../characters/gaspiritamon/adapters/portfolioDigimon';
+import { HOLLOKNIGHTMON_PORTFOLIO_ENTRY } from '../characters/holloknightmon/adapters/portfolioDigimon';
+import { JESMON_X_PORTFOLIO_ENTRY } from '../characters/jesmon_x/adapters/portfolioDigimon';
+import { MASTENAMON_PORTFOLIO_ENTRY } from '../characters/mastenamon/adapters/portfolioDigimon';
+import { MAZAGAMON_PORTFOLIO_ENTRY } from '../characters/mazagamon/adapters/portfolioDigimon';
+import { PLUSIAMON_PORTFOLIO_ENTRY } from '../characters/plusiamon/adapters/portfolioDigimon';
+import { RAGNALOARDMON_PORTFOLIO_ENTRY } from '../characters/ragnaloardmon/adapters/portfolioDigimon';
+import { SHOGUN_ALPHAMON_PORTFOLIO_ENTRY } from '../characters/shogun_alphamon/adapters/portfolioDigimon';
+
 export interface SpriteBox {
   x: number;
   y: number;
@@ -18,6 +28,13 @@ export interface OverworldPoseMap {
   west?: number[];
   /** Overworld action/attack frame indices */
   action?: number[];
+  /** Optional dedicated standing frames when `!isWalking` (falls back to `back`/`front`/`side`) */
+  idle?: {
+    back?: number[];
+    front?: number[];
+    east?: number[];
+    west?: number[];
+  };
   /** Which horizontal direction the raw side/front sprite faces natively */
   nativeFacing: 'left' | 'right';
 }
@@ -64,7 +81,7 @@ const digiSheet2 = (fileNameWithExt: string) =>
   `/assets/Digimon%202/${encodeURIComponent(fileNameWithExt)}`;
 
 const digiSheet21 = (fileNameWithExt: string) =>
-  `/assets/Digimoin%202.1/${encodeURIComponent(fileNameWithExt)}`;
+  `/assets/Digimon%202.1/${encodeURIComponent(fileNameWithExt)}`;
 
 const digiSheetHdClean = (id: string) => `/assets/Digimon_HD/${encodeURIComponent(id)}.png`;
 
@@ -1278,60 +1295,9 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
     overworldPoseMap: HD_8DIR_POSE_MAP,
   },
   // ── Digimoin 2.1 HD 8-Directional Collection (21 Digimon) ──────────────────
-  {
-    id: 'jesmon_x',
-    name: 'Jesmon X',
-    title: 'Jesmon (X Antibody), Judgment Blade',
-    tier: 4,
-    iconEmoji: '⚔️',
-    stage: 'Ultra',
-    attribute: 'Data',
-    elementZone: 'holy',
-    signatureMove: 'Tekken Seibai',
-    lore:
-      'An unbreakable Royal Knight awakened by the X-Antibody, sheathing itself in crimson and chrome blades that strike before malice can act.',
-    credit: 'Digimon 2.1 HD 8-Directional Sprite Collection',
-    spriteSheetUrl: digiSheet21('Jesmon (X Antibody).jpg'),
-    sheetFormat: 'hd_8dir',
-    overworldTargetHeight: 36,
-    overworldPoseMap: HD_8DIR_POSE_MAP,
-  },
-  {
-    id: 'fivedramon',
-    name: 'Fivedramon',
-    title: 'Fivedramon, Five-Chromatic Drake',
-    tier: 4,
-    iconEmoji: '🐉',
-    stage: 'Ultra',
-    attribute: 'Virus',
-    elementZone: 'flame',
-    signatureMove: 'Grand Cross Breaker',
-    lore:
-      'A colossal armored dragon bearing five prismatic armor crests across its torso and gauntlets, unleashing elemental devastation from twin wings.',
-    credit: 'Digimon 2.1 HD 8-Directional Sprite Collection',
-    spriteSheetUrl: digiSheet21('Fivedramon.jpg'),
-    sheetFormat: 'hd_8dir',
-    overworldTargetHeight: 37,
-    overworldPoseMap: HD_8DIR_POSE_MAP,
-  },
-  {
-    id: 'mazagamon',
-    name: 'Mazagamon',
-    title: 'Mazagamon, Violet Calamity Beast',
-    tier: 3,
-    iconEmoji: '👾',
-    stage: 'Mega',
-    attribute: 'Virus',
-    elementZone: 'cyber',
-    signatureMove: 'Abyssal Volt Overload',
-    lore:
-      'A horned abyssal titan whose chrome gauntlets crackle with dark violet lightning while crimson armor fins erupt down its spine.',
-    credit: 'Digimon 2.1 HD 8-Directional Sprite Collection',
-    spriteSheetUrl: digiSheet21('Mazagamon.jpg'),
-    sheetFormat: 'hd_8dir',
-    overworldTargetHeight: 36,
-    overworldPoseMap: HD_8DIR_POSE_MAP,
-  },
+  JESMON_X_PORTFOLIO_ENTRY,
+  FIVEDRAMON_PORTFOLIO_ENTRY,
+  MAZAGAMON_PORTFOLIO_ENTRY,
   {
     id: 'hazardgrowlmon',
     name: 'HazardGrowlmon',
@@ -1386,24 +1352,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
     overworldTargetHeight: 35,
     overworldPoseMap: HD_8DIR_POSE_MAP,
   },
-  {
-    id: 'plusnamon',
-    name: 'Plusnamon',
-    title: 'Plusnamon, Celestial Photon Seraph',
-    tier: 3,
-    iconEmoji: '✨',
-    stage: 'Mega',
-    attribute: 'Vaccine',
-    elementZone: 'holy',
-    signatureMove: 'Prism Ray Tempest',
-    lore:
-      'A radiant valkyrie armored in crystal-rimmed ivory greaves, channeling golden photonic feathers through a sacred haloed spear.',
-    credit: 'Digimon 2.1 HD 8-Directional Sprite Collection',
-    spriteSheetUrl: digiSheet21('Plusnamon.jpg'),
-    sheetFormat: 'hd_8dir',
-    overworldTargetHeight: 35,
-    overworldPoseMap: HD_8DIR_POSE_MAP,
-  },
+  PLUSIAMON_PORTFOLIO_ENTRY,
   {
     id: 'neotitamon',
     name: 'NeoTitamon',
@@ -1566,96 +1515,11 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
     overworldTargetHeight: 35,
     overworldPoseMap: HD_8DIR_POSE_MAP,
   },
-  {
-    id: 'ragnaloardmon',
-    name: 'Ragnaloardmon',
-    title: 'Ragnaloardmon, Legend-Arms Sovereign',
-    tier: 4,
-    iconEmoji: '🗡️',
-    stage: 'Ultra',
-    attribute: 'Virus',
-    elementZone: 'flame',
-    signatureMove: 'Direct Smasher',
-    lore:
-      'The Legend-Arms fusion knight cloaked in living inferno flames, wielding both the golden sword Durandamon and red dragon shield Bryweludramon.',
-    credit: 'Digimon 2.1 HD 8-Directional Sprite Collection',
-    spriteSheetUrl: digiSheet21('Ragnaloardmon.jpg'),
-    sheetFormat: 'hd_8dir',
-    overworldTargetHeight: 38,
-    overworldPoseMap: HD_8DIR_POSE_MAP,
-  },
-  {
-    id: 'holloknightmon',
-    name: 'Holloknightmon',
-    title: 'Holloknightmon, Sun-Winged Arbiter',
-    tier: 4,
-    iconEmoji: '☀️',
-    stage: 'Mega',
-    attribute: 'Vaccine',
-    elementZone: 'holy',
-    signatureMove: 'Radiance Decree',
-    lore:
-      'An ivory four-armed paladin crowned with solar spokes and glowing amber wings, delivering judgment with a silver greatsword.',
-    credit: 'Digimon 2.1 HD 8-Directional Sprite Collection',
-    spriteSheetUrl: digiSheet21('Holloknightmon.jpg'),
-    sheetFormat: 'hd_8dir',
-    overworldTargetHeight: 39,
-    overworldPoseMap: HD_8DIR_POSE_MAP,
-  },
-  {
-    id: 'shogun_alphamon',
-    name: 'Shogun Alphamon',
-    title: 'Shogun Alphamon, Onyx Steed Samurai',
-    tier: 4,
-    iconEmoji: '🐎',
-    stage: 'Ultra',
-    attribute: 'Vaccine',
-    elementZone: 'holy',
-    signatureMove: 'Crimson Naginata Charge',
-    lore:
-      'A samurai warlord riding an armored ebony warhorse with blazing hooves, bearing dual battle standards and a golden naginata.',
-    credit: 'Digimon 2.1 HD 8-Directional Sprite Collection',
-    spriteSheetUrl: digiSheet21('Shogun Alphamon.png'),
-    sheetFormat: 'hd_8dir',
-    overworldTargetHeight: 36,
-    overworldPoseMap: HD_8DIR_POSE_MAP,
-  },
-  {
-    id: 'mastemon',
-    name: 'Mastemon',
-    title: 'Mastemon, Jogress of Light & Shadow',
-    tier: 4,
-    iconEmoji: '🪽',
-    stage: 'Mega',
-    attribute: 'Vaccine',
-    elementZone: 'holy',
-    signatureMove: 'Chaos Degradation',
-    lore:
-      'A transcendent angel forged by uniting holy light and fallen darkness, opening portals between dimensions with twelve asymmetric wings.',
-    credit: 'Digimon 2.1 HD 8-Directional Sprite Collection',
-    spriteSheetUrl: digiSheet21('Mastemon.jpg'),
-    sheetFormat: 'hd_8dir',
-    overworldTargetHeight: 40,
-    overworldPoseMap: HD_8DIR_POSE_MAP,
-  },
-  {
-    id: 'gaspiritamon',
-    name: 'Gaspiritamon',
-    title: 'Gaspiritamon, Rune-Wolf Valkyrie',
-    tier: 3,
-    iconEmoji: '🔨',
-    stage: 'Mega',
-    attribute: 'Data',
-    elementZone: 'aqua',
-    signatureMove: 'Fenrir Maelstrom',
-    lore:
-      'A frost-clad runic knight wielding a glowing hammer and round shield beside an ethereal wolf forged from glacial spirit flames.',
-    credit: 'Digimon 2.1 HD 8-Directional Sprite Collection',
-    spriteSheetUrl: digiSheet21('Gaspiritamon.jpg'),
-    sheetFormat: 'hd_8dir',
-    overworldTargetHeight: 36,
-    overworldPoseMap: HD_8DIR_POSE_MAP,
-  },
+  RAGNALOARDMON_PORTFOLIO_ENTRY,
+  HOLLOKNIGHTMON_PORTFOLIO_ENTRY,
+  SHOGUN_ALPHAMON_PORTFOLIO_ENTRY,
+  MASTENAMON_PORTFOLIO_ENTRY,
+  GASPIRITAMON_PORTFOLIO_ENTRY,
 ];
 
 // Bind pre-baked transparent DS-style grid sheets for all 41 HD 8-dir Digimon (zero runtime slicing drift/text)
@@ -1669,5 +1533,7 @@ for (const entry of DIGIMON_CATALOG) {
 const DIGIMON_MAP = new Map<string, DigimonCatalogEntry>(DIGIMON_CATALOG.map((d) => [d.id, d]));
 
 export function getDigimonById(id: string): DigimonCatalogEntry | undefined {
+  if (id === 'mastemon') return DIGIMON_MAP.get('mastenamon');
+  if (id === 'plusnamon') return DIGIMON_MAP.get('plusiamon');
   return DIGIMON_MAP.get(id);
 }

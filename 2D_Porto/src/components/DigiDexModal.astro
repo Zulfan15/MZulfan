@@ -624,7 +624,7 @@ import { DIGIMON_CATALOG } from '../engine/digimonCatalog';
         }
 
         if (frame) {
-          const isHd8Dir = activeEntry.sheetFormat === 'hd_8dir';
+          const isHd8Dir = activeEntry.sheetFormat === 'hd_8dir' || frame.height >= 180;
           const maxStageW = isHd8Dir ? 214 : 240;
           const maxStageH = isHd8Dir ? 144 : 166;
           const scale = Math.min(maxStageW / frame.width, maxStageH / frame.height);
