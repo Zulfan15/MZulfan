@@ -5,10 +5,10 @@
 export const SHOGUN_ALPHAMON_DEFAULT_ASSET_BASE = '/assets/characters/shogun_alphamon';
 
 export const SHOGUN_ALPHAMON_ASSET_FILES = {
-  idle: 'idle.png',
-  walk: 'walk-cycle.png',
-  battle: 'battle.png',
-  sheet: 'shogun-alphamon.png',
+  idle: 'idle.webp',
+  walk: 'walk-cycle.webp',
+  battle: 'battle.webp',
+  sheet: 'shogun-alphamon.webp',
 } as const;
 
 export function resolveShogunAlphamonAssets(baseUrl = SHOGUN_ALPHAMON_DEFAULT_ASSET_BASE) {

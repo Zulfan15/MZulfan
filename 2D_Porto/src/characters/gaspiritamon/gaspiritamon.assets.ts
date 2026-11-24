@@ -5,9 +5,9 @@
 export const GASPIRITAMON_DEFAULT_ASSET_BASE = '/assets/characters/gaspiritamon';
 
 export const GASPIRITAMON_ASSET_FILES = {
-  walk: 'walk-cycle.jpg',
-  battle: 'battle.jpg',
-  sheet: 'gaspiritamon.jpg',
+  walk: 'walk-cycle.webp',
+  battle: 'battle.webp',
+  sheet: 'gaspiritamon.webp',
 } as const;
 
 export function resolveGaspiritamonAssets(baseUrl = GASPIRITAMON_DEFAULT_ASSET_BASE) {

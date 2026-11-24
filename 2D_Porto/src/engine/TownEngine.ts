@@ -406,6 +406,7 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
   private skyCastleBackgroundCanvas: HTMLCanvasElement | null = null;
   private darkCastleBackgroundCanvas: HTMLCanvasElement | null = null;
   private digimonPatrol = new DigimonPatrolController();
+  private lastDomLabelKey = '';
   public townAtmosphere: TownAtmosphere = 'day';
   public weather: TownWeather = 'petals';
   private editor: TownEditor;
@@ -703,7 +704,7 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
         this.pmdAnimator.preloadPokemon(pkmId);
       }
       for (const digiId of cfg.digimonPreloads) {
-        requestDigimonSprites(digiId, () => this.wake());
+        requestDigimonSprites(digiId, () => this.wake(), 'overworld');
       }
     } else if (initialSpawn === 'harbour') {
       this.currentScene = 'harbour';
@@ -746,7 +747,7 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
         this.pmdAnimator.preloadPokemon(pkmId);
       }
       for (const digiId of cfg.digimonPreloads) {
-        requestDigimonSprites(digiId, () => this.wake());
+        requestDigimonSprites(digiId, () => this.wake(), 'overworld');
       }
     } else if (initialSpawn === 'sky-castle') {
       this.currentScene = 'sky-castle';
@@ -799,7 +800,7 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
       this.cameraY = (FORGE_ROWS * TILE_SIZE) / 2;
       this.pmdAnimator.preloadPokemon('charizard');
       this.pmdAnimator.preloadPokemon('groudon');
-      requestDigimonSprites('machinedramon', () => this.wake());
+      requestDigimonSprites('machinedramon', () => this.wake(), 'overworld');
     } else if (initialSpawn === 'dark-manor') {
       this.currentScene = 'dark-manor';
       this.playerPos = { x: MANOR_SPAWN.x, y: MANOR_SPAWN.y };
@@ -819,7 +820,7 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
       this.cameraY = (VAULT_ROWS * TILE_SIZE) / 2;
       this.pmdAnimator.preloadPokemon('dialga');
       this.pmdAnimator.preloadPokemon('celebi');
-      requestDigimonSprites('chronomon_dm', () => this.wake());
+      requestDigimonSprites('chronomon_dm', () => this.wake(), 'overworld');
     } else {
       this.currentScene = 'town';
       let spawnX = 22;
@@ -964,7 +965,7 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
     }
     townConfig.subscribe(() => {
       this.invalidateBackgroundCanvas();
-      this.updateDomLabels();
+      this.updateDomLabels(true);
       this.wake();
     });
 
@@ -1787,6 +1788,10 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
         'crusadermon',
         'chronomon',
         'eaglemon',
+        'holloknightmon',
+        'mastenamon',
+        'fivedramon',
+        'plusiamon',
       ].includes(fid)
     ) {
       return 'sky';
@@ -2264,7 +2269,7 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
       this.zoom = this.defaultZoom * previousRatio;
     }
 
-    this.updateDomLabels();
+    this.updateDomLabels(true);
     this.wake();
   };
 
@@ -2272,7 +2277,7 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
     this.isCustomZoom = false;
     this.zoom = this.defaultZoom;
     this.handleResize();
-    this.updateDomLabels();
+    this.updateDomLabels(true);
     this.showZoomIndicator();
     this.wake();
   }
@@ -10452,9 +10457,30 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
     }
   }
 
-  public updateDomLabels() {
+  public updateDomLabels(force = false) {
     const container = document.querySelector('[data-town-labels]');
     if (!container) return;
+
+    const selectedBuilding =
+      this.editor && this.editor.isEnabled() && !this.editor.isPlaytesting()
+        ? this.editor.getSelectedBuilding()
+        : null;
+    const labelKey = [
+      this.currentScene,
+      this.currentScene === 'home' ? this.homeFloor : '',
+      Math.round(this.cameraX * 2),
+      Math.round(this.cameraY * 2),
+      Math.round(this.zoom * 100),
+      this.canvas.width,
+      this.canvas.height,
+      this.editor?.isEnabled() ? 1 : 0,
+      this.editor?.isPlaytesting() ? 1 : 0,
+      selectedBuilding
+        ? `${selectedBuilding.id}:${selectedBuilding.x},${selectedBuilding.y},${selectedBuilding.orientation || ''}`
+        : '',
+    ].join('|');
+    if (!force && labelKey === this.lastDomLabelKey) return;
+    this.lastDomLabelKey = labelKey;
 
     const dpr = window.devicePixelRatio || 1;
     const rect = this.canvas.getBoundingClientRect();
@@ -12178,8 +12204,17 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
       this.renderPortalPulseOverlay(ctx, DIGI_GATE_PORTAL.xMin, DIGI_GATE_PORTAL.yMin);
     }
 
+    const halfViewW = (this.canvas.width / this.zoom) / 2;
+    const halfViewH = (this.canvas.height / this.zoom) / 2;
+    const lightBounds = {
+      minX: this.cameraX - halfViewW - 80,
+      maxX: this.cameraX + halfViewW + 80,
+      minY: this.cameraY - halfViewH - 80,
+      maxY: this.cameraY + halfViewH + 80,
+    };
+
     // 4. Warm street lamp lighting pools on the ground (Dynamic from townConfig)
-    renderLighting(ctx, this.getActiveLamps());
+    renderLighting(ctx, this.getActiveLamps(), lightBounds);
 
     // 7. Click target pulse marker & pathfinding breadcrumbs
     this.renderPathAndMarker(ctx);
@@ -12269,7 +12304,7 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
       if (this.townAtmosphere === 'sunset') {
         ctx.fillStyle = this.currentScene === 'digimon' ? 'rgba(99, 102, 241, 0.14)' : 'rgba(255, 135, 45, 0.16)';
         ctx.fillRect(0, 0, this.map.w * TILE_SIZE, this.map.h * TILE_SIZE);
-        renderLighting(ctx, this.getActiveLamps());
+        renderLighting(ctx, this.getActiveLamps(), lightBounds);
       } else if (this.townAtmosphere === 'night') {
         // Deep indigo night atmosphere
         ctx.fillStyle = this.currentScene === 'digimon' ? 'rgba(4, 9, 26, 0.42)' : 'rgba(12, 18, 50, 0.44)';
@@ -12281,7 +12316,7 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
         }
 
         // Street lantern glowing pools
-        renderLighting(ctx, this.getActiveLamps());
+        renderLighting(ctx, this.getActiveLamps(), lightBounds);
       }
 
       // Portal twilight/night halo on top of evening atmosphere
@@ -12434,6 +12469,14 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
       plaza: { inner: 'rgba(0, 240, 255, 0.28)', rim: 'rgba(251, 191, 36, 0.65)' },
     };
 
+    const halfViewW = (this.canvas.width / this.zoom) / 2;
+    const halfViewH = (this.canvas.height / this.zoom) / 2;
+    const cullMargin = TILE_SIZE * 5;
+    const minViewX = this.cameraX - halfViewW - cullMargin;
+    const maxViewX = this.cameraX + halfViewW + cullMargin;
+    const minViewY = this.cameraY - halfViewH - cullMargin;
+    const maxViewY = this.cameraY + halfViewH + cullMargin;
+
     for (const b of digiEntities) {
       const digiId = b.subType || b.id;
       const entry = getDigimonById(digiId);
@@ -12444,6 +12487,9 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
       const bhPx = Math.max(TILE_SIZE, (b.h || 2) * TILE_SIZE);
       const centerX = pose.tileX * TILE_SIZE + bwPx / 2;
       const footY = pose.tileY * TILE_SIZE + bhPx - 2;
+      if (centerX < minViewX || centerX > maxViewX || footY < minViewY || footY > maxViewY) {
+        continue;
+      }
       const bob = pose.isWalking
         ? Math.abs(Math.sin(this.tick * 0.28 + b.x)) * 1.4
         : Math.sin(this.tick * 0.055 + b.x * 0.7) * 0.8;
@@ -12509,7 +12555,7 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
     heightScale = 1,
     drawLoadingFallback = true
   ): boolean {
-    const sprites = requestDigimonSprites(entry.id, () => this.wake());
+    const sprites = requestDigimonSprites(entry.id, () => this.wake(), 'overworld');
     if (!sprites) {
       if (drawLoadingFallback) {
         const pulse = 0.4 + 0.3 * Math.sin(this.tick * 0.12);
@@ -12856,7 +12902,7 @@ export class TownEngine implements TownPokemonFxHost, TownPokemonOverworldHost {
       icon: data.icon,
     };
     if (digiMatch) {
-      requestDigimonSprites(digiMatch.id, () => this.wake());
+      requestDigimonSprites(digiMatch.id, () => this.wake(), 'overworld');
     }
 
     if (this.isRidingPokemon) {

@@ -3,7 +3,7 @@ import { Tile, type Dir, type Lamp, type Sign, type TownData, type TownMap } fro
 export const SKY_CASTLE_COLS = 45;
 export const SKY_CASTLE_ROWS = 60;
 
-export const SKY_CASTLE_IMAGE_SRC = '/assets/Sky%20Castle/Gemini_Generated_Image_w5r3eow5r3eow5r3.jpg';
+export const SKY_CASTLE_IMAGE_SRC = '/assets/Sky%20Castle/Gemini_Generated_Image_w5r3eow5r3eow5r3.webp';
 
 export const SKY_CASTLE_SPAWN = {
   x: 22,

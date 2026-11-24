@@ -3,7 +3,7 @@ import { Tile, type Dir, type Lamp, type Sign, type TownData, type TownMap } fro
 export const KINGDOM_COLS = 45;
 export const KINGDOM_ROWS = 60;
 
-export const KINGDOM_IMAGE_SRC = '/assets/Royal%20Kingdom/Gemini_Generated_Image_v3217jv3217jv321.jpg';
+export const KINGDOM_IMAGE_SRC = '/assets/Royal%20Kingdom/Gemini_Generated_Image_v3217jv3217jv321.webp';
 
 export const KINGDOM_SPAWN = {
   x: 22,

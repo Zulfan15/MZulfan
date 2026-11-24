@@ -1,11 +1,20 @@
 import { CharacterAnimator } from '../_shared/CharacterAnimator';
 import {
+  createEmptyFrame,
   downscaleFrame,
+  flipFrame,
   frameToDataUrl,
   loadImage,
   sliceFrames,
+  yieldToFrame,
 } from '../_shared/sheetSlicer';
-import { DIRECTIONS_8, type CharacterSpriteSet } from '../_shared/types';
+import {
+  CARDINAL_DIRECTIONS,
+  DIRECTIONS_8,
+  type CharacterFrame,
+  type CharacterLoadMode,
+  type CharacterSpriteSet,
+} from '../_shared/types';
 import {
   MAZAGAMON_ACTIONS,
   MAZAGAMON_IDLE_CLIP,
@@ -22,7 +31,8 @@ import {
   MAZAGAMON_JPG_HD_RECTS,
   MAZAGAMON_JPG_ICON_RECT,
   MAZAGAMON_JPG_MINI_RECTS,
-  MAZAGAMON_WALK_RECTS,
+  MAZAGAMON_WALK_STEPS_BY_DIR,
+  walkCell,
 } from './mazagamon.frames';
 import { MAZAGAMON_META } from './mazagamon.meta';
 
@@ -34,40 +44,81 @@ const inflightByBase = new Map<string, Promise<CharacterSpriteSet>>();
  * Deduplicates concurrent requests and caches per `baseUrl`.
  */
 export async function loadMazagamon(
-  baseUrl = MAZAGAMON_DEFAULT_ASSET_BASE
+  baseUrl = MAZAGAMON_DEFAULT_ASSET_BASE,
+  mode: CharacterLoadMode = 'full'
 ): Promise<CharacterSpriteSet> {
-  const cached = spriteCache.get(baseUrl);
+  const fullKey = `${baseUrl}::full`;
+  const cachedFull = spriteCache.get(fullKey);
+  if (cachedFull) return cachedFull;
+
+  const cacheKey = `${baseUrl}::${mode}`;
+  const cached = spriteCache.get(cacheKey);
   if (cached) return cached;
 
-  const existing = inflightByBase.get(baseUrl);
+  const existing = inflightByBase.get(fullKey) ?? inflightByBase.get(cacheKey);
   if (existing) return existing;
 
   const task = (async () => {
     const urls = resolveMazagamonAssets(baseUrl);
-    const [idleImg, walkImg, battleImg, jpgImg] = await Promise.all([
+    const [idleImg, walkImg] = await Promise.all([
       loadImage(urls.idle),
       loadImage(urls.walk),
-      loadImage(urls.battle),
-      loadImage(urls.sheet),
     ]);
+    const extraPromises =
+      mode === 'full' ? Promise.all([loadImage(urls.battle), loadImage(urls.sheet)]) : null;
 
-    const idle = sliceFrames(idleImg, MAZAGAMON_IDLE_RECTS, {
-      chroma: 'lossy-teal',
-      trim: 'tight',
-    });
+    let idle: CharacterFrame[];
+    if (mode === 'overworld') {
+      const cardinalIdle = sliceFrames(
+        idleImg,
+        [MAZAGAMON_IDLE_RECTS[0], MAZAGAMON_IDLE_RECTS[2], MAZAGAMON_IDLE_RECTS[4], MAZAGAMON_IDLE_RECTS[6]],
+        { chroma: 'lossy-teal', trim: 'tight' }
+      );
+      const empty = createEmptyFrame();
+      idle = [cardinalIdle[0], empty, cardinalIdle[1], empty, cardinalIdle[2], empty, cardinalIdle[3], empty];
+    } else {
+      idle = sliceFrames(idleImg, MAZAGAMON_IDLE_RECTS, {
+        chroma: 'lossy-teal',
+        trim: 'tight',
+      });
+    }
+    await yieldToFrame();
 
-    const rawWalkPose = sliceFrames(walkImg, MAZAGAMON_WALK_RECTS, {
-      chroma: 'lossy-teal',
-      trim: 'tight',
-    });
-    const walkPose = rawWalkPose.map((f) => downscaleFrame(f, 96, true));
-    const walkLarge = rawWalkPose.map((f) => downscaleFrame(f, 220, true));
+    const walk: CharacterFrame[] = [];
+    let southRawWalk: CharacterFrame[] = [];
+    for (const dir of DIRECTIONS_8) {
+      const steps = MAZAGAMON_WALK_STEPS_BY_DIR[dir];
+      if (mode === 'overworld' && !CARDINAL_DIRECTIONS.has(dir)) {
+        for (let i = 0; i < steps.length; i++) walk.push(createEmptyFrame());
+        continue;
+      }
+      const rects = steps.map((s) => walkCell(s.row, s.col));
+      const rawDirFrames = sliceFrames(walkImg, rects, {
+        chroma: 'lossy-green',
+        trim: 'uniform',
+      }).map((frame, i) => (steps[i].flipX ? flipFrame(frame) : frame));
+      if (dir === 'S' && mode === 'full') {
+        southRawWalk = rawDirFrames;
+      }
+      walk.push(...rawDirFrames.map((f) => downscaleFrame(f, 96, true)));
+      await yieldToFrame();
+    }
 
-    // Pair idle + dynamic walk-stance pose per direction (2 steps x 8 directions)
-    const walk = DIRECTIONS_8.flatMap((_, dirIdx) => [
-      walkPose[dirIdx] ?? idle[dirIdx],
-      idle[dirIdx] ?? walkPose[dirIdx],
-    ]);
+    if (mode === 'overworld') {
+      const set: CharacterSpriteSet = {
+        id: MAZAGAMON_META.id,
+        directionOrder: DIRECTIONS_8,
+        groups: { idle, walk, walkLarge: [], battle: [], battleLarge: [], hd: [], mini: [] },
+        icon: null,
+        iconDataUrl: null,
+        loadedAt: performance.now(),
+      };
+      spriteCache.set(cacheKey, set);
+      return set;
+    }
+
+    const [battleImg, jpgImg] = await extraPromises!;
+    const walkLarge = southRawWalk.slice(0, 4).map((f) => downscaleFrame(f, 220, true));
 
     const rawBattle = sliceFrames(battleImg, MAZAGAMON_BATTLE_RECTS, {
       chroma: 'lossy-teal',
@@ -75,6 +126,7 @@ export async function loadMazagamon(
     });
     const battle = rawBattle.map((f) => downscaleFrame(f, 112, true));
     const battleLarge = rawBattle.map((f) => downscaleFrame(f, 220, true));
+    await yieldToFrame();
 
     const [icon = null] = sliceFrames(jpgImg, [MAZAGAMON_JPG_ICON_RECT], {
       chroma: 'lossy-green',
@@ -97,19 +149,19 @@ export async function loadMazagamon(
     const set: CharacterSpriteSet = {
       id: MAZAGAMON_META.id,
       directionOrder: DIRECTIONS_8,
-      groups: { idle, walk, walkPose, walkLarge, battle, battleLarge, hd, mini },
+      groups: { idle, walk, walkLarge, battle, battleLarge, hd, mini },
       icon,
       iconDataUrl: frameToDataUrl(icon),
       loadedAt: performance.now(),
     };
 
-    spriteCache.set(baseUrl, set);
+    spriteCache.set(cacheKey, set);
     return set;
   })().finally(() => {
-    inflightByBase.delete(baseUrl);
+    inflightByBase.delete(cacheKey);
   });
 
-  inflightByBase.set(baseUrl, task);
+  inflightByBase.set(cacheKey, task);
   return task;
 }
 
@@ -117,7 +169,7 @@ export async function loadMazagamon(
 export function getMazagamonSync(
   baseUrl = MAZAGAMON_DEFAULT_ASSET_BASE
 ): CharacterSpriteSet | null {
-  return spriteCache.get(baseUrl) ?? null;
+  return spriteCache.get(`${baseUrl}::full`) ?? spriteCache.get(`${baseUrl}::overworld`) ?? null;
 }
 
 /** Clears cached Mazagamon sprite canvases. */

@@ -6,9 +6,9 @@ export const MAZAGAMON_DEFAULT_ASSET_BASE = '/assets/characters/mazagamon';
 
 export const MAZAGAMON_ASSET_FILES = {
   idle: 'idle.png',
-  walk: 'walk-cycle.jpg',
-  battle: 'battle.jpg',
-  sheet: 'mazagamon.jpg',
+  walk: 'walk-cycle-v2.webp',
+  battle: 'battle.webp',
+  sheet: 'mazagamon.webp',
 } as const;
 
 export function resolveMazagamonAssets(baseUrl = MAZAGAMON_DEFAULT_ASSET_BASE) {

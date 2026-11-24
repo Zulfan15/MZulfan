@@ -3,7 +3,7 @@ import { Tile, type Dir, type Lamp, type Sign, type TownData, type TownMap } fro
 export const DARK_CASTLE_COLS = 45;
 export const DARK_CASTLE_ROWS = 64;
 
-export const DARK_CASTLE_IMAGE_SRC = '/assets/Dark%20Castle/Gemini_Generated_Image_h4wa5uh4wa5uh4wa.jpg';
+export const DARK_CASTLE_IMAGE_SRC = '/assets/Dark%20Castle/Gemini_Generated_Image_h4wa5uh4wa5uh4wa.webp';
 
 export const DARK_CASTLE_SPAWN = {
   x: 22,

@@ -1,4 +1,5 @@
 import type { CharacterPalette, Dir } from './types';
+import type { MountPosture } from './mountRigConfig';
 
 export const TILE_SIZE = 16;
 
@@ -429,38 +430,343 @@ export function drawCharacter(
   }
 }
 
+export interface RiderRenderOptions {
+  posture?: MountPosture;
+  leanX?: number;
+  leanY?: number;
+  drawSeatShadow?: boolean;
+  seatShadowRx?: number;
+  seatShadowRy?: number;
+  seatShadowDy?: number;
+  auraColor?: string;
+  tick?: number;
+}
+
 /**
- * Draw the rider character on a Poké Ride mount using the authentic Ash / player sprite (no ground shadow).
- * Accurately centers the rider horizontally on targetCenterX and vertically at targetSeatY.
- * Scaled down to realistic mount proportion (0.60x) with softened opacity (alpha ~0.82) so the mount remains the focus.
+ * Crisp 1:1 pixel-art Ash & Pikachu matrices crafted specifically for riding postures (`scale = 1`).
+ * Never downscaled fractionally, keeping cap, eyes, gloves, seated legs, and Pikachu completely sharp.
+ */
+export const ASH_RIDE_SPRITES = {
+  saddle_down: [
+    '..bbbbbb......',
+    '.bwwggwwb..b..',
+    '.brrrrrrb.byb.',
+    '.bsbssbsbbyryb',
+    '..bssssbbbyyb.',
+    '.buwbbwubbyydb',
+    'bgbubbuubgb.b.',
+    '.buoooooub....',
+    '.buub.buub....',
+    '.bwwb.bwwb....',
+    '..bb...bb.....',
+  ],
+  saddle_up: [
+    '..bbbbbb......',
+    '.brrrrrrb..b..',
+    '.brrrrrrb.byb.',
+    '.bbbbbbbbbydyb',
+    '..bbbbbb.byyb.',
+    '.buuuuuubbyydb',
+    '.bubuuubub.bb.',
+    '.buuuuuub.....',
+    '.buub.buub....',
+    '.bwwb.bwwb....',
+    '..bb...bb.....',
+  ],
+  saddle_side: [
+    '.....bbbbbb...',
+    '..b..bwwwwbb..',
+    '.byb.bwggwrrb.',
+    'byryb.bbbbrrrb',
+    '.byybbbbbbsbsb',
+    '.bydb..bssssb.',
+    '..bb..buwwub..',
+    '......buuuugb.',
+    '......buooob..',
+    '......bbuuubb.',
+    '........bwwbb.',
+    '........bbbb..',
+  ],
+  shoulder_down: [
+    '..bbbbbb......',
+    '.bwwggwwb..b..',
+    '.brrrrrrb.byb.',
+    '.bsbssbsbbyryb',
+    '..bssssbbbyyb.',
+    '.buwbbwubbyydb',
+    '.bbubbuubgb.b.',
+    '.gbuooooub....',
+    '..buubbuub....',
+    '..buubbuub....',
+    '..bwwbbwwb....',
+    '..bbbbbbbb....',
+  ],
+  shoulder_up: [
+    '..bbbbbb......',
+    '.brrrrrrb..b..',
+    '.brrrrrrb.byb.',
+    '.bbbbbbbbbydyb',
+    '..bbbbbb.byyb.',
+    '.buuuuuubbyydb',
+    '.bubuuubub.bb.',
+    '.buuuuuub.....',
+    '..buubbuub....',
+    '..buubbuub....',
+    '..bwwbbwwb....',
+    '..bbbbbbbb....',
+  ],
+  shoulder_side: [
+    '.....bbbbbb...',
+    '..b..bwwwwbb..',
+    '.byb.bwggwrrb.',
+    'byryb.bbbbrrrb',
+    '.byybbbbbbsbsb',
+    '.bydb..bssssb.',
+    '..bb..buwwub..',
+    '......buuuugb.',
+    '......buooob..',
+    '......bbuubb..',
+    '.......bwwbb..',
+    '.......bbbb...',
+  ],
+  hover_down: [
+    '..bbbbbb......',
+    '.bwwggwwb..b..',
+    '.brrrrrrb.byb.',
+    '.bsbssbsbbyryb',
+    '..bssssbbbyyb.',
+    '.buwbbwubbyydb',
+    '.bbubbuubgb.b.',
+    '.gbuooooub....',
+    '..buub.buub...',
+    '..bwwb.bwwb...',
+    '..bbbb.bbbb...',
+  ],
+  hover_up: [
+    '..bbbbbb......',
+    '.brrrrrrb..b..',
+    '.brrrrrrb.byb.',
+    '.bbbbbbbbbydyb',
+    '..bbbbbb.byyb.',
+    '.buuuuuubbyydb',
+    '.bubuuubub.bb.',
+    '.buuuuuub.....',
+    '..buub.buub...',
+    '..bwwb.bwwb...',
+    '..bbbb.bbbb...',
+  ],
+  hover_side: [
+    '.....bbbbbb...',
+    '..b..bwwwwbb..',
+    '.byb.bwggwrrb.',
+    'byryb.bbbbrrrb',
+    '.byybbbbbbsbsb',
+    '.bydb..bssssb.',
+    '..bb..buwwub..',
+    '......buuuugb.',
+    '......buooob..',
+    '......buu.uub.',
+    '......bww.wwb.',
+    '......bbb.bbb.',
+  ],
+};
+
+export const CHAR_RIDE_SPRITES = {
+  saddle_down: [
+    '..bbbbbb..',
+    '.bhhhhhhb.',
+    '.bseeeesb.',
+    '.bssssssb.',
+    '..bssssb..',
+    '.baaccab..',
+    'bsaccccasb',
+    '.bcccccb..',
+    '.bppb.bppb',
+    '.baab.baab',
+    '..bb...bb.',
+  ],
+  saddle_up: [
+    '..bbbbbb..',
+    '.bhhhhhhb.',
+    '.bhhhhhhb.',
+    '.bhhhhhhb.',
+    '..bssssb..',
+    '.bacccab..',
+    '.baccccab.',
+    '.bcccccb..',
+    '.bppb.bppb',
+    '.baab.baab',
+    '..bb...bb.',
+  ],
+  saddle_side: [
+    '..bbbbbb..',
+    '.bhhhhssb.',
+    '.bhhhessb.',
+    '.bhhhsssb.',
+    '..bssssb..',
+    '.baaccbb..',
+    '.baccccsb.',
+    '..bccccb..',
+    '..bppppb..',
+    '....baabb.',
+    '....bbbb..',
+  ],
+  shoulder_down: [
+    '..bbbbbb..',
+    '.bhhhhhhb.',
+    '.bseeeesb.',
+    '.bssssssb.',
+    '..bssssb..',
+    '.baaccab..',
+    'bsaccccasb',
+    '.bcccccb..',
+    '..bppbppb.',
+    '..baabaab.',
+    '..bbbbbbb.',
+  ],
+  shoulder_up: [
+    '..bbbbbb..',
+    '.bhhhhhhb.',
+    '.bhhhhhhb.',
+    '.bhhhhhhb.',
+    '..bssssb..',
+    '.bacccab..',
+    '.baccccab.',
+    '.bcccccb..',
+    '..bppbppb.',
+    '..baabaab.',
+    '..bbbbbbb.',
+  ],
+  shoulder_side: [
+    '..bbbbbb..',
+    '.bhhhhssb.',
+    '.bhhhessb.',
+    '.bhhhsssb.',
+    '..bssssb..',
+    '.baaccbb..',
+    '.baccccsb.',
+    '..bccccb..',
+    '..bppppb..',
+    '...baabb..',
+    '...bbbb...',
+  ],
+};
+
+function drawAuraPlatformDisc(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  footY: number,
+  color: string,
+  tick: number
+) {
+  const pulse = 0.5 + 0.5 * Math.sin(tick * 0.1);
+  ctx.save();
+  ctx.globalAlpha = 0.28 + pulse * 0.16;
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.ellipse(cx, footY + 1, 7.5 + pulse * 1.2, 2.8, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.globalAlpha = 0.85;
+  ctx.strokeStyle = '#ffffff';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.ellipse(cx, footY + 1, 6.2, 2.1, 0, 0, Math.PI * 2);
+  ctx.stroke();
+
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 1.4;
+  ctx.beginPath();
+  ctx.ellipse(cx, footY + 1, 7.4, 2.6, 0, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.restore();
+}
+
+/**
+ * Draw the seated rider character on a mount using dedicated crisp 1:1 riding pixel matrices.
+ * Centers the rider's torso on `targetCenterX` and lands their seat/boots cleanly on `targetSeatY`.
  */
 export function drawRiderCharacter(
   ctx: CanvasRenderingContext2D,
   palette: CharacterPalette,
   dir: Dir,
-  stepFrame: number,
+  _stepFrame: number,
   targetCenterX: number,
   targetSeatY: number,
-  scale = 0.60,
-  alpha = 0.82
+  _scale = 1,
+  alpha = 1,
+  options: RiderRenderOptions = {}
 ) {
-  let riderX: number;
-  let riderY: number;
+  const posture = options.posture ?? 'saddle';
+  const leanX = options.leanX ?? 0;
+  const leanY = options.leanY ?? 0;
+  const cx = Math.round(targetCenterX + leanX);
+  const seatY = Math.round(targetSeatY + leanY);
 
-  if (palette.isAsh) {
-    const isLeft = dir === 'left';
-    riderX = isLeft
-      ? Math.round(targetCenterX - 10 * scale)
-      : Math.round(targetCenterX - 5 * scale);
-    riderY = Math.round(targetSeatY - 14 * scale);
-  } else {
-    riderX = Math.round(targetCenterX - 8 * scale);
-    riderY = Math.round(targetSeatY - 13 * scale);
+  if (posture === 'aura-platform') {
+    drawAuraPlatformDisc(ctx, cx, seatY, options.auraColor ?? '#38bdf8', options.tick ?? 0);
+  } else if (options.drawSeatShadow !== false) {
+    ctx.save();
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.45)';
+    ctx.beginPath();
+    ctx.ellipse(
+      cx,
+      seatY + (options.seatShadowDy ?? 0),
+      options.seatShadowRx ?? 5,
+      options.seatShadowRy ?? 2.1,
+      0,
+      0,
+      Math.PI * 2
+    );
+    ctx.fill();
+    ctx.restore();
   }
+
+  const flip = dir === 'left';
+  const spriteGroupKey =
+    posture === 'aura-platform'
+      ? 'hover'
+      : posture === 'shoulder'
+        ? 'shoulder'
+        : 'saddle';
+  const dirKey = dir === 'up' ? 'up' : dir === 'down' ? 'down' : 'side';
 
   ctx.save();
   ctx.globalAlpha = (ctx.globalAlpha ?? 1) * alpha;
-  drawCharacter(ctx, palette, dir, stepFrame, riderX, riderY, scale, true);
+  if (palette.holo) {
+    ctx.globalAlpha *= 0.85;
+    ctx.shadowColor = '#4cc9f0';
+    ctx.shadowBlur = 6;
+  }
+
+  if (palette.isAsh) {
+    const key = `${spriteGroupKey}_${dirKey}` as keyof typeof ASH_RIDE_SPRITES;
+    const matrix = ASH_RIDE_SPRITES[key];
+    // Anchor torso horizontally (cols 0..9 torso for down/up, cols 5..12 torso when side-facing)
+    // and place seat/boots flush onto `seatY`.
+    const anchorOffsetX = dirKey === 'side' ? (flip ? -5 : -8) : -5;
+    const destX = cx + anchorOffsetX;
+    const destY = seatY - matrix.length + 1;
+    drawPixelMatrix(ctx, matrix, ASH_PALETTE, destX, destY, 1, flip);
+  } else {
+    const pMap: Record<string, string> = {
+      b: '#1c1726',
+      s: palette.skin,
+      h: palette.hair,
+      c: palette.shirt,
+      p: palette.pants,
+      a: palette.shoes,
+      e: palette.accent || palette.hair,
+    };
+    const charKey = (posture === 'shoulder'
+      ? `shoulder_${dirKey}`
+      : `saddle_${dirKey}`) as keyof typeof CHAR_RIDE_SPRITES;
+    const matrix = CHAR_RIDE_SPRITES[charKey];
+    const destX = cx - Math.floor(matrix[0].length / 2);
+    const destY = seatY - matrix.length + 1;
+    drawPixelMatrix(ctx, matrix, pMap, destX, destY, 1, flip);
+  }
+
   ctx.restore();
 }
 

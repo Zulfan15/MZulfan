@@ -6,10 +6,10 @@ export const RAGNALOARDMON_DEFAULT_ASSET_BASE = '/assets/characters/ragnaloardmo
 
 export const RAGNALOARDMON_ASSET_FILES = {
   idle: 'idle.png',
-  walk: 'walk-cycle.jpg',
-  battle: 'battle.jpg',
-  sheet: 'ragnaloardmon.jpg',
-  ds: 'ragnaloardmon-ds.jpg',
+  walk: 'walk-cycle.webp',
+  battle: 'battle.webp',
+  sheet: 'ragnaloardmon.webp',
+  ds: 'ragnaloardmon-ds.webp',
 } as const;
 
 export function resolveRagnaloardmonAssets(baseUrl = RAGNALOARDMON_DEFAULT_ASSET_BASE) {

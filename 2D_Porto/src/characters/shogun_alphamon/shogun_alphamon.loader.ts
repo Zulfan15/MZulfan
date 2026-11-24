@@ -1,11 +1,20 @@
 import { CharacterAnimator } from '../_shared/CharacterAnimator';
 import {
+  createEmptyFrame,
   downscaleFrame,
+  flipFrame,
   frameToDataUrl,
   loadImage,
   sliceFrames,
+  yieldToFrame,
 } from '../_shared/sheetSlicer';
-import { DIRECTIONS_8, type CharacterSpriteSet } from '../_shared/types';
+import {
+  CARDINAL_DIRECTIONS,
+  DIRECTIONS_8,
+  type CharacterFrame,
+  type CharacterLoadMode,
+  type CharacterSpriteSet,
+} from '../_shared/types';
 import {
   SHOGUN_ALPHAMON_ACTIONS,
   SHOGUN_ALPHAMON_IDLE_CLIP,
@@ -17,11 +26,13 @@ import {
   resolveShogunAlphamonAssets,
 } from './shogun_alphamon.assets';
 import {
-  SHOGUN_ALPHAMON_BATTLE_RECTS,
-  SHOGUN_ALPHAMON_GRID_RECTS,
+  SHOGUN_ALPHAMON_BATTLE_COMBOS,
   SHOGUN_ALPHAMON_HD_RECTS,
   SHOGUN_ALPHAMON_JPG_ICON_RECT,
   SHOGUN_ALPHAMON_MINI_RECTS,
+  SHOGUN_ALPHAMON_STEPS_BY_DIR,
+  SHOGUN_ALPHAMON_WALK_STEPS_BY_DIR,
+  walkCell,
 } from './shogun_alphamon.frames';
 import { SHOGUN_ALPHAMON_META } from './shogun_alphamon.meta';
 
@@ -33,39 +44,94 @@ const inflightByBase = new Map<string, Promise<CharacterSpriteSet>>();
  * Deduplicates concurrent requests and caches per `baseUrl`.
  */
 export async function loadShogunAlphamon(
-  baseUrl = SHOGUN_ALPHAMON_DEFAULT_ASSET_BASE
+  baseUrl = SHOGUN_ALPHAMON_DEFAULT_ASSET_BASE,
+  mode: CharacterLoadMode = 'full'
 ): Promise<CharacterSpriteSet> {
-  const cached = spriteCache.get(baseUrl);
+  const fullKey = `${baseUrl}::full`;
+  const cachedFull = spriteCache.get(fullKey);
+  if (cachedFull) return cachedFull;
+
+  const cacheKey = `${baseUrl}::${mode}`;
+  const cached = spriteCache.get(cacheKey);
   if (cached) return cached;
 
-  const existing = inflightByBase.get(baseUrl);
+  const existing = inflightByBase.get(fullKey) ?? inflightByBase.get(cacheKey);
   if (existing) return existing;
 
   const task = (async () => {
     const urls = resolveShogunAlphamonAssets(baseUrl);
-    const [idleImg, walkImg, battleImg, hdImg] = await Promise.all([
+    const [idleImg, walkImg] = await Promise.all([
       loadImage(urls.idle),
       loadImage(urls.walk),
-      loadImage(urls.battle),
-      loadImage(urls.sheet),
     ]);
+    const extraPromises =
+      mode === 'full' ? Promise.all([loadImage(urls.battle), loadImage(urls.sheet)]) : null;
 
-    const rawIdle = sliceFrames(idleImg, SHOGUN_ALPHAMON_GRID_RECTS, {
-      chroma: 'lossy-green',
-      trim: 'uniform',
-    });
-    const idle = rawIdle.map((f) => downscaleFrame(f, 96, false));
+    // Slice per direction with `trim: 'uniform'` so all 4 frames of a direction
+    // share the exact same union bounding box without wide-row padding bleed.
+    const rawIdle: CharacterFrame[] = [];
+    for (const dir of DIRECTIONS_8) {
+      const rects = SHOGUN_ALPHAMON_STEPS_BY_DIR[dir];
+      if (mode === 'overworld' && !CARDINAL_DIRECTIONS.has(dir)) {
+        for (let i = 0; i < rects.length; i++) rawIdle.push(createEmptyFrame());
+        continue;
+      }
+      const frames = sliceFrames(idleImg, rects, {
+        chroma: 'lossy-green',
+        trim: 'uniform',
+        isolateMainBody: true,
+      });
+      rawIdle.push(...frames);
+      await yieldToFrame();
+    }
+    const idle = rawIdle.map((f) => downscaleFrame(f, 96, true));
 
-    const walk = sliceFrames(walkImg, SHOGUN_ALPHAMON_GRID_RECTS, {
-      chroma: 'lossy-green',
-      trim: 'uniform',
-    }).map((f) => downscaleFrame(f, 96, false));
+    const walk: CharacterFrame[] = [];
+    for (const dir of DIRECTIONS_8) {
+      const steps = SHOGUN_ALPHAMON_WALK_STEPS_BY_DIR[dir];
+      if (mode === 'overworld' && !CARDINAL_DIRECTIONS.has(dir)) {
+        for (let i = 0; i < steps.length; i++) walk.push(createEmptyFrame());
+        continue;
+      }
+      const rects = steps.map((s) => walkCell(s.row, s.col));
+      const frames = sliceFrames(walkImg, rects, {
+        chroma: 'lossy-green',
+        trim: 'uniform',
+        isolateMainBody: dir === 'N',
+      })
+        .map((f) => downscaleFrame(f, 96, true))
+        .map((frame, i) => (steps[i].flipX ? flipFrame(frame) : frame));
+      walk.push(...frames);
+      await yieldToFrame();
+    }
 
-    const rawBattle = sliceFrames(battleImg, SHOGUN_ALPHAMON_BATTLE_RECTS, {
-      chroma: 'lossy-green',
-      trim: 'tight',
-    });
-    const battle = rawBattle.map((f) => downscaleFrame(f, 112, false));
+    if (mode === 'overworld') {
+      const set: CharacterSpriteSet = {
+        id: SHOGUN_ALPHAMON_META.id,
+        directionOrder: DIRECTIONS_8,
+        groups: { idle, idleLarge: [], walk, battle: [], battleLarge: [], hd: [], mini: [] },
+        icon: null,
+        iconDataUrl: null,
+        loadedAt: performance.now(),
+      };
+      spriteCache.set(cacheKey, set);
+      return set;
+    }
+
+    const [battleImg, hdImg] = await extraPromises!;
+    const idleLarge = rawIdle.slice(0, 4).map((f) => downscaleFrame(f, 220, true));
+
+    // Slice each 4-frame directional attack combo uniformly so the horse body
+    // does not shift horizontally when the golden flame crescent swings out on frame 2.
+    const rawBattle = SHOGUN_ALPHAMON_BATTLE_COMBOS.flatMap((combo) =>
+      sliceFrames(battleImg, combo, {
+        chroma: 'lossy-green',
+        trim: 'uniform',
+      })
+    );
+    const battle = rawBattle.map((f) => downscaleFrame(f, 112, true));
+    const battleLarge = rawBattle.map((f) => downscaleFrame(f, 220, true));
+    await yieldToFrame();
 
     const [icon = null] = sliceFrames(hdImg, [SHOGUN_ALPHAMON_JPG_ICON_RECT], {
       chroma: 'lossy-green',
@@ -90,10 +156,10 @@ export async function loadShogunAlphamon(
       directionOrder: DIRECTIONS_8,
       groups: {
         idle,
-        idleLarge: rawIdle,
+        idleLarge,
         walk,
         battle,
-        battleLarge: rawBattle,
+        battleLarge,
         hd,
         mini,
       },
@@ -102,13 +168,13 @@ export async function loadShogunAlphamon(
       loadedAt: performance.now(),
     };
 
-    spriteCache.set(baseUrl, set);
+    spriteCache.set(cacheKey, set);
     return set;
   })().finally(() => {
-    inflightByBase.delete(baseUrl);
+    inflightByBase.delete(cacheKey);
   });
 
-  inflightByBase.set(baseUrl, task);
+  inflightByBase.set(cacheKey, task);
   return task;
 }
 
@@ -116,7 +182,7 @@ export async function loadShogunAlphamon(
 export function getShogunAlphamonSync(
   baseUrl = SHOGUN_ALPHAMON_DEFAULT_ASSET_BASE
 ): CharacterSpriteSet | null {
-  return spriteCache.get(baseUrl) ?? null;
+  return spriteCache.get(`${baseUrl}::full`) ?? spriteCache.get(`${baseUrl}::overworld`) ?? null;
 }
 
 /** Clears cached Shogun Alphamon sprite canvases. */

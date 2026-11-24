@@ -19,7 +19,7 @@ export const HOLLOKNIGHTMON_WALK_CLIP: DirectionalClip = {
 export type HolloknightmonActionId = 'radianceDecree' | 'solarThrust' | 'greatswordCleave';
 
 export const HOLLOKNIGHTMON_ACTIONS: Record<HolloknightmonActionId, ActionClip> = {
-  radianceDecree: { group: 'battle', frames: [0, 1, 2, 3], fps: 9, loop: false },
-  solarThrust: { group: 'battle', frames: [4, 5, 1], fps: 8, loop: false },
-  greatswordCleave: { group: 'battle', frames: [0, 6, 7, 3], fps: 8, loop: false },
+  radianceDecree: { group: 'battle', frames: [0, 1, 2, 3], fps: 8, loop: false },
+  solarThrust: { group: 'battle', frames: [0, 1, 2], fps: 8, loop: false },
+  greatswordCleave: { group: 'battle', frames: [4, 5, 6, 7], fps: 8, loop: false },
 };

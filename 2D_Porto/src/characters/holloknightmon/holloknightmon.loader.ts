@@ -1,12 +1,20 @@
 import { CharacterAnimator } from '../_shared/CharacterAnimator';
 import {
+  createEmptyFrame,
   downscaleFrame,
   flipFrame,
   frameToDataUrl,
   loadImage,
   sliceFrames,
+  yieldToFrame,
 } from '../_shared/sheetSlicer';
-import { DIRECTIONS_8, type CharacterSpriteSet } from '../_shared/types';
+import {
+  CARDINAL_DIRECTIONS,
+  DIRECTIONS_8,
+  type CharacterFrame,
+  type CharacterLoadMode,
+  type CharacterSpriteSet,
+} from '../_shared/types';
 import {
   HOLLOKNIGHTMON_ACTIONS,
   HOLLOKNIGHTMON_IDLE_CLIP,
@@ -24,7 +32,9 @@ import {
   HOLLOKNIGHTMON_JPG_HD_RECTS,
   HOLLOKNIGHTMON_JPG_ICON_RECT,
   HOLLOKNIGHTMON_JPG_MINI_RECTS,
+  HOLLOKNIGHTMON_LARGE_IDLE_RECTS,
   HOLLOKNIGHTMON_WALK_STEPS_BY_DIR,
+  walkCell,
 } from './holloknightmon.frames';
 import { HOLLOKNIGHTMON_META } from './holloknightmon.meta';
 
@@ -36,40 +46,85 @@ const inflightByBase = new Map<string, Promise<CharacterSpriteSet>>();
  * Deduplicates concurrent requests and caches per `baseUrl`.
  */
 export async function loadHolloknightmon(
-  baseUrl = HOLLOKNIGHTMON_DEFAULT_ASSET_BASE
+  baseUrl = HOLLOKNIGHTMON_DEFAULT_ASSET_BASE,
+  mode: CharacterLoadMode = 'full'
 ): Promise<CharacterSpriteSet> {
-  const cached = spriteCache.get(baseUrl);
+  const fullKey = `${baseUrl}::full`;
+  const cachedFull = spriteCache.get(fullKey);
+  if (cachedFull) return cachedFull;
+
+  const cacheKey = `${baseUrl}::${mode}`;
+  const cached = spriteCache.get(cacheKey);
   if (cached) return cached;
 
-  const existing = inflightByBase.get(baseUrl);
+  const existing = inflightByBase.get(fullKey) ?? inflightByBase.get(cacheKey);
   if (existing) return existing;
 
   const task = (async () => {
     const urls = resolveHolloknightmonAssets(baseUrl);
-    const [idleImg, walkImg, battleImg, jpgImg] = await Promise.all([
+    const [idleImg, walkImg] = await Promise.all([
       loadImage(urls.idle),
       loadImage(urls.walk),
-      loadImage(urls.battle),
-      loadImage(urls.sheet),
     ]);
+    const extraPromises =
+      mode === 'full' ? Promise.all([loadImage(urls.battle), loadImage(urls.sheet)]) : null;
 
-    const idleSteps = DIRECTIONS_8.flatMap((dir) => HOLLOKNIGHTMON_IDLE_STEPS_BY_DIR[dir]);
-    const idleRects = idleSteps.map((s) => gridCell8x4(s.row, s.col));
-    const slicedIdle = sliceFrames(idleImg, idleRects, {
-      chroma: 'lossy-green',
-      trim: 'uniform',
-      isolateMainBody: true,
-    }).map((f) => downscaleFrame(f, 96, true));
-    const idle = slicedIdle.map((frame, i) => (idleSteps[i].flipX ? flipFrame(frame) : frame));
+    const idle: CharacterFrame[] = [];
+    for (const dir of DIRECTIONS_8) {
+      const steps = HOLLOKNIGHTMON_IDLE_STEPS_BY_DIR[dir];
+      if (mode === 'overworld' && !CARDINAL_DIRECTIONS.has(dir)) {
+        for (let i = 0; i < steps.length; i++) idle.push(createEmptyFrame());
+        continue;
+      }
+      const rects = steps.map((s) => gridCell8x4(s.row, s.col));
+      const frames = sliceFrames(idleImg, rects, {
+        chroma: 'lossy-green',
+        trim: 'uniform',
+        isolateMainBody: true,
+      })
+        .map((f) => downscaleFrame(f, 96, true))
+        .map((frame, i) => (steps[i].flipX ? flipFrame(frame) : frame));
+      idle.push(...frames);
+      await yieldToFrame();
+    }
 
-    const walkSteps = DIRECTIONS_8.flatMap((dir) => HOLLOKNIGHTMON_WALK_STEPS_BY_DIR[dir]);
-    const walkRects = walkSteps.map((s) => gridCell8x4(s.row, s.col));
-    const slicedWalk = sliceFrames(walkImg, walkRects, {
+    const walk: CharacterFrame[] = [];
+    for (const dir of DIRECTIONS_8) {
+      const steps = HOLLOKNIGHTMON_WALK_STEPS_BY_DIR[dir];
+      if (mode === 'overworld' && !CARDINAL_DIRECTIONS.has(dir)) {
+        for (let i = 0; i < steps.length; i++) walk.push(createEmptyFrame());
+        continue;
+      }
+      const rects = steps.map((s) => walkCell(s.row, s.col));
+      const frames = sliceFrames(walkImg, rects, {
+        chroma: 'lossy-green',
+        trim: 'uniform',
+      })
+        .map((f) => downscaleFrame(f, 96, true))
+        .map((frame, i) => (steps[i].flipX ? flipFrame(frame) : frame));
+      walk.push(...frames);
+      await yieldToFrame();
+    }
+
+    if (mode === 'overworld') {
+      const set: CharacterSpriteSet = {
+        id: HOLLOKNIGHTMON_META.id,
+        directionOrder: DIRECTIONS_8,
+        groups: { idle, idleLarge: [], walk, battle: [], battleLarge: [], hd: [], mini: [] },
+        icon: null,
+        iconDataUrl: null,
+        loadedAt: performance.now(),
+      };
+      spriteCache.set(cacheKey, set);
+      return set;
+    }
+
+    const [battleImg, jpgImg] = await extraPromises!;
+    const idleLarge = sliceFrames(idleImg, HOLLOKNIGHTMON_LARGE_IDLE_RECTS, {
       chroma: 'lossy-green',
-      trim: 'uniform',
+      trim: 'tight',
       isolateMainBody: true,
-    }).map((f) => downscaleFrame(f, 96, true));
-    const walk = slicedWalk.map((frame, i) => (walkSteps[i].flipX ? flipFrame(frame) : frame));
+    }).map((f) => downscaleFrame(f, 220, true));
 
     const rawBattle = sliceFrames(battleImg, HOLLOKNIGHTMON_BATTLE_RECTS, {
       chroma: 'lossy-green',
@@ -77,6 +132,7 @@ export async function loadHolloknightmon(
     });
     const battle = rawBattle.map((f) => downscaleFrame(f, 112, true));
     const battleLarge = rawBattle.map((f) => downscaleFrame(f, 220, true));
+    await yieldToFrame();
 
     const [icon = null] = sliceFrames(jpgImg, [HOLLOKNIGHTMON_JPG_ICON_RECT], {
       chroma: 'lossy-green',
@@ -99,19 +155,19 @@ export async function loadHolloknightmon(
     const set: CharacterSpriteSet = {
       id: HOLLOKNIGHTMON_META.id,
       directionOrder: DIRECTIONS_8,
-      groups: { idle, walk, battle, battleLarge, hd, mini },
+      groups: { idle, idleLarge, walk, battle, battleLarge, hd, mini },
       icon,
       iconDataUrl: frameToDataUrl(icon),
       loadedAt: performance.now(),
     };
 
-    spriteCache.set(baseUrl, set);
+    spriteCache.set(cacheKey, set);
     return set;
   })().finally(() => {
-    inflightByBase.delete(baseUrl);
+    inflightByBase.delete(cacheKey);
   });
 
-  inflightByBase.set(baseUrl, task);
+  inflightByBase.set(cacheKey, task);
   return task;
 }
 
@@ -119,7 +175,7 @@ export async function loadHolloknightmon(
 export function getHolloknightmonSync(
   baseUrl = HOLLOKNIGHTMON_DEFAULT_ASSET_BASE
 ): CharacterSpriteSet | null {
-  return spriteCache.get(baseUrl) ?? null;
+  return spriteCache.get(`${baseUrl}::full`) ?? spriteCache.get(`${baseUrl}::overworld`) ?? null;
 }
 
 /** Clears cached Holloknightmon sprite canvases. */

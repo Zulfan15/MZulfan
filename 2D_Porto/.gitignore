@@ -12,3 +12,4 @@ public/wasm/*
 *.log
 .DS_Store
 scratch/
+raw_assets/

@@ -1,13 +1,18 @@
 import { CharacterAnimator } from '../_shared/CharacterAnimator';
 import {
+  createEmptyFrame,
+  downscaleFrame,
   flipFrame,
   frameToDataUrl,
   loadImage,
   sliceFrames,
+  yieldToFrame,
 } from '../_shared/sheetSlicer';
 import {
+  CARDINAL_DIRECTIONS,
   DIRECTIONS_8,
   type CharacterFrame,
+  type CharacterLoadMode,
   type CharacterSpriteSet,
 } from '../_shared/types';
 import {
@@ -27,7 +32,8 @@ import {
   MASTENAMON_JPG_HD_RECTS,
   MASTENAMON_JPG_ICON_RECT,
   MASTENAMON_JPG_MINI_RECTS,
-  MASTENAMON_WALK_RECTS_BY_CANONICAL_DIR,
+  MASTENAMON_WALK_STEPS_BY_DIR,
+  walkCell,
 } from './mastenamon.frames';
 import { MASTENAMON_META } from './mastenamon.meta';
 
@@ -56,42 +62,78 @@ function downscaleHdFrame(frame: CharacterFrame, maxH = 220): CharacterFrame {
  * Deduplicates concurrent requests and caches per `baseUrl`.
  */
 export async function loadMastenamon(
-  baseUrl = MASTENAMON_DEFAULT_ASSET_BASE
+  baseUrl = MASTENAMON_DEFAULT_ASSET_BASE,
+  mode: CharacterLoadMode = 'full'
 ): Promise<CharacterSpriteSet> {
-  const cached = spriteCache.get(baseUrl);
+  const fullKey = `${baseUrl}::full`;
+  const cachedFull = spriteCache.get(fullKey);
+  if (cachedFull) return cachedFull;
+
+  const cacheKey = `${baseUrl}::${mode}`;
+  const cached = spriteCache.get(cacheKey);
   if (cached) return cached;
 
-  const existing = inflightByBase.get(baseUrl);
+  const existing = inflightByBase.get(fullKey) ?? inflightByBase.get(cacheKey);
   if (existing) return existing;
 
   const task = (async () => {
     const urls = resolveMastenamonAssets(baseUrl);
-    const [idleImg, walkImg, battleImg, jpgImg] = await Promise.all([
+    const [idleImg, walkImg] = await Promise.all([
       loadImage(urls.idle),
       loadImage(urls.walk),
-      loadImage(urls.battle),
-      loadImage(urls.sheet),
     ]);
+    const extraPromises =
+      mode === 'full' ? Promise.all([loadImage(urls.battle), loadImage(urls.sheet)]) : null;
 
     const rawIdle = sliceFrames(idleImg, MASTENAMON_IDLE_RECTS, {
       chroma: 'flat-green',
       trim: 'tight',
     });
     const idle = DIRECTIONS_8.map((dir) => {
+      if (mode === 'overworld' && !CARDINAL_DIRECTIONS.has(dir)) return createEmptyFrame();
       const mapping = MASTENAMON_IDLE_DIRECTION_MAP[dir];
       const base = rawIdle[mapping.rawIndex] ?? rawIdle[0];
       return mapping.flipX ? flipFrame(base) : base;
     });
+    await yieldToFrame();
 
-    const walk = sliceFrames(walkImg, MASTENAMON_WALK_RECTS_BY_CANONICAL_DIR, {
-      chroma: 'flat-green',
-      trim: 'uniform',
-    });
+    const walk: CharacterFrame[] = [];
+    for (const dir of DIRECTIONS_8) {
+      const steps = MASTENAMON_WALK_STEPS_BY_DIR[dir];
+      if (mode === 'overworld' && !CARDINAL_DIRECTIONS.has(dir)) {
+        for (let i = 0; i < steps.length; i++) walk.push(createEmptyFrame());
+        continue;
+      }
+      const rects = steps.map((s) => walkCell(s.row, s.col));
+      const frames = sliceFrames(walkImg, rects, {
+        chroma: 'lossy-green',
+        trim: 'uniform',
+      })
+        .map((f) => downscaleFrame(f, 96, true))
+        .map((frame, i) => (steps[i].flipX ? flipFrame(frame) : frame));
+      walk.push(...frames);
+      await yieldToFrame();
+    }
 
+    if (mode === 'overworld') {
+      const set: CharacterSpriteSet = {
+        id: MASTENAMON_META.id,
+        directionOrder: DIRECTIONS_8,
+        groups: { idle, walk, battle: [], hd: [], mini: [] },
+        icon: null,
+        iconDataUrl: null,
+        loadedAt: performance.now(),
+      };
+      spriteCache.set(cacheKey, set);
+      return set;
+    }
+
+    const [battleImg, jpgImg] = await extraPromises!;
     const battle = sliceFrames(battleImg, MASTENAMON_BATTLE_RECTS, {
       chroma: 'flat-green',
       trim: 'tight',
     });
+    await yieldToFrame();
 
     const [icon = null] = sliceFrames(jpgImg, [MASTENAMON_JPG_ICON_RECT], {
       chroma: 'lossy-green',
@@ -120,13 +162,13 @@ export async function loadMastenamon(
       loadedAt: performance.now(),
     };
 
-    spriteCache.set(baseUrl, set);
+    spriteCache.set(cacheKey, set);
     return set;
   })().finally(() => {
-    inflightByBase.delete(baseUrl);
+    inflightByBase.delete(cacheKey);
   });
 
-  inflightByBase.set(baseUrl, task);
+  inflightByBase.set(cacheKey, task);
   return task;
 }
 
@@ -134,7 +176,7 @@ export async function loadMastenamon(
 export function getMastenamonSync(
   baseUrl = MASTENAMON_DEFAULT_ASSET_BASE
 ): CharacterSpriteSet | null {
-  return spriteCache.get(baseUrl) ?? null;
+  return spriteCache.get(`${baseUrl}::full`) ?? spriteCache.get(`${baseUrl}::overworld`) ?? null;
 }
 
 /** Clears cached Mastenamon sprite canvases. */

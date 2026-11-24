@@ -1,12 +1,20 @@
 import { CharacterAnimator } from '../_shared/CharacterAnimator';
 import {
+  createEmptyFrame,
   downscaleFrame,
   flipFrame,
   frameToDataUrl,
   loadImage,
   sliceFrames,
+  yieldToFrame,
 } from '../_shared/sheetSlicer';
-import { DIRECTIONS_8, type CharacterSpriteSet } from '../_shared/types';
+import {
+  CARDINAL_DIRECTIONS,
+  DIRECTIONS_8,
+  type CharacterFrame,
+  type CharacterLoadMode,
+  type CharacterSpriteSet,
+} from '../_shared/types';
 import {
   JESMON_X_ACTIONS,
   JESMON_X_IDLE_CLIP,
@@ -36,52 +44,96 @@ const inflightByBase = new Map<string, Promise<CharacterSpriteSet>>();
  * Deduplicates concurrent requests and caches per `baseUrl`.
  */
 export async function loadJesmonX(
-  baseUrl = JESMON_X_DEFAULT_ASSET_BASE
+  baseUrl = JESMON_X_DEFAULT_ASSET_BASE,
+  mode: CharacterLoadMode = 'full'
 ): Promise<CharacterSpriteSet> {
-  const cached = spriteCache.get(baseUrl);
+  const fullKey = `${baseUrl}::full`;
+  const cachedFull = spriteCache.get(fullKey);
+  if (cachedFull) return cachedFull;
+
+  const cacheKey = `${baseUrl}::${mode}`;
+  const cached = spriteCache.get(cacheKey);
   if (cached) return cached;
 
-  const existing = inflightByBase.get(baseUrl);
+  const existing = inflightByBase.get(fullKey) ?? inflightByBase.get(cacheKey);
   if (existing) return existing;
 
   const task = (async () => {
     const urls = resolveJesmonXAssets(baseUrl);
-    const [idleImg, walkImg, battleImg, jpgImg, dsImg] = await Promise.all([
+    const [idleImg, walkImg] = await Promise.all([
       loadImage(urls.idle),
       loadImage(urls.walk),
-      loadImage(urls.battle),
-      loadImage(urls.sheet),
-      loadImage(urls.ds),
     ]);
+    const extraPromises =
+      mode === 'full'
+        ? Promise.all([loadImage(urls.battle), loadImage(urls.sheet), loadImage(urls.ds)])
+        : null;
 
-    const stepOrder = DIRECTIONS_8.flatMap((dir) => JESMON_X_STEPS_BY_DIR[dir]);
-    const stepRects = stepOrder.map((s) => gridCell8x4(s.row, s.col));
+    const idle: CharacterFrame[] = [];
+    for (const dir of DIRECTIONS_8) {
+      const steps = JESMON_X_STEPS_BY_DIR[dir];
+      if (mode === 'overworld' && !CARDINAL_DIRECTIONS.has(dir)) {
+        for (let i = 0; i < steps.length; i++) idle.push(createEmptyFrame());
+        continue;
+      }
+      const rects = steps.map((s) => gridCell8x4(s.row, s.col));
+      const frames = sliceFrames(idleImg, rects, {
+        chroma: 'lossy-green',
+        trim: 'uniform',
+        isolateMainBody: true,
+      })
+        .map((f) => downscaleFrame(f, 96, true))
+        .map((frame, i) => (steps[i].flipX ? flipFrame(frame) : frame));
+      idle.push(...frames);
+      await yieldToFrame();
+    }
 
-    const slicedIdle = sliceFrames(idleImg, stepRects, {
-      chroma: 'lossy-green',
-      trim: 'uniform',
-      isolateMainBody: true,
-    }).map((f) => downscaleFrame(f, 96, true));
-    const idle = slicedIdle.map((frame, i) => (stepOrder[i].flipX ? flipFrame(frame) : frame));
+    const walk: CharacterFrame[] = [];
+    for (const dir of DIRECTIONS_8) {
+      const steps = JESMON_X_STEPS_BY_DIR[dir];
+      if (mode === 'overworld' && !CARDINAL_DIRECTIONS.has(dir)) {
+        for (let i = 0; i < steps.length; i++) walk.push(createEmptyFrame());
+        continue;
+      }
+      const rects = steps.map((s) => gridCell8x4(s.row, s.col));
+      const frames = sliceFrames(walkImg, rects, {
+        chroma: 'lossy-green',
+        trim: 'uniform',
+        isolateMainBody: true,
+      })
+        .map((f) => downscaleFrame(f, 96, true))
+        .map((frame, i) => (steps[i].flipX ? flipFrame(frame) : frame));
+      walk.push(...frames);
+      await yieldToFrame();
+    }
 
-    const slicedWalk = sliceFrames(walkImg, stepRects, {
-      chroma: 'lossy-green',
-      trim: 'uniform',
-      isolateMainBody: true,
-    }).map((f) => downscaleFrame(f, 96, true));
-    const walk = slicedWalk.map((frame, i) => (stepOrder[i].flipX ? flipFrame(frame) : frame));
+    if (mode === 'overworld') {
+      const set: CharacterSpriteSet = {
+        id: JESMON_X_META.id,
+        directionOrder: DIRECTIONS_8,
+        groups: { idle, walk, battle: [], battleLarge: [], dsIdle: [], hd: [], mini: [] },
+        icon: null,
+        iconDataUrl: null,
+        loadedAt: performance.now(),
+      };
+      spriteCache.set(cacheKey, set);
+      return set;
+    }
 
+    const [battleImg, jpgImg, dsImg] = await extraPromises!;
     const rawBattle = sliceFrames(battleImg, JESMON_X_BATTLE_RECTS, {
       chroma: 'lossy-green',
       trim: 'tight',
     });
     const battle = rawBattle.map((f) => downscaleFrame(f, 112, true));
     const battleLarge = rawBattle.map((f) => downscaleFrame(f, 220, true));
+    await yieldToFrame();
 
     const dsIdle = sliceFrames(dsImg, JESMON_X_DS_IDLE_RECTS, {
       chroma: 'ds-teal-mint',
       trim: 'tight',
     }).map((f) => downscaleFrame(f, 220, true));
+    await yieldToFrame();
 
     const [icon = null] = sliceFrames(jpgImg, [JESMON_X_JPG_ICON_RECT], {
       chroma: 'lossy-green',
@@ -110,13 +162,13 @@ export async function loadJesmonX(
       loadedAt: performance.now(),
     };
 
-    spriteCache.set(baseUrl, set);
+    spriteCache.set(cacheKey, set);
     return set;
   })().finally(() => {
-    inflightByBase.delete(baseUrl);
+    inflightByBase.delete(cacheKey);
   });
 
-  inflightByBase.set(baseUrl, task);
+  inflightByBase.set(cacheKey, task);
   return task;
 }
 
@@ -124,7 +176,7 @@ export async function loadJesmonX(
 export function getJesmonXSync(
   baseUrl = JESMON_X_DEFAULT_ASSET_BASE
 ): CharacterSpriteSet | null {
-  return spriteCache.get(baseUrl) ?? null;
+  return spriteCache.get(`${baseUrl}::full`) ?? spriteCache.get(`${baseUrl}::overworld`) ?? null;
 }
 
 /** Clears cached Jesmon (X Antibody) sprite canvases. */

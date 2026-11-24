@@ -1,12 +1,12 @@
 import type { DigimonCatalogEntry, OverworldPoseMap } from '../../../engine/digimonCatalog';
-import type { SlicedDigimonSprites } from '../../../engine/digiSpriteLoader';
+import type { DigimonLoadTier, SlicedDigimonSprites } from '../../../engine/digiSpriteLoader';
 import { loadHolloknightmon } from '../holloknightmon.loader';
 import { HOLLOKNIGHTMON_META } from '../holloknightmon.meta';
 
 /**
  * Layout inside `adaptHolloknightmonForPortfolio().overworld`:
  * - [0..31]  : idle (`S(0..3), SW(4..7), W(8..11), NW(12..15), N(16..19), NE(20..23), E(24..27), SE(28..31)`) from `idle.jpg`
- * - [32..63] : walk (`S(32..35) .. SE(60..63)`) from `walk-cycle.jpg`
+ * - [32..63] : walk (`S(32..35) .. SE(60..63)`) from `walk-cycle-v2.jpg`
  * - [64..71] : Radiance Decree blazing solar greatsword slashes (`0..7`) from `battle.jpg`
  */
 export const HOLLOKNIGHTMON_PORTFOLIO_POSE_MAP: OverworldPoseMap = {
@@ -27,28 +27,32 @@ export const HOLLOKNIGHTMON_PORTFOLIO_POSE_MAP: OverworldPoseMap = {
 
 export const HOLLOKNIGHTMON_PORTFOLIO_ENTRY: DigimonCatalogEntry = {
   ...HOLLOKNIGHTMON_META,
-  spriteSheetUrl: '/assets/characters/holloknightmon/holloknightmon.jpg',
+  spriteSheetUrl: '/assets/characters/holloknightmon/holloknightmon.webp',
   overworldPoseMap: HOLLOKNIGHTMON_PORTFOLIO_POSE_MAP,
 };
 
 /** Loads `holloknightmon` via the standalone character module and adapts it to `SlicedDigimonSprites`. */
-export async function adaptHolloknightmonForPortfolio(): Promise<SlicedDigimonSprites | null> {
+export async function adaptHolloknightmonForPortfolio(
+  tier: DigimonLoadTier = 'full'
+): Promise<SlicedDigimonSprites | null> {
   try {
-    const set = await loadHolloknightmon();
+    const set = await loadHolloknightmon(undefined, tier);
     const idle = set.groups.idle ?? [];
+    const idleLarge = set.groups.idleLarge ?? [];
     const walk = set.groups.walk ?? [];
     const battle = set.groups.battle ?? [];
     const battleLarge = set.groups.battleLarge ?? battle;
     const hd = set.groups.hd ?? [];
 
-    // DigiDex Battle Idle showcases South & South-West HD portraits,
-    // while Signature Attack unleashes Radiance Decree flame greatsword arcs from `battle.jpg`.
-    const largeIdle = [hd[0], hd[1]].filter(Boolean);
+    // DigiDex Battle Idle plays the 4-frame hovering South animation from `idle.jpg`,
+    // while Signature Attack plays the sequential Row 2 Radiance Decree solar slash combo from `battle.jpg`.
+    const largeIdle = idleLarge.length > 0 ? idleLarge : hd.slice(0, 1);
     const largeAttack = battleLarge.slice(0, 4);
     const overworld = [...idle, ...walk, ...battle];
 
     return {
       id: HOLLOKNIGHTMON_META.id,
+      tier,
       icon: set.icon,
       iconDataUrl: set.iconDataUrl,
       largeIdle: largeIdle.length > 0 ? largeIdle : overworld.slice(0, 1),

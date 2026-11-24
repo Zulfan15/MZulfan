@@ -9,6 +9,10 @@ export const DIRECTIONS_8 = ['S', 'SW', 'W', 'NW', 'N', 'NE', 'E', 'SE'] as cons
 
 export type Direction8 = (typeof DIRECTIONS_8)[number];
 export type Cardinal = 'N' | 'S' | 'E' | 'W';
+export type CharacterLoadMode = 'overworld' | 'full';
+
+/** Cardinal directions rendered in top-down 4-way overworld views. */
+export const CARDINAL_DIRECTIONS: ReadonlySet<Direction8> = new Set(['S', 'W', 'N', 'E']);
 
 /** Pixel rectangle inside a source sheet. */
 export interface FrameRect {
@@ -31,11 +35,18 @@ export interface CharacterFrame {
 /**
  * - `flat-green`: lossless pixel-art sheet on a solid green backdrop (+ darker green ground shadow).
  * - `border-green`: border-connected green flood keyer for characters that also have emerald-green anatomy (e.g. Fivedramon's green head).
+ * - `border-green-despill`: border/pocket green flood keyer + edge despill for haloed glows alongside protected interior green accents.
  * - `lossy-green`: JPG/upscaled sheet on a bright green-screen with compression noise.
  * - `lossy-teal`: teal-green grid sheets (`Ragnaloardmon` idle/walk/battle) where blue channel is close to green.
  * - `ds-teal-mint`: dual dark-teal outer + mint-green inner box JPG sheets (classic DS rips).
  */
-export type ChromaMode = 'flat-green' | 'border-green' | 'lossy-green' | 'lossy-teal' | 'ds-teal-mint';
+export type ChromaMode =
+  | 'flat-green'
+  | 'border-green'
+  | 'border-green-despill'
+  | 'lossy-green'
+  | 'lossy-teal'
+  | 'ds-teal-mint';
 
 export interface SliceOptions {
   chroma: ChromaMode;

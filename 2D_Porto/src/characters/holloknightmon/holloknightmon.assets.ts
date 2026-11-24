@@ -5,10 +5,10 @@
 export const HOLLOKNIGHTMON_DEFAULT_ASSET_BASE = '/assets/characters/holloknightmon';
 
 export const HOLLOKNIGHTMON_ASSET_FILES = {
-  idle: 'idle.jpg',
-  walk: 'walk-cycle.jpg',
-  battle: 'battle.jpg',
-  sheet: 'holloknightmon.jpg',
+  idle: 'idle.webp',
+  walk: 'walk-cycle-v2.webp',
+  battle: 'battle.webp',
+  sheet: 'holloknightmon.webp',
 } as const;
 
 export function resolveHolloknightmonAssets(baseUrl = HOLLOKNIGHTMON_DEFAULT_ASSET_BASE) {

@@ -1,5 +1,5 @@
 import type { DigimonCatalogEntry, OverworldPoseMap } from '../../../engine/digimonCatalog';
-import type { SlicedDigimonSprites } from '../../../engine/digiSpriteLoader';
+import type { DigimonLoadTier, SlicedDigimonSprites } from '../../../engine/digiSpriteLoader';
 import { loadFivedramon } from '../fivedramon.loader';
 import { FIVEDRAMON_META } from '../fivedramon.meta';
 
@@ -27,14 +27,16 @@ export const FIVEDRAMON_PORTFOLIO_POSE_MAP: OverworldPoseMap = {
 
 export const FIVEDRAMON_PORTFOLIO_ENTRY: DigimonCatalogEntry = {
   ...FIVEDRAMON_META,
-  spriteSheetUrl: '/assets/characters/fivedramon/fivedramon.jpg',
+  spriteSheetUrl: '/assets/characters/fivedramon/fivedramon.webp',
   overworldPoseMap: FIVEDRAMON_PORTFOLIO_POSE_MAP,
 };
 
 /** Loads `fivedramon` via the standalone character module and adapts it to `SlicedDigimonSprites`. */
-export async function adaptFivedramonForPortfolio(): Promise<SlicedDigimonSprites | null> {
+export async function adaptFivedramonForPortfolio(
+  tier: DigimonLoadTier = 'full'
+): Promise<SlicedDigimonSprites | null> {
   try {
-    const set = await loadFivedramon();
+    const set = await loadFivedramon(undefined, tier);
     const idle = set.groups.idle ?? [];
     const walk = set.groups.walk ?? [];
     const battle = set.groups.battle ?? [];
@@ -48,6 +50,7 @@ export async function adaptFivedramonForPortfolio(): Promise<SlicedDigimonSprite
 
     return {
       id: FIVEDRAMON_META.id,
+      tier,
       icon: set.icon,
       iconDataUrl: set.iconDataUrl,
       largeIdle: largeIdle.length > 0 ? largeIdle : overworld.slice(0, 1),

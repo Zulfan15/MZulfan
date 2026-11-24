@@ -1,12 +1,20 @@
 import { CharacterAnimator } from '../_shared/CharacterAnimator';
 import {
+  createEmptyFrame,
   downscaleFrame,
   flipFrame,
   frameToDataUrl,
   loadImage,
   sliceFrames,
+  yieldToFrame,
 } from '../_shared/sheetSlicer';
-import { DIRECTIONS_8, type CharacterSpriteSet } from '../_shared/types';
+import {
+  CARDINAL_DIRECTIONS,
+  DIRECTIONS_8,
+  type CharacterFrame,
+  type CharacterLoadMode,
+  type CharacterSpriteSet,
+} from '../_shared/types';
 import {
   GASPIRITAMON_ACTIONS,
   GASPIRITAMON_IDLE_CLIP,
@@ -36,41 +44,69 @@ const inflightByBase = new Map<string, Promise<CharacterSpriteSet>>();
  * Uses `border-green` chroma keying so glowing emerald-cyan runes on Gaspiritamon's hammer and shield stay intact.
  */
 export async function loadGaspiritamon(
-  baseUrl = GASPIRITAMON_DEFAULT_ASSET_BASE
+  baseUrl = GASPIRITAMON_DEFAULT_ASSET_BASE,
+  mode: CharacterLoadMode = 'full'
 ): Promise<CharacterSpriteSet> {
-  const cached = spriteCache.get(baseUrl);
+  const fullKey = `${baseUrl}::full`;
+  const cachedFull = spriteCache.get(fullKey);
+  if (cachedFull) return cachedFull;
+
+  const cacheKey = `${baseUrl}::${mode}`;
+  const cached = spriteCache.get(cacheKey);
   if (cached) return cached;
 
-  const existing = inflightByBase.get(baseUrl);
+  const existing = inflightByBase.get(fullKey) ?? inflightByBase.get(cacheKey);
   if (existing) return existing;
 
   const task = (async () => {
     const urls = resolveGaspiritamonAssets(baseUrl);
-    const [walkImg, battleImg, jpgImg] = await Promise.all([
-      loadImage(urls.walk),
-      loadImage(urls.battle),
-      loadImage(urls.sheet),
-    ]);
+    const walkImg = await loadImage(urls.walk);
+    const extraPromises =
+      mode === 'full' ? Promise.all([loadImage(urls.battle), loadImage(urls.sheet)]) : null;
 
-    const stepOrder = DIRECTIONS_8.flatMap((dir) => GASPIRITAMON_WALK_STEPS_BY_DIR[dir]);
-    const stepRects = stepOrder.map((s) => gridCell8x4(s.row, s.col));
-
-    const slicedWalk = sliceFrames(walkImg, stepRects, {
-      chroma: 'border-green',
-      trim: 'uniform',
-      isolateMainBody: true,
-    }).map((f) => downscaleFrame(f, 96, true));
-    const walk = slicedWalk.map((frame, i) => (stepOrder[i].flipX ? flipFrame(frame) : frame));
+    const walk: CharacterFrame[] = [];
+    for (const dir of DIRECTIONS_8) {
+      const steps = GASPIRITAMON_WALK_STEPS_BY_DIR[dir];
+      if (mode === 'overworld' && !CARDINAL_DIRECTIONS.has(dir)) {
+        for (let i = 0; i < steps.length; i++) walk.push(createEmptyFrame());
+        continue;
+      }
+      const rects = steps.map((s) => gridCell8x4(s.row, s.col));
+      const frames = sliceFrames(walkImg, rects, {
+        chroma: 'border-green',
+        trim: 'uniform',
+        isolateMainBody: true,
+      })
+        .map((f) => downscaleFrame(f, 96, true))
+        .map((frame, i) => (steps[i].flipX ? flipFrame(frame) : frame));
+      walk.push(...frames);
+      await yieldToFrame();
+    }
 
     // Reuse the standing pose (frame 0 of each direction) for idle
     const idle = DIRECTIONS_8.map((_, dirIdx) => walk[dirIdx * GASPIRITAMON_WALK_STEPS_PER_DIR]);
 
+    if (mode === 'overworld') {
+      const set: CharacterSpriteSet = {
+        id: GASPIRITAMON_META.id,
+        directionOrder: DIRECTIONS_8,
+        groups: { idle, walk, battle: [], battleLarge: [], hd: [], mini: [] },
+        icon: null,
+        iconDataUrl: null,
+        loadedAt: performance.now(),
+      };
+      spriteCache.set(cacheKey, set);
+      return set;
+    }
+
+    const [battleImg, jpgImg] = await extraPromises!;
     const rawBattle = sliceFrames(battleImg, GASPIRITAMON_BATTLE_RECTS, {
       chroma: 'border-green',
       trim: 'tight',
     });
     const battle = rawBattle.map((f) => downscaleFrame(f, 112, true));
     const battleLarge = rawBattle.map((f) => downscaleFrame(f, 220, true));
+    await yieldToFrame();
 
     const [icon = null] = sliceFrames(jpgImg, [GASPIRITAMON_JPG_ICON_RECT], {
       chroma: 'border-green',
@@ -99,13 +135,13 @@ export async function loadGaspiritamon(
       loadedAt: performance.now(),
     };
 
-    spriteCache.set(baseUrl, set);
+    spriteCache.set(cacheKey, set);
     return set;
   })().finally(() => {
-    inflightByBase.delete(baseUrl);
+    inflightByBase.delete(cacheKey);
   });
 
-  inflightByBase.set(baseUrl, task);
+  inflightByBase.set(cacheKey, task);
   return task;
 }
 
@@ -113,7 +149,7 @@ export async function loadGaspiritamon(
 export function getGaspiritamonSync(
   baseUrl = GASPIRITAMON_DEFAULT_ASSET_BASE
 ): CharacterSpriteSet | null {
-  return spriteCache.get(baseUrl) ?? null;
+  return spriteCache.get(`${baseUrl}::full`) ?? spriteCache.get(`${baseUrl}::overworld`) ?? null;
 }
 
 /** Clears cached Gaspiritamon sprite canvases. */

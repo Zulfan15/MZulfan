@@ -6,10 +6,10 @@ export const PLUSIAMON_DEFAULT_ASSET_BASE = '/assets/characters/plusiamon';
 
 export const PLUSIAMON_ASSET_FILES = {
   idle: 'idle.png',
-  walk: 'walk-cycle.png',
-  battle: 'battle.png',
-  sheet: 'plusiamon.jpg',
-  ds: 'plusiamon-ds.png',
+  walk: 'walk-cycle.webp',
+  battle: 'battle.webp',
+  sheet: 'plusiamon.webp',
+  ds: 'plusiamon-ds.webp',
 } as const;
 
 export function resolvePlusiamonAssets(baseUrl = PLUSIAMON_DEFAULT_ASSET_BASE) {

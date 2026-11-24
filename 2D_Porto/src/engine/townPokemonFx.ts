@@ -1,6 +1,7 @@
 import { DIRS, Tile, type CharacterPalette, type Dir, type TownMap, type Vec } from './types';
 import { drawPikachu } from './townBackground';
 import { DIGIMON_ZONE_COLORS, getDigimonById, type DigimonCatalogEntry } from './digimonCatalog';
+import { resolveMountRig } from './mountRigConfig';
 import { TILE_SIZE, drawCharacter, drawLucario, drawRiderCharacter } from './sprites';
 import { townConfig } from './townConfig';
 import { sfx } from '../game/sfx';
@@ -2999,76 +3000,57 @@ export function drawPokeRide(
     drawSalamenceSkyAura(ctx, host.tick, coreX, coreY - 10, false);
   }
 
-  // Anatomical per-species and per-direction saddle offsets relative to (coreX, coreY)
-  const saddleConfigs: Record<
-    string,
-    {
-      down: { dx: number; dy: number };
-      side: { dx: number; dy: number };
-      up: { dx: number; dy: number };
-    }
-  > = {
-    dialga:   { down: { dx: 0, dy: -21 }, side: { dx: -4, dy: -20 }, up: { dx: 0, dy: -19 } },
-    giratina: { down: { dx: 0, dy: -23 }, side: { dx: -8, dy: -19 }, up: { dx: 0, dy: -19 } },
-    palkia:   { down: { dx: 0, dy: -21 }, side: { dx: -3, dy: -19 }, up: { dx: 0, dy: -19 } },
-    rayquaza: { down: { dx: 0, dy: -21 }, side: { dx: -4, dy: -19 }, up: { dx: 0, dy: -19 } },
-    lunala:   { down: { dx: 0, dy: -17 }, side: { dx: -2, dy: -16 }, up: { dx: 0, dy: -16 } },
-    arceus:   { down: { dx: 0, dy: -20 }, side: { dx: -4, dy: -18 }, up: { dx: 0, dy: -19 } },
-    reshiram: { down: { dx: 0, dy: -19 }, side: { dx: -5, dy: -17 }, up: { dx: 0, dy: -17 } },
-    zekrom:   { down: { dx: 0, dy: -19 }, side: { dx: -5, dy: -17 }, up: { dx: 0, dy: -17 } },
-    groudon:  { down: { dx: 0, dy: -22 }, side: { dx: -4, dy: -20 }, up: { dx: 0, dy: -21 } },
-    kyogre:   { down: { dx: 0, dy: -18 }, side: { dx: -3, dy: -17 }, up: { dx: 0, dy: -18 } },
-    charizard:{ down: { dx: 0, dy: -21 }, side: { dx: -4, dy: -19 }, up: { dx: 0, dy: -19 } },
-    gardevoir:{ down: { dx: 0, dy: -18 }, side: { dx: -3, dy: -17 }, up: { dx: 0, dy: -17 } },
-    celebi:   { down: { dx: 0, dy: -15 }, side: { dx: -2, dy: -14 }, up: { dx: 0, dy: -15 } },
-    garchomp: { down: { dx: 0, dy: -20 }, side: { dx: -4, dy: -19 }, up: { dx: 0, dy: -19 } },
-    tyranitar:{ down: { dx: 0, dy: -22 }, side: { dx: -4, dy: -20 }, up: { dx: 0, dy: -20 } },
-    gyarados: { down: { dx: 0, dy: -22 }, side: { dx: -5, dy: -20 }, up: { dx: 0, dy: -21 } },
-    snorlax:  { down: { dx: 0, dy: -18 }, side: { dx: -3, dy: -17 }, up: { dx: 0, dy: -17 } },
-    urshifu:  { down: { dx: 0, dy: -19 }, side: { dx: -3, dy: -18 }, up: { dx: 0, dy: -18 } },
-    solgaleo: { down: { dx: 0, dy: -18 }, side: { dx: -4, dy: -17 }, up: { dx: 0, dy: -17 } },
-    necrozma: { down: { dx: 0, dy: -19 }, side: { dx: -3, dy: -18 }, up: { dx: 0, dy: -18 } },
-    samurott: { down: { dx: 0, dy: -17 }, side: { dx: -3, dy: -16 }, up: { dx: 0, dy: -17 } },
-    empoleon: { down: { dx: 0, dy: -17 }, side: { dx: -2, dy: -16 }, up: { dx: 0, dy: -17 } },
-    regigigas:{ down: { dx: 0, dy: -22 }, side: { dx: -4, dy: -20 }, up: { dx: 0, dy: -21 } },
-    koraidon: { down: { dx: 0, dy: -20 }, side: { dx: -4, dy: -18 }, up: { dx: 0, dy: -19 } },
-    eternatus:{ down: { dx: 0, dy: -21 }, side: { dx: -5, dy: -19 }, up: { dx: 0, dy: -19 } },
-    lugia:    { down: { dx: 0, dy: -20 }, side: { dx: -4, dy: -18 }, up: { dx: 0, dy: -19 } },
-    archaludon:{ down: { dx: 0, dy: -20 }, side: { dx: -4, dy: -18 }, up: { dx: 0, dy: -19 } },
-    gougingfire:{ down: { dx: 0, dy: -21 }, side: { dx: -4, dy: -19 }, up: { dx: 0, dy: -20 } },
-    greattusk:{ down: { dx: 0, dy: -19 }, side: { dx: -4, dy: -17 }, up: { dx: 0, dy: -18 } },
-    kyurem:   { down: { dx: 0, dy: -21 }, side: { dx: -4, dy: -19 }, up: { dx: 0, dy: -20 } },
-    salamence:{ down: { dx: 0, dy: -19 }, side: { dx: -4, dy: -17 }, up: { dx: 0, dy: -18 } },
-    latios:   { down: { dx: 0, dy: -16 }, side: { dx: -2, dy: -15 }, up: { dx: 0, dy: -16 } },
-    latias:   { down: { dx: 0, dy: -16 }, side: { dx: -2, dy: -15 }, up: { dx: 0, dy: -16 } },
-    darkrai:  { down: { dx: 0, dy: -18 }, side: { dx: -3, dy: -17 }, up: { dx: 0, dy: -17 } },
-    mewtwo:   { down: { dx: 0, dy: -17 }, side: { dx: -3, dy: -16 }, up: { dx: 0, dy: -17 } },
-    lucario:  { down: { dx: 0, dy: -13 }, side: { dx: -2, dy: -12 }, up: { dx: 0, dy: -13 } },
+  const digiMount = getDigimonById(fid);
+  const rig = resolveMountRig(fid, digiMount);
+
+  const offset =
+    dir === 'down'
+      ? rig.down
+      : dir === 'up'
+        ? rig.up
+        : dir === 'right'
+          ? rig.right
+          : rig.left ?? { dx: -rig.right.dx, dy: rig.right.dy };
+
+  const leanX = isMoving ? (dir === 'right' ? 1 : dir === 'left' ? -1 : 0) : 0;
+  const leanY = isMoving ? (dir === 'down' ? 1 : dir === 'up' ? -1 : 0) : 0;
+
+  const pmdBob = rideClass === 'sky' ? rideBob * 0.5 : 0;
+  const effectiveMountBob = digiMount ? rideBob : pmdBob;
+  const riderHoverJitter =
+    rig.posture === 'aura-platform' ? Math.sin(host.tick * 0.1 + 0.8) * 0.6 : 0;
+
+  // When riding behind (`pillion` or `aura-platform`) while facing down, draw rider behind the mount
+  const drawRiderBehindMount =
+    (rig.posture === 'aura-platform' || rig.posture === 'pillion') && dir === 'down';
+
+  const drawMountedRider = () => {
+    drawRiderCharacter(
+      ctx,
+      host.playerPalette,
+      dir,
+      0,
+      coreX + offset.dx,
+      coreY + offset.dy + effectiveMountBob + riderHoverJitter,
+      1,
+      1,
+      {
+        posture: rig.posture,
+        leanX,
+        leanY,
+        drawSeatShadow: !drawRiderBehindMount,
+        seatShadowRx: rig.seatShadowRx,
+        seatShadowRy: rig.seatShadowRy,
+        auraColor: rig.auraColor,
+        tick: host.tick,
+      }
+    );
   };
 
-  const saddle = saddleConfigs[fid] ?? {
-    down: { dx: 0, dy: -19 },
-    side: { dx: -3, dy: -17 },
-    up: { dx: 0, dy: -17 },
-  };
-
-  let riderDx = 0;
-  let riderDy = -19;
-  if (dir === 'down') {
-    riderDx = saddle.down.dx;
-    riderDy = saddle.down.dy;
-  } else if (dir === 'up') {
-    riderDx = saddle.up.dx;
-    riderDy = saddle.up.dy;
-  } else if (dir === 'right') {
-    riderDx = saddle.side.dx;
-    riderDy = saddle.side.dy;
-  } else if (dir === 'left') {
-    riderDx = -saddle.side.dx;
-    riderDy = saddle.side.dy;
+  if (drawRiderBehindMount) {
+    drawMountedRider();
   }
 
-  const digiMount = getDigimonById(fid);
   const pmdDrawn = digiMount
     ? false
     : host.pmdAnimator.draw(
@@ -3077,7 +3059,7 @@ export function drawPokeRide(
         action,
         dir,
         coreX,
-        coreY,
+        coreY + pmdBob,
         curAnimTick,
         1.18
       );
@@ -3164,17 +3146,9 @@ export function drawPokeRide(
     if (isFlipped) ctx.restore();
   }
 
-  // Draw seated rider on the Pokémon's anatomical saddle (authentic Ash Ketchum sprite, realistic 0.60x mount scale & soft blending)
-  drawRiderCharacter(
-    ctx,
-    host.playerPalette,
-    dir,
-    isMoving ? stepFrame : 0,
-    coreX + riderDx,
-    coreY + riderDy + rideBob * 0.75,
-    0.60,
-    0.82
-  );
+  if (!drawRiderBehindMount) {
+    drawMountedRider();
+  }
 }
 
 export function renderMoveParticles(host: TownPokemonFxHost, ctx: CanvasRenderingContext2D) {

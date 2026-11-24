@@ -1,11 +1,17 @@
+import { adaptBelphemonXForPortfolio } from '../characters/belphemon_x/adapters/portfolioDigimon';
+import { BELPHEMON_X_META } from '../characters/belphemon_x/belphemon_x.meta';
 import { adaptFivedramonForPortfolio } from '../characters/fivedramon/adapters/portfolioDigimon';
 import { FIVEDRAMON_META } from '../characters/fivedramon/fivedramon.meta';
+import { adaptGammamonForPortfolio } from '../characters/gammamon/adapters/portfolioDigimon';
+import { GAMMAMON_META } from '../characters/gammamon/gammamon.meta';
 import { adaptGaspiritamonForPortfolio } from '../characters/gaspiritamon/adapters/portfolioDigimon';
 import { GASPIRITAMON_META } from '../characters/gaspiritamon/gaspiritamon.meta';
 import { adaptHolloknightmonForPortfolio } from '../characters/holloknightmon/adapters/portfolioDigimon';
 import { HOLLOKNIGHTMON_META } from '../characters/holloknightmon/holloknightmon.meta';
 import { adaptJesmonXForPortfolio } from '../characters/jesmon_x/adapters/portfolioDigimon';
 import { JESMON_X_META } from '../characters/jesmon_x/jesmon_x.meta';
+import { adaptKaratiamonForPortfolio } from '../characters/karatiamon/adapters/portfolioDigimon';
+import { KARATIAMON_META } from '../characters/karatiamon/karatiamon.meta';
 import { adaptMastenamonForPortfolio } from '../characters/mastenamon/adapters/portfolioDigimon';
 import { MASTENAMON_META } from '../characters/mastenamon/mastenamon.meta';
 import { adaptMazagamonForPortfolio } from '../characters/mazagamon/adapters/portfolioDigimon';
@@ -14,8 +20,12 @@ import { adaptPlusiamonForPortfolio } from '../characters/plusiamon/adapters/por
 import { PLUSIAMON_META } from '../characters/plusiamon/plusiamon.meta';
 import { adaptRagnaloardmonForPortfolio } from '../characters/ragnaloardmon/adapters/portfolioDigimon';
 import { RAGNALOARDMON_META } from '../characters/ragnaloardmon/ragnaloardmon.meta';
+import { adaptSakuyamonXForPortfolio } from '../characters/sakuyamon_x/adapters/portfolioDigimon';
+import { SAKUYAMON_X_META } from '../characters/sakuyamon_x/sakuyamon_x.meta';
 import { adaptShogunAlphamonForPortfolio } from '../characters/shogun_alphamon/adapters/portfolioDigimon';
 import { SHOGUN_ALPHAMON_META } from '../characters/shogun_alphamon/shogun_alphamon.meta';
+import { adaptVictoryGrowlmonForPortfolio } from '../characters/victorygrowlmon/adapters/portfolioDigimon';
+import { VICTORYGROWLMON_META } from '../characters/victorygrowlmon/victorygrowlmon.meta';
 import {
   getDigimonById,
   type DigimonCatalogEntry,
@@ -29,8 +39,11 @@ export interface ProcessedSpriteFrame {
   height: number;
 }
 
+export type DigimonLoadTier = 'overworld' | 'full';
+
 export interface SlicedDigimonSprites {
   id: string;
+  tier?: DigimonLoadTier;
   icon: ProcessedSpriteFrame | null;
   iconDataUrl: string | null;
   largeIdle: ProcessedSpriteFrame[];
@@ -46,11 +59,39 @@ interface RgbaColor {
   a: number;
 }
 
-export type CustomDigimonSpriteLoader = () => Promise<SlicedDigimonSprites | null>;
+export type CustomDigimonSpriteLoader = (tier?: DigimonLoadTier) => Promise<SlicedDigimonSprites | null>;
 
 const spriteCache = new Map<string, SlicedDigimonSprites>();
 const inflightRequests = new Map<string, Promise<SlicedDigimonSprites | null>>();
 const customLoaders = new Map<string, CustomDigimonSpriteLoader>();
+const MAX_CONCURRENT_LOADS = 2;
+let activeLoads = 0;
+const loadQueue: Array<{ tier: DigimonLoadTier; run: () => Promise<void> }> = [];
+
+function drainLoadQueue() {
+  while (activeLoads < MAX_CONCURRENT_LOADS && loadQueue.length > 0) {
+    const task = loadQueue.shift()!;
+    activeLoads++;
+    task
+      .run()
+      .catch(() => { })
+      .finally(() => {
+        activeLoads = Math.max(0, activeLoads - 1);
+        if (loadQueue.length > 0) {
+          setTimeout(drainLoadQueue, 0);
+        }
+      });
+  }
+}
+
+function enqueueLoad(tier: DigimonLoadTier, run: () => Promise<void>) {
+  if (tier === 'full') {
+    loadQueue.unshift({ tier, run });
+  } else {
+    loadQueue.push({ tier, run });
+  }
+  drainLoadQueue();
+}
 
 /**
  * Registers a standalone multi-sheet character module loader for a catalog Digimon id.
@@ -59,15 +100,20 @@ export function registerCustomDigimonSource(id: string, loader: CustomDigimonSpr
   customLoaders.set(id, loader);
 }
 
+registerCustomDigimonSource(BELPHEMON_X_META.id, adaptBelphemonXForPortfolio);
 registerCustomDigimonSource(FIVEDRAMON_META.id, adaptFivedramonForPortfolio);
+registerCustomDigimonSource(GAMMAMON_META.id, adaptGammamonForPortfolio);
 registerCustomDigimonSource(GASPIRITAMON_META.id, adaptGaspiritamonForPortfolio);
 registerCustomDigimonSource(HOLLOKNIGHTMON_META.id, adaptHolloknightmonForPortfolio);
 registerCustomDigimonSource(JESMON_X_META.id, adaptJesmonXForPortfolio);
+registerCustomDigimonSource(KARATIAMON_META.id, adaptKaratiamonForPortfolio);
 registerCustomDigimonSource(MASTENAMON_META.id, adaptMastenamonForPortfolio);
 registerCustomDigimonSource(MAZAGAMON_META.id, adaptMazagamonForPortfolio);
 registerCustomDigimonSource(PLUSIAMON_META.id, adaptPlusiamonForPortfolio);
 registerCustomDigimonSource(RAGNALOARDMON_META.id, adaptRagnaloardmonForPortfolio);
+registerCustomDigimonSource(SAKUYAMON_X_META.id, adaptSakuyamonXForPortfolio);
 registerCustomDigimonSource(SHOGUN_ALPHAMON_META.id, adaptShogunAlphamonForPortfolio);
+registerCustomDigimonSource(VICTORYGROWLMON_META.id, adaptVictoryGrowlmonForPortfolio);
 const listeners = new Map<string, Set<() => void>>();
 
 function notifyLoaded(id: string) {
@@ -1433,6 +1479,7 @@ function loadAndSliceEntry(entry: DigimonCatalogEntry): Promise<SlicedDigimonSpr
 
         const sliced: SlicedDigimonSprites = {
           id: entry.id,
+          tier: 'full',
           icon,
           iconDataUrl,
           largeIdle,
@@ -1463,10 +1510,19 @@ export function getDigimonSpritesSync(id: string): SlicedDigimonSprites | null {
 /**
  * Lazily loads and slices a Digimon spritesheet into memory once, notifying subscribers on completion.
  * Never touches Digimon assets unless explicitly requested by /digimon or active entities.
+ * When `tier === 'overworld'`, custom modular Digimon only load cardinal idle+walk frames
+ * and defer battle/HD/diagonal slicing until `'full'` (e.g. DigiDex modal open).
  */
-export function requestDigimonSprites(id: string, onReady?: () => void): SlicedDigimonSprites | null {
+export function requestDigimonSprites(
+  id: string,
+  onReady?: () => void,
+  tier: DigimonLoadTier = 'full'
+): SlicedDigimonSprites | null {
   const cached = spriteCache.get(id);
-  if (cached) return cached;
+  const needsUpgrade = cached?.tier === 'overworld' && tier === 'full';
+  if (cached && !needsUpgrade) {
+    return cached;
+  }
 
   if (onReady) {
     let subs = listeners.get(id);
@@ -1477,32 +1533,52 @@ export function requestDigimonSprites(id: string, onReady?: () => void): SlicedD
     subs.add(onReady);
   }
 
-  if (!inflightRequests.has(id)) {
+  const reqKey = `${id}:${tier}`;
+  const fullInflight = inflightRequests.has(`${id}:full`);
+  if (!inflightRequests.has(reqKey) && !(tier === 'overworld' && fullInflight)) {
     const customLoader = customLoaders.get(id);
-    if (customLoader) {
-      const req = customLoader()
-        .then((res) => {
-          if (res) {
-            spriteCache.set(id, res);
-            notifyLoaded(id);
-          }
-          return res;
-        })
-        .finally(() => {
-          inflightRequests.delete(id);
-        });
-      inflightRequests.set(id, req);
-    } else {
-      const entry = getDigimonById(id);
-      if (!entry) return null;
-      const req = loadAndSliceEntry(entry).finally(() => {
-        inflightRequests.delete(id);
-      });
-      inflightRequests.set(id, req);
+    if (!customLoader && !getDigimonById(id)) {
+      return cached ?? null;
     }
+
+    let resolvePromise!: (res: SlicedDigimonSprites | null) => void;
+    const req = new Promise<SlicedDigimonSprites | null>((resolve) => {
+      resolvePromise = resolve;
+    }).finally(() => {
+      inflightRequests.delete(reqKey);
+    });
+    inflightRequests.set(reqKey, req);
+
+    enqueueLoad(tier, async () => {
+      let res: SlicedDigimonSprites | null = null;
+      try {
+        if (customLoader) {
+          res = await customLoader(tier);
+          if (res) {
+            const existing = spriteCache.get(id);
+            if (tier === 'full' || !existing || existing.tier === 'overworld') {
+              res.tier = res.tier ?? tier;
+              spriteCache.set(id, res);
+              notifyLoaded(id);
+            } else {
+              res = existing;
+            }
+          }
+        } else {
+          const entry = getDigimonById(id);
+          if (entry) {
+            res = await loadAndSliceEntry(entry);
+          }
+        }
+      } catch {
+        res = null;
+      } finally {
+        resolvePromise(res);
+      }
+    });
   }
 
-  return null;
+  return cached ?? null;
 }
 
 function inferOverworldPoseMap(frameCount: number): OverworldPoseMap {
@@ -1616,8 +1692,8 @@ export function selectDigimonOverworldFrame(
         ? pose.side
         : pose.front
       : pose.front.length
-      ? pose.front
-      : [3];
+        ? pose.front
+        : [3];
   const idx = pool[Math.floor(tick / (isWalking ? 10 : 34)) % pool.length];
   return { frame: frames[idx] || frames[0], flipX: false };
 }
@@ -1626,5 +1702,7 @@ export function clearDigimonSpriteCache() {
   spriteCache.clear();
   inflightRequests.clear();
   listeners.clear();
+  loadQueue.length = 0;
+  activeLoads = 0;
 }
 

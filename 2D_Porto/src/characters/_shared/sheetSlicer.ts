@@ -2,6 +2,20 @@ import { applyChromaKey } from './chromaKey';
 import type { CharacterFrame, FrameRect, SliceOptions } from './types';
 
 const ALPHA_VISIBLE = 16;
+let emptyFrameSingleton: CharacterFrame | null = null;
+
+/** Yields back to the browser event loop so heavy multi-sheet slicing stays responsive. */
+export function yieldToFrame(): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, 0));
+}
+
+/** Shared 1x1 transparent placeholder used to preserve pose indices when skipping diagonal directions. */
+export function createEmptyFrame(): CharacterFrame {
+  if (!emptyFrameSingleton) {
+    emptyFrameSingleton = { canvas: createCanvas(1, 1), width: 1, height: 1 };
+  }
+  return emptyFrameSingleton;
+}
 
 interface Bounds {
   x0: number;

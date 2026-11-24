@@ -1,5 +1,5 @@
 import type { DigimonCatalogEntry, OverworldPoseMap } from '../../../engine/digimonCatalog';
-import type { SlicedDigimonSprites } from '../../../engine/digiSpriteLoader';
+import type { DigimonLoadTier, SlicedDigimonSprites } from '../../../engine/digiSpriteLoader';
 import { loadRagnaloardmon } from '../ragnaloardmon.loader';
 import { RAGNALOARDMON_META } from '../ragnaloardmon.meta';
 
@@ -27,14 +27,16 @@ export const RAGNALOARDMON_PORTFOLIO_POSE_MAP: OverworldPoseMap = {
 
 export const RAGNALOARDMON_PORTFOLIO_ENTRY: DigimonCatalogEntry = {
   ...RAGNALOARDMON_META,
-  spriteSheetUrl: '/assets/characters/ragnaloardmon/ragnaloardmon.jpg',
+  spriteSheetUrl: '/assets/characters/ragnaloardmon/ragnaloardmon.webp',
   overworldPoseMap: RAGNALOARDMON_PORTFOLIO_POSE_MAP,
 };
 
 /** Loads `ragnaloardmon` via the standalone character module and adapts it to `SlicedDigimonSprites`. */
-export async function adaptRagnaloardmonForPortfolio(): Promise<SlicedDigimonSprites | null> {
+export async function adaptRagnaloardmonForPortfolio(
+  tier: DigimonLoadTier = 'full'
+): Promise<SlicedDigimonSprites | null> {
   try {
-    const set = await loadRagnaloardmon();
+    const set = await loadRagnaloardmon(undefined, tier);
     const idle = set.groups.idle ?? [];
     const walk = set.groups.walk ?? [];
     const battle = set.groups.battle ?? [];
@@ -50,6 +52,7 @@ export async function adaptRagnaloardmonForPortfolio(): Promise<SlicedDigimonSpr
 
     return {
       id: RAGNALOARDMON_META.id,
+      tier,
       icon: set.icon,
       iconDataUrl: set.iconDataUrl,
       largeIdle: largeIdle.length > 0 ? largeIdle : overworld.slice(0, 1),

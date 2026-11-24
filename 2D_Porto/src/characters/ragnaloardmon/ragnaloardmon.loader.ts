@@ -1,12 +1,20 @@
 import { CharacterAnimator } from '../_shared/CharacterAnimator';
 import {
+  createEmptyFrame,
   downscaleFrame,
   flipFrame,
   frameToDataUrl,
   loadImage,
   sliceFrames,
+  yieldToFrame,
 } from '../_shared/sheetSlicer';
-import { DIRECTIONS_8, type CharacterSpriteSet } from '../_shared/types';
+import {
+  CARDINAL_DIRECTIONS,
+  DIRECTIONS_8,
+  type CharacterFrame,
+  type CharacterLoadMode,
+  type CharacterSpriteSet,
+} from '../_shared/types';
 import {
   RAGNALOARDMON_ACTIONS,
   RAGNALOARDMON_IDLE_CLIP,
@@ -38,45 +46,75 @@ const inflightByBase = new Map<string, Promise<CharacterSpriteSet>>();
  * Deduplicates concurrent requests and caches per `baseUrl`.
  */
 export async function loadRagnaloardmon(
-  baseUrl = RAGNALOARDMON_DEFAULT_ASSET_BASE
+  baseUrl = RAGNALOARDMON_DEFAULT_ASSET_BASE,
+  mode: CharacterLoadMode = 'full'
 ): Promise<CharacterSpriteSet> {
-  const cached = spriteCache.get(baseUrl);
+  const fullKey = `${baseUrl}::full`;
+  const cachedFull = spriteCache.get(fullKey);
+  if (cachedFull) return cachedFull;
+
+  const cacheKey = `${baseUrl}::${mode}`;
+  const cached = spriteCache.get(cacheKey);
   if (cached) return cached;
 
-  const existing = inflightByBase.get(baseUrl);
+  const existing = inflightByBase.get(fullKey) ?? inflightByBase.get(cacheKey);
   if (existing) return existing;
 
   const task = (async () => {
     const urls = resolveRagnaloardmonAssets(baseUrl);
-    const [idleImg, walkImg, battleImg, jpgImg, dsImg] = await Promise.all([
+    const [idleImg, walkImg] = await Promise.all([
       loadImage(urls.idle),
       loadImage(urls.walk),
-      loadImage(urls.battle),
-      loadImage(urls.sheet),
-      loadImage(urls.ds),
     ]);
+    const extraPromises =
+      mode === 'full'
+        ? Promise.all([loadImage(urls.battle), loadImage(urls.sheet), loadImage(urls.ds)])
+        : null;
 
     const rawIdle = sliceFrames(idleImg, RAGNALOARDMON_IDLE_RECTS, {
       chroma: 'lossy-teal',
       trim: 'tight',
     });
     const idle = DIRECTIONS_8.map((dir) => {
+      if (mode === 'overworld' && !CARDINAL_DIRECTIONS.has(dir)) return createEmptyFrame();
       const mapping = RAGNALOARDMON_IDLE_DIRECTION_MAP[dir];
       const base = rawIdle[mapping.rawIndex] ?? rawIdle[0];
       return mapping.flipX ? flipFrame(base) : base;
     });
+    await yieldToFrame();
 
-    // Collect unique walk cells once so uniform trimming & downscaling keep every frame aligned
-    const walkStepOrder = DIRECTIONS_8.flatMap((dir) => RAGNALOARDMON_WALK_STEPS_BY_DIR[dir]);
-    const walkRects = walkStepOrder.map((s) => RAGNALOARDMON_WALK_CELL_RECT(s.row, s.col));
-    const slicedWalk = sliceFrames(walkImg, walkRects, {
-      chroma: 'lossy-teal',
-      trim: 'uniform',
-    }).map((f) => downscaleFrame(f, 96, true));
-    const walk = slicedWalk.map((frame, i) =>
-      walkStepOrder[i].flipX ? flipFrame(frame) : frame
-    );
+    const walk: CharacterFrame[] = [];
+    for (const dir of DIRECTIONS_8) {
+      const steps = RAGNALOARDMON_WALK_STEPS_BY_DIR[dir];
+      if (mode === 'overworld' && !CARDINAL_DIRECTIONS.has(dir)) {
+        for (let i = 0; i < steps.length; i++) walk.push(createEmptyFrame());
+        continue;
+      }
+      const rects = steps.map((s) => RAGNALOARDMON_WALK_CELL_RECT(s.row, s.col));
+      const frames = sliceFrames(walkImg, rects, {
+        chroma: 'lossy-teal',
+        trim: 'uniform',
+      })
+        .map((f) => downscaleFrame(f, 96, true))
+        .map((frame, i) => (steps[i].flipX ? flipFrame(frame) : frame));
+      walk.push(...frames);
+      await yieldToFrame();
+    }
 
+    if (mode === 'overworld') {
+      const set: CharacterSpriteSet = {
+        id: RAGNALOARDMON_META.id,
+        directionOrder: DIRECTIONS_8,
+        groups: { idle, walk, battle: [], battleLarge: [], dsIdle: [], hd: [], mini: [] },
+        icon: null,
+        iconDataUrl: null,
+        loadedAt: performance.now(),
+      };
+      spriteCache.set(cacheKey, set);
+      return set;
+    }
+
+    const [battleImg, jpgImg, dsImg] = await extraPromises!;
     // Slice battle.jpg both for large DigiDex attack (~220px) and compact overworld actions (~112px)
     const rawBattle = sliceFrames(battleImg, RAGNALOARDMON_BATTLE_RECTS, {
       chroma: 'lossy-teal',
@@ -84,11 +122,13 @@ export async function loadRagnaloardmon(
     });
     const battle = rawBattle.map((f) => downscaleFrame(f, 112, true));
     const battleLarge = rawBattle.map((f) => downscaleFrame(f, 220, true));
+    await yieldToFrame();
 
     const dsIdle = sliceFrames(dsImg, RAGNALOARDMON_DS_IDLE_RECTS, {
       chroma: 'ds-teal-mint',
       trim: 'tight',
     }).map((f) => downscaleFrame(f, 220, true));
+    await yieldToFrame();
 
     const [icon = null] = sliceFrames(jpgImg, [RAGNALOARDMON_JPG_ICON_RECT], {
       chroma: 'lossy-green',
@@ -117,13 +157,13 @@ export async function loadRagnaloardmon(
       loadedAt: performance.now(),
     };
 
-    spriteCache.set(baseUrl, set);
+    spriteCache.set(cacheKey, set);
     return set;
   })().finally(() => {
-    inflightByBase.delete(baseUrl);
+    inflightByBase.delete(cacheKey);
   });
 
-  inflightByBase.set(baseUrl, task);
+  inflightByBase.set(cacheKey, task);
   return task;
 }
 
@@ -131,7 +171,7 @@ export async function loadRagnaloardmon(
 export function getRagnaloardmonSync(
   baseUrl = RAGNALOARDMON_DEFAULT_ASSET_BASE
 ): CharacterSpriteSet | null {
-  return spriteCache.get(baseUrl) ?? null;
+  return spriteCache.get(`${baseUrl}::full`) ?? spriteCache.get(`${baseUrl}::overworld`) ?? null;
 }
 
 /** Clears cached Ragnaloardmon sprite canvases. */

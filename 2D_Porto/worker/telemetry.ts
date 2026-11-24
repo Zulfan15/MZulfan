@@ -16,7 +16,13 @@ export async function fetchLiveStats(env: Env) {
       headers: { 'User-Agent': 'Zulfan-Town-Telemetry' },
     });
 
-    let activeRepos = [];
+    let activeRepos: Array<{
+      name: string;
+      description: string;
+      url: string;
+      language: string;
+      stars: number;
+    }> = [];
     if (ghRes.ok) {
       const repos = (await ghRes.json()) as any[];
       activeRepos = repos.slice(0, 4).map((r) => ({

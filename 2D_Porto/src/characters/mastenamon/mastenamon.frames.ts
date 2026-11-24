@@ -41,34 +41,106 @@ export const MASTENAMON_IDLE_DIRECTION_MAP: Record<
   SE: { rawIndex: 1, flipX: false },
 };
 
-// ── 2. walk-cycle.png (344x192, 8 columns x 4 rows below y=0..8 label bar) ─
-const WALK_COLS: readonly number[] = [1, 44, 87, 130, 173, 216, 259, 302];
-const WALK_COL_WIDTH = 41;
-const WALK_ROWS: readonly { y: number; h: number }[] = [
-  { y: 9, h: 42 },
-  { y: 52, h: 44 },
-  { y: 99, h: 44 },
-  { y: 145, h: 42 },
+// ── 2. walk-cycle.jpg (1024x1024, generated 4x4 bipedal stride sheet) ───────
+// Torso-aligned uniform-height cell rects per row so `trim: 'uniform'` stays rock-steady.
+const WALK_CELLS: readonly (readonly FrameRect[])[] = [
+  // Row 0: S (front) — torsos aligned ~131.1px from cell left
+  [
+    { x: 1, y: 8, w: 250, h: 251 },
+    { x: 257, y: 8, w: 250, h: 251 },
+    { x: 512, y: 8, w: 250, h: 251 },
+    { x: 768, y: 8, w: 250, h: 251 },
+  ],
+  // Row 1: black-wing side profile (mirrored via flipX for W/SW/NW) — torsos aligned within 0.4px (~105.1px)
+  [
+    { x: 16, y: 261, w: 210, h: 249 },
+    { x: 273, y: 261, w: 210, h: 249 },
+    { x: 527, y: 261, w: 210, h: 249 },
+    { x: 782, y: 261, w: 210, h: 249 },
+  ],
+  // Row 2: N (canonical white-left / black-right back view on C0, C2) — torsos aligned at 124.5px
+  [
+    { x: 8, y: 511, w: 250, h: 252 },
+    { x: 260, y: 511, w: 250, h: 252 },
+    { x: 513, y: 511, w: 254, h: 252 },
+    { x: 769, y: 511, w: 250, h: 252 },
+  ],
+  // Row 3: E (white-wing side profile facing right) — torsos aligned within 0.1px (~99.9px)
+  [
+    { x: 15, y: 765, w: 200, h: 256 },
+    { x: 266, y: 765, w: 200, h: 256 },
+    { x: 527, y: 765, w: 200, h: 256 },
+    { x: 778, y: 765, w: 200, h: 256 },
+  ],
 ];
 
-export const MASTENAMON_WALK_STEPS_PER_DIR = WALK_ROWS.length;
+export const walkCell = (row: number, col: number): FrameRect => WALK_CELLS[row][col];
+
+export interface CellStep {
+  row: number;
+  col: number;
+  flipX?: boolean;
+}
+
+export const MASTENAMON_WALK_STEPS_PER_DIR = 4;
 
 /**
- * NOTE: The generated sheet headers mislabeled horizontal headings:
- * columns 1..3 walk RIGHT (SE, E, NE) while columns 5..7 walk LEFT (NW, W, SW).
- * This table remaps raw columns into canonical `DIRECTIONS_8` (`S, SW, W, NW, N, NE, E, SE`).
+ * Verified 4-step bipedal walk sequences in generated `walk-cycle.jpg` (4x4):
+ * - `S`: Row 0 `[c0, c1, c2, c3]` alternating black/white leg march.
+ * - `W`/`SW`/`NW`: horizontally mirrors Row 1 `[c0, c1, c2, c3]` (black demon wings sweeping back left).
+ * - `N`: Row 2 `[c0, c2, c0, c2]` canonical white-left / black-right back steps (excludes all-black C1/C3).
+ * - `E`/`NE`/`SE`: Row 3 `[c0, c2, c1, c3]` white angel wings sweeping back left.
  */
-export const MASTENAMON_WALK_COL_BY_DIR: readonly number[] = [0, 7, 6, 5, 4, 3, 2, 1];
-
-export const MASTENAMON_WALK_RECTS_BY_CANONICAL_DIR: readonly FrameRect[] =
-  MASTENAMON_WALK_COL_BY_DIR.flatMap((colIdx) =>
-    WALK_ROWS.map(({ y, h }) => ({
-      x: WALK_COLS[colIdx],
-      y,
-      w: WALK_COL_WIDTH,
-      h,
-    }))
-  );
+export const MASTENAMON_WALK_STEPS_BY_DIR: Record<Direction8, readonly CellStep[]> = {
+  S: [
+    { row: 0, col: 0 },
+    { row: 0, col: 1 },
+    { row: 0, col: 2 },
+    { row: 0, col: 3 },
+  ],
+  SW: [
+    { row: 1, col: 0, flipX: true },
+    { row: 1, col: 1, flipX: true },
+    { row: 1, col: 2, flipX: true },
+    { row: 1, col: 3, flipX: true },
+  ],
+  W: [
+    { row: 1, col: 0, flipX: true },
+    { row: 1, col: 1, flipX: true },
+    { row: 1, col: 2, flipX: true },
+    { row: 1, col: 3, flipX: true },
+  ],
+  NW: [
+    { row: 1, col: 0, flipX: true },
+    { row: 1, col: 1, flipX: true },
+    { row: 1, col: 2, flipX: true },
+    { row: 1, col: 3, flipX: true },
+  ],
+  N: [
+    { row: 2, col: 0 },
+    { row: 2, col: 2 },
+    { row: 2, col: 0 },
+    { row: 2, col: 2 },
+  ],
+  NE: [
+    { row: 3, col: 0 },
+    { row: 3, col: 2 },
+    { row: 3, col: 1 },
+    { row: 3, col: 3 },
+  ],
+  E: [
+    { row: 3, col: 0 },
+    { row: 3, col: 2 },
+    { row: 3, col: 1 },
+    { row: 3, col: 3 },
+  ],
+  SE: [
+    { row: 3, col: 0 },
+    { row: 3, col: 2 },
+    { row: 3, col: 1 },
+    { row: 3, col: 3 },
+  ],
+};
 
 // ── 3. battle.png (344x192, 4x2 grid inside 1..2px dark borders) ───────────
 const BATTLE_COLS: readonly number[] = [1, 87, 173, 259];

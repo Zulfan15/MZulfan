@@ -1,4 +1,4 @@
-import type { FrameRect } from '../_shared/types';
+import type { Direction8, FrameRect } from '../_shared/types';
 
 /**
  * Pure pixel-coordinate tables for all 5 Plusiamon source sheets.
@@ -34,7 +34,7 @@ export const PLUSIAMON_IDLE_RECTS: readonly FrameRect[] = [
   RAW_IDLE_RECTS[3], // SE
 ];
 
-// ── 2. walk-cycle.png & battle.png shared 4x8 grid (2730x1536, rows already S..SE)
+// ── 2. battle.png 4x8 grid (2730x1536, rows already S..SE) ─────────────────
 const GRID_COLS: readonly [number, number][] = [
   [4, 677],
   [686, 677],
@@ -59,12 +59,106 @@ const gridCell = (row: number, col: number): FrameRect => ({
   h: GRID_ROWS[row][1],
 });
 
+// ── 2b. walk-cycle.jpg 4x4 generated bipedal stride sheet (1024x1024) ──────
+// Torso-aligned uniform-height cell rects per row so `trim: 'uniform'` has zero jitter.
+const WALK_CELLS: readonly (readonly FrameRect[])[] = [
+  // Row 0: S (front) — torsos aligned ~126.5px from cell left
+  [
+    { x: 0, y: 14, w: 256, h: 243 },
+    { x: 260, y: 14, w: 247, h: 243 },
+    { x: 505, y: 14, w: 254, h: 243 },
+    { x: 769, y: 14, w: 247, h: 243 },
+  ],
+  // Row 1: red-thruster side profile (mirrored via flipX for W/SW/NW) — torsos aligned ~135.0px
+  [
+    { x: 1, y: 266, w: 250, h: 245 },
+    { x: 250, y: 266, w: 250, h: 245 },
+    { x: 511, y: 266, w: 250, h: 245 },
+    { x: 757, y: 266, w: 250, h: 245 },
+  ],
+  // Row 2: N (back) — torsos aligned ~137.3px
+  [
+    { x: 5, y: 524, w: 258, h: 235 },
+    { x: 262, y: 524, w: 252, h: 235 },
+    { x: 512, y: 524, w: 257, h: 235 },
+    { x: 768, y: 524, w: 254, h: 235 },
+  ],
+  // Row 3: E (blue-arm side profile facing right) — torsos aligned ~125.0px
+  [
+    { x: 10, y: 768, w: 240, h: 254 },
+    { x: 272, y: 768, w: 240, h: 254 },
+    { x: 528, y: 768, w: 240, h: 254 },
+    { x: 765, y: 768, w: 240, h: 254 },
+  ],
+];
+
+export const walkCell = (row: number, col: number): FrameRect => WALK_CELLS[row][col];
+
+export interface CellStep {
+  row: number;
+  col: number;
+  flipX?: boolean;
+}
+
 export const PLUSIAMON_WALK_STEPS_PER_DIR = 4;
 
-/** 32 walk frames ordered canonically: `dirIndex (0..7) * 4 + step (0..3)`. */
-export const PLUSIAMON_WALK_RECTS: readonly FrameRect[] = GRID_ROWS.flatMap((_, row) =>
-  GRID_COLS.map((__, col) => gridCell(row, col))
-);
+/**
+ * Verified 4-step bipedal walk sequences in generated `walk-cycle.jpg` (4x4):
+ * - `S`: Row 0 `[c0, c1, c2, c3]` alternating knee-raised marching stride.
+ * - `W`/`SW`/`NW`: horizontally mirrors Row 1 `[c0, c1, c2, c3]` so the red cylinder thruster faces West cleanly.
+ * - `N`: Row 2 `[c0, c1, c2, c3]` alternating rear foot steps.
+ * - `E`/`NE`/`SE`: Row 3 `[c0, c3, c2, c3]` blue-arm side stride without C1's shoulder drum pop-in.
+ */
+export const PLUSIAMON_WALK_STEPS_BY_DIR: Record<Direction8, readonly CellStep[]> = {
+  S: [
+    { row: 0, col: 0 },
+    { row: 0, col: 1 },
+    { row: 0, col: 2 },
+    { row: 0, col: 3 },
+  ],
+  SW: [
+    { row: 1, col: 0, flipX: true },
+    { row: 1, col: 1, flipX: true },
+    { row: 1, col: 2, flipX: true },
+    { row: 1, col: 3, flipX: true },
+  ],
+  W: [
+    { row: 1, col: 0, flipX: true },
+    { row: 1, col: 1, flipX: true },
+    { row: 1, col: 2, flipX: true },
+    { row: 1, col: 3, flipX: true },
+  ],
+  NW: [
+    { row: 1, col: 0, flipX: true },
+    { row: 1, col: 1, flipX: true },
+    { row: 1, col: 2, flipX: true },
+    { row: 1, col: 3, flipX: true },
+  ],
+  N: [
+    { row: 2, col: 0 },
+    { row: 2, col: 1 },
+    { row: 2, col: 2 },
+    { row: 2, col: 3 },
+  ],
+  NE: [
+    { row: 3, col: 0 },
+    { row: 3, col: 3 },
+    { row: 3, col: 2 },
+    { row: 3, col: 3 },
+  ],
+  E: [
+    { row: 3, col: 0 },
+    { row: 3, col: 3 },
+    { row: 3, col: 2 },
+    { row: 3, col: 3 },
+  ],
+  SE: [
+    { row: 3, col: 0 },
+    { row: 3, col: 3 },
+    { row: 3, col: 2 },
+    { row: 3, col: 3 },
+  ],
+};
 
 // ── 3. battle.png key attack poses (taken from matching directional rows) ───
 export const PLUSIAMON_BATTLE_RECTS: readonly FrameRect[] = [

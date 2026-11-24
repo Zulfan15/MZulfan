@@ -5,11 +5,11 @@
 export const JESMON_X_DEFAULT_ASSET_BASE = '/assets/characters/jesmon_x';
 
 export const JESMON_X_ASSET_FILES = {
-  idle: 'idle.jpg',
-  walk: 'walk-cycle.jpg',
-  battle: 'battle.jpg',
-  sheet: 'jesmon-x.jpg',
-  ds: 'jesmon-x-ds.jpg',
+  idle: 'idle.webp',
+  walk: 'walk-cycle.webp',
+  battle: 'battle.webp',
+  sheet: 'jesmon-x.webp',
+  ds: 'jesmon-x-ds.webp',
 } as const;
 
 export function resolveJesmonXAssets(baseUrl = JESMON_X_DEFAULT_ASSET_BASE) {

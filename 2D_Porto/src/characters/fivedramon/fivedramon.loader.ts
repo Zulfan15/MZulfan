@@ -1,12 +1,20 @@
 import { CharacterAnimator } from '../_shared/CharacterAnimator';
 import {
+  createEmptyFrame,
   downscaleFrame,
   flipFrame,
   frameToDataUrl,
   loadImage,
   sliceFrames,
+  yieldToFrame,
 } from '../_shared/sheetSlicer';
-import { DIRECTIONS_8, type CharacterSpriteSet } from '../_shared/types';
+import {
+  CARDINAL_DIRECTIONS,
+  DIRECTIONS_8,
+  type CharacterFrame,
+  type CharacterLoadMode,
+  type CharacterSpriteSet,
+} from '../_shared/types';
 import {
   FIVEDRAMON_ACTIONS,
   FIVEDRAMON_IDLE_CLIP,
@@ -36,40 +44,83 @@ const inflightByBase = new Map<string, Promise<CharacterSpriteSet>>();
  * Uses `border-green` chroma keyer so the emerald-green dragon head remains intact.
  */
 export async function loadFivedramon(
-  baseUrl = FIVEDRAMON_DEFAULT_ASSET_BASE
+  baseUrl = FIVEDRAMON_DEFAULT_ASSET_BASE,
+  mode: CharacterLoadMode = 'full'
 ): Promise<CharacterSpriteSet> {
-  const cached = spriteCache.get(baseUrl);
+  const fullKey = `${baseUrl}::full`;
+  const cachedFull = spriteCache.get(fullKey);
+  if (cachedFull) return cachedFull;
+
+  const cacheKey = `${baseUrl}::${mode}`;
+  const cached = spriteCache.get(cacheKey);
   if (cached) return cached;
 
-  const existing = inflightByBase.get(baseUrl);
+  const existing = inflightByBase.get(fullKey) ?? inflightByBase.get(cacheKey);
   if (existing) return existing;
 
   const task = (async () => {
     const urls = resolveFivedramonAssets(baseUrl);
-    const [idleImg, walkImg, battleImg, jpgImg] = await Promise.all([
+    const [idleImg, walkImg] = await Promise.all([
       loadImage(urls.idle),
       loadImage(urls.walk),
-      loadImage(urls.battle),
-      loadImage(urls.sheet),
     ]);
+    const extraPromises =
+      mode === 'full' ? Promise.all([loadImage(urls.battle), loadImage(urls.sheet)]) : null;
 
-    const idle = sliceFrames(idleImg, FIVEDRAMON_IDLE_RECTS, {
-      chroma: 'border-green',
-      trim: 'tight',
-    });
+    let idle: CharacterFrame[];
+    if (mode === 'overworld') {
+      const cardinalIdle = sliceFrames(
+        idleImg,
+        [FIVEDRAMON_IDLE_RECTS[0], FIVEDRAMON_IDLE_RECTS[2], FIVEDRAMON_IDLE_RECTS[4], FIVEDRAMON_IDLE_RECTS[6]],
+        { chroma: 'border-green', trim: 'tight' }
+      );
+      const empty = createEmptyFrame();
+      idle = [cardinalIdle[0], empty, cardinalIdle[1], empty, cardinalIdle[2], empty, cardinalIdle[3], empty];
+    } else {
+      idle = sliceFrames(idleImg, FIVEDRAMON_IDLE_RECTS, {
+        chroma: 'border-green',
+        trim: 'tight',
+      });
+    }
+    await yieldToFrame();
 
-    const walkOrder = DIRECTIONS_8.flatMap((dir) => FIVEDRAMON_WALK_STEPS_BY_DIR[dir]);
-    const walkRects = walkOrder.map((s) => fivedramonWalkRect(s.row, s.col));
-    const slicedWalk = sliceFrames(walkImg, walkRects, {
-      chroma: 'border-green',
-      trim: 'uniform',
-    });
-    const walk = slicedWalk.map((frame, i) => (walkOrder[i].flipX ? flipFrame(frame) : frame));
+    const walk: CharacterFrame[] = [];
+    for (const dir of DIRECTIONS_8) {
+      const steps = FIVEDRAMON_WALK_STEPS_BY_DIR[dir];
+      if (mode === 'overworld' && !CARDINAL_DIRECTIONS.has(dir)) {
+        for (let i = 0; i < steps.length; i++) walk.push(createEmptyFrame());
+        continue;
+      }
+      const rects = steps.map((s) => fivedramonWalkRect(s.row, s.col));
+      const frames = sliceFrames(walkImg, rects, {
+        chroma: 'border-green',
+        trim: 'uniform',
+      })
+        .map((f) => downscaleFrame(f, 96, true))
+        .map((frame, i) => (steps[i].flipX ? flipFrame(frame) : frame));
+      walk.push(...frames);
+      await yieldToFrame();
+    }
 
+    if (mode === 'overworld') {
+      const set: CharacterSpriteSet = {
+        id: FIVEDRAMON_META.id,
+        directionOrder: DIRECTIONS_8,
+        groups: { idle, walk, battle: [], hd: [], mini: [] },
+        icon: null,
+        iconDataUrl: null,
+        loadedAt: performance.now(),
+      };
+      spriteCache.set(cacheKey, set);
+      return set;
+    }
+
+    const [battleImg, jpgImg] = await extraPromises!;
     const battle = sliceFrames(battleImg, FIVEDRAMON_BATTLE_RECTS, {
       chroma: 'border-green',
       trim: 'tight',
     });
+    await yieldToFrame();
 
     const [icon = null] = sliceFrames(jpgImg, [FIVEDRAMON_JPG_ICON_RECT], {
       chroma: 'border-green',
@@ -98,13 +149,13 @@ export async function loadFivedramon(
       loadedAt: performance.now(),
     };
 
-    spriteCache.set(baseUrl, set);
+    spriteCache.set(cacheKey, set);
     return set;
   })().finally(() => {
-    inflightByBase.delete(baseUrl);
+    inflightByBase.delete(cacheKey);
   });
 
-  inflightByBase.set(baseUrl, task);
+  inflightByBase.set(cacheKey, task);
   return task;
 }
 
@@ -112,7 +163,7 @@ export async function loadFivedramon(
 export function getFivedramonSync(
   baseUrl = FIVEDRAMON_DEFAULT_ASSET_BASE
 ): CharacterSpriteSet | null {
-  return spriteCache.get(baseUrl) ?? null;
+  return spriteCache.get(`${baseUrl}::full`) ?? spriteCache.get(`${baseUrl}::overworld`) ?? null;
 }
 
 /** Clears cached Fivedramon sprite canvases. */

@@ -1,5 +1,5 @@
 import type { DigimonCatalogEntry, OverworldPoseMap } from '../../../engine/digimonCatalog';
-import type { SlicedDigimonSprites } from '../../../engine/digiSpriteLoader';
+import type { DigimonLoadTier, SlicedDigimonSprites } from '../../../engine/digiSpriteLoader';
 import { loadGaspiritamon } from '../gaspiritamon.loader';
 import { GASPIRITAMON_META } from '../gaspiritamon.meta';
 
@@ -26,14 +26,16 @@ export const GASPIRITAMON_PORTFOLIO_POSE_MAP: OverworldPoseMap = {
 
 export const GASPIRITAMON_PORTFOLIO_ENTRY: DigimonCatalogEntry = {
   ...GASPIRITAMON_META,
-  spriteSheetUrl: '/assets/characters/gaspiritamon/gaspiritamon.jpg',
+  spriteSheetUrl: '/assets/characters/gaspiritamon/gaspiritamon.webp',
   overworldPoseMap: GASPIRITAMON_PORTFOLIO_POSE_MAP,
 };
 
 /** Loads `gaspiritamon` via the standalone character module and adapts it to `SlicedDigimonSprites`. */
-export async function adaptGaspiritamonForPortfolio(): Promise<SlicedDigimonSprites | null> {
+export async function adaptGaspiritamonForPortfolio(
+  tier: DigimonLoadTier = 'full'
+): Promise<SlicedDigimonSprites | null> {
   try {
-    const set = await loadGaspiritamon();
+    const set = await loadGaspiritamon(undefined, tier);
     const walk = set.groups.walk ?? [];
     const battle = set.groups.battle ?? [];
     const battleLarge = set.groups.battleLarge ?? battle;
@@ -47,6 +49,7 @@ export async function adaptGaspiritamonForPortfolio(): Promise<SlicedDigimonSpri
 
     return {
       id: GASPIRITAMON_META.id,
+      tier,
       icon: set.icon,
       iconDataUrl: set.iconDataUrl,
       largeIdle: largeIdle.length > 0 ? largeIdle : overworld.slice(0, 1),

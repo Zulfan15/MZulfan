@@ -132,13 +132,34 @@ export function renderGround(
   }
 }
 
+export interface RenderViewBounds {
+  minX: number;
+  maxX: number;
+  minY: number;
+  maxY: number;
+}
+
 // Render warm glowing radial light cones from street lamps
-export function renderLighting(ctx: CanvasRenderingContext2D, lamps: Lamp[]) {
+export function renderLighting(
+  ctx: CanvasRenderingContext2D,
+  lamps: Lamp[],
+  viewBounds?: RenderViewBounds
+) {
   ctx.save();
   for (const l of lamps) {
     const lx = l.x * TILE_SIZE + 8;
     const ly = l.y * TILE_SIZE + 6;
     const radius = l.radius || 48;
+
+    if (
+      viewBounds &&
+      (lx + radius < viewBounds.minX ||
+        lx - radius > viewBounds.maxX ||
+        ly + radius < viewBounds.minY ||
+        ly - radius > viewBounds.maxY)
+    ) {
+      continue;
+    }
 
     const grad = ctx.createRadialGradient(lx, ly, 3, lx, ly, radius);
     if (l.color === 'cyan') {

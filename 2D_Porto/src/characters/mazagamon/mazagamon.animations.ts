@@ -11,8 +11,8 @@ export const MAZAGAMON_IDLE_CLIP: DirectionalClip = {
 
 export const MAZAGAMON_WALK_CLIP: DirectionalClip = {
   group: 'walk',
-  framesPerDirection: 2,
-  fps: 5,
+  framesPerDirection: 4,
+  fps: 7,
 };
 
 export type MazagamonActionId = 'scytheSlash' | 'spearLunge' | 'abyssalOverload';

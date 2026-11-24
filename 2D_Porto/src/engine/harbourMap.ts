@@ -3,7 +3,7 @@ import { Tile, type Dir, type Lamp, type Sign, type TownData, type TownMap } fro
 export const HARBOUR_COLS = 45;
 export const HARBOUR_ROWS = 60;
 
-export const HARBOUR_IMAGE_SRC = '/assets/Harbour/Gemini_Generated_Image_vtasc7vtasc7vtas.jpg';
+export const HARBOUR_IMAGE_SRC = '/assets/Harbour/Gemini_Generated_Image_vtasc7vtasc7vtas.webp';
 
 export const HARBOUR_SPAWN = {
   x: 22,

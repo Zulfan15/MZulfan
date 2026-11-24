@@ -271,8 +271,11 @@ function applyDsTealMintKey(data: Uint8ClampedArray, width: number, height: numb
   despillEdges(data, width, height, 6);
 }
 
-function applyBorderGreenKey(data: Uint8ClampedArray, width: number, height: number): void {
-  // Sample the dominant green backdrop color strictly along the cell perimeter
+function samplePerimeterGreen(
+  data: Uint8ClampedArray,
+  width: number,
+  height: number
+): { bgR: number; bgG: number; bgB: number } {
   const buckets = new Map<string, { rSum: number; gSum: number; bSum: number; hits: number }>();
   const record = (x: number, y: number) => {
     const o = (y * width + x) * 4;
@@ -314,6 +317,50 @@ function applyBorderGreenKey(data: Uint8ClampedArray, width: number, height: num
       bgB = Math.round(b.bSum / b.hits);
     }
   }
+  return { bgR, bgG, bgB };
+}
+
+function floodInteriorPockets(
+  data: Uint8ClampedArray,
+  width: number,
+  height: number,
+  queue: Int32Array,
+  isSeed: (r: number, g: number, b: number) => boolean,
+  canGrow: (r: number, g: number, b: number) => boolean
+): void {
+  for (let y = 2; y < height - 2; y += 2) {
+    for (let x = 2; x < width - 2; x += 2) {
+      const start = y * width + x;
+      const so = start * 4;
+      if (data[so + 3] < ALPHA_MIN) continue;
+      if (!isSeed(data[so], data[so + 1], data[so + 2])) continue;
+      let pHead = 0;
+      let pTail = 0;
+      queue[pTail++] = start;
+      data[so + 3] = 0;
+      while (pHead < pTail) {
+        const i = queue[pHead++];
+        const cx = i % width;
+        const cy = (i - cx) / width;
+        const visit = (n: number) => {
+          const no = n * 4;
+          if (data[no + 3] < ALPHA_MIN) return;
+          if (canGrow(data[no], data[no + 1], data[no + 2])) {
+            data[no + 3] = 0;
+            queue[pTail++] = n;
+          }
+        };
+        if (cx > 0) visit(i - 1);
+        if (cx < width - 1) visit(i + 1);
+        if (cy > 0) visit(i - width);
+        if (cy < height - 1) visit(i + width);
+      }
+    }
+  }
+}
+
+function applyBorderGreenKey(data: Uint8ClampedArray, width: number, height: number): void {
+  const { bgR, bgG, bgB } = samplePerimeterGreen(data, width, height);
 
   // Ground shadow lives strictly in the bottom band under feet; everywhere else stay tight
   // within Euclidean distance <= 24 of the sampled backdrop so emerald scales & dark wings stay untouched.
@@ -362,36 +409,37 @@ function applyBorderGreenKey(data: Uint8ClampedArray, width: number, height: num
     if (y < height - 1) trySeed(i + width);
   }
 
-  // Also clear strictly matching enclosed backdrop pockets between legs/tail without touching green scales
-  for (let y = 2; y < height - 2; y += 2) {
-    for (let x = 2; x < width - 2; x += 2) {
-      const start = y * width + x;
-      const so = start * 4;
-      if (data[so + 3] < ALPHA_MIN) continue;
-      if (colorDist(data[so], data[so + 1], data[so + 2], bgR, bgG, bgB) > 16) continue;
-      let pHead = 0;
-      let pTail = 0;
-      queue[pTail++] = start;
-      data[so + 3] = 0;
-      while (pHead < pTail) {
-        const i = queue[pHead++];
-        const cx = i % width;
-        const cy = (i - cx) / width;
-        const visit = (n: number) => {
-          const no = n * 4;
-          if (data[no + 3] < ALPHA_MIN) return;
-          if (colorDist(data[no], data[no + 1], data[no + 2], bgR, bgG, bgB) <= 22) {
-            data[no + 3] = 0;
-            queue[pTail++] = n;
-          }
-        };
-        if (cx > 0) visit(i - 1);
-        if (cx < width - 1) visit(i + 1);
-        if (cy > 0) visit(i - width);
-        if (cy < height - 1) visit(i + width);
-      }
-    }
-  }
+  floodInteriorPockets(
+    data,
+    width,
+    height,
+    queue,
+    (r, g, b) => colorDist(r, g, b, bgR, bgG, bgB) <= 16,
+    (r, g, b) => colorDist(r, g, b, bgR, bgG, bgB) <= 22
+  );
+}
+
+/**
+ * Removes border-connected green halos around glowing VFX plus enclosed green pockets
+ * without touching dark-outlined lime-green body accents, followed by 1px edge despill.
+ */
+function applyBorderGreenDespillKey(data: Uint8ClampedArray, width: number, height: number): void {
+  const { bgR, bgG, bgB } = samplePerimeterGreen(data, width, height);
+  const isGreenFlood = (r: number, g: number, b: number) => g > r + 18 && g > b + 16;
+
+  seedAndFloodBorder(data, width, height, (r, g, b) => isGreenFlood(r, g, b));
+
+  const queue = new Int32Array(width * height);
+  floodInteriorPockets(
+    data,
+    width,
+    height,
+    queue,
+    (r, g, b) => colorDist(r, g, b, bgR, bgG, bgB) <= 18,
+    (r, g, b) => isGreenFlood(r, g, b)
+  );
+
+  despillEdges(data, width, height, 6);
 }
 
 /**
@@ -409,6 +457,10 @@ export function applyChromaKey(
 ): void {
   if (mode === 'border-green') {
     applyBorderGreenKey(data, width, height);
+    return;
+  }
+  if (mode === 'border-green-despill') {
+    applyBorderGreenDespillKey(data, width, height);
     return;
   }
   if (mode === 'lossy-teal') {

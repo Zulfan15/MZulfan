@@ -25,7 +25,7 @@ export type ShogunAlphamonActionId =
   | 'chargeRight';
 
 export const SHOGUN_ALPHAMON_ACTIONS: Record<ShogunAlphamonActionId, ActionClip> = {
-  naginataSweep: { group: 'battle', frames: [0, 1, 6], fps: 8, loop: false },
-  chargeLeft: { group: 'battle', frames: [2, 3], fps: 7, loop: false },
-  chargeRight: { group: 'battle', frames: [4, 5, 7], fps: 7, loop: false },
+  naginataSweep: { group: 'battle', frames: [0, 1, 2, 3], fps: 8, loop: false },
+  chargeLeft: { group: 'battle', frames: [4, 5, 6, 7], fps: 8, loop: false },
+  chargeRight: { group: 'battle', frames: [8, 9, 10, 11], fps: 8, loop: false },
 };

@@ -8,7 +8,7 @@ export const FIVEDRAMON_ASSET_FILES = {
   idle: 'idle.png',
   walk: 'walk-cycle.png',
   battle: 'battle.png',
-  sheet: 'fivedramon.jpg',
+  sheet: 'fivedramon.webp',
 } as const;
 
 export function resolveFivedramonAssets(baseUrl = FIVEDRAMON_DEFAULT_ASSET_BASE) {

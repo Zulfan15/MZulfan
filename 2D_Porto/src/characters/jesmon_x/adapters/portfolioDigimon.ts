@@ -1,5 +1,5 @@
 import type { DigimonCatalogEntry, OverworldPoseMap } from '../../../engine/digimonCatalog';
-import type { SlicedDigimonSprites } from '../../../engine/digiSpriteLoader';
+import type { DigimonLoadTier, SlicedDigimonSprites } from '../../../engine/digiSpriteLoader';
 import { loadJesmonX } from '../jesmon_x.loader';
 import { JESMON_X_META } from '../jesmon_x.meta';
 
@@ -27,14 +27,16 @@ export const JESMON_X_PORTFOLIO_POSE_MAP: OverworldPoseMap = {
 
 export const JESMON_X_PORTFOLIO_ENTRY: DigimonCatalogEntry = {
   ...JESMON_X_META,
-  spriteSheetUrl: '/assets/characters/jesmon_x/jesmon-x.jpg',
+  spriteSheetUrl: '/assets/characters/jesmon_x/jesmon-x.webp',
   overworldPoseMap: JESMON_X_PORTFOLIO_POSE_MAP,
 };
 
 /** Loads `jesmon_x` via the standalone character module and adapts it to `SlicedDigimonSprites`. */
-export async function adaptJesmonXForPortfolio(): Promise<SlicedDigimonSprites | null> {
+export async function adaptJesmonXForPortfolio(
+  tier: DigimonLoadTier = 'full'
+): Promise<SlicedDigimonSprites | null> {
   try {
-    const set = await loadJesmonX();
+    const set = await loadJesmonX(undefined, tier);
     const idle = set.groups.idle ?? [];
     const walk = set.groups.walk ?? [];
     const battle = set.groups.battle ?? [];
@@ -50,6 +52,7 @@ export async function adaptJesmonXForPortfolio(): Promise<SlicedDigimonSprites |
 
     return {
       id: JESMON_X_META.id,
+      tier,
       icon: set.icon,
       iconDataUrl: set.iconDataUrl,
       largeIdle: largeIdle.length > 0 ? largeIdle : overworld.slice(0, 1),

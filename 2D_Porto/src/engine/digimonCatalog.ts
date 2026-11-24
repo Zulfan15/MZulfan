@@ -1,12 +1,17 @@
+import { BELPHEMON_X_PORTFOLIO_ENTRY } from '../characters/belphemon_x/adapters/portfolioDigimon';
 import { FIVEDRAMON_PORTFOLIO_ENTRY } from '../characters/fivedramon/adapters/portfolioDigimon';
+import { GAMMAMON_PORTFOLIO_ENTRY } from '../characters/gammamon/adapters/portfolioDigimon';
 import { GASPIRITAMON_PORTFOLIO_ENTRY } from '../characters/gaspiritamon/adapters/portfolioDigimon';
 import { HOLLOKNIGHTMON_PORTFOLIO_ENTRY } from '../characters/holloknightmon/adapters/portfolioDigimon';
 import { JESMON_X_PORTFOLIO_ENTRY } from '../characters/jesmon_x/adapters/portfolioDigimon';
+import { KARATIAMON_PORTFOLIO_ENTRY } from '../characters/karatiamon/adapters/portfolioDigimon';
 import { MASTENAMON_PORTFOLIO_ENTRY } from '../characters/mastenamon/adapters/portfolioDigimon';
 import { MAZAGAMON_PORTFOLIO_ENTRY } from '../characters/mazagamon/adapters/portfolioDigimon';
 import { PLUSIAMON_PORTFOLIO_ENTRY } from '../characters/plusiamon/adapters/portfolioDigimon';
 import { RAGNALOARDMON_PORTFOLIO_ENTRY } from '../characters/ragnaloardmon/adapters/portfolioDigimon';
+import { SAKUYAMON_X_PORTFOLIO_ENTRY } from '../characters/sakuyamon_x/adapters/portfolioDigimon';
 import { SHOGUN_ALPHAMON_PORTFOLIO_ENTRY } from '../characters/shogun_alphamon/adapters/portfolioDigimon';
+import { VICTORYGROWLMON_PORTFOLIO_ENTRY } from '../characters/victorygrowlmon/adapters/portfolioDigimon';
 
 export interface SpriteBox {
   x: number;
@@ -77,11 +82,10 @@ export const DIGIMON_ZONE_COLORS: Record<
 const digiSheet = (fileName: string, stageFolder: 'Mega' | 'Ultimate' = 'Mega') =>
   `/assets/Digimon/DS _ DSi - Digimon World DS - ${stageFolder} Digimon - ${fileName}.png`;
 
-const digiSheet2 = (fileNameWithExt: string) =>
-  `/assets/Digimon%202/${encodeURIComponent(fileNameWithExt)}`;
+// Superseded at module init (lines 1446-1451) by pre-baked `/assets/Digimon_HD/<id>.png` sheets
+const digiSheet2 = (_fileNameWithExt: string) => '';
 
-const digiSheet21 = (fileNameWithExt: string) =>
-  `/assets/Digimon%202.1/${encodeURIComponent(fileNameWithExt)}`;
+const digiSheet21 = (_fileNameWithExt: string) => '';
 
 const digiSheetHdClean = (id: string) => `/assets/Digimon_HD/${encodeURIComponent(id)}.png`;
 
@@ -1371,42 +1375,8 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
     overworldTargetHeight: 37,
     overworldPoseMap: HD_8DIR_POSE_MAP,
   },
-  {
-    id: 'victorygrowlmon',
-    name: 'VictoryGrowlmon',
-    title: 'VictoryGrowlmon, Crimson Dramon Knight',
-    tier: 4,
-    iconEmoji: '🛡️',
-    stage: 'Mega',
-    attribute: 'Vaccine',
-    elementZone: 'flame',
-    signatureMove: 'Dramon Victory Slash',
-    lore:
-      'A fierce scarlet dragon warrior equipped with twin jet cannons, a chrome lance gauntlet, and a golden-edged shield blade.',
-    credit: 'Digimon 2.1 HD 8-Directional Sprite Collection',
-    spriteSheetUrl: digiSheet21('VictoryGrowlmon.png'),
-    sheetFormat: 'hd_8dir',
-    overworldTargetHeight: 36,
-    overworldPoseMap: HD_8DIR_POSE_MAP,
-  },
-  {
-    id: 'belphemon_x',
-    name: 'Belphemon X',
-    title: 'Belphemon (X Antibody), Wrath Demon Lord',
-    tier: 4,
-    iconEmoji: '😈',
-    stage: 'Ultra',
-    attribute: 'Virus',
-    elementZone: 'flame',
-    signatureMove: 'Seventh Full Cluster',
-    lore:
-      'The Demon Lord of Sloth mutated by the X-Antibody, tearing the horizon with chained horns and blazing magenta gauntlet claws.',
-    credit: 'Digimon 2.1 HD 8-Directional Sprite Collection',
-    spriteSheetUrl: digiSheet21('Belphemon (X Antibody).jpg'),
-    sheetFormat: 'hd_8dir',
-    overworldTargetHeight: 39,
-    overworldPoseMap: HD_8DIR_POSE_MAP,
-  },
+  VICTORYGROWLMON_PORTFOLIO_ENTRY,
+  BELPHEMON_X_PORTFOLIO_ENTRY,
   {
     id: 'megidramon_x',
     name: 'Megidramon X',
@@ -1425,60 +1395,9 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
     overworldTargetHeight: 39,
     overworldPoseMap: HD_8DIR_POSE_MAP,
   },
-  {
-    id: 'gammamon',
-    name: 'Gammamon',
-    title: 'Gammamon, Heavy Panzer Dino',
-    tier: 2,
-    iconEmoji: '🦕',
-    stage: 'Ultimate',
-    attribute: 'Data',
-    elementZone: 'cyber',
-    signatureMove: 'Steam-Stack Cannon',
-    lore:
-      'A riveted steel sauropod venting turbine exhaust from six dorsal pipes and sweeping rivals with an axe-tipped armored tail.',
-    credit: 'Digimon 2.1 HD 8-Directional Sprite Collection',
-    spriteSheetUrl: digiSheet21('Gammamon.jpg'),
-    sheetFormat: 'hd_8dir',
-    overworldTargetHeight: 38,
-    overworldPoseMap: HD_8DIR_POSE_MAP,
-  },
-  {
-    id: 'sakuyamon_x',
-    name: 'Sakuyamon X',
-    title: 'Sakuyamon (X Antibody), Silver Fox Shrine',
-    tier: 4,
-    iconEmoji: '🦊',
-    stage: 'Mega',
-    attribute: 'Data',
-    elementZone: 'holy',
-    signatureMove: 'Izuna Amaterasu',
-    lore:
-      'A mystic shrine maiden riding an ethereal frost-blue kitsune wolf, conjuring dark spirit foxes and sacred golden rune ribbons.',
-    credit: 'Digimon 2.1 HD 8-Directional Sprite Collection',
-    spriteSheetUrl: digiSheet21('Sakuyamon (X Antibody).jpg'),
-    sheetFormat: 'hd_8dir',
-    overworldTargetHeight: 39,
-    overworldPoseMap: HD_8DIR_POSE_MAP,
-  },
-  {
-    id: 'karatiamon',
-    name: 'Karatiamon',
-    title: 'Karatiamon, Nocturne Rune Fang',
-    tier: 2,
-    iconEmoji: '🐺',
-    stage: 'Ultimate',
-    attribute: 'Virus',
-    elementZone: 'cyber',
-    signatureMove: 'Violet Hex Blade',
-    lore:
-      'A winged wolf swordsman cloaked in midnight tatters, swinging a rune-carved broadsword while phantom violet flames engulf its paw.',
-    credit: 'Digimon 2.1 HD 8-Directional Sprite Collection',
-    spriteSheetUrl: digiSheet21('Karatiamon.png'),
-    sheetFormat: 'hd_8dir',
-    overworldTargetHeight: 34,
-    overworldPoseMap: HD_8DIR_POSE_MAP,
-  },
+  GAMMAMON_PORTFOLIO_ENTRY,
+  SAKUYAMON_X_PORTFOLIO_ENTRY,
+  KARATIAMON_PORTFOLIO_ENTRY,
   {
     id: 'vexatiamon_berserker',
     name: 'Vexatiamon: B',
