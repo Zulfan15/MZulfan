@@ -5,40 +5,99 @@ import type { Direction8, FrameRect } from '../_shared/types';
  * Data only — zero Canvas or engine imports. Edit only these numbers if assets change.
  */
 
-// ── 1. idle.png (344x192, 4x2 grid inside 2px dark cell borders) ───────────
-const IDLE_COLS: readonly [number, number][] = [
-  [4, 79],
-  [89, 80],
-  [175, 79],
-  [261, 79],
-];
-const IDLE_ROWS: readonly [number, number][] = [
-  [3, 90],
-  [99, 90],
+// ── 1. idle-cycle.webp (1024x1024, generated 4x4 hovering/standing idle sheet) ────
+// Torso-aligned uniform-height cell rects per row so `trim: 'uniform'` stays rock-steady.
+const IDLE_CELLS: readonly (readonly FrameRect[])[] = [
+  // Row 0: S (front) — heads aligned within 0.7px (~120.4px from cell left)
+  [
+    { x: 3, y: 3, w: 244, h: 253 },
+    { x: 260, y: 3, w: 244, h: 253 },
+    { x: 516, y: 3, w: 244, h: 253 },
+    { x: 772, y: 3, w: 244, h: 253 },
+  ],
+  // Row 1: black-wing side profile (mirrored via flipX for W/SW/NW) — heads aligned within 0.6px
+  [
+    { x: 5, y: 256, w: 180, h: 252 },
+    { x: 261, y: 256, w: 180, h: 252 },
+    { x: 518, y: 256, w: 180, h: 252 },
+    { x: 774, y: 256, w: 180, h: 252 },
+  ],
+  // Row 2: N (canonical white-left / black-right back view on C0, C2)
+  [
+    { x: 11, y: 514, w: 245, h: 252 },
+    { x: 267, y: 514, w: 245, h: 252 },
+    { x: 523, y: 514, w: 245, h: 252 },
+    { x: 779, y: 514, w: 245, h: 252 },
+  ],
+  // Row 3: E (white-wing side profile facing right) — heads aligned within 0.3px (~99.6px)
+  [
+    { x: 15, y: 768, w: 170, h: 252 },
+    { x: 268, y: 768, w: 170, h: 252 },
+    { x: 527, y: 768, w: 170, h: 252 },
+    { x: 779, y: 768, w: 170, h: 252 },
+  ],
 ];
 
-export const MASTENAMON_IDLE_RECTS: readonly FrameRect[] = IDLE_ROWS.flatMap(([y, h]) =>
-  IDLE_COLS.map(([x, w]) => ({ x, y, w, h }))
-);
+export const idleCell = (row: number, col: number): FrameRect => IDLE_CELLS[row][col];
+
+export const MASTENAMON_IDLE_STEPS_PER_DIR = 4;
 
 /**
- * Maps canonical `DIRECTIONS_8` (`S, SW, W, NW, N, NE, E, SE`) onto raw cells
- * of `idle.png` with true visual symmetry:
- * - facing East (`E`) shows her right (black) wing closest to viewer (`raw[2]`)
- * - facing West (`W`) mirrors `raw[6]` so feet point left & left (white) wing faces viewer
+ * Verified 4-frame idle sequences in `idle-cycle.webp` (4x4):
+ * - `S`: Row 0 `[c0, c1, c2, c3]` front calm poise.
+ * - `W`/`SW`/`NW`: horizontally mirrors Row 1 `[c0, c1, c2, c3]` (black demon wings sweeping back right).
+ * - `N`: Row 2 `[c0, c2, c0, c2]` canonical white-left / black-right back view (excludes swapped C1 / all-black C3).
+ * - `E`/`NE`/`SE`: Row 3 `[c0, c1, c2, c3]` white angel wings sweeping back left.
  */
-export const MASTENAMON_IDLE_DIRECTION_MAP: Record<
-  Direction8,
-  { rawIndex: number; flipX: boolean }
-> = {
-  S: { rawIndex: 0, flipX: false },
-  SW: { rawIndex: 1, flipX: true },
-  W: { rawIndex: 6, flipX: true },
-  NW: { rawIndex: 4, flipX: false },
-  N: { rawIndex: 5, flipX: false },
-  NE: { rawIndex: 3, flipX: false },
-  E: { rawIndex: 2, flipX: false },
-  SE: { rawIndex: 1, flipX: false },
+export const MASTENAMON_IDLE_STEPS_BY_DIR: Record<Direction8, readonly CellStep[]> = {
+  S: [
+    { row: 0, col: 0 },
+    { row: 0, col: 1 },
+    { row: 0, col: 2 },
+    { row: 0, col: 3 },
+  ],
+  SW: [
+    { row: 1, col: 0, flipX: true },
+    { row: 1, col: 1, flipX: true },
+    { row: 1, col: 2, flipX: true },
+    { row: 1, col: 3, flipX: true },
+  ],
+  W: [
+    { row: 1, col: 0, flipX: true },
+    { row: 1, col: 1, flipX: true },
+    { row: 1, col: 2, flipX: true },
+    { row: 1, col: 3, flipX: true },
+  ],
+  NW: [
+    { row: 1, col: 0, flipX: true },
+    { row: 1, col: 1, flipX: true },
+    { row: 1, col: 2, flipX: true },
+    { row: 1, col: 3, flipX: true },
+  ],
+  N: [
+    { row: 2, col: 0 },
+    { row: 2, col: 2 },
+    { row: 2, col: 0 },
+    { row: 2, col: 2 },
+  ],
+  NE: [
+    { row: 3, col: 0 },
+    { row: 3, col: 1 },
+    { row: 3, col: 2 },
+    { row: 3, col: 3 },
+  ],
+  E: [
+    { row: 3, col: 0 },
+    { row: 3, col: 1 },
+    { row: 3, col: 2 },
+    { row: 3, col: 3 },
+  ],
+  SE: [
+    { row: 3, col: 0 },
+    { row: 3, col: 1 },
+    { row: 3, col: 2 },
+    { row: 3, col: 3 },
+  ],
 };
 
 // ── 2. walk-cycle.jpg (1024x1024, generated 4x4 bipedal stride sheet) ───────
@@ -142,12 +201,20 @@ export const MASTENAMON_WALK_STEPS_BY_DIR: Record<Direction8, readonly CellStep[
   ],
 };
 
-// ── 3. battle.png (344x192, 4x2 grid inside 1..2px dark borders) ───────────
-const BATTLE_COLS: readonly number[] = [1, 87, 173, 259];
-const BATTLE_ROWS: readonly number[] = [1, 97];
+// ── 3. battle.png (344x192, 4x2 grid inside 1..2px dark borders & corner dots) ──
+const BATTLE_COL_SPANS: readonly { x: number; w: number }[] = [
+  { x: 2, w: 83 },
+  { x: 87, w: 83 },
+  { x: 173, w: 84 },
+  { x: 259, w: 83 },
+];
+const BATTLE_ROW_SPANS: readonly { y: number; h: number }[] = [
+  { y: 1, h: 93 },
+  { y: 98, h: 93 },
+];
 
-export const MASTENAMON_BATTLE_RECTS: readonly FrameRect[] = BATTLE_ROWS.flatMap((y) =>
-  BATTLE_COLS.map((x) => ({ x, y, w: 84, h: 94 }))
+export const MASTENAMON_BATTLE_RECTS: readonly FrameRect[] = BATTLE_ROW_SPANS.flatMap(({ y, h }) =>
+  BATTLE_COL_SPANS.map(({ x, w }) => ({ x, y, w, h }))
 );
 
 // ── 4. mastenamon.jpg (2400x1792: icon + 8 HD portraits + 8 bottom thumbs) ─
@@ -160,16 +227,16 @@ export const MASTENAMON_JPG_ICON_RECT: FrameRect = {
 
 /** 8 HD portraits ordered canonically as `DIRECTIONS_8` (`S, SW, W, NW, N, NE, E, SE`). */
 export const MASTENAMON_JPG_HD_RECTS: readonly FrameRect[] = [
-  // Row 2: S, SW, W (y=895..1604 stays strictly between row-1 & row-2 text labels)
-  { x: 25, y: 895, w: 638, h: 710 }, // S
-  { x: 663, y: 895, w: 582, h: 710 }, // SW
-  { x: 1245, y: 895, w: 439, h: 710 }, // W
-  { x: 1790, y: 895, w: 585, h: 710 }, // NW
-  // Row 1: N, NE, E, SE (y=180..847 stays above row-1 label band)
-  { x: 45, y: 180, w: 623, h: 668 }, // N
-  { x: 670, y: 180, w: 600, h: 668 }, // NE
-  { x: 1280, y: 180, w: 415, h: 668 }, // E
-  { x: 1765, y: 180, w: 595, h: 668 }, // SE
+  // Row 2: S, SW, W, NW (y=888..1604 stays strictly below row-1 labels ending at y=887)
+  { x: 25, y: 888, w: 638, h: 717 }, // S
+  { x: 663, y: 888, w: 582, h: 717 }, // SW
+  { x: 1245, y: 888, w: 439, h: 717 }, // W
+  { x: 1790, y: 888, w: 585, h: 717 }, // NW
+  // Row 1: N, NE, E, SE (y=174..847 stays above row-1 label band)
+  { x: 45, y: 174, w: 623, h: 674 }, // N
+  { x: 670, y: 174, w: 600, h: 674 }, // NE
+  { x: 1280, y: 174, w: 415, h: 674 }, // E
+  { x: 1765, y: 174, w: 595, h: 674 }, // SE
 ];
 
 const MINI_XS: readonly number[] = [320, 555, 788, 1020, 1254, 1485, 1719, 1952];

@@ -81,19 +81,6 @@
       "behavior": "patrol_small"
     },
     {
-      "id": "mastemon_mwnazxq0",
-      "name": "Mastemon, Jogress of Light & Shadow #1",
-      "x": 19,
-      "y": 34,
-      "w": 2,
-      "h": 2,
-      "kind": "digimon",
-      "subType": "mastemon",
-      "orientation": "S",
-      "dialogue": "MASTEMON (Mega · Vaccine): \"A transcendent angel forged by uniting holy light and fallen darkness, opening portals between dimensions with twelve asymmetric wings.\" Jurus Khas: Chaos Degradation.",
-      "behavior": "patrol_small"
-    },
-    {
       "id": "plusiamon_mwrx7e4k",
       "name": "Plusiamon, Twin-Armored Mecha Dragon #1",
       "x": 7,
@@ -116,18 +103,6 @@
       "subType": "mazagamon",
       "orientation": "S",
       "dialogue": "MAZAGAMON (Mega · Virus): \"A horned abyssal titan whose chrome gauntlets crackle with dark violet lightning while crimson armor fins erupt down its spine.\" Jurus Khas: Abyssal Volt Overload."
-    },
-    {
-      "id": "plusnamon_mwrx7e4k",
-      "name": "Plusiamon, Twin-Armored Mecha Dragon #1",
-      "x": 7,
-      "y": 37,
-      "w": 2,
-      "h": 2,
-      "kind": "digimon",
-      "subType": "plusnamon",
-      "orientation": "S",
-      "dialogue": "PLUSIAMON (Mega · Vaccine): \"A heavily armed cyborg dragon knight soaring on twin gold-rimmed wing binders, pairing a glowing cyan plasma cannon and energy blade with an inferno shoulder launcher.\" Jurus Khas: Plasma Cannon & Thruster Flare."
     },
     {
       "id": "malgadramon_mwsuzdb9",

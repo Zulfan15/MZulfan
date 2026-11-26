@@ -443,6 +443,91 @@ function applyBorderGreenDespillKey(data: Uint8ClampedArray, width: number, heig
 }
 
 /**
+ * Keys cool/neutral chroma-green backdrops and enclosed pockets without piercing dark
+ * ribbon outlines or cool-lit silver/cream ribbons under white wings, then despills
+ * edge outlines and green-bled ribbon interiors.
+ */
+function applyLossyGreenWarmKey(data: Uint8ClampedArray, width: number, height: number): void {
+  const total = width * height;
+  const queue = new Int32Array(total);
+  let tail = 0;
+
+  const isPureBackdrop = (r: number, g: number, b: number) =>
+    g >= 165 && g > r + 90 && g > b + 80;
+  const isHaloGrow = (r: number, g: number, b: number) =>
+    r <= b + 4 && g >= 160 && g > r + 24 && g > b + 24;
+
+  for (let i = 0; i < total; i++) {
+    const o = i * 4;
+    if (data[o + 3] < ALPHA_MIN || isPureBackdrop(data[o], data[o + 1], data[o + 2])) {
+      data[o + 3] = 0;
+      queue[tail++] = i;
+    }
+  }
+
+  let head = 0;
+  while (head < tail) {
+    const i = queue[head++];
+    const x = i % width;
+    const y = (i - x) / width;
+    const visit = (n: number) => {
+      const o = n * 4;
+      if (data[o + 3] === 0) return;
+      if (isHaloGrow(data[o], data[o + 1], data[o + 2])) {
+        data[o + 3] = 0;
+        queue[tail++] = n;
+      }
+    };
+    if (x > 0) visit(i - 1);
+    if (x < width - 1) visit(i + 1);
+    if (y > 0) visit(i - width);
+    if (y < height - 1) visit(i + width);
+  }
+
+  const fringe: number[] = [];
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const i = y * width + x;
+      const o = i * 4;
+      if (data[o + 3] === 0) continue;
+      const touchesTransparent =
+        (x > 0 && data[o - 4 + 3] === 0) ||
+        (x < width - 1 && data[o + 4 + 3] === 0) ||
+        (y > 0 && data[o - width * 4 + 3] === 0) ||
+        (y < height - 1 && data[o + width * 4 + 3] === 0);
+      if (!touchesTransparent) continue;
+      const r = data[o];
+      const g = data[o + 1];
+      const b = data[o + 2];
+      if (r <= b + 4 && g >= 150 && g > r + 55 && g > b + 50) {
+        fringe.push(i);
+      }
+    }
+  }
+  for (let i = 0; i < fringe.length; i++) {
+    data[fringe[i] * 4 + 3] = 0;
+  }
+
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const o = (y * width + x) * 4;
+      if (data[o + 3] === 0) continue;
+      const r = data[o];
+      const g = data[o + 1];
+      const b = data[o + 2];
+      const touchesTransparent =
+        (x > 0 && data[o - 4 + 3] === 0) ||
+        (x < width - 1 && data[o + 4 + 3] === 0) ||
+        (y > 0 && data[o - width * 4 + 3] === 0) ||
+        (y < height - 1 && data[o + width * 4 + 3] === 0);
+      const maxRB = Math.max(r, b);
+      const cap = touchesTransparent ? maxRB : maxRB + 10;
+      if (g > cap) data[o + 1] = cap;
+    }
+  }
+}
+
+/**
  * Removes a green/teal backdrop in-place:
  * 1. hard key of clearly background pixels,
  * 2. grows the transparent area through matching edge pixels (shadows / fringes) —
@@ -461,6 +546,10 @@ export function applyChromaKey(
   }
   if (mode === 'border-green-despill') {
     applyBorderGreenDespillKey(data, width, height);
+    return;
+  }
+  if (mode === 'lossy-green-warm') {
+    applyLossyGreenWarmKey(data, width, height);
     return;
   }
   if (mode === 'lossy-teal') {

@@ -1,0 +1,1804 @@
+@layer components {
+  /* ────────── Town stage & labels (si-dan.com exact styles) ────────── */
+  .town {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+    background: #162e1d;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    container-type: inline-size;
+    container-name: town;
+  }
+  .town canvas {
+    image-rendering: pixelated;
+    cursor: pointer;
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+  }
+  .town canvas:focus-visible {
+    outline: 4px solid var(--color-sun, #f8d030);
+    outline-offset: -4px;
+  }
+  .town-labels {
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+  .town-labels.town-labels--hidden {
+    opacity: 0;
+    pointer-events: none;
+    visibility: hidden;
+  }
+  .town[data-pov] .town-labels {
+    display: none;
+  }
+  .town-labels .town-label {
+    pointer-events: auto;
+    font-family: var(--font-pixel, monospace);
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--color-ink, #1c1726);
+    border: 1.5px solid var(--color-ink, #1c1726);
+    cursor: pointer;
+    min-height: 22px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85), 0 2px 0 var(--color-ink, #1c1726), 0 4px 10px rgba(0, 0, 0, 0.16);
+    background: rgba(255, 253, 248, 0.94);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 9999px;
+    padding: 2.5px 8px;
+    font-size: .68rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.02em;
+    position: absolute;
+    transform: translate(-50%, -100%);
+    will-change: left, top, transform;
+    transition: background-color .15s, transform .12s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow .15s, border-color .15s;
+    user-select: none;
+  }
+  /* Downward notch anchoring badge to sprite */
+  .town-labels .town-label::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 3.5px solid transparent;
+    border-right: 3.5px solid transparent;
+    border-top: 4px solid var(--color-ink, #1c1726);
+    pointer-events: none;
+    transition: border-top-color .15s;
+  }
+  .town-labels .town-label:hover,
+  .town-labels .town-label[aria-current] {
+    background: #ffffff;
+    border-color: #b45309;
+    transform: translate(-50%, -108%) scale(1.05);
+    box-shadow: inset 0 1px 0 #fef08a, 0 3px 0 #b45309, 0 8px 18px rgba(180, 83, 9, 0.28);
+    z-index: 35;
+  }
+  .town-labels .town-label:hover::after,
+  .town-labels .town-label[aria-current]::after {
+    border-top-color: #b45309;
+  }
+  .town-labels .town-label__icon {
+    font-size: 0.78rem;
+    line-height: 1;
+    display: inline-block;
+  }
+  .town-labels .town-label__text {
+    line-height: 1;
+  }
+
+  /* Specific Badge Types */
+  .town-labels .town-label--building {
+    background: rgba(255, 255, 255, 0.96);
+    border-color: #1c1726;
+  }
+  .town-labels .town-label--npc {
+    background: #0d9488;
+    color: #ffffff;
+    border-color: #115e59;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 2px 0 #115e59, 0 4px 10px rgba(13, 148, 136, 0.35);
+  }
+  .town-labels .town-label--npc::after {
+    border-top-color: #115e59;
+  }
+  .town-labels .town-label--npc:hover {
+    background: #14b8a6;
+    color: #ffffff;
+  }
+  .town-labels .town-label--fire {
+    background: linear-gradient(135deg, #f97316, #ea580c);
+    color: #ffffff;
+    border-color: #9a3412;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 2px 0 #9a3412, 0 4px 10px rgba(234, 88, 12, 0.4);
+  }
+  .town-labels .town-label--fire::after {
+    border-top-color: #9a3412;
+  }
+  .town-labels .town-label--fire:hover {
+    background: #fb923c;
+    color: #ffffff;
+  }
+  .town-labels .town-label--reshiram {
+    background: linear-gradient(135deg, #ffffff, #f8fafc, #fed7aa);
+    color: #7c2d12;
+    border-color: #ea580c;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 2px 0 #ea580c, 0 4px 12px rgba(249, 115, 22, 0.45);
+    font-weight: 800;
+  }
+  .town-labels .town-label--reshiram::after {
+    border-top-color: #ea580c;
+  }
+  .town-labels .town-label--reshiram:hover {
+    background: #ffffff;
+    border-color: #f97316;
+    color: #c2410c;
+    box-shadow: inset 0 1px 0 #ffedd5, 0 3px 0 #f97316, 0 8px 18px rgba(234, 88, 12, 0.5);
+  }
+  .town-labels .town-label--zekrom {
+    background: linear-gradient(135deg, #090d16, #0f172a, #1e293b);
+    color: #38bdf8;
+    border-color: #0284c7;
+    box-shadow: inset 0 1px 0 rgba(56, 189, 248, 0.4), 0 2px 0 #0369a1, 0 4px 12px rgba(2, 132, 199, 0.5);
+    font-weight: 800;
+  }
+  .town-labels .town-label--zekrom::after {
+    border-top-color: #0284c7;
+  }
+  .town-labels .town-label--zekrom:hover {
+    background: #020617;
+    border-color: #38bdf8;
+    color: #7dd3fc;
+    box-shadow: inset 0 1px 0 #38bdf8, 0 3px 0 #0284c7, 0 8px 18px rgba(56, 189, 248, 0.6);
+  }
+  .town-labels .town-label--giratina {
+    background: linear-gradient(135deg, #18181b, #2e1065, #450a0a);
+    color: #fca5a5;
+    border-color: #dc2626;
+    box-shadow: inset 0 1px 0 rgba(254, 202, 202, 0.4), 0 2px 0 #991b1b, 0 4px 12px rgba(153, 27, 27, 0.5);
+    font-weight: 800;
+  }
+  .town-labels .town-label--giratina::after {
+    border-top-color: #dc2626;
+  }
+  .town-labels .town-label--giratina:hover {
+    background: #09090b;
+    border-color: #ef4444;
+    color: #fecaca;
+    box-shadow: inset 0 1px 0 #fca5a5, 0 3px 0 #dc2626, 0 8px 18px rgba(220, 38, 38, 0.6);
+  }
+  .town-labels .town-label--palkia {
+    background: linear-gradient(135deg, #ffffff, #fae8ff, #f0abfc);
+    color: #701a75;
+    border-color: #c026d3;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 2px 0 #a21caf, 0 4px 12px rgba(192, 38, 211, 0.45);
+    font-weight: 800;
+  }
+  .town-labels .town-label--palkia::after {
+    border-top-color: #c026d3;
+  }
+  .town-labels .town-label--palkia:hover {
+    background: #ffffff;
+    border-color: #d946ef;
+    color: #86198f;
+    box-shadow: inset 0 1px 0 #fdf4ff, 0 3px 0 #c026d3, 0 8px 18px rgba(217, 70, 239, 0.55);
+  }
+  .town-labels .town-label--dialga {
+    background: linear-gradient(135deg, #0f172a, #1e293b, #0369a1);
+    color: #e0f2fe;
+    border-color: #38bdf8;
+    box-shadow: inset 0 1px 0 rgba(224, 242, 254, 0.4), 0 2px 0 #0284c7, 0 4px 12px rgba(56, 189, 248, 0.45);
+    font-weight: 800;
+  }
+  .town-labels .town-label--dialga::after {
+    border-top-color: #38bdf8;
+  }
+  .town-labels .town-label--dialga:hover {
+    background: #0b132b;
+    border-color: #7dd3fc;
+    color: #ffffff;
+    box-shadow: inset 0 1px 0 #bae6fd, 0 3px 0 #0284c7, 0 8px 18px rgba(56, 189, 248, 0.6);
+  }
+  .town-labels .town-label--rayquaza {
+    background: linear-gradient(135deg, #022c22, #065f46, #047857);
+    color: #a7f3d0;
+    border-color: #10b981;
+    box-shadow: inset 0 1px 0 rgba(167, 243, 208, 0.4), 0 2px 0 #047857, 0 4px 12px rgba(16, 185, 129, 0.45);
+    font-weight: 800;
+  }
+  .town-labels .town-label--rayquaza::after {
+    border-top-color: #10b981;
+  }
+  .town-labels .town-label--rayquaza:hover {
+    background: #064e3b;
+    border-color: #34d399;
+    color: #ffffff;
+    box-shadow: inset 0 1px 0 #d1fae5, 0 3px 0 #059669, 0 8px 18px rgba(16, 185, 129, 0.6);
+  }
+  .town-labels .town-label--water {
+    background: linear-gradient(135deg, #0284c7, #0369a1);
+    color: #ffffff;
+    border-color: #075985;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 2px 0 #075985, 0 4px 10px rgba(2, 132, 199, 0.4);
+  }
+  .town-labels .town-label--water::after {
+    border-top-color: #075985;
+  }
+  .town-labels .town-label--water:hover {
+    background: #38bdf8;
+    color: #082f49;
+  }
+  .town-labels .town-label--arceus {
+    background: linear-gradient(135deg, #fffbeb, #fef08a, #facc15);
+    color: #1c1917;
+    border-color: #854d0e;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 2px 0 #854d0e, 0 4px 12px rgba(234, 179, 8, 0.45);
+    font-weight: 800;
+  }
+  .town-labels .town-label--arceus::after {
+    border-top-color: #854d0e;
+  }
+  .town-labels .town-label--arceus:hover {
+    background: #ffffff;
+    border-color: #ca8a04;
+    color: #0f172a;
+    box-shadow: inset 0 1px 0 #fef08a, 0 3px 0 #ca8a04, 0 8px 18px rgba(202, 138, 4, 0.5);
+  }
+  .town-labels .town-label--mewtwo {
+    background: linear-gradient(135deg, #f5f3ff, #e9d5ff, #c084fc);
+    color: #4c1d95;
+    border-color: #6b21a8;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 2px 0 #6b21a8, 0 4px 12px rgba(168, 85, 247, 0.45);
+    font-weight: 800;
+  }
+  .town-labels .town-label--mewtwo::after {
+    border-top-color: #6b21a8;
+  }
+  .town-labels .town-label--mewtwo:hover {
+    background: #ffffff;
+    border-color: #7e22ce;
+    color: #3b0764;
+    box-shadow: inset 0 1px 0 #e9d5ff, 0 3px 0 #7e22ce, 0 8px 18px rgba(147, 51, 234, 0.5);
+  }
+  .town-labels .town-label--snorlax {
+    background: linear-gradient(135deg, #0e7490, #155e75);
+    color: #f0fdfa;
+    border-color: #083344;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 2px 0 #083344, 0 4px 10px rgba(14, 116, 144, 0.4);
+    font-weight: 700;
+  }
+  .town-labels .town-label--snorlax::after {
+    border-top-color: #083344;
+  }
+  .town-labels .town-label--snorlax:hover {
+    background: #06b6d4;
+    border-color: #0e7490;
+    color: #ffffff;
+    box-shadow: inset 0 1px 0 #a5f3fc, 0 3px 0 #083344, 0 8px 18px rgba(6, 182, 212, 0.5);
+  }
+  .town-labels .town-label--deoxys {
+    background: linear-gradient(135deg, #ea580c, #c026d3);
+    color: #ffffff;
+    border-color: #581c87;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 2px 0 #581c87, 0 4px 12px rgba(192, 38, 211, 0.4);
+    font-weight: 700;
+  }
+  .town-labels .town-label--deoxys::after {
+    border-top-color: #581c87;
+  }
+  .town-labels .town-label--deoxys:hover {
+    background: linear-gradient(135deg, #f97316, #d946ef);
+    border-color: #6b21a8;
+    color: #ffffff;
+    box-shadow: inset 0 1px 0 #fbcfe8, 0 3px 0 #6b21a8, 0 8px 18px rgba(217, 70, 239, 0.5);
+  }
+  .town-labels .town-label--fountain {
+    background: #0284c7;
+    color: #ffffff;
+    border-color: #0369a1;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 2px 0 #0369a1, 0 4px 10px rgba(2, 132, 199, 0.35);
+  }
+  .town-labels .town-label--fountain::after {
+    border-top-color: #0369a1;
+  }
+  .town-labels .town-label--fountain:hover {
+    background: #38bdf8;
+    color: #0c4a6e;
+  }
+  .town-labels .town-label--stall {
+    background: #d97706;
+    color: #ffffff;
+    border-color: #92400e;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 2px 0 #92400e, 0 4px 10px rgba(217, 119, 6, 0.35);
+  }
+  .town-labels .town-label--stall::after {
+    border-top-color: #92400e;
+  }
+  .town-labels .town-label--stall:hover {
+    background: #f59e0b;
+    color: #451a03;
+  }
+  .town-labels .town-label--portal {
+    background: linear-gradient(135deg, #082f49 0%, #0f172a 55%, #1e1b4b 100%);
+    color: #67e8f9;
+    border-color: #00f0ff;
+    box-shadow: inset 0 1px 0 rgba(103, 232, 249, 0.45), 0 2px 0 #0e7490, 0 0 14px rgba(0, 240, 255, 0.48);
+    font-weight: 700;
+  }
+  .town-labels .town-label--portal::after {
+    border-top-color: #00f0ff;
+  }
+  .town-labels .town-label--portal:hover {
+    background: linear-gradient(135deg, #06b6d4 0%, #2563eb 100%);
+    color: #ffffff;
+    border-color: #fbbf24;
+    box-shadow: inset 0 1px 0 #fde68a, 0 3px 0 #b45309, 0 0 18px rgba(0, 240, 255, 0.72);
+  }
+  .town-labels .town-label--board,
+  .town-labels .town-label--signpost,
+  .town-labels .town-label--mailbox,
+  .town-labels .town-label--resume,
+  .town-labels .town-label--statue {
+    min-height: 20px;
+    padding: 2px 7px;
+    font-size: .64rem;
+    background: rgba(255, 251, 235, 0.95);
+    border-color: #1c1726;
+  }
+
+  /* ───────────────────────── Town HUD Bar ───────────────────────── */
+  .town-hud-bar {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    pointer-events: none;
+    z-index: 25;
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease;
+  }
+  .town-hud-bar.is-minimized {
+    transform: translateY(-64px);
+    opacity: 0;
+    pointer-events: none !important;
+  }
+
+  .town-hud-pill {
+    pointer-events: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border-radius: 9999px;
+    background: rgba(255, 252, 245, 0.94);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1.5px solid var(--color-ink, #1c1726);
+    box-shadow: 0 2.5px 0 var(--color-ink, #1c1726), 0 6px 14px rgba(0, 0, 0, 0.12);
+    font-family: var(--font-pixel, monospace);
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: var(--color-ink, #1c1726);
+  }
+  .town-hud-pill--scene {
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  }
+  .town-hud-pill--scene:hover {
+    background: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 3.5px 0 var(--color-ink, #1c1726), 0 8px 18px rgba(0, 0, 0, 0.16);
+  }
+  .town-hud-pill--scene:active {
+    transform: translateY(1.5px);
+    box-shadow: 0 1px 0 var(--color-ink, #1c1726);
+  }
+
+  /* Floating Minimized Restore Pill */
+  .town-hud-restore-pill {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: 9999px;
+    background: rgba(255, 252, 245, 0.96);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1.5px solid var(--color-ink, #1c1726);
+    box-shadow: 0 3px 0 var(--color-ink, #1c1726), 0 8px 18px rgba(0, 0, 0, 0.16);
+    font-family: var(--font-pixel, monospace);
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: var(--color-ink, #1c1726);
+    cursor: pointer;
+    z-index: 26;
+    pointer-events: auto;
+    user-select: none;
+    transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.18s ease, background 0.18s ease;
+    animation: townRestorePop 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .town-hud-restore-pill:hover {
+    background: #ffffff;
+    transform: translateY(-1.5px);
+    box-shadow: 0 4.5px 0 var(--color-ink, #1c1726), 0 10px 22px rgba(0, 0, 0, 0.22);
+  }
+  .town-hud-restore-pill:active {
+    transform: translateY(2px);
+    box-shadow: 0 1px 0 var(--color-ink, #1c1726);
+  }
+  .town-hud-restore-pill.hidden {
+    display: none !important;
+  }
+  .town-hud-restore-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 2px;
+    font-size: 0.82rem;
+  }
+  .town-hud-restore-arrow {
+    font-size: 0.62rem;
+    color: #475569;
+    margin-left: -2px;
+  }
+  @keyframes townRestorePop {
+    from {
+      opacity: 0;
+      transform: translateY(-12px) scale(0.92);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .town-hud-btn--minimize {
+    padding: 6px 10px;
+    color: #64748b;
+  }
+  .town-hud-btn--minimize:hover {
+    color: var(--color-ink, #1c1726);
+  }
+  .town-hud-pulse {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #10b981;
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+    animation: townLivePulse 2s infinite;
+  }
+  @keyframes townLivePulse {
+    0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+    70% { box-shadow: 0 0 0 7px rgba(16, 185, 129, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+  }
+  .town-hud-badge {
+    font-size: 0.62rem;
+    background: var(--color-sun, #f8d030);
+    color: var(--color-ink, #1c1726);
+    border: 1px solid var(--color-ink, #1c1726);
+    padding: 1px 5px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+    font-weight: 800;
+  }
+  .town-hud-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    pointer-events: auto;
+  }
+  .town-hud-burger-wrap {
+    display: block;
+    position: relative;
+    pointer-events: auto;
+  }
+  .town-hud-burger-btn {
+    cursor: pointer;
+    gap: 6px;
+  }
+  .town-hud-burger-bars {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 14px;
+    height: 10px;
+  }
+  .town-hud-burger-bars span {
+    display: block;
+    width: 100%;
+    height: 2px;
+    background: currentColor;
+    border-radius: 1px;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+  }
+  .town-hud-burger-btn.is-active .town-hud-burger-bars span:nth-child(1) {
+    transform: translateY(4px) rotate(45deg);
+  }
+  .town-hud-burger-btn.is-active .town-hud-burger-bars span:nth-child(2) {
+    opacity: 0;
+  }
+  .town-hud-burger-btn.is-active .town-hud-burger-bars span:nth-child(3) {
+    transform: translateY(-4px) rotate(-45deg);
+  }
+
+  /* ─── Retro PokéGear / Start Menu Dropdown ─── */
+  .town-burger-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: min(300px, calc(100vw - 32px));
+    max-height: min(78vh, 540px);
+    background: rgba(255, 252, 245, 0.98);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 2px solid var(--color-ink, #1c1726);
+    border-radius: 14px;
+    box-shadow: 0 6px 0 var(--color-ink, #1c1726), 0 12px 28px rgba(0, 0, 0, 0.25);
+    padding: 10px 8px 10px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 100;
+    animation: town-burger-pop 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    transform-origin: top right;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+  @keyframes town-burger-pop {
+    from {
+      opacity: 0;
+      transform: scale(0.92) translateY(-6px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+  .town-burger-dropdown.hidden {
+    display: none !important;
+  }
+  .town-burger-dropdown__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1.5px dashed rgba(28, 23, 38, 0.2);
+    flex-shrink: 0;
+  }
+  .town-burger-dropdown__title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+  }
+  .town-burger-dropdown__title {
+    font-family: var(--font-pixel, monospace);
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--color-ink, #1c1726);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .town-burger-dropdown__close {
+    background: transparent;
+    border: none;
+    font-size: 0.8rem;
+    color: var(--color-ink, #1c1726);
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+    line-height: 1;
+    transition: background 0.15s ease;
+  }
+  .town-burger-dropdown__close:hover {
+    background: rgba(28, 23, 38, 0.1);
+  }
+  .town-burger-dropdown__list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    max-height: 100%;
+    padding-right: 6px;
+    padding-bottom: 4px;
+    overscroll-behavior: contain;
+    /* Firefox */
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-ball, #e8473f) rgba(28, 23, 38, 0.08);
+  }
+
+  /* Retro 8-bit Custom Pixel Scrollbar for Menu List */
+  .town-burger-dropdown__list::-webkit-scrollbar {
+    width: 8px;
+  }
+  .town-burger-dropdown__list::-webkit-scrollbar-track {
+    background: rgba(28, 23, 38, 0.06);
+    border-radius: 6px;
+    border: 1px solid rgba(28, 23, 38, 0.14);
+  }
+  .town-burger-dropdown__list::-webkit-scrollbar-thumb {
+    background: var(--color-ball, #e8473f);
+    border-radius: 6px;
+    border: 1.5px solid var(--color-ink, #1c1726);
+    box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.4);
+  }
+  .town-burger-dropdown__list::-webkit-scrollbar-thumb:hover {
+    background: #d32f2f;
+  }
+  .town-burger-dropdown__item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: #fdfaf3;
+    border: 1.5px solid transparent;
+    cursor: pointer;
+    font-family: var(--font-pixel, monospace);
+    color: var(--color-ink, #1c1726);
+    text-align: left;
+    transition: all 0.15s ease;
+    user-select: none;
+    width: 100%;
+  }
+  .town-burger-dropdown__item:hover {
+    background: #ffffff;
+    border-color: var(--color-ink, #1c1726);
+    transform: translateX(2px);
+    box-shadow: 0 2px 0 var(--color-ink, #1c1726);
+  }
+  .town-burger-dropdown__item:active {
+    transform: translateX(1px) translateY(1px);
+    box-shadow: 0 0 0 var(--color-ink, #1c1726);
+  }
+  .town-burger-dropdown__item.is-active {
+    background: var(--color-sun, #f8d030);
+    border-color: var(--color-ink, #1c1726);
+  }
+  .town-burger-dropdown__item-icon {
+    font-size: 1.05rem;
+    flex-shrink: 0;
+  }
+  .town-burger-dropdown__item-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    flex: 1;
+    min-width: 0;
+  }
+  .town-burger-dropdown__item-title {
+    font-size: 0.72rem;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--color-ink, #1c1726);
+  }
+  .town-burger-dropdown__item-sub {
+    font-family: var(--font-sans, sans-serif);
+    font-size: 0.6rem;
+    color: #64748b;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .town-burger-dropdown__kbd {
+    font-family: var(--font-terminal, monospace);
+    font-size: 0.65rem;
+    background: #e2e8f0;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    padding: 2px 5px;
+    color: #475569;
+    flex-shrink: 0;
+  }
+  .town-hud-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    border-radius: 9999px;
+    background: rgba(255, 252, 245, 0.94);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1.5px solid var(--color-ink, #1c1726);
+    box-shadow: 0 2px 0 var(--color-ink, #1c1726);
+    font-family: var(--font-pixel, monospace);
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--color-ink, #1c1726);
+    cursor: pointer;
+    transition: transform 0.1s ease, background 0.15s ease, box-shadow 0.1s ease;
+    user-select: none;
+  }
+  .town-hud-btn:hover {
+    background: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 0 var(--color-ink, #1c1726);
+  }
+  .town-hud-btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 0 0 var(--color-ink, #1c1726);
+  }
+  .town-hud-btn.is-active {
+    background: var(--color-sun, #f8d030);
+  }
+
+  /* Responsive breakpoints for HUD */
+  @container town (max-width: 540px) {
+    .town-hud-pill {
+      padding: 4px 8px;
+      font-size: 0.7rem;
+    }
+  }
+  @container town (max-width: 440px) {
+    .town-hud-pill {
+      padding: 3px 6px;
+      font-size: 0.62rem;
+      gap: 4px;
+    }
+    .town-hud-badge {
+      display: none;
+    }
+  }
+  @media (max-width: 440px) {
+    .town-hud-pill {
+      padding: 3px 6px;
+      font-size: 0.62rem;
+      gap: 4px;
+    }
+    .town-hud-badge {
+      display: none;
+    }
+  }
+  @media (max-width: 640px) {
+    .town-hud-bar {
+      top: 8px;
+      left: 8px;
+      right: 8px;
+    }
+    .town-hud-pill {
+      padding: 4px 8px;
+      font-size: 0.7rem;
+      gap: 5px;
+    }
+    .town-hud-btn {
+      padding: 5px 8px;
+      font-size: 0.7rem;
+    }
+  }
+  @media (max-width: 440px) {
+    .town-hud-badge {
+      display: none;
+    }
+    .town-hud-title {
+      font-size: 0.68rem;
+    }
+  }
+
+  /* ───────────────────────── Desktop Keyboard Controls Legend ───────────────────────── */
+  .town-desktop-legend {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 10px;
+    border-radius: 7px;
+    background: rgba(28, 23, 38, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    color: #fcfbf7;
+    font-family: var(--font-pixel, monospace);
+    font-size: 0.68rem;
+    z-index: 20;
+    pointer-events: none;
+    user-select: none;
+  }
+  .town-kbd {
+    background: rgba(255, 255, 255, 0.22);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 3px;
+    padding: 1px 4px;
+    font-size: 0.65rem;
+    color: #ffffff;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
+  }
+  .town-legend-sep {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.6rem;
+  }
+
+  /* ───────────────────────── Floating Zoom Level Indicator Pill ───────────────────────── */
+  .town-zoom-indicator {
+    position: absolute;
+    bottom: 12px;
+    right: 14px;
+    z-index: 22;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 11px;
+    border-radius: 9999px;
+    background: rgba(28, 23, 38, 0.9);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1.5px solid rgba(255, 255, 255, 0.25);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+    font-family: var(--font-pixel, monospace);
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #ffffff;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(8px) scale(0.95);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    user-select: none;
+  }
+  .town-zoom-indicator.is-visible {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0) scale(1);
+  }
+  .town-zoom-icon {
+    font-size: 0.8rem;
+    line-height: 1;
+  }
+  .town-zoom-text {
+    letter-spacing: 0.5px;
+    color: var(--color-sun, #f8d030);
+  }
+  .town-zoom-reset {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    color: #ffffff;
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+    font-size: 0.75rem;
+    line-height: 1;
+    padding: 0;
+    margin-left: 2px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s ease, transform 0.15s ease, color 0.15s ease;
+  }
+  .town-zoom-reset:hover {
+    background: var(--color-sun, #f8d030);
+    color: var(--color-ink, #1c1726);
+    transform: rotate(-90deg);
+  }
+
+  /* ───────────────────────── Mobile Virtual Controller (pointer: coarse) ───────────────────────── */
+  .town-mobile-controls {
+    position: absolute;
+    bottom: 14px;
+    left: 0;
+    right: 0;
+    padding: 0 14px;
+    display: none;
+    align-items: flex-end;
+    justify-content: space-between;
+    pointer-events: none;
+    z-index: 25;
+  }
+  @media (hover: none) and (pointer: coarse) {
+    .town-mobile-controls {
+      display: flex;
+    }
+  }
+  .town-mobile-controls__pad-row {
+    width: 100%;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .town-mobile-controls.is-collapsed .town-mobile-controls__pad-row {
+    display: none;
+  }
+  .town-touchpad-toggle,
+  .town-touchpad-restore {
+    pointer-events: auto;
+    padding: 6px 10px;
+    border-radius: 999px;
+    border: 1.5px solid rgba(255, 255, 255, 0.35);
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(6px);
+    color: #f8fafc;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35);
+    user-select: none;
+    touch-action: manipulation;
+  }
+  .town-touchpad-restore {
+    display: none;
+    margin-left: auto;
+  }
+  .town-mobile-controls.is-collapsed .town-touchpad-restore {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .town-dpad {
+    position: relative;
+    width: 108px;
+    height: 108px;
+    pointer-events: auto;
+    opacity: 0.92;
+  }
+  .town-dpad-btn {
+    position: absolute;
+    width: 36px;
+    height: 36px;
+    background: rgba(28, 23, 38, 0.9);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    color: #ffffff;
+    border: 1.5px solid rgba(255, 255, 255, 0.25);
+    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    user-select: none;
+    touch-action: manipulation;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 3px 6px rgba(0,0,0,0.3);
+    transition: background 0.08s, transform 0.05s;
+  }
+  .town-dpad-btn:active {
+    background: var(--color-sun, #f8d030);
+    color: #1c1726;
+    transform: scale(0.95);
+  }
+  .town-dpad-up {
+    top: 0;
+    left: 36px;
+    border-radius: 7px 7px 0 0;
+    border-bottom: none;
+  }
+  .town-dpad-down {
+    bottom: 0;
+    left: 36px;
+    border-radius: 0 0 7px 7px;
+    border-top: none;
+  }
+  .town-dpad-left {
+    top: 36px;
+    left: 0;
+    border-radius: 7px 0 0 7px;
+    border-right: none;
+  }
+  .town-dpad-right {
+    top: 36px;
+    right: 0;
+    border-radius: 0 7px 7px 0;
+    border-left: none;
+  }
+  .town-dpad-center {
+    position: absolute;
+    top: 36px;
+    left: 36px;
+    width: 36px;
+    height: 36px;
+    background: rgba(20, 16, 28, 0.95);
+    border: none;
+  }
+  .town-action-cluster {
+    pointer-events: auto;
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+    align-items: end;
+    gap: 8px;
+  }
+  .town-action-btn--b {
+    width: 46px;
+    height: 46px;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    box-shadow: 0 3px 0 #1e3a8a, 0 5px 12px rgba(37, 99, 235, 0.4);
+  }
+  .town-action-btn--skill {
+    grid-column: span 2;
+    justify-self: end;
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    box-shadow: 0 3px 0 #92400e, 0 5px 12px rgba(245, 158, 11, 0.4);
+  }
+  .town-action-btn {
+    position: relative;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #e8473f, #c02820);
+    border: 2.5px solid rgba(255, 255, 255, 0.45);
+    box-shadow: 0 3.5px 0 #8b1812, 0 6px 14px rgba(232, 71, 63, 0.4);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    user-select: none;
+    touch-action: manipulation;
+    transition: transform 0.08s, box-shadow 0.08s;
+  }
+  .town-action-btn:active {
+    transform: translateY(2.5px);
+    box-shadow: 0 1px 0 #8b1812, 0 2px 6px rgba(232, 71, 63, 0.3);
+    background: #c02820;
+  }
+  .town-action-btn__letter {
+    font-family: var(--font-pixel, monospace);
+    font-size: 1.15rem;
+    font-weight: 800;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+  }
+
+  .town-bubble {
+    background: var(--color-paper, #fffaf0);
+    border: 2px solid var(--color-ink, #1c1726);
+    max-width: calc(100% - 32px);
+    box-shadow: 0 4px 0 var(--color-ink, #1c1726);
+    border-radius: 14px;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .75rem;
+    padding: .7rem 2.6rem .7rem 1rem;
+    display: flex;
+    position: absolute;
+    bottom: 16px;
+    left: 50%;
+    transform: translate(-50%);
+    z-index: 20;
+    font-family: var(--font-sans, sans-serif);
+    font-size: .85rem;
+  }
+  .town-bubble[hidden] {
+    display: none;
+  }
+  .town-bubble strong {
+    font-family: var(--font-pixel, monospace);
+    font-size: .95rem;
+    color: var(--color-ink, #1c1726);
+    display: block;
+    width: 100%;
+  }
+  .town-bubble span {
+    color: var(--color-ink-soft, #3a3150);
+  }
+  .town-bubble .town-bubble__action {
+    font-family: var(--font-pixel, monospace);
+    font-weight: 700;
+    color: #e8473f;
+    text-underline-offset: 3px;
+    cursor: pointer;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    text-decoration: underline;
+  }
+  .town-bubble .town-bubble__hint {
+    white-space: nowrap;
+    color: var(--color-paper, #fffaf0);
+    background: var(--color-ink, #1c1726);
+    pointer-events: none;
+    border-radius: 999px;
+    padding: .25rem .6rem;
+    font-size: .75rem;
+    font-weight: 700;
+    font-family: var(--font-pixel, monospace);
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translate(-50%);
+  }
+  .town-bubble .town-bubble__hint kbd {
+    font: inherit;
+    color: var(--color-ink, #1c1726);
+    background: var(--color-paper, #fffaf0);
+    border-radius: 4px;
+    margin: 0 .15rem;
+    padding: 0 .35rem;
+    display: inline-block;
+  }
+  .town-bubble .town-bubble__close {
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    color: var(--color-ink, #1c1726);
+    background: transparent;
+    border: 0;
+    font-size: 1.4rem;
+    position: absolute;
+    top: 50%;
+    right: 6px;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .town-pov-exit {
+    min-height: 36px;
+    font: 10px/1 var(--font-pixel, monospace);
+    color: #181820;
+    cursor: pointer;
+    background: #f8f8f0;
+    border: 2px solid #1c1726;
+    padding: 6px 10px;
+    display: none;
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    box-shadow: 0 3px 0 #1c1726;
+    border-radius: 6px;
+    z-index: 15;
+  }
+  .town[data-pov] .town-pov-exit {
+    display: block;
+  }
+  .town-pov-exit:hover,
+  .town-pov-exit:focus-visible {
+    background: var(--color-sun, #f8d030);
+  }
+
+  .town-guide {
+    --guide-bg: #fffcf5;
+    --guide-ink: #1c1726;
+    --guide-edge: #1c1726;
+    --guide-accent: #f8d030;
+    --guide-title: #3a3150;
+    font: 12px/1.6 var(--font-retro, monospace);
+    position: absolute;
+    top: 50px;
+    right: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+    z-index: 28;
+    pointer-events: none;
+  }
+  .town-guide[hidden],
+  .town-guide__card[hidden] {
+    display: none;
+  }
+  /* Legacy toggle is superseded by the Studio HUD Bar button */
+  .town-guide__toggle {
+    display: none !important;
+  }
+  .town-guide__card {
+    pointer-events: auto;
+    background: rgba(255, 252, 245, 0.96);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 2px solid var(--color-ink, #1c1726);
+    border-radius: 12px;
+    padding: 12px 14px;
+    box-shadow: 0 4px 0 var(--color-ink, #1c1726), 0 10px 24px rgba(10, 6, 20, 0.25);
+    max-width: 280px;
+    color: var(--guide-ink);
+    position: relative;
+  }
+  .town-guide__card strong {
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--guide-title);
+    margin-bottom: .4em;
+    font-weight: 700;
+    display: block;
+    font-family: var(--font-pixel, monospace);
+  }
+  .town-guide__card p {
+    white-space: pre-wrap;
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  .town-guide__close {
+    cursor: pointer;
+    border: none;
+    background: none;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--guide-ink);
+    position: absolute;
+    top: 6px;
+    right: 10px;
+  }
+
+  .town-noscript {
+    background: var(--color-paper, #fffaf0);
+    border: 2px solid var(--color-ink, #1c1726);
+    border-radius: 12px;
+    padding: 1rem;
+    position: absolute;
+    inset: auto 16px 16px;
+    z-index: 10;
+  }
+  .panel {
+    @apply relative min-h-0 border-ink max-[899px]:border-t-[3px] min-[900px]:border-l-[3px];
+    display: flex;
+    flex-direction: column;
+    background: var(--cream, #fff8ee);
+  }
+  .panel__body {
+    @apply flex-1 overflow-y-auto px-3 sm:px-6 py-4;
+    background: transparent;
+  }
+  html:not([data-place="home"]):not(:has(.mcp)):not([data-place="dev"]):not([data-place="arcade"]):not([data-place^="dark-"]) .panel__body {
+    background: #fcf8ef;
+  }
+  html[data-place^="dark-"] .panel__body {
+    background: radial-gradient(circle at top right, rgba(99, 102, 241, 0.08), transparent 45%), #090910 !important;
+    color: #e2e8f0 !important;
+  }
+  html[data-place="home"] .panel__body,
+  html:has(.mcp--shop) .panel__body {
+    background: repeating-linear-gradient(0deg, #ffffff06 0 1px, transparent 1px 3px), #1d1414 !important;
+    color: var(--mcp-text, #f6e7c8);
+  }
+  html[data-place="arcade"] .panel__body {
+    background: repeating-linear-gradient(0deg, #ffffff06 0 1px, transparent 1px 3px), #0d0a1a !important;
+    color: #f8fafc !important;
+  }
+  html[data-place="dev"] .panel__body {
+    @apply text-mc-text;
+    background-color: var(--color-mc-bg);
+    background-image:
+      linear-gradient(var(--color-mc-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--color-mc-line) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+
+}
+
+/* ─── 🔬 X-Ray Collision & Obstacle Inspector HUD & Banner ─── */
+.town-hud-btn--xray.is-active {
+  background: #0284c7 !important;
+  color: #ffffff !important;
+  border-color: #38bdf8 !important;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.7) !important;
+}
+
+.town-hud-btn--xray.is-active .town-hud-btn__label {
+  color: #ffffff !important;
+  font-weight: 700;
+}
+
+.town-burger-dropdown__item.is-active#burger-item-xray {
+  background: rgba(2, 132, 199, 0.22) !important;
+  border-color: #38bdf8 !important;
+}
+
+/* ─── 🚲 Mach Bike & 🧭 Radar HUD Buttons ─── */
+.town-hud-btn--bike.is-active {
+  background: #e11d48 !important;
+  color: #ffffff !important;
+  border-color: #fda4af !important;
+  box-shadow: 0 0 12px rgba(225, 29, 72, 0.7) !important;
+}
+
+.town-hud-btn--bike.is-active .town-hud-btn__label {
+  color: #ffffff !important;
+  font-weight: 700;
+}
+
+.town-burger-dropdown__item.is-active#burger-item-bike {
+  background: rgba(225, 29, 72, 0.22) !important;
+  border-color: #fda4af !important;
+}
+
+.town-hud-btn--minimap.is-active {
+  background: #0d9488 !important;
+  color: #ffffff !important;
+  border-color: #5eead4 !important;
+  box-shadow: 0 0 12px rgba(13, 148, 136, 0.7) !important;
+}
+
+.town-hud-btn--minimap.is-active .town-hud-btn__label {
+  color: #ffffff !important;
+  font-weight: 700;
+}
+
+.town-burger-dropdown__item.is-active#burger-item-minimap {
+  background: rgba(13, 148, 136, 0.22) !important;
+  border-color: #5eead4 !important;
+}
+
+/* ─── 🌤️ Time of Day & 🌸 Dynamic Weather HUD Buttons ─── */
+.town-hud-btn--time {
+  border-color: rgba(251, 191, 36, 0.45);
+}
+.town-hud-btn--time:hover {
+  border-color: #fbbf24;
+  background: rgba(251, 191, 36, 0.15);
+}
+
+.town-hud-btn--weather {
+  border-color: rgba(244, 114, 182, 0.45);
+}
+.town-hud-btn--weather:hover {
+  border-color: #f472b6;
+  background: rgba(244, 114, 182, 0.15);
+}
+
+.town-burger-dropdown__item.is-active#burger-item-bgm {
+  background: rgba(99, 102, 241, 0.22) !important;
+  border-color: #a5b4fc !important;
+}
+
+/* ─── 🐾 Poké-Partner & ⚡ Skill HUD Buttons ─── */
+.town-hud-btn--partner {
+  background: rgba(30, 41, 59, 0.9);
+  border-color: #38bdf8;
+  color: #bae6fd;
+}
+.town-hud-btn--partner:hover {
+  background: #0284c7;
+  color: #ffffff;
+  border-color: #7dd3fc;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+}
+
+.town-hud-btn--skill {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: #f59e0b;
+  color: #fbbf24;
+}
+.town-hud-btn--skill:hover {
+  background: #f59e0b;
+  color: #1c1726;
+  border-color: #fde047;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.6);
+}
+
+.town-burger-dropdown__item#burger-item-partner:hover {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: #38bdf8;
+}
+
+.town-burger-dropdown__item#burger-item-skill:hover {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: #f59e0b;
+}
+
+/* ─── 🔍 Pokénav Search & ⚙️ Dev Tools Popover ─── */
+.town-hud-btn--search {
+  background: rgba(6, 78, 59, 0.85);
+  border-color: #10b981;
+  color: #a7f3d0;
+}
+.town-hud-btn--search:hover {
+  background: #059669;
+  color: #ffffff;
+}
+
+.town-dev-wrap {
+  position: relative;
+  display: inline-block;
+}
+
+.town-dev-popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 175px;
+  background: rgba(15, 23, 42, 0.96);
+  border: 1.5px solid #334155;
+  border-radius: 8px;
+  padding: 4px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.7), 0 0 12px rgba(51, 65, 85, 0.5);
+  z-index: 55;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  backdrop-filter: blur(8px);
+}
+
+.town-dev-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: transparent;
+  border: none;
+  color: #cbd5e1;
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  width: 100%;
+}
+
+.town-dev-item:hover {
+  background: rgba(51, 65, 85, 0.8);
+  color: #ffffff;
+}
+
+.town-dev-kbd {
+  font-size: 0.62rem;
+  font-family: monospace;
+  padding: 1px 4px;
+  background: #1e293b;
+  border: 1px solid #475569;
+  border-radius: 3px;
+  color: #94a3b8;
+}
+
+/* ─── ↔️ Reading Panel Layout Presets ─── */
+.panel__layout-presets {
+  user-select: none;
+}
+
+.panel__preset-btn {
+  border-radius: 6px;
+  border: 1px solid transparent;
+  color: inherit;
+  opacity: 0.65;
+  transition: all 0.15s ease;
+}
+
+.panel__preset-btn:hover {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.panel__preset-btn.is-active {
+  opacity: 1;
+  background: rgba(225, 29, 72, 0.12);
+  border-color: rgba(225, 29, 72, 0.4);
+  color: #be123c;
+  font-weight: 700;
+}
+
+.town-xray-bar {
+  position: absolute;
+  top: 56px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 45;
+  background: rgba(10, 15, 30, 0.94);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1.5px solid #38bdf8;
+  border-radius: 9999px;
+  padding: 6px 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45), 0 0 16px rgba(56, 189, 248, 0.35);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  pointer-events: auto;
+  user-select: none;
+  animation: townXraySlideDown 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  max-width: 92vw;
+}
+
+@keyframes townXraySlideDown {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -10px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+.town-xray-bar__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  width: 100%;
+}
+
+.town-xray-bar__status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #e2e8f0;
+  font-size: 0.78rem;
+  line-height: 1.2;
+}
+
+.town-xray-pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #38bdf8;
+  box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.7);
+  animation: townXrayPulseAnim 1.8s infinite;
+  flex-shrink: 0;
+}
+
+@keyframes townXrayPulseAnim {
+  0% {
+    box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(56, 189, 248, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(56, 189, 248, 0);
+  }
+}
+
+.town-xray-badge {
+  font-family: monospace;
+  font-weight: 800;
+  font-size: 0.72rem;
+  background: rgba(56, 189, 248, 0.2);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.5);
+  border-radius: 4px;
+  padding: 2px 6px;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.town-xray-text {
+  color: #cbd5e1;
+  font-size: 0.78rem;
+}
+
+.town-xray-text strong {
+  color: #38bdf8;
+}
+
+.town-xray-bar__actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.town-xray-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.town-xray-action-btn--purge {
+  background: rgba(168, 85, 247, 0.25);
+  color: #f3e8ff;
+  border: 1px solid rgba(192, 132, 252, 0.6);
+}
+
+.town-xray-action-btn--purge:hover {
+  background: rgba(168, 85, 247, 0.45);
+  color: #ffffff;
+  border-color: #c084fc;
+  transform: translateY(-1px);
+}
+
+.town-xray-action-btn--save {
+  background: #0284c7;
+  color: #ffffff;
+  border: 1px solid #38bdf8;
+}
+
+.town-xray-action-btn--save:hover {
+  background: #0369a1;
+  transform: translateY(-1px);
+}
+
+.town-xray-action-btn--close {
+  background: rgba(255, 255, 255, 0.1);
+  color: #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.town-xray-action-btn--close:hover {
+  background: rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+  border-color: #ef4444;
+}
+
+
+.town-editor-toast.hidden,
+.town-editor-toast[hidden] {
+  display: none !important;
+}
+
+@keyframes town-editor-fade-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 15px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+/* Toast */
+.town-editor-toast {
+  position: absolute;
+  top: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+  background: rgba(22, 27, 34, 0.95);
+  border: 1.5px solid #2ea043;
+  color: #ffffff;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-family: var(--font-retro, 'Press Start 2P', monospace);
+  font-size: 0.62rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.town-editor-toast.is-visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* ─── Fullscreen Mode Adaptations ─── */
+.town:fullscreen,
+.town:-webkit-full-screen {
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: 100vw !important;
+  max-height: 100vh !important;
+  border: none !important;
+  border-radius: 0 !important;
+  background: #162e1d !important;
+}
+
+.town:fullscreen canvas,
+.town:-webkit-full-screen canvas {
+  width: 100vw !important;
+  height: 100vh !important;
+}
+
+
+/* Floating Mini-Map Radar Widget */
+.town-editor-minimap {
+  position: absolute;
+  top: 60px;
+  right: 14px;
+  bottom: auto;
+  z-index: 46;
+  display: flex;
+  flex-direction: column;
+  background: rgba(15, 23, 42, 0.94);
+  border: 1.5px solid #38bdf8;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.7), 0 0 15px rgba(56, 189, 248, 0.3);
+  overflow: hidden;
+  backdrop-filter: blur(8px);
+  user-select: none;
+  animation: town-editor-fade-in 0.2s ease-out;
+}
+
+.town-editor-minimap__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 8px;
+  background: rgba(30, 41, 59, 0.85);
+  border-bottom: 1px solid rgba(56, 189, 248, 0.3);
+  font-size: 0.58rem;
+  font-weight: 700;
+  color: #38bdf8;
+  letter-spacing: 0.5px;
+}
+
+.town-editor-minimap__toggle {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  font-size: 0.65rem;
+  padding: 0 3px;
+  transition: color 0.15s ease;
+}
+.town-editor-minimap__toggle:hover {
+  color: #ffffff;
+}
+
+.town-editor-minimap__body {
+  padding: 6px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.town-minimap-canvas {
+  width: 90px;
+  height: 128px;
+  display: block;
+  border: 1px solid #1e293b;
+  border-radius: 4px;
+  cursor: crosshair;
+  background: #0f172a;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.town-minimap-canvas:active {
+  cursor: grabbing;
+}
+
+
+@media (max-width: 680px) {
+  .town-editor-minimap {
+    top: 50px;
+    right: 8px;
+    transform: scale(0.85);
+    transform-origin: top right;
+  }
+}
+
+/* Poké Ride Floating HUD Minimized State */
+#town-pokeride-hud.is-minimized {
+  gap: 0.35rem;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.22);
+}
+
+#town-pokeride-hud.is-minimized:hover {
+  background: rgba(15, 23, 42, 0.98);
+  border-color: rgba(245, 158, 11, 0.75);
+}
+
+#town-pokeride-hud.is-minimized #pokeride-hud-details,
+#town-pokeride-hud.is-minimized #pokeride-hud-actions {
+  display: none !important;
+}
+
+/* PokéSnap Studio Clean Canvas Framing */
+.town[data-pokesnap="true"] .town-hud-bar,
+.town[data-pokesnap="true"] .town-desktop-legend,
+.town[data-pokesnap="true"] .town-mobile-controls,
+.town[data-pokesnap="true"] .town-zoom-indicator,
+.town[data-pokesnap="true"] #town-pokeride-hud {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+

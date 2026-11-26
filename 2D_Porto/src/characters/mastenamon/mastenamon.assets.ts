@@ -5,7 +5,7 @@
 export const MASTENAMON_DEFAULT_ASSET_BASE = '/assets/characters/mastenamon';
 
 export const MASTENAMON_ASSET_FILES = {
-  idle: 'idle.png',
+  idle: 'idle-cycle.webp',
   walk: 'walk-cycle.webp',
   battle: 'battle.png',
   sheet: 'mastenamon.webp',

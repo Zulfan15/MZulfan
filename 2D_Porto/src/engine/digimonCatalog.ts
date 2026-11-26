@@ -5,12 +5,16 @@ import { GASPIRITAMON_PORTFOLIO_ENTRY } from '../characters/gaspiritamon/adapter
 import { HOLLOKNIGHTMON_PORTFOLIO_ENTRY } from '../characters/holloknightmon/adapters/portfolioDigimon';
 import { JESMON_X_PORTFOLIO_ENTRY } from '../characters/jesmon_x/adapters/portfolioDigimon';
 import { KARATIAMON_PORTFOLIO_ENTRY } from '../characters/karatiamon/adapters/portfolioDigimon';
+import { MALGADRAMON_PORTFOLIO_ENTRY } from '../characters/malgadramon/adapters/portfolioDigimon';
 import { MASTENAMON_PORTFOLIO_ENTRY } from '../characters/mastenamon/adapters/portfolioDigimon';
 import { MAZAGAMON_PORTFOLIO_ENTRY } from '../characters/mazagamon/adapters/portfolioDigimon';
+import { MEGIDRAMON_X_PORTFOLIO_ENTRY } from '../characters/megidramon_x/adapters/portfolioDigimon';
 import { PLUSIAMON_PORTFOLIO_ENTRY } from '../characters/plusiamon/adapters/portfolioDigimon';
 import { RAGNALOARDMON_PORTFOLIO_ENTRY } from '../characters/ragnaloardmon/adapters/portfolioDigimon';
 import { SAKUYAMON_X_PORTFOLIO_ENTRY } from '../characters/sakuyamon_x/adapters/portfolioDigimon';
 import { SHOGUN_ALPHAMON_PORTFOLIO_ENTRY } from '../characters/shogun_alphamon/adapters/portfolioDigimon';
+import { VAMDRAMON_PORTFOLIO_ENTRY } from '../characters/vamdramon/adapters/portfolioDigimon';
+import { VEXATIAMON_BERSERKER_PORTFOLIO_ENTRY } from '../characters/vexatiamon_berserker/adapters/portfolioDigimon';
 import { VICTORYGROWLMON_PORTFOLIO_ENTRY } from '../characters/victorygrowlmon/adapters/portfolioDigimon';
 
 export interface SpriteBox {
@@ -1338,24 +1342,7 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
     overworldTargetHeight: 37,
     overworldPoseMap: HD_8DIR_POSE_MAP,
   },
-  {
-    id: 'vamdramon',
-    name: 'Vamdramon',
-    title: 'Vamdramon, Abyssal Dread Sovereign',
-    tier: 2,
-    iconEmoji: '🦇',
-    stage: 'Ultimate',
-    attribute: 'Virus',
-    elementZone: 'cyber',
-    signatureMove: 'Crimson Nocturne',
-    lore:
-      'A nocturnal dragon-lord draped in a torn scarlet mantle, spreading violet wing-fins and obsidian claws through twilight ruins.',
-    credit: 'Digimon 2.1 HD 8-Directional Sprite Collection',
-    spriteSheetUrl: digiSheet21('Vamdramon.png'),
-    sheetFormat: 'hd_8dir',
-    overworldTargetHeight: 35,
-    overworldPoseMap: HD_8DIR_POSE_MAP,
-  },
+  VAMDRAMON_PORTFOLIO_ENTRY,
   PLUSIAMON_PORTFOLIO_ENTRY,
   {
     id: 'neotitamon',
@@ -1377,63 +1364,12 @@ export const DIGIMON_CATALOG: DigimonCatalogEntry[] = [
   },
   VICTORYGROWLMON_PORTFOLIO_ENTRY,
   BELPHEMON_X_PORTFOLIO_ENTRY,
-  {
-    id: 'megidramon_x',
-    name: 'Megidramon X',
-    title: 'Megidramon (X Antibody), Hellfire Seraph',
-    tier: 4,
-    iconEmoji: '🌋',
-    stage: 'Ultra',
-    attribute: 'Virus',
-    elementZone: 'flame',
-    signatureMove: 'Hell Howling Blaze',
-    lore:
-      'A calamitous dragon crowned with cerulean hazard flames, unfurling solar-fire wings above a coiled magma serpent body.',
-    credit: 'Digimon 2.1 HD 8-Directional Sprite Collection',
-    spriteSheetUrl: digiSheet21('Megidramon (X Antibody).jpg'),
-    sheetFormat: 'hd_8dir',
-    overworldTargetHeight: 39,
-    overworldPoseMap: HD_8DIR_POSE_MAP,
-  },
+  MEGIDRAMON_X_PORTFOLIO_ENTRY,
   GAMMAMON_PORTFOLIO_ENTRY,
   SAKUYAMON_X_PORTFOLIO_ENTRY,
   KARATIAMON_PORTFOLIO_ENTRY,
-  {
-    id: 'vexatiamon_berserker',
-    name: 'Vexatiamon: B',
-    title: 'Vexatiamon Berserker, Dual-Cannon Drake',
-    tier: 3,
-    iconEmoji: '💥',
-    stage: 'Mega',
-    attribute: 'Virus',
-    elementZone: 'cyber',
-    signatureMove: 'Hyper Rail Salvo',
-    lore:
-      'A horned violet-winged dragon mounting dual jaw cannons on its shoulders that detonate solar plasma spheres at point-blank range.',
-    credit: 'Digimon 2.1 HD 8-Directional Sprite Collection',
-    spriteSheetUrl: digiSheet21('Vexatiamon Berserker.png'),
-    sheetFormat: 'hd_8dir',
-    overworldTargetHeight: 36,
-    overworldPoseMap: HD_8DIR_POSE_MAP,
-  },
-  {
-    id: 'malgadramon',
-    name: 'Malgadramon',
-    title: 'Malgadramon, Cyber-Bone Reaver',
-    tier: 3,
-    iconEmoji: '⚙️',
-    stage: 'Mega',
-    attribute: 'Virus',
-    elementZone: 'cyber',
-    signatureMove: 'Bio-Rail Laceration',
-    lore:
-      'A biomechanical skull-beast fused with heavy hydraulic cables and an over-shoulder railgun built to tear through citadel gates.',
-    credit: 'Digimon 2.1 HD 8-Directional Sprite Collection',
-    spriteSheetUrl: digiSheet21('Malgadramon.jpg'),
-    sheetFormat: 'hd_8dir',
-    overworldTargetHeight: 35,
-    overworldPoseMap: HD_8DIR_POSE_MAP,
-  },
+  VEXATIAMON_BERSERKER_PORTFOLIO_ENTRY,
+  MALGADRAMON_PORTFOLIO_ENTRY,
   RAGNALOARDMON_PORTFOLIO_ENTRY,
   HOLLOKNIGHTMON_PORTFOLIO_ENTRY,
   SHOGUN_ALPHAMON_PORTFOLIO_ENTRY,

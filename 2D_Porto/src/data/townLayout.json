@@ -1,15 +1,15 @@
 {
   "version": 2,
-  "updatedAt": "2026-11-17T04:34:24.869Z",
+  "updatedAt": "2026-11-26T13:56:18.656Z",
   "buildings": [
     {
       "id": "dev",
       "name": "Dev Center",
-      "x": 10,
+      "x": 36,
       "y": 0,
       "w": 12,
       "h": 11,
-      "doorX": 16,
+      "doorX": 42,
       "doorY": 11,
       "kind": "building",
       "hidden": false
@@ -17,11 +17,11 @@
     {
       "id": "lab",
       "name": "Research Lab",
-      "x": 24,
+      "x": 50,
       "y": 1,
       "w": 7,
       "h": 6,
-      "doorX": 27,
+      "doorX": 53,
       "doorY": 6,
       "kind": "building",
       "hidden": false
@@ -29,23 +29,23 @@
     {
       "id": "annex",
       "name": "Observatory Annex",
-      "x": 31,
+      "x": 57,
       "y": 2,
       "w": 3,
       "h": 5,
       "kind": "building",
       "hidden": false,
-      "doorX": 32,
+      "doorX": 58,
       "doorY": 7
     },
     {
       "id": "home",
       "name": "Home Manor",
-      "x": 33,
+      "x": 59,
       "y": 18,
       "w": 10,
       "h": 7,
-      "doorX": 37,
+      "doorX": 63,
       "doorY": 24,
       "kind": "building",
       "hidden": false
@@ -53,11 +53,11 @@
     {
       "id": "reception",
       "name": "Poké Center",
-      "x": 35,
+      "x": 61,
       "y": 11,
       "w": 7,
       "h": 6,
-      "doorX": 38,
+      "doorX": 64,
       "doorY": 16,
       "kind": "building",
       "hidden": false
@@ -65,11 +65,11 @@
     {
       "id": "shop",
       "name": "Poké Mart",
-      "x": 36,
+      "x": 62,
       "y": 27,
       "w": 6,
       "h": 6,
-      "doorX": 39,
+      "doorX": 65,
       "doorY": 32,
       "kind": "building",
       "link": "/mart",
@@ -78,11 +78,11 @@
     {
       "id": "arcade",
       "name": "Arcade Hub",
-      "x": 24,
+      "x": 50,
       "y": 10,
       "w": 8,
       "h": 7,
-      "doorX": 27,
+      "doorX": 53,
       "doorY": 16,
       "kind": "building",
       "hidden": false
@@ -90,11 +90,11 @@
     {
       "id": "office",
       "name": "Tech Tower",
-      "x": 36,
+      "x": 62,
       "y": 0,
       "w": 6,
       "h": 8,
-      "doorX": 39,
+      "doorX": 65,
       "doorY": 7,
       "kind": "building",
       "link": "/tower",
@@ -103,34 +103,34 @@
     {
       "id": "villa",
       "name": "Neighbour's House",
-      "x": 25,
+      "x": 51,
       "y": 20,
       "w": 6,
       "h": 5,
       "kind": "building",
       "link": "/neighbour",
       "hidden": false,
-      "doorX": 27,
+      "doorX": 53,
       "doorY": 24
     },
     {
       "id": "arena",
       "name": "Battle Arena",
-      "x": 33,
+      "x": 59,
       "y": 35,
       "w": 10,
       "h": 9,
-      "doorX": 38,
+      "doorX": 64,
       "doorY": 39,
       "kind": "building",
       "hidden": false,
-      "labelX": 37.5,
+      "labelX": 63.5,
       "labelY": 42.5
     },
     {
       "id": "fountain",
       "name": "Air Mancur Plaza",
-      "x": 4,
+      "x": 30,
       "y": 52,
       "w": 4,
       "h": 4,
@@ -140,7 +140,7 @@
     {
       "id": "basin",
       "name": "Kolam Courtyard",
-      "x": 15,
+      "x": 41,
       "y": 15,
       "w": 2,
       "h": 2,
@@ -150,7 +150,7 @@
     {
       "id": "kiosk",
       "name": "Kios Barista Café",
-      "x": 27,
+      "x": 53,
       "y": 28,
       "w": 5,
       "h": 4,
@@ -158,13 +158,13 @@
       "subType": "kiosk",
       "dialogue": "Specialty roasts & Castelia Cones crafted fresh for devs & trainers! \"Today's blend: Dark Roasted TypeScript with notes of React & zero runtime bugs!\"",
       "hidden": false,
-      "labelX": 29,
+      "labelX": 55,
       "labelY": 28.5
     },
     {
       "id": "gazebo",
       "name": "Gazebo Tepi Laut",
-      "x": 6,
+      "x": 32,
       "y": 29,
       "w": 3,
       "h": 3,
@@ -174,19 +174,19 @@
     {
       "id": "camp",
       "name": "Pos Ranger",
-      "x": 5,
+      "x": 31,
       "y": 33,
       "w": 4,
       "h": 3,
       "kind": "object",
       "hidden": false,
-      "labelX": 6.5,
+      "labelX": 32.5,
       "labelY": 33.2
     },
     {
       "id": "campfire",
       "name": "Api Unggun Ranger",
-      "x": 5,
+      "x": 31,
       "y": 35,
       "w": 3,
       "h": 3,
@@ -196,19 +196,19 @@
     {
       "id": "telescope",
       "name": "Teleskop Lookout",
-      "x": 3,
+      "x": 29,
       "y": 43,
       "w": 2,
       "h": 2,
       "kind": "object",
       "hidden": false,
-      "doorX": 3,
+      "doorX": 29,
       "doorY": 46
     },
     {
       "id": "arceus",
       "name": "Arceus",
-      "x": 15,
+      "x": 41,
       "y": 13,
       "w": 2,
       "h": 2,
@@ -216,13 +216,13 @@
       "subType": "arceus",
       "dialogue": "ARCEUS: 'Dooo-oooonnn...!' ✨ (Pendaran cahaya keemasan memancar dari cincin kosmik Arceus. Sang Alpha Pokémon mengawasi Zulfan's Town dengan aura kebijaksanaan abadi.)",
       "hidden": false,
-      "labelX": 16,
+      "labelX": 42,
       "labelY": 12.4
     },
     {
       "id": "reshiram",
       "name": "Reshiram",
-      "x": 18,
+      "x": 44,
       "y": 31,
       "w": 2,
       "h": 2,
@@ -230,14 +230,14 @@
       "subType": "reshiram",
       "dialogue": "RESHIRAM: 'Vaaa-zhooom...!' 🤍🔥 (Ekor turbin Reshiram menyala terang dengan api kebenaran murni. Sang Vast White Pokémon mengamati lautan lepas Zulfan's Town dengan aura agung nan suci.)",
       "hidden": false,
-      "labelX": 19,
+      "labelX": 45,
       "labelY": 30.2,
       "orientation": "S"
     },
     {
       "id": "zekrom",
       "name": "Zekrom",
-      "x": 12,
+      "x": 38,
       "y": 31,
       "w": 2,
       "h": 2,
@@ -245,14 +245,14 @@
       "subType": "zekrom",
       "dialogue": "ZEKROM: 'Bzzzz-Vrrrooom...!' 🖤⚡ (Ekor generator Zekrom berputar kencang memancarkan kilatan petir bertegangan tinggi. Sang Deep Black Pokémon mengamati laut lepas Zulfan's Town dengan aura idealisme yang kuat.)",
       "hidden": false,
-      "labelX": 13,
+      "labelX": 39,
       "labelY": 30.2,
       "orientation": "S"
     },
     {
       "id": "giratina",
       "name": "Giratina",
-      "x": 18,
+      "x": 44,
       "y": 25,
       "w": 2,
       "h": 2,
@@ -260,14 +260,14 @@
       "subType": "giratina",
       "dialogue": "GIRATINA: 'Gyaaa-shhhooo...!' 👻🌌 (Enam sayap hitam Giratina memancarkan kabut antimateri dari Dunia Distorsi. Sang Renegade Pokémon mengawasi keseimbangan Zulfan's Town dari batas antar dimensi.)",
       "hidden": false,
-      "labelX": 19,
+      "labelX": 45,
       "labelY": 24.2,
       "orientation": "S"
     },
     {
       "id": "palkia",
       "name": "Palkia",
-      "x": 18,
+      "x": 44,
       "y": 28,
       "w": 2,
       "h": 2,
@@ -275,14 +275,14 @@
       "subType": "palkia",
       "dialogue": "PALKIA: 'Gyaaa-ooohhn...!' 🌌💧 (Mutiara kosmik di pundak Palkia berpendar dengan riak pemecah ruang Spacial Rend. Sang Spatial Pokémon mengamati pelataran Zulfan's Town dengan aura megah penjaga dimensi.)",
       "hidden": false,
-      "labelX": 19,
+      "labelX": 45,
       "labelY": 27.2,
       "orientation": "S"
     },
     {
       "id": "vending",
       "name": "Mesin Minuman Vending",
-      "x": 32,
+      "x": 58,
       "y": 31,
       "w": 1,
       "h": 2,
@@ -292,19 +292,19 @@
     {
       "id": "statue",
       "name": "Patung Pahlawan",
-      "x": 8,
+      "x": 34,
       "y": 35,
       "w": 1,
       "h": 1,
       "kind": "object",
       "hidden": false,
-      "labelX": 8,
+      "labelX": 34,
       "labelY": 35
     },
     {
       "id": "garden",
       "name": "Berry Garden",
-      "x": 25,
+      "x": 51,
       "y": 35,
       "w": 7,
       "h": 9,
@@ -312,25 +312,25 @@
       "subType": "garden",
       "dialogue": "Oran, Sitrus, dan Cheri berries tumbuh subur di kebun botani di bawah naungan pohon sakura. Tempat yang asri dan tenang untuk memulihkan stamina para trainer dan developer!",
       "hidden": false,
-      "labelX": 28.5,
+      "labelX": 54.5,
       "labelY": 35.2
     },
     {
       "id": "contest",
       "name": "Contest Stage",
-      "x": 25,
+      "x": 51,
       "y": 48,
       "w": 7,
       "h": 8,
       "kind": "object",
       "hidden": false,
-      "labelX": 28.5,
+      "labelX": 54.5,
       "labelY": 48.2
     },
     {
       "id": "tree_cy_nw",
       "name": "Pohon Courtyard Barat-Utara",
-      "x": 12,
+      "x": 38,
       "y": 13,
       "w": 2,
       "h": 2,
@@ -341,7 +341,7 @@
     {
       "id": "tree_cy_sw",
       "name": "Pohon Courtyard Barat-Selatan",
-      "x": 12,
+      "x": 38,
       "y": 16,
       "w": 2,
       "h": 2,
@@ -352,7 +352,7 @@
     {
       "id": "tree_cy_ne",
       "name": "Pohon Courtyard Timur-Utara",
-      "x": 20,
+      "x": 46,
       "y": 13,
       "w": 2,
       "h": 2,
@@ -363,19 +363,8 @@
     {
       "id": "tree_cy_se",
       "name": "Pohon Courtyard Timur-Selatan",
-      "x": 20,
+      "x": 46,
       "y": 16,
-      "w": 2,
-      "h": 2,
-      "kind": "tree",
-      "subType": "tree_town",
-      "hidden": false
-    },
-    {
-      "id": "tree_bw_n",
-      "name": "Pohon Boardwalk Utara",
-      "x": 0,
-      "y": 29,
       "w": 2,
       "h": 2,
       "kind": "tree",
@@ -385,7 +374,7 @@
     {
       "id": "tree_sakura",
       "name": "Pohon Sakura Berry Garden",
-      "x": 28,
+      "x": 54,
       "y": 38,
       "w": 2,
       "h": 2,
@@ -394,20 +383,9 @@
       "hidden": false
     },
     {
-      "id": "tree_park",
-      "name": "Pohon Taman Barat",
-      "x": 1,
-      "y": 28,
-      "w": 2,
-      "h": 2,
-      "kind": "tree",
-      "subType": "tree_town",
-      "hidden": false
-    },
-    {
       "id": "bench_cy",
       "name": "Bangku Courtyard Barat",
-      "x": 31,
+      "x": 57,
       "y": 27,
       "w": 2,
       "h": 1,
@@ -418,7 +396,7 @@
     {
       "id": "bench_plaza_e",
       "name": "Bangku Plaza Timur",
-      "x": 25,
+      "x": 51,
       "y": 27,
       "w": 2,
       "h": 1,
@@ -429,7 +407,7 @@
     {
       "id": "bench_arcade",
       "name": "Bangku Depan Arcade",
-      "x": 34,
+      "x": 60,
       "y": 27,
       "w": 2,
       "h": 1,
@@ -440,22 +418,22 @@
     {
       "id": "bench_cafe",
       "name": "Bangku Café Barista",
-      "x": 25,
+      "x": 51,
       "y": 33,
       "w": 2,
       "h": 1,
       "kind": "bench",
       "subType": "bench",
       "hidden": false,
-      "doorX": 25,
+      "doorX": 51,
       "doorY": 34,
-      "labelX": 26.8,
+      "labelX": 52.8,
       "labelY": 33.3
     },
     {
       "id": "bench_bw_s",
       "name": "Bangku Boardwalk Selatan",
-      "x": 28,
+      "x": 54,
       "y": 27,
       "w": 2,
       "h": 1,
@@ -466,7 +444,7 @@
     {
       "id": "bench_contest_w",
       "name": "Bangku Kontes Barat",
-      "x": 25,
+      "x": 51,
       "y": 29,
       "w": 2,
       "h": 1,
@@ -477,7 +455,7 @@
     {
       "id": "bench_contest_e",
       "name": "Bangku Kontes Timur",
-      "x": 25,
+      "x": 51,
       "y": 31,
       "w": 2,
       "h": 1,
@@ -486,20 +464,9 @@
       "hidden": false
     },
     {
-      "id": "hedge_div",
-      "name": "Semak Pembatas Dev-Lab",
-      "x": 22,
-      "y": 1,
-      "w": 1,
-      "h": 17,
-      "kind": "bush",
-      "subType": "hedge",
-      "hidden": false
-    },
-    {
       "id": "twin",
       "name": "Digital Twin (Lucario AI)",
-      "x": 12,
+      "x": 38,
       "y": 22,
       "w": 1,
       "h": 1,
@@ -507,35 +474,35 @@
       "dialogue": "Bzzt… The Aura is with us! I'm Zulfan's AI Digital Twin (Lucario)!",
       "link": "/twin",
       "hidden": false,
-      "labelX": 12.5,
+      "labelX": 38.5,
       "labelY": 21.2,
       "orientation": "S"
     },
     {
       "id": "charizard",
       "name": "Charizard Mascot",
-      "x": 18,
+      "x": 44,
       "y": 22,
       "w": 2,
       "h": 2,
       "kind": "npc",
       "dialogue": "GRAAWR! Charizard flares its wings warmly in the plaza!",
       "hidden": false,
-      "labelX": 19,
+      "labelX": 45,
       "labelY": 22,
       "orientation": "S"
     },
     {
       "id": "ranger",
       "name": "Pokémon Ranger Alex",
-      "x": 12,
+      "x": 38,
       "y": 46,
       "w": 1,
       "h": 1,
       "kind": "npc",
       "dialogue": "POKÉMON RANGER ALEX: Welcome to the Nature Reserve!",
       "hidden": false,
-      "labelX": 12.5,
+      "labelX": 38.5,
       "labelY": 46,
       "orientation": "S",
       "subType": "tyranitar"
@@ -543,7 +510,7 @@
     {
       "id": "ace",
       "name": "Ace Trainer Ray",
-      "x": 18,
+      "x": 44,
       "y": 46,
       "w": 1,
       "h": 1,
@@ -551,13 +518,13 @@
       "subType": "mewtwo",
       "dialogue": "ACE TRAINER RAY: Welcome to the Tech Gym Arena!",
       "hidden": false,
-      "labelX": 18.5,
+      "labelX": 44.5,
       "labelY": 45.5
     },
     {
       "id": "sign_lookout",
       "name": "Papan Scenic Lookout",
-      "x": 4,
+      "x": 30,
       "y": 43,
       "w": 1,
       "h": 1,
@@ -568,7 +535,7 @@
     {
       "id": "sign_ranger",
       "name": "Papan Pengumuman Ranger",
-      "x": 7,
+      "x": 33,
       "y": 35,
       "w": 1,
       "h": 1,
@@ -579,7 +546,7 @@
     {
       "id": "sign_hobby",
       "name": "Papan Catatan Hobi Zulfan",
-      "x": 8,
+      "x": 34,
       "y": 31,
       "w": 1,
       "h": 1,
@@ -590,7 +557,7 @@
     {
       "id": "dialga",
       "name": "Dialga",
-      "x": 12,
+      "x": 38,
       "y": 28,
       "w": 2,
       "h": 2,
@@ -598,27 +565,14 @@
       "subType": "dialga",
       "dialogue": "DIALGA: 'Gugyugubah...!' ⏳🔷 (Berlian di dada Dialga memancarkan denyut distorsi waktu Roar of Time. Sang Temporal Pokémon mengawasi aliran waktu di Zulfan's Town dengan keabadian pilar masa depan.)",
       "hidden": false,
-      "labelX": 13,
+      "labelX": 39,
       "labelY": 27.2,
       "orientation": "S"
     },
     {
-      "id": "tree_town_mvyw7gak",
-      "name": "Pohon Hijau Kota #1",
-      "x": 0,
-      "y": 31,
-      "w": 2,
-      "h": 2,
-      "kind": "tree",
-      "subType": "tree_town",
-      "orientation": "N",
-      "dialogue": "Pohon rindang kota yang rimbun dan asri. Memberikan keteduhan bagi pejalan kaki yang melintas.",
-      "hidden": false
-    },
-    {
       "id": "rayquaza_mw0d07g5",
       "name": "Rayquaza Sang Naga Langit #1",
-      "x": 12,
+      "x": 38,
       "y": 25,
       "w": 2,
       "h": 2,
@@ -631,7 +585,7 @@
     {
       "id": "groudon_mw0e08es",
       "name": "Groudon Sang Penguasa Daratan #1",
-      "x": 12,
+      "x": 38,
       "y": 34,
       "w": 2,
       "h": 2,
@@ -644,7 +598,7 @@
     {
       "id": "kyogre_mw0e178b",
       "name": "Kyogre Sang Penguasa Samudra #1",
-      "x": 18,
+      "x": 44,
       "y": 34,
       "w": 2,
       "h": 2,
@@ -657,7 +611,7 @@
     {
       "id": "latios_mw0e1xy7",
       "name": "Latios Sang Penjelajah Angkasa #1",
-      "x": 18,
+      "x": 44,
       "y": 37,
       "w": 2,
       "h": 2,
@@ -670,7 +624,7 @@
     {
       "id": "latias_mw0en4j8",
       "name": "Latias Sang Pelindung Hati #1",
-      "x": 12,
+      "x": 38,
       "y": 37,
       "w": 2,
       "h": 2,
@@ -683,7 +637,7 @@
     {
       "id": "darkrai_mw0f4yfj",
       "name": "Darkrai Sang Penguasa Mimpi Buruk #1",
-      "x": 12,
+      "x": 38,
       "y": 43,
       "w": 2,
       "h": 2,
@@ -696,7 +650,7 @@
     {
       "id": "necrozma_mw0f571z",
       "name": "Necrozma (Dusk Mane) #1",
-      "x": 12,
+      "x": 38,
       "y": 40,
       "w": 2,
       "h": 2,
@@ -709,7 +663,7 @@
     {
       "id": "lunala_mw0f5gi9",
       "name": "Lunala Sang Utusan Rembulan #1",
-      "x": 18,
+      "x": 44,
       "y": 43,
       "w": 2,
       "h": 2,
@@ -722,7 +676,7 @@
     {
       "id": "solgaleo_mw0f5n2y",
       "name": "Solgaleo Sang Utusan Mentari #1",
-      "x": 18,
+      "x": 44,
       "y": 40,
       "w": 2,
       "h": 2,
@@ -735,7 +689,7 @@
     {
       "id": "garchomp_mw1vke4z",
       "name": "Garchomp Sang Predator Darat #1",
-      "x": 18,
+      "x": 44,
       "y": 49,
       "w": 2,
       "h": 2,
@@ -748,7 +702,7 @@
     {
       "id": "urshifu_mw1vkr24",
       "name": "Urshifu G-Max Rapid Strike #1",
-      "x": 12,
+      "x": 38,
       "y": 49,
       "w": 2,
       "h": 2,
@@ -761,7 +715,7 @@
     {
       "id": "samurott_mwbvfl00",
       "name": "Samurott Ahli Seamitar #1",
-      "x": 7,
+      "x": 33,
       "y": 39,
       "w": 2,
       "h": 2,
@@ -774,7 +728,7 @@
     {
       "id": "gyarados_mwbwjbi7",
       "name": "Gyarados Sang Naga Lautan #1",
-      "x": 18,
+      "x": 44,
       "y": 52,
       "w": 2,
       "h": 2,
@@ -787,7 +741,7 @@
     {
       "id": "empoleon_mwd7ivhi",
       "name": "Empoleon Sang Kaisar Samudra #1",
-      "x": 7,
+      "x": 33,
       "y": 42,
       "w": 2,
       "h": 2,
@@ -800,7 +754,7 @@
     {
       "id": "regigigas_mwd7j4xy",
       "name": "Regigigas Sang Penggerak Benua #1",
-      "x": 12,
+      "x": 38,
       "y": 55,
       "w": 2,
       "h": 2,
@@ -813,7 +767,7 @@
     {
       "id": "koraidon_mwd7jp0g",
       "name": "Koraidon Sang Raja Bersayap #1",
-      "x": 7,
+      "x": 33,
       "y": 46,
       "w": 2,
       "h": 2,
@@ -826,7 +780,7 @@
     {
       "id": "eternatus_mwd7jv0u",
       "name": "Eternatus Sang Naga Inti Kosmik #1",
-      "x": 18,
+      "x": 44,
       "y": 55,
       "w": 2,
       "h": 2,
@@ -839,7 +793,7 @@
     {
       "id": "snorlax_mwd7lo15",
       "name": "Snorlax Sang Raksasa Santai #1",
-      "x": 12,
+      "x": 38,
       "y": 52,
       "w": 2,
       "h": 2,
@@ -852,7 +806,7 @@
     {
       "id": "lugia_mwe0lug1",
       "name": "Lugia Sang Penjaga Samudra #1",
-      "x": 7,
+      "x": 33,
       "y": 49,
       "w": 2,
       "h": 2,
@@ -865,7 +819,7 @@
     {
       "id": "archaludon_mwesxep4",
       "name": "Archaludon Sang Menara Electro Shot #1",
-      "x": 23,
+      "x": 49,
       "y": 49,
       "w": 2,
       "h": 2,
@@ -878,7 +832,7 @@
     {
       "id": "salamence_mwino2jd",
       "name": "Salamence Sang Naga Sayap Merah #1",
-      "x": 23,
+      "x": 49,
       "y": 46,
       "w": 2,
       "h": 2,
@@ -891,7 +845,7 @@
     {
       "id": "kyurem_mwinoia7",
       "name": "Kyurem Sang Naga Batas Es Absolut #1",
-      "x": 23,
+      "x": 49,
       "y": 43,
       "w": 2,
       "h": 2,
@@ -904,7 +858,7 @@
     {
       "id": "greattusk_mwinovl7",
       "name": "Great Tusk Sang Raksasa Gading Purba #1",
-      "x": 23,
+      "x": 49,
       "y": 40,
       "w": 2,
       "h": 2,
@@ -917,7 +871,7 @@
     {
       "id": "gougingfire_mwinpach",
       "name": "Gouging Fire Sang Penguasa Api Purba #1",
-      "x": 23,
+      "x": 49,
       "y": 37,
       "w": 2,
       "h": 2,
@@ -930,34 +884,8 @@
     {
       "id": "tree_berry_mwirbc4r",
       "name": "Pohon Buah Berry Lebat #1",
-      "x": 3,
+      "x": 29,
       "y": 46,
-      "w": 2,
-      "h": 2,
-      "kind": "tree",
-      "subType": "tree_berry",
-      "orientation": "N",
-      "dialogue": "Pohon buah Berry yang ranum dan manis! Terlihat buah Oran Berry dan Sitrus Berry bergantungan segar di dahannya.",
-      "hidden": false
-    },
-    {
-      "id": "tree_berry_mwirbiio",
-      "name": "Pohon Buah Berry Lebat #2",
-      "x": 40,
-      "y": 45,
-      "w": 2,
-      "h": 2,
-      "kind": "tree",
-      "subType": "tree_berry",
-      "orientation": "N",
-      "dialogue": "Pohon buah Berry yang ranum dan manis! Terlihat buah Oran Berry dan Sitrus Berry bergantungan segar di dahannya.",
-      "hidden": false
-    },
-    {
-      "id": "tree_berry_mwirbnma",
-      "name": "Pohon Buah Berry Lebat #3",
-      "x": 23,
-      "y": 53,
       "w": 2,
       "h": 2,
       "kind": "tree",
@@ -969,1463 +897,267 @@
   ],
   "tiles": [
     [
-      "23,52",
+      "49,52",
       "dev_paver"
     ],
     [
-      "23,53",
+      "49,53",
       "dev_paver"
     ],
     [
-      "23,51",
+      "49,51",
       "dev_paver"
     ],
     [
-      "23,50",
+      "49,50",
       "dev_paver"
     ],
     [
-      "23,49",
+      "49,49",
       "dev_paver"
     ],
     [
-      "23,48",
+      "49,48",
       "dev_paver"
     ],
     [
-      "23,47",
+      "49,47",
       "dev_paver"
     ],
     [
-      "24,46",
+      "50,46",
       "dev_paver"
     ],
     [
-      "25,46",
+      "51,46",
       "dev_paver"
     ],
     [
-      "25,47",
+      "51,47",
       "dev_paver"
     ],
     [
-      "25,48",
+      "51,48",
       "dev_paver"
     ],
     [
-      "25,49",
+      "51,49",
       "dev_paver"
     ],
     [
-      "25,50",
+      "51,50",
       "dev_paver"
     ],
     [
-      "25,51",
+      "51,51",
       "dev_paver"
     ],
     [
-      "25,52",
+      "51,52",
       "dev_paver"
     ],
     [
-      "25,53",
+      "51,53",
       "dev_paver"
     ],
     [
-      "23,54",
+      "49,54",
       "dev_paver"
     ],
     [
-      "23,55",
+      "49,55",
       "dev_paver"
     ],
     [
-      "26,55",
+      "52,55",
       "dev_paver"
     ],
     [
-      "27,55",
+      "53,55",
       "dev_paver"
     ],
     [
-      "28,55",
+      "54,55",
       "dev_paver"
     ],
     [
-      "29,55",
+      "55,55",
       "dev_paver"
     ],
     [
-      "30,55",
+      "56,55",
       "dev_paver"
     ],
     [
-      "31,55",
+      "57,55",
       "dev_paver"
     ],
     [
-      "31,54",
+      "57,54",
       "dev_paver"
     ],
     [
-      "26,54",
+      "52,54",
       "dev_paver"
     ],
     [
-      "27,54",
+      "53,54",
       "dev_paver"
     ],
     [
-      "28,54",
+      "54,54",
       "dev_paver"
     ],
     [
-      "29,54",
+      "55,54",
       "dev_paver"
     ],
     [
-      "30,54",
+      "56,54",
       "dev_paver"
     ],
     [
-      "20,39",
+      "46,39",
       "dev_paver"
     ],
     [
-      "16,43",
+      "42,43",
       "dev_paver"
     ],
     [
-      "17,43",
+      "43,43",
       "dev_paver"
     ],
     [
-      "15,43",
+      "41,43",
       "dev_paver"
     ],
     [
-      "14,43",
+      "40,43",
       "dev_paver"
     ],
     [
-      "13,43",
+      "39,43",
       "dev_paver"
     ],
     [
-      "20,29",
+      "46,29",
       "dev_paver"
     ],
     [
-      "20,28",
+      "46,28",
       "dev_paver"
     ],
     [
-      "19,28",
+      "45,28",
       "dev_paver"
     ],
     [
-      "18,28",
+      "44,28",
       "dev_paver"
     ],
     [
-      "17,28",
+      "43,28",
       "dev_paver"
     ],
     [
-      "16,28",
+      "42,28",
       "dev_paver"
     ],
     [
-      "16,29",
+      "42,29",
       "dev_paver"
     ],
     [
-      "15,29",
+      "41,29",
       "dev_paver"
     ],
     [
-      "14,29",
+      "40,29",
       "dev_paver"
     ],
     [
-      "14,28",
+      "40,28",
       "dev_paver"
     ],
     [
-      "15,28",
+      "41,28",
       "dev_paver"
     ],
     [
-      "13,28",
+      "39,28",
       "dev_paver"
     ],
     [
-      "13,44",
+      "39,44",
       "dev_paver"
     ],
     [
-      "14,44",
+      "40,44",
       "dev_paver"
     ],
     [
-      "15,44",
+      "41,44",
       "dev_paver"
     ],
     [
-      "16,44",
+      "42,44",
       "dev_paver"
     ],
     [
-      "17,44",
+      "43,44",
       "dev_paver"
     ],
     [
-      "12,28",
+      "38,28",
       "dev_paver"
     ],
     [
-      "11,28",
+      "37,28",
       "dev_paver"
     ],
     [
-      "11,27",
+      "37,27",
       "dev_paver"
     ],
     [
-      "12,27",
+      "38,27",
       "dev_paver"
     ],
     [
-      "13,27",
+      "39,27",
       "dev_paver"
     ],
     [
-      "14,27",
+      "40,27",
       "dev_paver"
     ],
     [
-      "15,27",
+      "41,27",
       "dev_paver"
     ],
     [
-      "16,27",
+      "42,27",
       "dev_paver"
     ],
     [
-      "17,27",
+      "43,27",
       "dev_paver"
     ],
     [
-      "18,27",
+      "44,27",
       "dev_paver"
     ],
     [
-      "19,27",
+      "45,27",
       "dev_paver"
     ],
     [
-      "20,27",
+      "46,27",
       "dev_paver"
     ],
     [
-      "10,27",
-      "dev_paver"
-    ],
-    [
-      "9,27",
-      "dev_paver"
-    ],
-    [
-      "9,26",
-      "dev_paver"
-    ],
-    [
-      "9,25",
-      "dev_paver"
-    ],
-    [
-      "9,24",
-      "dev_paver"
-    ],
-    [
-      "9,23",
-      "dev_paver"
-    ],
-    [
-      "9,22",
-      "dev_paver"
-    ],
-    [
-      "9,21",
-      "dev_paver"
-    ],
-    [
-      "9,20",
-      "dev_paver"
-    ],
-    [
-      "20,20",
-      "dev_paver"
-    ],
-    [
-      "20,21",
-      "dev_paver"
-    ],
-    [
-      "20,22",
-      "dev_paver"
-    ],
-    [
-      "20,23",
-      "dev_paver"
-    ],
-    [
-      "20,24",
-      "dev_paver"
-    ],
-    [
-      "20,25",
-      "dev_paver"
-    ],
-    [
-      "20,26",
-      "dev_paver"
-    ],
-    [
-      "16,26",
-      "dev_paver"
-    ],
-    [
-      "15,26",
-      "dev_paver"
-    ],
-    [
-      "14,26",
-      "dev_paver"
-    ],
-    [
-      "19,19",
-      "dev_paver"
-    ],
-    [
-      "18,19",
-      "dev_paver"
-    ],
-    [
-      "17,19",
-      "dev_paver"
-    ],
-    [
-      "16,19",
-      "dev_paver"
-    ],
-    [
-      "15,19",
-      "dev_paver"
-    ],
-    [
-      "14,19",
-      "dev_paver"
-    ],
-    [
-      "13,19",
-      "dev_paver"
-    ],
-    [
-      "12,19",
-      "dev_paver"
-    ],
-    [
-      "11,19",
-      "dev_paver"
-    ],
-    [
-      "10,19",
-      "dev_paver"
-    ],
-    [
-      "21,52",
-      "dev_paver"
-    ],
-    [
-      "21,53",
-      "dev_paver"
-    ],
-    [
-      "20,38",
-      "dev_paver"
-    ],
-    [
-      "21,38",
-      "dev_paver"
-    ],
-    [
-      "21,39",
-      "dev_paver"
-    ],
-    [
-      "21,37",
-      "dev_paver"
-    ],
-    [
-      "20,40",
-      "dev_paver"
-    ],
-    [
-      "21,40",
-      "dev_paver"
-    ],
-    [
-      "22,40",
-      "dev_paver"
-    ],
-    [
-      "20,41",
-      "dev_paver"
-    ],
-    [
-      "21,41",
-      "dev_paver"
-    ],
-    [
-      "22,41",
-      "dev_paver"
-    ],
-    [
-      "20,42",
-      "dev_paver"
-    ],
-    [
-      "21,42",
-      "dev_paver"
-    ],
-    [
-      "22,42",
-      "dev_paver"
-    ],
-    [
-      "22,39",
-      "dev_paver"
-    ],
-    [
-      "22,38",
-      "dev_paver"
-    ],
-    [
-      "20,37",
-      "dev_paver"
-    ],
-    [
-      "22,37",
-      "dev_paver"
-    ],
-    [
-      "20,36",
-      "dev_paver"
-    ],
-    [
-      "21,36",
-      "dev_paver"
-    ],
-    [
-      "22,36",
-      "dev_paver"
-    ],
-    [
-      "20,35",
-      "dev_paver"
-    ],
-    [
-      "21,35",
-      "dev_paver"
-    ],
-    [
-      "22,35",
-      "dev_paver"
-    ],
-    [
-      "20,34",
-      "dev_paver"
-    ],
-    [
-      "21,34",
-      "dev_paver"
-    ],
-    [
-      "22,34",
-      "dev_paver"
-    ],
-    [
-      "19,35",
-      "dev_paver"
-    ],
-    [
-      "19,36",
-      "dev_paver"
-    ],
-    [
-      "18,35",
-      "dev_paver"
-    ],
-    [
-      "18,36",
-      "dev_paver"
-    ],
-    [
-      "17,35",
-      "dev_paver"
-    ],
-    [
-      "17,36",
-      "dev_paver"
-    ],
-    [
-      "16,35",
-      "dev_paver"
-    ],
-    [
-      "16,36",
-      "dev_paver"
-    ],
-    [
-      "16,37",
-      "dev_paver"
-    ],
-    [
-      "15,35",
-      "dev_paver"
-    ],
-    [
-      "15,36",
-      "dev_paver"
-    ],
-    [
-      "15,37",
-      "dev_paver"
-    ],
-    [
-      "15,38",
-      "dev_paver"
-    ],
-    [
-      "16,38",
-      "dev_paver"
-    ],
-    [
-      "14,36",
-      "dev_paver"
-    ],
-    [
-      "14,37",
-      "dev_paver"
-    ],
-    [
-      "14,38",
-      "dev_paver"
-    ],
-    [
-      "13,36",
-      "dev_paver"
-    ],
-    [
-      "14,39",
-      "dev_paver"
-    ],
-    [
-      "15,39",
-      "dev_paver"
-    ],
-    [
-      "14,40",
-      "dev_paver"
-    ],
-    [
-      "15,40",
-      "dev_paver"
-    ],
-    [
-      "16,39",
-      "dev_paver"
-    ],
-    [
-      "16,40",
-      "dev_paver"
-    ],
-    [
-      "14,35",
-      "dev_paver"
-    ],
-    [
-      "13,35",
-      "dev_paver"
-    ],
-    [
-      "12,35",
-      "dev_paver"
-    ],
-    [
-      "12,36",
-      "dev_paver"
-    ],
-    [
-      "14,41",
-      "dev_paver"
-    ],
-    [
-      "14,42",
-      "dev_paver"
-    ],
-    [
-      "12,43",
-      "dev_paver"
-    ],
-    [
-      "15,41",
-      "dev_paver"
-    ],
-    [
-      "15,42",
-      "dev_paver"
-    ],
-    [
-      "16,41",
-      "dev_paver"
-    ],
-    [
-      "16,42",
-      "dev_paver"
-    ],
-    [
-      "5,43",
-      "dev_paver"
-    ],
-    [
-      "6,43",
-      "dev_paver"
-    ],
-    [
-      "7,43",
-      "dev_paver"
-    ],
-    [
-      "8,43",
-      "dev_paver"
-    ],
-    [
-      "9,43",
-      "dev_paver"
-    ],
-    [
-      "10,43",
-      "dev_paver"
-    ],
-    [
-      "11,43",
-      "dev_paver"
-    ],
-    [
-      "18,43",
-      "dev_paver"
-    ],
-    [
-      "19,43",
-      "dev_paver"
-    ],
-    [
-      "20,43",
-      "dev_paver"
-    ],
-    [
-      "21,43",
-      "dev_paver"
-    ],
-    [
-      "22,43",
-      "dev_paver"
-    ],
-    [
-      "23,41",
-      "dev_paver"
-    ],
-    [
-      "23,42",
-      "dev_paver"
-    ],
-    [
-      "23,43",
-      "dev_paver"
-    ],
-    [
-      "23,40",
-      "dev_paver"
-    ],
-    [
-      "23,39",
-      "dev_paver"
-    ],
-    [
-      "23,38",
-      "dev_paver"
-    ],
-    [
-      "23,37",
-      "dev_paver"
-    ],
-    [
-      "23,36",
-      "dev_paver"
-    ],
-    [
-      "23,35",
-      "dev_paver"
-    ],
-    [
-      "23,34",
-      "dev_paver"
-    ],
-    [
-      "21,33",
-      "dev_paver"
-    ],
-    [
-      "22,33",
-      "dev_paver"
-    ],
-    [
-      "23,33",
-      "dev_paver"
-    ],
-    [
-      "21,32",
-      "dev_paver"
-    ],
-    [
-      "22,32",
-      "dev_paver"
-    ],
-    [
-      "23,32",
-      "dev_paver"
-    ],
-    [
-      "21,31",
-      "dev_paver"
-    ],
-    [
-      "22,31",
-      "dev_paver"
-    ],
-    [
-      "23,31",
-      "dev_paver"
-    ],
-    [
-      "21,30",
-      "dev_paver"
-    ],
-    [
-      "22,30",
-      "dev_paver"
-    ],
-    [
-      "23,30",
-      "dev_paver"
-    ],
-    [
-      "21,29",
-      "dev_paver"
-    ],
-    [
-      "22,29",
-      "dev_paver"
-    ],
-    [
-      "23,29",
-      "dev_paver"
-    ],
-    [
-      "21,28",
-      "dev_paver"
-    ],
-    [
-      "22,28",
-      "dev_paver"
-    ],
-    [
-      "23,28",
-      "dev_paver"
-    ],
-    [
-      "20,30",
-      "dev_paver"
-    ],
-    [
-      "20,31",
-      "dev_paver"
-    ],
-    [
-      "20,32",
-      "dev_paver"
-    ],
-    [
-      "20,33",
-      "dev_paver"
-    ],
-    [
-      "16,30",
-      "dev_paver"
-    ],
-    [
-      "15,30",
-      "dev_paver"
-    ],
-    [
-      "14,30",
-      "dev_paver"
-    ],
-    [
-      "10,28",
-      "dev_paver"
-    ],
-    [
-      "21,26",
-      "dev_paver"
-    ],
-    [
-      "21,27",
-      "dev_paver"
-    ],
-    [
-      "22,26",
-      "dev_paver"
-    ],
-    [
-      "22,27",
-      "dev_paver"
-    ],
-    [
-      "23,26",
-      "dev_paver"
-    ],
-    [
-      "23,27",
-      "dev_paver"
-    ],
-    [
-      "21,25",
-      "dev_paver"
-    ],
-    [
-      "22,25",
-      "dev_paver"
-    ],
-    [
-      "23,25",
-      "dev_paver"
-    ],
-    [
-      "21,24",
-      "dev_paver"
-    ],
-    [
-      "22,24",
-      "dev_paver"
-    ],
-    [
-      "23,24",
-      "dev_paver"
-    ],
-    [
-      "21,23",
-      "dev_paver"
-    ],
-    [
-      "22,23",
-      "dev_paver"
-    ],
-    [
-      "23,23",
-      "dev_paver"
-    ],
-    [
-      "21,22",
-      "dev_paver"
-    ],
-    [
-      "22,22",
-      "dev_paver"
-    ],
-    [
-      "23,22",
-      "dev_paver"
-    ],
-    [
-      "21,21",
-      "dev_paver"
-    ],
-    [
-      "22,21",
-      "dev_paver"
-    ],
-    [
-      "23,21",
-      "dev_paver"
-    ],
-    [
-      "21,20",
-      "dev_paver"
-    ],
-    [
-      "22,20",
-      "dev_paver"
-    ],
-    [
-      "23,20",
-      "dev_paver"
-    ],
-    [
-      "21,19",
-      "dev_paver"
-    ],
-    [
-      "22,19",
-      "dev_paver"
-    ],
-    [
-      "23,19",
-      "dev_paver"
-    ],
-    [
-      "21,18",
-      "hedge"
-    ],
-    [
-      "22,18",
-      "hedge"
-    ],
-    [
-      "23,18",
-      "dev_paver"
-    ],
-    [
-      "20,18",
-      "hedge"
-    ],
-    [
-      "20,19",
-      "dev_paver"
-    ],
-    [
-      "19,18",
-      "hedge"
-    ],
-    [
-      "18,18",
-      "hedge"
-    ],
-    [
-      "17,18",
-      "hedge"
-    ],
-    [
-      "16,18",
-      "dev_paver"
-    ],
-    [
-      "15,18",
-      "dev_paver"
-    ],
-    [
-      "14,18",
-      "hedge"
-    ],
-    [
-      "13,18",
-      "hedge"
-    ],
-    [
-      "12,18",
-      "hedge"
-    ],
-    [
-      "11,18",
-      "hedge"
-    ],
-    [
-      "10,18",
-      "hedge"
-    ],
-    [
-      "15,31",
-      "dev_paver"
-    ],
-    [
-      "16,31",
-      "dev_paver"
-    ],
-    [
-      "15,32",
-      "dev_paver"
-    ],
-    [
-      "16,32",
-      "dev_paver"
-    ],
-    [
-      "15,33",
-      "dev_paver"
-    ],
-    [
-      "16,33",
-      "dev_paver"
-    ],
-    [
-      "15,34",
-      "dev_paver"
-    ],
-    [
-      "16,34",
-      "dev_paver"
-    ],
-    [
-      "14,34",
-      "dev_paver"
-    ],
-    [
-      "11,35",
-      "dev_paver"
-    ],
-    [
-      "11,36",
-      "dev_paver"
-    ],
-    [
-      "10,35",
-      "dev_paver"
-    ],
-    [
-      "10,36",
-      "dev_paver"
-    ],
-    [
-      "9,35",
-      "dev_paver"
-    ],
-    [
-      "9,36",
-      "dev_paver"
-    ],
-    [
-      "8,35",
-      "dev_paver"
-    ],
-    [
-      "8,36",
-      "dev_paver"
-    ],
-    [
-      "14,33",
-      "dev_paver"
-    ],
-    [
-      "14,32",
-      "dev_paver"
-    ],
-    [
-      "14,31",
-      "dev_paver"
-    ],
-    [
-      "23,14",
-      "dev_paver"
-    ],
-    [
-      "24,14",
-      "dev_paver"
-    ],
-    [
-      "25,14",
-      "dev_paver"
-    ],
-    [
-      "23,15",
-      "dev_paver"
-    ],
-    [
-      "24,15",
-      "dev_paver"
-    ],
-    [
-      "25,15",
-      "dev_paver"
-    ],
-    [
-      "24,16",
-      "dev_paver"
-    ],
-    [
-      "25,16",
-      "dev_paver"
-    ],
-    [
-      "26,14",
-      "dev_paver"
-    ],
-    [
-      "26,15",
-      "dev_paver"
-    ],
-    [
-      "26,16",
-      "dev_paver"
-    ],
-    [
-      "27,14",
-      "dev_paver"
-    ],
-    [
-      "27,15",
-      "dev_paver"
-    ],
-    [
-      "27,16",
-      "dev_paver"
-    ],
-    [
-      "28,14",
-      "dev_paver"
-    ],
-    [
-      "28,15",
-      "dev_paver"
-    ],
-    [
-      "28,16",
-      "dev_paver"
-    ],
-    [
-      "29,14",
-      "dev_paver"
-    ],
-    [
-      "29,15",
-      "dev_paver"
-    ],
-    [
-      "29,16",
-      "dev_paver"
-    ],
-    [
-      "30,14",
-      "dev_paver"
-    ],
-    [
-      "30,15",
-      "dev_paver"
-    ],
-    [
-      "30,16",
-      "dev_paver"
-    ],
-    [
-      "31,14",
-      "dev_paver"
-    ],
-    [
-      "31,15",
-      "dev_paver"
-    ],
-    [
-      "31,16",
-      "dev_paver"
-    ],
-    [
-      "32,14",
-      "dev_paver"
-    ],
-    [
-      "32,15",
-      "dev_paver"
-    ],
-    [
-      "32,16",
-      "dev_paver"
-    ],
-    [
-      "33,14",
-      "dev_paver"
-    ],
-    [
-      "33,15",
-      "dev_paver"
-    ],
-    [
-      "33,16",
-      "dev_paver"
-    ],
-    [
-      "34,14",
-      "dev_paver"
-    ],
-    [
-      "34,15",
-      "dev_paver"
-    ],
-    [
-      "34,16",
-      "dev_paver"
-    ],
-    [
-      "35,14",
-      "dev_paver"
-    ],
-    [
-      "35,15",
-      "dev_paver"
-    ],
-    [
-      "35,16",
-      "dev_paver"
-    ],
-    [
-      "33,13",
-      "dev_paver"
-    ],
-    [
-      "34,13",
-      "dev_paver"
-    ],
-    [
-      "35,13",
-      "dev_paver"
-    ],
-    [
-      "32,13",
-      "dev_paver"
-    ],
-    [
-      "31,13",
-      "dev_paver"
-    ],
-    [
-      "30,13",
-      "dev_paver"
-    ],
-    [
-      "29,13",
-      "dev_paver"
-    ],
-    [
-      "28,13",
-      "dev_paver"
-    ],
-    [
-      "27,13",
-      "dev_paver"
-    ],
-    [
-      "26,13",
-      "dev_paver"
-    ],
-    [
-      "25,13",
-      "dev_paver"
-    ],
-    [
-      "24,13",
-      "dev_paver"
-    ],
-    [
-      "23,13",
-      "dev_paver"
-    ],
-    [
-      "23,12",
-      "dev_paver"
-    ],
-    [
-      "24,12",
-      "dev_paver"
-    ],
-    [
-      "25,12",
-      "dev_paver"
-    ],
-    [
-      "26,12",
-      "dev_paver"
-    ],
-    [
-      "24,11",
-      "dev_paver"
-    ],
-    [
-      "25,11",
-      "dev_paver"
-    ],
-    [
-      "26,11",
-      "dev_paver"
-    ],
-    [
-      "23,11",
-      "dev_paver"
-    ],
-    [
-      "27,11",
-      "dev_paver"
-    ],
-    [
-      "27,12",
-      "dev_paver"
-    ],
-    [
-      "28,11",
-      "dev_paver"
-    ],
-    [
-      "28,12",
-      "dev_paver"
-    ],
-    [
-      "29,11",
-      "dev_paver"
-    ],
-    [
-      "29,12",
-      "dev_paver"
-    ],
-    [
-      "30,11",
-      "dev_paver"
-    ],
-    [
-      "30,12",
-      "dev_paver"
-    ],
-    [
-      "31,11",
-      "dev_paver"
-    ],
-    [
-      "31,12",
-      "dev_paver"
-    ],
-    [
-      "32,11",
-      "dev_paver"
-    ],
-    [
-      "32,12",
-      "dev_paver"
-    ],
-    [
-      "33,11",
-      "dev_paver"
-    ],
-    [
-      "33,12",
-      "dev_paver"
-    ],
-    [
-      "34,11",
-      "dev_paver"
-    ],
-    [
-      "34,12",
-      "dev_paver"
-    ],
-    [
-      "35,11",
-      "dev_paver"
-    ],
-    [
-      "35,12",
-      "dev_paver"
-    ],
-    [
-      "34,17",
-      "dev_paver"
-    ],
-    [
-      "35,17",
-      "dev_paver"
-    ],
-    [
-      "34,18",
-      "dev_paver"
-    ],
-    [
-      "35,18",
-      "dev_paver"
-    ],
-    [
-      "34,19",
-      "dev_paver"
-    ],
-    [
-      "35,19",
-      "dev_paver"
-    ],
-    [
-      "34,20",
-      "dev_paver"
-    ],
-    [
-      "35,20",
-      "dev_paver"
-    ],
-    [
-      "34,21",
-      "dev_paver"
-    ],
-    [
-      "35,21",
-      "dev_paver"
-    ],
-    [
-      "34,22",
-      "dev_paver"
-    ],
-    [
-      "35,22",
-      "dev_paver"
-    ],
-    [
-      "34,23",
-      "dev_paver"
-    ],
-    [
-      "35,23",
-      "dev_paver"
-    ],
-    [
-      "34,24",
-      "dev_paver"
-    ],
-    [
-      "35,24",
-      "dev_paver"
-    ],
-    [
-      "34,25",
-      "dev_paver"
-    ],
-    [
-      "35,25",
-      "dev_paver"
-    ],
-    [
-      "34,26",
-      "dev_paver"
-    ],
-    [
-      "35,26",
-      "dev_paver"
-    ],
-    [
-      "34,27",
+      "36,27",
       "dev_paver"
     ],
     [
@@ -2433,215 +1165,247 @@
       "dev_paver"
     ],
     [
-      "34,28",
+      "35,26",
       "dev_paver"
     ],
     [
-      "35,28",
+      "35,25",
       "dev_paver"
     ],
     [
-      "34,29",
+      "35,24",
       "dev_paver"
     ],
     [
-      "35,29",
+      "35,23",
       "dev_paver"
     ],
     [
-      "34,30",
+      "35,22",
       "dev_paver"
     ],
     [
-      "35,30",
+      "35,21",
       "dev_paver"
     ],
     [
-      "34,31",
+      "35,20",
       "dev_paver"
     ],
     [
-      "35,31",
+      "46,20",
       "dev_paver"
     ],
     [
-      "34,32",
+      "46,21",
       "dev_paver"
     ],
     [
-      "35,32",
+      "46,22",
       "dev_paver"
     ],
     [
-      "34,33",
+      "46,23",
       "dev_paver"
     ],
     [
-      "35,33",
+      "46,24",
       "dev_paver"
     ],
     [
-      "34,34",
+      "46,25",
       "dev_paver"
     ],
     [
-      "35,34",
+      "46,26",
       "dev_paver"
     ],
     [
-      "34,35",
+      "42,26",
       "dev_paver"
     ],
     [
-      "35,35",
+      "41,26",
       "dev_paver"
     ],
     [
-      "34,36",
+      "40,26",
       "dev_paver"
     ],
     [
-      "35,36",
+      "45,19",
       "dev_paver"
     ],
     [
-      "34,37",
+      "44,19",
       "dev_paver"
     ],
     [
-      "35,37",
+      "43,19",
       "dev_paver"
     ],
     [
-      "34,38",
+      "42,19",
       "dev_paver"
     ],
     [
-      "35,38",
+      "41,19",
       "dev_paver"
     ],
     [
-      "34,39",
+      "40,19",
       "dev_paver"
     ],
     [
-      "35,39",
+      "39,19",
       "dev_paver"
     ],
     [
-      "34,40",
+      "38,19",
       "dev_paver"
     ],
     [
-      "35,40",
+      "37,19",
       "dev_paver"
     ],
     [
-      "34,41",
+      "36,19",
       "dev_paver"
     ],
     [
-      "35,41",
+      "47,52",
       "dev_paver"
     ],
     [
-      "34,43",
+      "47,53",
       "dev_paver"
     ],
     [
-      "35,43",
+      "46,38",
       "dev_paver"
     ],
     [
-      "34,44",
+      "47,38",
       "dev_paver"
     ],
     [
-      "35,44",
+      "47,39",
       "dev_paver"
     ],
     [
-      "34,42",
+      "47,37",
       "dev_paver"
     ],
     [
-      "35,42",
+      "46,40",
       "dev_paver"
     ],
     [
-      "34,45",
+      "47,40",
       "dev_paver"
     ],
     [
-      "35,45",
+      "48,40",
       "dev_paver"
     ],
     [
-      "34,46",
+      "46,41",
       "dev_paver"
     ],
     [
-      "35,46",
+      "47,41",
       "dev_paver"
     ],
     [
-      "36,46",
+      "48,41",
       "dev_paver"
     ],
     [
-      "37,46",
+      "46,42",
       "dev_paver"
     ],
     [
-      "38,46",
+      "47,42",
       "dev_paver"
     ],
     [
-      "39,46",
+      "48,42",
       "dev_paver"
     ],
     [
-      "40,46",
+      "48,39",
       "dev_paver"
     ],
     [
-      "41,46",
+      "48,38",
       "dev_paver"
     ],
     [
-      "42,46",
+      "46,37",
       "dev_paver"
     ],
     [
-      "36,37",
+      "48,37",
       "dev_paver"
     ],
     [
-      "37,37",
+      "46,36",
       "dev_paver"
     ],
     [
-      "38,37",
+      "47,36",
       "dev_paver"
     ],
     [
-      "39,37",
+      "48,36",
       "dev_paver"
     ],
     [
-      "40,37",
+      "46,35",
       "dev_paver"
     ],
     [
-      "41,37",
+      "47,35",
       "dev_paver"
     ],
     [
-      "42,37",
+      "48,35",
       "dev_paver"
     ],
     [
-      "42,36",
+      "46,34",
+      "dev_paver"
+    ],
+    [
+      "47,34",
+      "dev_paver"
+    ],
+    [
+      "48,34",
+      "dev_paver"
+    ],
+    [
+      "45,35",
+      "dev_paver"
+    ],
+    [
+      "45,36",
+      "dev_paver"
+    ],
+    [
+      "44,35",
+      "dev_paver"
+    ],
+    [
+      "44,36",
+      "dev_paver"
+    ],
+    [
+      "43,35",
+      "dev_paver"
+    ],
+    [
+      "43,36",
       "dev_paver"
     ],
     [
@@ -2649,7 +1413,71 @@
       "dev_paver"
     ],
     [
+      "42,36",
+      "dev_paver"
+    ],
+    [
+      "42,37",
+      "dev_paver"
+    ],
+    [
       "41,35",
+      "dev_paver"
+    ],
+    [
+      "41,36",
+      "dev_paver"
+    ],
+    [
+      "41,37",
+      "dev_paver"
+    ],
+    [
+      "41,38",
+      "dev_paver"
+    ],
+    [
+      "42,38",
+      "dev_paver"
+    ],
+    [
+      "40,36",
+      "dev_paver"
+    ],
+    [
+      "40,37",
+      "dev_paver"
+    ],
+    [
+      "40,38",
+      "dev_paver"
+    ],
+    [
+      "39,36",
+      "dev_paver"
+    ],
+    [
+      "40,39",
+      "dev_paver"
+    ],
+    [
+      "41,39",
+      "dev_paver"
+    ],
+    [
+      "40,40",
+      "dev_paver"
+    ],
+    [
+      "41,40",
+      "dev_paver"
+    ],
+    [
+      "42,39",
+      "dev_paver"
+    ],
+    [
+      "42,40",
       "dev_paver"
     ],
     [
@@ -2669,199 +1497,31 @@
       "dev_paver"
     ],
     [
-      "37,36",
+      "40,41",
       "dev_paver"
     ],
     [
-      "37,35",
+      "40,42",
       "dev_paver"
     ],
     [
-      "36,35",
+      "38,43",
       "dev_paver"
     ],
     [
-      "39,36",
+      "41,41",
       "dev_paver"
     ],
     [
-      "40,36",
+      "41,42",
       "dev_paver"
     ],
     [
-      "41,36",
+      "42,41",
       "dev_paver"
     ],
     [
-      "36,36",
-      "dev_paver"
-    ],
-    [
-      "24,36",
-      "dev_paver"
-    ],
-    [
-      "24,37",
-      "dev_paver"
-    ],
-    [
-      "24,38",
-      "dev_paver"
-    ],
-    [
-      "25,36",
-      "dev_paver"
-    ],
-    [
-      "25,37",
-      "dev_paver"
-    ],
-    [
-      "25,38",
-      "dev_paver"
-    ],
-    [
-      "26,36",
-      "dev_paver"
-    ],
-    [
-      "26,37",
-      "grass"
-    ],
-    [
-      "26,38",
-      "grass"
-    ],
-    [
-      "27,36",
-      "dev_paver"
-    ],
-    [
-      "27,37",
-      "grass"
-    ],
-    [
-      "27,38",
-      "grass"
-    ],
-    [
-      "28,36",
-      "dev_paver"
-    ],
-    [
-      "28,37",
-      "grass"
-    ],
-    [
-      "28,38",
-      "grass"
-    ],
-    [
-      "29,36",
-      "dev_paver"
-    ],
-    [
-      "29,37",
-      "grass"
-    ],
-    [
-      "29,38",
-      "grass"
-    ],
-    [
-      "30,36",
-      "dev_paver"
-    ],
-    [
-      "30,37",
-      "dev_paver"
-    ],
-    [
-      "30,38",
-      "dev_paver"
-    ],
-    [
-      "31,36",
-      "dev_paver"
-    ],
-    [
-      "31,37",
-      "dev_paver"
-    ],
-    [
-      "31,38",
-      "dev_paver"
-    ],
-    [
-      "32,36",
-      "dev_paver"
-    ],
-    [
-      "32,37",
-      "dev_paver"
-    ],
-    [
-      "32,38",
-      "dev_paver"
-    ],
-    [
-      "33,36",
-      "dev_paver"
-    ],
-    [
-      "33,37",
-      "dev_paver"
-    ],
-    [
-      "33,38",
-      "dev_paver"
-    ],
-    [
-      "31,39",
-      "dev_paver"
-    ],
-    [
-      "32,39",
-      "dev_paver"
-    ],
-    [
-      "33,39",
-      "dev_paver"
-    ],
-    [
-      "31,40",
-      "dev_paver"
-    ],
-    [
-      "32,40",
-      "dev_paver"
-    ],
-    [
-      "33,40",
-      "dev_paver"
-    ],
-    [
-      "31,41",
-      "dev_paver"
-    ],
-    [
-      "32,41",
-      "dev_paver"
-    ],
-    [
-      "33,41",
-      "dev_paver"
-    ],
-    [
-      "31,42",
-      "dev_paver"
-    ],
-    [
-      "32,42",
-      "dev_paver"
-    ],
-    [
-      "33,42",
+      "42,42",
       "dev_paver"
     ],
     [
@@ -2877,179 +1537,1591 @@
       "dev_paver"
     ],
     [
-      "30,41",
+      "34,43",
       "dev_paver"
     ],
     [
-      "30,42",
+      "35,43",
       "dev_paver"
     ],
     [
-      "30,43",
+      "36,43",
       "dev_paver"
     ],
     [
-      "29,41",
+      "37,43",
       "dev_paver"
     ],
     [
-      "29,42",
+      "44,43",
       "dev_paver"
     ],
     [
-      "29,43",
+      "45,43",
       "dev_paver"
     ],
     [
-      "28,41",
+      "46,43",
       "dev_paver"
     ],
     [
-      "28,42",
+      "47,43",
       "dev_paver"
     ],
     [
-      "28,43",
+      "48,43",
       "dev_paver"
     ],
     [
-      "27,41",
+      "49,41",
       "dev_paver"
     ],
     [
-      "27,42",
+      "49,42",
       "dev_paver"
     ],
     [
-      "27,43",
+      "49,43",
       "dev_paver"
     ],
     [
-      "26,41",
+      "49,40",
       "dev_paver"
     ],
     [
-      "26,42",
+      "49,39",
       "dev_paver"
     ],
     [
-      "26,43",
+      "49,38",
       "dev_paver"
     ],
     [
-      "25,41",
+      "49,37",
       "dev_paver"
     ],
     [
-      "25,42",
+      "49,36",
       "dev_paver"
     ],
     [
-      "25,43",
+      "49,35",
       "dev_paver"
     ],
     [
-      "24,41",
+      "49,34",
       "dev_paver"
     ],
     [
-      "24,42",
+      "47,33",
       "dev_paver"
     ],
     [
-      "24,43",
+      "48,33",
       "dev_paver"
     ],
     [
-      "24,40",
+      "49,33",
       "dev_paver"
     ],
     [
-      "25,40",
+      "47,32",
       "dev_paver"
     ],
     [
-      "26,40",
-      "grass"
-    ],
-    [
-      "24,39",
+      "48,32",
       "dev_paver"
     ],
     [
-      "25,39",
+      "49,32",
       "dev_paver"
     ],
     [
-      "26,39",
-      "grass"
-    ],
-    [
-      "27,39",
-      "grass"
-    ],
-    [
-      "27,40",
-      "grass"
-    ],
-    [
-      "28,39",
-      "grass"
-    ],
-    [
-      "28,40",
-      "grass"
-    ],
-    [
-      "29,39",
-      "grass"
-    ],
-    [
-      "29,40",
-      "grass"
-    ],
-    [
-      "30,40",
-      "grass"
-    ],
-    [
-      "28,44",
+      "47,31",
       "dev_paver"
     ],
     [
-      "29,44",
+      "48,31",
       "dev_paver"
     ],
     [
-      "30,44",
+      "49,31",
       "dev_paver"
     ],
     [
-      "28,45",
+      "47,30",
       "dev_paver"
     ],
     [
-      "29,45",
+      "48,30",
       "dev_paver"
     ],
     [
-      "30,45",
+      "49,30",
       "dev_paver"
     ],
     [
-      "31,44",
+      "47,29",
       "dev_paver"
     ],
     [
-      "31,45",
+      "48,29",
       "dev_paver"
     ],
     [
-      "32,44",
+      "49,29",
       "dev_paver"
     ],
     [
-      "32,45",
+      "47,28",
+      "dev_paver"
+    ],
+    [
+      "48,28",
+      "dev_paver"
+    ],
+    [
+      "49,28",
+      "dev_paver"
+    ],
+    [
+      "46,30",
+      "dev_paver"
+    ],
+    [
+      "46,31",
+      "dev_paver"
+    ],
+    [
+      "46,32",
+      "dev_paver"
+    ],
+    [
+      "46,33",
+      "dev_paver"
+    ],
+    [
+      "42,30",
+      "dev_paver"
+    ],
+    [
+      "41,30",
+      "dev_paver"
+    ],
+    [
+      "40,30",
+      "dev_paver"
+    ],
+    [
+      "36,28",
+      "dev_paver"
+    ],
+    [
+      "47,26",
+      "dev_paver"
+    ],
+    [
+      "47,27",
+      "dev_paver"
+    ],
+    [
+      "48,26",
+      "dev_paver"
+    ],
+    [
+      "48,27",
+      "dev_paver"
+    ],
+    [
+      "49,26",
+      "dev_paver"
+    ],
+    [
+      "49,27",
+      "dev_paver"
+    ],
+    [
+      "47,25",
+      "dev_paver"
+    ],
+    [
+      "48,25",
+      "dev_paver"
+    ],
+    [
+      "49,25",
+      "dev_paver"
+    ],
+    [
+      "47,24",
+      "dev_paver"
+    ],
+    [
+      "48,24",
+      "dev_paver"
+    ],
+    [
+      "49,24",
+      "dev_paver"
+    ],
+    [
+      "47,23",
+      "dev_paver"
+    ],
+    [
+      "48,23",
+      "dev_paver"
+    ],
+    [
+      "49,23",
+      "dev_paver"
+    ],
+    [
+      "47,22",
+      "dev_paver"
+    ],
+    [
+      "48,22",
+      "dev_paver"
+    ],
+    [
+      "49,22",
+      "dev_paver"
+    ],
+    [
+      "47,21",
+      "dev_paver"
+    ],
+    [
+      "48,21",
+      "dev_paver"
+    ],
+    [
+      "49,21",
+      "dev_paver"
+    ],
+    [
+      "47,20",
+      "dev_paver"
+    ],
+    [
+      "48,20",
+      "dev_paver"
+    ],
+    [
+      "49,20",
+      "dev_paver"
+    ],
+    [
+      "47,19",
+      "dev_paver"
+    ],
+    [
+      "48,19",
+      "dev_paver"
+    ],
+    [
+      "49,19",
+      "dev_paver"
+    ],
+    [
+      "47,18",
+      "dev_paver"
+    ],
+    [
+      "48,18",
+      "dev_paver"
+    ],
+    [
+      "49,18",
+      "dev_paver"
+    ],
+    [
+      "46,18",
+      "dev_paver"
+    ],
+    [
+      "46,19",
+      "dev_paver"
+    ],
+    [
+      "45,18",
+      "dev_paver"
+    ],
+    [
+      "44,18",
+      "dev_paver"
+    ],
+    [
+      "43,18",
+      "dev_paver"
+    ],
+    [
+      "42,18",
+      "dev_paver"
+    ],
+    [
+      "41,18",
+      "dev_paver"
+    ],
+    [
+      "40,18",
+      "dev_paver"
+    ],
+    [
+      "39,18",
+      "dev_paver"
+    ],
+    [
+      "38,18",
+      "dev_paver"
+    ],
+    [
+      "37,18",
+      "dev_paver"
+    ],
+    [
+      "36,18",
+      "dev_paver"
+    ],
+    [
+      "41,31",
+      "dev_paver"
+    ],
+    [
+      "42,31",
+      "dev_paver"
+    ],
+    [
+      "41,32",
+      "dev_paver"
+    ],
+    [
+      "42,32",
+      "dev_paver"
+    ],
+    [
+      "41,33",
+      "dev_paver"
+    ],
+    [
+      "42,33",
+      "dev_paver"
+    ],
+    [
+      "41,34",
+      "dev_paver"
+    ],
+    [
+      "42,34",
+      "dev_paver"
+    ],
+    [
+      "40,34",
+      "dev_paver"
+    ],
+    [
+      "37,35",
+      "dev_paver"
+    ],
+    [
+      "37,36",
+      "dev_paver"
+    ],
+    [
+      "36,35",
+      "dev_paver"
+    ],
+    [
+      "36,36",
+      "dev_paver"
+    ],
+    [
+      "35,35",
+      "dev_paver"
+    ],
+    [
+      "35,36",
+      "dev_paver"
+    ],
+    [
+      "34,35",
+      "dev_paver"
+    ],
+    [
+      "34,36",
+      "dev_paver"
+    ],
+    [
+      "40,33",
+      "dev_paver"
+    ],
+    [
+      "40,32",
+      "dev_paver"
+    ],
+    [
+      "40,31",
+      "dev_paver"
+    ],
+    [
+      "49,14",
+      "dev_paver"
+    ],
+    [
+      "50,14",
+      "dev_paver"
+    ],
+    [
+      "51,14",
+      "dev_paver"
+    ],
+    [
+      "49,15",
+      "dev_paver"
+    ],
+    [
+      "50,15",
+      "dev_paver"
+    ],
+    [
+      "51,15",
+      "dev_paver"
+    ],
+    [
+      "50,16",
+      "dev_paver"
+    ],
+    [
+      "51,16",
+      "dev_paver"
+    ],
+    [
+      "52,14",
+      "dev_paver"
+    ],
+    [
+      "52,15",
+      "dev_paver"
+    ],
+    [
+      "52,16",
+      "dev_paver"
+    ],
+    [
+      "53,14",
+      "dev_paver"
+    ],
+    [
+      "53,15",
+      "dev_paver"
+    ],
+    [
+      "53,16",
+      "dev_paver"
+    ],
+    [
+      "54,14",
+      "dev_paver"
+    ],
+    [
+      "54,15",
+      "dev_paver"
+    ],
+    [
+      "54,16",
+      "dev_paver"
+    ],
+    [
+      "55,14",
+      "dev_paver"
+    ],
+    [
+      "55,15",
+      "dev_paver"
+    ],
+    [
+      "55,16",
+      "dev_paver"
+    ],
+    [
+      "56,14",
+      "dev_paver"
+    ],
+    [
+      "56,15",
+      "dev_paver"
+    ],
+    [
+      "56,16",
+      "dev_paver"
+    ],
+    [
+      "57,14",
+      "dev_paver"
+    ],
+    [
+      "57,15",
+      "dev_paver"
+    ],
+    [
+      "57,16",
+      "dev_paver"
+    ],
+    [
+      "58,14",
+      "dev_paver"
+    ],
+    [
+      "58,15",
+      "dev_paver"
+    ],
+    [
+      "58,16",
+      "dev_paver"
+    ],
+    [
+      "59,14",
+      "dev_paver"
+    ],
+    [
+      "59,15",
+      "dev_paver"
+    ],
+    [
+      "59,16",
+      "dev_paver"
+    ],
+    [
+      "60,14",
+      "dev_paver"
+    ],
+    [
+      "60,15",
+      "dev_paver"
+    ],
+    [
+      "60,16",
+      "dev_paver"
+    ],
+    [
+      "61,14",
+      "dev_paver"
+    ],
+    [
+      "61,15",
+      "dev_paver"
+    ],
+    [
+      "61,16",
+      "dev_paver"
+    ],
+    [
+      "59,13",
+      "dev_paver"
+    ],
+    [
+      "60,13",
+      "dev_paver"
+    ],
+    [
+      "61,13",
+      "dev_paver"
+    ],
+    [
+      "58,13",
+      "dev_paver"
+    ],
+    [
+      "57,13",
+      "dev_paver"
+    ],
+    [
+      "56,13",
+      "dev_paver"
+    ],
+    [
+      "55,13",
+      "dev_paver"
+    ],
+    [
+      "54,13",
+      "dev_paver"
+    ],
+    [
+      "53,13",
+      "dev_paver"
+    ],
+    [
+      "52,13",
+      "dev_paver"
+    ],
+    [
+      "51,13",
+      "dev_paver"
+    ],
+    [
+      "50,13",
+      "dev_paver"
+    ],
+    [
+      "49,13",
+      "dev_paver"
+    ],
+    [
+      "49,12",
+      "dev_paver"
+    ],
+    [
+      "50,12",
+      "dev_paver"
+    ],
+    [
+      "51,12",
+      "dev_paver"
+    ],
+    [
+      "52,12",
+      "dev_paver"
+    ],
+    [
+      "50,11",
+      "dev_paver"
+    ],
+    [
+      "51,11",
+      "dev_paver"
+    ],
+    [
+      "52,11",
+      "dev_paver"
+    ],
+    [
+      "49,11",
+      "dev_paver"
+    ],
+    [
+      "53,11",
+      "dev_paver"
+    ],
+    [
+      "53,12",
+      "dev_paver"
+    ],
+    [
+      "54,11",
+      "dev_paver"
+    ],
+    [
+      "54,12",
+      "dev_paver"
+    ],
+    [
+      "55,11",
+      "dev_paver"
+    ],
+    [
+      "55,12",
+      "dev_paver"
+    ],
+    [
+      "56,11",
+      "dev_paver"
+    ],
+    [
+      "56,12",
+      "dev_paver"
+    ],
+    [
+      "57,11",
+      "dev_paver"
+    ],
+    [
+      "57,12",
+      "dev_paver"
+    ],
+    [
+      "58,11",
+      "dev_paver"
+    ],
+    [
+      "58,12",
+      "dev_paver"
+    ],
+    [
+      "59,11",
+      "dev_paver"
+    ],
+    [
+      "59,12",
+      "dev_paver"
+    ],
+    [
+      "60,11",
+      "dev_paver"
+    ],
+    [
+      "60,12",
+      "dev_paver"
+    ],
+    [
+      "61,11",
+      "dev_paver"
+    ],
+    [
+      "61,12",
+      "dev_paver"
+    ],
+    [
+      "60,17",
+      "dev_paver"
+    ],
+    [
+      "61,17",
+      "dev_paver"
+    ],
+    [
+      "60,18",
+      "dev_paver"
+    ],
+    [
+      "61,18",
+      "dev_paver"
+    ],
+    [
+      "60,19",
+      "dev_paver"
+    ],
+    [
+      "61,19",
+      "dev_paver"
+    ],
+    [
+      "60,20",
+      "dev_paver"
+    ],
+    [
+      "61,20",
+      "dev_paver"
+    ],
+    [
+      "60,21",
+      "dev_paver"
+    ],
+    [
+      "61,21",
+      "dev_paver"
+    ],
+    [
+      "60,22",
+      "dev_paver"
+    ],
+    [
+      "61,22",
+      "dev_paver"
+    ],
+    [
+      "60,23",
+      "dev_paver"
+    ],
+    [
+      "61,23",
+      "dev_paver"
+    ],
+    [
+      "60,24",
+      "dev_paver"
+    ],
+    [
+      "61,24",
+      "dev_paver"
+    ],
+    [
+      "60,25",
+      "dev_paver"
+    ],
+    [
+      "61,25",
+      "dev_paver"
+    ],
+    [
+      "60,26",
+      "dev_paver"
+    ],
+    [
+      "61,26",
+      "dev_paver"
+    ],
+    [
+      "60,27",
+      "dev_paver"
+    ],
+    [
+      "61,27",
+      "dev_paver"
+    ],
+    [
+      "60,28",
+      "dev_paver"
+    ],
+    [
+      "61,28",
+      "dev_paver"
+    ],
+    [
+      "60,29",
+      "dev_paver"
+    ],
+    [
+      "61,29",
+      "dev_paver"
+    ],
+    [
+      "60,30",
+      "dev_paver"
+    ],
+    [
+      "61,30",
+      "dev_paver"
+    ],
+    [
+      "60,31",
+      "dev_paver"
+    ],
+    [
+      "61,31",
+      "dev_paver"
+    ],
+    [
+      "60,32",
+      "dev_paver"
+    ],
+    [
+      "61,32",
+      "dev_paver"
+    ],
+    [
+      "60,33",
+      "dev_paver"
+    ],
+    [
+      "61,33",
+      "dev_paver"
+    ],
+    [
+      "60,34",
+      "dev_paver"
+    ],
+    [
+      "61,34",
+      "dev_paver"
+    ],
+    [
+      "60,35",
+      "dev_paver"
+    ],
+    [
+      "61,35",
+      "dev_paver"
+    ],
+    [
+      "60,36",
+      "dev_paver"
+    ],
+    [
+      "61,36",
+      "dev_paver"
+    ],
+    [
+      "60,37",
+      "dev_paver"
+    ],
+    [
+      "61,37",
+      "dev_paver"
+    ],
+    [
+      "60,38",
+      "dev_paver"
+    ],
+    [
+      "61,38",
+      "dev_paver"
+    ],
+    [
+      "60,39",
+      "dev_paver"
+    ],
+    [
+      "61,39",
+      "dev_paver"
+    ],
+    [
+      "60,40",
+      "dev_paver"
+    ],
+    [
+      "61,40",
+      "dev_paver"
+    ],
+    [
+      "60,41",
+      "dev_paver"
+    ],
+    [
+      "61,41",
+      "dev_paver"
+    ],
+    [
+      "60,43",
+      "dev_paver"
+    ],
+    [
+      "61,43",
+      "dev_paver"
+    ],
+    [
+      "60,44",
+      "dev_paver"
+    ],
+    [
+      "61,44",
+      "dev_paver"
+    ],
+    [
+      "60,42",
+      "dev_paver"
+    ],
+    [
+      "61,42",
+      "dev_paver"
+    ],
+    [
+      "60,45",
+      "dev_paver"
+    ],
+    [
+      "61,45",
+      "dev_paver"
+    ],
+    [
+      "60,46",
+      "dev_paver"
+    ],
+    [
+      "61,46",
+      "dev_paver"
+    ],
+    [
+      "62,46",
+      "dev_paver"
+    ],
+    [
+      "63,46",
+      "dev_paver"
+    ],
+    [
+      "64,46",
+      "dev_paver"
+    ],
+    [
+      "65,46",
+      "dev_paver"
+    ],
+    [
+      "66,46",
+      "dev_paver"
+    ],
+    [
+      "67,46",
+      "dev_paver"
+    ],
+    [
+      "68,46",
+      "dev_paver"
+    ],
+    [
+      "62,37",
+      "dev_paver"
+    ],
+    [
+      "63,37",
+      "dev_paver"
+    ],
+    [
+      "64,37",
+      "dev_paver"
+    ],
+    [
+      "65,37",
+      "dev_paver"
+    ],
+    [
+      "66,37",
+      "dev_paver"
+    ],
+    [
+      "67,37",
+      "dev_paver"
+    ],
+    [
+      "68,37",
+      "dev_paver"
+    ],
+    [
+      "68,36",
+      "dev_paver"
+    ],
+    [
+      "68,35",
+      "dev_paver"
+    ],
+    [
+      "67,35",
+      "dev_paver"
+    ],
+    [
+      "66,35",
+      "dev_paver"
+    ],
+    [
+      "65,35",
+      "dev_paver"
+    ],
+    [
+      "64,35",
+      "dev_paver"
+    ],
+    [
+      "64,36",
+      "dev_paver"
+    ],
+    [
+      "63,36",
+      "dev_paver"
+    ],
+    [
+      "63,35",
+      "dev_paver"
+    ],
+    [
+      "62,35",
+      "dev_paver"
+    ],
+    [
+      "65,36",
+      "dev_paver"
+    ],
+    [
+      "66,36",
+      "dev_paver"
+    ],
+    [
+      "67,36",
+      "dev_paver"
+    ],
+    [
+      "62,36",
+      "dev_paver"
+    ],
+    [
+      "50,36",
+      "dev_paver"
+    ],
+    [
+      "50,37",
+      "dev_paver"
+    ],
+    [
+      "50,38",
+      "dev_paver"
+    ],
+    [
+      "51,36",
+      "dev_paver"
+    ],
+    [
+      "51,37",
+      "dev_paver"
+    ],
+    [
+      "51,38",
+      "dev_paver"
+    ],
+    [
+      "52,36",
+      "dev_paver"
+    ],
+    [
+      "53,36",
+      "dev_paver"
+    ],
+    [
+      "54,36",
+      "dev_paver"
+    ],
+    [
+      "55,36",
+      "dev_paver"
+    ],
+    [
+      "56,36",
+      "dev_paver"
+    ],
+    [
+      "56,37",
+      "dev_paver"
+    ],
+    [
+      "56,38",
+      "dev_paver"
+    ],
+    [
+      "57,36",
+      "dev_paver"
+    ],
+    [
+      "57,37",
+      "dev_paver"
+    ],
+    [
+      "57,38",
+      "dev_paver"
+    ],
+    [
+      "58,36",
+      "dev_paver"
+    ],
+    [
+      "58,37",
+      "dev_paver"
+    ],
+    [
+      "58,38",
+      "dev_paver"
+    ],
+    [
+      "59,36",
+      "dev_paver"
+    ],
+    [
+      "59,37",
+      "dev_paver"
+    ],
+    [
+      "59,38",
+      "dev_paver"
+    ],
+    [
+      "57,39",
+      "dev_paver"
+    ],
+    [
+      "58,39",
+      "dev_paver"
+    ],
+    [
+      "59,39",
+      "dev_paver"
+    ],
+    [
+      "57,40",
+      "dev_paver"
+    ],
+    [
+      "58,40",
+      "dev_paver"
+    ],
+    [
+      "59,40",
+      "dev_paver"
+    ],
+    [
+      "57,41",
+      "dev_paver"
+    ],
+    [
+      "58,41",
+      "dev_paver"
+    ],
+    [
+      "59,41",
+      "dev_paver"
+    ],
+    [
+      "57,42",
+      "dev_paver"
+    ],
+    [
+      "58,42",
+      "dev_paver"
+    ],
+    [
+      "59,42",
+      "dev_paver"
+    ],
+    [
+      "57,43",
+      "dev_paver"
+    ],
+    [
+      "58,43",
+      "dev_paver"
+    ],
+    [
+      "59,43",
+      "dev_paver"
+    ],
+    [
+      "56,41",
+      "dev_paver"
+    ],
+    [
+      "56,42",
+      "dev_paver"
+    ],
+    [
+      "56,43",
+      "dev_paver"
+    ],
+    [
+      "55,41",
+      "dev_paver"
+    ],
+    [
+      "55,42",
+      "dev_paver"
+    ],
+    [
+      "55,43",
+      "dev_paver"
+    ],
+    [
+      "54,41",
+      "dev_paver"
+    ],
+    [
+      "54,42",
+      "dev_paver"
+    ],
+    [
+      "54,43",
+      "dev_paver"
+    ],
+    [
+      "53,41",
+      "dev_paver"
+    ],
+    [
+      "53,42",
+      "dev_paver"
+    ],
+    [
+      "53,43",
+      "dev_paver"
+    ],
+    [
+      "52,41",
+      "dev_paver"
+    ],
+    [
+      "52,42",
+      "dev_paver"
+    ],
+    [
+      "52,43",
+      "dev_paver"
+    ],
+    [
+      "51,41",
+      "dev_paver"
+    ],
+    [
+      "51,42",
+      "dev_paver"
+    ],
+    [
+      "51,43",
+      "dev_paver"
+    ],
+    [
+      "50,41",
+      "dev_paver"
+    ],
+    [
+      "50,42",
+      "dev_paver"
+    ],
+    [
+      "50,43",
+      "dev_paver"
+    ],
+    [
+      "50,40",
+      "dev_paver"
+    ],
+    [
+      "51,40",
+      "dev_paver"
+    ],
+    [
+      "50,39",
+      "dev_paver"
+    ],
+    [
+      "51,39",
+      "dev_paver"
+    ],
+    [
+      "54,44",
+      "dev_paver"
+    ],
+    [
+      "55,44",
+      "dev_paver"
+    ],
+    [
+      "56,44",
+      "dev_paver"
+    ],
+    [
+      "54,45",
+      "dev_paver"
+    ],
+    [
+      "55,45",
+      "dev_paver"
+    ],
+    [
+      "56,45",
+      "dev_paver"
+    ],
+    [
+      "57,44",
+      "dev_paver"
+    ],
+    [
+      "57,45",
+      "dev_paver"
+    ],
+    [
+      "58,44",
+      "dev_paver"
+    ],
+    [
+      "58,45",
+      "dev_paver"
+    ],
+    [
+      "59,44",
+      "dev_paver"
+    ],
+    [
+      "59,45",
+      "dev_paver"
+    ],
+    [
+      "59,46",
+      "dev_paver"
+    ],
+    [
+      "53,44",
+      "dev_paver"
+    ],
+    [
+      "53,45",
+      "dev_paver"
+    ],
+    [
+      "52,44",
+      "dev_paver"
+    ],
+    [
+      "52,45",
+      "dev_paver"
+    ],
+    [
+      "51,44",
+      "dev_paver"
+    ],
+    [
+      "51,45",
+      "dev_paver"
+    ],
+    [
+      "50,44",
+      "dev_paver"
+    ],
+    [
+      "50,45",
+      "dev_paver"
+    ],
+    [
+      "49,44",
+      "dev_paver"
+    ],
+    [
+      "49,45",
+      "dev_paver"
+    ],
+    [
+      "49,46",
+      "dev_paver"
+    ],
+    [
+      "48,44",
+      "dev_paver"
+    ],
+    [
+      "48,45",
+      "dev_paver"
+    ],
+    [
+      "48,46",
+      "dev_paver"
+    ],
+    [
+      "47,44",
+      "dev_paver"
+    ],
+    [
+      "47,45",
+      "dev_paver"
+    ],
+    [
+      "47,46",
+      "dev_paver"
+    ],
+    [
+      "46,44",
+      "dev_paver"
+    ],
+    [
+      "46,45",
+      "dev_paver"
+    ],
+    [
+      "46,46",
+      "dev_paver"
+    ],
+    [
+      "45,44",
+      "dev_paver"
+    ],
+    [
+      "45,45",
+      "dev_paver"
+    ],
+    [
+      "44,44",
+      "dev_paver"
+    ],
+    [
+      "44,45",
+      "dev_paver"
+    ],
+    [
+      "44,46",
+      "dev_paver"
+    ],
+    [
+      "43,45",
+      "dev_paver"
+    ],
+    [
+      "43,46",
+      "dev_paver"
+    ],
+    [
+      "42,45",
+      "dev_paver"
+    ],
+    [
+      "42,46",
+      "dev_paver"
+    ],
+    [
+      "41,45",
+      "dev_paver"
+    ],
+    [
+      "41,46",
+      "dev_paver"
+    ],
+    [
+      "40,45",
+      "dev_paver"
+    ],
+    [
+      "40,46",
+      "dev_paver"
+    ],
+    [
+      "39,45",
+      "dev_paver"
+    ],
+    [
+      "39,46",
+      "dev_paver"
+    ],
+    [
+      "38,44",
+      "dev_paver"
+    ],
+    [
+      "38,45",
+      "dev_paver"
+    ],
+    [
+      "38,46",
+      "dev_paver"
+    ],
+    [
+      "37,44",
+      "dev_paver"
+    ],
+    [
+      "37,45",
+      "dev_paver"
+    ],
+    [
+      "37,46",
+      "dev_paver"
+    ],
+    [
+      "36,44",
+      "dev_paver"
+    ],
+    [
+      "36,45",
+      "dev_paver"
+    ],
+    [
+      "36,46",
+      "dev_paver"
+    ],
+    [
+      "35,44",
+      "dev_paver"
+    ],
+    [
+      "35,45",
+      "dev_paver"
+    ],
+    [
+      "35,46",
+      "dev_paver"
+    ],
+    [
+      "34,44",
+      "dev_paver"
+    ],
+    [
+      "34,45",
+      "dev_paver"
+    ],
+    [
+      "34,46",
       "dev_paver"
     ],
     [
@@ -3065,1011 +3137,643 @@
       "dev_paver"
     ],
     [
-      "27,44",
+      "32,44",
       "dev_paver"
     ],
     [
-      "27,45",
+      "32,45",
       "dev_paver"
     ],
     [
-      "26,44",
+      "32,46",
       "dev_paver"
     ],
     [
-      "26,45",
+      "31,44",
       "dev_paver"
     ],
     [
-      "25,44",
+      "31,45",
       "dev_paver"
     ],
     [
-      "25,45",
+      "31,46",
       "dev_paver"
     ],
     [
-      "24,44",
+      "30,44",
       "dev_paver"
     ],
     [
-      "24,45",
+      "30,45",
       "dev_paver"
     ],
     [
-      "23,44",
+      "30,46",
       "dev_paver"
     ],
     [
-      "23,45",
+      "29,44",
       "dev_paver"
     ],
     [
-      "23,46",
+      "29,45",
       "dev_paver"
     ],
     [
-      "22,44",
+      "29,46",
       "dev_paver"
     ],
     [
-      "22,45",
+      "29,43",
       "dev_paver"
     ],
     [
-      "22,46",
+      "30,43",
       "dev_paver"
     ],
     [
-      "21,44",
+      "29,47",
       "dev_paver"
     ],
     [
-      "21,45",
+      "30,47",
       "dev_paver"
     ],
     [
-      "21,46",
+      "29,48",
       "dev_paver"
     ],
     [
-      "20,44",
+      "30,48",
       "dev_paver"
     ],
     [
-      "20,45",
+      "31,47",
       "dev_paver"
     ],
     [
-      "20,46",
+      "31,48",
       "dev_paver"
     ],
     [
-      "19,44",
+      "29,49",
       "dev_paver"
     ],
     [
-      "19,45",
+      "30,49",
       "dev_paver"
     ],
     [
-      "18,44",
+      "31,49",
       "dev_paver"
     ],
     [
-      "18,45",
+      "32,47",
       "dev_paver"
     ],
     [
-      "18,46",
+      "32,48",
       "dev_paver"
     ],
     [
-      "17,45",
+      "32,49",
       "dev_paver"
     ],
     [
-      "17,46",
+      "33,47",
       "dev_paver"
     ],
     [
-      "16,45",
+      "33,48",
       "dev_paver"
     ],
     [
-      "16,46",
+      "33,49",
       "dev_paver"
     ],
     [
-      "15,45",
+      "34,47",
       "dev_paver"
     ],
     [
-      "15,46",
+      "34,48",
       "dev_paver"
     ],
     [
-      "14,45",
+      "34,49",
       "dev_paver"
     ],
     [
-      "14,46",
+      "35,47",
       "dev_paver"
     ],
     [
-      "13,45",
+      "35,48",
       "dev_paver"
     ],
     [
-      "13,46",
+      "35,49",
       "dev_paver"
     ],
     [
-      "12,44",
+      "36,47",
       "dev_paver"
     ],
     [
-      "12,45",
+      "36,48",
       "dev_paver"
     ],
     [
-      "12,46",
+      "36,49",
       "dev_paver"
     ],
     [
-      "11,44",
+      "37,47",
       "dev_paver"
     ],
     [
-      "11,45",
+      "37,48",
       "dev_paver"
     ],
     [
-      "11,46",
+      "37,49",
       "dev_paver"
     ],
     [
-      "10,44",
+      "38,47",
       "dev_paver"
     ],
     [
-      "10,45",
+      "38,48",
       "dev_paver"
     ],
     [
-      "10,46",
+      "38,49",
       "dev_paver"
     ],
     [
-      "9,44",
+      "39,47",
       "dev_paver"
     ],
     [
-      "9,45",
+      "39,48",
       "dev_paver"
     ],
     [
-      "9,46",
+      "39,49",
       "dev_paver"
     ],
     [
-      "8,44",
+      "40,47",
       "dev_paver"
     ],
     [
-      "8,45",
+      "40,48",
       "dev_paver"
     ],
     [
-      "8,46",
+      "40,49",
       "dev_paver"
     ],
     [
-      "7,44",
+      "41,47",
       "dev_paver"
     ],
     [
-      "7,45",
+      "41,48",
       "dev_paver"
     ],
     [
-      "7,46",
+      "41,49",
       "dev_paver"
     ],
     [
-      "6,44",
+      "42,47",
       "dev_paver"
     ],
     [
-      "6,45",
+      "42,48",
       "dev_paver"
     ],
     [
-      "6,46",
+      "42,49",
       "dev_paver"
     ],
     [
-      "5,44",
+      "43,47",
       "dev_paver"
     ],
     [
-      "5,45",
+      "43,48",
       "dev_paver"
     ],
     [
-      "5,46",
+      "43,49",
       "dev_paver"
     ],
     [
-      "4,44",
+      "44,47",
       "dev_paver"
     ],
     [
-      "4,45",
+      "44,48",
       "dev_paver"
     ],
     [
-      "4,46",
+      "44,49",
       "dev_paver"
     ],
     [
-      "3,44",
+      "43,50",
       "dev_paver"
     ],
     [
-      "3,45",
+      "44,50",
       "dev_paver"
     ],
     [
-      "3,46",
+      "42,50",
       "dev_paver"
     ],
     [
-      "3,43",
+      "42,51",
       "dev_paver"
     ],
     [
-      "4,43",
+      "43,51",
       "dev_paver"
     ],
     [
-      "2,43",
-      "fence"
-    ],
-    [
-      "2,44",
-      "fence"
-    ],
-    [
-      "2,45",
-      "fence"
-    ],
-    [
-      "2,46",
-      "fence"
-    ],
-    [
-      "2,47",
-      "fence"
-    ],
-    [
-      "3,47",
-      "dev_paver"
-    ],
-    [
-      "4,47",
-      "dev_paver"
-    ],
-    [
-      "2,48",
-      "fence"
-    ],
-    [
-      "3,48",
-      "dev_paver"
-    ],
-    [
-      "4,48",
-      "dev_paver"
-    ],
-    [
-      "5,47",
-      "dev_paver"
-    ],
-    [
-      "5,48",
-      "dev_paver"
-    ],
-    [
-      "3,49",
-      "dev_paver"
-    ],
-    [
-      "4,49",
-      "dev_paver"
-    ],
-    [
-      "5,49",
-      "dev_paver"
-    ],
-    [
-      "6,47",
-      "dev_paver"
-    ],
-    [
-      "6,48",
-      "dev_paver"
-    ],
-    [
-      "6,49",
-      "dev_paver"
-    ],
-    [
-      "7,47",
-      "dev_paver"
-    ],
-    [
-      "7,48",
-      "dev_paver"
-    ],
-    [
-      "7,49",
-      "dev_paver"
-    ],
-    [
-      "8,47",
-      "dev_paver"
-    ],
-    [
-      "8,48",
-      "dev_paver"
-    ],
-    [
-      "8,49",
-      "dev_paver"
-    ],
-    [
-      "9,47",
-      "dev_paver"
-    ],
-    [
-      "9,48",
-      "dev_paver"
-    ],
-    [
-      "9,49",
-      "dev_paver"
-    ],
-    [
-      "10,47",
-      "dev_paver"
-    ],
-    [
-      "10,48",
-      "dev_paver"
-    ],
-    [
-      "10,49",
-      "dev_paver"
-    ],
-    [
-      "11,47",
-      "dev_paver"
-    ],
-    [
-      "11,48",
-      "dev_paver"
-    ],
-    [
-      "11,49",
-      "dev_paver"
-    ],
-    [
-      "12,47",
-      "dev_paver"
-    ],
-    [
-      "12,48",
-      "dev_paver"
-    ],
-    [
-      "12,49",
-      "dev_paver"
-    ],
-    [
-      "13,47",
-      "dev_paver"
-    ],
-    [
-      "13,48",
-      "dev_paver"
-    ],
-    [
-      "13,49",
-      "dev_paver"
-    ],
-    [
-      "14,47",
-      "dev_paver"
-    ],
-    [
-      "14,48",
-      "dev_paver"
-    ],
-    [
-      "14,49",
-      "dev_paver"
-    ],
-    [
-      "15,47",
-      "dev_paver"
-    ],
-    [
-      "15,48",
-      "dev_paver"
-    ],
-    [
-      "15,49",
-      "dev_paver"
-    ],
-    [
-      "16,47",
-      "dev_paver"
-    ],
-    [
-      "16,48",
-      "dev_paver"
-    ],
-    [
-      "16,49",
-      "dev_paver"
-    ],
-    [
-      "17,47",
-      "dev_paver"
-    ],
-    [
-      "17,48",
-      "dev_paver"
-    ],
-    [
-      "17,49",
-      "dev_paver"
-    ],
-    [
-      "18,47",
-      "dev_paver"
-    ],
-    [
-      "18,48",
-      "dev_paver"
-    ],
-    [
-      "18,49",
-      "dev_paver"
-    ],
-    [
-      "17,50",
-      "dev_paver"
-    ],
-    [
-      "18,50",
-      "dev_paver"
-    ],
-    [
-      "16,50",
-      "dev_paver"
-    ],
-    [
-      "16,51",
-      "dev_paver"
-    ],
-    [
-      "17,51",
-      "dev_paver"
-    ],
-    [
-      "18,51",
-      "dev_paver"
-    ],
-    [
-      "16,52",
-      "dev_paver"
-    ],
-    [
-      "17,52",
-      "dev_paver"
-    ],
-    [
-      "18,52",
-      "dev_paver"
-    ],
-    [
-      "15,50",
-      "dev_paver"
-    ],
-    [
-      "15,51",
-      "dev_paver"
-    ],
-    [
-      "15,52",
-      "dev_paver"
-    ],
-    [
-      "14,50",
-      "dev_paver"
-    ],
-    [
-      "14,51",
-      "dev_paver"
-    ],
-    [
-      "14,52",
-      "dev_paver"
-    ],
-    [
-      "13,50",
-      "dev_paver"
-    ],
-    [
-      "13,51",
-      "dev_paver"
-    ],
-    [
-      "13,52",
-      "dev_paver"
-    ],
-    [
-      "12,50",
-      "dev_paver"
-    ],
-    [
-      "12,51",
-      "dev_paver"
-    ],
-    [
-      "12,52",
-      "dev_paver"
-    ],
-    [
-      "11,50",
-      "dev_paver"
-    ],
-    [
-      "11,51",
-      "dev_paver"
-    ],
-    [
-      "11,52",
-      "dev_paver"
-    ],
-    [
-      "10,50",
-      "dev_paver"
-    ],
-    [
-      "10,51",
-      "dev_paver"
-    ],
-    [
-      "10,52",
-      "dev_paver"
-    ],
-    [
-      "9,50",
-      "dev_paver"
-    ],
-    [
-      "9,51",
-      "dev_paver"
-    ],
-    [
-      "9,52",
-      "dev_paver"
-    ],
-    [
-      "8,50",
+      "44,51",
       "dev_paver"
     ],
     [
-      "8,51",
+      "42,52",
       "dev_paver"
     ],
     [
-      "8,52",
+      "43,52",
       "dev_paver"
     ],
     [
-      "7,50",
+      "44,52",
       "dev_paver"
     ],
     [
-      "7,51",
+      "41,50",
       "dev_paver"
     ],
     [
-      "7,52",
+      "41,51",
       "dev_paver"
     ],
     [
-      "6,50",
+      "41,52",
       "dev_paver"
     ],
     [
-      "6,51",
+      "40,50",
       "dev_paver"
     ],
     [
-      "6,52",
+      "40,51",
       "dev_paver"
     ],
     [
-      "5,50",
+      "40,52",
       "dev_paver"
     ],
     [
-      "5,51",
+      "39,50",
       "dev_paver"
     ],
     [
-      "4,50",
+      "39,51",
       "dev_paver"
     ],
     [
-      "4,51",
+      "39,52",
       "dev_paver"
     ],
     [
-      "3,50",
+      "38,50",
       "dev_paver"
     ],
     [
-      "3,51",
+      "38,51",
       "dev_paver"
-    ],
-    [
-      "2,49",
-      "fence"
-    ],
-    [
-      "2,50",
-      "fence"
-    ],
-    [
-      "2,51",
-      "fence"
-    ],
-    [
-      "2,52",
-      "fence"
     ],
     [
-      "3,52",
+      "38,52",
       "dev_paver"
     ],
     [
-      "4,52",
+      "37,50",
       "dev_paver"
-    ],
-    [
-      "2,53",
-      "fence"
     ],
     [
-      "3,53",
+      "37,51",
       "dev_paver"
     ],
     [
-      "4,53",
+      "37,52",
       "dev_paver"
-    ],
-    [
-      "2,54",
-      "fence"
     ],
     [
-      "3,54",
+      "36,50",
       "dev_paver"
-    ],
-    [
-      "2,55",
-      "fence"
     ],
     [
-      "3,55",
+      "36,51",
       "dev_paver"
     ],
     [
-      "4,54",
+      "36,52",
       "dev_paver"
     ],
     [
-      "4,55",
+      "35,50",
       "dev_paver"
     ],
     [
-      "5,54",
+      "35,51",
       "dev_paver"
     ],
     [
-      "5,55",
+      "35,52",
       "dev_paver"
     ],
     [
-      "6,54",
+      "34,50",
       "dev_paver"
     ],
     [
-      "6,55",
+      "34,51",
       "dev_paver"
     ],
     [
-      "7,54",
+      "34,52",
       "dev_paver"
     ],
     [
-      "7,55",
+      "33,50",
       "dev_paver"
     ],
     [
-      "8,54",
+      "33,51",
       "dev_paver"
     ],
     [
-      "8,55",
+      "33,52",
       "dev_paver"
     ],
     [
-      "9,54",
+      "32,50",
       "dev_paver"
     ],
     [
-      "9,55",
+      "32,51",
       "dev_paver"
     ],
     [
-      "10,54",
+      "32,52",
       "dev_paver"
     ],
     [
-      "10,55",
+      "31,50",
       "dev_paver"
     ],
     [
-      "11,54",
+      "31,51",
       "dev_paver"
     ],
     [
-      "11,55",
+      "30,50",
       "dev_paver"
     ],
     [
-      "12,54",
+      "30,51",
       "dev_paver"
     ],
     [
-      "12,55",
+      "29,50",
       "dev_paver"
     ],
     [
-      "13,54",
+      "29,51",
       "dev_paver"
     ],
     [
-      "13,55",
+      "29,52",
       "dev_paver"
     ],
     [
-      "14,54",
+      "30,52",
       "dev_paver"
     ],
     [
-      "14,55",
+      "29,53",
       "dev_paver"
     ],
     [
-      "15,54",
+      "30,53",
       "dev_paver"
     ],
     [
-      "15,55",
+      "29,54",
       "dev_paver"
     ],
     [
-      "16,54",
+      "29,55",
       "dev_paver"
     ],
     [
-      "16,55",
+      "30,54",
       "dev_paver"
     ],
     [
-      "17,54",
+      "30,55",
       "dev_paver"
     ],
     [
-      "17,55",
+      "31,54",
       "dev_paver"
     ],
     [
-      "18,54",
+      "31,55",
       "dev_paver"
     ],
     [
-      "18,55",
+      "32,54",
       "dev_paver"
     ],
     [
-      "19,54",
+      "32,55",
       "dev_paver"
     ],
     [
-      "19,55",
+      "33,54",
       "dev_paver"
     ],
     [
-      "18,53",
+      "33,55",
       "dev_paver"
     ],
     [
-      "19,53",
+      "34,54",
       "dev_paver"
     ],
     [
-      "17,53",
+      "34,55",
       "dev_paver"
     ],
     [
-      "16,53",
+      "35,54",
       "dev_paver"
     ],
     [
-      "15,53",
+      "35,55",
       "dev_paver"
     ],
     [
-      "14,53",
+      "36,54",
       "dev_paver"
     ],
     [
-      "13,53",
+      "36,55",
       "dev_paver"
     ],
     [
-      "12,53",
+      "37,54",
       "dev_paver"
     ],
     [
-      "11,53",
+      "37,55",
       "dev_paver"
     ],
     [
-      "10,53",
+      "38,54",
       "dev_paver"
     ],
     [
-      "9,53",
+      "38,55",
       "dev_paver"
     ],
     [
-      "8,53",
+      "39,54",
       "dev_paver"
     ],
     [
-      "7,53",
+      "39,55",
       "dev_paver"
     ],
     [
-      "6,53",
+      "40,54",
       "dev_paver"
     ],
     [
-      "5,53",
+      "40,55",
       "dev_paver"
-    ],
-    [
-      "2,56",
-      "fence"
     ],
     [
-      "3,56",
+      "41,54",
       "dev_paver"
     ],
     [
-      "4,56",
+      "41,55",
       "dev_paver"
     ],
     [
-      "5,56",
+      "42,54",
       "dev_paver"
     ],
     [
-      "6,56",
+      "42,55",
       "dev_paver"
     ],
     [
-      "7,56",
+      "43,54",
       "dev_paver"
     ],
     [
-      "8,56",
+      "43,55",
       "dev_paver"
     ],
     [
-      "9,56",
+      "44,54",
       "dev_paver"
     ],
     [
-      "10,56",
+      "44,55",
       "dev_paver"
     ],
     [
-      "11,56",
+      "45,54",
       "dev_paver"
     ],
     [
-      "12,56",
+      "45,55",
       "dev_paver"
     ],
     [
-      "13,56",
+      "44,53",
       "dev_paver"
     ],
     [
-      "17,56",
+      "45,53",
       "dev_paver"
     ],
     [
-      "18,56",
+      "43,53",
       "dev_paver"
     ],
     [
-      "20,55",
+      "42,53",
       "dev_paver"
     ],
     [
-      "20,56",
+      "41,53",
       "dev_paver"
     ],
     [
-      "21,55",
+      "40,53",
       "dev_paver"
     ],
     [
-      "21,56",
+      "39,53",
       "dev_paver"
     ],
     [
-      "22,55",
+      "38,53",
       "dev_paver"
     ],
     [
-      "22,56",
+      "37,53",
       "dev_paver"
     ],
     [
-      "23,56",
+      "36,53",
       "dev_paver"
     ],
     [
-      "24,56",
+      "35,53",
       "dev_paver"
     ],
     [
-      "25,56",
+      "34,53",
       "dev_paver"
     ],
     [
-      "26,56",
+      "33,53",
       "dev_paver"
     ],
     [
-      "27,56",
+      "32,53",
       "dev_paver"
     ],
     [
-      "28,56",
+      "31,53",
       "dev_paver"
     ],
     [
@@ -4089,1543 +3793,1711 @@
       "dev_paver"
     ],
     [
-      "22,53",
-      "dev_paver"
-    ],
-    [
-      "22,54",
-      "dev_paver"
-    ],
-    [
-      "21,54",
-      "dev_paver"
-    ],
-    [
-      "22,52",
-      "dev_paver"
-    ],
-    [
-      "20,51",
-      "dev_paver"
-    ],
-    [
-      "21,51",
-      "dev_paver"
-    ],
-    [
-      "20,52",
-      "dev_paver"
-    ],
-    [
-      "20,50",
-      "dev_paver"
-    ],
-    [
-      "21,50",
-      "dev_paver"
-    ],
-    [
-      "20,49",
-      "dev_paver"
-    ],
-    [
-      "21,49",
-      "dev_paver"
-    ],
-    [
-      "20,48",
-      "dev_paver"
-    ],
-    [
-      "21,48",
-      "dev_paver"
-    ],
-    [
-      "20,47",
-      "dev_paver"
-    ],
-    [
-      "21,47",
-      "dev_paver"
-    ],
-    [
-      "22,47",
-      "dev_paver"
-    ],
-    [
-      "22,48",
-      "dev_paver"
-    ],
-    [
-      "22,50",
-      "dev_paver"
-    ],
-    [
-      "22,51",
-      "dev_paver"
-    ],
-    [
-      "22,49",
-      "dev_paver"
-    ],
-    [
-      "20,53",
-      "dev_paver"
-    ],
-    [
-      "20,54",
-      "dev_paver"
-    ],
-    [
-      "34,47",
-      "hedge"
-    ],
-    [
-      "35,47",
-      "hedge"
-    ],
-    [
-      "36,47",
-      "hedge"
-    ],
-    [
-      "37,47",
-      "hedge"
-    ],
-    [
-      "38,47",
-      "hedge"
-    ],
-    [
-      "39,47",
-      "hedge"
-    ],
-    [
-      "40,47",
-      "hedge"
-    ],
-    [
-      "41,47",
-      "hedge"
-    ],
-    [
-      "42,47",
-      "hedge"
-    ],
-    [
       "33,56",
-      "hedge"
+      "dev_paver"
     ],
     [
       "34,56",
       "dev_paver"
     ],
     [
-      "33,57",
-      "hedge"
-    ],
-    [
-      "34,57",
-      "hedge"
-    ],
-    [
       "35,56",
       "dev_paver"
-    ],
-    [
-      "35,57",
-      "hedge"
     ],
     [
       "36,56",
       "dev_paver"
     ],
     [
-      "36,57",
-      "hedge"
-    ],
-    [
       "37,56",
       "dev_paver"
-    ],
-    [
-      "37,57",
-      "hedge"
     ],
     [
       "38,56",
       "dev_paver"
     ],
     [
-      "38,57",
-      "hedge"
-    ],
-    [
       "39,56",
       "dev_paver"
     ],
     [
-      "39,57",
-      "hedge"
-    ],
-    [
-      "40,56",
+      "43,56",
       "dev_paver"
     ],
     [
-      "40,57",
-      "hedge"
-    ],
-    [
-      "41,56",
+      "44,56",
       "dev_paver"
     ],
     [
-      "41,57",
-      "hedge"
-    ],
-    [
-      "42,56",
+      "46,55",
       "dev_paver"
     ],
     [
-      "42,57",
-      "hedge"
+      "46,56",
+      "dev_paver"
+    ],
+    [
+      "47,55",
+      "dev_paver"
+    ],
+    [
+      "47,56",
+      "dev_paver"
+    ],
+    [
+      "48,55",
+      "dev_paver"
+    ],
+    [
+      "48,56",
+      "dev_paver"
+    ],
+    [
+      "49,56",
+      "dev_paver"
+    ],
+    [
+      "50,56",
+      "dev_paver"
+    ],
+    [
+      "51,56",
+      "dev_paver"
+    ],
+    [
+      "52,56",
+      "dev_paver"
+    ],
+    [
+      "53,56",
+      "dev_paver"
+    ],
+    [
+      "54,56",
+      "dev_paver"
+    ],
+    [
+      "55,56",
+      "dev_paver"
+    ],
+    [
+      "56,56",
+      "dev_paver"
+    ],
+    [
+      "57,56",
+      "dev_paver"
+    ],
+    [
+      "58,56",
+      "dev_paver"
+    ],
+    [
+      "48,53",
+      "dev_paver"
+    ],
+    [
+      "48,54",
+      "dev_paver"
+    ],
+    [
+      "47,54",
+      "dev_paver"
+    ],
+    [
+      "48,52",
+      "dev_paver"
+    ],
+    [
+      "46,51",
+      "dev_paver"
+    ],
+    [
+      "47,51",
+      "dev_paver"
+    ],
+    [
+      "46,52",
+      "dev_paver"
+    ],
+    [
+      "46,50",
+      "dev_paver"
+    ],
+    [
+      "47,50",
+      "dev_paver"
+    ],
+    [
+      "46,49",
+      "dev_paver"
+    ],
+    [
+      "47,49",
+      "dev_paver"
+    ],
+    [
+      "46,48",
+      "dev_paver"
+    ],
+    [
+      "47,48",
+      "dev_paver"
+    ],
+    [
+      "46,47",
+      "dev_paver"
+    ],
+    [
+      "47,47",
+      "dev_paver"
+    ],
+    [
+      "48,47",
+      "dev_paver"
+    ],
+    [
+      "48,48",
+      "dev_paver"
+    ],
+    [
+      "48,50",
+      "dev_paver"
+    ],
+    [
+      "48,51",
+      "dev_paver"
+    ],
+    [
+      "48,49",
+      "dev_paver"
+    ],
+    [
+      "46,53",
+      "dev_paver"
+    ],
+    [
+      "46,54",
+      "dev_paver"
+    ],
+    [
+      "60,47",
+      "dev_paver"
+    ],
+    [
+      "61,47",
+      "dev_paver"
+    ],
+    [
+      "62,47",
+      "dev_paver"
+    ],
+    [
+      "63,47",
+      "dev_paver"
+    ],
+    [
+      "64,47",
+      "dev_paver"
+    ],
+    [
+      "65,47",
+      "dev_paver"
+    ],
+    [
+      "66,47",
+      "dev_paver"
+    ],
+    [
+      "67,47",
+      "dev_paver"
+    ],
+    [
+      "68,47",
+      "dev_paver"
+    ],
+    [
+      "60,56",
+      "dev_paver"
+    ],
+    [
+      "61,56",
+      "dev_paver"
+    ],
+    [
+      "62,56",
+      "dev_paver"
+    ],
+    [
+      "63,56",
+      "dev_paver"
+    ],
+    [
+      "64,56",
+      "dev_paver"
+    ],
+    [
+      "65,56",
+      "dev_paver"
+    ],
+    [
+      "66,56",
+      "dev_paver"
+    ],
+    [
+      "67,56",
+      "dev_paver"
+    ],
+    [
+      "68,56",
+      "dev_paver"
+    ],
+    [
+      "49,57",
+      "grass"
+    ],
+    [
+      "48,57",
+      "grass"
+    ],
+    [
+      "47,57",
+      "grass"
+    ],
+    [
+      "46,57",
+      "grass"
+    ],
+    [
+      "33,57",
+      "dev_paver"
     ],
     [
       "32,57",
-      "hedge"
-    ],
-    [
-      "31,57",
-      "hedge"
-    ],
-    [
-      "30,57",
-      "hedge"
-    ],
-    [
-      "29,57",
-      "hedge"
-    ],
-    [
-      "28,57",
-      "hedge"
-    ],
-    [
-      "27,57",
-      "hedge"
-    ],
-    [
-      "26,57",
-      "hedge"
-    ],
-    [
-      "25,57",
-      "hedge"
-    ],
-    [
-      "24,57",
       "dev_paver"
     ],
     [
-      "23,57",
-      "dev_paver"
+      "46,58",
+      "grass"
     ],
     [
-      "22,57",
-      "dev_paver"
+      "46,59",
+      "grass"
     ],
     [
-      "21,57",
-      "dev_paver"
+      "46,60",
+      "grass"
     ],
     [
-      "20,57",
-      "dev_paver"
+      "46,61",
+      "grass"
     ],
     [
-      "19,57",
-      "hedge"
-    ],
-    [
-      "18,57",
-      "hedge"
-    ],
-    [
-      "17,57",
-      "hedge"
-    ],
-    [
-      "16,57",
-      "hedge"
-    ],
-    [
-      "15,57",
-      "hedge"
-    ],
-    [
-      "14,57",
-      "hedge"
-    ],
-    [
-      "13,57",
-      "hedge"
-    ],
-    [
-      "12,57",
-      "hedge"
-    ],
-    [
-      "11,57",
-      "hedge"
-    ],
-    [
-      "10,57",
-      "hedge"
-    ],
-    [
-      "9,57",
-      "hedge"
-    ],
-    [
-      "8,57",
-      "hedge"
-    ],
-    [
-      "7,57",
-      "hedge"
-    ],
-    [
-      "6,57",
-      "hedge"
-    ],
-    [
-      "5,57",
-      "hedge"
-    ],
-    [
-      "4,57",
-      "hedge"
-    ],
-    [
-      "3,57",
-      "hedge"
-    ],
-    [
-      "20,58",
-      "dev_paver"
-    ],
-    [
-      "20,59",
-      "dev_paver"
-    ],
-    [
-      "20,60",
-      "dev_paver"
-    ],
-    [
-      "20,61",
+      "46,62",
       "cobble"
     ],
     [
-      "20,62",
+      "47,62",
       "cobble"
     ],
     [
-      "21,62",
+      "47,61",
+      "grass"
+    ],
+    [
+      "48,61",
+      "grass"
+    ],
+    [
+      "49,61",
+      "grass"
+    ],
+    [
+      "49,62",
       "cobble"
     ],
     [
-      "21,61",
-      "dev_paver"
-    ],
-    [
-      "22,61",
-      "dev_paver"
-    ],
-    [
-      "23,61",
+      "48,62",
       "cobble"
     ],
     [
-      "23,62",
+      "48,60",
+      "grass"
+    ],
+    [
+      "49,60",
+      "grass"
+    ],
+    [
+      "47,60",
+      "grass"
+    ],
+    [
+      "47,59",
+      "grass"
+    ],
+    [
+      "48,59",
+      "grass"
+    ],
+    [
+      "48,58",
+      "grass"
+    ],
+    [
+      "49,58",
+      "grass"
+    ],
+    [
+      "47,58",
+      "grass"
+    ],
+    [
+      "49,59",
+      "grass"
+    ],
+    [
+      "45,56",
+      "dev_paver"
+    ],
+    [
+      "58,22",
+      "dev_paver"
+    ],
+    [
+      "59,22",
+      "dev_paver"
+    ],
+    [
+      "58,23",
+      "dev_paver"
+    ],
+    [
+      "59,23",
+      "dev_paver"
+    ],
+    [
+      "58,24",
+      "dev_paver"
+    ],
+    [
+      "59,24",
+      "dev_paver"
+    ],
+    [
+      "57,22",
+      "dev_paver"
+    ],
+    [
+      "57,23",
+      "dev_paver"
+    ],
+    [
+      "57,24",
+      "dev_paver"
+    ],
+    [
+      "56,22",
+      "dev_paver"
+    ],
+    [
+      "56,23",
+      "dev_paver"
+    ],
+    [
+      "56,24",
+      "dev_paver"
+    ],
+    [
+      "55,22",
+      "dev_paver"
+    ],
+    [
+      "55,23",
+      "dev_paver"
+    ],
+    [
+      "55,24",
+      "dev_paver"
+    ],
+    [
+      "54,22",
+      "dev_paver"
+    ],
+    [
+      "54,23",
+      "dev_paver"
+    ],
+    [
+      "54,24",
+      "dev_paver"
+    ],
+    [
+      "53,22",
+      "dev_paver"
+    ],
+    [
+      "53,23",
+      "dev_paver"
+    ],
+    [
+      "53,24",
+      "dev_paver"
+    ],
+    [
+      "52,22",
       "cobble"
     ],
     [
-      "22,62",
-      "cobble"
+      "52,23",
+      "dev_paver"
+    ],
+    [
+      "52,24",
+      "dev_paver"
+    ],
+    [
+      "51,22",
+      "dev_paver"
+    ],
+    [
+      "51,23",
+      "dev_paver"
+    ],
+    [
+      "51,24",
+      "dev_paver"
+    ],
+    [
+      "50,22",
+      "dev_paver"
+    ],
+    [
+      "50,23",
+      "dev_paver"
+    ],
+    [
+      "50,24",
+      "dev_paver"
+    ],
+    [
+      "50,21",
+      "dev_paver"
+    ],
+    [
+      "51,21",
+      "dev_paver"
+    ],
+    [
+      "52,21",
+      "dev_paver"
+    ],
+    [
+      "50,20",
+      "dev_paver"
+    ],
+    [
+      "51,20",
+      "dev_paver"
+    ],
+    [
+      "52,20",
+      "dev_paver"
+    ],
+    [
+      "50,19",
+      "dev_paver"
+    ],
+    [
+      "51,19",
+      "dev_paver"
+    ],
+    [
+      "50,18",
+      "dev_paver"
+    ],
+    [
+      "51,18",
+      "dev_paver"
+    ],
+    [
+      "50,17",
+      "dev_paver"
+    ],
+    [
+      "51,17",
+      "dev_paver"
     ],
     [
-      "22,60",
+      "52,17",
       "dev_paver"
     ],
     [
-      "23,60",
+      "52,18",
       "dev_paver"
     ],
     [
-      "21,60",
+      "52,19",
       "dev_paver"
     ],
     [
-      "21,59",
+      "53,17",
       "dev_paver"
     ],
     [
-      "22,59",
+      "53,18",
       "dev_paver"
     ],
     [
-      "22,58",
+      "53,19",
       "dev_paver"
     ],
     [
-      "23,58",
+      "54,17",
       "dev_paver"
     ],
     [
-      "21,58",
+      "54,18",
       "dev_paver"
     ],
     [
-      "23,59",
+      "54,19",
       "dev_paver"
     ],
     [
-      "25,58",
-      "hedge"
+      "55,17",
+      "dev_paver"
     ],
     [
-      "25,59",
+      "55,18",
       "dev_paver"
     ],
     [
-      "25,60",
-      "hedge"
+      "55,19",
+      "dev_paver"
     ],
     [
-      "25,61",
-      "fence"
+      "53,20",
+      "dev_paver"
     ],
     [
-      "19,61",
-      "fence"
+      "54,20",
+      "dev_paver"
     ],
     [
-      "19,60",
-      "hedge"
+      "55,20",
+      "dev_paver"
     ],
     [
-      "19,59",
+      "53,21",
       "dev_paver"
     ],
     [
-      "19,58",
-      "hedge"
+      "54,21",
+      "dev_paver"
     ],
     [
-      "19,56",
+      "55,21",
       "dev_paver"
     ],
     [
-      "32,22",
+      "56,20",
       "dev_paver"
     ],
     [
-      "33,22",
+      "56,21",
       "dev_paver"
     ],
     [
-      "32,23",
+      "57,20",
       "dev_paver"
     ],
     [
-      "33,23",
+      "57,21",
       "dev_paver"
     ],
     [
-      "32,24",
+      "58,20",
       "dev_paver"
     ],
     [
-      "33,24",
+      "58,21",
       "dev_paver"
     ],
     [
-      "31,22",
+      "56,19",
       "dev_paver"
     ],
     [
-      "31,23",
+      "57,19",
       "dev_paver"
     ],
     [
-      "31,24",
+      "58,19",
       "dev_paver"
     ],
     [
-      "30,22",
+      "59,19",
       "dev_paver"
     ],
     [
-      "30,23",
+      "59,20",
       "dev_paver"
     ],
     [
-      "30,24",
+      "59,21",
       "dev_paver"
     ],
     [
-      "29,22",
+      "58,18",
       "dev_paver"
     ],
     [
-      "29,23",
+      "59,18",
       "dev_paver"
     ],
     [
-      "29,24",
+      "57,17",
       "dev_paver"
     ],
     [
-      "28,22",
+      "58,17",
       "dev_paver"
     ],
     [
-      "28,23",
+      "59,17",
       "dev_paver"
     ],
     [
-      "28,24",
+      "57,18",
       "dev_paver"
     ],
     [
-      "27,22",
+      "56,17",
       "dev_paver"
     ],
     [
-      "27,23",
+      "56,18",
       "dev_paver"
     ],
     [
-      "27,24",
+      "50,25",
       "dev_paver"
     ],
     [
-      "26,22",
-      "cobble"
+      "51,25",
+      "dev_paver"
     ],
     [
-      "26,23",
+      "52,25",
       "dev_paver"
     ],
     [
-      "26,24",
+      "53,25",
       "dev_paver"
     ],
     [
-      "25,22",
+      "54,25",
       "dev_paver"
     ],
     [
-      "25,23",
+      "55,25",
       "dev_paver"
     ],
     [
-      "25,24",
+      "56,25",
       "dev_paver"
     ],
     [
-      "24,22",
+      "57,25",
       "dev_paver"
     ],
     [
-      "24,23",
+      "58,25",
       "dev_paver"
     ],
     [
-      "24,24",
+      "59,25",
       "dev_paver"
     ],
     [
-      "24,21",
+      "66,8",
       "dev_paver"
     ],
     [
-      "25,21",
+      "67,8",
       "dev_paver"
     ],
     [
-      "26,21",
+      "68,8",
       "dev_paver"
     ],
     [
-      "24,20",
+      "66,9",
       "dev_paver"
     ],
     [
-      "25,20",
+      "67,9",
       "dev_paver"
     ],
     [
-      "26,20",
+      "66,10",
       "dev_paver"
     ],
     [
-      "24,19",
+      "67,10",
       "dev_paver"
     ],
     [
-      "25,19",
+      "65,8",
       "dev_paver"
     ],
     [
-      "24,18",
+      "65,9",
       "dev_paver"
     ],
     [
-      "25,18",
+      "65,10",
       "dev_paver"
     ],
     [
-      "24,17",
+      "64,8",
       "dev_paver"
     ],
     [
-      "25,17",
+      "64,9",
       "dev_paver"
     ],
     [
-      "26,17",
+      "64,10",
       "dev_paver"
     ],
     [
-      "26,18",
+      "63,8",
       "dev_paver"
     ],
     [
-      "26,19",
+      "63,9",
       "dev_paver"
     ],
     [
-      "27,17",
+      "63,10",
       "dev_paver"
     ],
     [
-      "27,18",
+      "62,8",
       "dev_paver"
     ],
     [
-      "27,19",
+      "62,9",
       "dev_paver"
     ],
     [
-      "28,17",
+      "62,10",
       "dev_paver"
     ],
     [
-      "28,18",
+      "62,7",
       "dev_paver"
     ],
     [
-      "28,19",
+      "63,7",
       "dev_paver"
     ],
     [
-      "29,17",
+      "64,7",
       "dev_paver"
     ],
     [
-      "29,18",
+      "65,7",
       "dev_paver"
     ],
     [
-      "29,19",
+      "66,7",
       "dev_paver"
     ],
     [
-      "27,20",
+      "67,7",
       "dev_paver"
     ],
     [
-      "28,20",
+      "68,7",
       "dev_paver"
     ],
     [
-      "29,20",
+      "66,6",
       "dev_paver"
     ],
     [
-      "27,21",
+      "67,6",
       "dev_paver"
     ],
     [
-      "28,21",
+      "68,6",
       "dev_paver"
     ],
     [
-      "29,21",
+      "65,6",
       "dev_paver"
     ],
     [
-      "30,20",
+      "64,6",
       "dev_paver"
     ],
     [
-      "30,21",
+      "63,6",
       "dev_paver"
     ],
     [
-      "31,20",
+      "62,6",
       "dev_paver"
     ],
     [
-      "31,21",
+      "61,9",
       "dev_paver"
     ],
     [
-      "32,20",
+      "61,10",
       "dev_paver"
     ],
     [
-      "32,21",
+      "62,11",
       "dev_paver"
     ],
     [
-      "30,19",
+      "63,11",
       "dev_paver"
     ],
     [
-      "31,19",
+      "62,12",
       "dev_paver"
     ],
     [
-      "32,19",
+      "63,12",
       "dev_paver"
     ],
     [
-      "33,19",
+      "62,13",
       "dev_paver"
     ],
     [
-      "33,20",
+      "63,13",
       "dev_paver"
     ],
     [
-      "33,21",
+      "62,14",
       "dev_paver"
     ],
     [
-      "32,18",
+      "63,14",
       "dev_paver"
     ],
     [
-      "33,18",
+      "62,15",
       "dev_paver"
     ],
     [
-      "31,17",
+      "63,15",
       "dev_paver"
     ],
     [
-      "32,17",
+      "64,13",
       "dev_paver"
     ],
     [
-      "33,17",
+      "64,14",
       "dev_paver"
     ],
     [
-      "31,18",
+      "64,15",
       "dev_paver"
     ],
     [
-      "30,17",
+      "65,13",
       "dev_paver"
     ],
     [
-      "30,18",
+      "65,14",
       "dev_paver"
     ],
     [
-      "24,25",
+      "65,15",
       "dev_paver"
     ],
     [
-      "25,25",
+      "66,13",
       "dev_paver"
     ],
     [
-      "26,25",
+      "66,14",
       "dev_paver"
     ],
     [
-      "27,25",
+      "66,15",
       "dev_paver"
     ],
     [
-      "28,25",
+      "67,13",
       "dev_paver"
     ],
     [
-      "29,25",
+      "67,14",
       "dev_paver"
     ],
     [
-      "30,25",
+      "67,15",
       "dev_paver"
     ],
     [
-      "31,25",
+      "65,12",
       "dev_paver"
     ],
     [
-      "32,25",
+      "66,12",
       "dev_paver"
     ],
     [
-      "33,25",
+      "67,12",
       "dev_paver"
     ],
     [
-      "40,8",
+      "65,11",
       "dev_paver"
     ],
     [
-      "41,8",
+      "66,11",
       "dev_paver"
     ],
     [
-      "42,8",
+      "67,11",
       "dev_paver"
     ],
     [
-      "40,9",
+      "64,11",
       "dev_paver"
     ],
     [
-      "41,9",
+      "64,12",
       "dev_paver"
     ],
     [
-      "40,10",
+      "62,26",
       "dev_paver"
     ],
     [
-      "41,10",
+      "63,26",
       "dev_paver"
     ],
     [
-      "39,8",
+      "64,26",
       "dev_paver"
     ],
     [
-      "39,9",
+      "65,26",
       "dev_paver"
     ],
     [
-      "39,10",
+      "66,26",
       "dev_paver"
     ],
     [
-      "38,8",
+      "67,26",
       "dev_paver"
     ],
     [
-      "38,9",
+      "68,26",
       "dev_paver"
     ],
     [
-      "38,10",
+      "68,27",
       "dev_paver"
     ],
     [
-      "37,8",
+      "67,27",
       "dev_paver"
     ],
     [
-      "37,9",
+      "66,27",
       "dev_paver"
     ],
     [
-      "37,10",
+      "65,27",
       "dev_paver"
     ],
     [
-      "36,8",
+      "64,27",
       "dev_paver"
     ],
     [
-      "36,9",
+      "63,27",
       "dev_paver"
     ],
     [
-      "36,10",
+      "62,27",
       "dev_paver"
     ],
     [
-      "36,7",
+      "68,34",
       "dev_paver"
     ],
     [
-      "37,7",
+      "67,34",
       "dev_paver"
     ],
     [
-      "38,7",
+      "66,34",
       "dev_paver"
     ],
     [
-      "39,7",
+      "65,34",
       "dev_paver"
     ],
     [
-      "40,7",
+      "64,34",
       "dev_paver"
     ],
     [
-      "41,7",
+      "63,34",
       "dev_paver"
     ],
     [
-      "42,7",
+      "62,34",
       "dev_paver"
     ],
     [
-      "40,6",
+      "62,16",
       "dev_paver"
     ],
     [
-      "41,6",
+      "63,16",
       "dev_paver"
     ],
     [
-      "42,6",
+      "64,16",
       "dev_paver"
     ],
     [
-      "39,6",
+      "65,16",
       "dev_paver"
     ],
     [
-      "38,6",
+      "68,16",
       "dev_paver"
     ],
     [
-      "37,6",
+      "67,16",
       "dev_paver"
     ],
     [
-      "36,6",
+      "66,16",
       "dev_paver"
     ],
     [
-      "35,9",
+      "28,27",
       "dev_paver"
     ],
     [
-      "35,10",
+      "26,27",
       "dev_paver"
     ],
     [
-      "36,11",
+      "27,27",
       "dev_paver"
     ],
     [
-      "37,11",
+      "35,39",
       "dev_paver"
     ],
     [
-      "36,12",
+      "35,38",
       "dev_paver"
     ],
     [
-      "37,12",
+      "34,39",
       "dev_paver"
     ],
     [
-      "36,13",
+      "34,37",
       "dev_paver"
     ],
     [
-      "37,13",
+      "33,37",
       "dev_paver"
     ],
     [
-      "36,14",
+      "32,37",
       "dev_paver"
     ],
     [
-      "37,14",
+      "31,37",
       "dev_paver"
     ],
     [
-      "36,15",
+      "35,29",
       "dev_paver"
     ],
     [
-      "37,15",
+      "34,29",
       "dev_paver"
     ],
     [
-      "38,13",
+      "34,28",
       "dev_paver"
     ],
     [
-      "38,14",
+      "35,28",
       "dev_paver"
     ],
     [
-      "38,15",
+      "68,5",
       "dev_paver"
     ],
     [
-      "39,13",
+      "68,4",
       "dev_paver"
     ],
     [
-      "39,14",
+      "68,3",
       "dev_paver"
     ],
     [
-      "39,15",
+      "68,2",
       "dev_paver"
     ],
     [
-      "40,13",
+      "67,2",
       "dev_paver"
     ],
     [
-      "40,14",
+      "66,2",
       "dev_paver"
     ],
     [
-      "40,15",
+      "65,2",
       "dev_paver"
     ],
     [
-      "41,13",
+      "64,2",
       "dev_paver"
     ],
     [
-      "41,14",
+      "63,2",
       "dev_paver"
     ],
     [
-      "41,15",
+      "63,3",
       "dev_paver"
     ],
     [
-      "39,12",
+      "62,3",
       "dev_paver"
     ],
     [
-      "40,12",
+      "62,2",
       "dev_paver"
     ],
     [
-      "41,12",
+      "62,4",
       "dev_paver"
     ],
     [
-      "39,11",
+      "62,5",
       "dev_paver"
     ],
     [
-      "40,11",
+      "63,4",
       "dev_paver"
     ],
     [
-      "41,11",
+      "63,5",
       "dev_paver"
     ],
     [
-      "38,11",
+      "64,5",
       "dev_paver"
     ],
     [
-      "38,12",
+      "65,5",
       "dev_paver"
     ],
     [
-      "36,26",
+      "66,5",
       "dev_paver"
     ],
     [
-      "37,26",
+      "66,4",
       "dev_paver"
     ],
     [
-      "38,26",
+      "66,3",
       "dev_paver"
     ],
     [
-      "39,26",
+      "65,3",
       "dev_paver"
     ],
     [
-      "40,26",
+      "65,4",
       "dev_paver"
     ],
     [
-      "41,26",
+      "64,4",
       "dev_paver"
     ],
     [
-      "42,26",
+      "64,3",
       "dev_paver"
     ],
     [
-      "42,27",
+      "67,4",
       "dev_paver"
     ],
     [
-      "41,27",
+      "67,5",
       "dev_paver"
     ],
     [
-      "40,27",
+      "67,3",
       "dev_paver"
     ],
     [
-      "39,27",
+      "61,8",
       "dev_paver"
     ],
     [
-      "38,27",
+      "61,7",
       "dev_paver"
     ],
     [
-      "37,27",
+      "60,7",
       "dev_paver"
     ],
     [
-      "36,27",
+      "60,6",
       "dev_paver"
     ],
     [
-      "42,34",
+      "60,8",
       "dev_paver"
     ],
     [
-      "41,34",
+      "61,6",
       "dev_paver"
     ],
     [
-      "40,34",
+      "60,9",
       "dev_paver"
     ],
     [
-      "39,34",
+      "60,10",
       "dev_paver"
     ],
     [
-      "38,34",
+      "59,10",
       "dev_paver"
     ],
     [
-      "37,34",
+      "58,10",
       "dev_paver"
     ],
     [
-      "36,34",
+      "57,10",
       "dev_paver"
     ],
     [
-      "36,16",
+      "56,10",
       "dev_paver"
     ],
     [
-      "37,16",
+      "55,10",
       "dev_paver"
     ],
     [
-      "38,16",
+      "54,10",
       "dev_paver"
     ],
     [
-      "39,16",
+      "53,10",
       "dev_paver"
     ],
     [
-      "42,16",
+      "52,10",
       "dev_paver"
     ],
     [
-      "41,16",
+      "51,10",
       "dev_paver"
     ],
     [
-      "40,16",
+      "50,10",
       "dev_paver"
     ],
     [
-      "2,27",
+      "49,10",
       "dev_paver"
     ],
     [
-      "1,32",
-      "grass"
+      "31,52",
+      "dev_paver"
     ],
     [
-      "0,32",
-      "grass"
+      "62,17",
+      "dev_paver"
     ],
     [
-      "0,31",
-      "grass"
+      "63,17",
+      "dev_paver"
     ],
     [
-      "1,31",
-      "grass"
+      "64,17",
+      "dev_paver"
     ],
     [
-      "1,30",
-      "grass"
+      "62,18",
+      "dev_paver"
     ],
     [
-      "0,30",
-      "grass"
+      "63,18",
+      "dev_paver"
     ],
     [
-      "0,29",
-      "grass"
+      "64,18",
+      "dev_paver"
     ],
     [
-      "1,29",
-      "grass"
+      "62,19",
+      "dev_paver"
     ],
     [
-      "1,28",
-      "grass"
+      "63,19",
+      "dev_paver"
     ],
     [
-      "2,28",
-      "fence"
+      "64,19",
+      "dev_paver"
     ],
     [
-      "0,28",
-      "grass"
+      "62,20",
+      "dev_paver"
     ],
     [
-      "0,27",
+      "63,20",
       "dev_paver"
     ],
     [
-      "1,27",
+      "64,20",
       "dev_paver"
     ],
     [
-      "2,29",
-      "fence"
+      "62,21",
+      "dev_paver"
     ],
     [
-      "2,30",
-      "fence"
+      "63,21",
+      "dev_paver"
     ],
     [
-      "2,31",
-      "fence"
+      "64,21",
+      "dev_paver"
     ],
     [
-      "2,32",
-      "fence"
+      "62,22",
+      "dev_paver"
     ],
     [
-      "9,39",
+      "63,22",
       "dev_paver"
     ],
     [
-      "9,38",
+      "64,22",
       "dev_paver"
     ],
     [
-      "8,39",
+      "62,23",
       "dev_paver"
     ],
     [
-      "8,37",
+      "63,23",
       "dev_paver"
     ],
     [
-      "7,37",
+      "64,23",
       "dev_paver"
     ],
     [
-      "6,37",
+      "65,21",
       "dev_paver"
     ],
     [
-      "5,37",
+      "65,22",
       "dev_paver"
     ],
     [
-      "9,29",
+      "65,23",
       "dev_paver"
     ],
     [
-      "8,29",
+      "63,24",
       "dev_paver"
     ],
     [
-      "8,28",
+      "64,24",
       "dev_paver"
     ],
     [
-      "9,28",
+      "65,24",
       "dev_paver"
     ],
     [
-      "42,5",
+      "62,24",
       "dev_paver"
     ],
     [
-      "42,4",
+      "62,25",
       "dev_paver"
     ],
     [
-      "42,3",
+      "63,25",
       "dev_paver"
     ],
     [
-      "42,2",
+      "64,25",
       "dev_paver"
     ],
     [
-      "41,2",
+      "65,25",
       "dev_paver"
     ],
     [
-      "40,2",
+      "66,23",
       "dev_paver"
     ],
     [
-      "39,2",
+      "66,24",
       "dev_paver"
     ],
     [
-      "38,2",
+      "66,25",
       "dev_paver"
     ],
     [
-      "37,2",
+      "67,23",
       "dev_paver"
     ],
     [
-      "37,3",
+      "67,24",
       "dev_paver"
     ],
     [
-      "36,3",
+      "67,25",
       "dev_paver"
     ],
     [
-      "36,2",
+      "68,23",
       "dev_paver"
     ],
     [
-      "36,4",
+      "68,24",
       "dev_paver"
     ],
     [
-      "36,5",
+      "68,25",
       "dev_paver"
     ],
     [
-      "37,4",
+      "66,22",
       "dev_paver"
     ],
     [
-      "37,5",
+      "67,22",
       "dev_paver"
     ],
     [
-      "38,5",
+      "68,22",
       "dev_paver"
     ],
     [
-      "39,5",
+      "66,21",
       "dev_paver"
     ],
     [
-      "40,5",
+      "67,21",
       "dev_paver"
     ],
     [
-      "40,4",
+      "68,21",
       "dev_paver"
     ],
     [
-      "40,3",
+      "66,20",
       "dev_paver"
     ],
     [
-      "39,3",
+      "67,20",
       "dev_paver"
     ],
     [
-      "39,4",
+      "68,20",
       "dev_paver"
     ],
     [
-      "38,4",
+      "66,19",
       "dev_paver"
     ],
     [
-      "38,3",
+      "67,19",
       "dev_paver"
     ],
     [
-      "41,4",
+      "68,19",
       "dev_paver"
     ],
     [
-      "41,5",
+      "66,18",
       "dev_paver"
     ],
     [
-      "41,3",
+      "67,18",
       "dev_paver"
     ],
     [
-      "35,8",
+      "68,18",
       "dev_paver"
     ],
     [
-      "35,7",
+      "66,17",
       "dev_paver"
     ],
     [
-      "34,7",
-      "hedge"
+      "67,17",
+      "dev_paver"
     ],
     [
-      "34,6",
-      "hedge"
+      "68,17",
+      "dev_paver"
     ],
     [
-      "34,8",
-      "hedge"
+      "65,17",
+      "dev_paver"
     ],
     [
-      "35,6",
+      "65,18",
       "dev_paver"
     ],
     [
-      "34,9",
+      "65,19",
       "dev_paver"
     ],
     [
-      "34,10",
+      "65,20",
       "dev_paver"
     ],
     [
-      "33,10",
+      "49,8",
       "dev_paver"
     ],
     [
-      "32,10",
+      "50,8",
       "dev_paver"
     ],
     [
-      "31,10",
+      "49,9",
       "dev_paver"
     ],
     [
-      "30,10",
+      "50,9",
       "dev_paver"
     ],
     [
-      "29,10",
+      "51,8",
       "dev_paver"
     ],
     [
-      "28,10",
+      "51,9",
       "dev_paver"
     ],
     [
-      "27,10",
+      "52,8",
       "dev_paver"
     ],
     [
-      "26,10",
+      "52,9",
       "dev_paver"
     ],
     [
-      "25,10",
+      "53,8",
       "dev_paver"
     ],
     [
-      "24,10",
+      "53,9",
       "dev_paver"
     ],
     [
-      "23,10",
+      "54,8",
       "dev_paver"
     ],
     [
-      "5,52",
+      "54,9",
       "dev_paver"
     ],
     [
-      "36,17",
+      "55,8",
       "dev_paver"
     ],
     [
-      "37,17",
+      "55,9",
       "dev_paver"
     ],
     [
-      "38,17",
+      "56,8",
       "dev_paver"
     ],
     [
-      "36,18",
+      "56,9",
       "dev_paver"
     ],
     [
-      "37,18",
+      "57,8",
       "dev_paver"
     ],
     [
-      "38,18",
+      "57,9",
       "dev_paver"
     ],
     [
-      "36,19",
+      "58,8",
       "dev_paver"
     ],
     [
-      "37,19",
+      "58,9",
       "dev_paver"
     ],
     [
-      "38,19",
+      "59,8",
       "dev_paver"
     ],
     [
-      "36,20",
+      "59,9",
       "dev_paver"
     ],
     [
-      "37,20",
+      "53,7",
       "dev_paver"
     ],
     [
-      "38,20",
+      "54,7",
       "dev_paver"
     ],
     [
-      "36,21",
+      "52,7",
       "dev_paver"
     ],
     [
-      "37,21",
+      "68,10",
       "dev_paver"
     ],
     [
-      "38,21",
+      "68,11",
       "dev_paver"
     ],
     [
@@ -5633,47 +5505,7 @@
       "dev_paver"
     ],
     [
-      "37,22",
-      "dev_paver"
-    ],
-    [
-      "38,22",
-      "dev_paver"
-    ],
-    [
       "36,23",
-      "dev_paver"
-    ],
-    [
-      "37,23",
-      "dev_paver"
-    ],
-    [
-      "38,23",
-      "dev_paver"
-    ],
-    [
-      "39,21",
-      "dev_paver"
-    ],
-    [
-      "39,22",
-      "dev_paver"
-    ],
-    [
-      "39,23",
-      "dev_paver"
-    ],
-    [
-      "37,24",
-      "dev_paver"
-    ],
-    [
-      "38,24",
-      "dev_paver"
-    ],
-    [
-      "39,24",
       "dev_paver"
     ],
     [
@@ -5685,1119 +5517,7 @@
       "dev_paver"
     ],
     [
-      "37,25",
-      "dev_paver"
-    ],
-    [
-      "38,25",
-      "dev_paver"
-    ],
-    [
-      "39,25",
-      "dev_paver"
-    ],
-    [
-      "40,23",
-      "dev_paver"
-    ],
-    [
-      "40,24",
-      "dev_paver"
-    ],
-    [
-      "40,25",
-      "dev_paver"
-    ],
-    [
-      "41,23",
-      "dev_paver"
-    ],
-    [
-      "41,24",
-      "dev_paver"
-    ],
-    [
-      "41,25",
-      "dev_paver"
-    ],
-    [
-      "42,23",
-      "dev_paver"
-    ],
-    [
-      "42,24",
-      "dev_paver"
-    ],
-    [
-      "42,25",
-      "dev_paver"
-    ],
-    [
-      "40,22",
-      "dev_paver"
-    ],
-    [
-      "41,22",
-      "dev_paver"
-    ],
-    [
-      "42,22",
-      "dev_paver"
-    ],
-    [
-      "40,21",
-      "dev_paver"
-    ],
-    [
-      "41,21",
-      "dev_paver"
-    ],
-    [
-      "42,21",
-      "dev_paver"
-    ],
-    [
-      "40,20",
-      "dev_paver"
-    ],
-    [
-      "41,20",
-      "dev_paver"
-    ],
-    [
-      "42,20",
-      "dev_paver"
-    ],
-    [
-      "40,19",
-      "dev_paver"
-    ],
-    [
-      "41,19",
-      "dev_paver"
-    ],
-    [
-      "42,19",
-      "dev_paver"
-    ],
-    [
-      "40,18",
-      "dev_paver"
-    ],
-    [
-      "41,18",
-      "dev_paver"
-    ],
-    [
-      "42,18",
-      "dev_paver"
-    ],
-    [
-      "40,17",
-      "dev_paver"
-    ],
-    [
-      "41,17",
-      "dev_paver"
-    ],
-    [
-      "42,17",
-      "dev_paver"
-    ],
-    [
-      "39,17",
-      "dev_paver"
-    ],
-    [
-      "39,18",
-      "dev_paver"
-    ],
-    [
-      "39,19",
-      "dev_paver"
-    ],
-    [
-      "39,20",
-      "dev_paver"
-    ],
-    [
-      "23,8",
-      "hedge"
-    ],
-    [
-      "24,8",
-      "hedge"
-    ],
-    [
-      "23,9",
-      "dev_paver"
-    ],
-    [
-      "24,9",
-      "dev_paver"
-    ],
-    [
-      "25,8",
-      "hedge"
-    ],
-    [
-      "25,9",
-      "dev_paver"
-    ],
-    [
-      "26,8",
-      "cobble"
-    ],
-    [
-      "26,9",
-      "dev_paver"
-    ],
-    [
-      "27,8",
-      "cobble"
-    ],
-    [
-      "27,9",
-      "dev_paver"
-    ],
-    [
-      "28,8",
-      "cobble"
-    ],
-    [
-      "28,9",
-      "dev_paver"
-    ],
-    [
-      "29,8",
-      "hedge"
-    ],
-    [
-      "29,9",
-      "dev_paver"
-    ],
-    [
-      "30,8",
-      "hedge"
-    ],
-    [
-      "30,9",
-      "dev_paver"
-    ],
-    [
-      "31,8",
-      "hedge"
-    ],
-    [
-      "31,9",
-      "dev_paver"
-    ],
-    [
-      "32,8",
-      "hedge"
-    ],
-    [
-      "32,9",
-      "dev_paver"
-    ],
-    [
-      "33,8",
-      "hedge"
-    ],
-    [
-      "33,9",
-      "dev_paver"
-    ],
-    [
-      "27,7",
-      "cobble"
-    ],
-    [
-      "28,7",
-      "cobble"
-    ],
-    [
-      "26,7",
-      "cobble"
-    ],
-    [
-      "9,18",
-      "hedge"
-    ],
-    [
-      "9,19",
-      "dev_paver"
-    ],
-    [
-      "42,10",
-      "dev_paver"
-    ],
-    [
-      "42,11",
-      "dev_paver"
-    ],
-    [
-      "10,20",
-      "dev_paver"
-    ],
-    [
-      "10,21",
-      "dev_paver"
-    ],
-    [
-      "10,22",
-      "dev_paver"
-    ],
-    [
-      "10,23",
-      "dev_paver"
-    ],
-    [
-      "10,24",
-      "dev_paver"
-    ],
-    [
-      "10,25",
-      "dev_paver"
-    ],
-    [
-      "10,26",
-      "dev_paver"
-    ],
-    [
-      "10,29",
-      "dev_paver"
-    ],
-    [
-      "11,29",
-      "dev_paver"
-    ],
-    [
-      "10,30",
-      "dev_paver"
-    ],
-    [
-      "11,30",
-      "dev_paver"
-    ],
-    [
-      "12,29",
-      "dev_paver"
-    ],
-    [
-      "12,30",
-      "dev_paver"
-    ],
-    [
-      "13,29",
-      "dev_paver"
-    ],
-    [
-      "13,30",
-      "dev_paver"
-    ],
-    [
-      "17,29",
-      "dev_paver"
-    ],
-    [
-      "17,30",
-      "dev_paver"
-    ],
-    [
-      "18,29",
-      "dev_paver"
-    ],
-    [
-      "18,30",
-      "dev_paver"
-    ],
-    [
-      "19,29",
-      "dev_paver"
-    ],
-    [
-      "19,30",
-      "dev_paver"
-    ],
-    [
-      "11,20",
-      "dev_paver"
-    ],
-    [
-      "12,20",
-      "dev_paver"
-    ],
-    [
-      "13,20",
-      "dev_paver"
-    ],
-    [
-      "11,21",
-      "dev_paver"
-    ],
-    [
-      "12,21",
-      "dev_paver"
-    ],
-    [
-      "13,21",
-      "dev_paver"
-    ],
-    [
-      "11,22",
-      "dev_paver"
-    ],
-    [
-      "12,22",
-      "dev_paver"
-    ],
-    [
-      "13,22",
-      "dev_paver"
-    ],
-    [
-      "14,20",
-      "dev_paver"
-    ],
-    [
-      "14,21",
-      "dev_paver"
-    ],
-    [
-      "14,22",
-      "dev_paver"
-    ],
-    [
-      "15,20",
-      "dev_paver"
-    ],
-    [
-      "15,21",
-      "dev_paver"
-    ],
-    [
-      "15,22",
-      "dev_paver"
-    ],
-    [
-      "16,20",
-      "dev_paver"
-    ],
-    [
-      "16,21",
-      "dev_paver"
-    ],
-    [
-      "16,22",
-      "dev_paver"
-    ],
-    [
-      "17,20",
-      "dev_paver"
-    ],
-    [
-      "17,21",
-      "dev_paver"
-    ],
-    [
-      "17,22",
-      "dev_paver"
-    ],
-    [
-      "18,20",
-      "dev_paver"
-    ],
-    [
-      "18,21",
-      "dev_paver"
-    ],
-    [
-      "18,22",
-      "dev_paver"
-    ],
-    [
-      "19,20",
-      "dev_paver"
-    ],
-    [
-      "19,21",
-      "dev_paver"
-    ],
-    [
-      "19,22",
-      "dev_paver"
-    ],
-    [
-      "19,23",
-      "dev_paver"
-    ],
-    [
-      "18,23",
-      "dev_paver"
-    ],
-    [
-      "17,23",
-      "dev_paver"
-    ],
-    [
-      "17,24",
-      "dev_paver"
-    ],
-    [
-      "18,24",
-      "dev_paver"
-    ],
-    [
-      "19,24",
-      "dev_paver"
-    ],
-    [
-      "16,23",
-      "dev_paver"
-    ],
-    [
-      "16,24",
-      "dev_paver"
-    ],
-    [
-      "15,23",
-      "dev_paver"
-    ],
-    [
-      "15,24",
-      "dev_paver"
-    ],
-    [
-      "14,23",
-      "dev_paver"
-    ],
-    [
-      "14,24",
-      "dev_paver"
-    ],
-    [
-      "13,23",
-      "dev_paver"
-    ],
-    [
-      "13,24",
-      "dev_paver"
-    ],
-    [
-      "12,23",
-      "dev_paver"
-    ],
-    [
-      "12,24",
-      "dev_paver"
-    ],
-    [
-      "11,23",
-      "dev_paver"
-    ],
-    [
-      "11,24",
-      "dev_paver"
-    ],
-    [
-      "11,25",
-      "dev_paver"
-    ],
-    [
-      "12,25",
-      "dev_paver"
-    ],
-    [
-      "13,25",
-      "dev_paver"
-    ],
-    [
-      "11,26",
-      "dev_paver"
-    ],
-    [
-      "12,26",
-      "dev_paver"
-    ],
-    [
-      "13,26",
-      "dev_paver"
-    ],
-    [
-      "17,26",
-      "dev_paver"
-    ],
-    [
-      "18,26",
-      "dev_paver"
-    ],
-    [
-      "19,26",
-      "dev_paver"
-    ],
-    [
-      "17,25",
-      "dev_paver"
-    ],
-    [
-      "18,25",
-      "dev_paver"
-    ],
-    [
-      "19,25",
-      "dev_paver"
-    ],
-    [
-      "16,25",
-      "dev_paver"
-    ],
-    [
-      "15,25",
-      "dev_paver"
-    ],
-    [
-      "14,25",
-      "dev_paver"
-    ],
-    [
-      "9,31",
-      "dev_paver"
-    ],
-    [
-      "10,31",
-      "dev_paver"
-    ],
-    [
-      "11,31",
-      "dev_paver"
-    ],
-    [
-      "9,32",
-      "dev_paver"
-    ],
-    [
-      "10,32",
-      "dev_paver"
-    ],
-    [
-      "11,32",
-      "dev_paver"
-    ],
-    [
-      "9,33",
-      "dev_paver"
-    ],
-    [
-      "10,33",
-      "dev_paver"
-    ],
-    [
-      "11,33",
-      "dev_paver"
-    ],
-    [
-      "9,30",
-      "dev_paver"
-    ],
-    [
-      "12,31",
-      "dev_paver"
-    ],
-    [
-      "12,32",
-      "dev_paver"
-    ],
-    [
-      "12,33",
-      "dev_paver"
-    ],
-    [
-      "13,31",
-      "dev_paver"
-    ],
-    [
-      "13,32",
-      "dev_paver"
-    ],
-    [
-      "13,33",
-      "dev_paver"
-    ],
-    [
-      "17,31",
-      "dev_paver"
-    ],
-    [
-      "17,32",
-      "dev_paver"
-    ],
-    [
-      "17,33",
-      "dev_paver"
-    ],
-    [
-      "18,31",
-      "dev_paver"
-    ],
-    [
-      "18,32",
-      "dev_paver"
-    ],
-    [
-      "18,33",
-      "dev_paver"
-    ],
-    [
-      "19,31",
-      "dev_paver"
-    ],
-    [
-      "19,32",
-      "dev_paver"
-    ],
-    [
-      "19,33",
-      "dev_paver"
-    ],
-    [
-      "24,26",
-      "dev_paver"
-    ],
-    [
-      "25,26",
-      "dev_paver"
-    ],
-    [
-      "26,26",
-      "dev_paver"
-    ],
-    [
-      "24,27",
-      "dev_paver"
-    ],
-    [
-      "25,27",
-      "dev_paver"
-    ],
-    [
-      "26,27",
-      "dev_paver"
-    ],
-    [
-      "24,28",
-      "dev_paver"
-    ],
-    [
-      "25,28",
-      "dev_paver"
-    ],
-    [
-      "26,28",
-      "dev_paver"
-    ],
-    [
-      "27,26",
-      "dev_paver"
-    ],
-    [
-      "27,27",
-      "dev_paver"
-    ],
-    [
-      "27,28",
-      "dev_paver"
-    ],
-    [
-      "25,29",
-      "dev_paver"
-    ],
-    [
-      "26,29",
-      "dev_paver"
-    ],
-    [
-      "27,29",
-      "dev_paver"
-    ],
-    [
-      "25,30",
-      "dev_paver"
-    ],
-    [
-      "26,30",
-      "dev_paver"
-    ],
-    [
-      "27,30",
-      "dev_paver"
-    ],
-    [
-      "28,28",
-      "dev_paver"
-    ],
-    [
-      "28,29",
-      "dev_paver"
-    ],
-    [
-      "28,30",
-      "dev_paver"
-    ],
-    [
-      "26,31",
-      "dev_paver"
-    ],
-    [
-      "27,31",
-      "dev_paver"
-    ],
-    [
-      "28,31",
-      "dev_paver"
-    ],
-    [
-      "25,31",
-      "dev_paver"
-    ],
-    [
-      "24,29",
-      "dev_paver"
-    ],
-    [
-      "24,30",
-      "dev_paver"
-    ],
-    [
-      "24,31",
-      "dev_paver"
-    ],
-    [
-      "24,32",
-      "dev_paver"
-    ],
-    [
-      "25,32",
-      "dev_paver"
-    ],
-    [
-      "26,32",
-      "dev_paver"
-    ],
-    [
-      "24,33",
-      "dev_paver"
-    ],
-    [
-      "25,33",
-      "dev_paver"
-    ],
-    [
-      "26,33",
-      "dev_paver"
-    ],
-    [
-      "24,34",
-      "dev_paver"
-    ],
-    [
-      "25,34",
-      "dev_paver"
-    ],
-    [
-      "26,34",
-      "dev_paver"
-    ],
-    [
-      "27,32",
-      "dev_paver"
-    ],
-    [
-      "27,33",
-      "dev_paver"
-    ],
-    [
-      "27,34",
-      "dev_paver"
-    ],
-    [
-      "28,32",
-      "dev_paver"
-    ],
-    [
-      "28,33",
-      "dev_paver"
-    ],
-    [
-      "28,34",
-      "dev_paver"
-    ],
-    [
-      "29,32",
-      "dev_paver"
-    ],
-    [
-      "29,33",
-      "dev_paver"
-    ],
-    [
-      "29,34",
-      "dev_paver"
-    ],
-    [
-      "30,32",
-      "dev_paver"
-    ],
-    [
-      "30,33",
-      "dev_paver"
-    ],
-    [
-      "30,34",
-      "dev_paver"
-    ],
-    [
-      "31,32",
-      "dev_paver"
-    ],
-    [
-      "31,33",
-      "dev_paver"
-    ],
-    [
-      "31,34",
-      "dev_paver"
-    ],
-    [
-      "32,32",
-      "dev_paver"
-    ],
-    [
-      "32,33",
-      "dev_paver"
-    ],
-    [
-      "32,34",
-      "dev_paver"
-    ],
-    [
-      "33,32",
-      "dev_paver"
-    ],
-    [
-      "33,33",
-      "dev_paver"
-    ],
-    [
-      "33,34",
-      "dev_paver"
-    ],
-    [
-      "31,35",
-      "dev_paver"
-    ],
-    [
-      "32,35",
-      "dev_paver"
-    ],
-    [
-      "33,35",
-      "dev_paver"
-    ],
-    [
-      "30,35",
-      "dev_paver"
-    ],
-    [
-      "29,35",
-      "dev_paver"
-    ],
-    [
-      "28,35",
-      "dev_paver"
-    ],
-    [
-      "27,35",
-      "dev_paver"
-    ],
-    [
-      "26,35",
-      "dev_paver"
-    ],
-    [
-      "25,35",
-      "dev_paver"
-    ],
-    [
-      "24,35",
-      "dev_paver"
-    ],
-    [
-      "29,30",
-      "dev_paver"
-    ],
-    [
-      "29,31",
-      "dev_paver"
-    ],
-    [
-      "29,29",
-      "dev_paver"
-    ],
-    [
-      "29,28",
-      "dev_paver"
-    ],
-    [
-      "30,28",
-      "dev_paver"
-    ],
-    [
-      "30,29",
-      "dev_paver"
-    ],
-    [
-      "30,30",
-      "dev_paver"
-    ],
-    [
-      "28,27",
-      "dev_paver"
-    ],
-    [
-      "29,27",
-      "dev_paver"
-    ],
-    [
-      "30,27",
-      "dev_paver"
-    ],
-    [
-      "28,26",
-      "dev_paver"
-    ],
-    [
-      "29,26",
-      "dev_paver"
-    ],
-    [
-      "30,26",
-      "dev_paver"
-    ],
-    [
-      "31,26",
-      "dev_paver"
-    ],
-    [
-      "31,27",
-      "dev_paver"
-    ],
-    [
-      "31,28",
-      "dev_paver"
-    ],
-    [
-      "31,29",
-      "dev_paver"
-    ],
-    [
-      "31,30",
-      "dev_paver"
-    ],
-    [
-      "30,31",
-      "dev_paver"
-    ],
-    [
-      "31,31",
-      "dev_paver"
-    ],
-    [
-      "32,29",
-      "dev_paver"
-    ],
-    [
-      "32,30",
-      "dev_paver"
-    ],
-    [
-      "32,31",
-      "dev_paver"
-    ],
-    [
-      "32,28",
-      "dev_paver"
-    ],
-    [
-      "32,27",
-      "dev_paver"
-    ],
-    [
-      "33,27",
-      "dev_paver"
-    ],
-    [
-      "33,28",
-      "dev_paver"
-    ],
-    [
-      "33,29",
-      "dev_paver"
-    ],
-    [
-      "33,30",
-      "dev_paver"
-    ],
-    [
-      "32,26",
-      "dev_paver"
-    ],
-    [
-      "33,26",
-      "dev_paver"
-    ],
-    [
-      "33,31",
-      "dev_paver"
-    ],
-    [
-      "30,39",
-      "grass"
-    ],
-    [
-      "19,34",
-      "dev_paver"
-    ],
-    [
-      "19,37",
-      "dev_paver"
-    ],
-    [
-      "19,38",
-      "dev_paver"
-    ],
-    [
-      "19,39",
-      "dev_paver"
-    ],
-    [
-      "19,40",
-      "dev_paver"
-    ],
-    [
-      "19,41",
-      "dev_paver"
-    ],
-    [
-      "19,42",
-      "dev_paver"
-    ],
-    [
-      "36,28",
-      "dev_paver"
-    ],
-    [
-      "37,28",
+      "36,26",
       "dev_paver"
     ],
     [
@@ -6817,11 +5537,227 @@
       "dev_paver"
     ],
     [
+      "38,29",
+      "dev_paver"
+    ],
+    [
+      "38,30",
+      "dev_paver"
+    ],
+    [
+      "39,29",
+      "dev_paver"
+    ],
+    [
+      "39,30",
+      "dev_paver"
+    ],
+    [
+      "43,29",
+      "dev_paver"
+    ],
+    [
+      "43,30",
+      "dev_paver"
+    ],
+    [
+      "44,29",
+      "dev_paver"
+    ],
+    [
+      "44,30",
+      "dev_paver"
+    ],
+    [
+      "45,29",
+      "dev_paver"
+    ],
+    [
+      "45,30",
+      "dev_paver"
+    ],
+    [
+      "37,22",
+      "dev_paver"
+    ],
+    [
+      "38,22",
+      "dev_paver"
+    ],
+    [
+      "39,22",
+      "dev_paver"
+    ],
+    [
+      "40,22",
+      "dev_paver"
+    ],
+    [
+      "41,22",
+      "dev_paver"
+    ],
+    [
+      "42,22",
+      "dev_paver"
+    ],
+    [
+      "43,22",
+      "dev_paver"
+    ],
+    [
+      "44,22",
+      "dev_paver"
+    ],
+    [
+      "45,22",
+      "dev_paver"
+    ],
+    [
+      "45,23",
+      "dev_paver"
+    ],
+    [
+      "44,23",
+      "dev_paver"
+    ],
+    [
+      "43,23",
+      "dev_paver"
+    ],
+    [
+      "43,24",
+      "dev_paver"
+    ],
+    [
+      "44,24",
+      "dev_paver"
+    ],
+    [
+      "45,24",
+      "dev_paver"
+    ],
+    [
+      "42,23",
+      "dev_paver"
+    ],
+    [
+      "42,24",
+      "dev_paver"
+    ],
+    [
+      "41,23",
+      "dev_paver"
+    ],
+    [
+      "41,24",
+      "dev_paver"
+    ],
+    [
+      "40,23",
+      "dev_paver"
+    ],
+    [
+      "40,24",
+      "dev_paver"
+    ],
+    [
+      "39,23",
+      "dev_paver"
+    ],
+    [
+      "39,24",
+      "dev_paver"
+    ],
+    [
+      "38,23",
+      "dev_paver"
+    ],
+    [
+      "38,24",
+      "dev_paver"
+    ],
+    [
+      "37,23",
+      "dev_paver"
+    ],
+    [
+      "37,24",
+      "dev_paver"
+    ],
+    [
+      "37,25",
+      "dev_paver"
+    ],
+    [
+      "38,25",
+      "dev_paver"
+    ],
+    [
+      "39,25",
+      "dev_paver"
+    ],
+    [
+      "37,26",
+      "dev_paver"
+    ],
+    [
+      "38,26",
+      "dev_paver"
+    ],
+    [
+      "39,26",
+      "dev_paver"
+    ],
+    [
+      "43,26",
+      "dev_paver"
+    ],
+    [
+      "44,26",
+      "dev_paver"
+    ],
+    [
+      "45,26",
+      "dev_paver"
+    ],
+    [
+      "43,25",
+      "dev_paver"
+    ],
+    [
+      "44,25",
+      "dev_paver"
+    ],
+    [
+      "45,25",
+      "dev_paver"
+    ],
+    [
+      "42,25",
+      "dev_paver"
+    ],
+    [
+      "41,25",
+      "dev_paver"
+    ],
+    [
+      "40,25",
+      "dev_paver"
+    ],
+    [
+      "35,31",
+      "dev_paver"
+    ],
+    [
       "36,31",
       "dev_paver"
     ],
     [
       "37,31",
+      "dev_paver"
+    ],
+    [
+      "35,32",
       "dev_paver"
     ],
     [
@@ -6833,11 +5769,19 @@
       "dev_paver"
     ],
     [
+      "35,33",
+      "dev_paver"
+    ],
+    [
       "36,33",
       "dev_paver"
     ],
     [
       "37,33",
+      "dev_paver"
+    ],
+    [
+      "35,30",
       "dev_paver"
     ],
     [
@@ -6865,295 +5809,1231 @@
       "dev_paver"
     ],
     [
-      "40,31",
+      "43,31",
       "dev_paver"
     ],
     [
-      "40,32",
+      "43,32",
       "dev_paver"
     ],
     [
-      "40,33",
+      "43,33",
       "dev_paver"
     ],
     [
-      "41,31",
+      "44,31",
       "dev_paver"
     ],
     [
-      "41,32",
+      "44,32",
       "dev_paver"
     ],
     [
-      "41,33",
+      "44,33",
       "dev_paver"
     ],
     [
-      "39,30",
+      "45,31",
       "dev_paver"
     ],
     [
-      "40,30",
+      "45,32",
       "dev_paver"
     ],
     [
-      "41,30",
+      "45,33",
       "dev_paver"
     ],
     [
-      "39,29",
+      "50,26",
       "dev_paver"
     ],
     [
-      "40,29",
+      "51,26",
       "dev_paver"
     ],
     [
-      "41,29",
+      "52,26",
       "dev_paver"
     ],
     [
-      "39,28",
+      "50,27",
       "dev_paver"
     ],
     [
-      "40,28",
+      "51,27",
       "dev_paver"
     ],
     [
-      "41,28",
+      "52,27",
       "dev_paver"
     ],
     [
-      "38,28",
+      "50,28",
       "dev_paver"
     ],
     [
-      "38,29",
+      "51,28",
       "dev_paver"
     ],
     [
-      "38,30",
+      "52,28",
       "dev_paver"
     ],
     [
-      "42,28",
+      "53,26",
       "dev_paver"
     ],
     [
-      "42,29",
+      "53,27",
       "dev_paver"
     ],
     [
-      "42,30",
+      "53,28",
       "dev_paver"
     ],
     [
-      "42,31",
+      "51,29",
       "dev_paver"
     ],
     [
-      "42,32",
+      "52,29",
       "dev_paver"
     ],
     [
-      "42,33",
+      "53,29",
       "dev_paver"
     ],
     [
-      "36,39",
+      "51,30",
       "dev_paver"
     ],
     [
-      "36,40",
+      "52,30",
       "dev_paver"
     ],
     [
-      "36,41",
+      "53,30",
       "dev_paver"
     ],
     [
-      "36,42",
+      "54,28",
       "dev_paver"
     ],
     [
-      "36,43",
+      "54,29",
       "dev_paver"
     ],
     [
-      "36,44",
+      "54,30",
       "dev_paver"
     ],
     [
-      "37,43",
+      "52,31",
       "dev_paver"
     ],
     [
-      "37,44",
+      "53,31",
       "dev_paver"
     ],
     [
-      "36,45",
+      "54,31",
       "dev_paver"
     ],
     [
-      "37,45",
+      "51,31",
       "dev_paver"
     ],
     [
-      "38,43",
+      "50,29",
       "dev_paver"
     ],
     [
-      "38,44",
+      "50,30",
       "dev_paver"
     ],
     [
-      "38,45",
+      "50,31",
       "dev_paver"
     ],
     [
-      "39,43",
+      "50,32",
       "dev_paver"
     ],
     [
-      "39,44",
+      "51,32",
       "dev_paver"
     ],
     [
-      "39,45",
+      "52,32",
       "dev_paver"
     ],
     [
-      "40,43",
+      "50,33",
       "dev_paver"
     ],
     [
-      "40,44",
+      "51,33",
       "dev_paver"
     ],
     [
-      "40,45",
+      "52,33",
       "dev_paver"
     ],
     [
-      "41,43",
+      "50,34",
       "dev_paver"
     ],
     [
-      "41,44",
+      "51,34",
       "dev_paver"
     ],
     [
-      "41,45",
+      "52,34",
       "dev_paver"
     ],
     [
-      "42,43",
+      "53,32",
       "dev_paver"
     ],
     [
-      "42,44",
+      "53,33",
       "dev_paver"
     ],
     [
-      "42,45",
+      "53,34",
       "dev_paver"
     ],
     [
-      "40,42",
+      "54,32",
       "dev_paver"
     ],
     [
-      "41,42",
+      "54,33",
       "dev_paver"
     ],
     [
-      "42,42",
+      "54,34",
       "dev_paver"
     ],
     [
-      "40,41",
+      "55,32",
       "dev_paver"
     ],
     [
-      "41,41",
+      "55,33",
       "dev_paver"
     ],
     [
-      "42,41",
+      "55,34",
       "dev_paver"
     ],
     [
-      "40,40",
+      "56,32",
       "dev_paver"
     ],
     [
-      "41,40",
+      "56,33",
       "dev_paver"
     ],
     [
-      "42,40",
+      "56,34",
       "dev_paver"
     ],
     [
-      "40,39",
+      "57,32",
       "dev_paver"
     ],
     [
-      "41,39",
+      "57,33",
       "dev_paver"
     ],
     [
-      "42,39",
+      "57,34",
       "dev_paver"
     ],
     [
-      "39,39",
+      "58,32",
       "dev_paver"
     ],
     [
-      "39,40",
+      "58,33",
       "dev_paver"
     ],
     [
-      "39,41",
+      "58,34",
       "dev_paver"
     ],
     [
-      "39,38",
+      "59,32",
       "dev_paver"
     ],
     [
-      "40,38",
+      "59,33",
       "dev_paver"
     ],
     [
-      "41,38",
+      "59,34",
       "dev_paver"
     ],
     [
-      "38,38",
+      "57,35",
       "dev_paver"
     ],
     [
-      "38,39",
+      "58,35",
       "dev_paver"
     ],
     [
-      "38,40",
+      "59,35",
       "dev_paver"
     ],
     [
-      "37,38",
+      "56,35",
       "dev_paver"
     ],
     [
-      "37,39",
+      "55,35",
       "dev_paver"
     ],
     [
-      "37,40",
+      "54,35",
+      "dev_paver"
+    ],
+    [
+      "53,35",
+      "dev_paver"
+    ],
+    [
+      "52,35",
+      "dev_paver"
+    ],
+    [
+      "51,35",
+      "dev_paver"
+    ],
+    [
+      "50,35",
+      "dev_paver"
+    ],
+    [
+      "55,30",
+      "dev_paver"
+    ],
+    [
+      "55,31",
+      "dev_paver"
+    ],
+    [
+      "55,29",
+      "dev_paver"
+    ],
+    [
+      "55,28",
+      "dev_paver"
+    ],
+    [
+      "56,28",
+      "dev_paver"
+    ],
+    [
+      "56,29",
+      "dev_paver"
+    ],
+    [
+      "56,30",
+      "dev_paver"
+    ],
+    [
+      "54,27",
+      "dev_paver"
+    ],
+    [
+      "55,27",
+      "dev_paver"
+    ],
+    [
+      "56,27",
+      "dev_paver"
+    ],
+    [
+      "54,26",
+      "dev_paver"
+    ],
+    [
+      "55,26",
+      "dev_paver"
+    ],
+    [
+      "56,26",
+      "dev_paver"
+    ],
+    [
+      "57,26",
+      "dev_paver"
+    ],
+    [
+      "57,27",
+      "dev_paver"
+    ],
+    [
+      "57,28",
+      "dev_paver"
+    ],
+    [
+      "57,29",
+      "dev_paver"
+    ],
+    [
+      "57,30",
+      "dev_paver"
+    ],
+    [
+      "56,31",
+      "dev_paver"
+    ],
+    [
+      "57,31",
+      "dev_paver"
+    ],
+    [
+      "58,29",
+      "dev_paver"
+    ],
+    [
+      "58,30",
+      "dev_paver"
+    ],
+    [
+      "58,31",
+      "dev_paver"
+    ],
+    [
+      "58,28",
+      "dev_paver"
+    ],
+    [
+      "58,27",
+      "dev_paver"
+    ],
+    [
+      "59,27",
+      "dev_paver"
+    ],
+    [
+      "59,28",
+      "dev_paver"
+    ],
+    [
+      "59,29",
+      "dev_paver"
+    ],
+    [
+      "59,30",
+      "dev_paver"
+    ],
+    [
+      "58,26",
+      "dev_paver"
+    ],
+    [
+      "59,26",
+      "dev_paver"
+    ],
+    [
+      "59,31",
+      "dev_paver"
+    ],
+    [
+      "45,34",
+      "dev_paver"
+    ],
+    [
+      "45,37",
+      "dev_paver"
+    ],
+    [
+      "45,38",
+      "dev_paver"
+    ],
+    [
+      "45,39",
+      "dev_paver"
+    ],
+    [
+      "45,40",
+      "dev_paver"
+    ],
+    [
+      "45,41",
+      "dev_paver"
+    ],
+    [
+      "45,42",
+      "dev_paver"
+    ],
+    [
+      "62,28",
+      "dev_paver"
+    ],
+    [
+      "63,28",
+      "dev_paver"
+    ],
+    [
+      "62,29",
+      "dev_paver"
+    ],
+    [
+      "63,29",
+      "dev_paver"
+    ],
+    [
+      "62,30",
+      "dev_paver"
+    ],
+    [
+      "63,30",
+      "dev_paver"
+    ],
+    [
+      "62,31",
+      "dev_paver"
+    ],
+    [
+      "63,31",
+      "dev_paver"
+    ],
+    [
+      "62,32",
+      "dev_paver"
+    ],
+    [
+      "63,32",
+      "dev_paver"
+    ],
+    [
+      "62,33",
+      "dev_paver"
+    ],
+    [
+      "63,33",
+      "dev_paver"
+    ],
+    [
+      "64,31",
+      "dev_paver"
+    ],
+    [
+      "64,32",
+      "dev_paver"
+    ],
+    [
+      "64,33",
+      "dev_paver"
+    ],
+    [
+      "65,31",
+      "dev_paver"
+    ],
+    [
+      "65,32",
+      "dev_paver"
+    ],
+    [
+      "65,33",
+      "dev_paver"
+    ],
+    [
+      "66,31",
+      "dev_paver"
+    ],
+    [
+      "66,32",
+      "dev_paver"
+    ],
+    [
+      "66,33",
+      "dev_paver"
+    ],
+    [
+      "67,31",
+      "dev_paver"
+    ],
+    [
+      "67,32",
+      "dev_paver"
+    ],
+    [
+      "67,33",
+      "dev_paver"
+    ],
+    [
+      "65,30",
+      "dev_paver"
+    ],
+    [
+      "66,30",
+      "dev_paver"
+    ],
+    [
+      "67,30",
+      "dev_paver"
+    ],
+    [
+      "65,29",
+      "dev_paver"
+    ],
+    [
+      "66,29",
+      "dev_paver"
+    ],
+    [
+      "67,29",
+      "dev_paver"
+    ],
+    [
+      "65,28",
+      "dev_paver"
+    ],
+    [
+      "66,28",
+      "dev_paver"
+    ],
+    [
+      "67,28",
+      "dev_paver"
+    ],
+    [
+      "64,28",
+      "dev_paver"
+    ],
+    [
+      "64,29",
+      "dev_paver"
+    ],
+    [
+      "64,30",
+      "dev_paver"
+    ],
+    [
+      "68,28",
+      "dev_paver"
+    ],
+    [
+      "68,29",
+      "dev_paver"
+    ],
+    [
+      "68,30",
+      "dev_paver"
+    ],
+    [
+      "68,31",
+      "dev_paver"
+    ],
+    [
+      "68,32",
+      "dev_paver"
+    ],
+    [
+      "68,33",
+      "dev_paver"
+    ],
+    [
+      "62,39",
+      "dev_paver"
+    ],
+    [
+      "62,40",
+      "dev_paver"
+    ],
+    [
+      "62,41",
+      "dev_paver"
+    ],
+    [
+      "62,42",
+      "dev_paver"
+    ],
+    [
+      "62,43",
+      "dev_paver"
+    ],
+    [
+      "62,44",
+      "dev_paver"
+    ],
+    [
+      "63,43",
+      "dev_paver"
+    ],
+    [
+      "63,44",
+      "dev_paver"
+    ],
+    [
+      "62,45",
+      "dev_paver"
+    ],
+    [
+      "63,45",
+      "dev_paver"
+    ],
+    [
+      "64,43",
+      "dev_paver"
+    ],
+    [
+      "64,44",
+      "dev_paver"
+    ],
+    [
+      "64,45",
+      "dev_paver"
+    ],
+    [
+      "65,43",
+      "dev_paver"
+    ],
+    [
+      "65,44",
+      "dev_paver"
+    ],
+    [
+      "65,45",
+      "dev_paver"
+    ],
+    [
+      "66,43",
+      "dev_paver"
+    ],
+    [
+      "66,44",
+      "dev_paver"
+    ],
+    [
+      "66,45",
+      "dev_paver"
+    ],
+    [
+      "67,43",
+      "dev_paver"
+    ],
+    [
+      "67,44",
+      "dev_paver"
+    ],
+    [
+      "67,45",
+      "dev_paver"
+    ],
+    [
+      "68,43",
+      "dev_paver"
+    ],
+    [
+      "68,44",
+      "dev_paver"
+    ],
+    [
+      "68,45",
+      "dev_paver"
+    ],
+    [
+      "66,42",
+      "dev_paver"
+    ],
+    [
+      "67,42",
+      "dev_paver"
+    ],
+    [
+      "68,42",
+      "dev_paver"
+    ],
+    [
+      "66,41",
+      "dev_paver"
+    ],
+    [
+      "67,41",
+      "dev_paver"
+    ],
+    [
+      "68,41",
+      "dev_paver"
+    ],
+    [
+      "66,40",
+      "dev_paver"
+    ],
+    [
+      "67,40",
+      "dev_paver"
+    ],
+    [
+      "68,40",
+      "dev_paver"
+    ],
+    [
+      "66,39",
+      "dev_paver"
+    ],
+    [
+      "67,39",
+      "dev_paver"
+    ],
+    [
+      "68,39",
+      "dev_paver"
+    ],
+    [
+      "65,39",
+      "dev_paver"
+    ],
+    [
+      "65,40",
+      "dev_paver"
+    ],
+    [
+      "65,41",
+      "dev_paver"
+    ],
+    [
+      "65,38",
+      "dev_paver"
+    ],
+    [
+      "66,38",
+      "dev_paver"
+    ],
+    [
+      "67,38",
+      "dev_paver"
+    ],
+    [
+      "64,38",
+      "dev_paver"
+    ],
+    [
+      "64,39",
+      "dev_paver"
+    ],
+    [
+      "64,40",
+      "dev_paver"
+    ],
+    [
+      "63,38",
+      "dev_paver"
+    ],
+    [
+      "63,39",
+      "dev_paver"
+    ],
+    [
+      "63,40",
+      "dev_paver"
+    ],
+    [
+      "62,38",
+      "dev_paver"
+    ],
+    [
+      "63,41",
+      "dev_paver"
+    ],
+    [
+      "63,42",
+      "dev_paver"
+    ],
+    [
+      "64,41",
+      "dev_paver"
+    ],
+    [
+      "64,42",
+      "dev_paver"
+    ],
+    [
+      "65,42",
+      "dev_paver"
+    ],
+    [
+      "68,38",
+      "dev_paver"
+    ],
+    [
+      "29,27",
+      "dev_paver"
+    ],
+    [
+      "30,27",
+      "dev_paver"
+    ],
+    [
+      "33,35",
+      "dev_paver"
+    ],
+    [
+      "33,36",
+      "dev_paver"
+    ],
+    [
+      "32,35",
+      "dev_paver"
+    ],
+    [
+      "32,36",
+      "dev_paver"
+    ],
+    [
+      "32,34",
+      "dev_paver"
+    ],
+    [
+      "33,34",
+      "dev_paver"
+    ],
+    [
+      "34,34",
+      "dev_paver"
+    ],
+    [
+      "32,33",
+      "dev_paver"
+    ],
+    [
+      "33,33",
+      "dev_paver"
+    ],
+    [
+      "34,33",
+      "dev_paver"
+    ],
+    [
+      "32,32",
+      "dev_paver"
+    ],
+    [
+      "33,32",
+      "dev_paver"
+    ],
+    [
+      "34,32",
+      "dev_paver"
+    ],
+    [
+      "32,31",
+      "dev_paver"
+    ],
+    [
+      "33,31",
+      "dev_paver"
+    ],
+    [
+      "34,31",
+      "dev_paver"
+    ],
+    [
+      "32,30",
+      "dev_paver"
+    ],
+    [
+      "33,30",
+      "dev_paver"
+    ],
+    [
+      "34,30",
+      "dev_paver"
+    ],
+    [
+      "32,29",
+      "dev_paver"
+    ],
+    [
+      "33,29",
+      "dev_paver"
+    ],
+    [
+      "32,28",
+      "dev_paver"
+    ],
+    [
+      "33,28",
+      "dev_paver"
+    ],
+    [
+      "31,28",
+      "dev_paver"
+    ],
+    [
+      "31,29",
+      "dev_paver"
+    ],
+    [
+      "31,30",
+      "dev_paver"
+    ],
+    [
+      "31,31",
+      "dev_paver"
+    ],
+    [
+      "31,32",
+      "dev_paver"
+    ],
+    [
+      "31,33",
+      "dev_paver"
+    ],
+    [
+      "31,34",
+      "dev_paver"
+    ],
+    [
+      "31,35",
+      "dev_paver"
+    ],
+    [
+      "31,36",
+      "dev_paver"
+    ],
+    [
+      "32,38",
+      "dev_paver"
+    ],
+    [
+      "33,38",
+      "dev_paver"
+    ],
+    [
+      "32,39",
+      "dev_paver"
+    ],
+    [
+      "33,39",
+      "dev_paver"
+    ],
+    [
+      "31,38",
+      "dev_paver"
+    ],
+    [
+      "31,39",
+      "dev_paver"
+    ],
+    [
+      "31,40",
+      "dev_paver"
+    ],
+    [
+      "32,40",
+      "dev_paver"
+    ],
+    [
+      "33,40",
+      "dev_paver"
+    ],
+    [
+      "31,41",
+      "dev_paver"
+    ],
+    [
+      "32,41",
+      "dev_paver"
+    ],
+    [
+      "33,41",
+      "dev_paver"
+    ],
+    [
+      "34,40",
+      "dev_paver"
+    ],
+    [
+      "34,41",
+      "dev_paver"
+    ],
+    [
+      "32,42",
+      "dev_paver"
+    ],
+    [
+      "33,42",
+      "dev_paver"
+    ],
+    [
+      "34,42",
+      "dev_paver"
+    ],
+    [
+      "31,42",
+      "dev_paver"
+    ],
+    [
+      "48,17",
+      "dev_paver"
+    ],
+    [
+      "60,1",
+      "dev_paver"
+    ],
+    [
+      "49,1",
+      "dev_paver"
+    ],
+    [
+      "50,1",
+      "dev_paver"
+    ],
+    [
+      "51,1",
+      "dev_paver"
+    ],
+    [
+      "52,1",
+      "dev_paver"
+    ],
+    [
+      "53,1",
+      "dev_paver"
+    ],
+    [
+      "54,1",
+      "dev_paver"
+    ],
+    [
+      "55,1",
+      "dev_paver"
+    ],
+    [
+      "56,1",
+      "dev_paver"
+    ],
+    [
+      "57,1",
+      "dev_paver"
+    ],
+    [
+      "58,1",
+      "dev_paver"
+    ],
+    [
+      "59,1",
+      "dev_paver"
+    ],
+    [
+      "48,16",
+      "dev_paver"
+    ],
+    [
+      "48,1",
+      "dev_paver"
+    ],
+    [
+      "50,47",
+      "dev_paver"
+    ],
+    [
+      "50,48",
+      "dev_paver"
+    ],
+    [
+      "50,49",
+      "dev_paver"
+    ],
+    [
+      "50,50",
+      "dev_paver"
+    ],
+    [
+      "50,51",
+      "dev_paver"
+    ],
+    [
+      "50,52",
+      "dev_paver"
+    ],
+    [
+      "50,53",
+      "dev_paver"
+    ],
+    [
+      "50,54",
+      "dev_paver"
+    ],
+    [
+      "50,55",
+      "dev_paver"
+    ],
+    [
+      "58,55",
+      "dev_paver"
+    ],
+    [
+      "59,55",
+      "grass"
+    ],
+    [
+      "58,54",
+      "dev_paver"
+    ],
+    [
+      "59,54",
+      "grass"
+    ],
+    [
+      "59,53",
+      "grass"
+    ],
+    [
+      "59,52",
+      "grass"
+    ],
+    [
+      "59,51",
+      "dev_paver"
+    ],
+    [
+      "59,50",
+      "dev_paver"
+    ],
+    [
+      "59,49",
+      "grass"
+    ],
+    [
+      "59,48",
+      "grass"
+    ],
+    [
+      "59,47",
+      "grass"
+    ],
+    [
+      "35,34",
+      "dev_paver"
+    ],
+    [
+      "36,34",
+      "dev_paver"
+    ],
+    [
+      "37,34",
+      "dev_paver"
+    ],
+    [
+      "35,37",
+      "dev_paver"
+    ],
+    [
+      "36,37",
+      "dev_paver"
+    ],
+    [
+      "37,37",
       "dev_paver"
     ],
     [
@@ -7161,7 +7041,47 @@
       "dev_paver"
     ],
     [
+      "37,38",
+      "dev_paver"
+    ],
+    [
+      "36,39",
+      "dev_paver"
+    ],
+    [
+      "37,39",
+      "dev_paver"
+    ],
+    [
+      "35,40",
+      "dev_paver"
+    ],
+    [
+      "36,40",
+      "dev_paver"
+    ],
+    [
+      "37,40",
+      "dev_paver"
+    ],
+    [
+      "35,41",
+      "dev_paver"
+    ],
+    [
+      "36,41",
+      "dev_paver"
+    ],
+    [
       "37,41",
+      "dev_paver"
+    ],
+    [
+      "35,42",
+      "dev_paver"
+    ],
+    [
+      "36,42",
       "dev_paver"
     ],
     [
@@ -7177,795 +7097,303 @@
       "dev_paver"
     ],
     [
+      "38,40",
+      "dev_paver"
+    ],
+    [
+      "39,40",
+      "dev_paver"
+    ],
+    [
+      "39,41",
+      "dev_paver"
+    ],
+    [
       "39,42",
       "dev_paver"
     ],
     [
-      "42,38",
+      "43,40",
       "dev_paver"
     ],
     [
-      "23,17",
+      "43,41",
       "dev_paver"
     ],
     [
-      "23,16",
+      "43,42",
       "dev_paver"
     ],
     [
-      "3,27",
+      "44,40",
       "dev_paver"
     ],
     [
-      "4,27",
+      "44,41",
       "dev_paver"
     ],
     [
-      "18,61",
-      "fence"
-    ],
-    [
-      "17,61",
-      "fence"
-    ],
-    [
-      "16,61",
-      "fence"
-    ],
-    [
-      "15,61",
-      "fence"
-    ],
-    [
-      "14,61",
-      "fence"
-    ],
-    [
-      "13,61",
-      "fence"
-    ],
-    [
-      "12,61",
-      "fence"
-    ],
-    [
-      "11,61",
-      "fence"
-    ],
-    [
-      "10,61",
-      "fence"
-    ],
-    [
-      "9,61",
-      "fence"
-    ],
-    [
-      "8,61",
-      "fence"
-    ],
-    [
-      "7,61",
-      "fence"
-    ],
-    [
-      "6,61",
-      "fence"
-    ],
-    [
-      "5,61",
-      "fence"
-    ],
-    [
-      "4,61",
-      "fence"
-    ],
-    [
-      "3,61",
-      "fence"
-    ],
-    [
-      "26,61",
-      "fence"
-    ],
-    [
-      "27,61",
-      "fence"
-    ],
-    [
-      "28,61",
-      "fence"
-    ],
-    [
-      "29,61",
-      "fence"
-    ],
-    [
-      "30,61",
-      "fence"
-    ],
-    [
-      "31,61",
-      "fence"
-    ],
-    [
-      "32,61",
-      "fence"
-    ],
-    [
-      "33,61",
-      "fence"
-    ],
-    [
-      "34,61",
-      "fence"
-    ],
-    [
-      "35,61",
-      "fence"
-    ],
-    [
-      "36,61",
-      "fence"
-    ],
-    [
-      "37,61",
-      "fence"
-    ],
-    [
-      "38,61",
-      "fence"
-    ],
-    [
-      "39,61",
-      "fence"
-    ],
-    [
-      "40,61",
-      "fence"
-    ],
-    [
-      "41,61",
-      "fence"
-    ],
-    [
-      "42,61",
-      "fence"
-    ],
-    [
-      "24,61",
-      "fence"
-    ],
-    [
-      "24,60",
+      "44,42",
       "dev_paver"
     ],
     [
-      "7,35",
+      "43,39",
       "dev_paver"
     ],
     [
-      "7,36",
+      "44,39",
       "dev_paver"
     ],
     [
-      "6,35",
+      "43,38",
       "dev_paver"
     ],
     [
-      "6,36",
+      "44,38",
       "dev_paver"
     ],
     [
-      "6,34",
+      "43,37",
       "dev_paver"
     ],
     [
-      "7,34",
+      "44,37",
       "dev_paver"
     ],
     [
-      "8,34",
+      "39,37",
       "dev_paver"
     ],
     [
-      "6,33",
+      "39,38",
       "dev_paver"
     ],
     [
-      "7,33",
+      "39,39",
       "dev_paver"
     ],
     [
-      "8,33",
+      "38,37",
       "dev_paver"
     ],
     [
-      "6,32",
+      "38,38",
       "dev_paver"
     ],
     [
-      "7,32",
+      "38,39",
       "dev_paver"
     ],
     [
-      "8,32",
+      "43,34",
       "dev_paver"
     ],
     [
-      "6,31",
+      "44,34",
       "dev_paver"
     ],
     [
-      "7,31",
+      "39,34",
       "dev_paver"
     ],
     [
-      "8,31",
+      "38,34",
       "dev_paver"
     ],
     [
-      "6,30",
+      "40,56",
       "dev_paver"
     ],
     [
-      "7,30",
+      "41,56",
       "dev_paver"
     ],
     [
-      "8,30",
+      "42,56",
       "dev_paver"
     ],
     [
-      "6,29",
+      "68,9",
       "dev_paver"
     ],
     [
-      "7,29",
+      "61,5",
       "dev_paver"
     ],
     [
-      "6,28",
+      "61,1",
       "dev_paver"
     ],
     [
-      "7,28",
+      "62,1",
       "dev_paver"
     ],
     [
-      "5,28",
+      "63,1",
       "dev_paver"
     ],
     [
-      "5,29",
+      "64,1",
       "dev_paver"
     ],
     [
-      "5,30",
+      "65,1",
       "dev_paver"
     ],
     [
-      "5,31",
+      "66,1",
       "dev_paver"
     ],
     [
-      "5,32",
+      "67,1",
       "dev_paver"
     ],
     [
-      "5,33",
+      "68,1",
       "dev_paver"
     ],
     [
-      "5,34",
+      "68,15",
       "dev_paver"
     ],
     [
-      "5,35",
+      "68,14",
       "dev_paver"
     ],
     [
-      "5,36",
+      "68,13",
       "dev_paver"
     ],
     [
-      "6,38",
+      "68,12",
       "dev_paver"
     ],
     [
-      "7,38",
+      "58,53",
       "dev_paver"
     ],
     [
-      "6,39",
+      "58,52",
       "dev_paver"
     ],
     [
-      "7,39",
+      "58,51",
       "dev_paver"
     ],
     [
-      "5,38",
+      "58,50",
       "dev_paver"
     ],
     [
-      "5,39",
+      "58,49",
       "dev_paver"
     ],
     [
-      "5,40",
+      "58,48",
       "dev_paver"
     ],
     [
-      "6,40",
+      "58,47",
       "dev_paver"
     ],
     [
-      "7,40",
+      "57,47",
       "dev_paver"
     ],
     [
-      "5,41",
+      "57,48",
       "dev_paver"
     ],
     [
-      "6,41",
+      "57,49",
       "dev_paver"
     ],
     [
-      "7,41",
+      "57,50",
       "dev_paver"
     ],
     [
-      "8,40",
+      "57,51",
       "dev_paver"
     ],
     [
-      "8,41",
+      "57,52",
       "dev_paver"
     ],
     [
-      "6,42",
+      "57,53",
       "dev_paver"
     ],
     [
-      "7,42",
+      "54,53",
       "dev_paver"
     ],
     [
-      "8,42",
+      "53,53",
       "dev_paver"
     ],
     [
-      "5,42",
+      "52,53",
       "dev_paver"
     ],
     [
-      "22,17",
+      "52,47",
+      "dev_paver"
+    ],
+    [
+      "53,46",
+      "dev_paver"
+    ],
+    [
+      "54,46",
+      "dev_paver"
+    ],
+    [
+      "55,46",
+      "dev_paver"
+    ],
+    [
+      "56,46",
+      "dev_paver"
+    ],
+    [
+      "58,46",
+      "dev_paver"
+    ],
+    [
+      "57,46",
+      "dev_paver"
+    ],
+    [
+      "56,47",
+      "dev_paver"
+    ],
+    [
+      "52,46",
+      "dev_paver"
+    ],
+    [
+      "53,47",
+      "dev_paver"
+    ],
+    [
+      "54,47",
+      "dev_paver"
+    ],
+    [
+      "55,47",
+      "dev_paver"
+    ],
+    [
+      "35,1",
       "hedge"
     ],
     [
-      "34,5",
-      "hedge"
+      "35,2",
+      "grass"
     ],
     [
-      "34,4",
-      "hedge"
-    ],
-    [
-      "34,3",
-      "hedge"
-    ],
-    [
-      "34,2",
-      "hedge"
-    ],
-    [
-      "34,1",
-      "hedge"
-    ],
-    [
-      "23,1",
-      "hedge"
-    ],
-    [
-      "24,1",
-      "hedge"
-    ],
-    [
-      "25,1",
-      "hedge"
-    ],
-    [
-      "26,1",
-      "hedge"
-    ],
-    [
-      "27,1",
-      "hedge"
-    ],
-    [
-      "28,1",
-      "hedge"
-    ],
-    [
-      "29,1",
-      "hedge"
-    ],
-    [
-      "30,1",
-      "hedge"
-    ],
-    [
-      "31,1",
-      "hedge"
-    ],
-    [
-      "32,1",
-      "hedge"
-    ],
-    [
-      "33,1",
-      "hedge"
-    ],
-    [
-      "22,16",
-      "hedge"
-    ],
-    [
-      "22,15",
-      "hedge"
-    ],
-    [
-      "22,14",
-      "hedge"
-    ],
-    [
-      "22,13",
-      "hedge"
-    ],
-    [
-      "22,12",
-      "hedge"
-    ],
-    [
-      "22,11",
-      "hedge"
-    ],
-    [
-      "22,10",
-      "hedge"
-    ],
-    [
-      "22,9",
-      "hedge"
-    ],
-    [
-      "22,8",
-      "hedge"
-    ],
-    [
-      "22,7",
-      "hedge"
-    ],
-    [
-      "22,6",
-      "hedge"
-    ],
-    [
-      "22,5",
-      "hedge"
-    ],
-    [
-      "22,4",
-      "hedge"
-    ],
-    [
-      "22,3",
-      "hedge"
-    ],
-    [
-      "22,2",
-      "hedge"
-    ],
-    [
-      "22,1",
-      "hedge"
-    ],
-    [
-      "24,47",
-      "dev_paver"
-    ],
-    [
-      "24,48",
-      "dev_paver"
-    ],
-    [
-      "24,49",
-      "dev_paver"
-    ],
-    [
-      "24,50",
-      "dev_paver"
-    ],
-    [
-      "24,51",
-      "dev_paver"
-    ],
-    [
-      "24,52",
-      "dev_paver"
-    ],
-    [
-      "24,53",
-      "dev_paver"
-    ],
-    [
-      "24,54",
-      "dev_paver"
-    ],
-    [
-      "24,55",
-      "dev_paver"
-    ],
-    [
-      "32,55",
-      "dev_paver"
-    ],
-    [
-      "33,55",
-      "hedge"
-    ],
-    [
-      "32,54",
-      "dev_paver"
-    ],
-    [
-      "33,54",
-      "hedge"
-    ],
-    [
-      "33,53",
-      "hedge"
-    ],
-    [
-      "33,52",
-      "hedge"
-    ],
-    [
-      "33,51",
-      "dev_paver"
-    ],
-    [
-      "33,50",
-      "dev_paver"
-    ],
-    [
-      "33,49",
-      "hedge"
-    ],
-    [
-      "33,48",
-      "hedge"
-    ],
-    [
-      "33,47",
-      "hedge"
-    ],
-    [
-      "9,34",
-      "dev_paver"
-    ],
-    [
-      "10,34",
-      "dev_paver"
-    ],
-    [
-      "11,34",
-      "dev_paver"
-    ],
-    [
-      "9,37",
-      "dev_paver"
-    ],
-    [
-      "10,37",
-      "dev_paver"
-    ],
-    [
-      "11,37",
-      "dev_paver"
-    ],
-    [
-      "10,38",
-      "dev_paver"
-    ],
-    [
-      "11,38",
-      "dev_paver"
-    ],
-    [
-      "10,39",
-      "dev_paver"
-    ],
-    [
-      "11,39",
-      "dev_paver"
-    ],
-    [
-      "9,40",
-      "dev_paver"
-    ],
-    [
-      "10,40",
-      "dev_paver"
-    ],
-    [
-      "11,40",
-      "dev_paver"
-    ],
-    [
-      "9,41",
-      "dev_paver"
-    ],
-    [
-      "10,41",
-      "dev_paver"
-    ],
-    [
-      "11,41",
-      "dev_paver"
-    ],
-    [
-      "9,42",
-      "dev_paver"
-    ],
-    [
-      "10,42",
-      "dev_paver"
-    ],
-    [
-      "11,42",
-      "dev_paver"
-    ],
-    [
-      "12,41",
-      "dev_paver"
-    ],
-    [
-      "12,42",
-      "dev_paver"
-    ],
-    [
-      "12,40",
-      "dev_paver"
-    ],
-    [
-      "13,40",
-      "dev_paver"
-    ],
-    [
-      "13,41",
-      "dev_paver"
-    ],
-    [
-      "13,42",
-      "dev_paver"
-    ],
-    [
-      "17,40",
-      "dev_paver"
-    ],
-    [
-      "17,41",
-      "dev_paver"
-    ],
-    [
-      "17,42",
-      "dev_paver"
-    ],
-    [
-      "18,40",
-      "dev_paver"
-    ],
-    [
-      "18,41",
-      "dev_paver"
-    ],
-    [
-      "18,42",
-      "dev_paver"
-    ],
-    [
-      "17,39",
-      "dev_paver"
-    ],
-    [
-      "18,39",
-      "dev_paver"
-    ],
-    [
-      "17,38",
-      "dev_paver"
-    ],
-    [
-      "18,38",
-      "dev_paver"
-    ],
-    [
-      "17,37",
-      "dev_paver"
-    ],
-    [
-      "18,37",
-      "dev_paver"
-    ],
-    [
-      "13,37",
-      "dev_paver"
-    ],
-    [
-      "13,38",
-      "dev_paver"
-    ],
-    [
-      "13,39",
-      "dev_paver"
-    ],
-    [
-      "12,37",
-      "dev_paver"
-    ],
-    [
-      "12,38",
-      "dev_paver"
-    ],
-    [
-      "12,39",
-      "dev_paver"
-    ],
-    [
-      "17,34",
-      "dev_paver"
-    ],
-    [
-      "18,34",
-      "dev_paver"
-    ],
-    [
-      "13,34",
-      "dev_paver"
-    ],
-    [
-      "12,34",
-      "dev_paver"
-    ],
-    [
-      "14,56",
-      "dev_paver"
-    ],
-    [
-      "15,56",
-      "dev_paver"
-    ],
-    [
-      "16,56",
-      "dev_paver"
-    ],
-    [
-      "24,58",
-      "dev_paver"
-    ],
-    [
-      "24,59",
-      "dev_paver"
-    ],
-    [
-      "42,9",
-      "dev_paver"
-    ],
-    [
-      "35,5",
+      "35,3",
       "dev_paver"
     ],
     [
@@ -7973,287 +7401,1055 @@
       "dev_paver"
     ],
     [
-      "35,3",
+      "35,5",
       "dev_paver"
     ],
     [
-      "35,2",
+      "35,6",
       "dev_paver"
     ],
     [
-      "35,1",
+      "35,7",
       "dev_paver"
     ],
     [
-      "36,1",
+      "35,8",
       "dev_paver"
     ],
     [
-      "37,1",
+      "35,9",
       "dev_paver"
     ],
     [
-      "38,1",
+      "35,10",
       "dev_paver"
     ],
     [
-      "39,1",
+      "35,11",
       "dev_paver"
     ],
     [
-      "40,1",
+      "35,12",
       "dev_paver"
     ],
     [
-      "41,1",
+      "35,13",
       "dev_paver"
     ],
     [
-      "42,1",
+      "35,14",
       "dev_paver"
     ],
     [
-      "42,15",
+      "35,15",
       "dev_paver"
     ],
     [
-      "42,14",
+      "35,16",
       "dev_paver"
     ],
     [
-      "42,13",
+      "35,17",
       "dev_paver"
     ],
     [
-      "42,12",
+      "34,20",
+      "grass"
+    ],
+    [
+      "34,21",
+      "grass"
+    ],
+    [
+      "34,22",
+      "grass"
+    ],
+    [
+      "34,23",
+      "grass"
+    ],
+    [
+      "34,24",
+      "grass"
+    ],
+    [
+      "34,25",
+      "grass"
+    ],
+    [
+      "34,26",
+      "grass"
+    ],
+    [
+      "34,27",
       "dev_paver"
     ],
     [
-      "32,53",
+      "33,27",
       "dev_paver"
     ],
     [
-      "32,52",
+      "32,27",
       "dev_paver"
     ],
     [
-      "32,51",
+      "31,27",
       "dev_paver"
     ],
     [
-      "32,50",
+      "29,28",
       "dev_paver"
     ],
     [
-      "32,49",
+      "30,28",
       "dev_paver"
     ],
     [
-      "32,48",
+      "29,29",
       "dev_paver"
     ],
     [
-      "32,47",
+      "30,29",
       "dev_paver"
     ],
     [
-      "31,47",
+      "29,30",
       "dev_paver"
     ],
     [
-      "31,48",
+      "30,30",
       "dev_paver"
     ],
     [
-      "31,49",
+      "29,31",
       "dev_paver"
     ],
     [
-      "31,50",
+      "30,31",
       "dev_paver"
     ],
     [
-      "31,51",
+      "29,32",
       "dev_paver"
     ],
     [
-      "31,52",
+      "30,32",
       "dev_paver"
     ],
     [
-      "31,53",
+      "29,33",
       "dev_paver"
     ],
     [
-      "28,53",
+      "30,33",
       "dev_paver"
     ],
     [
-      "27,53",
+      "29,34",
       "dev_paver"
     ],
     [
-      "26,53",
+      "30,34",
       "dev_paver"
     ],
     [
-      "26,47",
+      "29,35",
       "dev_paver"
     ],
     [
-      "27,46",
+      "30,35",
       "dev_paver"
     ],
     [
-      "28,46",
+      "29,36",
       "dev_paver"
     ],
     [
-      "29,46",
+      "30,36",
       "dev_paver"
     ],
     [
-      "30,46",
+      "29,37",
       "dev_paver"
     ],
     [
-      "32,46",
+      "30,37",
       "dev_paver"
     ],
     [
-      "31,46",
+      "29,38",
       "dev_paver"
     ],
     [
-      "30,47",
+      "30,38",
       "dev_paver"
+    ],
+    [
+      "29,39",
+      "dev_paver"
+    ],
+    [
+      "30,39",
+      "dev_paver"
+    ],
+    [
+      "29,40",
+      "dev_paver"
+    ],
+    [
+      "30,40",
+      "dev_paver"
+    ],
+    [
+      "29,41",
+      "dev_paver"
+    ],
+    [
+      "30,41",
+      "dev_paver"
+    ],
+    [
+      "29,42",
+      "dev_paver"
+    ],
+    [
+      "30,42",
+      "dev_paver"
+    ],
+    [
+      "34,38",
+      "dev_paver"
+    ],
+    [
+      "45,46",
+      "dev_paver"
+    ],
+    [
+      "45,47",
+      "dev_paver"
+    ],
+    [
+      "45,48",
+      "dev_paver"
+    ],
+    [
+      "45,49",
+      "dev_paver"
+    ],
+    [
+      "45,50",
+      "dev_paver"
+    ],
+    [
+      "45,51",
+      "dev_paver"
+    ],
+    [
+      "45,52",
+      "dev_paver"
+    ],
+    [
+      "51,54",
+      "dev_paver"
+    ],
+    [
+      "51,55",
+      "dev_paver"
+    ],
+    [
+      "24,46",
+      "grass"
+    ],
+    [
+      "25,46",
+      "grass"
     ],
     [
       "26,46",
-      "dev_paver"
+      "grass"
+    ],
+    [
+      "26,47",
+      "grass"
+    ],
+    [
+      "26,48",
+      "grass"
+    ],
+    [
+      "24,47",
+      "grass"
+    ],
+    [
+      "25,47",
+      "grass"
+    ],
+    [
+      "24,48",
+      "grass"
+    ],
+    [
+      "25,48",
+      "grass"
+    ],
+    [
+      "27,46",
+      "grass"
     ],
     [
       "27,47",
-      "dev_paver"
+      "grass"
+    ],
+    [
+      "27,48",
+      "grass"
+    ],
+    [
+      "25,49",
+      "cobble"
+    ],
+    [
+      "26,49",
+      "cobble"
+    ],
+    [
+      "27,49",
+      "cobble"
+    ],
+    [
+      "25,50",
+      "cobble"
+    ],
+    [
+      "26,50",
+      "cobble"
+    ],
+    [
+      "27,50",
+      "cobble"
+    ],
+    [
+      "24,49",
+      "cobble"
+    ],
+    [
+      "24,50",
+      "cobble"
+    ],
+    [
+      "24,51",
+      "grass"
+    ],
+    [
+      "25,51",
+      "grass"
+    ],
+    [
+      "26,51",
+      "grass"
+    ],
+    [
+      "24,52",
+      "grass"
+    ],
+    [
+      "25,52",
+      "grass"
+    ],
+    [
+      "26,52",
+      "grass"
+    ],
+    [
+      "24,53",
+      "grass"
+    ],
+    [
+      "25,53",
+      "grass"
+    ],
+    [
+      "26,53",
+      "grass"
+    ],
+    [
+      "24,54",
+      "grass"
+    ],
+    [
+      "25,54",
+      "grass"
+    ],
+    [
+      "26,54",
+      "grass"
+    ],
+    [
+      "24,55",
+      "grass"
+    ],
+    [
+      "25,55",
+      "grass"
+    ],
+    [
+      "26,55",
+      "grass"
+    ],
+    [
+      "27,54",
+      "grass"
+    ],
+    [
+      "27,55",
+      "grass"
+    ],
+    [
+      "25,56",
+      "cobble"
+    ],
+    [
+      "26,56",
+      "cobble"
+    ],
+    [
+      "27,56",
+      "cobble"
+    ],
+    [
+      "27,53",
+      "grass"
+    ],
+    [
+      "27,52",
+      "grass"
+    ],
+    [
+      "27,51",
+      "grass"
     ],
     [
       "28,47",
+      "grass"
+    ],
+    [
+      "33,58",
+      "grass"
+    ],
+    [
+      "32,58",
+      "grass"
+    ],
+    [
+      "32,59",
+      "grass"
+    ],
+    [
+      "33,60",
+      "grass"
+    ],
+    [
+      "33,61",
+      "grass"
+    ],
+    [
+      "33,59",
+      "grass"
+    ],
+    [
+      "32,60",
+      "grass"
+    ],
+    [
+      "34,59",
+      "grass"
+    ],
+    [
+      "34,60",
+      "grass"
+    ],
+    [
+      "34,61",
+      "grass"
+    ],
+    [
+      "33,62",
+      "grass"
+    ],
+    [
+      "34,62",
+      "grass"
+    ],
+    [
+      "33,63",
+      "grass"
+    ],
+    [
+      "34,63",
+      "grass"
+    ],
+    [
+      "32,61",
+      "grass"
+    ],
+    [
+      "32,62",
+      "grass"
+    ],
+    [
+      "32,63",
+      "grass"
+    ],
+    [
+      "32,64",
+      "grass"
+    ],
+    [
+      "33,64",
+      "grass"
+    ],
+    [
+      "34,64",
+      "grass"
+    ],
+    [
+      "35,63",
+      "grass"
+    ],
+    [
+      "35,64",
+      "grass"
+    ],
+    [
+      "36,63",
+      "grass"
+    ],
+    [
+      "36,64",
+      "grass"
+    ],
+    [
+      "37,63",
+      "grass"
+    ],
+    [
+      "37,64",
+      "grass"
+    ],
+    [
+      "38,63",
+      "grass"
+    ],
+    [
+      "38,64",
+      "grass"
+    ],
+    [
+      "39,63",
+      "grass"
+    ],
+    [
+      "39,64",
+      "grass"
+    ],
+    [
+      "40,63",
+      "grass"
+    ],
+    [
+      "40,64",
+      "grass"
+    ],
+    [
+      "41,63",
+      "grass"
+    ],
+    [
+      "41,64",
+      "grass"
+    ],
+    [
+      "42,63",
+      "grass"
+    ],
+    [
+      "42,64",
+      "grass"
+    ],
+    [
+      "43,63",
+      "grass"
+    ],
+    [
+      "43,64",
+      "grass"
+    ],
+    [
+      "44,63",
+      "grass"
+    ],
+    [
+      "44,64",
+      "grass"
+    ],
+    [
+      "45,63",
+      "grass"
+    ],
+    [
+      "45,64",
+      "grass"
+    ],
+    [
+      "50,2",
       "dev_paver"
     ],
     [
-      "29,47",
+      "51,2",
       "dev_paver"
     ],
     [
-      "9,1",
-      "hedge"
-    ],
-    [
-      "9,2",
-      "hedge"
-    ],
-    [
-      "9,3",
-      "hedge"
-    ],
-    [
-      "9,4",
-      "hedge"
-    ],
-    [
-      "9,5",
-      "hedge"
-    ],
-    [
-      "9,6",
-      "hedge"
-    ],
-    [
-      "9,7",
-      "hedge"
-    ],
-    [
-      "9,8",
-      "hedge"
-    ],
-    [
-      "9,9",
-      "hedge"
-    ],
-    [
-      "9,10",
-      "hedge"
-    ],
-    [
-      "9,11",
-      "hedge"
-    ],
-    [
-      "9,12",
-      "hedge"
-    ],
-    [
-      "9,13",
-      "hedge"
-    ],
-    [
-      "9,14",
-      "hedge"
-    ],
-    [
-      "9,15",
-      "hedge"
-    ],
-    [
-      "9,16",
-      "hedge"
-    ],
-    [
-      "9,17",
-      "hedge"
-    ],
-    [
-      "8,20",
+      "52,2",
       "dev_paver"
     ],
     [
-      "8,21",
+      "36,20",
       "dev_paver"
     ],
     [
-      "8,22",
+      "35,19",
       "dev_paver"
     ],
     [
-      "8,23",
+      "37,20",
       "dev_paver"
     ],
     [
-      "8,24",
+      "36,21",
       "dev_paver"
     ],
     [
-      "8,25",
+      "37,21",
       "dev_paver"
     ],
     [
-      "8,26",
+      "35,18",
       "dev_paver"
     ],
     [
-      "8,27",
+      "36,17",
       "dev_paver"
     ],
     [
-      "7,27",
+      "37,17",
       "dev_paver"
     ],
     [
-      "6,27",
+      "38,17",
       "dev_paver"
     ],
     [
-      "5,27",
+      "38,20",
+      "dev_paver"
+    ],
+    [
+      "39,20",
+      "dev_paver"
+    ],
+    [
+      "40,20",
+      "dev_paver"
+    ],
+    [
+      "41,20",
+      "dev_paver"
+    ],
+    [
+      "42,20",
+      "dev_paver"
+    ],
+    [
+      "43,20",
+      "dev_paver"
+    ],
+    [
+      "44,20",
+      "dev_paver"
+    ],
+    [
+      "45,20",
+      "dev_paver"
+    ],
+    [
+      "45,21",
+      "dev_paver"
+    ],
+    [
+      "44,21",
+      "dev_paver"
+    ],
+    [
+      "43,21",
+      "dev_paver"
+    ],
+    [
+      "42,21",
+      "dev_paver"
+    ],
+    [
+      "41,21",
+      "dev_paver"
+    ],
+    [
+      "40,21",
+      "dev_paver"
+    ],
+    [
+      "39,21",
+      "dev_paver"
+    ],
+    [
+      "38,21",
+      "dev_paver"
+    ],
+    [
+      "49,17",
+      "dev_paver"
+    ],
+    [
+      "49,16",
+      "dev_paver"
+    ],
+    [
+      "48,15",
+      "dev_paver"
+    ],
+    [
+      "48,14",
+      "dev_paver"
+    ],
+    [
+      "48,13",
+      "dev_paver"
+    ],
+    [
+      "48,12",
+      "dev_paver"
+    ],
+    [
+      "48,11",
+      "dev_paver"
+    ],
+    [
+      "48,10",
+      "dev_paver"
+    ],
+    [
+      "48,9",
+      "dev_paver"
+    ],
+    [
+      "48,8",
+      "dev_paver"
+    ],
+    [
+      "48,7",
+      "dev_paver"
+    ],
+    [
+      "48,6",
+      "dev_paver"
+    ],
+    [
+      "48,5",
+      "dev_paver"
+    ],
+    [
+      "48,4",
+      "dev_paver"
+    ],
+    [
+      "48,3",
+      "dev_paver"
+    ],
+    [
+      "48,2",
+      "dev_paver"
+    ],
+    [
+      "48,0",
+      "fence"
+    ],
+    [
+      "49,7",
+      "dev_paver"
+    ],
+    [
+      "50,7",
+      "dev_paver"
+    ],
+    [
+      "51,7",
+      "dev_paver"
+    ],
+    [
+      "49,6",
+      "dev_paver"
+    ],
+    [
+      "50,6",
+      "dev_paver"
+    ],
+    [
+      "51,6",
+      "dev_paver"
+    ],
+    [
+      "52,6",
+      "dev_paver"
+    ],
+    [
+      "53,6",
+      "dev_paver"
+    ],
+    [
+      "54,6",
+      "dev_paver"
+    ],
+    [
+      "55,6",
+      "dev_paver"
+    ],
+    [
+      "55,7",
+      "dev_paver"
+    ],
+    [
+      "56,6",
+      "dev_paver"
+    ],
+    [
+      "56,7",
+      "dev_paver"
+    ],
+    [
+      "57,6",
+      "dev_paver"
+    ],
+    [
+      "57,7",
+      "dev_paver"
+    ],
+    [
+      "58,7",
+      "dev_paver"
+    ],
+    [
+      "59,7",
+      "dev_paver"
+    ],
+    [
+      "59,6",
+      "dev_paver"
+    ],
+    [
+      "59,5",
+      "dev_paver"
+    ],
+    [
+      "60,5",
+      "dev_paver"
+    ],
+    [
+      "59,4",
+      "dev_paver"
+    ],
+    [
+      "60,4",
+      "dev_paver"
+    ],
+    [
+      "61,4",
+      "dev_paver"
+    ],
+    [
+      "59,3",
+      "dev_paver"
+    ],
+    [
+      "60,3",
+      "dev_paver"
+    ],
+    [
+      "61,3",
+      "dev_paver"
+    ],
+    [
+      "59,2",
+      "dev_paver"
+    ],
+    [
+      "60,2",
+      "dev_paver"
+    ],
+    [
+      "61,2",
+      "dev_paver"
+    ],
+    [
+      "57,2",
+      "dev_paver"
+    ],
+    [
+      "58,2",
+      "dev_paver"
+    ],
+    [
+      "57,3",
+      "dev_paver"
+    ],
+    [
+      "58,3",
+      "dev_paver"
+    ],
+    [
+      "56,2",
+      "dev_paver"
+    ],
+    [
+      "56,3",
+      "dev_paver"
+    ],
+    [
+      "55,2",
+      "dev_paver"
+    ],
+    [
+      "55,3",
+      "dev_paver"
+    ],
+    [
+      "54,2",
+      "dev_paver"
+    ],
+    [
+      "54,3",
+      "dev_paver"
+    ],
+    [
+      "53,2",
+      "dev_paver"
+    ],
+    [
+      "53,3",
+      "dev_paver"
+    ],
+    [
+      "52,3",
+      "dev_paver"
+    ],
+    [
+      "51,3",
+      "dev_paver"
+    ],
+    [
+      "50,3",
+      "dev_paver"
+    ],
+    [
+      "49,2",
+      "dev_paver"
+    ],
+    [
+      "49,3",
+      "dev_paver"
+    ],
+    [
+      "49,4",
+      "dev_paver"
+    ],
+    [
+      "50,4",
+      "dev_paver"
+    ],
+    [
+      "51,4",
+      "dev_paver"
+    ],
+    [
+      "49,5",
+      "dev_paver"
+    ],
+    [
+      "50,5",
+      "dev_paver"
+    ],
+    [
+      "51,5",
+      "dev_paver"
+    ],
+    [
+      "52,5",
+      "dev_paver"
+    ],
+    [
+      "53,5",
+      "dev_paver"
+    ],
+    [
+      "54,5",
+      "dev_paver"
+    ],
+    [
+      "55,5",
+      "dev_paver"
+    ],
+    [
+      "56,5",
+      "dev_paver"
+    ],
+    [
+      "57,5",
+      "dev_paver"
+    ],
+    [
+      "58,5",
+      "dev_paver"
+    ],
+    [
+      "58,6",
+      "dev_paver"
+    ],
+    [
+      "57,4",
+      "dev_paver"
+    ],
+    [
+      "58,4",
+      "dev_paver"
+    ],
+    [
+      "56,4",
+      "dev_paver"
+    ],
+    [
+      "55,4",
+      "dev_paver"
+    ],
+    [
+      "54,4",
+      "dev_paver"
+    ],
+    [
+      "53,4",
+      "dev_paver"
+    ],
+    [
+      "52,4",
+      "dev_paver"
+    ],
+    [
+      "59,56",
       "dev_paver"
     ]
   ]

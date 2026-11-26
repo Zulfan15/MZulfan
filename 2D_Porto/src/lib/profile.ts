@@ -8,6 +8,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { parse } from 'yaml';
 import { ProfileSchema, type Mission, type Profile } from './schema';
+import { PLACES_LIST, getPlaceMeta, type PlaceMeta } from './placesRegistry';
 
 export type { Profile, Mission, Critter, Social } from './schema';
 
@@ -187,49 +188,8 @@ export const topSkills = skills.filter((s) => s.count > 0).slice(0, 8);
 
 /* ───────────────────────── Places (routes ↔ buildings) ───────────────────────── */
 
-export interface Place {
-  id: string;
-  route: string;
-  name: string;
-  icon: string;
-  blurb: string;
-}
+export type Place = PlaceMeta;
 
-export const places: Place[] = [
-  { id: 'town', route: '/', name: 'Town Square', icon: '🏡', blurb: 'The notice board — TL;DR, featured builds and toolbelt.' },
-  { id: 'about', route: '/about', name: 'Home', icon: '🏠', blurb: 'Who I am, education, honors and how to reach me.' },
-  { id: 'dev', route: '/dev', name: 'Dev Center', icon: '💻', blurb: 'Mission timeline, stack radar and live telemetry.' },
-  { id: 'lab', route: '/lab', name: 'Research Lab', icon: '🔬', blurb: 'Thesis, computer vision research and what is next.' },
-  { id: 'arcade', route: '/arcade', name: 'Arcade', icon: '🕹️', blurb: 'Play Kalah against my Alpha-Beta bot.' },
-  { id: 'twin', route: '/twin', name: 'Digital Twin', icon: '💬', blurb: 'Ask my AI twin anything about me.' },
-  { id: 'reception', route: '/reception', name: 'Front Desk', icon: '🎧', blurb: 'Mira at the Dev Center desk tells you about me.' },
-  { id: 'mart', route: '/mart', name: 'Poké Mart', icon: '🏪', blurb: 'Engineering services, tech stacks, developer gear, and downloadable CV.' },
-  { id: 'tower', route: '/tower', name: 'Tech Tower', icon: '🏢', blurb: 'Robotics R&D, IoT prototypes, Huawei network security and cloud microservices.' },
-  { id: 'cafe', route: '/cafe', name: 'Poké-Café & Bar', icon: '☕', blurb: 'Specialty Dev Roasts, Castelia Cones, Lo-Fi Vinyl Jukebox & Coffee Chat Lounge.' },
-  { id: 'arena', route: '/arena', name: 'Gladiator Arena', icon: '⚔️', blurb: '1v1 Gladiator Duel vs Mewtwo, Six Trials of Rome & Hall of Victors.' },
-  { id: 'garden', route: '/garden', name: 'Berry Garden', icon: '🌸', blurb: 'Interactive 6-Bed Berry Plantation, Copper Berry Blender & Botanical Conservatory.' },
-  { id: 'neighbour', route: '/neighbour', name: "Neighbour's House", icon: '🏡', blurb: 'Cozy Fellow Dev Cottage, Eevee Tech Vibe Matcher, PR Ping-Pong & Guestbook Corkboard.' },
-  { id: 'digimon', route: '/digimon', name: 'Digi-Sanctuary', icon: '👾', blurb: 'Digital Sanctuary Island & 4 Elemental Zones connected via Portal (22, 60).' },
-  { id: 'kingdom', route: '/kingdom', name: 'Royal Kingdom', icon: '🏰', blurb: 'Medieval Citadel & 7 Royal Landmarks entered via Digi-Sanctuary Portal (20, 40).' },
-  { id: 'harbour', route: '/harbour', name: 'Harbour Town', icon: '⚓', blurb: 'Coastal Port, Lighthouse, Twin Wooden Piers & Brigantine Ship entered via Kingdom (22, 59).' },
-  { id: 'sky-castle', route: '/sky-castle', name: 'Sky Castle', icon: '☁️', blurb: 'Floating Cloud Citadel, Crystal Plaza & Observatory entered via Digi-Sanctuary (36, 22).' },
-  { id: 'dark-castle', route: '/dark-castle', name: 'Dark Castle', icon: '🌑', blurb: 'Abyssal Citadel with Shadow Cathedral & Obsidian Obelisk entered via Digi-Sanctuary (5, 22).' },
-  { id: 'dark-cathedral', route: '/dark-castle/cathedral', name: 'Shadow Cathedral', icon: '⛪', blurb: 'Obsidian Scriptorium, Echo Organ Memory Puzzle & War Stories.' },
-  { id: 'dark-forge', route: '/dark-castle/forge', name: 'Crimson Reactor Forge', icon: '🔥', blurb: 'Magitech Foundry, Magma Core Balancer & Tech Stack Anvil.' },
-  { id: 'dark-manor', route: '/dark-castle/manor', name: 'Demon Keep & Blood Manor', icon: '🏰', blurb: 'Gargoyle Hall, Shadow Logic Trial vs Darkrai & Gallery of Cursed Bugs.' },
-  { id: 'dark-vault', route: '/dark-castle/vault', name: 'Chained Chrono Vault', icon: '⏳', blurb: 'Clockwork Sanctum, 4-Gear Synchronizer & Portfolio Time-Capsule.' },
-  { id: 'kingdom-castle', route: '/kingdom/castle', name: 'Grand Throne Hall', icon: '👑', blurb: 'Sovereign Keep, Royal Audience with King Solgaleo & Career Charter.' },
-  { id: 'kingdom-blacksmith', route: '/kingdom/blacksmith', name: 'Dragonflame Blacksmith', icon: '⚒️', blurb: 'Royal Forge, Anvil Timing Challenge with Archaludon & Tech Armory.' },
-  { id: 'kingdom-tavern', route: '/kingdom/tavern', name: 'Golden Griffin Tavern', icon: '🍺', blurb: 'Inn & Quest Board with Empoleon, Snorlax Feast & +50% Speed Drinks.' },
-  { id: 'kingdom-mage-tower', route: '/kingdom/mage-tower', name: 'Astral Mage Sanctum', icon: '🔮', blurb: 'Arcane Observatory, ML Pipeline Star Runes & CV Research Grimoires.' },
-  { id: 'kingdom-barracks', route: '/kingdom/barracks', name: "Knights' Barracks", icon: '🛡️', blurb: 'Hall of Valor Honors, Military Drill with Lucario & Archery Range.' },
-  { id: 'kingdom-chapel', route: '/kingdom/chapel', name: 'Saint Avalon Abbey', icon: '⛪', blurb: 'Stained-Glass Core Values, Cathedral Bell Hymn with Lugia & Socials.' },
-  { id: 'kingdom-jousting', route: '/kingdom/jousting', name: 'Royal Jousting Arena', icon: '🐎', blurb: 'Stone Castle Colosseum with Central Sand Lists & Koraidon Duel.' },
-  { id: 'harbour-lighthouse', route: '/harbour/lighthouse', name: 'Old Port Lighthouse', icon: '🗼', blurb: 'Royal Beacon Tower, Cloud/Edge Telemetry & Fresnel Mirror Trial with Kyogre.' },
-  { id: 'harbour-warehouse', route: '/harbour/warehouse', name: 'Customs & Cargo Warehouse', icon: '📦', blurb: 'Royal Logistics Vault, Data Pipelines & Cargo Crane Trial with Gyarados.' },
-  { id: 'harbour-inn', route: '/harbour/inn', name: 'Harbourmaster Tudor Inn', icon: '🏡', blurb: 'Seaside Chartroom, Crew Mentorship Chronicles & Voyage Route with Urshifu.' },
-  { id: 'harbour-galleon', route: '/harbour/galleon', name: 'The Sovereign Brigantine', icon: '🏴‍☠️', blurb: 'Flagship Admiral Cabin, Production Systems Showcase & Helm Trial with Neptunemon.' },
-  { id: 'harbour-market', route: '/harbour/market', name: 'Dockside Market Pavilion', icon: '⛵', blurb: 'Coastal Stone Pavilion, CV Charter, Credentials & Appraisal Scales with Celebi.' },
-];
+export const places: Place[] = PLACES_LIST.filter((p) => p.id !== 'privacy');
 
-export const placeById = (id: string): Place => places.find((p) => p.id === id) ?? places[0];
+export const placeById = (id: string): Place => getPlaceMeta(id);

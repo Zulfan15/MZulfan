@@ -46,8 +46,8 @@ export interface WalkCellStep {
  * - r0 c0..3: South walk (4 frames)
  * - r0 c4..7: North walk (4 frames)
  * - r1 c1..3: South-East walk
- * - r1 c4..6: West walk
- * - r2 c0..3: East walk (4 frames)
+ * - r3 c0..2: East walk (clean 5-headed profile ping-pong)
+ * - r3 c4..7: West walk (clean 5-headed profile 4 frames)
  */
 export const FIVEDRAMON_WALK_STEPS_BY_DIR: Record<Direction8, readonly WalkCellStep[]> = {
   S: [
@@ -63,10 +63,10 @@ export const FIVEDRAMON_WALK_STEPS_BY_DIR: Record<Direction8, readonly WalkCellS
     { row: 1, col: 2, flipX: true },
   ],
   W: [
-    { row: 1, col: 4 },
-    { row: 1, col: 5 },
-    { row: 1, col: 6 },
-    { row: 1, col: 5 },
+    { row: 3, col: 4 },
+    { row: 3, col: 5 },
+    { row: 3, col: 6 },
+    { row: 3, col: 7 },
   ],
   NW: [
     { row: 0, col: 6, flipX: true },
@@ -87,10 +87,10 @@ export const FIVEDRAMON_WALK_STEPS_BY_DIR: Record<Direction8, readonly WalkCellS
     { row: 1, col: 7 },
   ],
   E: [
-    { row: 2, col: 0 },
-    { row: 2, col: 1 },
-    { row: 2, col: 2 },
-    { row: 2, col: 3 },
+    { row: 3, col: 0 },
+    { row: 3, col: 1 },
+    { row: 3, col: 2 },
+    { row: 3, col: 1 },
   ],
   SE: [
     { row: 1, col: 1 },
@@ -120,14 +120,14 @@ export const FIVEDRAMON_JPG_ICON_RECT: FrameRect = {
 
 /** 8 HD portraits ordered canonically as `DIRECTIONS_8` (`S, SW, W, NW, N, NE, E, SE`). */
 export const FIVEDRAMON_JPG_HD_RECTS: readonly FrameRect[] = [
-  { x: 10, y: 905, w: 730, h: 658 },  // S
-  { x: 740, y: 905, w: 602, h: 658 }, // SW
-  { x: 1342, y: 905, w: 457, h: 658 },// W
-  { x: 1799, y: 905, w: 560, h: 658 },// NW
-  { x: 10, y: 195, w: 705, h: 645 },  // N
-  { x: 715, y: 195, w: 605, h: 645 }, // NE
-  { x: 1320, y: 195, w: 453, h: 645 },// E
-  { x: 1773, y: 195, w: 615, h: 645 },// SE
+  { x: 18, y: 899, w: 782, h: 668 },   // S  (clear green gaps x=[0..23]..[796..805])
+  { x: 800, y: 899, w: 558, h: 668 },  // SW (clear green gaps x=[796..805]..[1344..1371])
+  { x: 1358, y: 899, w: 457, h: 668 }, // W  (clear green gaps x=[1344..1371]..[1800..1830])
+  { x: 1815, y: 899, w: 545, h: 668 }, // NW (clear green gaps x=[1800..1830]..[2342..2399])
+  { x: 10, y: 205, w: 760, h: 639 },   // N  (valley split at x=769)
+  { x: 768, y: 205, w: 568, h: 639 },  // NE (valley x=768 to gap x=[1322..1348])
+  { x: 1335, y: 205, w: 441, h: 639 }, // E  (clear green gaps x=[1322..1348]..[1774..1778])
+  { x: 1776, y: 205, w: 609, h: 639 }, // SE (clear green gaps x=[1774..1778]..[2376..2399])
 ];
 
 const MINI_XS: readonly number[] = [598, 810, 1034, 1226, 1422, 1638];

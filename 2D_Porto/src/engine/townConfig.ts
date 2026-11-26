@@ -96,6 +96,35 @@ export const SPAWNABLE_CATALOG_GROUPS: EditorCategoryKey[] = [
   'Fasilitas & Kota',
 ];
 
+export type CatalogUnlockTrack =
+  | 'badges'
+  | 'sky_plumes'
+  | 'royal_crests'
+  | 'maritime_seals'
+  | 'abyssal_seals';
+
+export interface CatalogUnlockRule {
+  track: CatalogUnlockTrack;
+  required: number;
+  label: string;
+  hint: string;
+}
+
+export interface CatalogProgressSnapshot {
+  badges: number;
+  sky_plumes: number;
+  royal_crests: number;
+  maritime_seals: number;
+  abyssal_seals: number;
+}
+
+export interface TemplateUnlockStatus {
+  unlocked: boolean;
+  current: number;
+  required: number;
+  rule?: CatalogUnlockRule;
+}
+
 export interface SpawnableTemplate {
   id: string;
   name: string;
@@ -107,7 +136,315 @@ export interface SpawnableTemplate {
   subType?: string;
   desc: string;
   defaultDialogue?: string;
+  biomes?: WorldTarget[];
+  unlockRule?: CatalogUnlockRule;
 }
+
+export const WORLD_BIOME_LABELS: Record<WorldTarget, string> = {
+  town: "Zulfan's Town",
+  digimon: 'Digi-Sanctuary',
+  kingdom: 'Royal Kingdom',
+  harbour: 'Harbour Town',
+  'sky-castle': 'Sky Castle',
+  'dark-castle': 'Dark Castle',
+};
+
+const HARBOUR_SUBTYPES = new Set([
+  'tree_palm', 'reeds_clump', 'fence_water', 'lily_pond', 'natural_spring',
+  'cafe_table', 'bench', 'lamp', 'wooden_cart', 'market_stall', 'watchtower',
+  'cactus_saguaro', 'kyogre', 'gyarados', 'lugia', 'empoleon', 'samurott', 'urshifu',
+]);
+
+const KINGDOM_SUBTYPES = new Set([
+  'tree_willow', 'tree_golden', 'tree_autumn', 'tree_pine', 'rose_bed',
+  'lavender_bed', 'mossy_rock', 'tree_stump', 'fallen_log', 'mushroom_patch',
+  'natural_spring', 'stone_lantern', 'torii_gate', 'statue',
+  'royal_castle', 'royal_chapel', 'blacksmith_forge', 'knights_barracks',
+  'mage_tower', 'medieval_tavern', 'jousting_arena', 'watchtower',
+  'excalibur_shrine', 'royal_banner', 'medieval_brazier', 'weapon_rack',
+  'market_stall', 'wooden_cart', 'royal_knight',
+]);
+
+const SKY_CASTLE_SUBTYPES = new Set([
+  'tree_golden', 'tree_sakura', 'tree_willow', 'lavender_bed', 'rose_bed',
+  'crystal_cluster', 'natural_spring', 'stone_lantern', 'ancient_pillar',
+  'frost_shrine', 'alloy_beacon', 'rayquaza', 'latios', 'latias', 'lugia',
+  'arceus', 'reshiram', 'lunala', 'solgaleo', 'salamence',
+]);
+
+const DARK_CASTLE_SUBTYPES = new Set([
+  'tree_dead', 'mushroom_patch', 'crystal_cluster', 'mossy_rock', 'fallen_log',
+  'tree_stump', 'volcanic_vent', 'ancient_pillar', 'medieval_brazier',
+  'watchtower', 'darkrai', 'giratina', 'zekrom', 'mewtwo', 'kyurem',
+  'eternatus', 'necrozma',
+]);
+
+const DIGIMON_BIOME_SUBTYPES = new Set([
+  'crystal_cluster', 'mushroom_patch', 'lamp_cyber', 'server_rack',
+  'holo_projector', 'drone_pad', 'sat_dish', 'rover_bot', 'alloy_beacon',
+  'volcanic_vent', 'frost_shrine',
+]);
+
+const TOWN_BIOME_SUBTYPES = new Set([
+  'tree_town', 'tree_sakura', 'tree_berry', 'tree_pine', 'tree_autumn',
+  'tree_bamboo', 'hedge', 'flowerbed', 'sunflower_bed', 'lavender_bed',
+  'bush_flower', 'berry_pot', 'lily_pond', 'rock_boulder', 'lamp',
+  'stone_lantern', 'lamp_cyber', 'bench', 'cafe_table', 'picnic_set',
+  'mailbox_red', 'trash_bin', 'kiosk', 'garden', 'pokestop', 'pokeball_item',
+  'bike_rack', 'notice_board', 'jukebox', 'vending', 'torii_gate',
+  'campfire', 'tent', 'sign',
+]);
+
+/** Returns deduplicated recommended world biomes for a spawnable catalog template. */
+export function getRecommendedBiomesForTemplate(tpl: SpawnableTemplate): readonly WorldTarget[] {
+  if (tpl.biomes && tpl.biomes.length > 0) return tpl.biomes;
+  const sub = tpl.subType || tpl.id;
+  const out = new Set<WorldTarget>();
+
+  if (HARBOUR_SUBTYPES.has(sub)) out.add('harbour');
+  if (KINGDOM_SUBTYPES.has(sub) || tpl.category === '🏰 Kerajaan Medieval') out.add('kingdom');
+  if (SKY_CASTLE_SUBTYPES.has(sub)) out.add('sky-castle');
+  if (DARK_CASTLE_SUBTYPES.has(sub)) out.add('dark-castle');
+  if (tpl.category === 'Dunia Digimon' || DIGIMON_BIOME_SUBTYPES.has(sub)) out.add('digimon');
+  if (
+    TOWN_BIOME_SUBTYPES.has(sub) ||
+    tpl.category === 'Tech & AI' ||
+    tpl.category === 'Dunia Pokémon'
+  ) {
+    out.add('town');
+  }
+
+  return Array.from(out);
+}
+
+export const CATALOG_UNLOCK_RULES: Readonly<Record<string, CatalogUnlockRule>> = {
+  tpl_jukebox: {
+    track: 'badges',
+    required: 1,
+    label: '🏅 1 Tech Gym Badge',
+    hint: 'Kunjungi 1 gedung portofolio di Zulfan’s Town untuk membuka Gym Badge pertama.',
+  },
+  tpl_holo_projector: {
+    track: 'badges',
+    required: 2,
+    label: '🏅 2 Tech Gym Badges',
+    hint: 'Kumpulkan 2 Tech Gym Badge dengan menjelajahi gedung-gedung Zulfan’s Town.',
+  },
+  tpl_frost_shrine: {
+    track: 'badges',
+    required: 3,
+    label: '🏅 3 Tech Gym Badges',
+    hint: 'Kumpulkan 3 Tech Gym Badge untuk membuka Kuil Es Kristal.',
+  },
+  tpl_ancient_pillar: {
+    track: 'royal_crests',
+    required: 1,
+    label: '👑 1 Royal Crest',
+    hint: 'Temukan 1 Royal Crest di bangunan Royal Kingdom.',
+  },
+  tpl_natural_spring: {
+    track: 'royal_crests',
+    required: 2,
+    label: '👑 2 Royal Crests',
+    hint: 'Kumpulkan 2 Royal Crest di Royal Kingdom untuk membuka Mata Air Batu Alami.',
+  },
+  tpl_tree_palm: {
+    track: 'maritime_seals',
+    required: 1,
+    label: '⚓ 1 Maritime Seal',
+    hint: 'Temukan 1 Maritime Seal di bangunan Harbour Town.',
+  },
+  tpl_crystal_cluster: {
+    track: 'sky_plumes',
+    required: 1,
+    label: '🪶 1 Celestial Plume',
+    hint: 'Temukan 1 Celestial Plume di bangunan Sky Castle.',
+  },
+  tpl_tree_golden: {
+    track: 'sky_plumes',
+    required: 2,
+    label: '🪶 2 Celestial Plumes',
+    hint: 'Kumpulkan 2 Celestial Plume di Sky Castle untuk membuka Pohon Emas Celestia.',
+  },
+  tpl_mushroom_patch: {
+    track: 'abyssal_seals',
+    required: 1,
+    label: '🌑 1 Abyssal Seal',
+    hint: 'Temukan 1 Abyssal Seal di bangunan Dark Castle.',
+  },
+  tpl_tree_dead: {
+    track: 'abyssal_seals',
+    required: 2,
+    label: '🌑 2 Abyssal Seals',
+    hint: 'Kumpulkan 2 Abyssal Seal di Dark Castle untuk membuka Pohon Kering Mistis.',
+  },
+};
+
+export function getTemplateUnlockRule(tpl: SpawnableTemplate): CatalogUnlockRule | undefined {
+  return tpl.unlockRule ?? CATALOG_UNLOCK_RULES[tpl.id];
+}
+
+export function getTemplateUnlockStatus(
+  tpl: SpawnableTemplate,
+  progress: CatalogProgressSnapshot,
+  sandboxBypass = false
+): TemplateUnlockStatus {
+  const rule = getTemplateUnlockRule(tpl);
+  if (!rule) {
+    return { unlocked: true, current: 0, required: 0 };
+  }
+  const current = progress[rule.track] ?? 0;
+  return {
+    unlocked: sandboxBypass || current >= rule.required,
+    current,
+    required: rule.required,
+    rule,
+  };
+}
+
+export function getCatalogUnlockSummary(progress: CatalogProgressSnapshot): {
+  unlocked: number;
+  total: number;
+} {
+  let unlocked = 0;
+  let total = 0;
+  for (const tpl of SPAWNABLE_TEMPLATES) {
+    const rule = getTemplateUnlockRule(tpl);
+    if (!rule) continue;
+    total++;
+    if ((progress[rule.track] ?? 0) >= rule.required) {
+      unlocked++;
+    }
+  }
+  return { unlocked, total };
+}
+
+export interface ThemeBundleItem {
+  templateId: string;
+  dx: number;
+  dy: number;
+}
+
+export interface ThemeBundle {
+  id: string;
+  name: string;
+  icon: string;
+  w: number;
+  h: number;
+  desc: string;
+  biomes: WorldTarget[];
+  items: readonly ThemeBundleItem[];
+}
+
+export const CATALOG_THEME_BUNDLES: readonly ThemeBundle[] = [
+  {
+    id: 'bundle_zen_corner',
+    name: 'Pojok Taman Zen',
+    icon: '🎋',
+    w: 6,
+    h: 5,
+    desc: 'Rumpun bambu, kolam teratai Magikarp, lentera Tōrō, pohon sakura & batu lumut (6 item)',
+    biomes: ['town', 'kingdom', 'sky-castle'],
+    items: [
+      { templateId: 'tpl_tree_bamboo', dx: 0, dy: 0 },
+      { templateId: 'tpl_lily_pond', dx: 2, dy: 1 },
+      { templateId: 'tpl_stone_lantern', dx: 5, dy: 0 },
+      { templateId: 'tpl_tree_sakura', dx: 4, dy: 2 },
+      { templateId: 'tpl_mossy_rock', dx: 0, dy: 3 },
+      { templateId: 'tpl_reeds_clump', dx: 2, dy: 3 },
+    ],
+  },
+  {
+    id: 'bundle_tropical_oasis',
+    name: 'Oasis Pesisir Tropis',
+    icon: '🌴',
+    w: 6,
+    h: 5,
+    desc: 'Sepasang pohon kelapa pantai, mata air alami, alang-alang, kaktus & meja payung (6 item)',
+    biomes: ['harbour', 'town'],
+    items: [
+      { templateId: 'tpl_tree_palm', dx: 0, dy: 0 },
+      { templateId: 'tpl_natural_spring', dx: 2, dy: 1 },
+      { templateId: 'tpl_tree_palm', dx: 4, dy: 0 },
+      { templateId: 'tpl_reeds_clump', dx: 1, dy: 2 },
+      { templateId: 'tpl_cactus_saguaro', dx: 5, dy: 2 },
+      { templateId: 'tpl_cafe_table', dx: 2, dy: 3 },
+    ],
+  },
+  {
+    id: 'bundle_royal_rose_garden',
+    name: 'Taman Mawar Istana',
+    icon: '🌹',
+    w: 6,
+    h: 5,
+    desc: 'Dua pohon emas Celestia mengapit bedeng mawar kerajaan, lavender, bangku & lentera (7 item)',
+    biomes: ['kingdom', 'sky-castle', 'town'],
+    items: [
+      { templateId: 'tpl_tree_golden', dx: 0, dy: 0 },
+      { templateId: 'tpl_tree_golden', dx: 4, dy: 0 },
+      { templateId: 'tpl_rose_bed', dx: 2, dy: 0 },
+      { templateId: 'tpl_lavender_bed', dx: 2, dy: 2 },
+      { templateId: 'tpl_bench', dx: 2, dy: 4 },
+      { templateId: 'tpl_stone_lantern', dx: 0, dy: 3 },
+      { templateId: 'tpl_stone_lantern', dx: 5, dy: 3 },
+    ],
+  },
+  {
+    id: 'bundle_misty_shroom_woods',
+    name: 'Hutan Jamur Berkabut',
+    icon: '🍄',
+    w: 6,
+    h: 5,
+    desc: 'Pohon kering deadwood, batu lumut, kayu tumbang, jamur glowshroom & kristal (8 item)',
+    biomes: ['dark-castle', 'kingdom', 'digimon'],
+    items: [
+      { templateId: 'tpl_tree_dead', dx: 0, dy: 0 },
+      { templateId: 'tpl_mossy_rock', dx: 2, dy: 0 },
+      { templateId: 'tpl_tree_dead', dx: 4, dy: 1 },
+      { templateId: 'tpl_fallen_log', dx: 1, dy: 3 },
+      { templateId: 'tpl_mushroom_patch', dx: 0, dy: 3 },
+      { templateId: 'tpl_mushroom_patch', dx: 3, dy: 2 },
+      { templateId: 'tpl_crystal_cluster', dx: 4, dy: 3 },
+      { templateId: 'tpl_tree_stump', dx: 5, dy: 3 },
+    ],
+  },
+  {
+    id: 'bundle_pine_campsite',
+    name: 'Perkemahan Hutan Pinus',
+    icon: '🏕️',
+    w: 6,
+    h: 5,
+    desc: 'Tenda kemah & api unggun dikelilingi pohon pinus, maple, kayu tumbang & hydrangea (7 item)',
+    biomes: ['town', 'kingdom'],
+    items: [
+      { templateId: 'tpl_tree_pine', dx: 0, dy: 0 },
+      { templateId: 'tpl_tree_autumn', dx: 4, dy: 0 },
+      { templateId: 'tpl_tent', dx: 2, dy: 0 },
+      { templateId: 'tpl_campfire', dx: 2, dy: 2 },
+      { templateId: 'tpl_fallen_log', dx: 1, dy: 4 },
+      { templateId: 'tpl_tree_stump', dx: 4, dy: 3 },
+      { templateId: 'tpl_bush_flower', dx: 0, dy: 3 },
+    ],
+  },
+  {
+    id: 'bundle_cyber_research_post',
+    name: 'Pos Riset Cyber & Kristal',
+    icon: '💻',
+    w: 6,
+    h: 4,
+    desc: 'Rak server AI, proyektor hologram, panel surya, robot penjelajah & kristal energi (7 item)',
+    biomes: ['digimon', 'town'],
+    items: [
+      { templateId: 'tpl_server_rack', dx: 0, dy: 0 },
+      { templateId: 'tpl_holo_projector', dx: 2, dy: 0 },
+      { templateId: 'tpl_lamp_cyber', dx: 5, dy: 0 },
+      { templateId: 'tpl_crystal_cluster', dx: 0, dy: 2 },
+      { templateId: 'tpl_crystal_cluster', dx: 5, dy: 2 },
+      { templateId: 'tpl_rover_bot', dx: 3, dy: 2 },
+      { templateId: 'tpl_solar_panel', dx: 1, dy: 2 },
+    ],
+  },
+];
 
 export const SPAWNABLE_TEMPLATES: SpawnableTemplate[] = [
   // 🌳 1. Foliage & Alam (Nature & Flora)
@@ -266,6 +603,198 @@ export const SPAWNABLE_TEMPLATES: SpawnableTemplate[] = [
     subType: 'berry_pot',
     desc: 'Pot keramik buah berry langka (1x1)',
     defaultDialogue: 'Pot tanaman tanah liat berisi bibit berry berkualitas tinggi yang dirawat secara teliti.',
+  },
+  {
+    id: 'tpl_tree_palm',
+    name: 'Pohon Kelapa Pantai',
+    icon: '🌴',
+    category: 'Foliage & Alam',
+    w: 2,
+    h: 2,
+    kind: 'tree',
+    subType: 'tree_palm',
+    desc: 'Pohon kelapa pesisir berpelepah tropis & buah kelapa (2x2)',
+    defaultDialogue: 'Pohon kelapa pantai yang melambai diterpa angin laut. Buah kelapanya tampak segar di bawah pelepah hijau!',
+  },
+  {
+    id: 'tpl_tree_willow',
+    name: 'Pohon Dedalu Air (Willow)',
+    icon: '🌿',
+    category: 'Foliage & Alam',
+    w: 2,
+    h: 2,
+    kind: 'tree',
+    subType: 'tree_willow',
+    desc: 'Pohon dedalu tepi air dengan tirai daun menjuntai anggun (2x2)',
+    defaultDialogue: 'Pohon dedalu yang teduh dengan sulur-sulur daun hijau menjuntai lembut mengikuti hembusan angin.',
+  },
+  {
+    id: 'tpl_tree_bamboo',
+    name: 'Rumpun Bambu Zen',
+    icon: '🎋',
+    category: 'Foliage & Alam',
+    w: 2,
+    h: 2,
+    kind: 'tree',
+    subType: 'tree_bamboo',
+    desc: 'Rumpun batang bambu hijau beruas khas taman kuil timur (2x2)',
+    defaultDialogue: 'Rumpun bambu hijau yang menjulang rapi. Gemerisik daunnya menghadirkan ketenangan khas taman Zen.',
+  },
+  {
+    id: 'tpl_tree_dead',
+    name: 'Pohon Kering / Deadwood',
+    icon: '🥀',
+    category: 'Foliage & Alam',
+    w: 2,
+    h: 2,
+    kind: 'tree',
+    subType: 'tree_dead',
+    desc: 'Pohon ranting tua tanpa daun bernuansa kastil kelam (2x2)',
+    defaultDialogue: 'Pohon tua beranting kering yang berdiri kokoh menantang kabut malam. Cocok menghiasi kawasan Dark Castle.',
+  },
+  {
+    id: 'tpl_tree_golden',
+    name: 'Pohon Emas Celestia',
+    icon: '✨',
+    category: 'Foliage & Alam',
+    w: 2,
+    h: 2,
+    kind: 'tree',
+    subType: 'tree_golden',
+    desc: 'Pohon suci berdaun emas bercahaya khas Sky Castle (2x2)',
+    defaultDialogue: 'Pohon Celestia berdaun keemasan yang memancarkan kilau hangat bagaikan cahaya fajar di istana langit.',
+  },
+  {
+    id: 'tpl_lavender_bed',
+    name: 'Petak Bunga Lavender',
+    icon: '💜',
+    category: 'Foliage & Alam',
+    w: 2,
+    h: 2,
+    kind: 'flowerbed',
+    subType: 'lavender_bed',
+    desc: 'Hamparan bunga lavender ungu harum bergaya Kalos (2x2)',
+    defaultDialogue: 'Petak bunga lavender ungu yang mekar serempak. Aroma relaksasinya terbawa sepoi-sepoi ke seluruh penjuru taman.',
+  },
+  {
+    id: 'tpl_rose_bed',
+    name: 'Bedeng Mawar Kerajaan',
+    icon: '🌹',
+    category: 'Foliage & Alam',
+    w: 2,
+    h: 1,
+    kind: 'flowerbed',
+    subType: 'rose_bed',
+    desc: 'Bedeng batu marmer berisi mawar merah & putih istana (2x1)',
+    defaultDialogue: 'Bedeng mawar kerajaan dengan kelopak merah merona dan putih bersih yang dirawat bak taman istana.',
+  },
+  {
+    id: 'tpl_bush_flower',
+    name: 'Semak Bunga Hydrangea',
+    icon: '🌺',
+    category: 'Foliage & Alam',
+    w: 1,
+    h: 1,
+    kind: 'object',
+    subType: 'bush_flower',
+    desc: 'Semak bulat rimbun bertabur bunga biru-ungu & merah muda (1x1)',
+    defaultDialogue: 'Semak bunga hydrangea yang mekar padat dengan gradasi kelopak biru langit, ungu, dan merah muda.',
+  },
+  {
+    id: 'tpl_mushroom_patch',
+    name: 'Rumpun Jamur Glowshroom',
+    icon: '🍄',
+    category: 'Foliage & Alam',
+    w: 1,
+    h: 1,
+    kind: 'object',
+    subType: 'mushroom_patch',
+    desc: 'Rumpun jamur hutan merah tutul putih & jamur pendar cyan (1x1)',
+    defaultDialogue: 'Rumpun jamur hutan mungil! Tudung merah bertutul putihnya berdampingan dengan jamur spora berpendar biru lembut.',
+  },
+  {
+    id: 'tpl_tree_stump',
+    name: 'Tunggul Pohon Tua',
+    icon: '🪵',
+    category: 'Foliage & Alam',
+    w: 1,
+    h: 1,
+    kind: 'object',
+    subType: 'tree_stump',
+    desc: 'Tunggul batang kayu bercincin usia dengan lumut & tunas (1x1)',
+    defaultDialogue: 'Tunggul pohon tua dengan lingkar tahun yang jelas. Tunas daun hijau baru mulai tumbuh di sisinya.',
+  },
+  {
+    id: 'tpl_fallen_log',
+    name: 'Batang Kayu Tumbang',
+    icon: '🪵',
+    category: 'Foliage & Alam',
+    w: 2,
+    h: 1,
+    kind: 'object',
+    subType: 'fallen_log',
+    desc: 'Kayu gelondongan tua berlumut hijau pembatas jalur hutan (2x1)',
+    defaultDialogue: 'Batang kayu tumbang yang diselimuti lumut lembut dan jamur kecil di kulit kayunya.',
+  },
+  {
+    id: 'tpl_reeds_clump',
+    name: 'Rumpun Alang-Alang Air',
+    icon: '🌾',
+    category: 'Foliage & Alam',
+    w: 1,
+    h: 1,
+    kind: 'object',
+    subType: 'reeds_clump',
+    desc: 'Rumpun tanaman tepi air & bunga cattail coklat alami (1x1)',
+    defaultDialogue: 'Rumpun alang-alang air dan cattail yang bergoyang pelan di tepi perairan.',
+  },
+  {
+    id: 'tpl_mossy_rock',
+    name: 'Batu Lumut Hutan Besar',
+    icon: '🪨',
+    category: 'Foliage & Alam',
+    w: 2,
+    h: 2,
+    kind: 'object',
+    subType: 'mossy_rock',
+    desc: 'Formasi bongkahan batu granit besar berselimut lumut hijau (2x2)',
+    defaultDialogue: 'Bongkahan batu granit purba berukuran besar yang diselimuti lumut zamrud tebal dan pakis kecil.',
+  },
+  {
+    id: 'tpl_crystal_cluster',
+    name: 'Gugus Kristal Alam',
+    icon: '💎',
+    category: 'Foliage & Alam',
+    w: 1,
+    h: 1,
+    kind: 'object',
+    subType: 'crystal_cluster',
+    desc: 'Gugus kristal kuarsa cyan-ungu berkilau energi alam (1x1)',
+    defaultDialogue: 'Gugus kristal kuarsa alami yang membiaskan cahaya biru-ungu berkilauan.',
+  },
+  {
+    id: 'tpl_natural_spring',
+    name: 'Mata Air Batu Alami',
+    icon: '♨️',
+    category: 'Foliage & Alam',
+    w: 2,
+    h: 2,
+    kind: 'object',
+    subType: 'natural_spring',
+    desc: 'Kolam mata air batu alam bertingkat berair jernih & hangat (2x2)',
+    defaultDialogue: 'Mata air alami berbatu yang jernih dan menenangkan. Riak air hangatnya memulihkan semangat petualang!',
+  },
+  {
+    id: 'tpl_cactus_saguaro',
+    name: 'Kaktus Gurun Berbunga',
+    icon: '🌵',
+    category: 'Foliage & Alam',
+    w: 1,
+    h: 1,
+    kind: 'object',
+    subType: 'cactus_saguaro',
+    desc: 'Kaktus hijau berlengan dua dengan mahkota bunga cerah (1x1)',
+    defaultDialogue: 'Kaktus gurun tangguh yang sedang memekarkan bunga kuning dan merah muda di pucuknya.',
   },
 
   // 🪑 2. Perabot & Lampu Jalan (Streetscape & Furniture)
@@ -1367,6 +1896,12 @@ export type TileTypeKey =
   | 'tudor_cobble'
   | 'drawbridge_wood'
   | 'water'
+  | 'shallow_water'
+  | 'sand'
+  | 'cliff'
+  | 'cliff_stairs'
+  | 'bridge_wood'
+  | 'ledge'
   | 'hedge'
   | 'fence'
   | 'fence_water'
@@ -1376,6 +1911,12 @@ export type TileTypeKey =
 
 export const TILE_BRUSH_TYPES: { id: TileTypeKey; name: string; icon: string; desc: string }[] = [
   { id: 'cobble', name: 'Jalan Batu', icon: '🪨', desc: 'Cobblestone Street' },
+  { id: 'sand', name: 'Pasir Pantai', icon: '🏖️', desc: 'Golden Coastal & Lake Sand' },
+  { id: 'shallow_water', name: 'Air Dangkal', icon: '💧', desc: 'Turquoise Coral Shallows' },
+  { id: 'cliff', name: 'Tebing Batu', icon: '⛰️', desc: '2.5D Terraced Rock Cliff (Solid)' },
+  { id: 'cliff_stairs', name: 'Tangga Batu', icon: '🪜', desc: 'Carved Limestone Cliff Stairs' },
+  { id: 'bridge_wood', name: 'Jembatan Kayu', icon: '🌉', desc: 'Timber Footbridge & Sunset Pier' },
+  { id: 'ledge', name: 'Gundukan Lompat', icon: '⤵️', desc: 'One-Way Pokémon Jump Ledge (Hop South)' },
   { id: 'castle_flagstone', name: 'Batu Benteng', icon: '🏰', desc: 'Medieval Citadel Flagstone Courtyard' },
   { id: 'royal_carpet', name: 'Karpet Kerajaan', icon: '🟥', desc: 'Royal Crimson & Gold Carpet' },
   { id: 'tudor_cobble', name: 'Cobble Medieval', icon: '🧱', desc: 'Tudor Warm Medieval Street' },
@@ -1398,7 +1939,7 @@ export const TILE_BRUSH_TYPES: { id: TileTypeKey; name: string; icon: string; de
 
 export const DEFAULT_BUILDINGS: BuildingLayout[] = canonicalLayout.buildings as BuildingLayout[];
 
-const STORAGE_KEY_TOWN = 'zulfan_town_custom_layout_v1';
+const STORAGE_KEY_TOWN = 'zulfan_town_custom_layout_100x100_v2';
 const STORAGE_KEY_DIGIMON = 'zulfan_digimon_custom_layout_v1';
 const STORAGE_KEY_KINGDOM = 'zulfan_kingdom_custom_layout_v1';
 const STORAGE_KEY_DARK_CASTLE = 'zulfan_dark_castle_custom_layout_v1';
@@ -1430,6 +1971,8 @@ const PURGED_LEGACY_IDS = new Set([
   'lamp_cy_ne',
   'lamp_cy_sw',
   'lamp_cy_se',
+  'mastemon_mwnazxq0',
+  'plusnamon_mwrx7e4k',
 ]);
 
 class TownConfigManager {
@@ -1455,7 +1998,7 @@ class TownConfigManager {
     if (this.activeWorld === 'harbour') return { w: 45, h: 60 };
     if (this.activeWorld === 'sky-castle') return { w: 45, h: 60 };
     if (this.activeWorld === 'dark-castle') return { w: 45, h: 64 };
-    return { w: 45, h: 64 };
+    return { w: 100, h: 100 };
   }
 
   private getStorageKey(): string {
@@ -1750,7 +2293,12 @@ class TownConfigManager {
     return orient;
   }
 
-  public spawnObject(templateId: string, x: number, y: number): BuildingLayout | null {
+  public spawnObject(
+    templateId: string,
+    x: number,
+    y: number,
+    orientationOverride?: 'N' | 'E' | 'S' | 'W'
+  ): BuildingLayout | null {
     const tpl = SPAWNABLE_TEMPLATES.find((t) => t.id === templateId);
     if (!tpl) return null;
 
@@ -1775,13 +2323,14 @@ class TownConfigManager {
       kind: tpl.kind,
       subType: tpl.subType,
       orientation:
-        tpl.kind === 'npc' ||
+        orientationOverride ??
+        (tpl.kind === 'npc' ||
         tpl.kind === 'digimon' ||
         tpl.kind === 'building' ||
         tpl.category === 'Dunia Pokémon' ||
         tpl.category === 'Dunia Digimon'
           ? 'S'
-          : 'N',
+          : 'N'),
       ...(tpl.kind === 'building'
         ? { doorX: clampedX + Math.floor(tpl.w / 2), doorY: clampedY + tpl.h - 1 }
         : {}),
@@ -1792,6 +2341,74 @@ class TownConfigManager {
     this.saveToStorage();
     this.notify();
     return newObj;
+  }
+
+  /** Spawns multiple catalog templates atomically (1 Undo snapshot + 1 storage write). */
+  public spawnObjectsBatch(
+    placements: readonly { templateId: string; x: number; y: number }[],
+    recordSnapshot = true
+  ): BuildingLayout[] {
+    if (placements.length === 0) return [];
+    if (recordSnapshot) {
+      this.pushSnapshot(this.captureSnapshot());
+    }
+
+    const { w: mapW, h: mapH } = this.getBounds();
+    const stamp = Date.now().toString(36);
+    const created: BuildingLayout[] = [];
+
+    placements.forEach((p, idx) => {
+      const tpl = SPAWNABLE_TEMPLATES.find((t) => t.id === p.templateId);
+      if (!tpl) return;
+      const prefix = tpl.subType || tpl.kind;
+      const count = Array.from(this.buildings.values()).filter((b) => b.id.startsWith(prefix)).length + 1;
+      const id = `${prefix}_${stamp}_${idx}_${Math.random().toString(36).slice(2, 5)}`;
+      const clampedX = Math.max(0, Math.min(mapW - tpl.w, Math.round(p.x)));
+      const clampedY = Math.max(0, Math.min(mapH - tpl.h, Math.round(p.y)));
+
+      const newObj: BuildingLayout = {
+        id,
+        name: `${tpl.name} #${count}`,
+        x: clampedX,
+        y: clampedY,
+        w: tpl.w,
+        h: tpl.h,
+        kind: tpl.kind,
+        subType: tpl.subType,
+        orientation:
+          tpl.kind === 'npc' ||
+          tpl.kind === 'digimon' ||
+          tpl.kind === 'building' ||
+          tpl.category === 'Dunia Pokémon' ||
+          tpl.category === 'Dunia Digimon'
+            ? 'S'
+            : 'N',
+        ...(tpl.kind === 'building'
+          ? { doorX: clampedX + Math.floor(tpl.w / 2), doorY: clampedY + tpl.h - 1 }
+          : {}),
+        dialogue: tpl.defaultDialogue,
+      };
+      this.buildings.set(id, newObj);
+      created.push(newObj);
+    });
+
+    if (created.length > 0) {
+      this.saveToStorage();
+      this.notify();
+    }
+    return created;
+  }
+
+  /** Places all items of a curated catalog Theme Bundle around `(anchorX, anchorY)`. */
+  public spawnThemeBundle(bundleId: string, anchorX: number, anchorY: number): BuildingLayout[] {
+    const bundle = CATALOG_THEME_BUNDLES.find((b) => b.id === bundleId);
+    if (!bundle) return [];
+    const placements = bundle.items.map((item) => ({
+      templateId: item.templateId,
+      x: anchorX + item.dx,
+      y: anchorY + item.dy,
+    }));
+    return this.spawnObjectsBatch(placements, true);
   }
 
   public setBuildingDialogue(id: string, dialogue: string) {
@@ -2075,9 +2692,15 @@ class TownConfigManager {
         this.activeWorld === 'sky-castle' ||
         this.activeWorld === 'dark-castle'
       ) {
+        let purgedLegacyFound = false;
         if (Array.isArray(parsed.buildings)) {
           for (const b of parsed.buildings) {
             if (!b.id) continue;
+            if (PURGED_LEGACY_IDS.has(b.id)) {
+              purgedLegacyFound = true;
+              this.buildings.delete(b.id);
+              continue;
+            }
             this.buildings.set(b.id, b);
           }
         }
@@ -2085,6 +2708,9 @@ class TownConfigManager {
           for (const [k, v] of parsed.tiles) {
             this.tileOverrides.set(k, v);
           }
+        }
+        if (purgedLegacyFound) {
+          this.saveToStorage();
         }
         return;
       }
@@ -2394,13 +3020,14 @@ class TownConfigManager {
     const placed: BuildingLayout[] = [];
     const stamp = Date.now().toString(36);
 
+    const { w: maxW, h: maxH } = this.getBounds();
     prefab.items.forEach((item, idx) => {
       const id = `${item.subType || 'obj'}_${stamp}_${idx}`;
       const b: BuildingLayout = {
         ...item,
         id,
-        x: Math.max(0, Math.min(43, anchorX + item.x)),
-        y: Math.max(0, Math.min(62, anchorY + item.y)),
+        x: Math.max(0, Math.min(maxW - (item.w || 1), anchorX + item.x)),
+        y: Math.max(0, Math.min(maxH - (item.h || 1), anchorY + item.y)),
       };
       if (item.labelX !== undefined) b.labelX = b.x + (item.labelX - item.x);
       if (item.labelY !== undefined) b.labelY = b.y + (item.labelY - item.y);
@@ -2499,8 +3126,8 @@ class TownConfigManager {
 
   public getExitRespawnForPlace(place: string): string {
     const clean = (place || '').replace(/^\/+|\/+$/g, '').toLowerCase();
-    if (!clean || clean === 'town') return '22,28,down';
-    if (clean === 'digimon') return '22,58,up';
+    if (!clean || clean === 'town') return '48,28,down';
+    if (clean === 'digimon') return '48,94,up';
     if (clean === 'kingdom') return '20,38,up';
     if (clean === 'harbour') return '22,57,up';
     if (clean === 'sky-castle') return '33,22,left';
@@ -2509,6 +3136,27 @@ class TownConfigManager {
     if (clean === 'dark-forge' || clean === 'dark-castle/forge' || clean === 'forge') return '33,25,down';
     if (clean === 'dark-manor' || clean === 'dark-castle/manor' || clean === 'manor') return '11,52,down';
     if (clean === 'dark-vault' || clean === 'dark-castle/vault' || clean === 'vault') return '34,50,down';
+
+    if (clean === 'kingdom-castle' || clean === 'kingdom/castle') return '22,20,down';
+    if (clean === 'kingdom-blacksmith' || clean === 'kingdom/blacksmith') return '8,20,down';
+    if (clean === 'kingdom-tavern' || clean === 'kingdom/tavern') return '36,20,down';
+    if (clean === 'kingdom-mage-tower' || clean === 'kingdom/mage-tower') return '8,36,down';
+    if (clean === 'kingdom-barracks' || clean === 'kingdom/barracks') return '37,31,down';
+    if (clean === 'kingdom-chapel' || clean === 'kingdom/chapel') return '34,50,down';
+    if (clean === 'kingdom-jousting' || clean === 'kingdom/jousting') return '12,45,down';
+
+    if (clean === 'harbour-lighthouse' || clean === 'harbour/lighthouse') return '11,13,down';
+    if (clean === 'harbour-warehouse' || clean === 'harbour/warehouse') return '27,20,down';
+    if (clean === 'harbour-inn' || clean === 'harbour/inn') return '10,30,down';
+    if (clean === 'harbour-galleon' || clean === 'harbour/galleon') return '30,40,down';
+    if (clean === 'harbour-market' || clean === 'harbour/market') return '7,34,down';
+
+    if (clean === 'sky-citadel' || clean === 'sky-castle/citadel') return '22,15,down';
+    if (clean === 'sky-windmill' || clean === 'sky-castle/windmill') return '8,25,down';
+    if (clean === 'sky-workshop' || clean === 'sky-castle/workshop') return '6,40,down';
+    if (clean === 'sky-inn' || clean === 'sky-castle/inn') return '15,46,down';
+    if (clean === 'sky-observatory' || clean === 'sky-castle/observatory') return '38,27,down';
+    if (clean === 'sky-chapel' || clean === 'sky-castle/chapel') return '37,47,down';
 
     const aliasToBuildingId: Record<string, string> = {
       dev: 'dev',
@@ -2532,18 +3180,18 @@ class TownConfigManager {
     };
 
     const fallbacks: Record<string, string> = {
-      dev: '16,12,down',
-      lab: '27,7,down',
-      home: '37,25,down',
-      reception: '38,17,down',
-      shop: '39,33,down',
-      arcade: '27,17,down',
-      office: '39,8,down',
-      villa: '27,25,down',
-      arena: '38,40,down',
-      kiosk: '29,32,down',
-      garden: '28,44,down',
-      twin: '12,23,down',
+      dev: '42,12,down',
+      lab: '53,7,down',
+      home: '63,25,down',
+      reception: '64,17,down',
+      shop: '65,33,down',
+      arcade: '53,17,down',
+      office: '65,8,down',
+      villa: '53,25,down',
+      arena: '64,40,down',
+      kiosk: '55,32,down',
+      garden: '54,44,down',
+      twin: '38,23,down',
     };
 
     const buildingId = aliasToBuildingId[clean] || clean;
@@ -2559,7 +3207,7 @@ class TownConfigManager {
       }
     }
 
-    return fallbacks[buildingId] || '22,28,down';
+    return fallbacks[buildingId] || '48,28,down';
   }
 }
 

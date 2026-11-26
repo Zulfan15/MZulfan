@@ -246,9 +246,9 @@ function drawNorthDataCliffs(ctx: CanvasRenderingContext2D, map: TownMap) {
 function drawZoneDecorDetails(ctx: CanvasRenderingContext2D) {
   ctx.save();
 
-  // Central Digi-Plaza Digital Emblem Ring (centered around console 19..20, 20..21)
-  const plazaCx = 20 * TILE_SIZE;
-  const plazaCy = 21 * TILE_SIZE;
+  // Central Digi-Plaza Digital Emblem Ring (centered around console at tile 20, 22 -> 20.5*16, 22.5*16)
+  const plazaCx = (DIGI_PLAZA_CONSOLE.x + DIGI_PLAZA_CONSOLE.w / 2) * TILE_SIZE;
+  const plazaCy = (DIGI_PLAZA_CONSOLE.y + DIGI_PLAZA_CONSOLE.h / 2) * TILE_SIZE;
   ctx.strokeStyle = 'rgba(0, 240, 255, 0.45)';
   ctx.lineWidth = 2;
   ctx.beginPath();
@@ -258,7 +258,7 @@ function drawZoneDecorDetails(ctx: CanvasRenderingContext2D) {
   ctx.strokeStyle = 'rgba(251, 191, 36, 0.45)';
   ctx.lineWidth = 1.5;
   ctx.beginPath();
-  ctx.arc(plazaCx, plazaCy, 32, 0, Math.PI * 2);
+  ctx.arc(plazaCx, plazaCy, 34, 0, Math.PI * 2);
   ctx.stroke();
 
   // Subtle Zone Labels Painted Into Plaza Edges / Habitat Overlays
@@ -287,32 +287,52 @@ function drawZoneDecorDetails(ctx: CanvasRenderingContext2D) {
 function drawDigiDexMasterConsole(ctx: CanvasRenderingContext2D, px: number, py: number) {
   ctx.save();
 
+  // Symmetrical 48x48 (3x3 tile) Cyber Dais Platform centered on tile (20, 22)
+  ctx.fillStyle = '#091426';
+  ctx.fillRect(px + 2, py + 4, 44, 40);
+  ctx.fillStyle = '#1e293b';
+  ctx.fillRect(px + 4, py + 2, 40, 44);
+  ctx.strokeStyle = 'rgba(56, 189, 248, 0.55)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(px + 4.5, py + 4.5, 39, 39);
+
+  // 4 Glowing Cyan Corner Nodes
+  ctx.fillStyle = '#00f0ff';
+  ctx.fillRect(px + 6, py + 6, 3, 3);
+  ctx.fillRect(px + 39, py + 6, 3, 3);
+  ctx.fillRect(px + 6, py + 39, 3, 3);
+  ctx.fillRect(px + 39, py + 39, 3, 3);
+
+  // Center the 32x32 holographic terminal inside the 48x48 footprint
+  const ox = px + 8;
+  const oy = py + 8;
+
   // Metallic Pedestal Base (32x32)
   ctx.fillStyle = '#0f172a';
-  ctx.fillRect(px + 2, py + 10, 28, 20);
+  ctx.fillRect(ox + 2, oy + 10, 28, 20);
   ctx.fillStyle = '#334155';
-  ctx.fillRect(px + 4, py + 12, 24, 16);
+  ctx.fillRect(ox + 4, oy + 12, 24, 16);
   ctx.fillStyle = '#1e293b';
-  ctx.fillRect(px + 6, py + 18, 20, 9);
+  ctx.fillRect(ox + 6, oy + 18, 20, 9);
 
   // Holographic Dual Display Terminal
   ctx.fillStyle = '#0284c7';
-  ctx.fillRect(px + 4, py + 2, 24, 15);
+  ctx.fillRect(ox + 4, oy + 2, 24, 15);
   ctx.fillStyle = '#091a32';
-  ctx.fillRect(px + 6, py + 4, 20, 11);
+  ctx.fillRect(ox + 6, oy + 4, 20, 11);
 
   // Glowing Cyan Crest & Scanlines
   ctx.fillStyle = '#00f0ff';
-  ctx.fillRect(px + 8, py + 6, 16, 2);
-  ctx.fillRect(px + 8, py + 10, 10, 1);
+  ctx.fillRect(ox + 8, oy + 6, 16, 2);
+  ctx.fillRect(ox + 8, oy + 10, 10, 1);
   ctx.fillStyle = '#fbbf24';
-  ctx.fillRect(px + 20, py + 10, 4, 3);
+  ctx.fillRect(ox + 20, oy + 10, 4, 3);
 
   // Keyboard Console Trim
   ctx.fillStyle = '#38bdf8';
-  ctx.fillRect(px + 8, py + 19, 16, 2);
+  ctx.fillRect(ox + 8, oy + 19, 16, 2);
   ctx.fillStyle = '#fbbf24';
-  ctx.fillRect(px + 13, py + 23, 6, 2);
+  ctx.fillRect(ox + 13, oy + 23, 6, 2);
 
   ctx.restore();
 }

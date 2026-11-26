@@ -1,37 +1,33 @@
 /**
- * Pokémon Sinnoh/Unova style coastal town map:
- * - 45x64 tile layout perfectly calibrated to the authentic Pokémon town map illustration (town_map.jpg)
- * - Ocean coast with cliffs on the left
- * - Grand Manor (Dev Center) at the north square
- * - Green-roof Research Lab at north-east
- * - Two-story Slate Manor (Home) at middle-west
- * - Iconic Pokémon Center (Front Desk / Reception) with red roof
- * - Poké Mart (Depop / Store) with blue roof
- * - Central circular sparkling water fountain
- * - Modern Tech Hub (Arcade) beside the fountain plaza
- * - Charming Outdoor Café with parasols (LinkedIn, Résumé, GitHub, Email)
- * - Charizard and AI Digital Twin NPCs
+ * Pokémon Sinnoh/Unova style coastal town map (Expanded 100x100 Master Edition):
+ * - 100x100 tile layout with Town Core preserved intact at X offset +26
+ * - Ocean coast with granite seawall on the far West (x: 0..8, y: 0..26)
+ * - Expansive buildable meadows & scenic boulevards on the West, East, and South
+ * - South Digital Portal at (47..49, 95..96) connecting to Digi-Sanctuary
  */
 import { Tile, type Building, type Lamp, type Npc, type Prop, type Sign, type TownData, type TownMap } from './types';
+import { applyLivingWorldGeography } from './world/townGeography';
 
-export const MAP_W = 45;
-export const MAP_H = 64;
+export const MAP_W = 100;
+export const MAP_H = 100;
+export const TOWN_OFFSET_X = 26;
 
 export const DIGI_GATE_PORTAL = {
-  xMin: 21,
-  xMax: 23,
-  yMin: 59,
-  yMax: 60,
-  triggerY: 60,
+  xMin: 21 + TOWN_OFFSET_X, // 47
+  xMax: 23 + TOWN_OFFSET_X, // 49
+  yMin: 95,
+  yMax: 96,
+  triggerY: 96,
   route: '/digimon',
-  returnSpawn: { x: 22, y: 58, dir: 'up' as const },
+  returnSpawn: { x: 22 + TOWN_OFFSET_X, y: 94, dir: 'up' as const },
 };
 
 export function createTownMap(_data: TownData): TownMap {
   const w = MAP_W;
   const h = MAP_H;
+  const OX = TOWN_OFFSET_X;
   const ground = new Uint8Array(w * h).fill(Tile.GRASS);
-  const collision = new Uint8Array(w * h).fill(0); // 0 = walkable by default across town land
+  const collision = new Uint8Array(w * h).fill(0); // 0 = walkable across all open town & meadow land
   const idx = (x: number, y: number) => y * w + x;
 
   const rectGround = (x: number, y: number, rw: number, rh: number, t: number) => {
@@ -55,324 +51,211 @@ export function createTownMap(_data: TownData): TownMap {
     }
   };
 
-  const makeWalkableGrass = (x: number, y: number, rw: number, rh: number) => {
-    for (let j = y; j < y + rh; j++) {
-      for (let i = x; i < x + rw; i++) {
-        if (i >= 0 && i < w && j >= 0 && j < h) {
-          collision[idx(i, j)] = 0;
-          ground[idx(i, j)] = Tile.GRASS;
-        }
-      }
-    }
-  };
+  // Stone foundation aprons & west promenade in Town Core (shifted by OX = +26)
+  rectGround(9 + OX, 1, 13, 17, Tile.PATH);
+  rectGround(23 + OX, 1, 11, 14, Tile.PATH);
+  rectGround(3 + OX, 27, 2, 16, Tile.PATH);
+  makeWalkable(3 + OX, 27, 2, 16);
 
-  const makeWalkableTallGrass = (x: number, y: number, rw: number, rh: number) => {
-    for (let j = y; j < y + rh; j++) {
-      for (let i = x; i < x + rw; i++) {
-        if (i >= 0 && i < w && j >= 0 && j < h) {
-          collision[idx(i, j)] = 0;
-          ground[idx(i, j)] = Tile.TALL;
-        }
-      }
-    }
-  };
+  // Extended Central Grand Boulevard (X: 46..49, Y: 18..96 all the way to South Digi-Gate!)
+  makeWalkable(20 + OX, 18, 4, 79);
 
-  // 1. Ocean Coast on Left (x: 0 to 8, y: 0 to 26; x: 0 to 2, y: 27 to 32)
-  rectGround(0, 0, 9, 27, Tile.WATER);  // Deep ocean bay above coastal seawall
-  rectGround(0, 27, 3, 6, Tile.WATER);  // Coastal water buffer west of cycling track
-  for (let j = 0; j < 27; j++) {
-    for (let i = 0; i < 9; i++) collision[idx(i, j)] = 1;
+  // 3. Preserved Town Core Streets & Plazas (shifted cleanly by +OX)
+  makeWalkable(9 + OX, 13, 13, 5);
+  makeWalkable(15 + OX, 11, 2, 2);
+  makeWalkable(19 + OX, 16, 4, 2);
+  makeWalkable(10 + OX, 18, 12, 2);
+
+  makeWalkable(8 + OX, 20, 2, 7);
+  makeWalkable(8 + OX, 27, 13, 2);
+  makeWalkable(5 + OX, 27, 4, 1);
+  makeWalkable(8 + OX, 28, 2, 2);
+  makeWalkable(8 + OX, 35, 13, 2);
+  makeWalkable(5 + OX, 37, 4, 1);
+  makeWalkable(8 + OX, 38, 2, 2);
+  makeWalkable(8 + OX, 43, 13, 2);
+  makeWalkable(2 + OX, 43, 19, 13);
+  makeWalkable(14 + OX, 26, 3, 18);
+
+  makeWalkable(23 + OX, 9, 11, 7);
+  makeWalkable(26 + OX, 8, 3, 2);
+  makeWalkable(31 + OX, 8, 3, 2);
+
+  makeWalkable(24 + OX, 16, 10, 9);
+  makeWalkable(24 + OX, 25, 10, 3);
+  makeWalkable(24 + OX, 28, 10, 8);
+  makeWalkable(24 + OX, 36, 10, 7);
+  makeWalkable(24 + OX, 43, 10, 4);
+
+  makeWalkable(34 + OX, 6, 2, 49);
+
+  makeWalkable(36 + OX, 2, 7, 6);
+  makeWalkable(36 + OX, 8, 7, 1);
+  makeWalkable(36 + OX, 9, 6, 6);
+  makeWalkable(36 + OX, 15, 6, 1);
+  makeWalkable(36 + OX, 16, 7, 1);
+  makeWalkable(36 + OX, 17, 7, 9);
+  makeWalkable(36 + OX, 26, 7, 2);
+  makeWalkable(36 + OX, 28, 7, 8);
+  makeWalkable(36 + OX, 36, 7, 2);
+  makeWalkable(36 + OX, 38, 7, 8);
+  makeWalkable(36 + OX, 46, 7, 2);
+
+  makeWalkable(24 + OX, 46, 10, 10);
+  makeWalkable(34 + OX, 48, 9, 8);
+  makeWalkable(5 + OX, 27, 4, 16);
+
+  // Outer 100x100 Perimeter Forest & Northern Civic Fence
+  rectGround(9, 0, w - 9, 2, Tile.TREE);          // North forest ridge (X: 9..99, Y: 0..1)
+  rectGround(9 + OX, 0, 35, 1, Tile.FENCE);       // Northern civic fence behind Town Core (X: 35..69, Y: 0)
+  rectGround(0, 27, 2, h - 27, Tile.TREE);        // West boundary forest ridge (X: 0..1, Y: 27..99)
+  rectGround(w - 2, 0, 2, h, Tile.TREE);          // East boundary forest ridge (X: 98..99, Y: 0..99)
+  rectGround(0, h - 2, w, 2, Tile.TREE);          // South boundary forest ridge (X: 0..99, Y: 98..99)
+
+  for (let x = 9; x < w; x++) {
+    collision[idx(x, 0)] = 1;
+    collision[idx(x, 1)] = 1;
   }
-  for (let j = 27; j < 33; j++) {
-    for (let i = 0; i < 3; i++) collision[idx(i, j)] = 1;
+  for (let y = 27; y < h; y++) {
+    collision[idx(0, y)] = 1;
+    collision[idx(1, y)] = 1;
   }
-
-  // Stone foundation aprons around key civic structures
-  rectGround(9, 1, 13, 17, Tile.PATH);   // 1-tile stone apron around Dev Center & Courtyard (X: 9..21, Y: 1..17)
-  rectGround(23, 1, 11, 14, Tile.PATH);  // Stone apron around Research Lab & Annex campus (X: 23..33, Y: 1..14)
-  rectGround(3, 27, 2, 16, Tile.PATH);   // Brick cycling & jogging track (X: 3..4, Y: 27..42)
-  makeWalkable(3, 27, 2, 16);            // Walkable cycling track
-
-  // 2. South Pokémon Dex Catching Reserve & Meadows (X: 3..18 & X: 25..42, Y: 56..61)
-  // A. West Dex Meadow:
-  makeWalkableGrass(3, 56, 16, 1);       // Walkable lawn gateway path from West Plaza
-  makeWalkableTallGrass(3, 57, 16, 5);   // X: 3..18, Y: 57..61 (Expansive wild tall grass reserve for Dex encounters!)
-
-  // B. East Dex Meadow:
-  makeWalkableGrass(25, 56, 18, 1);      // Walkable lawn gateway path from Café & Promenade
-  makeWalkableTallGrass(25, 57, 18, 5);  // X: 25..42, Y: 57..61 (Expansive wild tall grass reserve for Dex encounters!)
-
-  // 3. Walkable Streets & Plazas (Master-Planned 3-Zone Urban Grid)
-  // A. Central Boulevard (North-South grand avenue at X: 21..23, completely unblocked!)
-  makeWalkable(20, 18, 4, 44); // X: 20..23, Y: 18..61 (Stops at Y: 61 before south border forest wall)
-
-  // B. Grand Manor Courtyard at North (Dev Center: X: 9..21, Y: 13..17)
-  makeWalkable(9, 13, 13, 5);   // X: 9..21, Y: 13..17 (Courtyard opened west to X: 9 with vertical hedge at X: 8)
-  makeWalkable(15, 11, 2, 2);   // Direct approach to Dev door at (15..16, 11)
-  makeWalkable(19, 16, 4, 2);   // Gateway connecting Courtyard to Central Boulevard
-  makeWalkable(10, 18, 12, 2);  // X: 10..21, Y: 18..19 (Clean 2-tile paved street above Home Manor!)
-
-  // C. West Wing Commercial & Civic Street (Aligned along Door Axis X = 15)
-  makeWalkable(8, 20, 2, 7);   // X: 8..9, Y: 20..26 (Scenic Oceanview Promenade along granite sea wall)
-  makeWalkable(8, 27, 13, 2);  // X: 8..20, Y: 27..28 (Clean 2-tile cross-street between Home Manor and Poké Center)
-  makeWalkable(5, 27, 4, 1);   // X: 5..8, Y: 27 (Seaside connection north of Reshiram)
-  makeWalkable(8, 28, 2, 2);   // X: 8..9, Y: 28..29 (Approach to Reshiram)
-  makeWalkable(8, 35, 13, 2);  // X: 8..20, Y: 35..36 (Clean 2-tile cross-street between Poké Center and Poké Mart)
-  makeWalkable(5, 37, 4, 1);   // X: 5..8, Y: 37 (Seaside connection north of Zekrom)
-  makeWalkable(8, 38, 2, 2);   // X: 8..9, Y: 38..39 (Approach to Zekrom)
-  makeWalkable(8, 43, 13, 2);  // X: 8..20, Y: 43..44 (Clean cross-street below Poké Mart to West Plaza)
-  makeWalkable(2, 43, 19, 13); // X: 2..20, Y: 43..55 (Grand West Plaza, Tech Tower forecourt & flowerbed park)
-  makeWalkable(14, 26, 3, 18); // X: 14..16, Y: 26..43 (Continuous paved door avenue along Axis X=15!)
-
-  // D. Center Wing: Research Lab Compound (X: 23..33, Y: 1..15)
-  makeWalkable(23, 9, 11, 7);  // X: 23..33, Y: 9..15 (Completely open, seamless courtyard and avenue!)
-  makeWalkable(26, 8, 3, 2);   // Approach to lab door at (27, 8)
-  makeWalkable(31, 8, 3, 2);   // Approach to Observatory Annex door at (32, 8)
-
-  // E. Center Wing: Battle Arena (X: 24..33, Y: 16..24)
-  makeWalkable(24, 16, 10, 9); // X: 24..33, Y: 16..24 (Clean regulation sand court, zero obstacles!)
-
-  // F. Center Wing: Promenade, Digital Twin & Fountain Plaza (X: 24..33, Y: 25..35)
-  makeWalkable(24, 25, 10, 3); // X: 24..33, Y: 25..27 (Open paved promenade below Arena)
-  makeWalkable(24, 28, 10, 8); // X: 24..33, Y: 28..35 (Civic Fountain Plaza surrounding fountain at (28.5, 31))
-
-  // G. Center Wing: Arcade Below Fountain (X: 25..32, Y: 36..42)
-  makeWalkable(24, 36, 10, 7); // Forecourt and approaches around Arcade
-  makeWalkable(24, 43, 10, 4); // X: 24..33, Y: 43..46 (Arcade South Apron connecting to Boulevard & Kiosk)
-
-  // H. Unbroken East Promenade (X: 34..35, Y: 6..54 - 2-tile wide straight unobstructed stone avenue!)
-  makeWalkable(34, 6, 2, 49);  // X: 34..35, Y: 6..54 (100% collision-free straight corridor!)
-
-  // I. East Wing 5 Districts (X: 36..42)
-  // 1) 🔭 Scenic Lookout (X: 36..42, Y: 2..7)
-  makeWalkable(36, 2, 7, 6);   // X: 36..42, Y: 2..7 (Observation terrace)
-  makeWalkable(36, 8, 7, 1);   // Y: 8 (1-tile buffer below Scenic Lookout)
-  // 2) 🏡 Studio Villa (X: 36..41, Y: 9..14, door at 38, 13)
-  makeWalkable(36, 9, 6, 6);   // X: 36..41, Y: 9..14 (Villa estate, door at 38, 13)
-  makeWalkable(36, 15, 6, 1);  // Y: 15 (Front gate approach at 38, 15)
-  makeWalkable(36, 16, 7, 1);  // Y: 16 (1-tile walkway buffer below Villa fence)
-  // 3) 🌸 Berry Garden (X: 36..42, Y: 17..25)
-  makeWalkable(36, 17, 7, 9);  // X: 36..42, Y: 17..25 (Orchard with entrance at 36, 21)
-  makeWalkable(36, 26, 7, 2);  // Y: 26..27 (2-tile walkway buffer below Berry Garden)
-  // 4) 🎪 Contest Stage (X: 36..42, Y: 28..35)
-  makeWalkable(36, 28, 7, 8);  // X: 36..42, Y: 28..35 (Amphitheater & stage)
-  makeWalkable(36, 36, 7, 2);  // Y: 36..37 (2-tile walkway buffer below Contest Stage)
-  // 5) 🏕️ Ranger Camp (X: 36..42, Y: 38..45)
-  makeWalkable(36, 38, 7, 8);  // X: 36..42, Y: 38..45 (Woodland clearing & outpost)
-  makeWalkable(36, 46, 7, 2);  // Y: 46..47 (Buffer below Ranger Camp to Café)
-
-  // J. South Civic Plaza, Contest Stage, Kiosk & Café Terrace (X: 24..42, Y: 46..56)
-  makeWalkable(24, 46, 10, 10); // X: 24..33, Y: 46..55 (Seamless South Civic Plaza, Contest Stage & Barista grounds)
-  makeWalkable(34, 48, 9, 8);   // Shifted Café Terrace (Socials tables at X: 34..42, Y: 48..55)
-  makeWalkable(20, 56, 23, 1);  // South gate connecting road (Y: 56)
-
-  // Block the fountain pool inside the fountain plaza (center 28.5, 31)
-  for (let j = 30; j <= 32; j++) {
-    for (let i = 27; i <= 30; i++) {
-      collision[idx(i, j)] = 1;
-      ground[idx(i, j)] = Tile.WATER;
-    }
+  for (let y = 0; y < h; y++) {
+    collision[idx(w - 2, y)] = 1;
+    collision[idx(w - 1, y)] = 1;
+  }
+  for (let x = 0; x < w; x++) {
+    collision[idx(x, h - 2)] = 1;
+    collision[idx(x, h - 1)] = 1;
   }
 
-  // Block the small water basin in Dev Manor courtyard (16, 16)
-  collision[idx(16, 16)] = 1;
-  ground[idx(16, 16)] = Tile.WATER;
+  // 3b. Sculpt Natural 100x100 Living Pokémon World Biomes around Town Core
+  const worldFeatures = applyLivingWorldGeography(w, h, ground, collision);
 
-  // Set Tile.TREE on perimeter forest grounds (strictly unbroken lines along all 4 boundaries)
-  rectGround(0, 0, 45, 2, Tile.TREE);  // North ridge (strictly 1 row of trees, Y: 0..1)
-  rectGround(9, 0, 35, 1, Tile.FENCE); // Unified northern boundary fence (X: 9..43, Y: 0)
-  rectGround(36, 2, 8, 1, Tile.FENCE); // Scenic Lookout terrace north railing (X: 36..43, Y: 2)
-  rectGround(44, 0, 1, 64, Tile.TREE); // East woods (strictly 1 column of trees, at X: 44)
-  rectGround(0, 33, 2, 31, Tile.TREE); // Western boundary tree line (x: 0..1, down to y=63)
-  rectGround(0, 62, 45, 2, Tile.TREE); // South boundary unbroken forest ridge (y: 62..63, strictly impassable)
-  for (let x = 0; x < 45; x++) {
-    collision[idx(x, 62)] = 1;
-    collision[idx(x, 63)] = 1;
-  }
-  for (let j = 0; j < 2; j++) {
-    for (let i = 0; i < 45; i++) collision[idx(i, j)] = 1;
-  }
-  for (let j = 0; j < 64; j++) collision[idx(44, j)] = 1;
-  for (let j = 33; j < 64; j++) {
-    collision[idx(0, j)] = 1;
-    collision[idx(1, j)] = 1;
-  }
-
-  // Fences & Barriers for South Dex Meadow (enclosing reserve with open gates for player entry)
-  // West Plaza bottom fence (X: 2..13 & X: 17..18 at Y: 56, leaves X: 14..16 as open gate)
-  for (let x = 2; x <= 13; x++) { collision[idx(x, 56)] = 1; ground[idx(x, 56)] = Tile.FENCE; }
-  for (let x = 17; x <= 18; x++) { collision[idx(x, 56)] = 1; ground[idx(x, 56)] = Tile.FENCE; }
-  // West road flanking fence & corner (X: 19, Y: 56..61)
-  for (let y = 56; y <= 61; y++) { collision[idx(19, y)] = 1; ground[idx(19, y)] = Tile.FENCE; }
-  // Western boundary fence line (X: 2, Y: 28..61)
-  for (let y = 28; y <= 61; y++) { collision[idx(2, y)] = 1; ground[idx(2, y)] = Tile.FENCE; }
-
-  // East road flanking fence & corner (X: 25, Y: 56..61)
-  for (let y = 56; y <= 61; y++) { collision[idx(25, y)] = 1; ground[idx(25, y)] = Tile.FENCE; }
-  // South fence in front of Kiosk Forecourt (X: 25..32 at Y: 56)
-  for (let x = 25; x <= 32; x++) { collision[idx(x, 56)] = 1; ground[idx(x, 56)] = Tile.FENCE; }
-  // South Café fence wings (X: 34..36 and X: 39..42 at Y: 56, leaves X: 37..38 as open south entrance)
-  for (let x = 34; x <= 36; x++) { collision[idx(x, 56)] = 1; ground[idx(x, 56)] = Tile.FENCE; }
-  for (let x = 39; x <= 42; x++) { collision[idx(x, 56)] = 1; ground[idx(x, 56)] = Tile.FENCE; }
-  // Eastern boundary fence line (X: 43, Y: 0..61 flanking eastern tree line)
-  for (let y = 0; y <= 61; y++) { collision[idx(43, y)] = 1; ground[idx(43, y)] = Tile.FENCE; }
-  for (let x = 36; x <= 42; x++) { collision[idx(x, 2)] = 1; ground[idx(x, 2)] = Tile.FENCE; } // Lookout north railing
-
-  // Studio Villa Side Fences (framing front garden at X: 36, 41 along Y: 13..14)
-  for (let y = 13; y <= 14; y++) {
-    collision[idx(36, y)] = 1; ground[idx(36, y)] = Tile.FENCE;
-    collision[idx(41, y)] = 1; ground[idx(41, y)] = Tile.FENCE;
-  }
-  // Berry Garden entrance fence wings flanking gate at (36, 21)
-  for (let y = 17; y <= 20; y++) { collision[idx(36, y)] = 1; ground[idx(36, y)] = Tile.FENCE; }
-  for (let y = 22; y <= 25; y++) { collision[idx(36, y)] = 1; ground[idx(36, y)] = Tile.FENCE; }
-
-  // Front fence along Y: 15 with gate at (38, 15)
-  for (let i = 36; i <= 41; i++) {
-    if (i === 38) continue; // Gate opening at (38, 15)
-    collision[idx(i, 15)] = 1;
-    ground[idx(i, 15)] = Tile.FENCE;
-  }
-  // Unified North Boundary Perimeter Fence & Single Divider Hedge Column
-  for (let x = 9; x <= 43; x++) collision[idx(x, 0)] = 1; // Continuous north fence along Y: 0
-  for (let y = 1; y <= 17; y++) collision[idx(22, y)] = 1; // Single divider hedge column at X: 22 (Y: 1..17, shifted 1 tile west!)
-  for (let y = 13; y <= 17; y++) collision[idx(8, y)] = 1; // West courtyard boundary hedge shifted to X: 8
-
-  // West Seaside Boardwalk (X: 5..8, Y: 27..42) - clean walkable promenade ground
-  makeWalkable(5, 27, 4, 16);
-
-  // 4. Interactive Buildings
+  // 4. Interactive Buildings (fallback defaults aligned with shifted Town Core)
   const buildings: Building[] = [
-    // Grand Manor at North-West: Dev Center
     {
       id: 'dev',
       name: 'Dev Center',
       badge: 'Dev Center',
       route: '/dev',
-      x: 10,
+      x: 10 + OX,
       y: 1,
       w: 12,
       h: 11,
-      doors: [{ x: 15, y: 11 }, { x: 16, y: 11 }],
+      doors: [{ x: 15 + OX, y: 11 }, { x: 16 + OX, y: 11 }],
       roof: '#4a5568',
       roofDark: '#2d3748',
       wall: '#d8cbba',
       sign: 'DEV CENTER',
       style: 'mansion',
     },
-    // Green-roof Building at North-East: Research Lab (Shifted to X: 24, Y: 3)
     {
       id: 'lab',
       name: 'Research Lab',
       badge: 'Research Lab',
       route: '/lab',
-      x: 24,
+      x: 24 + OX,
       y: 3,
       w: 7,
       h: 6,
-      doors: [{ x: 27, y: 8 }],
+      doors: [{ x: 27 + OX, y: 8 }],
       roof: '#1b4332',
       roofDark: '#2d6a4f',
       wall: '#f8f9fa',
       sign: 'LAB',
       style: 'lab',
     },
-    // Slate Manor at Middle-West: Home
     {
       id: 'home',
       name: 'Home',
       badge: 'Home',
       route: '/about',
-      x: 10,
-      y: 20,
+      x: 33 + OX,
+      y: 18,
       w: 10,
       h: 7,
-      doors: [{ x: 15, y: 26 }],
+      doors: [{ x: 37 + OX, y: 24 }],
       roof: '#2b2d42',
       roofDark: '#1d1e2c',
       wall: '#f3eee3',
       sign: 'HOME',
       style: 'mansion',
     },
-    // Pokémon Center (Red Roof with Pokéball symbol): Front Desk / Reception (Aligned to Axis X=15)
     {
       id: 'reception',
       name: 'Poké Center',
       badge: 'Poké Center',
       route: '/reception',
-      x: 12,
-      y: 29,
+      x: 35 + OX,
+      y: 11,
       w: 7,
       h: 6,
-      doors: [{ x: 15, y: 34 }],
+      doors: [{ x: 38 + OX, y: 16 }],
       roof: '#d90429',
       roofDark: '#9b2226',
       wall: '#f8f9fa',
       sign: 'RECEPTION',
       style: 'standard',
     },
-    // Poké Mart (Blue Roof with Shop symbol): Poké Mart Store (Aligned to Axis X=15)
     {
       id: 'shop',
       name: 'Poké Mart',
       badge: 'Mart',
       route: '/mart',
-      x: 12,
-      y: 37,
+      x: 36 + OX,
+      y: 27,
       w: 6,
       h: 6,
-      doors: [{ x: 15, y: 42 }],
+      doors: [{ x: 39 + OX, y: 32 }],
       roof: '#1d3557',
       roofDark: '#0d1b2a',
       wall: '#f8fafc',
       sign: 'MART',
       style: 'shop',
     },
-    // Modern Building at Middle-East: Arcade (Centered on Axis X=28.5 below Fountain)
     {
       id: 'arcade',
       name: 'Arcade',
       badge: 'Arcade',
       route: '/arcade',
-      x: 25,
-      y: 36,
+      x: 24 + OX,
+      y: 10,
       w: 8,
       h: 7,
-      doors: [{ x: 28, y: 42 }, { x: 29, y: 42 }],
+      doors: [{ x: 27 + OX, y: 16 }, { x: 28 + OX, y: 16 }],
       roof: '#1e293b',
       roofDark: '#0f172a',
       wall: '#334155',
       sign: 'ARCADE',
       style: 'standard',
     },
-    // Storybook Pokémon Cottage — Neighbour's House (X: 25, Y: 20)
     {
       id: 'villa',
       name: "Neighbour's House",
       badge: 'Neighbour',
       route: '/neighbour',
-      x: 25,
+      x: 25 + OX,
       y: 20,
       w: 6,
       h: 5,
-      doors: [{ x: 27, y: 24 }, { x: 28, y: 24 }],
+      doors: [{ x: 27 + OX, y: 24 }, { x: 28 + OX, y: 24 }],
       roof: '#9a3412',
       roofDark: '#7c2d12',
       wall: '#fef3c7',
       sign: 'NEIGHBOUR',
       style: 'standard',
     },
-    // Multi-Story Urban Office Tower (South-West Commercial Plaza)
     {
       id: 'office',
       name: 'Tech Tower',
       badge: 'Tech Tower',
       route: '/tower',
-      x: 3,
-      y: 44,
+      x: 36 + OX,
+      y: 0,
       w: 6,
       h: 8,
-      doors: [{ x: 5, y: 51 }, { x: 6, y: 51 }],
+      doors: [{ x: 39 + OX, y: 7 }],
       roof: '#334155',
       roofDark: '#1e293b',
       wall: '#64748b',
@@ -381,14 +264,14 @@ export function createTownMap(_data: TownData): TownMap {
     },
   ];
 
-  // 5. Props (Statue & Fountain & East POIs)
+  // 5. Props
   const props: Prop[] = [
     {
       id: 'fountain',
       name: 'Town Fountain',
       badge: 'Fountain',
-      x: 28,
-      y: 31,
+      x: 4 + OX,
+      y: 52,
       type: 'fountain',
       lines: [
         'TOWN FOUNTAIN',
@@ -400,7 +283,7 @@ export function createTownMap(_data: TownData): TownMap {
       id: 'statue',
       name: 'Courtyard Basin',
       badge: 'Courtyard Basin',
-      x: 16,
+      x: 16 + OX,
       y: 16,
       type: 'statue',
       lines: [
@@ -412,8 +295,8 @@ export function createTownMap(_data: TownData): TownMap {
       id: 'lookout',
       name: 'Scenic Lookout',
       badge: 'Lookout Point',
-      x: 39,
-      y: 3,
+      x: 3 + OX,
+      y: 43,
       type: 'statue',
       lines: [
         'SCENIC LOOKOUT POINT',
@@ -425,8 +308,8 @@ export function createTownMap(_data: TownData): TownMap {
       id: 'arena',
       name: 'Battle Arena',
       badge: 'Battle Arena',
-      x: 28,
-      y: 20,
+      x: 38 + OX,
+      y: 39,
       type: 'statue',
       lines: [
         'POKÉMON BATTLE ARENA',
@@ -438,8 +321,8 @@ export function createTownMap(_data: TownData): TownMap {
       id: 'berry',
       name: 'Berry Garden',
       badge: 'Berry Garden',
-      x: 39,
-      y: 20,
+      x: 28 + OX,
+      y: 39,
       type: 'bench',
       lines: [
         'ORGANIC BERRY ORCHARD & SAKURA GROVE',
@@ -451,8 +334,8 @@ export function createTownMap(_data: TownData): TownMap {
       id: 'contest',
       name: 'Contest Stage',
       badge: 'Contest Stage',
-      x: 39,
-      y: 30,
+      x: 28 + OX,
+      y: 51,
       type: 'statue',
       lines: [
         'POKÉMON CONTEST HALL STAGE',
@@ -464,28 +347,28 @@ export function createTownMap(_data: TownData): TownMap {
       id: 'hobby',
       name: 'Off-Duty Gazebo',
       badge: 'Seaside Plaza',
-      x: 8,
-      y: 34,
+      x: 8 + OX,
+      y: 31,
       type: 'bench',
       lines: [
         "ZULFAN'S OFF-DUTY LOG",
-        "When not training neural nets or architecting frontends:",
-        "• Lo-fi beat production & indie synth tracks",
-        "• Vintage handheld console modding & retro pixel art",
-        "• Specialty pour-over coffee brewing & coastal cycling routes!",
+        'When not training neural nets or architecting frontends:',
+        '• Lo-fi beat production & indie synth tracks',
+        '• Vintage handheld console modding & retro pixel art',
+        '• Specialty pour-over coffee brewing & coastal cycling routes!',
       ],
     },
   ];
 
-  // 6. NPCs (Charizard in Plaza & Digital Twin at Crossroads & Ranger Alex & Ace Trainer)
+  // 6. NPCs
   const npcs: Npc[] = [
     {
       id: 'twin',
       name: 'Digital Twin',
       badge: 'Digital Twin',
-      x: 25,
-      y: 26,
-      dir: 'right',
+      x: 12 + OX,
+      y: 22,
+      dir: 'down',
       palette: {
         skin: '#fedbb7',
         hair: '#1c1726',
@@ -504,9 +387,9 @@ export function createTownMap(_data: TownData): TownMap {
       id: 'charizard',
       name: 'Charizard',
       badge: 'Charizard',
-      x: 25,
-      y: 33,
-      dir: 'right',
+      x: 18 + OX,
+      y: 22,
+      dir: 'down',
       palette: {
         skin: '#f08030',
         hair: '#209888',
@@ -522,8 +405,8 @@ export function createTownMap(_data: TownData): TownMap {
       id: 'ranger',
       name: 'Tyranitar',
       badge: 'Armor Pokémon',
-      x: 37,
-      y: 42,
+      x: 12 + OX,
+      y: 46,
       dir: 'down',
       palette: {
         skin: '#84cc16',
@@ -536,15 +419,15 @@ export function createTownMap(_data: TownData): TownMap {
       lines: [
         'TYRANITAR: "Gwoooaaargh!" 🪨',
         'Tyranitar adalah Pokémon armor tipe Rock/Dark bertubuh zirah sekuat baja.',
-        'Dengan kemampuan Sand Stream dan pertahanan sekeras karang, Tyranitar menjaga perbatasan kota dan kestabilan alam di Zulfan\'s Town.',
+        "Dengan kemampuan Sand Stream dan pertahanan sekeras karang, Tyranitar menjaga perbatasan kota dan kestabilan alam di Zulfan's Town.",
       ],
     },
     {
       id: 'ace',
       name: 'Mewtwo',
       badge: 'Battle Arena',
-      x: 28,
-      y: 17,
+      x: 18 + OX,
+      y: 46,
       dir: 'down',
       palette: {
         skin: '#f3e8ff',
@@ -565,8 +448,8 @@ export function createTownMap(_data: TownData): TownMap {
       id: 'arceus',
       name: 'Arceus',
       badge: 'Alpha Pokémon',
-      x: 17,
-      y: 14,
+      x: 15 + OX,
+      y: 13,
       dir: 'down',
       palette: {
         skin: '#ffffff',
@@ -579,15 +462,15 @@ export function createTownMap(_data: TownData): TownMap {
         'ARCEUS: "Dooo-oooonnn...!" ✨',
         'Sang Alpha Pokémon berdiri anggun di pelataran Dev Center.',
         'Konon dalam mitologi Sinnoh, Arceus lahir sebelum alam semesta terbentuk dan menciptakan ruang serta waktu dengan 1.000 lengannya.',
-        'Kehadirannya di Zulfan\'s Town membawa berkat kedamaian dan inspirasi kreativitas teknologi tanpa batas.',
+        "Kehadirannya di Zulfan's Town membawa berkat kedamaian dan inspirasi kreativitas teknologi tanpa batas.",
       ],
     },
     {
       id: 'reshiram',
       name: 'Reshiram',
       badge: 'Vast White',
-      x: 6,
-      y: 28,
+      x: 18 + OX,
+      y: 31,
       dir: 'down',
       palette: {
         skin: '#ffffff',
@@ -598,9 +481,8 @@ export function createTownMap(_data: TownData): TownMap {
       },
       lines: [
         'RESHIRAM: "Vaaa-zhooom...!" 🤍🔥',
-        'Naga Legendaris Putih (Vast White Pokémon) berdiri megah di tebing pesisir pantai barat.',
-        'Ekor turbin Reshiram membara dengan api kebenaran murni (Fusion Flare), menghangatkan semilir angin laut Zulfan\'s Town.',
-        'Menurut legenda wilayah Unova, Reshiram mendampingi para visioner yang memperjuangkan dunia yang dipenuhi kebenaran dan cita-cita luhur.',
+        'Naga Legendaris Putih (Vast White Pokémon) berdiri megah di koridor legenda.',
+        "Ekor turbin Reshiram membara dengan api kebenaran murni (Fusion Flare), menghangatkan semilir angin laut Zulfan's Town.",
       ],
       action: { kind: 'event', name: 'reshiram' },
     },
@@ -608,8 +490,8 @@ export function createTownMap(_data: TownData): TownMap {
       id: 'zekrom',
       name: 'Zekrom',
       badge: 'Deep Black',
-      x: 6,
-      y: 38,
+      x: 12 + OX,
+      y: 31,
       dir: 'down',
       palette: {
         skin: '#1e293b',
@@ -620,9 +502,8 @@ export function createTownMap(_data: TownData): TownMap {
       },
       lines: [
         'ZEKROM: "Bzzzz-Vrrrooom...!" 🖤⚡',
-        'Naga Legendaris Hitam (Deep Black Pokémon) berdiri kokoh di pelataran pesisir selatan pantai.',
+        'Naga Legendaris Hitam (Deep Black Pokémon) berdiri kokoh di koridor legenda.',
         'Ekor generator listriknya berputar kencang memancarkan kilatan petir bertegangan raksasa (Fusion Bolt).',
-        'Menurut legenda wilayah Unova, Zekrom mendampingi para pejuang yang teguh merealisasikan cita-cita dan idealisme tinggi demi masa depan yang lebih baik.',
       ],
       action: { kind: 'event', name: 'zekrom' },
     },
@@ -630,8 +511,8 @@ export function createTownMap(_data: TownData): TownMap {
       id: 'giratina',
       name: 'Giratina',
       badge: 'Renegade',
-      x: 32,
-      y: 26,
+      x: 18 + OX,
+      y: 25,
       dir: 'down',
       palette: {
         skin: '#71717a',
@@ -642,9 +523,7 @@ export function createTownMap(_data: TownData): TownMap {
       },
       lines: [
         'GIRATINA: "Gyaaa-shhhooo...!" 👻🌌',
-        'Sang Naga Pemberontak (Renegade Pokémon) dari Dunia Distorsi berdiri dalam bayang-bayang promenade.',
-        'Enam sayap hitam berhiaskan cakar merah keemasan mengepak dalam heningnya dimensi antimateri.',
-        'Menurut legenda Sinnoh, Giratina diasingkan karena kekuatannya yang dahsyat, namun ia senantiasa menjaga keseimbangan dimensi di balik realitas dunia kita.',
+        'Sang Naga Pemberontak (Renegade Pokémon) dari Dunia Distorsi mengawasi keseimbangan dimensi.',
       ],
       action: { kind: 'event', name: 'giratina' },
     },
@@ -652,8 +531,8 @@ export function createTownMap(_data: TownData): TownMap {
       id: 'palkia',
       name: 'Palkia',
       badge: 'Spatial',
-      x: 32,
-      y: 33,
+      x: 18 + OX,
+      y: 28,
       dir: 'down',
       palette: {
         skin: '#f5d0fe',
@@ -664,9 +543,7 @@ export function createTownMap(_data: TownData): TownMap {
       },
       lines: [
         'PALKIA: "Gyaaa-ooohhn...!" 🌌💧',
-        'Sang Naga Ruang (Spatial Pokémon) berdiri anggun di pelataran timur Fountain Plaza.',
-        'Mutiara di pundak Palkia memancarkan gelombang distorsi ruang (Spacial Rend) yang menembus batas dimensi.',
-        'Menurut legenda Sinnoh, Palkia mengendalikan luas dan bentuk ruang di seluruh alam semesta, memungkinkannya berpindah ke dimensi mana pun dalam sekejap.',
+        'Sang Naga Ruang (Spatial Pokémon) memancarkan gelombang distorsi ruang (Spacial Rend).',
       ],
       action: { kind: 'event', name: 'palkia' },
     },
@@ -674,8 +551,8 @@ export function createTownMap(_data: TownData): TownMap {
       id: 'dialga',
       name: 'Dialga',
       badge: 'Temporal',
-      x: 39,
-      y: 36,
+      x: 12 + OX,
+      y: 28,
       dir: 'down',
       palette: {
         skin: '#38bdf8',
@@ -686,21 +563,19 @@ export function createTownMap(_data: TownData): TownMap {
       },
       lines: [
         'DIALGA: "Gugyugubah...!" ⏳🔷',
-        'Sang Naga Waktu (Temporal Pokémon) berdiri kokoh di pelataran timur.',
-        'Berlian di dadanya memancarkan gelombang distorsi waktu (Roar of Time) yang mengendalikan detak aliran waktu di seluruh semesta.',
-        'Menurut legenda Sinnoh, waktu mulai mengalir saat Dialga lahir dari kehendak Arceus, menjadikannya pilar waktu yang abadi.',
+        'Sang Naga Waktu (Temporal Pokémon) mengendalikan detak aliran waktu di seluruh semesta.',
       ],
       action: { kind: 'event', name: 'dialga' },
     },
   ];
 
-  // 7. Social Signs at Café & East Quarter
+  // 7. Social Signs at Café & Landmarks
   const signs: Sign[] = [
     {
       id: 'lookout-sign',
       name: 'Scenic Lookout',
-      x: 39,
-      y: 3,
+      x: 4 + OX,
+      y: 43,
       style: 'post',
       lines: [
         'SCENIC LOOKOUT POINT',
@@ -711,8 +586,8 @@ export function createTownMap(_data: TownData): TownMap {
     {
       id: 'ranger-sign',
       name: 'Ranger Notice',
-      x: 41,
-      y: 41,
+      x: 7 + OX,
+      y: 35,
       style: 'board',
       lines: [
         'RANGER ADVENTURE LOG',
@@ -724,8 +599,8 @@ export function createTownMap(_data: TownData): TownMap {
     {
       id: 'hobby-sign',
       name: 'Off-Duty Board',
-      x: 8,
-      y: 34,
+      x: 8 + OX,
+      y: 31,
       style: 'board',
       lines: [
         "ZULFAN'S OFF-DUTY LOG",
@@ -738,8 +613,8 @@ export function createTownMap(_data: TownData): TownMap {
     {
       id: 'kiosk',
       name: 'Poké-Café Bar',
-      x: 28,
-      y: 51,
+      x: 29 + OX,
+      y: 31,
       style: 'post',
       lines: [
         'POKÉ-CAFÉ BARISTA STAND ☕',
@@ -754,7 +629,7 @@ export function createTownMap(_data: TownData): TownMap {
     {
       id: 'linkedin',
       name: 'LinkedIn',
-      x: 36,
+      x: 36 + OX,
       y: 49,
       style: 'post',
       lines: ['LINKEDIN TABLE', 'Connect with Muhammad Zulfan on LinkedIn.'],
@@ -767,7 +642,7 @@ export function createTownMap(_data: TownData): TownMap {
     {
       id: 'resume',
       name: 'Résumé',
-      x: 40,
+      x: 40 + OX,
       y: 49,
       style: 'post',
       lines: ['CURRICULUM VITAE TABLE', 'Verified latest CV in PDF format.'],
@@ -780,7 +655,7 @@ export function createTownMap(_data: TownData): TownMap {
     {
       id: 'github',
       name: 'GitHub',
-      x: 36,
+      x: 36 + OX,
       y: 53,
       style: 'post',
       lines: ['GITHUB REPOSITORY TABLE', 'Explore open-source code and AI projects at github.com/Zulfan15.'],
@@ -793,7 +668,7 @@ export function createTownMap(_data: TownData): TownMap {
     {
       id: 'email',
       name: 'Email',
-      x: 40,
+      x: 40 + OX,
       y: 53,
       style: 'post',
       lines: ['DIRECT DISPATCH TABLE', 'Email: zulfanangga2908@gmail.com', 'Open to software engineering and AI roles.'],
@@ -803,51 +678,46 @@ export function createTownMap(_data: TownData): TownMap {
         prompt: 'Send email to Zulfan?',
       },
     },
+    ...worldFeatures.extraSigns,
   ];
 
   // 8. Street Lamps
   const lamps: Lamp[] = [
-    { x: 12, y: 14, radius: 46 }, // Manor courtyard NW
-    { x: 20, y: 14, radius: 46 }, // Manor courtyard NE
-    { x: 12, y: 18, radius: 46 }, // Manor courtyard SW
-    { x: 20, y: 18, radius: 46 }, // Manor courtyard SE
-    { x: 27, y: 11, radius: 50 }, // Lab compound entrance
-    { x: 10, y: 28, radius: 48 }, // Home frontage
-    { x: 11, y: 35, radius: 48 }, // Poké Center frontage
-    { x: 9, y: 44, radius: 48 },  // West Plaza Tech Tower corner
-    { x: 14, y: 44, radius: 48 }, // West Plaza East of Flowerbed
-    { x: 9, y: 52, radius: 48 },  // West Plaza SW
-    { x: 15, y: 52, radius: 48 }, // West Plaza SE
-    { x: 25, y: 31, radius: 48 }, // Fountain Plaza West
-    { x: 32, y: 31, radius: 48 }, // Fountain Plaza East
-    { x: 28, y: 43, radius: 48 }, // Arcade entrance
-    // Central Boulevard, Kiosk & Shifted Café Lamps
-    { x: 19, y: 50, radius: 48 }, // Boulevard West
-    { x: 25, y: 50, radius: 48 }, // Boulevard East (flanking kiosk approach)
-    { x: 19, y: 55, radius: 50 }, // South Gate West
-    { x: 25, y: 55, radius: 50 }, // South Gate East
-    { x: 31, y: 49, radius: 48 }, // Promenade Lamp (between Kiosk & Café)
-    { x: 31, y: 54, radius: 48 },
-    { x: 42, y: 49, radius: 48 }, // Shifted Café East Lamp
-    { x: 42, y: 54, radius: 48 },
-    // East Promenade Street Lamps (STEP 3: X=34, Y=8, 16, 26, 35, 44)
-    { x: 34, y: 8, radius: 48 },
-    { x: 34, y: 16, radius: 48 },
-    { x: 34, y: 26, radius: 48 },
-    { x: 34, y: 35, radius: 48 },
-    { x: 34, y: 44, radius: 48 },
-    // East Quarter Lamps
-    { x: 39, y: 5, radius: 48 },  // Lookout Point terrace
-    { x: 38, y: 15, radius: 48 }, // Studio Villa gate
-    { x: 28, y: 24, radius: 48 }, // Battle Arena entrance
-    { x: 36, y: 21, radius: 48 }, // Berry Garden gate
-    { x: 38, y: 28, radius: 48 }, // Contest Stage entrance
-    { x: 37, y: 42, radius: 48 }, // Ranger Station lamp
-    // West Seaside Boardwalk & Rest Plaza Lamps (Curb lamps along X: 5 and Gazebo approach at X: 10)
-    { x: 5, y: 28, radius: 48 },  // Boardwalk North Curb
-    { x: 5, y: 35, radius: 48 },  // Boardwalk Center Curb
-    { x: 5, y: 42, radius: 48 },  // Boardwalk South Curb
-    { x: 10, y: 34, radius: 48 }, // Gazebo Promenade Approach
+    { x: 12 + OX, y: 14, radius: 46 },
+    { x: 20 + OX, y: 14, radius: 46 },
+    { x: 12 + OX, y: 18, radius: 46 },
+    { x: 20 + OX, y: 18, radius: 46 },
+    { x: 27 + OX, y: 11, radius: 50 },
+    { x: 10 + OX, y: 28, radius: 48 },
+    { x: 11 + OX, y: 35, radius: 48 },
+    { x: 9 + OX, y: 44, radius: 48 },
+    { x: 14 + OX, y: 44, radius: 48 },
+    { x: 9 + OX, y: 52, radius: 48 },
+    { x: 15 + OX, y: 52, radius: 48 },
+    { x: 25 + OX, y: 31, radius: 48 },
+    { x: 32 + OX, y: 31, radius: 48 },
+    { x: 28 + OX, y: 43, radius: 48 },
+    { x: 19 + OX, y: 50, radius: 48 },
+    { x: 25 + OX, y: 50, radius: 48 },
+    { x: 19 + OX, y: 55, radius: 50 },
+    { x: 25 + OX, y: 55, radius: 50 },
+    { x: 19 + OX, y: 72, radius: 50 },
+    { x: 25 + OX, y: 72, radius: 50 },
+    { x: 19 + OX, y: 92, radius: 50 },
+    { x: 25 + OX, y: 92, radius: 50 },
+    { x: 31 + OX, y: 49, radius: 48 },
+    { x: 31 + OX, y: 54, radius: 48 },
+    { x: 42 + OX, y: 49, radius: 48 },
+    { x: 42 + OX, y: 54, radius: 48 },
+    { x: 34 + OX, y: 8, radius: 48 },
+    { x: 34 + OX, y: 16, radius: 48 },
+    { x: 34 + OX, y: 26, radius: 48 },
+    { x: 34 + OX, y: 35, radius: 48 },
+    { x: 34 + OX, y: 44, radius: 48 },
+    { x: 5 + OX, y: 28, radius: 48 },
+    { x: 5 + OX, y: 35, radius: 48 },
+    { x: 5 + OX, y: 42, radius: 48 },
+    ...worldFeatures.extraLamps,
   ];
 
   // 9. Doors Map & Collision Updates
@@ -859,37 +729,16 @@ export function createTownMap(_data: TownData): TownMap {
     }
   }
 
-  // Ensure door step points are clear and walkable
-  collision[idx(15, 11)] = 0; collision[idx(16, 11)] = 0; // Dev Center Doors
-  collision[idx(15, 12)] = 0; collision[idx(16, 12)] = 0; // Dev Center Apron Step
-  collision[idx(15, 26)] = 0; collision[idx(15, 27)] = 0; // Home Manor
-  collision[idx(15, 34)] = 0; collision[idx(15, 35)] = 0; // Poké Center
-  collision[idx(15, 42)] = 0; collision[idx(15, 43)] = 0; // Poké Mart
-  collision[idx(27, 8)] = 0; collision[idx(27, 9)] = 0; // Research Lab
-  collision[idx(32, 8)] = 0; collision[idx(32, 9)] = 0; // Observatory Annex
-  collision[idx(28, 42)] = 0; collision[idx(28, 43)] = 0; // Arcade Left Door
-  collision[idx(29, 42)] = 0; collision[idx(29, 43)] = 0; // Arcade Right Door
-  collision[idx(38, 13)] = 0; collision[idx(38, 14)] = 0; // Studio Villa
-  collision[idx(38, 15)] = 0;                             // Villa gate
-
-  // Paved entryway directly leading to Tech Tower double doors
-  ground[idx(5, 51)] = Tile.PATH;
-  ground[idx(6, 51)] = Tile.PATH;
-  ground[idx(5, 52)] = Tile.PATH;
-  ground[idx(6, 52)] = Tile.PATH;
-  collision[idx(5, 52)] = 0;
-  collision[idx(6, 52)] = 0;
-
-  // STEP 3: Ensure East Promenade (X: 34..35, Y: 6..54) is 100% straight and unobstructed
+  // Ensure East Promenade (X: 34+OX .. 35+OX, Y: 6..54) is clear
   for (let y = 6; y <= 54; y++) {
-    collision[idx(34, y)] = 0;
-    collision[idx(35, y)] = 0;
-    ground[idx(34, y)] = Tile.PATH;
-    ground[idx(35, y)] = Tile.PATH;
+    collision[idx(34 + OX, y)] = 0;
+    collision[idx(35 + OX, y)] = 0;
+    ground[idx(34 + OX, y)] = Tile.PATH;
+    ground[idx(35 + OX, y)] = Tile.PATH;
   }
 
-  // Digital Warp Gate corridor & pad at south end of Central Boulevard (X: 21..23, Y: 58..60)
-  for (let y = 58; y <= 60; y++) {
+  // Digital Warp Gate corridor & pad at south end of Central Boulevard (X: 47..49, Y: 94..96)
+  for (let y = DIGI_GATE_PORTAL.yMin - 1; y <= DIGI_GATE_PORTAL.yMax; y++) {
     for (let x = DIGI_GATE_PORTAL.xMin; x <= DIGI_GATE_PORTAL.xMax; x++) {
       collision[idx(x, y)] = 0;
       ground[idx(x, y)] = Tile.PATH;
@@ -898,6 +747,8 @@ export function createTownMap(_data: TownData): TownMap {
   for (let x = DIGI_GATE_PORTAL.xMin; x <= DIGI_GATE_PORTAL.xMax; x++) {
     doors.set(idx(x, DIGI_GATE_PORTAL.triggerY), DIGI_GATE_PORTAL.route);
   }
+
+  const defaultSpawn = { x: 22 + OX, y: 28, dir: 'down' as const };
 
   return {
     w,
@@ -910,20 +761,21 @@ export function createTownMap(_data: TownData): TownMap {
     lamps,
     props,
     doors,
+    decorations: worldFeatures.decorations,
     spawns: {
-      town: { x: 22, y: 28, dir: 'down' },
-      digimon: { x: 22, y: 58, dir: 'up' },
-      about: { x: 22, y: 28, dir: 'down' },
-      home: { x: 22, y: 28, dir: 'down' },
-      dev: { x: 22, y: 28, dir: 'down' },
-      lab: { x: 22, y: 28, dir: 'down' },
-      arcade: { x: 22, y: 28, dir: 'down' },
-      reception: { x: 22, y: 28, dir: 'down' },
-      mart: { x: 22, y: 28, dir: 'down' },
-      shop: { x: 22, y: 28, dir: 'down' },
-      tower: { x: 22, y: 28, dir: 'down' },
-      office: { x: 22, y: 28, dir: 'down' },
-      twin: { x: 22, y: 28, dir: 'down' },
+      town: defaultSpawn,
+      digimon: { ...DIGI_GATE_PORTAL.returnSpawn },
+      about: defaultSpawn,
+      home: defaultSpawn,
+      dev: defaultSpawn,
+      lab: defaultSpawn,
+      arcade: defaultSpawn,
+      reception: defaultSpawn,
+      mart: defaultSpawn,
+      shop: defaultSpawn,
+      tower: defaultSpawn,
+      office: defaultSpawn,
+      twin: defaultSpawn,
     },
   };
 }

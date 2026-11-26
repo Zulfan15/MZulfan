@@ -37,6 +37,7 @@ export interface CharacterFrame {
  * - `border-green`: border-connected green flood keyer for characters that also have emerald-green anatomy (e.g. Fivedramon's green head).
  * - `border-green-despill`: border/pocket green flood keyer + edge despill for haloed glows alongside protected interior green accents.
  * - `lossy-green`: JPG/upscaled sheet on a bright green-screen with compression noise.
+ * - `lossy-green-warm`: JPG/WebP sheet on green-screen that protects warm yellow/cream/gold details (`r > b + 4`) from green bleed while keying cool/neutral green backdrops and pockets.
  * - `lossy-teal`: teal-green grid sheets (`Ragnaloardmon` idle/walk/battle) where blue channel is close to green.
  * - `ds-teal-mint`: dual dark-teal outer + mint-green inner box JPG sheets (classic DS rips).
  */
@@ -45,6 +46,7 @@ export type ChromaMode =
   | 'border-green'
   | 'border-green-despill'
   | 'lossy-green'
+  | 'lossy-green-warm'
   | 'lossy-teal'
   | 'ds-teal-mint';
 

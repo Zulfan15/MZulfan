@@ -1,7 +1,8 @@
 import { Tile, type TownMap } from './types';
-import { TILE_SIZE } from './sprites';
-import { MAP_W, MAP_H, DIGI_GATE_PORTAL } from './map';
-import { townConfig, type TileTypeKey } from './townConfig';
+import { TILE_SIZE, drawPikachu } from './sprites';
+export { drawPikachu };
+import { MAP_W, MAP_H, TOWN_OFFSET_X, DIGI_GATE_PORTAL } from './map';
+import { townConfig, type SpawnableTemplate, type TileTypeKey } from './townConfig';
 import {
   renderCastleFlagstoneTile,
   renderDrawbridgeWoodTile,
@@ -10,6 +11,26 @@ import {
   renderRoyalCarpetTile,
   renderTudorCobbleTile,
 } from './kingdomAssets';
+import {
+  renderAutoCliffTile,
+  renderBridgeTile,
+  renderCliffStairsTile,
+  renderFlowerMeadowTile,
+  renderLedgeTile,
+  renderPlazaRuinsTile,
+  renderSandBeachTile,
+  renderShallowWaterTile,
+  renderWaterfallChuteTile,
+  renderWorldBiomeDecorations,
+} from './world/townBiomeRenderer';
+import {
+  getPlateauGrassColor,
+  getTownElevationAt,
+  prepareTownCliffs,
+  renderCliffCastShadows,
+} from './world/townCliffRenderer';
+
+let activeTownMapRef: TownMap | null = null;
 
 /**
  * Procedural 2D Pixel-Art Town Map Generator.
@@ -35,19 +56,26 @@ export function createTownBackgroundCanvas(map: TownMap): HTMLCanvasElement {
   if (!ctx) return canvas;
 
   ctx.imageSmoothingEnabled = false;
+  activeTownMapRef = map;
+  prepareTownCliffs(map);
 
-  // 1. BASE TERRAIN GRID (Grass meadow, Ocean water & coast, Forest floor, Tall grass, and Sea wall)
+  // 1. BASE TERRAIN GRID (Grass meadow, Ocean, Shallows, Golden Beach, Cliffs, Bridges, Ledges, Waterfalls)
   renderBaseTerrain(ctx, map);
-  renderSeaCoastAndPromenade(ctx);
 
-  // 2. ROADS, PATHS, AND STONE PLAZAS (Stone aprons, Cobblestones, Fountain Plaza, Promenade, Arenas, Decks, Cycling track, Curbs)
+  // 2. ROADS, PATHS, AND STONE PLAZAS (Stone aprons, Cobblestones, Fountain Plaza, Promenade, Contest Stage)
   renderRoadsAndPlazas(ctx, map);
 
   // Custom painted tiles (Floor brush overrides painted by user in editor)
   renderCustomTileOverrides(ctx);
 
-  // 3. BOUNDARY FOREST (Lush boundary canopy trees drawn on top of ground surfaces)
-  renderLushBoundaryForest(ctx);
+  // 2a. 3D Cliff Cast Shadows & Fallen Rubble onto lower ground & roads
+  renderCliffCastShadows(ctx, map);
+
+  // 2b. 3D Beveled Stone Curbs & Organic Grass Fringe (Run AFTER custom tile overrides so zero ghost/cut curbs occur!)
+  renderPathCurbsAndGrassFringe(ctx, map);
+
+  // 3. BOUNDARY FOREST (Lush boundary canopy trees drawn on top of Tile.TREE border surfaces)
+  renderLushBoundaryForest(ctx, map);
 
   // 4. CONNECTED FENCES (Tile-connected, override-aware, crisp Pokémon wrought-iron fences)
   renderAllConnectedFences(ctx, map);
@@ -58,8 +86,8 @@ export function createTownBackgroundCanvas(map: TownMap): HTMLCanvasElement {
   // 6. BUILDINGS (All buildings, kiosks, gazebo, canopies with crisp pixel-art architecture)
   renderAllBuildings(ctx);
 
-  // 7. DECORATIVE PROPS & ACCESSORIES (Fountain centered on X=29, Basin, Symmetrical Benches, Vending machine, Lamps, Tables, Telescopes)
-  renderPropsAndStreetware(ctx);
+  // 7. DECORATIVE PROPS, BIOME TREES & ACCESSORIES
+  renderPropsAndStreetware(ctx, map);
 
   return canvas;
 }
@@ -82,9 +110,9 @@ function renderBaseTerrain(ctx: CanvasRenderingContext2D, map: TownMap) {
       switch (tile) {
         case Tile.GRASS:
         case Tile.FENCE: {
-          // Vibrant 2-tone Pokémon grass with subtle organic checker
-          const isAlt = (x + y) % 2 === 0;
-          ctx.fillStyle = isAlt ? '#67b346' : '#5da83e';
+          // Vibrant 2-tone Pokémon grass with subtle alpine elevation brightening on plateaus!
+          const elev = getTownElevationAt(map, x, y);
+          ctx.fillStyle = getPlateauGrassColor(elev, x, y);
           ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
 
           // Subtle grass blade tufts
@@ -154,8 +182,53 @@ function renderBaseTerrain(ctx: CanvasRenderingContext2D, map: TownMap) {
         }
 
         case Tile.WATER: {
-          // Ocean Coast & Shoreline (West)
+          // Ocean Coast, Mirror Lake & Crystal River Deep Water
           renderOceanTile(ctx, px, py, x, y);
+          break;
+        }
+
+        case Tile.SHALLOW_WATER: {
+          renderShallowWaterTile(ctx, map, px, py, x, y);
+          break;
+        }
+
+        case Tile.SAND: {
+          renderSandBeachTile(ctx, map, px, py, x, y);
+          break;
+        }
+
+        case Tile.FLOWER: {
+          renderFlowerMeadowTile(ctx, px, py, x, y);
+          break;
+        }
+
+        case Tile.PLAZA: {
+          renderPlazaRuinsTile(ctx, px, py, x, y);
+          break;
+        }
+
+        case Tile.CLIFF: {
+          renderAutoCliffTile(ctx, map, px, py, x, y);
+          break;
+        }
+
+        case Tile.CLIFF_STAIRS: {
+          renderCliffStairsTile(ctx, px, py, x, y);
+          break;
+        }
+
+        case Tile.BRIDGE: {
+          renderBridgeTile(ctx, map, px, py, x, y);
+          break;
+        }
+
+        case Tile.LEDGE: {
+          renderLedgeTile(ctx, px, py, x, y);
+          break;
+        }
+
+        case Tile.WATERFALL: {
+          renderWaterfallChuteTile(ctx, px, py, x, y);
           break;
         }
       }
@@ -177,28 +250,22 @@ function renderRoadsAndPlazas(ctx: CanvasRenderingContext2D, map: TownMap) {
     }
   }
 
-  // B. Specialized District Ground Surfaces
-  renderScenicLookoutTerrace(ctx);
-  // Note: renderBerryGardenGround is rendered in Step 5 (renderFoliageFencesAndPlanters) immediately beneath its foliage & planters
+  // B. Specialized District Ground Surfaces (Note: BerryGardenGround renders in Step 5 beneath its foliage)
   renderContestStageGround(ctx);
-  renderRangerCampGround(ctx);
-  renderCyclingLaneGraphics(ctx);
-
-  // C. 3D Beveled Curbs & Organic Grass Fringe Blending
-  renderPathCurbsAndGrassFringe(ctx, map);
 }
 
 // ───────────────────────── Cobblestones & Specialized Plazas ─────────────────────────
 // ───────────────────────── Cobblestones & Specialized Plazas ─────────────────────────
 function renderCobbleTile(ctx: CanvasRenderingContext2D, px: number, py: number, x: number, y: number) {
-  // 1. Shifted Outdoor Café Bistro Patio (French terracotta & porcelain checkerboard at X: 34..42, Y: 48..55)
-  if (x >= 34 && x <= 42 && y >= 48 && y <= 55) {
+  const lx = x - TOWN_OFFSET_X;
+  // 1. Shifted Outdoor Café Bistro Patio (French terracotta & porcelain checkerboard at local X: 34..42, Y: 48..55)
+  if (lx >= 34 && lx <= 42 && y >= 48 && y <= 55) {
     renderCafePatioTile(ctx, px, py, x, y);
     return;
   }
 
-  // 2. East Promenade (X: 34..35, Y: 6..47 - Unbroken straight 2-tile wide stone promenade)
-  if (x >= 34 && x <= 35 && y >= 6 && y <= 54) {
+  // 2. East Promenade (local X: 34..35, Y: 6..54 - Unbroken straight 2-tile wide stone promenade)
+  if (lx >= 34 && lx <= 35 && y >= 6 && y <= 54) {
     const isAlt = (x + y) % 2 === 0;
     ctx.fillStyle = isAlt ? '#e2e8f0' : '#cbd5e1';
     ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
@@ -210,39 +277,33 @@ function renderCobbleTile(ctx: CanvasRenderingContext2D, px: number, py: number,
     return;
   }
 
-  // 3. Grand Fountain Plaza (X: 24..33, Y: 25..35 - Seamless civic flagstones centered on X=29.0, Y=31.0)
-  if (x >= 24 && x <= 33 && y >= 25 && y <= 35) {
+  // 3. Grand Fountain Plaza (local X: 24..33, Y: 25..35)
+  if (lx >= 24 && lx <= 33 && y >= 25 && y <= 35) {
     renderFountainPlazaTile(ctx, px, py, x, y);
     return;
   }
 
-  // 4. Dev Center Stone Apron & Ceremonial Manor Courtyard (X: 9..21, Y: 1..17)
-  if (x >= 9 && x <= 21 && y >= 1 && y <= 17) {
+  // 4. Dev Center Stone Apron & Ceremonial Manor Courtyard (local X: 9..21, Y: 1..17)
+  if (lx >= 9 && lx <= 21 && y >= 1 && y <= 17) {
     renderDevCourtyardTile(ctx, px, py, x, y);
     return;
   }
 
-  // 4.5. Research Lab Stone Apron & Campus Courtyard (X: 23..34, Y: 1..12)
-  if (x >= 23 && x <= 34 && y >= 1 && y <= 12) {
+  // 4.5. Research Lab Stone Apron & Campus Courtyard (local X: 23..34, Y: 1..12)
+  if (lx >= 23 && lx <= 34 && y >= 1 && y <= 12) {
     renderLabCampusTile(ctx, px, py, x, y);
     return;
   }
 
-  // 4.5. South Civic Plaza & Barista Forecourt Pavers (X: 24..33, Y: 46..55)
-  if (x >= 24 && x <= 33 && y >= 46 && y <= 55) {
+  // 4.5. South Civic Plaza & Barista Forecourt Pavers (local X: 24..33, Y: 46..55)
+  if (lx >= 24 && lx <= 33 && y >= 46 && y <= 55) {
     renderDevCourtyardTile(ctx, px, py, x, y);
     return;
   }
 
-  // 5. West Commercial & Tech Tower Plaza (X: 2..19, Y: 43..55)
-  if (x >= 2 && x <= 19 && y >= 43 && y <= 55) {
+  // 5. West Commercial & Tech Tower Plaza (local X: 2..19, Y: 43..55)
+  if (lx >= 2 && lx <= 19 && y >= 43 && y <= 55) {
     renderWestPlazaTile(ctx, px, py, x, y);
-    return;
-  }
-
-  // 5.5. Brick Cycling & Jogging Lane (X: 3..4, Y: 27..42)
-  if (x >= 3 && x <= 4 && y >= 27 && y <= 42) {
-    renderCyclingTile(ctx, px, py, x, y);
     return;
   }
 
@@ -251,8 +312,8 @@ function renderCobbleTile(ctx: CanvasRenderingContext2D, px: number, py: number,
 }
 
 function renderFountainPlazaTile(ctx: CanvasRenderingContext2D, px: number, py: number, x: number, y: number) {
-  const cx = 29.0 * TILE_SIZE; // 464px — aligned with Arcade double doors and Battle Arena axis
-  const cy = 31.0 * TILE_SIZE; // 496px
+  const cx = (29.0 + TOWN_OFFSET_X) * TILE_SIZE;
+  const cy = 31.0 * TILE_SIZE;
   const midX = px + 8;
   const midY = py + 8;
   const dist = Math.hypot(midX - cx, midY - cy);
@@ -335,18 +396,19 @@ function renderDevCourtyardTile(ctx: CanvasRenderingContext2D, px: number, py: n
     return;
   }
 
-  // Central royal ceremonial carpet runner (X: 15..16 centered precisely with Dev Manor door at X=16.0)
-  const isCenterRunner = (x === 15 || x === 16) && y >= 12;
+  // Central royal ceremonial carpet runner (local X: 15..16 centered precisely with Dev Manor door)
+  const lx = x - TOWN_OFFSET_X;
+  const isCenterRunner = (lx === 15 || lx === 16) && y >= 12;
   if (isCenterRunner) {
     ctx.fillStyle = (x + y) % 2 === 0 ? '#fdfbf6' : '#f4eee0';
     ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
 
     // Lateral border stripes in imperial gold-bronze
-    if (x === 15) {
+    if (lx === 15) {
       ctx.fillStyle = '#c29b38';
       ctx.fillRect(px, py, 2, TILE_SIZE);
     }
-    if (x === 16) {
+    if (lx === 16) {
       ctx.fillStyle = '#c29b38';
       ctx.fillRect(px + 14, py, 2, TILE_SIZE);
     }
@@ -358,7 +420,7 @@ function renderDevCourtyardTile(ctx: CanvasRenderingContext2D, px: number, py: n
   }
 
   // Perimeter border of the courtyard
-  const isBorder = x === 9 || x === 21 || y === 13 || y === 17;
+  const isBorder = lx === 9 || lx === 21 || y === 13 || y === 17;
   if (isBorder) {
     ctx.fillStyle = (x + y) % 2 === 0 ? '#bfae9b' : '#b2a08c';
     ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
@@ -410,18 +472,6 @@ function renderLabCampusTile(ctx: CanvasRenderingContext2D, px: number, py: numb
     ctx.fillStyle = '#6b7280';
     ctx.fillRect(px + 7, py + 7, 2, 2);
   }
-}
-
-function renderCyclingTile(ctx: CanvasRenderingContext2D, px: number, py: number, x: number, y: number) {
-  const isAlt = (x + y) % 2 === 0;
-  ctx.fillStyle = isAlt ? '#b45309' : '#9a3412'; // Warm terracotta brick
-  ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
-  ctx.fillStyle = '#78350f';
-  ctx.fillRect(px, py + TILE_SIZE - 1, TILE_SIZE, 1);
-  ctx.fillRect(px + TILE_SIZE - 1, py, 1, TILE_SIZE);
-  ctx.fillStyle = '#d97706';
-  ctx.fillRect(px, py, TILE_SIZE, 1);
-  ctx.fillRect(px, py, 1, TILE_SIZE);
 }
 
 function renderCafePatioTile(ctx: CanvasRenderingContext2D, px: number, py: number, x: number, y: number) {
@@ -500,12 +550,12 @@ export function isTilePaved(map: TownMap, x: number, y: number): boolean {
   if (contest && !contest.hidden && x >= contest.x && x < contest.x + contest.w && y >= contest.y && y < contest.y + contest.h) {
     return true;
   }
-  // Outdoor Café Bistro Patio is always paved
-  if (x >= 34 && x <= 42 && y >= 48 && y <= 55) {
+  // Outdoor Café Bistro Patio is always paved (shifted by TOWN_OFFSET_X)
+  if (x >= 34 + TOWN_OFFSET_X && x <= 42 + TOWN_OFFSET_X && y >= 48 && y <= 55) {
     return true;
   }
-  // South Civic Plaza & Barista grounds are always paved
-  if (x >= 24 && x <= 33 && y >= 46 && y <= 55) {
+  // South Civic Plaza & Barista grounds are always paved (shifted by TOWN_OFFSET_X)
+  if (x >= 24 + TOWN_OFFSET_X && x <= 33 + TOWN_OFFSET_X && y >= 46 && y <= 55) {
     return true;
   }
   // Custom tile overrides from editor
@@ -525,18 +575,19 @@ export function isTileGrass(map: TownMap, x: number, y: number): boolean {
     return false;
   }
   // Outdoor Café Bistro Patio is paved (never grass)
-  if (x >= 34 && x <= 42 && y >= 48 && y <= 55) {
+  if (x >= 34 + TOWN_OFFSET_X && x <= 42 + TOWN_OFFSET_X && y >= 48 && y <= 55) {
     return false;
   }
   // South Civic Plaza & Barista grounds are paved (never grass)
-  if (x >= 24 && x <= 33 && y >= 46 && y <= 55) {
+  if (x >= 24 + TOWN_OFFSET_X && x <= 33 + TOWN_OFFSET_X && y >= 46 && y <= 55) {
     return false;
   }
   // Custom tile overrides from editor
   const override = townConfig.getTileOverride(x, y);
   if (override === 'grass' || override === 'tall_grass') return true;
   if (override !== null && override !== undefined) return false;
-  return map.ground[y * map.w + x] === Tile.GRASS;
+  const g = map.ground[y * map.w + x];
+  return g === Tile.GRASS || g === Tile.FLOWER;
 }
 
 function renderPathCurbsAndGrassFringe(ctx: CanvasRenderingContext2D, map: TownMap) {
@@ -549,7 +600,7 @@ function renderPathCurbsAndGrassFringe(ctx: CanvasRenderingContext2D, map: TownM
         continue;
       }
       // Never draw curbs or grass fringe blades on top of Café Bistro Patio
-      if (x >= 34 && x <= 42 && y >= 48 && y <= 55) {
+      if (x >= 34 + TOWN_OFFSET_X && x <= 42 + TOWN_OFFSET_X && y >= 48 && y <= 55) {
         continue;
       }
 
@@ -633,10 +684,10 @@ function renderPathCurbsAndGrassFringe(ctx: CanvasRenderingContext2D, map: TownM
 
 // ───────────────────────── Ocean & Coastal Promenade ─────────────────────────
 function renderOceanTile(ctx: CanvasRenderingContext2D, px: number, py: number, x: number, y: number) {
-  // Depth gradient: deep abyss to coastal azure
-  const depth = x < 2 ? 0 : x < 4 ? 1 : x < 6 ? 2 : x < 8 ? 3 : 4;
-  const colors = ['#0e385d', '#154c79', '#1e6498', '#2a7fb7', '#3d9acb'];
-  ctx.fillStyle = colors[depth] || '#154c79';
+  // Depth gradient: deep coastal abyss on far West, rich sapphire in highland springs/lake/river
+  const depth = x < 3 ? 0 : x < 6 ? 1 : x < 9 ? 2 : 3;
+  const colors = ['#0e385d', '#154c79', '#1e6498', '#2274a8'];
+  ctx.fillStyle = colors[depth] || '#1e6498';
   ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
 
   // Layered shimmering wave crests
@@ -648,116 +699,6 @@ function renderOceanTile(ctx: CanvasRenderingContext2D, px: number, py: number, 
   if ((x * 5 + y * 11) % 5 === 0) {
     ctx.fillRect(px + 6, py + 11, 7, 1);
   }
-
-  // Tide foam near seawall
-  if (x >= 7 && x <= 8) {
-    ctx.fillStyle = 'rgba(235, 252, 255, 0.45)';
-    ctx.fillRect(px + 8, py + 1, 6, 2);
-    ctx.fillRect(px + 10, py + 7, 5, 2);
-  }
-}
-
-function renderSeaCoastAndPromenade(ctx: CanvasRenderingContext2D) {
-  ctx.save();
-  // 1. Quayside Promenade Stone Sea-Wall (Running along X = 8, Y = 0..26, stops before West Boardwalk)
-  for (let y = 0; y <= 26; y++) {
-    const cx = 8 * TILE_SIZE;
-    const cy = y * TILE_SIZE;
-
-    // A. Wall Shadow cast onto coastal water
-    ctx.fillStyle = 'rgba(8, 24, 42, 0.45)';
-    ctx.fillRect(cx - 6, cy, 6, 16);
-
-    // B. Sea foam along base of seawall
-    ctx.fillStyle = 'rgba(230, 250, 255, 0.65)';
-    if (y % 2 === 0) {
-      ctx.fillRect(cx - 3, cy + 2, 4, 12);
-    } else {
-      ctx.fillRect(cx - 4, cy + 4, 5, 8);
-    }
-
-    // C. Heavy Granite Masonry Wall (Courses with staggered joints)
-    ctx.fillStyle = '#4a4136'; // Deep shadow mortar
-    ctx.fillRect(cx, cy, 14, 16);
-
-    const isRowAlt = y % 2 === 0;
-    // Block 1
-    ctx.fillStyle = isRowAlt ? '#7d7061' : '#6f6355';
-    ctx.fillRect(cx + 1, cy + 1, 12, 6);
-    ctx.fillStyle = '#948675'; // Block highlight
-    ctx.fillRect(cx + 1, cy + 1, 12, 1);
-
-    // Block 2
-    ctx.fillStyle = isRowAlt ? '#685d50' : '#766a5b';
-    ctx.fillRect(cx + 1, cy + 8, 12, 7);
-    ctx.fillStyle = '#8a7d6d';
-    ctx.fillRect(cx + 1, cy + 8, 12, 1);
-
-    // Waterline moss / algae tint near bottom
-    ctx.fillStyle = 'rgba(50, 100, 40, 0.4)';
-    ctx.fillRect(cx, cy + 12, 14, 4);
-
-    // D. Dressed Stone Parapet Coping on top of sea wall (at X: 8.5)
-    ctx.fillStyle = '#c5baaa'; // Sunny coping stone
-    ctx.fillRect(cx + 10, cy, 5, 16);
-    ctx.fillStyle = '#e8dfd2'; // Sunlit bevel
-    ctx.fillRect(cx + 10, cy, 2, 16);
-    ctx.fillStyle = '#8c7f70'; // Coping underside shadow
-    ctx.fillRect(cx + 9, cy, 1, 16);
-
-    // E. Maritime Iron Promenade Railing
-    ctx.fillStyle = '#2d3748';
-    ctx.fillRect(cx + 12, cy, 2, 16); // Top rail
-    ctx.fillRect(cx + 11, cy + 7, 4, 3); // Post
-    ctx.fillStyle = '#cbd5e1';
-    ctx.fillRect(cx + 12, cy + 7, 2, 1); // Post cap highlight
-  }
-
-  // 1.5 Northern Seawall Coping & Railing overlooking bay along Y = 26 (X: 0..8 unbroken)
-  for (let x = 0; x <= 8; x++) {
-    const px = x * TILE_SIZE;
-    const py = 26 * TILE_SIZE;
-    drawMaritimeSeaRailing(ctx, px, py, 'N');
-  }
-
-  // 2. Coastal Granite Sea-Stacks in the Bay
-  const boulderLocations = [
-    { x: 3, y: 5 },
-    { x: 5, y: 11 },
-    { x: 2, y: 17 },
-    { x: 4, y: 23 },
-  ];
-
-  for (const b of boulderLocations) {
-    const bx = b.x * TILE_SIZE;
-    const by = b.y * TILE_SIZE;
-
-    // Ripple foam ring around boulder
-    ctx.fillStyle = 'rgba(235, 252, 255, 0.6)';
-    ctx.beginPath();
-    ctx.ellipse(bx + 8, by + 12, 11, 6, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Deep boulder shadow
-    ctx.fillStyle = '#26201a';
-    ctx.fillRect(bx + 2, by + 6, 12, 8);
-    ctx.fillRect(bx + 1, by + 8, 14, 5);
-
-    // Granite rock body
-    ctx.fillStyle = '#594d40';
-    ctx.fillRect(bx + 3, by + 4, 10, 8);
-    ctx.fillStyle = '#7a6b5a';
-    ctx.fillRect(bx + 4, by + 3, 7, 6);
-    ctx.fillStyle = '#9e8c78';
-    ctx.fillRect(bx + 5, by + 3, 4, 3);
-
-    // Mossy seaweed cap
-    ctx.fillStyle = '#3f7832';
-    ctx.fillRect(bx + 4, by + 2, 6, 3);
-    ctx.fillStyle = '#66b84d';
-    ctx.fillRect(bx + 5, by + 2, 3, 1);
-  }
-  ctx.restore();
 }
 
 export function drawMaritimeSeaRailing(
@@ -800,23 +741,23 @@ export function drawMaritimeSeaRailing(
 // ==========================================
 // 2. LUSH INTERLOCKING BOUNDARY FORESTS (Authentic Pokémon Gen 4/5 Canopy Wall)
 // ==========================================
-function renderLushBoundaryForest(ctx: CanvasRenderingContext2D) {
-  // A. Eastern Boundary — Single Column Forest Wall (X: 44, Y: 0..63)
-  for (let y = 0; y <= 63; y += 2) {
-    drawPokemonForestCanopyTree(ctx, 44 * TILE_SIZE - 12, y * TILE_SIZE - 6, true);
+function renderLushBoundaryForest(ctx: CanvasRenderingContext2D, map: TownMap) {
+  // A. Eastern Boundary — Forest Canopy Wall (X: MAP_W - 2 .. MAP_W - 1, Y: 0..MAP_H - 1)
+  for (let y = 0; y <= MAP_H - 1; y += 2) {
+    drawPokemonForestCanopyTree(ctx, (MAP_W - 2) * TILE_SIZE - 6, y * TILE_SIZE - 6, true);
+    drawPokemonForestCanopyTree(ctx, (MAP_W - 1) * TILE_SIZE - 6, y * TILE_SIZE + 2, true);
   }
 
-  // B. Unified North Boundary Forest Row (X: 0..42, Y: 0..1, strictly 1 row)
-  for (let y = 0; y <= 1; y += 2) {
-    for (let x = 0; x <= 42; x += 2) {
-      // Behind Dev Center, Research Lab & East Promenade (X: 9..43), canopy trees are replaced by boundary fence
-      if (x >= 9 && x <= 43) continue;
-      drawPokemonForestCanopyTree(ctx, Math.max(0, x * TILE_SIZE - 4), y * TILE_SIZE, y >= 0);
-    }
+  // B. Unified North Boundary Forest Row (Only where base ground is Tile.TREE, keeping Bay & Town Civic Fence open!)
+  for (let x = 14; x <= MAP_W - 3; x += 2) {
+    if (x >= 9 + TOWN_OFFSET_X && x <= 43 + TOWN_OFFSET_X) continue;
+    if (map.ground[x] !== Tile.TREE) continue;
+    drawPokemonForestCanopyTree(ctx, Math.max(0, x * TILE_SIZE - 4), 0, true);
   }
 
-  // D. Western Boundary Forest Ridge (X: 0..1, Y: 33..60, authentic boundary border)
-  for (let y = 33; y <= 60; y += 2) {
+  // D. Western Boundary Forest Ridge (South of Crescent Coral Bay, Y: 63..MAP_H - 4)
+  for (let y = 63; y <= MAP_H - 4; y += 2) {
+    if (map.ground[y * MAP_W] !== Tile.TREE) continue;
     const isAlt = Math.floor(y / 2) % 2 === 1;
     const startX = isAlt ? 1 : 0;
     for (let x = startX; x <= 1; x += 2) {
@@ -824,15 +765,15 @@ function renderLushBoundaryForest(ctx: CanvasRenderingContext2D) {
     }
   }
 
-  // E. Unbroken Double-Layer South Boundary Forest Wall (Y: 61..63, keeping a clean gate alcove at X: 21..23 for the Digital Warp Pad!)
-  // Layer 1 (Back Canopy Row): Spans width of the town across X: 0..44 except at X: 22 where Digital Warp Pad (21..23, 59..60) sits
-  for (let x = 0; x <= 44; x += 2) {
-    if (x === 22) continue;
-    drawPokemonForestCanopyTree(ctx, x * TILE_SIZE - 4, 61 * TILE_SIZE - 4, true);
+  // E. Unbroken Double-Layer South Boundary Forest Wall (Y: MAP_H - 3 .. MAP_H - 1, keeping clean gate alcove for Digital Warp Pad!)
+  const southY = MAP_H - 3;
+  for (let x = 0; x <= MAP_W - 1; x += 2) {
+    if (x >= DIGI_GATE_PORTAL.xMin - 1 && x <= DIGI_GATE_PORTAL.xMax) continue;
+    drawPokemonForestCanopyTree(ctx, x * TILE_SIZE - 4, southY * TILE_SIZE - 4, true);
   }
-  // Layer 2 (Front Canopy Row): Interlocking full width across X: 1..43, perfectly sealing south boundary!
-  for (let x = 1; x <= 43; x += 2) {
-    drawPokemonForestCanopyTree(ctx, x * TILE_SIZE - 4, 61.5 * TILE_SIZE, true);
+  for (let x = 1; x <= MAP_W - 2; x += 2) {
+    if (x >= DIGI_GATE_PORTAL.xMin - 1 && x <= DIGI_GATE_PORTAL.xMax) continue;
+    drawPokemonForestCanopyTree(ctx, x * TILE_SIZE - 4, (southY + 0.5) * TILE_SIZE, true);
   }
 }
 
@@ -1042,6 +983,10 @@ export function renderConfiguredFlowerBeds(ctx: CanvasRenderingContext2D) {
   for (const fb of configuredFlowerbeds) {
     if (fb.subType === 'sunflower_bed') {
       drawSunflowerBed(ctx, fb.x * TILE_SIZE, fb.y * TILE_SIZE, fb.w * TILE_SIZE, fb.h * TILE_SIZE);
+    } else if (fb.subType === 'lavender_bed') {
+      drawLavenderBed(ctx, fb.x * TILE_SIZE, fb.y * TILE_SIZE, fb.w * TILE_SIZE, fb.h * TILE_SIZE);
+    } else if (fb.subType === 'rose_bed') {
+      drawRoseBed(ctx, fb.x * TILE_SIZE, fb.y * TILE_SIZE, fb.w * TILE_SIZE, fb.h * TILE_SIZE);
     } else {
       drawFlowerBed(ctx, fb.x * TILE_SIZE, fb.y * TILE_SIZE, fb.w * TILE_SIZE, fb.h * TILE_SIZE);
     }
@@ -1052,6 +997,14 @@ export function renderManicuredTownTrees(ctx: CanvasRenderingContext2D, useDefau
   const configuredTrees = townConfig.getBuildings().filter((b) => b.kind === 'tree' && !b.hidden);
   if (configuredTrees.length > 0) {
     for (const t of configuredTrees) {
+      const flipW = t.orientation === 'W';
+      if (flipW) {
+        const centerX = (t.x + t.w / 2) * TILE_SIZE;
+        ctx.save();
+        ctx.translate(centerX, 0);
+        ctx.scale(-1, 1);
+        ctx.translate(-centerX, 0);
+      }
       if (t.subType === 'tree_sakura') {
         drawSakuraCherryTree(ctx, t.x * TILE_SIZE - 4, t.y * TILE_SIZE - 8);
       } else if (t.subType === 'tree_pine') {
@@ -1060,8 +1013,21 @@ export function renderManicuredTownTrees(ctx: CanvasRenderingContext2D, useDefau
         drawAutumnTree(ctx, t.x * TILE_SIZE, t.y * TILE_SIZE);
       } else if (t.subType === 'tree_berry') {
         drawBerryTree(ctx, t.x * TILE_SIZE, t.y * TILE_SIZE);
+      } else if (t.subType === 'tree_palm') {
+        drawPalmTree(ctx, t.x * TILE_SIZE, t.y * TILE_SIZE);
+      } else if (t.subType === 'tree_willow') {
+        drawWillowTree(ctx, t.x * TILE_SIZE, t.y * TILE_SIZE);
+      } else if (t.subType === 'tree_bamboo') {
+        drawBambooGrove(ctx, t.x * TILE_SIZE, t.y * TILE_SIZE);
+      } else if (t.subType === 'tree_dead') {
+        drawDeadwoodTree(ctx, t.x * TILE_SIZE, t.y * TILE_SIZE);
+      } else if (t.subType === 'tree_golden') {
+        drawGoldenCelestiaTree(ctx, t.x * TILE_SIZE, t.y * TILE_SIZE);
       } else {
         drawPokemonTownTree(ctx, t.x * TILE_SIZE - 4, t.y * TILE_SIZE - 8);
+      }
+      if (flipW) {
+        ctx.restore();
       }
     }
   } else if (useDefaultFallbacks) {
@@ -1610,40 +1576,6 @@ function drawFlowerBed(ctx: CanvasRenderingContext2D, x: number, y: number, w: n
   ctx.restore();
 }
 
-function drawFence(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, isWhite: boolean) {
-  const postColor = isWhite ? '#e2e8f0' : '#2b2d42';
-  const postShadow = isWhite ? '#94a3b8' : '#1e1f2b';
-  const railColor = isWhite ? '#cbd5e1' : '#3d405b';
-
-  ctx.fillStyle = railColor;
-  ctx.fillRect(x, y + 4, w, 2);
-  ctx.fillRect(x, y + 10, w, 2);
-
-  for (let i = 0; i <= w; i += 8) {
-    ctx.fillStyle = postShadow;
-    ctx.fillRect(x + i + 1, y, 2, 14);
-    ctx.fillStyle = postColor;
-    ctx.fillRect(x + i, y, 2, 14);
-    ctx.fillRect(x + i, y - 2, 2, 2);
-  }
-}
-
-function drawVerticalFence(ctx: CanvasRenderingContext2D, x: number, y: number, h: number, isWhite: boolean) {
-  const postColor = isWhite ? '#e2e8f0' : '#2b2d42';
-  const postShadow = isWhite ? '#94a3b8' : '#1e1f2b';
-  const railColor = isWhite ? '#cbd5e1' : '#3d405b';
-
-  ctx.fillStyle = railColor;
-  ctx.fillRect(x + 2, y, 2, h);
-
-  for (let j = 0; j <= h; j += 10) {
-    ctx.fillStyle = postShadow;
-    ctx.fillRect(x + 1, y + j, 4, 3);
-    ctx.fillStyle = postColor;
-    ctx.fillRect(x, y + j, 4, 3);
-  }
-}
-
 // ==========================================
 // 3. BUILDINGS PIXEL ART
 // ==========================================
@@ -1671,15 +1603,15 @@ function renderCustomTileOverrides(ctx: CanvasRenderingContext2D) {
       }
     }
 
-    // Skip floor tile overrides that fall within the Outdoor Café Bistro Patio (X: 34..42, Y: 48..55)
-    if (x >= 34 && x <= 42 && y >= 48 && y <= 55) {
+    // Skip floor tile overrides that fall within the Outdoor Café Bistro Patio (shifted by TOWN_OFFSET_X)
+    if (x >= 34 + TOWN_OFFSET_X && x <= 42 + TOWN_OFFSET_X && y >= 48 && y <= 55) {
       if (['grass', 'cobble', 'lab_paver', 'dev_paver'].includes(tileKey)) {
         continue;
       }
     }
 
-    // Skip grass tile overrides that fall within the South Civic Plaza (X: 24..33, Y: 46..55)
-    if (x >= 24 && x <= 33 && y >= 46 && y <= 55 && tileKey === 'grass') {
+    // Skip grass tile overrides that fall within the South Civic Plaza (shifted by TOWN_OFFSET_X)
+    if (x >= 24 + TOWN_OFFSET_X && x <= 33 + TOWN_OFFSET_X && y >= 46 && y <= 55 && tileKey === 'grass') {
       continue;
     }
 
@@ -1708,6 +1640,18 @@ export function renderTileOverrideByKey(
     renderDevCourtyardTile(ctx, px, py, x, y);
   } else if (tileKey === 'water') {
     renderOceanTile(ctx, px, py, x, y);
+  } else if (tileKey === 'shallow_water') {
+    renderShallowWaterTile(ctx, activeTownMapRef, px, py, x, y);
+  } else if (tileKey === 'sand') {
+    renderSandBeachTile(ctx, activeTownMapRef, px, py, x, y);
+  } else if (tileKey === 'cliff') {
+    renderAutoCliffTile(ctx, activeTownMapRef, px, py, x, y);
+  } else if (tileKey === 'cliff_stairs') {
+    renderCliffStairsTile(ctx, px, py, x, y);
+  } else if (tileKey === 'bridge_wood') {
+    renderBridgeTile(ctx, activeTownMapRef, px, py, x, y);
+  } else if (tileKey === 'ledge') {
+    renderLedgeTile(ctx, px, py, x, y);
   } else if (tileKey === 'hedge') {
     // Handled cleanly by renderAllConnectedHedges with full neighbor connections
   } else if (tileKey === 'fence') {
@@ -3434,7 +3378,24 @@ function renderLabObservatoryAnnex(ctx: CanvasRenderingContext2D, x: number, y: 
 // ==========================================
 // 4. PROPS, FOUNTAIN & STREETWARE
 // ==========================================
-function renderPropsAndStreetware(ctx: CanvasRenderingContext2D) {
+function renderPropsAndStreetware(ctx: CanvasRenderingContext2D, map: TownMap) {
+  // 0. Natural 100x100 Biome Trees, Sea-Stacks, Lily Pads, Torii, Ruins & Hidden PokéBalls
+  renderWorldBiomeDecorations(ctx, map, {
+    drawOakTree: drawPokemonTownTree,
+    drawPineTree,
+    drawSakuraTree: drawSakuraCherryTree,
+    drawPalmTree,
+    drawAutumnTree,
+    drawGoldenTree: drawGoldenCelestiaTree,
+    drawBoulder: drawRockBoulder,
+    drawReeds: drawReedsClump,
+    drawToriiGate,
+    drawAncientPillar,
+    drawBench: (c, px, py) => drawParkBench(c, px, py, 'N', 2, 1),
+    drawPicnicSet,
+    drawPokeballItem,
+  });
+
   // A. Plaza Circular Water Fountain
   const fountain = townConfig.getBuilding('fountain');
   if (fountain && !fountain.hidden) {
@@ -3629,6 +3590,15 @@ export function renderConfiguredExtraEntities(ctx: CanvasRenderingContext2D) {
         // 1. Nature & Flora
         case 'rock_boulder': drawRockBoulder(ctx, px, py); break;
         case 'lily_pond': drawLilyPond(ctx, px, py); break;
+        case 'bush_flower': drawFloweringHydrangeaBush(ctx, px, py); break;
+        case 'mushroom_patch': drawMushroomPatch(ctx, px, py); break;
+        case 'tree_stump': drawTreeStump(ctx, px, py); break;
+        case 'fallen_log': drawFallenLog(ctx, px, py); break;
+        case 'reeds_clump': drawReedsClump(ctx, px, py); break;
+        case 'mossy_rock': drawMossyRockFormation(ctx, px, py); break;
+        case 'crystal_cluster': drawCrystalCluster(ctx, px, py); break;
+        case 'natural_spring': drawNaturalSpringPool(ctx, px, py); break;
+        case 'cactus_saguaro': drawCactusSaguaro(ctx, px, py); break;
 
         // 2. Streetscape & Furniture
         case 'cafe_table': drawCafeBistroTable(ctx, px, py); break;
@@ -3693,10 +3663,18 @@ function drawSingleCampfire(ctx: CanvasRenderingContext2D, px: number, py: numbe
   const fireX = px + 4;
   const fireY = py + 2;
 
-  // Ground soot & ash
-  ctx.fillStyle = 'rgba(20, 20, 20, 0.45)';
+  // Crisp dressed circular stone hearth pad (never leaves a muddy smudge on stone pavers!)
+  ctx.fillStyle = '#475569';
   ctx.beginPath();
   ctx.ellipse(fireX + 4, fireY + 4, 10, 6, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#64748b';
+  ctx.beginPath();
+  ctx.ellipse(fireX + 4, fireY + 3.5, 8.5, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#1e293b';
+  ctx.beginPath();
+  ctx.ellipse(fireX + 4, fireY + 4, 5.5, 3, 0, 0, Math.PI * 2);
   ctx.fill();
 
   // Natural stone ring (8 stones)
@@ -3819,18 +3797,12 @@ function renderPlazaFountain(ctx: CanvasRenderingContext2D, cx: number, cy: numb
 }
 
 function renderCafePatio(ctx: CanvasRenderingContext2D) {
-  // 4 Symmetrical Café Tables with Green & White striped canvas umbrellas (Shifted to East Terrace X: 34..42):
-  // Table 1 (North-West, LinkedIn): x: 36.5, y: 49.5
-  drawCafeTable(ctx, 36.5 * TILE_SIZE, 49.5 * TILE_SIZE);
-
-  // Table 2 (North-East, Résumé): x: 40.5, y: 49.5
-  drawCafeTable(ctx, 40.5 * TILE_SIZE, 49.5 * TILE_SIZE);
-
-  // Table 3 (South-West, GitHub): x: 36.5, y: 53.5
-  drawCafeTable(ctx, 36.5 * TILE_SIZE, 53.5 * TILE_SIZE);
-
-  // Table 4 (South-East, Email): x: 40.5, y: 53.5
-  drawCafeTable(ctx, 40.5 * TILE_SIZE, 53.5 * TILE_SIZE);
+  const ox = TOWN_OFFSET_X;
+  // 4 Symmetrical Café Tables with Green & White striped canvas umbrellas:
+  drawCafeTable(ctx, (36.5 + ox) * TILE_SIZE, 49.5 * TILE_SIZE);
+  drawCafeTable(ctx, (40.5 + ox) * TILE_SIZE, 49.5 * TILE_SIZE);
+  drawCafeTable(ctx, (36.5 + ox) * TILE_SIZE, 53.5 * TILE_SIZE);
+  drawCafeTable(ctx, (40.5 + ox) * TILE_SIZE, 53.5 * TILE_SIZE);
 }
 
 function drawCafeTable(ctx: CanvasRenderingContext2D, tx: number, ty: number) {
@@ -3882,9 +3854,8 @@ function drawCafeTable(ctx: CanvasRenderingContext2D, tx: number, ty: number) {
 }
 
 function renderStreetLampsAndBenches(ctx: CanvasRenderingContext2D) {
-  // A. Harbor Observation Telescopes overlooking the ocean (at Y: 22 and Y: 25, clear of boardwalk)
-  drawHarborTelescope(ctx, 8.5 * TILE_SIZE, 22 * TILE_SIZE);
-  drawHarborTelescope(ctx, 8.5 * TILE_SIZE, 25 * TILE_SIZE);
+  // A. Sunset Pier Observation Telescope overlooking Crescent Coral Bay
+  drawHarborTelescope(ctx, 7.5 * TILE_SIZE, 36 * TILE_SIZE);
 
   // B. Retro Pokémon Drink Vending Machine
   const vm = townConfig.getBuilding('vending');
@@ -4144,56 +4115,22 @@ function drawHarborTelescope(ctx: CanvasRenderingContext2D, px: number, py: numb
 // ==========================================
 // 5. EAST QUARTER & LOOKOUT CREATIVE DISTRICTS
 // ==========================================
-function renderScenicLookoutTerrace(ctx: CanvasRenderingContext2D) {
-  // Paved Observation Terrace at North-East Summit (X: 36..42, Y: 2..7)
-  const tx = 36 * TILE_SIZE;
-  const ty = 2 * TILE_SIZE;
-  const tw = 7 * TILE_SIZE;
-  const th = 6 * TILE_SIZE;
-
-  // Terrace base stone pavers (light granite flagstones)
-  for (let y = 2; y <= 7; y++) {
-    for (let x = 36; x <= 42; x++) {
-      const px = x * TILE_SIZE;
-      const py = y * TILE_SIZE;
-      const isAlt = (x + y) % 2 === 0;
-      ctx.fillStyle = isAlt ? '#e2e8f0' : '#cbd5e1';
-      ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
-      ctx.fillStyle = '#94a3b8';
-      ctx.fillRect(px, py + TILE_SIZE - 1, TILE_SIZE, 1);
-      ctx.fillRect(px + TILE_SIZE - 1, py, 1, TILE_SIZE);
-      ctx.fillStyle = '#f8fafc';
-      ctx.fillRect(px, py, TILE_SIZE, 1);
-      ctx.fillRect(px, py, 1, TILE_SIZE);
-    }
-  }
-
-  // Stone border trim around terrace (North, East, West)
-  ctx.fillStyle = '#64748b';
-  ctx.fillRect(tx, ty, tw, 2);
-  ctx.fillRect(tx, ty, 2, th);
-  ctx.fillRect(tx + tw - 2, ty, 2, th);
-}
-
 function drawLookoutPlaque(ctx: CanvasRenderingContext2D) {
-  // If the user has overridden or erased the tile at (39, 5), do not draw the plaque!
-  if (townConfig.getTileOverride(39, 5) !== undefined) return;
+  const pxTile = 39 + TOWN_OFFSET_X;
+  if (townConfig.getTileOverride(pxTile, 5) !== undefined) return;
 
-  // Check if telescope is still at its original lookout spot (x: 37, y: 3)
   const telescope = townConfig.getBuilding('telescope');
-  if (!telescope || telescope.hidden || telescope.x !== 37 || telescope.y !== 3) {
+  if (!telescope || telescope.hidden || telescope.x !== 37 + TOWN_OFFSET_X || telescope.y !== 3) {
     return;
   }
 
-  // Vista direction marker plaque in the center floor (39, 5)
   ctx.fillStyle = '#475569';
-  ctx.fillRect(39 * TILE_SIZE + 2, 5 * TILE_SIZE + 2, 12, 12);
+  ctx.fillRect(pxTile * TILE_SIZE + 2, 5 * TILE_SIZE + 2, 12, 12);
   ctx.fillStyle = '#f59e0b';
-  // Compass rose / star
-  ctx.fillRect(39 * TILE_SIZE + 7, 5 * TILE_SIZE + 4, 2, 8);
-  ctx.fillRect(39 * TILE_SIZE + 4, 5 * TILE_SIZE + 7, 8, 2);
+  ctx.fillRect(pxTile * TILE_SIZE + 7, 5 * TILE_SIZE + 4, 2, 8);
+  ctx.fillRect(pxTile * TILE_SIZE + 4, 5 * TILE_SIZE + 7, 8, 2);
   ctx.fillStyle = '#fbbf24';
-  ctx.fillRect(39 * TILE_SIZE + 6, 5 * TILE_SIZE + 6, 4, 4);
+  ctx.fillRect(pxTile * TILE_SIZE + 6, 5 * TILE_SIZE + 6, 4, 4);
 }
 
 function drawNorthFacingTelescope(ctx: CanvasRenderingContext2D, px: number, py: number) {
@@ -4345,27 +4282,30 @@ function renderBerryGardenGround(ctx: CanvasRenderingContext2D) {
   const bw = (garden ? garden.w : 7) * TILE_SIZE;
   const bh = (garden ? garden.h : 9) * TILE_SIZE;
 
-  // 1. Dressed Sandstone Garden Retaining Wall Rim
-  ctx.fillStyle = '#bfae9c';
-  ctx.fillRect(bx + 2, by + 4, bw - 4, bh - 8);
+  // 1. Flush Full-Footprint Dressed Sandstone Planter Retaining Rim (Zero stone floor peeking underneath!)
   ctx.fillStyle = '#786852';
-  ctx.fillRect(bx + 3, by + 5, bw - 6, bh - 10);
+  ctx.fillRect(bx, by, bw, bh);
+  ctx.fillStyle = '#bfae9c';
+  ctx.fillRect(bx, by, bw - 1, bh - 1);
+  ctx.fillStyle = '#ede4d3';
+  ctx.fillRect(bx, by, bw, 2);
+  ctx.fillRect(bx, by, 2, bh);
 
-  // 2. Rich Warm Tilled Botanical Garden Loam (Zero dark voids!)
+  // 2. Rich Warm Tilled Botanical Garden Loam filling the entire planter bed
   ctx.fillStyle = '#854d0e';
-  ctx.fillRect(bx + 4, by + 6, bw - 8, bh - 12);
+  ctx.fillRect(bx + 3, by + 3, bw - 6, bh - 6);
 
   // Warm tilled soil furrows with moisture depth
-  for (let y = by + 9; y < by + bh - 9; y += 8) {
+  for (let y = by + 18; y < by + bh - 16; y += 8) {
     ctx.fillStyle = '#5c3315';
-    ctx.fillRect(bx + 5, y, bw - 10, 1);
+    ctx.fillRect(bx + 4, y, bw - 8, 1);
     ctx.fillStyle = '#a16207';
-    ctx.fillRect(bx + 5, y + 1, bw - 10, 1);
+    ctx.fillRect(bx + 4, y + 1, bw - 8, 1);
   }
 
   // Sprouting green berry runners and seedlings
   for (let x = bx + 6; x < bx + bw - 14; x += 10) {
-    for (let y = by + 10; y < by + bh - 12; y += 8) {
+    for (let y = by + 18; y < by + bh - 16; y += 8) {
       if ((x * 5 + y * 11) % 3 === 0) {
         ctx.fillStyle = '#4d7c0f';
         ctx.fillRect(x, y, 3, 2);
@@ -4376,7 +4316,7 @@ function renderBerryGardenGround(ctx: CanvasRenderingContext2D) {
   }
 
   // 3. Flagstone Garden Stepping Path (from entrance on left at bx, by + 4 tiles)
-  for (let dx = 0; dx <= 28; dx += 14) {
+  for (let dx = 2; dx <= 30; dx += 14) {
     ctx.fillStyle = '#cbd5e1';
     ctx.fillRect(bx + dx, by + 4 * TILE_SIZE + 4, 12, 8);
     ctx.fillStyle = '#94a3b8';
@@ -4400,9 +4340,9 @@ function renderBerryGardenFoliage(ctx: CanvasRenderingContext2D) {
     drawSakuraCherryTree(ctx, bx + 3 * TILE_SIZE - 4, by + 1.5 * TILE_SIZE);
   }
 
-  // 2. Flower planter borders framing top and bottom
-  drawFlowerBed(ctx, bx + 2, by + 4, bw - 4, 12);
-  drawFlowerBed(ctx, bx + 2, by + bh - 16, bw - 4, 12);
+  // 2. Flush flower planter borders framing top and bottom edges cleanly
+  drawFlowerBed(ctx, bx, by, bw, 14);
+  drawFlowerBed(ctx, bx, by + bh - 14, bw, 14);
 
   // 3. Four Master Artisan Ceramic Berry Planters in 2x2 symmetrical grid
   // (bx + 2, by + 5), (bx + 5, by + 5), (bx + 2, by + 7), (bx + 5, by + 7)
@@ -4533,17 +4473,24 @@ function renderContestStageGround(ctx: CanvasRenderingContext2D) {
   const cy = contest.y * TILE_SIZE;
   const cw = contest.w * TILE_SIZE;
 
+  // Tile full 7x8 Contest footprint with matching palace pavers first so audience seating forecourt blends seamlessly
+  for (let ty = contest.y; ty < contest.y + contest.h; ty++) {
+    for (let tx = contest.x; tx < contest.x + contest.w; tx++) {
+      renderDevCourtyardTile(ctx, tx * TILE_SIZE, ty * TILE_SIZE, tx, ty);
+    }
+  }
+
   // Polished Stage Wood Decking (Y: cy..cy + 4.5 tiles)
   const stageH = 4.5 * TILE_SIZE;
   // Stage Drop Shadow & Elevated Riser Step
-  ctx.fillStyle = 'rgba(15, 23, 42, 0.45)';
-  ctx.fillRect(cx - 3, cy + stageH + 2, cw + 6, 4);
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.35)';
+  ctx.fillRect(cx, cy + stageH + 1, cw, 3);
 
-  // Outer polished mahogany stage border
+  // Outer polished mahogany stage border (flush to tile bounds!)
   ctx.fillStyle = '#451a03';
-  ctx.fillRect(cx - 2, cy - 1, cw + 4, stageH + 3);
+  ctx.fillRect(cx, cy, cw, stageH + 1);
   ctx.fillStyle = '#78350f';
-  ctx.fillRect(cx - 1, cy, cw + 2, stageH + 1);
+  ctx.fillRect(cx + 1, cy + 1, cw - 2, stageH - 1);
 
   // Horizontal polished wood floorboards
   for (let dy = 0; dy < stageH; dy += 4) {
@@ -4686,41 +4633,6 @@ function renderContestProps(ctx: CanvasRenderingContext2D) {
   drawParkBench(ctx, cx + 4.2 * TILE_SIZE, cy + 5.5 * TILE_SIZE);
 }
 
-function renderRangerCampGround(ctx: CanvasRenderingContext2D) {
-  // Ranger Camp & Rest Area Clearing (X: 36..42, Y: 38..45)
-  const rx = 36 * TILE_SIZE;
-  const ry = 38 * TILE_SIZE;
-  const rw = 7 * TILE_SIZE;
-  const rh = 7.5 * TILE_SIZE;
-
-  // Soft, organic woodland clearing floor (curved natural clearing)
-  ctx.fillStyle = 'rgba(20, 25, 20, 0.25)';
-  ctx.beginPath();
-  ctx.roundRect(rx + 4, ry + 2, rw - 6, rh - 4, 12);
-  ctx.fill();
-
-  ctx.fillStyle = '#78350f'; // Warm pine needle forest floor
-  ctx.beginPath();
-  ctx.roundRect(rx + 5, ry + 3, rw - 8, rh - 6, 10);
-  ctx.fill();
-
-  ctx.fillStyle = '#92400e';
-  ctx.beginPath();
-  ctx.roundRect(rx + 7, ry + 5, rw - 12, rh - 10, 8);
-  ctx.fill();
-
-  // Organic grass tufts and woodland texture
-  ctx.fillStyle = '#529930';
-  for (let i = 0; i < 8; i++) {
-    const gx = rx + 8 + ((i * 17) % Math.floor(rw - 16));
-    const gy = ry + 6 + ((i * 13) % Math.floor(rh - 12));
-    ctx.fillRect(gx, gy, 2, 2);
-    ctx.fillStyle = '#67b346';
-    ctx.fillRect(gx + 1, gy - 1, 1, 2);
-    ctx.fillStyle = '#529930';
-  }
-}
-
 function renderRangerShelter(ctx: CanvasRenderingContext2D) {
   const shelter = townConfig.getBuilding('camp');
   if (!shelter || shelter.hidden) return;
@@ -4754,10 +4666,18 @@ function renderRangerCampfireAndBenches(ctx: CanvasRenderingContext2D) {
   const fireX = cf.x * TILE_SIZE + 4;
   const fireY = cf.y * TILE_SIZE + 2;
 
-  // Ground soot & ash
-  ctx.fillStyle = 'rgba(20, 20, 20, 0.45)';
+  // Crisp dressed circular stone hearth pad (never leaves muddy dirt smear on stone plazas!)
+  ctx.fillStyle = '#475569';
   ctx.beginPath();
   ctx.ellipse(fireX + 4, fireY + 4, 10, 6, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#64748b';
+  ctx.beginPath();
+  ctx.ellipse(fireX + 4, fireY + 3.5, 8.5, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#1e293b';
+  ctx.beginPath();
+  ctx.ellipse(fireX + 4, fireY + 4, 5.5, 3, 0, 0, Math.PI * 2);
   ctx.fill();
 
   // Natural stone ring (8 stones)
@@ -4924,35 +4844,6 @@ function renderDevCafeBaristaKiosk(ctx: CanvasRenderingContext2D) {
   ctx.restore();
 }
 
-function renderCyclingLaneGraphics(ctx: CanvasRenderingContext2D) {
-  // Raised stone dividing curbs framing both sides of the cycling track
-  for (let y = 27; y <= 42; y++) {
-    const py = y * TILE_SIZE;
-    // Left curb (separating bike lane from western fence)
-    ctx.fillStyle = '#71717a';
-    ctx.fillRect(3 * TILE_SIZE, py, 1, TILE_SIZE);
-    ctx.fillStyle = '#e4e4e7';
-    ctx.fillRect(3 * TILE_SIZE + 1, py, 1, TILE_SIZE);
-    // Right curb (separating bike lane from pedestrian promenade)
-    ctx.fillStyle = '#b8aa97';
-    ctx.fillRect(5 * TILE_SIZE - 2, py, 2, TILE_SIZE);
-    ctx.fillStyle = '#ede4d4';
-    ctx.fillRect(5 * TILE_SIZE - 2, py, 1, TILE_SIZE);
-    ctx.fillStyle = '#827464';
-    ctx.fillRect(5 * TILE_SIZE - 1, py, 1, TILE_SIZE);
-  }
-
-  // Crisp white dashed lane divider along X: 4
-  for (let y = 27; y <= 42; y += 2) {
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(4 * TILE_SIZE - 1, y * TILE_SIZE + 4, 2, 8);
-  }
-
-  // White bike icon stenciled at Y: 29 and Y: 40 on lane (unobscured!)
-  drawBikeStencil(ctx, 3.5 * TILE_SIZE, 29 * TILE_SIZE);
-  drawBikeStencil(ctx, 3.5 * TILE_SIZE, 40 * TILE_SIZE);
-}
-
 function renderWestSeasideGazebo(ctx: CanvasRenderingContext2D) {
   const gazebo = townConfig.getBuilding('gazebo');
   if (!gazebo || gazebo.hidden) return;
@@ -4991,19 +4882,6 @@ function renderWestSeasideGazebo(ctx: CanvasRenderingContext2D) {
   ctx.fillRect(gx + 11, gy + 9, 10, 1);
   ctx.fillRect(gx + 11, gy + 11, 8, 1);
   ctx.fillRect(gx + 11, gy + 13, 9, 1);
-}
-
-function drawBikeStencil(ctx: CanvasRenderingContext2D, px: number, py: number) {
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-  // Front wheel
-  ctx.fillRect(px - 4, py + 4, 3, 3);
-  // Rear wheel
-  ctx.fillRect(px + 4, py + 4, 3, 3);
-  // Frame
-  ctx.fillRect(px - 2, py + 3, 6, 1);
-  ctx.fillRect(px - 1, py + 1, 1, 3);
-  // Handlebars
-  ctx.fillRect(px - 3, py + 1, 3, 1);
 }
 
 function drawLogBench(ctx: CanvasRenderingContext2D, px: number, py: number, len: number, horizontal: boolean) {
@@ -5348,6 +5226,589 @@ export function drawLilyPond(ctx: CanvasRenderingContext2D, px: number, py: numb
   ctx.fillRect(px + 11, py + 11, 2, 2);
   ctx.fillStyle = '#facc15';
   ctx.fillRect(px + 11, py + 12, 1, 1);
+  ctx.restore();
+}
+
+export function drawPalmTree(ctx: CanvasRenderingContext2D, px: number, py: number) {
+  ctx.save();
+  ctx.fillStyle = 'rgba(10, 24, 12, 0.36)';
+  ctx.beginPath();
+  ctx.ellipse(px + 15, py + 29, 11, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  const segs: readonly [number, number, number][] = [
+    [13, 25, 6],
+    [13, 22, 5],
+    [14, 19, 5],
+    [14, 16, 4],
+    [15, 13, 4],
+    [15, 10, 4],
+  ];
+  for (const [sx, sy, sw] of segs) {
+    ctx.fillStyle = '#451a03';
+    ctx.fillRect(px + sx - 1, sy + py, sw + 2, 4);
+    ctx.fillStyle = '#92400e';
+    ctx.fillRect(px + sx, sy + py, sw, 3);
+    ctx.fillStyle = '#d97706';
+    ctx.fillRect(px + sx + 1, sy + py, Math.max(1, sw - 2), 2);
+  }
+
+  // Three coconuts clustered beneath fronds
+  for (const [cx, cy] of [[14, 10], [18, 10], [16, 11]]) {
+    ctx.fillStyle = '#291509';
+    ctx.fillRect(px + cx - 1, py + cy - 1, 4, 4);
+    ctx.fillStyle = '#78350f';
+    ctx.fillRect(px + cx, py + cy, 3, 3);
+  }
+
+  // Sweeping palm fronds
+  const fronds: readonly [number, number, number, number, string, string][] = [
+    [3, 7, 13, 4, '#15803d', '#4ade80'],
+    [17, 7, 13, 4, '#15803d', '#4ade80'],
+    [5, 11, 10, 3, '#166534', '#22c55e'],
+    [18, 11, 10, 3, '#166534', '#22c55e'],
+    [9, 3, 7, 5, '#16a34a', '#86efac'],
+    [17, 3, 7, 5, '#16a34a', '#86efac'],
+  ];
+  for (const [fx, fy, fw, fh, dark, light] of fronds) {
+    ctx.fillStyle = '#0f3319';
+    ctx.fillRect(px + fx - 1, py + fy, fw + 2, fh + 1);
+    ctx.fillStyle = dark;
+    ctx.fillRect(px + fx, py + fy, fw, fh);
+    ctx.fillStyle = light;
+    ctx.fillRect(px + fx + 1, py + fy, Math.max(2, fw - 2), 2);
+  }
+  ctx.fillStyle = '#14532d';
+  ctx.fillRect(px + 13, py + 5, 6, 5);
+  ctx.restore();
+}
+
+export function drawWillowTree(ctx: CanvasRenderingContext2D, px: number, py: number) {
+  ctx.save();
+  ctx.fillStyle = 'rgba(10, 24, 12, 0.38)';
+  ctx.beginPath();
+  ctx.ellipse(px + 16, py + 29, 13, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#2e1d14';
+  ctx.fillRect(px + 12, py + 17, 8, 13);
+  ctx.fillStyle = '#5d4037';
+  ctx.fillRect(px + 13, py + 18, 6, 11);
+  ctx.fillStyle = '#8d6e63';
+  ctx.fillRect(px + 15, py + 19, 2, 8);
+
+  // Crown base
+  ctx.fillStyle = '#0f3319';
+  ctx.beginPath();
+  ctx.ellipse(px + 16, py + 11, 15, 10, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#166534';
+  ctx.beginPath();
+  ctx.ellipse(px + 16, py + 10, 14, 9, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Cascading weeping vines & foliage highlights
+  for (const [vx, vh] of [
+    [3, 15], [6, 17], [9, 16], [12, 14], [19, 14], [22, 16], [25, 17], [28, 14],
+  ]) {
+    ctx.fillStyle = '#14532d';
+    ctx.fillRect(px + vx, py + 9, 2, vh);
+    ctx.fillStyle = '#22c55e';
+    ctx.fillRect(px + vx, py + 8, 2, vh - 3);
+    ctx.fillStyle = '#86efac';
+    ctx.fillRect(px + vx, py + 7, 1, Math.max(3, vh - 8));
+  }
+
+  ctx.fillStyle = '#4ade80';
+  ctx.fillRect(px + 9, py + 3, 14, 3);
+  ctx.fillStyle = '#bbf7d0';
+  ctx.fillRect(px + 12, py + 2, 7, 2);
+  ctx.restore();
+}
+
+export function drawBambooGrove(ctx: CanvasRenderingContext2D, px: number, py: number) {
+  ctx.save();
+  ctx.fillStyle = 'rgba(10, 24, 12, 0.34)';
+  ctx.beginPath();
+  ctx.ellipse(px + 16, py + 29, 12, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  const stalks: readonly [number, number, number, string][] = [
+    [6, 5, 24, '#15803d'],
+    [11, 3, 27, '#16a34a'],
+    [16, 4, 26, '#22c55e'],
+    [21, 6, 23, '#15803d'],
+    [25, 8, 21, '#16a34a'],
+  ];
+  for (const [sx, sy, sh, col] of stalks) {
+    ctx.fillStyle = '#052e16';
+    ctx.fillRect(px + sx - 1, py + sy, 4, sh);
+    ctx.fillStyle = col;
+    ctx.fillRect(px + sx, py + sy, 3, sh);
+    ctx.fillStyle = '#86efac';
+    ctx.fillRect(px + sx, py + sy, 1, sh);
+    for (let ny = sy + 4; ny < sy + sh - 2; ny += 5) {
+      ctx.fillStyle = '#14532d';
+      ctx.fillRect(px + sx - 1, py + ny, 4, 1);
+      ctx.fillStyle = '#dcfce7';
+      ctx.fillRect(px + sx, py + ny - 1, 2, 1);
+    }
+  }
+
+  for (const [lx, ly, lw] of [[3, 6, 6], [13, 2, 7], [20, 4, 7], [7, 13, 5], [22, 11, 6]]) {
+    ctx.fillStyle = '#166534';
+    ctx.fillRect(px + lx, py + ly, lw, 3);
+    ctx.fillStyle = '#4ade80';
+    ctx.fillRect(px + lx + 1, py + ly, Math.max(2, lw - 2), 1);
+  }
+  ctx.restore();
+}
+
+export function drawDeadwoodTree(ctx: CanvasRenderingContext2D, px: number, py: number) {
+  ctx.save();
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.42)';
+  ctx.beginPath();
+  ctx.ellipse(px + 16, py + 29, 12, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Dark outline trunk & flared roots
+  ctx.fillStyle = '#1c1917';
+  ctx.fillRect(px + 12, py + 11, 8, 19);
+  ctx.fillRect(px + 9, py + 26, 14, 4);
+  ctx.fillStyle = '#44403c';
+  ctx.fillRect(px + 13, py + 12, 6, 17);
+  ctx.fillStyle = '#78716c';
+  ctx.fillRect(px + 14, py + 13, 2, 14);
+  ctx.fillStyle = '#1c1917';
+  ctx.fillRect(px + 15, py + 20, 2, 3);
+
+  // Gnarled bare branches
+  const limbs: readonly [number, number, number, number][] = [
+    [6, 6, 7, 2],
+    [4, 4, 4, 3],
+    [19, 6, 8, 2],
+    [25, 3, 3, 4],
+    [10, 12, 4, 2],
+    [15, 3, 2, 9],
+    [12, 2, 3, 4],
+    [20, 11, 6, 2],
+  ];
+  for (const [bx, by, bw, bh] of limbs) {
+    ctx.fillStyle = '#1c1917';
+    ctx.fillRect(px + bx - 1, py + by - 1, bw + 2, bh + 2);
+    ctx.fillStyle = '#57534e';
+    ctx.fillRect(px + bx, py + by, bw, bh);
+    ctx.fillStyle = '#a8a29e';
+    ctx.fillRect(px + bx, py + by, Math.max(1, bw - 1), 1);
+  }
+  ctx.restore();
+}
+
+export function drawGoldenCelestiaTree(ctx: CanvasRenderingContext2D, px: number, py: number) {
+  ctx.save();
+  ctx.fillStyle = 'rgba(250, 204, 21, 0.25)';
+  ctx.beginPath();
+  ctx.ellipse(px + 16, py + 29, 13, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Ivory silver trunk
+  ctx.fillStyle = '#475569';
+  ctx.fillRect(px + 12, py + 18, 8, 12);
+  ctx.fillStyle = '#e2e8f0';
+  ctx.fillRect(px + 13, py + 18, 6, 11);
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(px + 14, py + 19, 2, 8);
+
+  // Golden radiant canopy
+  ctx.fillStyle = '#78350f';
+  ctx.beginPath();
+  ctx.arc(px + 16, py + 12, 12, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(px + 9, py + 15, 7, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(px + 23, py + 15, 7, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#d97706';
+  ctx.beginPath();
+  ctx.arc(px + 16, py + 12, 11, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(px + 9, py + 15, 6, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(px + 23, py + 15, 6, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#facc15';
+  ctx.beginPath();
+  ctx.arc(px + 16, py + 10, 8, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#fef08a';
+  ctx.fillRect(px + 12, py + 4, 7, 3);
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(px + 10, py + 9, 2, 2);
+  ctx.fillRect(px + 21, py + 7, 2, 2);
+  ctx.fillRect(px + 15, py + 14, 1, 2);
+  ctx.restore();
+}
+
+export function drawLavenderBed(ctx: CanvasRenderingContext2D, px: number, py: number, w: number, h: number) {
+  ctx.save();
+  ctx.fillStyle = '#64748b';
+  ctx.fillRect(px, py, w, h);
+  ctx.fillStyle = '#cbd5e1';
+  ctx.fillRect(px + 1, py + 1, w - 2, 2);
+  ctx.fillRect(px + 1, py + 1, 2, h - 2);
+
+  ctx.fillStyle = '#3b2314';
+  ctx.fillRect(px + 2, py + 2, w - 4, h - 4);
+  ctx.fillStyle = '#14532d';
+  ctx.fillRect(px + 3, py + 4, w - 6, h - 7);
+
+  for (let sy = py + 5; sy <= py + h - 8; sy += 9) {
+    for (let sx = px + 5; sx <= px + w - 7; sx += 6) {
+      ctx.fillStyle = '#15803d';
+      ctx.fillRect(sx + 1, sy + 3, 2, 4);
+      ctx.fillStyle = '#7e22ce';
+      ctx.fillRect(sx, sy + 1, 4, 4);
+      ctx.fillStyle = '#c084fc';
+      ctx.fillRect(sx + 1, sy, 2, 4);
+      ctx.fillStyle = '#f3e8ff';
+      ctx.fillRect(sx + 1, sy, 1, 2);
+    }
+  }
+  ctx.restore();
+}
+
+export function drawRoseBed(ctx: CanvasRenderingContext2D, px: number, py: number, w: number, h: number) {
+  ctx.save();
+  ctx.fillStyle = '#94a3b8';
+  ctx.fillRect(px, py, w, h);
+  ctx.fillStyle = '#f8fafc';
+  ctx.fillRect(px + 1, py + 1, w - 2, 2);
+  ctx.fillRect(px + 1, py + 1, 2, h - 2);
+
+  ctx.fillStyle = '#14532d';
+  ctx.fillRect(px + 2, py + 2, w - 4, h - 4);
+  ctx.fillStyle = '#166534';
+  ctx.fillRect(px + 3, py + 3, w - 6, h - 6);
+
+  let idx = 0;
+  for (let ry = py + 5; ry <= py + h - 7; ry += 7) {
+    for (let rx = px + 5; rx <= px + w - 7; rx += 6) {
+      const isRed = idx % 2 === 0;
+      ctx.fillStyle = isRed ? '#991b1b' : '#cbd5e1';
+      ctx.fillRect(rx, ry, 4, 4);
+      ctx.fillStyle = isRed ? '#ef4444' : '#ffffff';
+      ctx.fillRect(rx + 1, ry + 1, 3, 2);
+      ctx.fillStyle = isRed ? '#fecaca' : '#fef08a';
+      ctx.fillRect(rx + 1, ry + 1, 1, 1);
+      idx++;
+    }
+  }
+  ctx.restore();
+}
+
+export function drawFloweringHydrangeaBush(ctx: CanvasRenderingContext2D, px: number, py: number) {
+  ctx.save();
+  ctx.fillStyle = 'rgba(10, 24, 12, 0.36)';
+  ctx.beginPath();
+  ctx.ellipse(px + 8, py + 14, 7, 2, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#0f2c14';
+  ctx.beginPath();
+  ctx.arc(px + 8, py + 8, 7, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#166534';
+  ctx.beginPath();
+  ctx.arc(px + 8, py + 8, 6, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#22c55e';
+  ctx.fillRect(px + 4, py + 4, 8, 5);
+
+  const clusters: readonly [number, number, string, string][] = [
+    [3, 5, '#2563eb', '#7dd3fc'],
+    [7, 3, '#7c3aed', '#c4b5fd'],
+    [9, 7, '#db2777', '#f9a8d4'],
+  ];
+  for (const [cx, cy, base, hi] of clusters) {
+    ctx.fillStyle = base;
+    ctx.fillRect(px + cx, py + cy, 4, 4);
+    ctx.fillStyle = hi;
+    ctx.fillRect(px + cx + 1, py + cy, 2, 2);
+  }
+  ctx.restore();
+}
+
+export function drawMushroomPatch(ctx: CanvasRenderingContext2D, px: number, py: number) {
+  ctx.save();
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.32)';
+  ctx.beginPath();
+  ctx.ellipse(px + 8, py + 14, 7, 2, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Main red spotted mushroom
+  ctx.fillStyle = '#78350f';
+  ctx.fillRect(px + 4, py + 8, 4, 5);
+  ctx.fillStyle = '#fef3c7';
+  ctx.fillRect(px + 5, py + 8, 2, 5);
+  ctx.fillStyle = '#7f1d1d';
+  ctx.fillRect(px + 2, py + 4, 8, 5);
+  ctx.fillStyle = '#ef4444';
+  ctx.fillRect(px + 3, py + 4, 6, 4);
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(px + 4, py + 5, 1, 1);
+  ctx.fillRect(px + 7, py + 6, 1, 1);
+
+  // Cyan glowshrooms
+  ctx.fillStyle = '#0f766e';
+  ctx.fillRect(px + 10, py + 10, 2, 4);
+  ctx.fillStyle = '#06b6d4';
+  ctx.fillRect(px + 9, py + 8, 5, 3);
+  ctx.fillStyle = '#a5f3fc';
+  ctx.fillRect(px + 10, py + 8, 3, 1);
+  ctx.fillStyle = '#22d3ee';
+  ctx.fillRect(px + 12, py + 11, 3, 2);
+  ctx.restore();
+}
+
+export function drawTreeStump(ctx: CanvasRenderingContext2D, px: number, py: number) {
+  ctx.save();
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.36)';
+  ctx.beginPath();
+  ctx.ellipse(px + 8, py + 14, 7, 2, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#2e1d14';
+  ctx.fillRect(px + 3, py + 6, 10, 8);
+  ctx.fillRect(px + 2, py + 11, 12, 3);
+  ctx.fillStyle = '#78350f';
+  ctx.fillRect(px + 4, py + 7, 8, 6);
+  ctx.fillStyle = '#92400e';
+  ctx.fillRect(px + 5, py + 8, 3, 5);
+
+  // Cut wood ring top
+  ctx.fillStyle = '#fde68a';
+  ctx.fillRect(px + 4, py + 5, 8, 3);
+  ctx.fillStyle = '#d97706';
+  ctx.fillRect(px + 6, py + 6, 4, 1);
+
+  // Moss + sprout
+  ctx.fillStyle = '#16a34a';
+  ctx.fillRect(px + 10, py + 10, 3, 3);
+  ctx.fillStyle = '#4ade80';
+  ctx.fillRect(px + 11, py + 8, 2, 2);
+  ctx.fillRect(px + 13, py + 7, 1, 2);
+  ctx.restore();
+}
+
+export function drawFallenLog(ctx: CanvasRenderingContext2D, px: number, py: number) {
+  ctx.save();
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.36)';
+  ctx.fillRect(px + 2, py + 12, 28, 3);
+
+  ctx.fillStyle = '#2e1d14';
+  ctx.fillRect(px + 1, py + 4, 29, 9);
+  ctx.fillStyle = '#78350f';
+  ctx.fillRect(px + 2, py + 5, 24, 7);
+  ctx.fillStyle = '#92400e';
+  ctx.fillRect(px + 3, py + 6, 22, 3);
+  ctx.fillStyle = '#451a03';
+  ctx.fillRect(px + 7, py + 9, 6, 1);
+  ctx.fillRect(px + 16, py + 7, 5, 1);
+
+  // Right cut end
+  ctx.fillStyle = '#fde68a';
+  ctx.fillRect(px + 25, py + 5, 4, 7);
+  ctx.fillStyle = '#d97706';
+  ctx.fillRect(px + 26, py + 7, 2, 3);
+
+  // Moss blanket & tiny bracket fungus
+  ctx.fillStyle = '#15803d';
+  ctx.fillRect(px + 5, py + 4, 11, 3);
+  ctx.fillStyle = '#4ade80';
+  ctx.fillRect(px + 6, py + 4, 7, 2);
+  ctx.fillStyle = '#f87171';
+  ctx.fillRect(px + 19, py + 4, 3, 2);
+  ctx.restore();
+}
+
+export function drawReedsClump(ctx: CanvasRenderingContext2D, px: number, py: number) {
+  ctx.save();
+  ctx.fillStyle = 'rgba(3, 105, 161, 0.28)';
+  ctx.beginPath();
+  ctx.ellipse(px + 8, py + 14, 6, 2, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  const blades: readonly [number, number, number, string][] = [
+    [3, 5, 9, '#15803d'],
+    [5, 3, 11, '#22c55e'],
+    [8, 4, 10, '#166534'],
+    [10, 2, 12, '#22c55e'],
+    [12, 6, 8, '#15803d'],
+  ];
+  for (const [bx, by, bh, col] of blades) {
+    ctx.fillStyle = col;
+    ctx.fillRect(px + bx, py + by, 2, bh);
+  }
+  ctx.fillStyle = '#86efac';
+  ctx.fillRect(px + 6, py + 5, 1, 5);
+  ctx.fillRect(px + 10, py + 4, 1, 6);
+
+  // Cattail brown heads
+  ctx.fillStyle = '#78350f';
+  ctx.fillRect(px + 5, py + 4, 2, 4);
+  ctx.fillRect(px + 10, py + 3, 2, 4);
+  ctx.fillStyle = '#fde68a';
+  ctx.fillRect(px + 5, py + 3, 1, 1);
+  ctx.fillRect(px + 10, py + 2, 1, 1);
+  ctx.restore();
+}
+
+export function drawMossyRockFormation(ctx: CanvasRenderingContext2D, px: number, py: number) {
+  ctx.save();
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.4)';
+  ctx.beginPath();
+  ctx.ellipse(px + 16, py + 28, 14, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Main tall boulder
+  ctx.fillStyle = '#1e293b';
+  ctx.fillRect(px + 3, py + 7, 22, 21);
+  ctx.fillRect(px + 6, py + 4, 16, 24);
+  ctx.fillStyle = '#475569';
+  ctx.fillRect(px + 4, py + 8, 20, 19);
+  ctx.fillStyle = '#64748b';
+  ctx.fillRect(px + 6, py + 6, 15, 15);
+  ctx.fillStyle = '#94a3b8';
+  ctx.fillRect(px + 7, py + 6, 9, 5);
+
+  // Secondary right boulder
+  ctx.fillStyle = '#1e293b';
+  ctx.fillRect(px + 19, py + 15, 11, 13);
+  ctx.fillStyle = '#475569';
+  ctx.fillRect(px + 20, py + 16, 9, 11);
+  ctx.fillStyle = '#94a3b8';
+  ctx.fillRect(px + 21, py + 16, 5, 3);
+
+  // Moss carpet drape
+  ctx.fillStyle = '#15803d';
+  ctx.fillRect(px + 6, py + 5, 12, 4);
+  ctx.fillRect(px + 8, py + 9, 5, 3);
+  ctx.fillRect(px + 21, py + 15, 6, 3);
+  ctx.fillStyle = '#4ade80';
+  ctx.fillRect(px + 7, py + 5, 8, 2);
+  ctx.fillRect(px + 22, py + 15, 4, 1);
+  ctx.restore();
+}
+
+export function drawCrystalCluster(ctx: CanvasRenderingContext2D, px: number, py: number) {
+  ctx.save();
+  ctx.fillStyle = 'rgba(56, 189, 248, 0.25)';
+  ctx.beginPath();
+  ctx.ellipse(px + 8, py + 14, 6, 2, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#334155';
+  ctx.fillRect(px + 3, py + 12, 10, 3);
+
+  // Side crystals
+  ctx.fillStyle = '#6d28d9';
+  ctx.fillRect(px + 3, py + 6, 3, 7);
+  ctx.fillStyle = '#a855f7';
+  ctx.fillRect(px + 4, py + 7, 1, 5);
+
+  ctx.fillStyle = '#0369a1';
+  ctx.fillRect(px + 10, py + 7, 3, 6);
+  ctx.fillStyle = '#38bdf8';
+  ctx.fillRect(px + 11, py + 8, 1, 4);
+
+  // Center tall spire
+  ctx.fillStyle = '#0284c7';
+  ctx.fillRect(px + 6, py + 2, 4, 11);
+  ctx.fillRect(px + 7, py + 1, 2, 12);
+  ctx.fillStyle = '#7dd3fc';
+  ctx.fillRect(px + 7, py + 2, 2, 9);
+  ctx.fillStyle = '#f0f9ff';
+  ctx.fillRect(px + 7, py + 2, 1, 4);
+  ctx.restore();
+}
+
+export function drawNaturalSpringPool(ctx: CanvasRenderingContext2D, px: number, py: number) {
+  ctx.save();
+  ctx.fillStyle = '#1e293b';
+  ctx.beginPath();
+  ctx.ellipse(px + 16, py + 17, 15, 13, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#64748b';
+  ctx.beginPath();
+  ctx.ellipse(px + 16, py + 16, 14, 12, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#0284c7';
+  ctx.beginPath();
+  ctx.ellipse(px + 16, py + 17, 11, 9, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#06b6d4';
+  ctx.beginPath();
+  ctx.ellipse(px + 16, py + 17, 9, 7, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#67e8f9';
+  ctx.fillRect(px + 10, py + 15, 8, 2);
+  ctx.fillRect(px + 14, py + 20, 7, 1);
+
+  // Rim stones & moss accents
+  for (const [rx, ry, moss] of [
+    [3, 12, true], [8, 4, false], [17, 3, true], [25, 8, false], [26, 20, false], [5, 22, true],
+  ] as const) {
+    ctx.fillStyle = '#94a3b8';
+    ctx.fillRect(px + rx, py + ry, 4, 3);
+    if (moss) {
+      ctx.fillStyle = '#22c55e';
+      ctx.fillRect(px + rx + 1, py + ry, 2, 1);
+    }
+  }
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+  ctx.fillRect(px + 12, py + 11, 1, 2);
+  ctx.fillRect(px + 20, py + 10, 1, 2);
+  ctx.restore();
+}
+
+export function drawCactusSaguaro(ctx: CanvasRenderingContext2D, px: number, py: number) {
+  ctx.save();
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.34)';
+  ctx.beginPath();
+  ctx.ellipse(px + 8, py + 14, 5, 2, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#052e16';
+  ctx.fillRect(px + 5, py + 2, 6, 13);
+  ctx.fillRect(px + 2, py + 6, 4, 5);
+  ctx.fillRect(px + 10, py + 5, 4, 5);
+
+  ctx.fillStyle = '#15803d';
+  ctx.fillRect(px + 6, py + 3, 4, 11);
+  ctx.fillRect(px + 3, py + 7, 3, 3);
+  ctx.fillRect(px + 10, py + 6, 3, 3);
+
+  ctx.fillStyle = '#4ade80';
+  ctx.fillRect(px + 7, py + 4, 1, 9);
+  ctx.fillRect(px + 3, py + 7, 1, 2);
+  ctx.fillRect(px + 11, py + 6, 1, 2);
+
+  // Flower crown
+  ctx.fillStyle = '#f43f5e';
+  ctx.fillRect(px + 6, py + 1, 4, 2);
+  ctx.fillStyle = '#facc15';
+  ctx.fillRect(px + 7, py + 1, 2, 1);
   ctx.restore();
 }
 
@@ -5730,47 +6191,6 @@ export function drawSnorlax(ctx: CanvasRenderingContext2D, px: number, py: numbe
   ctx.fillText('z', px + 23, py + 6);
   ctx.font = 'bold 11px monospace';
   ctx.fillText('Z', px + 26, py - 1);
-  ctx.restore();
-}
-
-export function drawPikachu(ctx: CanvasRenderingContext2D, px: number, py: number) {
-  ctx.save();
-  ctx.fillStyle = 'rgba(15, 23, 42, 0.35)';
-  ctx.beginPath();
-  ctx.ellipse(px + 8, py + 14, 5, 2, 0, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.fillStyle = '#92400e';
-  ctx.fillRect(px + 11, py + 10, 2, 2);
-  ctx.fillStyle = '#facc15';
-  ctx.fillRect(px + 12, py + 7, 3, 3);
-  ctx.fillRect(px + 10, py + 5, 3, 2);
-  ctx.fillRect(px + 12, py + 2, 3, 3);
-
-  ctx.fillStyle = '#facc15';
-  ctx.fillRect(px + 4, py + 1, 2, 5);
-  ctx.fillRect(px + 10, py + 1, 2, 5);
-  ctx.fillStyle = '#18181b';
-  ctx.fillRect(px + 4, py, 2, 2);
-  ctx.fillRect(px + 10, py, 2, 2);
-
-  ctx.fillStyle = '#facc15';
-  ctx.beginPath();
-  ctx.ellipse(px + 8, py + 10, 5, 4, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.arc(px + 8, py + 7, 4, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.fillStyle = '#ef4444';
-  ctx.fillRect(px + 4, py + 8, 2, 2);
-  ctx.fillRect(px + 10, py + 8, 2, 2);
-
-  ctx.fillStyle = '#18181b';
-  ctx.fillRect(px + 6, py + 6, 1, 2);
-  ctx.fillRect(px + 9, py + 6, 1, 2);
-  ctx.fillStyle = '#ffffff';
-  ctx.fillRect(px + 6, py + 6, 1, 1);
   ctx.restore();
 }
 
@@ -6432,4 +6852,244 @@ export function drawWanderingTrainerNpc(ctx: CanvasRenderingContext2D, px: numbe
   ctx.fillStyle = '#f8fafc';
   ctx.fillRect(px + 3, py + 3, 4, 1);
   ctx.restore();
+}
+
+export type TemplateArtworkSpec = Pick<SpawnableTemplate, 'id' | 'kind' | 'subType' | 'w' | 'h'>;
+
+const templateThumbCache = new Map<string, string | null>();
+
+/**
+ * Renders the exact in-world pixel artwork for a catalog template at `(px, py)`.
+ * Returns `false` when the template is rendered by another subsystem (e.g. PMD/Digimon sprite loaders).
+ */
+export function drawTemplateArtwork(
+  ctx: CanvasRenderingContext2D,
+  tpl: TemplateArtworkSpec,
+  px: number,
+  py: number
+): boolean {
+  if (tpl.kind === 'tree') {
+    switch (tpl.subType) {
+      case 'tree_sakura':
+        drawSakuraCherryTree(ctx, px - 4, py - 8);
+        return true;
+      case 'tree_pine':
+        drawPineTree(ctx, px, py);
+        return true;
+      case 'tree_autumn':
+        drawAutumnTree(ctx, px, py);
+        return true;
+      case 'tree_berry':
+        drawBerryTree(ctx, px, py);
+        return true;
+      case 'tree_palm':
+        drawPalmTree(ctx, px, py);
+        return true;
+      case 'tree_willow':
+        drawWillowTree(ctx, px, py);
+        return true;
+      case 'tree_bamboo':
+        drawBambooGrove(ctx, px, py);
+        return true;
+      case 'tree_dead':
+        drawDeadwoodTree(ctx, px, py);
+        return true;
+      case 'tree_golden':
+        drawGoldenCelestiaTree(ctx, px, py);
+        return true;
+      default:
+        drawPokemonTownTree(ctx, px - 4, py - 8);
+        return true;
+    }
+  }
+
+  if (tpl.kind === 'bush') {
+    drawSingleConnectedHedgeTile(ctx, px, py, false, false, false, false);
+    return true;
+  }
+
+  if (tpl.kind === 'flowerbed') {
+    const wPx = tpl.w * TILE_SIZE;
+    const hPx = tpl.h * TILE_SIZE;
+    if (tpl.subType === 'sunflower_bed') drawSunflowerBed(ctx, px, py, wPx, hPx);
+    else if (tpl.subType === 'lavender_bed') drawLavenderBed(ctx, px, py, wPx, hPx);
+    else if (tpl.subType === 'rose_bed') drawRoseBed(ctx, px, py, wPx, hPx);
+    else drawFlowerBed(ctx, px, py, wPx, hPx);
+    return true;
+  }
+
+  if (tpl.kind === 'lamp') {
+    if (tpl.subType === 'stone_lantern') drawStoneLantern(ctx, px, py);
+    else if (tpl.subType === 'lamp_cyber') drawCyberLamp(ctx, px, py);
+    else drawSingleStreetLamp(ctx, px, py);
+    return true;
+  }
+
+  if (tpl.kind === 'bench') {
+    drawParkBench(ctx, px, py, 'N', tpl.w, tpl.h);
+    return true;
+  }
+
+  if (tpl.kind === 'sign' || tpl.subType === 'sign') {
+    drawSingleSignBoard(ctx, px, py);
+    return true;
+  }
+
+  if (tpl.kind === 'building') {
+    return renderMedievalBuildingByType(ctx, tpl.subType || tpl.id, px, py, tpl.w, tpl.h);
+  }
+
+  if (tpl.kind === 'object') {
+    if (renderMedievalPropByType(ctx, tpl.subType, px, py, tpl.w, tpl.h, 'S')) {
+      return true;
+    }
+    if (tpl.subType === 'fence_water') {
+      drawMaritimeSeaRailing(ctx, px, py, 'N');
+      return true;
+    }
+    switch (tpl.subType) {
+      case 'berry_pot': drawBerryPot(ctx, px + 2, py + 2, '#3b82f6', '#1d4ed8'); return true;
+      case 'statue': drawHeroStatue(ctx, px, py); return true;
+      case 'vending': drawArcadeVendingMachine(ctx, px, py); return true;
+      case 'telescope': drawNorthFacingTelescope(ctx, px + 4, py + 4); return true;
+      case 'campfire': drawSingleCampfire(ctx, px, py); return true;
+      case 'tent': drawSingleTent(ctx, px, py); return true;
+
+      case 'rock_boulder': drawRockBoulder(ctx, px, py); return true;
+      case 'lily_pond': drawLilyPond(ctx, px, py); return true;
+      case 'bush_flower': drawFloweringHydrangeaBush(ctx, px, py); return true;
+      case 'mushroom_patch': drawMushroomPatch(ctx, px, py); return true;
+      case 'tree_stump': drawTreeStump(ctx, px, py); return true;
+      case 'fallen_log': drawFallenLog(ctx, px, py); return true;
+      case 'reeds_clump': drawReedsClump(ctx, px, py); return true;
+      case 'mossy_rock': drawMossyRockFormation(ctx, px, py); return true;
+      case 'crystal_cluster': drawCrystalCluster(ctx, px, py); return true;
+      case 'natural_spring': drawNaturalSpringPool(ctx, px, py); return true;
+      case 'cactus_saguaro': drawCactusSaguaro(ctx, px, py); return true;
+
+      case 'cafe_table': drawCafeBistroTable(ctx, px, py); return true;
+      case 'picnic_set': drawPicnicSet(ctx, px, py); return true;
+      case 'mailbox_red': drawRedMailbox(ctx, px, py); return true;
+      case 'trash_bin': drawTrashBins(ctx, px, py); return true;
+
+      case 'pokeball_item': drawPokeballItem(ctx, px, py); return true;
+      case 'pokestop': drawPokestop(ctx, px, py); return true;
+      case 'snorlax': drawSnorlax(ctx, px, py); return true;
+      case 'pikachu': drawPikachu(ctx, px, py); return true;
+      case 'sub_doll': drawSubstituteDoll(ctx, px, py); return true;
+      case 'egg_incubator': drawEggIncubator(ctx, px, py); return true;
+      case 'pc_terminal': drawPCTerminal(ctx, px, py); return true;
+      case 'poke_house': drawPokeHouse(ctx, px, py); return true;
+      case 'ancient_pillar': drawAncientPillar(ctx, px, py); return true;
+      case 'volcanic_vent': drawVolcanicVent(ctx, px, py); return true;
+      case 'alloy_beacon': drawAlloyBeacon(ctx, px, py); return true;
+      case 'frost_shrine': drawFrostShrine(ctx, px, py); return true;
+
+      case 'server_rack': drawServerRack(ctx, px, py); return true;
+      case 'solar_panel': drawSolarPanel(ctx, px, py); return true;
+      case 'drone_pad': drawDronePad(ctx, px, py); return true;
+      case 'holo_projector': drawHoloProjector(ctx, px, py); return true;
+      case 'bike_rack': drawBikeRack(ctx, px, py); return true;
+      case 'sat_dish': drawSatelliteDish(ctx, px, py); return true;
+      case 'rover_bot': drawRoverBot(ctx, px, py); return true;
+
+      case 'torii_gate': drawToriiGate(ctx, px, py); return true;
+      case 'jukebox': drawJukebox(ctx, px, py); return true;
+      case 'notice_board': drawNoticeBoard(ctx, px, py); return true;
+    }
+  }
+
+  return false;
+}
+
+/**
+ * Generates and caches a crisp trimmed data-URL thumbnail for any procedural catalog item.
+ */
+export function getTemplateThumbnailDataUrl(
+  tpl: TemplateArtworkSpec,
+  size = 36
+): string | null {
+  if (typeof document === 'undefined') return null;
+  const cacheKey = `${tpl.id}:${size}`;
+  if (templateThumbCache.has(cacheKey)) {
+    return templateThumbCache.get(cacheKey) ?? null;
+  }
+
+  const padX = 12;
+  const padY = 16;
+  const scratchW = Math.max(48, tpl.w * TILE_SIZE + padX * 2);
+  const scratchH = Math.max(48, tpl.h * TILE_SIZE + padY * 2);
+  const scratch = document.createElement('canvas');
+  scratch.width = scratchW;
+  scratch.height = scratchH;
+  const sctx = scratch.getContext('2d', { willReadFrequently: true });
+  if (!sctx) {
+    templateThumbCache.set(cacheKey, null);
+    return null;
+  }
+  sctx.imageSmoothingEnabled = false;
+
+  const drew = drawTemplateArtwork(sctx, tpl, padX, padY);
+  if (!drew) {
+    templateThumbCache.set(cacheKey, null);
+    return null;
+  }
+
+  const pixels = sctx.getImageData(0, 0, scratchW, scratchH).data;
+  let minX = scratchW;
+  let minY = scratchH;
+  let maxX = -1;
+  let maxY = -1;
+  for (let y = 0; y < scratchH; y++) {
+    for (let x = 0; x < scratchW; x++) {
+      if (pixels[(y * scratchW + x) * 4 + 3] > 8) {
+        if (x < minX) minX = x;
+        if (x > maxX) maxX = x;
+        if (y < minY) minY = y;
+        if (y > maxY) maxY = y;
+      }
+    }
+  }
+
+  if (maxX < minX || maxY < minY) {
+    templateThumbCache.set(cacheKey, null);
+    return null;
+  }
+
+  const bw = maxX - minX + 1;
+  const bh = maxY - minY + 1;
+  const maxInner = Math.max(8, size - 4);
+  const scale = Math.min(maxInner / bw, maxInner / bh);
+  const dw = Math.max(1, Math.round(bw * scale));
+  const dh = Math.max(1, Math.round(bh * scale));
+
+  const out = document.createElement('canvas');
+  out.width = size;
+  out.height = size;
+  const octx = out.getContext('2d');
+  if (!octx) {
+    templateThumbCache.set(cacheKey, null);
+    return null;
+  }
+  octx.imageSmoothingEnabled = false;
+  octx.drawImage(
+    scratch,
+    minX,
+    minY,
+    bw,
+    bh,
+    Math.floor((size - dw) / 2),
+    Math.floor((size - dh) / 2),
+    dw,
+    dh
+  );
+
+  try {
+    const url = out.toDataURL();
+    templateThumbCache.set(cacheKey, url);
+    return url;
+  } catch {
+    templateThumbCache.set(cacheKey, null);
+    return null;
+  }
 }

@@ -1,3 +1,5 @@
+import { STORAGE_KEYS, setStoredActiveFollower } from './storage';
+
 export interface StampMission {
   id: 'dev' | 'twin' | 'battle' | 'critter' | 'arcade';
   name: string;
@@ -16,7 +18,7 @@ export const STAMP_MISSIONS: StampMission[] = [
     desc: 'Kunjungi Dev Center & lihat proyek unggulan',
     hint: 'Masuk ke gedung Dev Center (Utara Lapangan)',
     targetRoute: '/dev',
-    targetCoords: { x: 16, y: 12 },
+    targetCoords: { x: 42, y: 12 },
   },
   {
     id: 'twin',
@@ -25,7 +27,7 @@ export const STAMP_MISSIONS: StampMission[] = [
     desc: 'Mengobrol dengan AI Digital Twin Zulfan',
     hint: 'Bicara dengan Digital Twin di koridor utara / dekat Research Lab',
     targetRoute: '/twin',
-    targetCoords: { x: 16, y: 16 },
+    targetCoords: { x: 38, y: 22 },
   },
   {
     id: 'battle',
@@ -33,15 +35,15 @@ export const STAMP_MISSIONS: StampMission[] = [
     icon: '🔥',
     desc: 'Jawab kuis teknologi dari Mewtwo di Battle Arena',
     hint: 'Masuki Battle Arena di Timur dan jawab kuis Mewtwo',
-    targetCoords: { x: 31, y: 39 },
+    targetCoords: { x: 64, y: 39 },
   },
   {
     id: 'critter',
     name: 'Wild Critter Catcher',
     icon: '🌿',
     desc: 'Tangkap 1 Critter Pokémon di padang rumput liar',
-    hint: 'Jelajahi petak rumput liar di selatan Garden Lane',
-    targetCoords: { x: 26, y: 37 },
+    hint: 'Jelajahi petak rumput liar di rute selatan atau pesisir barat',
+    targetCoords: { x: 34, y: 92 },
   },
   {
     id: 'arcade',
@@ -50,7 +52,7 @@ export const STAMP_MISSIONS: StampMission[] = [
     desc: 'Mainkan 1 giliran Mancala melawan Deoxys di Arcade',
     hint: 'Tantang Deoxys di meja papan Mancala Arcade Hub',
     targetRoute: '/arcade',
-    targetCoords: { x: 28, y: 17 },
+    targetCoords: { x: 54, y: 17 },
   },
 ];
 
@@ -219,6 +221,23 @@ export class GameStore {
     this.save();
   }
 
+  public addBalls(amount: number): number {
+    this.state.balls = Math.max(0, this.state.balls + amount);
+    this.save();
+    if (typeof window !== 'undefined') {
+      try {
+        const raw = localStorage.getItem('critterdex:v1');
+        const dex = raw ? JSON.parse(raw) : { seen: {}, caught: {}, steps: 0, balls: 0, quiz: [] };
+        dex.balls = (dex.balls || 0) + amount;
+        dex.met = true;
+        localStorage.setItem('critterdex:v1', JSON.stringify(dex));
+      } catch {
+        // ignore storage errors
+      }
+    }
+    return this.state.balls;
+  }
+
   public setTrainerName(name: string) {
     this.state.trainerName = (name || 'TRAINER').slice(0, 12).toUpperCase();
     this.save();
@@ -295,6 +314,41 @@ export class GameStore {
 
   public getBadges(): GymBadgeId[] {
     return [...this.state.badges];
+  }
+
+  public reset() {
+    this.state = {
+      balls: 5,
+      caught: [],
+      trainerName: 'TRAINER',
+      stamps: [],
+      badges: [],
+    };
+    if (typeof window !== 'undefined') {
+      setStoredActiveFollower(null);
+      const keysToRemove = [
+        STORAGE_KEY,
+        STORAGE_KEYS.WELCOMED,
+        'critterdex:v1',
+        'critters_inventory',
+        'arena:elo',
+        'arena:solved',
+        'arena:wins',
+        'garden:blends',
+        'garden:harvested',
+        'garden:plots:v1',
+        'town:found_pokeballs_v1',
+        STORAGE_KEYS.DIGI_COMPANION,
+      ];
+      for (const k of keysToRemove) {
+        try {
+          localStorage.removeItem(k);
+        } catch {
+          // ignore storage errors
+        }
+      }
+    }
+    this.notify();
   }
 }
 

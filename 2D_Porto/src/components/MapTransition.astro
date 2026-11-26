@@ -1,0 +1,273 @@
+<div id="map-transition-overlay" class="map-transition" aria-hidden="true" hidden>
+  <div class="map-transition__iris"></div>
+  <span id="map-transition-label" class="map-transition__label"></span>
+</div>
+
+<script is:inline>
+  (function () {
+    try {
+      if (document.documentElement.dataset.mapTransition === 'enter') {
+        var overlay = document.getElementById('map-transition-overlay');
+        if (overlay) overlay.hidden = false;
+      }
+    } catch (e) {}
+  })();
+</script>
+
+<style is:global>
+  .map-transition {
+    display: none;
+    pointer-events: none;
+  }
+
+  html[data-map-transition="leave"] .map-transition,
+  html[data-map-transition="enter"] .map-transition,
+  html[data-map-transition="enter-show"] .map-transition,
+  html[data-map-transition="reveal"] .map-transition {
+    position: fixed;
+    inset: 0;
+    z-index: 950;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: all;
+    user-select: none;
+  }
+
+  .map-transition__iris {
+    position: absolute;
+    inset: 0;
+    background: var(--color-ink);
+  }
+
+  html[data-map-transition="leave"] .map-transition__iris {
+    animation: map-iris-close 280ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  html[data-map-transition="enter"] .map-transition__iris,
+  html[data-map-transition="enter-show"] .map-transition__iris {
+    clip-path: circle(150% at 50% 50%);
+    opacity: 1;
+  }
+
+  html[data-map-transition="reveal"] .map-transition__iris {
+    clip-path: circle(150% at 50% 50%);
+    animation: map-iris-open 360ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  .map-transition__label {
+    position: relative;
+    z-index: 2;
+    padding: 0 1.5rem;
+    text-align: center;
+    font-family: "Press Start 2P", var(--font-pixel), monospace;
+    font-size: clamp(0.95rem, 3vw, 1.55rem);
+    line-height: 1.6;
+    letter-spacing: 0.08em;
+    color: var(--color-paper);
+    text-transform: uppercase;
+    opacity: 0;
+  }
+
+  html[data-map-transition="leave"] .map-transition__label,
+  html[data-map-transition="enter"] .map-transition__label {
+    opacity: 0;
+  }
+
+  html[data-map-transition="enter-show"] .map-transition__label {
+    animation: map-label-in 160ms ease-out forwards;
+  }
+
+  html[data-map-transition="reveal"] .map-transition__label {
+    animation: map-label-out 180ms ease-out forwards;
+  }
+
+  @keyframes map-iris-close {
+    from {
+      clip-path: circle(0% at 50% 50%);
+      opacity: 0.85;
+    }
+    to {
+      clip-path: circle(150% at 50% 50%);
+      opacity: 1;
+    }
+  }
+
+  @keyframes map-iris-open {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+
+  @keyframes map-label-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes map-label-out {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .map-transition,
+    .map-transition__iris,
+    .map-transition__label {
+      animation: none !important;
+    }
+    html[data-map-transition] .map-transition {
+      display: none !important;
+    }
+  }
+</style>
+
+<script>
+  import {
+    TRANSITION_STORAGE_KEY,
+    getPlaceNameForRoute,
+    navigateWithMapTransition,
+    resetMapTransitionLock,
+  } from '../lib/mapTransition';
+
+  const STATIC_ASSET_PREFIXES = ['/cv/', '/images/', '/assets/', '/og/', '/wasm/', '/workers/', '/mock/'];
+  const STATIC_EXT_RE = /\.(pdf|png|jpe?g|webp|gif|svg|ico|json|wasm|txt|xml)$/i;
+
+  function initMapTransition() {
+    const w = window as unknown as {
+      __townNavigate?: (route: string, customLabel?: string) => void;
+      __mapTransitionBound?: boolean;
+    };
+    w.__townNavigate = navigateWithMapTransition;
+
+    const overlay = document.getElementById('map-transition-overlay') as HTMLElement | null;
+    const labelEl = document.getElementById('map-transition-label') as HTMLElement | null;
+
+    if (document.documentElement.dataset.mapTransition === 'enter' && overlay && labelEl) {
+      let storedLabel = '';
+      try {
+        const raw = sessionStorage.getItem(TRANSITION_STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && typeof parsed.label === 'string') {
+            storedLabel = parsed.label;
+          }
+        }
+        sessionStorage.removeItem(TRANSITION_STORAGE_KEY);
+      } catch {
+        // ignore storage errors
+      }
+
+      const finalLabel = storedLabel || getPlaceNameForRoute(window.location.pathname);
+      overlay.hidden = false;
+
+      const waitForFonts =
+        'fonts' in document && document.fonts?.ready
+          ? Promise.race([
+              document.fonts.ready.catch(() => {}),
+              new Promise<void>((resolve) => window.setTimeout(resolve, 80)),
+            ])
+          : Promise.resolve();
+
+      waitForFonts.then(() => {
+        if (document.documentElement.dataset.mapTransition !== 'enter') return;
+        labelEl.textContent = finalLabel;
+        document.documentElement.dataset.mapTransition = 'enter-show';
+
+        window.setTimeout(() => {
+          document.documentElement.dataset.mapTransition = 'reveal';
+          window.setTimeout(() => {
+            delete document.documentElement.dataset.mapTransition;
+            labelEl.textContent = '';
+            overlay.hidden = true;
+            resetMapTransitionLock();
+          }, 380);
+        }, 420);
+      });
+    }
+
+    if (w.__mapTransitionBound) return;
+    w.__mapTransitionBound = true;
+
+    // Bubble phase so capture-phase hooks (e.g. initExitRespawnHook) run first
+    document.addEventListener(
+      'click',
+      (e: MouseEvent) => {
+        if (e.defaultPrevented) return;
+        if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+
+        const target = e.target as HTMLElement | null;
+        const anchor = target?.closest('a[href]') as HTMLAnchorElement | null;
+        if (!anchor) return;
+
+        const targetAttr = anchor.getAttribute('target');
+        if (targetAttr && targetAttr !== '_self') return;
+        if (anchor.hasAttribute('download') || anchor.hasAttribute('data-no-transition')) return;
+
+        const rawHref = anchor.getAttribute('href') || '';
+        if (
+          !rawHref ||
+          rawHref.startsWith('#') ||
+          rawHref.startsWith('mailto:') ||
+          rawHref.startsWith('tel:') ||
+          rawHref.startsWith('javascript:')
+        ) {
+          return;
+        }
+
+        let url: URL;
+        try {
+          url = new URL(anchor.href, window.location.origin);
+        } catch {
+          return;
+        }
+
+        if (url.origin !== window.location.origin) return;
+        if (url.searchParams.get('title') === '1') return;
+
+        const lowerPath = url.pathname.toLowerCase();
+        if (STATIC_ASSET_PREFIXES.some((p) => lowerPath.startsWith(p)) || STATIC_EXT_RE.test(lowerPath)) {
+          return;
+        }
+
+        if (url.pathname === window.location.pathname && url.search === window.location.search) {
+          return;
+        }
+
+        e.preventDefault();
+        navigateWithMapTransition(url.pathname + url.search + url.hash);
+      },
+      false
+    );
+
+    window.addEventListener('pageshow', (e: PageTransitionEvent) => {
+      resetMapTransitionLock();
+      if (e.persisted) {
+        delete document.documentElement.dataset.mapTransition;
+        const ov = document.getElementById('map-transition-overlay') as HTMLElement | null;
+        const lb = document.getElementById('map-transition-label') as HTMLElement | null;
+        if (ov) ov.hidden = true;
+        if (lb) lb.textContent = '';
+        try {
+          sessionStorage.removeItem(TRANSITION_STORAGE_KEY);
+        } catch {}
+      }
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initMapTransition);
+  } else {
+    initMapTransition();
+  }
+</script>

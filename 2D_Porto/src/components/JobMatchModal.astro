@@ -196,6 +196,7 @@ const profileSummaryPayload = {
 
 <script>
   import { sfx } from '../game/sfx';
+  import { navigateWithMapTransition } from '../lib/mapTransition';
 
   interface MatchMission {
     id: string;
@@ -524,7 +525,7 @@ const profileSummaryPayload = {
         window.dispatchEvent(new CustomEvent('town:start-tour'));
       } else {
         sessionStorage.setItem('town:start_tour', '1');
-        window.location.href = '/';
+        navigateWithMapTransition('/');
       }
     });
 

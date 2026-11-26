@@ -25,10 +25,24 @@ export const Tile = {
   FENCE: 6,
   SAND: 7,
   PLAZA: 8,
+  CLIFF: 9,
+  CLIFF_STAIRS: 10,
+  BRIDGE: 11,
+  LEDGE: 12,
+  SHALLOW_WATER: 13,
+  WATERFALL: 14,
 } as const;
 export type TileId = (typeof Tile)[keyof typeof Tile];
 
-export const BLOCKING: ReadonlySet<number> = new Set([Tile.WATER, Tile.TREE, Tile.FENCE]);
+export const BLOCKING: ReadonlySet<number> = new Set([
+  Tile.WATER,
+  Tile.SHALLOW_WATER,
+  Tile.WATERFALL,
+  Tile.TREE,
+  Tile.FENCE,
+  Tile.CLIFF,
+  Tile.LEDGE,
+]);
 
 export type Action =
   | { kind: 'navigate'; route: string; prompt?: string }
@@ -114,6 +128,7 @@ export interface TownMap {
   /** door tile index → route */
   doors: Map<number, string>;
   spawns: Record<string, Spawn>;
+  decorations?: Array<{ kind: string; x: number; y: number }>;
 }
 
 /** Data injected from profile.yaml at build time. */

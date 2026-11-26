@@ -4,11 +4,33 @@ import {
   townConfig,
   type TileTypeKey,
   type BuildingLayout,
+  type SpawnableTemplate,
   type TownStateSnapshot,
   TILE_BRUSH_TYPES,
   SPAWNABLE_TEMPLATES,
 } from './townConfig';
+import { requestDigimonSprites } from './digiSpriteLoader';
 import type { TownEngine } from './TownEngine';
+
+let cachedDrawTemplateArtwork:
+  | typeof import('./townBackground').drawTemplateArtwork
+  | null = null;
+let loadingDrawTemplateArtwork = false;
+function getLazyDrawTemplateArtwork(onLoaded: () => void) {
+  if (cachedDrawTemplateArtwork) return cachedDrawTemplateArtwork;
+  if (!loadingDrawTemplateArtwork) {
+    loadingDrawTemplateArtwork = true;
+    import('./townBackground')
+      .then((m) => {
+        cachedDrawTemplateArtwork = m.drawTemplateArtwork;
+        onLoaded();
+      })
+      .catch(() => {
+        loadingDrawTemplateArtwork = false;
+      });
+  }
+  return null;
+}
 
 export type EditorTool =
   | 'move'
@@ -20,7 +42,8 @@ export type EditorTool =
   | 'bucket'
   | 'eyedropper'
   | 'collision'
-  | 'stamp';
+  | 'stamp'
+  | 'scatter';
 
 export interface TownEditorState {
   enabled: boolean;
@@ -60,6 +83,10 @@ export interface TownEditorState {
     dist: number;
   }[];
   stampTemplateId: string | null;
+  stampFlipped: boolean;
+  scatterTemplateIds: string[];
+  scatterRadius: 2 | 3 | 4;
+  scatterDensity: number;
 }
 
 /** Bresenham line algorithm between two tile coordinates */
@@ -68,8 +95,8 @@ function getBresenhamLine(
   y0: number,
   x1: number,
   y1: number,
-  mapW = 45,
-  mapH = 64
+  mapW = 100,
+  mapH = 100
 ): { x: number; y: number }[] {
   const points: { x: number; y: number }[] = [];
   const dx = Math.abs(x1 - x0);
@@ -105,8 +132,8 @@ function getRectPoints(
   y0: number,
   x1: number,
   y1: number,
-  mapW = 45,
-  mapH = 64
+  mapW = 100,
+  mapH = 100
 ): { x: number; y: number }[] {
   const points: { x: number; y: number }[] = [];
   const minX = Math.max(0, Math.min(x0, x1));
@@ -126,8 +153,8 @@ function getBrushFootprint(
   cx: number,
   cy: number,
   size: 1 | 2 | 3,
-  mapW = 45,
-  mapH = 64
+  mapW = 100,
+  mapH = 100
 ): { x: number; y: number }[] {
   const points: { x: number; y: number }[] = [];
   if (size === 1) {
@@ -159,8 +186,8 @@ function getFloodFillPoints(
   getTargetType: (x: number, y: number) => string,
   newType: string,
   maxTiles = 500,
-  mapW = 45,
-  mapH = 64
+  mapW = 100,
+  mapH = 100
 ): { x: number; y: number }[] {
   const targetType = getTargetType(startX, startY);
   if (targetType === newType) return [];
@@ -230,7 +257,13 @@ export class TownEditor {
     activeAlignmentGuides: [],
     activeDistanceRulers: [],
     stampTemplateId: null,
+    stampFlipped: false,
+    scatterTemplateIds: [],
+    scatterRadius: 3,
+    scatterDensity: 3,
   };
+
+  private lastScatterTile: { x: number; y: number } | null = null;
 
   private draggingSubPin: { id: string; type: 'label' | 'door' } | null = null;
   private clipboard: { item: BuildingLayout; relX: number; relY: number }[] = [];
@@ -537,7 +570,7 @@ export class TownEditor {
       canvas.style.cursor = 'pointer';
       return;
     }
-    if (this.state.tool === 'stamp') {
+    if (this.state.tool === 'stamp' || this.state.tool === 'scatter') {
       canvas.style.cursor = 'crosshair';
       return;
     }
@@ -574,6 +607,9 @@ export class TownEditor {
     if (tool !== 'stamp') {
       this.state.stampTemplateId = null;
     }
+    if (tool !== 'scatter') {
+      this.lastScatterTile = null;
+    }
     if (tool === 'collision') {
       this.state.showCollisionOverlay = true;
     }
@@ -593,6 +629,42 @@ export class TownEditor {
 
   public getStampTemplate(): string | null {
     return this.state.stampTemplateId;
+  }
+
+  public setStampFlipped(flipped: boolean) {
+    this.state.stampFlipped = flipped;
+    this.engine.wake();
+    this.notify();
+  }
+
+  public toggleStampFlip(): boolean {
+    this.state.stampFlipped = !this.state.stampFlipped;
+    this.engine.wake();
+    this.notify();
+    return this.state.stampFlipped;
+  }
+
+  public isStampFlipped(): boolean {
+    return this.state.stampFlipped;
+  }
+
+  public setScatterTemplates(
+    templateIds: string[],
+    radius: 2 | 3 | 4 = 3,
+    density = 3
+  ) {
+    this.state.scatterTemplateIds = [...new Set(templateIds)];
+    this.state.scatterRadius = radius;
+    this.state.scatterDensity = Math.max(1, Math.min(8, Math.round(density)));
+    if (this.state.scatterTemplateIds.length > 0) {
+      this.setTool('scatter');
+    } else if (this.state.tool === 'scatter') {
+      this.setTool('move');
+    }
+  }
+
+  public getScatterTemplates(): string[] {
+    return [...this.state.scatterTemplateIds];
   }
 
   public getTool(): EditorTool {
@@ -1090,10 +1162,14 @@ export class TownEditor {
     if (!ctx) return;
 
     const map = this.engine.getMap();
-    const scale = 2; // 45x64 => 90x128 px; 40x45 => 80x90 px
+    const scale = 2; // 100x100 => 200x200 px; 45x60 => 90x120 px
     if (canvas.width !== map.w * scale || canvas.height !== map.h * scale) {
       canvas.width = map.w * scale;
       canvas.height = map.h * scale;
+      const cssW = map.w >= 80 ? 120 : 90;
+      const cssH = Math.round(cssW * (map.h / map.w));
+      canvas.style.width = `${cssW}px`;
+      canvas.style.height = `${cssH}px`;
     }
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -1127,7 +1203,25 @@ export class TownEditor {
               color = '#734524';
               break;
             case 'water':
-              color = isDigi ? '#071428' : isKingdom ? '#0c4a6e' : '#38bdf8';
+              color = isDigi ? '#071428' : isKingdom ? '#0c4a6e' : '#1e6498';
+              break;
+            case 'shallow_water':
+              color = '#38bdf8';
+              break;
+            case 'sand':
+              color = '#ebd08d';
+              break;
+            case 'cliff':
+              color = '#7c5836';
+              break;
+            case 'cliff_stairs':
+              color = '#d6d0c4';
+              break;
+            case 'bridge_wood':
+              color = '#b4692c';
+              break;
+            case 'ledge':
+              color = '#6b4423';
               break;
             case 'hedge':
               color = '#255e2b';
@@ -1189,9 +1283,19 @@ export class TownEditor {
             else if (g === 8) color = isSkyCastle ? '#f8fafc' : '#cbd5e1';
             else if (g === 0) color = '#468737';
           } else {
-            if (g === 1 || g === 8) color = '#9ca3af';
-            else if (g === 3) color = '#38bdf8';
-            else if (g === 2) color = '#3f7c27';
+            if (g === Tile.PATH) color = '#9ca3af';
+            else if (g === Tile.PLAZA) color = '#d6ccb8';
+            else if (g === Tile.WATER) color = '#1e6498';
+            else if (g === Tile.SHALLOW_WATER) color = '#38bdf8';
+            else if (g === Tile.WATERFALL) color = '#bae6fd';
+            else if (g === Tile.SAND) color = '#ebd08d';
+            else if (g === Tile.CLIFF) color = '#7c5836';
+            else if (g === Tile.CLIFF_STAIRS) color = '#d6d0c4';
+            else if (g === Tile.BRIDGE) color = x >= 45 && x <= 50 ? '#cbd5e1' : '#b4692c';
+            else if (g === Tile.LEDGE) color = '#6b4423';
+            else if (g === Tile.FLOWER) color = '#84cc16';
+            else if (g === Tile.TREE) color = '#2f6e24';
+            else if (g === Tile.TALL) color = '#3f7c27';
           }
         }
         ctx.fillStyle = color;
@@ -1319,8 +1423,14 @@ export class TownEditor {
     const map = this.engine.getMap();
     if (x < 0 || x >= map.w || y < 0 || y >= map.h) return 'grass';
     const baseVal = map.ground[y * map.w + x];
-    if (baseVal === Tile.PATH) return 'cobble';
-    if (baseVal === Tile.WATER) return 'water';
+    if (baseVal === Tile.PATH || baseVal === Tile.PLAZA) return 'cobble';
+    if (baseVal === Tile.WATER || baseVal === Tile.WATERFALL) return 'water';
+    if (baseVal === Tile.SHALLOW_WATER) return 'shallow_water';
+    if (baseVal === Tile.SAND) return 'sand';
+    if (baseVal === Tile.CLIFF) return 'cliff';
+    if (baseVal === Tile.CLIFF_STAIRS) return 'cliff_stairs';
+    if (baseVal === Tile.BRIDGE) return 'bridge_wood';
+    if (baseVal === Tile.LEDGE) return 'ledge';
     if (baseVal === Tile.FENCE) return 'fence';
     if (baseVal === Tile.TALL) return 'tall_grass';
     return 'grass';
@@ -1749,7 +1859,20 @@ export class TownEditor {
     } else if (this.state.tool === 'stamp' && this.state.stampTemplateId) {
       const tpl = SPAWNABLE_TEMPLATES.find((t) => t.id === this.state.stampTemplateId);
       if (tpl) {
-        const newObj = townConfig.spawnObject(tpl.id, tile.x, tile.y);
+        if (!this.isStampFootprintValid(tpl, tile.x, tile.y)) {
+          window.dispatchEvent(
+            new CustomEvent('town:editor-toast', {
+              detail: `⚠️ Area terhalang! Arahkan ${tpl.name} ke petak hijau agar tidak bertabrakan.`,
+            })
+          );
+          return;
+        }
+        const newObj = townConfig.spawnObject(
+          tpl.id,
+          tile.x,
+          tile.y,
+          this.state.stampFlipped ? 'W' : undefined
+        );
         if (newObj) {
           this.engine.invalidateBackgroundCanvas();
           this.engine.wake();
@@ -1761,7 +1884,130 @@ export class TownEditor {
           );
         }
       }
+    } else if (this.state.tool === 'scatter' && this.state.scatterTemplateIds.length > 0) {
+      this.lastScatterTile = { ...tile };
+      const placedCount = this.performScatterAt(tile, true);
+      window.dispatchEvent(
+        new CustomEvent('town:editor-toast', {
+          detail:
+            placedCount > 0
+              ? `🎲 Kuas Acak menaruh ${placedCount} objek! Seret untuk terus menyebar, ESC untuk selesai.`
+              : '⚠️ Tidak ada ruang kosong di radius kuas acak.',
+        })
+      );
     }
+  }
+
+  private performScatterAt(center: { x: number; y: number }, recordSnapshot: boolean): number {
+    const templates = this.state.scatterTemplateIds
+      .map((id) => SPAWNABLE_TEMPLATES.find((t) => t.id === id))
+      .filter((t): t is SpawnableTemplate => Boolean(t));
+    if (templates.length === 0) return 0;
+
+    const r = this.state.scatterRadius;
+    const candidates: { x: number; y: number }[] = [];
+    for (let dy = -r; dy <= r; dy++) {
+      for (let dx = -r; dx <= r; dx++) {
+        if (dx * dx + dy * dy <= r * r + 1) {
+          candidates.push({ x: center.x + dx, y: center.y + dy });
+        }
+      }
+    }
+    for (let i = candidates.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const tmp = candidates[i];
+      candidates[i] = candidates[j];
+      candidates[j] = tmp;
+    }
+
+    const chosen: { templateId: string; x: number; y: number; w: number; h: number }[] = [];
+    const targetCount = this.state.scatterDensity;
+
+    for (const pos of candidates) {
+      if (chosen.length >= targetCount) break;
+      const tpl = templates[Math.floor(Math.random() * templates.length)];
+      if (!this.isStampFootprintValid(tpl, pos.x, pos.y)) continue;
+      const overlapsChosen = chosen.some(
+        (c) => pos.x < c.x + c.w && pos.x + tpl.w > c.x && pos.y < c.y + c.h && pos.y + tpl.h > c.y
+      );
+      if (overlapsChosen) continue;
+      chosen.push({ templateId: tpl.id, x: pos.x, y: pos.y, w: tpl.w, h: tpl.h });
+    }
+
+    if (chosen.length > 0) {
+      townConfig.spawnObjectsBatch(
+        chosen.map(({ templateId, x, y }) => ({ templateId, x, y })),
+        recordSnapshot
+      );
+      this.engine.invalidateBackgroundCanvas();
+      this.engine.wake();
+      this.notify();
+    }
+    return chosen.length;
+  }
+
+  private isStampFootprintValid(tpl: SpawnableTemplate, tileX: number, tileY: number): boolean {
+    const map = this.engine.getMap();
+    if (tileX < 0 || tileY < 0 || tileX + tpl.w > map.w || tileY + tpl.h > map.h) {
+      return false;
+    }
+
+    for (const b of townConfig.getBuildings()) {
+      if (b.hidden || b.id === 'arena' || b.id === 'garden' || b.id === 'contest') continue;
+      if (tileX < b.x + b.w && tileX + tpl.w > b.x && tileY < b.y + b.h && tileY + tpl.h > b.y) {
+        return false;
+      }
+    }
+
+    const allowWater =
+      tpl.subType === 'fence_water' ||
+      tpl.subType === 'lily_pond' ||
+      tpl.subType === 'reeds_clump';
+    if (!allowWater) {
+      const walkableOverrides = new Set<TileTypeKey>([
+        'grass',
+        'cobble',
+        'sand',
+        'cliff_stairs',
+        'bridge_wood',
+        'lab_paver',
+        'dev_paver',
+        'tall_grass',
+        'cyber_grid',
+        'lava_rock',
+        'cryo_ice',
+        'holy_marble',
+        'castle_flagstone',
+        'royal_carpet',
+        'tudor_cobble',
+        'drawbridge_wood',
+        'walkable_override',
+      ]);
+      for (let dy = 0; dy < tpl.h; dy++) {
+        for (let dx = 0; dx < tpl.w; dx++) {
+          const tx = tileX + dx;
+          const ty = tileY + dy;
+          const override = townConfig.getTileOverride(tx, ty);
+          if (override && walkableOverrides.has(override)) continue;
+          if (
+            override === 'solid_override' ||
+            override === 'fence' ||
+            override === 'hedge' ||
+            override === 'water' ||
+            override === 'shallow_water' ||
+            override === 'cliff' ||
+            override === 'ledge'
+          ) {
+            return false;
+          }
+          if (map.collision[ty * map.w + tx] !== 0) {
+            return false;
+          }
+        }
+      }
+    }
+
+    return true;
   }
 
   private handleEyedropperSample(tile: { x: number; y: number }) {
@@ -1940,6 +2186,14 @@ export class TownEditor {
         this.engine.invalidateBackgroundCanvas();
       } else if (this.state.tool === 'line' || this.state.tool === 'rect') {
         this.state.shapeCurrentTile = { ...tile };
+      } else if (this.state.tool === 'scatter' && this.state.scatterTemplateIds.length > 0) {
+        if (
+          !this.lastScatterTile ||
+          Math.hypot(tile.x - this.lastScatterTile.x, tile.y - this.lastScatterTile.y) >= 2
+        ) {
+          this.lastScatterTile = { ...tile };
+          this.performScatterAt(tile, false);
+        }
       }
     }
 
@@ -2097,6 +2351,7 @@ export class TownEditor {
     }
     this.isPanning = false;
     this.state.isMouseDown = false;
+    this.lastScatterTile = null;
     this.state.isDraggingBuilding = false;
     this.state.dragStartMouseTile = null;
     this.state.buildingOriginalPositions.clear();
@@ -2372,11 +2627,20 @@ export class TownEditor {
         return;
       }
 
-      // Rotate selected props with R (or switch to Rect tool if none selected)
+      // Rotate selected props with R (or flip stamp preview when in stamp mode, else Rect tool)
       if (e.key === 'r' || e.key === 'R') {
         e.preventDefault();
         if (this.state.selectedBuildingIds.size > 0) {
           this.rotateSelected();
+        } else if (this.state.tool === 'stamp' && this.state.stampTemplateId) {
+          const flipped = this.toggleStampFlip();
+          window.dispatchEvent(
+            new CustomEvent('town:editor-toast', {
+              detail: flipped
+                ? '⇄ Arah Cap dibalik (Kiri / W).'
+                : '⇄ Arah Cap normal (Kanan / Default).',
+            })
+          );
         } else {
           this.setTool('rect');
           window.dispatchEvent(
@@ -3179,7 +3443,7 @@ export class TownEditor {
       }
     }
 
-    // 7d. Continuous Stamp Preview Ghost
+    // 7d. Continuous Stamp Preview Ghost (transparent sprite + green/red collision indicator)
     if (this.state.tool === 'stamp' && this.state.stampTemplateId && this.state.hoverTile) {
       const tpl = SPAWNABLE_TEMPLATES.find((t) => t.id === this.state.stampTemplateId);
       if (tpl) {
@@ -3187,22 +3451,105 @@ export class TownEditor {
         const sy = this.state.hoverTile.y * TILE_SIZE;
         const sw = tpl.w * TILE_SIZE;
         const sh = tpl.h * TILE_SIZE;
+        const isValid = this.isStampFootprintValid(tpl, this.state.hoverTile.x, this.state.hoverTile.y);
 
-        ctx.fillStyle = 'rgba(56, 189, 248, 0.25)';
+        ctx.save();
+        ctx.globalAlpha = isValid ? 0.72 : 0.45;
+        if (this.state.stampFlipped) {
+          ctx.translate(sx + sw / 2, 0);
+          ctx.scale(-1, 1);
+          ctx.translate(-(sx + sw / 2), 0);
+        }
+        let drewArt = false;
+        if (tpl.kind === 'digimon' && tpl.subType) {
+          const sprites = requestDigimonSprites(tpl.subType, () => this.engine.wake(), 'overworld');
+          const frame = sprites?.overworld?.[0];
+          if (frame) {
+            const targetH = Math.round(35 * 1.22);
+            const scale = targetH / frame.height;
+            const dw = Math.round(frame.width * scale);
+            const dh = Math.round(frame.height * scale);
+            ctx.imageSmoothingEnabled = false;
+            ctx.drawImage(frame.canvas, sx + Math.round((sw - dw) / 2), sy + sh - dh, dw, dh);
+            drewArt = true;
+          }
+        } else {
+          const drawFn = getLazyDrawTemplateArtwork(() => this.engine.wake());
+          if (drawFn) {
+            drewArt = drawFn(ctx, tpl, sx, sy);
+          }
+        }
+        ctx.restore();
+
+        ctx.fillStyle = isValid ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.28)';
         ctx.fillRect(sx, sy, sw, sh);
 
-        ctx.strokeStyle = '#38bdf8';
+        ctx.strokeStyle = isValid ? '#22c55e' : '#ef4444';
         ctx.lineWidth = 1.5;
         ctx.setLineDash([4, 3]);
         ctx.strokeRect(sx, sy, sw, sh);
         ctx.setLineDash([]);
 
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 10px sans-serif';
+        if (!drewArt) {
+          ctx.fillStyle = '#ffffff';
+          ctx.font = 'bold 10px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(tpl.icon, sx + sw / 2, sy + sh / 2);
+        }
+
+        const pillText = isValid
+          ? this.state.stampFlipped
+            ? '✓ Cap ⇄ W (R: Balik)'
+            : '✓ Cap (R: Balik)'
+          : '⚠ Terhalang';
+        ctx.font = 'bold 6.5px monospace';
+        const pillW = ctx.measureText(pillText).width + 8;
+        const pillX = sx + sw / 2 - pillW / 2;
+        const pillY = sy - 11;
+        ctx.fillStyle = isValid ? 'rgba(20, 83, 45, 0.9)' : 'rgba(127, 29, 29, 0.92)';
+        ctx.beginPath();
+        ctx.roundRect(pillX, pillY, pillW, 10, 2);
+        ctx.fill();
+        ctx.fillStyle = isValid ? '#bbf7d0' : '#fecaca';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(tpl.icon, sx + sw / 2, sy + sh / 2);
+        ctx.fillText(pillText, sx + sw / 2, pillY + 5);
       }
+    }
+
+    // 7e. Scatter Brush Radius Preview
+    if (this.state.tool === 'scatter' && this.state.scatterTemplateIds.length > 0 && this.state.hoverTile) {
+      const cx = (this.state.hoverTile.x + 0.5) * TILE_SIZE;
+      const cy = (this.state.hoverTile.y + 0.5) * TILE_SIZE;
+      const radPx = (this.state.scatterRadius + 0.5) * TILE_SIZE;
+
+      ctx.fillStyle = 'rgba(16, 185, 129, 0.14)';
+      ctx.beginPath();
+      ctx.arc(cx, cy, radPx, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = '#10b981';
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([4, 3]);
+      ctx.beginPath();
+      ctx.arc(cx, cy, radPx, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      const pillText = `🎲 Kuas Acak (${this.state.scatterTemplateIds.length} jenis · R${this.state.scatterRadius})`;
+      ctx.font = 'bold 6.5px monospace';
+      const pillW = ctx.measureText(pillText).width + 8;
+      const pillX = cx - pillW / 2;
+      const pillY = cy - radPx - 12;
+      ctx.fillStyle = 'rgba(6, 78, 59, 0.92)';
+      ctx.beginPath();
+      ctx.roundRect(pillX, pillY, pillW, 10, 2);
+      ctx.fill();
+      ctx.fillStyle = '#a7f3d0';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(pillText, cx, pillY + 5);
     }
 
     // 8. Cursor Tile Coordinate Tooltip

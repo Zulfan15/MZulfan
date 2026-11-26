@@ -1,5 +1,10 @@
 import type { CharacterPalette, Dir } from './types';
 import type { MountPosture } from './mountRigConfig';
+import { drawHeroOverworld, drawHeroRider, ensureHeroSpriteLoaded } from './heroSprite';
+
+if (typeof window !== 'undefined') {
+  ensureHeroSpriteLoaded();
+}
 
 export const TILE_SIZE = 16;
 
@@ -368,14 +373,17 @@ export function drawCharacter(
     }
 
     if (!noShadow) {
-      // Oval ground shadow centered under Ash's feet
+      // Oval ground shadow centered under character's feet
       ctx.fillStyle = 'rgba(28, 23, 38, 0.35)';
       ctx.beginPath();
-      ctx.ellipse(x + 7 * scale, y + 15 * scale, 7 * scale, 3.5 * scale, 0, 0, Math.PI * 2);
+      ctx.ellipse(x + 8 * scale, y + 15 * scale, 6.5 * scale, 3.2 * scale, 0, 0, Math.PI * 2);
       ctx.fill();
     }
 
-    drawPixelMatrix(ctx, matrix, ASH_PALETTE, x - 1 * scale, y - 4 * scale, scale, flip);
+    const drawn = drawHeroOverworld(ctx, dir, stepFrame, x, y, scale);
+    if (!drawn) {
+      drawPixelMatrix(ctx, matrix, ASH_PALETTE, x - 1 * scale, y - 4 * scale, scale, flip);
+    }
 
     if (palette.holo) {
       ctx.restore();
@@ -740,14 +748,17 @@ export function drawRiderCharacter(
   }
 
   if (palette.isAsh) {
-    const key = `${spriteGroupKey}_${dirKey}` as keyof typeof ASH_RIDE_SPRITES;
-    const matrix = ASH_RIDE_SPRITES[key];
-    // Anchor torso horizontally (cols 0..9 torso for down/up, cols 5..12 torso when side-facing)
-    // and place seat/boots flush onto `seatY`.
-    const anchorOffsetX = dirKey === 'side' ? (flip ? -5 : -8) : -5;
-    const destX = cx + anchorOffsetX;
-    const destY = seatY - matrix.length + 1;
-    drawPixelMatrix(ctx, matrix, ASH_PALETTE, destX, destY, 1, flip);
+    const drawn = drawHeroRider(ctx, dir, cx, seatY, posture);
+    if (!drawn) {
+      const key = `${spriteGroupKey}_${dirKey}` as keyof typeof ASH_RIDE_SPRITES;
+      const matrix = ASH_RIDE_SPRITES[key];
+      // Anchor torso horizontally (cols 0..9 torso for down/up, cols 5..12 torso when side-facing)
+      // and place seat/boots flush onto `seatY`.
+      const anchorOffsetX = dirKey === 'side' ? (flip ? -5 : -8) : -5;
+      const destX = cx + anchorOffsetX;
+      const destY = seatY - matrix.length + 1;
+      drawPixelMatrix(ctx, matrix, ASH_PALETTE, destX, destY, 1, flip);
+    }
   } else {
     const pMap: Record<string, string> = {
       b: '#1c1726',
@@ -767,6 +778,47 @@ export function drawRiderCharacter(
     drawPixelMatrix(ctx, matrix, pMap, destX, destY, 1, flip);
   }
 
+  ctx.restore();
+}
+
+export function drawPikachu(ctx: CanvasRenderingContext2D, px: number, py: number) {
+  ctx.save();
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.35)';
+  ctx.beginPath();
+  ctx.ellipse(px + 8, py + 14, 5, 2, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#92400e';
+  ctx.fillRect(px + 11, py + 10, 2, 2);
+  ctx.fillStyle = '#facc15';
+  ctx.fillRect(px + 12, py + 7, 3, 3);
+  ctx.fillRect(px + 10, py + 5, 3, 2);
+  ctx.fillRect(px + 12, py + 2, 3, 3);
+
+  ctx.fillStyle = '#facc15';
+  ctx.fillRect(px + 4, py + 1, 2, 5);
+  ctx.fillRect(px + 10, py + 1, 2, 5);
+  ctx.fillStyle = '#18181b';
+  ctx.fillRect(px + 4, py, 2, 2);
+  ctx.fillRect(px + 10, py, 2, 2);
+
+  ctx.fillStyle = '#facc15';
+  ctx.beginPath();
+  ctx.ellipse(px + 8, py + 10, 5, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(px + 8, py + 7, 4, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#ef4444';
+  ctx.fillRect(px + 4, py + 8, 2, 2);
+  ctx.fillRect(px + 10, py + 8, 2, 2);
+
+  ctx.fillStyle = '#18181b';
+  ctx.fillRect(px + 6, py + 6, 1, 2);
+  ctx.fillRect(px + 9, py + 6, 1, 2);
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(px + 6, py + 6, 1, 1);
   ctx.restore();
 }
 

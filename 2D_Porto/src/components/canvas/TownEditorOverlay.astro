@@ -1,0 +1,590 @@
+---
+import '../../styles/town-editor.css';
+
+interface Props {
+  currentPlace?: string;
+}
+
+const { currentPlace = 'town' } = Astro.props;
+---
+
+  <!-- Floating Playtest Bar (Active in Playtest Mode) -->
+  <div id="town-playtest-bar" class="town-playtest-bar hidden" style="display: none;" role="status">
+    <span class="town-playtest-pulse" aria-hidden="true"></span>
+    <span class="town-playtest-text">
+      🎮 <strong>MODE PLAYTEST</strong> — Coba jalan & tabrakan (W A S D / Panah). Tekan <strong>P</strong> atau <strong>E</strong> untuk kembali ke Editor.
+    </span>
+    <button type="button" id="btn-exit-playtest" class="town-playtest-exit-btn" title="Keluar dari Playtest (Tekan P)">
+      Keluar (P)
+    </button>
+  </div>
+
+  <!-- Compact Floating Transform Action Bubble (Above selected object) -->
+  <div id="town-transform-bubble" class="town-transform-bubble hidden" style="display: none;" role="region" aria-label="Transform Object Controls">
+    <div class="town-transform-bubble__content">
+      <div class="town-transform-bubble__header">
+        <span id="transform-bubble-icon" class="town-transform-bubble__icon">📦</span>
+        <span id="transform-bubble-title" class="town-transform-bubble__title">Objek Terpilih</span>
+        <span id="transform-bubble-orient-badge" class="town-transform-bubble__orient-badge">➡️ Kanan</span>
+      </div>
+      <div class="town-transform-bubble__actions">
+        <button type="button" id="btn-transform-rot-left" class="town-transform-btn town-transform-btn--rot" title="Putar Kiri (Q)">↶</button>
+        <button type="button" id="btn-transform-rot-right" class="town-transform-btn town-transform-btn--rot" title="Putar Kanan (R)">↷</button>
+        <button type="button" id="btn-transform-behavior" class="town-transform-btn town-transform-btn--rot" style="display: none;" title="Ubah Perilaku Patroli NPC">
+          <span>🐾</span>
+          <span id="btn-transform-behavior-label">Diam</span>
+        </button>
+        <button type="button" id="btn-transform-dup" class="town-transform-btn town-transform-btn--rot" title="Duplikat Objek (Ctrl+D)">📑</button>
+        <button type="button" id="btn-transform-lock" class="town-transform-btn town-transform-btn--rot" title="Kunci / Buka Kunci (K)">🔒</button>
+        <button type="button" id="btn-transform-inspect" class="town-transform-btn town-transform-btn--rot" title="Buka / Tutup Live Inspector">🎛️</button>
+        <button type="button" id="btn-transform-del" class="town-transform-btn town-transform-btn--cancel" title="Hapus Objek (Del)">🗑️</button>
+        <button type="button" id="btn-transform-apply" class="town-transform-btn town-transform-btn--apply" title="Selesai (Enter)">✓</button>
+        <button type="button" id="btn-transform-cancel" class="town-transform-btn town-transform-btn--cancel" title="Batalkan (ESC)">✕</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- On-Canvas Top-Left Cursor Telemetry & Quick Tools Pill (Active in Editor) -->
+  <div id="town-editor-telemetry-pill" class="town-editor-telemetry-pill hidden" style="display: none;" role="status" aria-label="Telemetry Kursor Editor">
+    <span class="town-telemetry-dot" aria-hidden="true"></span>
+    <span id="town-telemetry-coords" class="town-telemetry-coords">X: --, Y: --</span>
+    <span class="town-telemetry-sep">|</span>
+    <span id="town-telemetry-tool" class="town-telemetry-tool">🖐️ Pilih</span>
+    <button type="button" id="btn-telemetry-zen" class="town-telemetry-mini-btn" title="Mode Zen: Sembunyikan Panel (Tab)">👁️ Zen</button>
+    <button type="button" id="btn-telemetry-shortcuts" class="town-telemetry-mini-btn" title="Panduan Pintasan Keyboard & Mouse (?)">?</button>
+  </div>
+
+  <!-- Zen Canvas Mode Floating Restore Capsule -->
+  <div id="town-editor-zen-pill" class="town-editor-zen-pill hidden" style="display: none;" role="region" aria-label="Kontrol Mode Zen">
+    <span class="text-sky-300 font-bold">👁️ MODE ZEN</span>
+    <button type="button" id="btn-zen-undo" class="town-telemetry-mini-btn" title="Undo (Ctrl+Z)">↩️</button>
+    <button type="button" id="btn-zen-save" class="town-telemetry-mini-btn text-emerald-300" title="Simpan (Ctrl+S)">💾</button>
+    <button type="button" id="btn-zen-exit" class="town-telemetry-mini-btn bg-sky-600/80 text-white border-sky-400" title="Tampilkan Studio Dock (Tab)">Keluar Zen (Tab)</button>
+  </div>
+
+  <!-- Non-Blocking Live Right Side-Drawer Inspector (Town Editor 5.0) -->
+  <aside id="town-editor-inspector-drawer" class="town-editor-inspector hidden" style="display: none;" aria-label="Live Object Inspector">
+    <div class="town-editor-inspector__header">
+      <div class="flex items-center gap-1.5 min-w-0">
+        <span id="inspector-entity-icon" class="text-sm shrink-0">🎛️</span>
+        <span id="inspector-header-title" class="truncate font-bold text-sky-300">Inspector</span>
+      </div>
+      <div class="flex items-center gap-1 shrink-0">
+        <button type="button" id="btn-inspector-focus" class="town-editor-mini-btn" title="Pusatkan Kamera ke Objek">🎯</button>
+        <button type="button" id="btn-inspector-close" class="town-editor-mini-btn town-editor-mini-btn--close" title="Tutup / Lepas Seleksi (ESC)">✕</button>
+      </div>
+    </div>
+
+    <div class="town-editor-inspector__body">
+      <!-- Single Object Mode Section -->
+      <div id="inspector-single-panel" class="space-y-2.5">
+        <!-- Quick Action Strip -->
+        <div class="grid grid-cols-5 gap-1">
+          <button type="button" id="btn-insp-lock" class="town-insp-icon-btn" title="Kunci / Buka Kunci (K)">🔒</button>
+          <button type="button" id="btn-insp-dup" class="town-insp-icon-btn" title="Duplikat (Ctrl+D)">📑</button>
+          <button type="button" id="btn-insp-layer-down" class="town-insp-icon-btn" title="Mundur Layer ([)">🥞-</button>
+          <button type="button" id="btn-insp-layer-up" class="town-insp-icon-btn" title="Maju Layer (])">🥞+</button>
+          <button type="button" id="btn-insp-delete" class="town-insp-icon-btn town-insp-icon-btn--danger" title="Hapus (Del)">🗑️</button>
+        </div>
+
+        <!-- Name & Orientation -->
+        <div class="space-y-1.5">
+          <label class="block">
+            <span class="town-insp-label">Nama Tampilan</span>
+            <input id="town-inspector-name" type="text" class="town-insp-input" placeholder="Nama objek..." />
+          </label>
+
+          <div>
+            <span class="town-insp-label">Arah Hadap (<span id="inspector-orient-label" class="text-sky-300">N</span>)</span>
+            <div class="grid grid-cols-4 gap-1 mt-1">
+              <button type="button" class="town-insp-orient-btn" data-orient="N" title="Utara / Belakang">⬆️ N</button>
+              <button type="button" class="town-insp-orient-btn" data-orient="E" title="Timur / Kanan">➡️ E</button>
+              <button type="button" class="town-insp-orient-btn" data-orient="S" title="Selatan / Depan">⬇️ S</button>
+              <button type="button" class="town-insp-orient-btn" data-orient="W" title="Barat / Kiri">⬅️ W</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Coordinates & Scale -->
+        <div class="town-insp-card space-y-2">
+          <div class="grid grid-cols-3 gap-1.5">
+            <label class="block">
+              <span class="town-insp-label">Pos X</span>
+              <input id="town-inspector-x" type="number" min="0" max="100" class="town-insp-input text-center" />
+            </label>
+            <label class="block">
+              <span class="town-insp-label">Pos Y</span>
+              <input id="town-inspector-y" type="number" min="0" max="100" class="town-insp-input text-center" />
+            </label>
+            <label class="block">
+              <span class="town-insp-label">Layer Z</span>
+              <input id="town-inspector-z" type="number" min="-20" max="50" class="town-insp-input text-center" />
+            </label>
+          </div>
+
+          <label class="block">
+            <div class="flex justify-between items-center mb-1">
+              <span class="town-insp-label">Skala Visual Live</span>
+              <strong id="town-inspector-scale-val" class="text-[10px] font-mono text-amber-300">1.00×</strong>
+            </div>
+            <input id="town-inspector-scale" type="range" min="0.7" max="1.5" step="0.05" value="1" class="w-full accent-amber-400 cursor-pointer" />
+          </label>
+        </div>
+
+        <!-- Behavior & Interactive Dialogue -->
+        <div class="town-insp-card space-y-2">
+          <label class="block">
+            <span class="town-insp-label">Perilaku NPC / Entitas</span>
+            <select id="town-inspector-behavior" class="town-insp-input">
+              <option value="stationary">🧘 Diam (Stationary)</option>
+              <option value="look_around">👀 Menoleh Otomatis</option>
+              <option value="patrol_small">🐾 Patroli Mikro</option>
+            </select>
+          </label>
+
+          <label class="block">
+            <span class="town-insp-label">Link Rute (opsional)</span>
+            <input id="town-inspector-link" type="text" placeholder="/dev atau https://..." class="town-insp-input" />
+          </label>
+
+          <label class="block">
+            <span class="town-insp-label">Teks Dialog Interaktif</span>
+            <textarea id="town-dialogue-input" class="town-insp-input resize-y min-h-[58px]" rows="3" placeholder="Tuliskan dialog saat diklik..."></textarea>
+          </label>
+
+          <button type="button" class="town-editor-btn w-full justify-center text-amber-200 border-amber-500/50 bg-amber-950/50 hover:bg-amber-900/70" id="btn-inspector-preview-move" style="display: none;">
+            ⚡ Test Signature Move
+          </button>
+        </div>
+
+        <div id="town-insp-subpins-info" class="text-[9px] font-mono text-slate-400 px-1 leading-relaxed">
+          💡 Seret pin 🟣 Label / 🟡 Pintu langsung di peta untuk fine-tuning jangkar.
+        </div>
+      </div>
+
+      <!-- Multi-Select Alignment & Batch Section -->
+      <div id="inspector-multi-panel" class="hidden space-y-2.5">
+        <div class="p-2 rounded-lg bg-sky-950/60 border border-sky-500/40 text-[10px] font-mono text-sky-200">
+          ✨ <strong id="multi-sel-count">0</strong> objek terpilih. Gunakan alat perataan di bawah atau geser bersama di kanvas.
+        </div>
+
+        <div class="town-insp-card space-y-2">
+          <span class="town-insp-label block">Perataan Horizontal &amp; Vertikal</span>
+          <div class="grid grid-cols-3 gap-1">
+            <button type="button" class="town-insp-icon-btn" data-align="left" title="Rata Kiri">⬅️ Kiri</button>
+            <button type="button" class="town-insp-icon-btn" data-align="centerX" title="Rata Tengah Horizontal">↔️ Tengah</button>
+            <button type="button" class="town-insp-icon-btn" data-align="right" title="Rata Kanan">➡️ Kanan</button>
+            <button type="button" class="town-insp-icon-btn" data-align="top" title="Rata Atas">⬆️ Atas</button>
+            <button type="button" class="town-insp-icon-btn" data-align="centerY" title="Rata Tengah Vertikal">↕️ Tengah</button>
+            <button type="button" class="town-insp-icon-btn" data-align="bottom" title="Rata Bawah">⬇️ Bawah</button>
+          </div>
+          <div class="grid grid-cols-2 gap-1 pt-1">
+            <button type="button" class="town-insp-icon-btn" data-align="distributeX" title="Rapikan Jarak Horizontal">📊 Sebar H</button>
+            <button type="button" class="town-insp-icon-btn" data-align="distributeY" title="Rapikan Jarak Vertikal">📊 Sebar V</button>
+          </div>
+        </div>
+
+        <div class="town-insp-card space-y-1.5">
+          <span class="town-insp-label block">Aksi Grup</span>
+          <div class="grid grid-cols-2 gap-1.5">
+            <button type="button" id="btn-multi-dup" class="town-insp-icon-btn">📑 Duplikat</button>
+            <button type="button" id="btn-multi-lock" class="town-insp-icon-btn">🔒 Kunci/Buka</button>
+            <button type="button" id="btn-multi-prefab" class="town-insp-icon-btn text-amber-200 border-amber-500/40">🧩 Jadi Prefab</button>
+            <button type="button" id="btn-multi-delete" class="town-insp-icon-btn town-insp-icon-btn--danger">🗑️ Hapus</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Town Editor 5.0: Contextual Studio Dock (Compact 2-Row Workspace) -->
+  <div id="town-editor-toolbar" class="town-editor-toolbar town-studio-dock hidden" style="display: none;" role="toolbar" aria-label="Town Editor 5.0 Studio Dock">
+    <!-- Row 1: Contextual Strip (Adapts to active Mode: Objek / Lantai / Diagnostik) -->
+    <div id="town-studio-context-row" class="town-studio-context-row">
+      <!-- Context Panel A: Mode Objek -->
+      <div id="ctx-panel-object" class="town-studio-context-panel">
+        <button type="button" class="town-editor-btn town-editor-btn--spawn shrink-0" id="tool-btn-spawn" title="Buka Katalog Lengkap Objek, Pokémon & Digimon">
+          ➕ <span class="editor-btn-text">Katalog</span>
+        </button>
+        <button type="button" class="town-editor-btn is-active shrink-0" id="tool-btn-move" title="Pilih, Geser & Seleksi Kotak Marquee (V)">
+          🖐️ <span class="editor-btn-text">Pilih</span>
+        </button>
+        <button type="button" class="town-editor-btn town-editor-btn--danger shrink-0" id="tool-btn-delete-object" title="Alat Hapus Objek Klik (X)">
+          🗑️ <span class="editor-btn-text">Hapus (X)</span>
+        </button>
+        <div class="town-editor-divider shrink-0"></div>
+        <span class="text-[9px] font-mono text-sky-300/80 uppercase tracking-wider shrink-0 hidden md:inline">Cap Cepat:</span>
+        <div id="town-quick-stamp-strip" class="town-quick-stamp-strip" aria-label="Quick Stamp Objek Favorit"></div>
+      </div>
+
+      <!-- Context Panel B: Mode Lantai (Tile Swatch Carousel, Zero Native Scrollbar!) -->
+      <div id="ctx-panel-paint" class="town-studio-context-panel hidden">
+        <div class="flex items-center gap-1 shrink-0">
+          <button type="button" class="town-editor-btn" id="tool-btn-brush" title="Kuas Lantai">🖌️</button>
+          <button type="button" class="town-editor-btn" id="tool-btn-line" title="Garis Lurus (L)">📏</button>
+          <button type="button" class="town-editor-btn" id="tool-btn-rect" title="Area Kotak (R)">⬛</button>
+          <button type="button" class="town-editor-btn" id="tool-btn-bucket" title="Ember Flood Fill (B)">🪣</button>
+          <button type="button" class="town-editor-btn" id="tool-btn-eyedropper" title="Pipet Ubin/Objek (I)">💧</button>
+          <button type="button" class="town-editor-btn" id="tool-btn-erase" title="Hapus Lantai ke Rumput">🧹</button>
+        </div>
+        <div class="town-editor-divider shrink-0"></div>
+        <div class="town-brush-size-group shrink-0" title="Ukuran Kuas (Tombol 1, 2, 3)">
+          <button type="button" class="town-brush-size-btn is-active" id="btn-brush-1" data-size="1">1×1</button>
+          <button type="button" class="town-brush-size-btn" id="btn-brush-2" data-size="2">2×2</button>
+          <button type="button" class="town-brush-size-btn" id="btn-brush-3" data-size="3">3×3</button>
+        </div>
+        <div class="town-editor-divider shrink-0"></div>
+        <div class="town-tile-carousel-wrap" id="town-editor-palette">
+          <button type="button" id="btn-tile-scroll-left" class="town-tile-carousel-arrow" aria-label="Geser Kiri">‹</button>
+          <div id="town-tile-carousel" class="town-tile-carousel">
+            <button type="button" class="town-tile-btn is-active" data-tile="cobble" title="Jalan Batu (Cobblestone)"><span class="tile-swatch swatch-cobble"></span>Jalan Batu</button>
+            <button type="button" class="town-tile-btn" data-tile="sand" title="Pasir Pantai & Tepi Danau"><span class="tile-swatch swatch-sand"></span>Pasir Pantai</button>
+            <button type="button" class="town-tile-btn" data-tile="shallow_water" title="Perairan Dangkal Karang (Surfable)"><span class="tile-swatch swatch-shallow"></span>Air Dangkal</button>
+            <button type="button" class="town-tile-btn" data-tile="cliff" title="Tebing Batu 2.5D Sinnoh (Solid)"><span class="tile-swatch swatch-cliff"></span>Tebing Batu</button>
+            <button type="button" class="town-tile-btn" data-tile="cliff_stairs" title="Tangga Batu Tebing (Walkable)"><span class="tile-swatch swatch-stairs"></span>Tangga Batu</button>
+            <button type="button" class="town-tile-btn" data-tile="bridge_wood" title="Jembatan Kayu & Dermaga (Walkable di atas Air)"><span class="tile-swatch swatch-bridge"></span>Jembatan Kayu</button>
+            <button type="button" class="town-tile-btn" data-tile="ledge" title="Gundukan Lompat Pokémon Satu Arah (Lompat ke Selatan ↓)"><span class="tile-swatch swatch-ledge"></span>Ledge ↓</button>
+            <button type="button" class="town-tile-btn" data-tile="lab_paver" title="Paving Modern Lab"><span class="tile-swatch swatch-lab"></span>Paving Lab</button>
+            <button type="button" class="town-tile-btn" data-tile="dev_paver" title="Lantai Megah Dev Center"><span class="tile-swatch swatch-dev"></span>Lantai Megah</button>
+            <button type="button" class="town-tile-btn" data-tile="grass" title="Rumput Hijau"><span class="tile-swatch swatch-grass"></span>Rumput</button>
+            <button type="button" class="town-tile-btn" data-tile="tall_grass" title="Rumput Liar Pokémon"><span class="tile-swatch swatch-tall"></span>Rumput Liar</button>
+            <button type="button" class="town-tile-btn" data-tile="cyber_grid" title="Lantai Cyber Grid Digital World"><span class="tile-swatch swatch-cyber"></span>Cyber Grid</button>
+            <button type="button" class="town-tile-btn" data-tile="lava_rock" title="Batu Vulkanik Flame Canyon"><span class="tile-swatch swatch-lava"></span>Batu Lava</button>
+            <button type="button" class="town-tile-btn" data-tile="cryo_ice" title="Lantai Kristal Es Cryo Bay"><span class="tile-swatch swatch-ice"></span>Lantai Es</button>
+            <button type="button" class="town-tile-btn" data-tile="holy_marble" title="Marmer Suci Holy Sanctuary"><span class="tile-swatch swatch-holy"></span>Marmer Suci</button>
+            <button type="button" class="town-tile-btn" data-tile="hedge" title="Semak Boxwood (Solid)"><span class="tile-swatch swatch-hedge"></span>Semak</button>
+            <button type="button" class="town-tile-btn" data-tile="fence" title="Pagar Besi (Solid)"><span class="tile-swatch swatch-fence"></span>Pagar</button>
+            <button type="button" class="town-tile-btn" data-tile="fence_water" title="Pagar Tepi Air"><span class="tile-swatch swatch-fence-water"></span>Pagar Air</button>
+            <button type="button" class="town-tile-btn" data-tile="water" title="Air / Laut"><span class="tile-swatch swatch-water"></span>Air</button>
+            <button type="button" class="town-tile-btn" data-tile="solid_override" title="Tembok Tabrakan Kustom (Solid)"><span class="tile-swatch swatch-solid"></span>🛑 Tembok</button>
+            <button type="button" class="town-tile-btn" data-tile="walkable_override" title="Lantai Bebas Tabrakan (Walkable)"><span class="tile-swatch swatch-walkable"></span>🟢 Bebas</button>
+          </div>
+          <button type="button" id="btn-tile-scroll-right" class="town-tile-carousel-arrow" aria-label="Geser Kanan">›</button>
+        </div>
+      </div>
+
+      <!-- Context Panel C: Mode Diagnostik & Cek Jalur -->
+      <div id="ctx-panel-check" class="town-studio-context-panel hidden">
+        <button type="button" class="town-editor-btn" id="tool-btn-collision" title="Overlay Hijau/Merah Tabrakan & Toggle Solid Petak (C)">
+          🛡️ <span class="editor-btn-text">Inspeksi Tabrakan (C)</span>
+        </button>
+        <button type="button" class="town-editor-btn town-editor-btn--validate" id="btn-editor-validate" title="Cek Aksesibilitas Seluruh Pintu Gedung & NPC (BFS)">
+          🔍 <span class="editor-btn-text">Cek Jalur BFS</span>
+        </button>
+        <button type="button" class="town-editor-btn" id="btn-diag-solid-brush" title="Cat Pembatas Solid Tak Terlihat (🛑)">🛑 Solid Override</button>
+        <button type="button" class="town-editor-btn" id="btn-diag-walk-brush" title="Cat Jalur Bebas Lewat (🟢)">🟢 Walkable Override</button>
+        <span class="text-[9px] font-mono text-slate-300 hidden md:inline truncate">
+          Hijau = Bisa Lewat • Merah = Terhalang • Kuning = Pintu • Biru = NPC
+        </span>
+      </div>
+    </div>
+
+    <!-- Row 2: Main Studio Control Bar (Single Clean Row, Zero Clipping) -->
+    <div class="town-studio-main-bar">
+      <!-- Mode Tabs Switcher -->
+      <div class="town-studio-tabs" role="tablist" aria-label="Mode Kerja Editor">
+        <button type="button" class="town-studio-tab is-active" id="tab-mode-object" role="tab" aria-selected="true" title="Mode Tata Letak Objek & Bangunan (V)">
+          <span>🖐️</span><span class="hidden sm:inline">Objek</span>
+        </button>
+        <button type="button" class="town-studio-tab" id="tab-mode-paint" role="tab" aria-selected="false" title="Mode Kuas Lantai & Lanskap">
+          <span>🖌️</span><span class="hidden sm:inline">Lantai</span>
+        </button>
+        <button type="button" class="town-studio-tab" id="tab-mode-check" role="tab" aria-selected="false" title="Mode Diagnostik Tabrakan & Jalur BFS (C)">
+          <span>🛡️</span><span class="hidden sm:inline">Cek</span>
+        </button>
+        <button type="button" class="town-studio-tab town-studio-tab--play" id="tool-btn-playtest" title="Coba Jalan-Jalan Langsung di Posisi Kursor (P)">
+          <span>🎮</span><span class="hidden sm:inline">Play</span>
+        </button>
+      </div>
+
+      <!-- Outliner Trigger + Status Pill -->
+      <div class="town-studio-center relative flex items-center gap-1.5 min-w-0">
+        <button type="button" id="btn-open-outliner" class="town-outliner-trigger" title="Cari & Lompat ke Gedung, Pokémon, atau Prop">
+          <span>🎯</span>
+          <span id="outliner-trigger-label" class="truncate">Outliner</span>
+          <span id="outliner-count-badge" class="town-outliner-count">0</span>
+          <span class="text-[9px] opacity-75">▾</span>
+        </button>
+        <span id="town-editor-diff-pill" class="px-2 py-0.5 rounded bg-slate-800 border border-slate-600 font-mono text-[9px] text-emerald-300 hidden lg:inline-block shrink-0">
+          📊 Synced
+        </span>
+        <span id="town-editor-status" class="visually-hidden">Siap mengedit kota</span>
+      </div>
+
+      <!-- History, Save & Overflow Menu -->
+      <div class="town-studio-right flex items-center gap-1 shrink-0">
+        <button type="button" class="town-editor-btn town-editor-btn--undo" id="btn-editor-undo" title="Undo (Ctrl+Z)" disabled>↩️</button>
+        <button type="button" class="town-editor-btn town-editor-btn--redo" id="btn-editor-redo" title="Redo (Ctrl+Y)" disabled>↪️</button>
+        <button type="button" class="town-editor-btn town-editor-btn--save relative" id="btn-editor-save" title={currentPlace === 'digimon' ? 'Simpan ke src/data/digimonLayout.json (Ctrl+S)' : 'Simpan ke src/data/townLayout.json (Ctrl+S)'}>
+          💾 <span class="hidden sm:inline">Simpan</span>
+          <span id="btn-save-dirty-dot" class="hidden w-2 h-2 rounded-full bg-amber-300 animate-pulse"></span>
+        </button>
+
+        <!-- Overflow Utilities Popover Trigger -->
+        <div class="relative">
+          <button type="button" class="town-editor-btn" id="btn-editor-more" aria-expanded="false" aria-controls="town-editor-more-popover" title="Utilitas Lainnya (Prefab, Snapshot, Grid, Export, Reset)">
+            ⚙️ <span class="hidden md:inline">⋯</span>
+          </button>
+          <div id="town-editor-more-popover" class="town-editor-popover hidden" style="display: none;" role="menu">
+            <button type="button" class="town-editor-popover__item" id="tool-btn-grid">
+              <span>📐 Grid Petak (G)</span>
+              <span id="more-grid-state" class="text-[9px] font-bold text-emerald-300">ON</span>
+            </button>
+            <button type="button" class="town-editor-popover__item" id="btn-more-zen">
+              <span>👁️ Mode Zen Kanvas</span>
+              <kbd class="town-dev-kbd">Tab</kbd>
+            </button>
+            <div class="my-1 border-t border-slate-700/80"></div>
+            <button type="button" class="town-editor-popover__item" id="btn-editor-prefabs">
+              <span>🧩 Prefab Blueprints</span>
+            </button>
+            <button type="button" class="town-editor-popover__item" id="btn-editor-snapshots">
+              <span>🕒 Snapshot &amp; Diff (A–E)</span>
+            </button>
+            <button type="button" class="town-editor-popover__item" id="btn-editor-export">
+              <span>📋 Salin Kode JSON</span>
+            </button>
+            <button type="button" class="town-editor-popover__item" id="btn-editor-fullscreen">
+              <span>⛶ Layar Penuh</span>
+              <kbd class="town-dev-kbd">F</kbd>
+            </button>
+            <button type="button" class="town-editor-popover__item" id="btn-more-shortcuts">
+              <span>⌨️ Daftar Pintasan</span>
+              <kbd class="town-dev-kbd">?</kbd>
+            </button>
+            <div class="my-1 border-t border-slate-700/80"></div>
+            <button type="button" class="town-editor-popover__item text-rose-300 hover:bg-rose-950/60" id="btn-editor-reset">
+              <span>🔄 Reset Tata Letak Awal</span>
+            </button>
+          </div>
+        </div>
+
+        <button type="button" class="town-editor-mini-btn" id="btn-editor-minimize" title="Lipat / Rentangkan Sub-Toolbar">
+          <span id="icon-editor-minimize">🔽</span>
+        </button>
+        <button type="button" class="town-editor-btn town-editor-btn--close" id="btn-editor-close" title="Tutup Town Editor (E)">✖️</button>
+      </div>
+    </div>
+
+    <!-- Searchable Scene Outliner Popover -->
+    <div id="town-outliner-popover" class="town-outliner-popover hidden" style="display: none;" role="dialog" aria-label="Scene Outliner">
+      <div class="p-2 border-b border-slate-700/80 flex items-center gap-1.5">
+        <input type="text" id="town-outliner-search" class="town-insp-input flex-1" placeholder="🔍 Cari nama gedung, Pokémon, prop..." autocomplete="off" />
+        <button type="button" id="btn-close-outliner" class="town-editor-mini-btn">✕</button>
+      </div>
+      <div class="flex flex-wrap gap-1 px-2 pt-1.5 pb-1 border-b border-slate-800" id="town-outliner-tabs">
+        <button type="button" class="town-outliner-tab is-active" data-ocat="all">Semua</button>
+        <button type="button" class="town-outliner-tab" data-ocat="building">🏢 Gedung</button>
+        <button type="button" class="town-outliner-tab" data-ocat="npc">⚡ Pokémon/NPC</button>
+        <button type="button" class="town-outliner-tab" data-ocat="nature">🌳 Alam &amp; Prop</button>
+      </div>
+      <div id="town-outliner-list" class="town-outliner-list"></div>
+    </div>
+  </div>
+
+  <!-- Keyboard & Mouse Shortcuts Cheat Sheet Modal -->
+  <dialog id="town-editor-shortcuts-modal" class="town-editor-modal">
+    <div class="town-editor-modal__content space-y-3">
+      <div class="town-editor-modal__header">
+        <h3 class="town-editor-modal__title">⌨️ Pintasan Studio Town Editor 5.0</h3>
+        <button type="button" class="town-editor-modal__close" id="btn-close-shortcuts-modal">×</button>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[10px] font-mono">
+        <div class="p-2 rounded bg-slate-900/80 border border-slate-700 space-y-1">
+          <div class="text-sky-300 font-bold mb-1">🧭 Navigasi &amp; Workspace</div>
+          <div class="flex justify-between"><span>Geser Kamera (Hand Pan)</span><kbd class="town-dev-kbd">Space + Drag</kbd></div>
+          <div class="flex justify-between"><span>Mode Zen Bersih</span><kbd class="town-dev-kbd">Tab</kbd></div>
+          <div class="flex justify-between"><span>Mode Playtest di Kursor</span><kbd class="town-dev-kbd">P</kbd></div>
+          <div class="flex justify-between"><span>Toggle Grid 16px</span><kbd class="town-dev-kbd">G</kbd></div>
+          <div class="flex justify-between"><span>Simpan ke File JSON</span><kbd class="town-dev-kbd">Ctrl+S</kbd></div>
+        </div>
+        <div class="p-2 rounded bg-slate-900/80 border border-slate-700 space-y-1">
+          <div class="text-amber-300 font-bold mb-1">🖐️ Objek &amp; Lantai</div>
+          <div class="flex justify-between"><span>Multi-Pilih Kotak</span><kbd class="town-dev-kbd">Shift + Drag</kbd></div>
+          <div class="flex justify-between"><span>Klon Cepat Saat Tarik</span><kbd class="town-dev-kbd">Alt + Drag</kbd></div>
+          <div class="flex justify-between"><span>Pipet Cepat (Ubin/Objek)</span><kbd class="town-dev-kbd">Alt + Klik</kbd></div>
+          <div class="flex justify-between"><span>Garis / Kotak / Ember</span><kbd class="town-dev-kbd">L / R / B</kbd></div>
+          <div class="flex justify-between"><span>Kunci / Layer Up-Down</span><kbd class="town-dev-kbd">K / [ ]</kbd></div>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Export Code Modal -->
+  <dialog id="town-editor-export-modal" class="town-editor-modal">
+    <div class="town-editor-modal__content">
+      <div class="town-editor-modal__header">
+        <h3 class="town-editor-modal__title">📋 Salin Data Tata Letak Kota</h3>
+        <button type="button" class="town-editor-modal__close" id="btn-close-export-modal">×</button>
+      </div>
+      <p class="town-editor-modal__desc">
+        Data koordinat bangunan dan lantai hasil desain Anda telah dibuat. Anda bisa menyalinnya dan mengirimkannya ke chat agar saya terapkan secara permanen ke file proyek!
+      </p>
+      <pre class="town-editor-modal__code"><code id="town-editor-code-output"></code></pre>
+      <div class="town-editor-modal__footer">
+        <button type="button" class="town-editor-btn town-editor-btn--copy" id="btn-copy-code">
+          📋 Salin ke Clipboard
+        </button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Object Spawner Modal -->
+  <dialog id="town-editor-spawn-modal" class="town-editor-modal town-editor-spawn-modal">
+    <div class="town-editor-modal__content town-editor-spawn-modal__content">
+      <div class="town-editor-modal__header">
+        <h3 class="town-editor-modal__title">➕ Tambah Objek ke Kota</h3>
+        <button type="button" class="town-editor-modal__close" id="btn-close-spawn-modal">×</button>
+      </div>
+
+      <!-- Search Bar -->
+      <div class="town-spawn-search-wrap">
+        <input
+          type="text"
+          id="town-spawn-search"
+          class="town-spawn-search-input"
+          placeholder="🔍 Cari objek (misal: pikachu, snorlax, pohon, lampu, server, sakura)..."
+          autocomplete="off"
+        />
+        <button type="button" id="town-spawn-search-clear" class="town-spawn-search-clear" title="Bersihkan pencarian">×</button>
+      </div>
+
+      <!-- Category Filter Tabs -->
+      <div class="town-spawn-tabs" id="town-spawn-tabs">
+        <button type="button" class="town-spawn-tab is-active" data-cat="all">🌟 Semua (<span id="cat-count-all">0</span>)</button>
+        <button type="button" class="town-spawn-tab" data-cat="favorites">⭐ Favorit (<span id="cat-count-fav">0</span>)</button>
+        <button type="button" class="town-spawn-tab" data-cat="bundles">🎁 Paket Tema (<span id="cat-count-bundles">0</span>)</button>
+        <button type="button" class="town-spawn-tab" data-cat="Foliage & Alam">🌳 Alam (<span id="cat-count-alam">0</span>)</button>
+        <button type="button" class="town-spawn-tab" data-cat="Perabot & Lampu">🪑 Perabot &amp; Lampu (<span id="cat-count-perabot">0</span>)</button>
+        <button type="button" class="town-spawn-tab" data-cat="Dunia Pokémon">⚡ Pokémon (<span id="cat-count-pokemon">0</span>)</button>
+        <button type="button" class="town-spawn-tab" data-cat="Dunia Digimon">👾 Digimon (<span id="cat-count-digimon">0</span>)</button>
+        <button type="button" class="town-spawn-tab" data-cat="Tech & AI">💻 Tech &amp; AI (<span id="cat-count-tech">0</span>)</button>
+        <button type="button" class="town-spawn-tab" data-cat="Fasilitas & Kota">⛲ Fasilitas &amp; Kota (<span id="cat-count-fasilitas">0</span>)</button>
+      </div>
+
+      <!-- Biome, Size & Collision Filters -->
+      <div class="town-spawn-filters" id="town-spawn-filters">
+        <button
+          type="button"
+          class="town-spawn-chip town-spawn-chip--biome"
+          id="btn-spawn-biome-filter"
+          title="Tampilkan hanya objek yang direkomendasikan untuk dunia ini"
+        >
+          🌍 Cocok di <span id="spawn-biome-world-name">Kota</span> (<span id="spawn-biome-count">0</span>)
+        </button>
+
+        <div class="town-spawn-filter-group" role="group" aria-label="Filter ukuran">
+          <span class="town-spawn-filter-label">Ukuran:</span>
+          <button type="button" class="town-spawn-chip is-active" data-size-filter="all">Semua</button>
+          <button type="button" class="town-spawn-chip" data-size-filter="1x1">1×1</button>
+          <button type="button" class="town-spawn-chip" data-size-filter="2x1">2×1</button>
+          <button type="button" class="town-spawn-chip" data-size-filter="2x2">2×2</button>
+          <button type="button" class="town-spawn-chip" data-size-filter="large">4×4+</button>
+        </div>
+
+        <div class="town-spawn-filter-group" role="group" aria-label="Filter kolisi">
+          <span class="town-spawn-filter-label">Kolisi:</span>
+          <button type="button" class="town-spawn-chip is-active" data-col-filter="all">Semua</button>
+          <button type="button" class="town-spawn-chip" data-col-filter="canopy">🌳 Batang Saja</button>
+          <button type="button" class="town-spawn-chip" data-col-filter="solid">🧱 Padat</button>
+        </div>
+
+        <button
+          type="button"
+          class="town-spawn-chip town-spawn-chip--flip"
+          id="btn-spawn-flip-toggle"
+          title="Balik arah horizontal (mirror) saat memasang atau mencap objek (tekan R saat mode Cap)"
+        >
+          ⇄ Arah: <span id="spawn-flip-label">Normal</span>
+        </button>
+
+        <button
+          type="button"
+          class="town-spawn-chip town-spawn-chip--sandbox"
+          id="btn-spawn-sandbox-toggle"
+          title="Beralih antara Mode Progres (buka item eksklusif lewat eksplorasi) dan Mode Kreatif (buka semua item)"
+        >
+          🏆 Progres <span id="spawn-unlock-progress">0/10</span> · <span id="spawn-sandbox-label">Progres Aktif</span>
+        </button>
+
+        <select id="town-spawn-sort" class="town-spawn-sort" aria-label="Urutkan katalog">
+          <option value="biome">Urut: Rekomendasi Bioma</option>
+          <option value="name">Urut: Nama A–Z</option>
+          <option value="size">Urut: Ukuran</option>
+          <option value="placed">Urut: Terbanyak di Peta</option>
+        </select>
+      </div>
+
+      <div id="town-spawn-scatter-tray" class="town-spawn-scatter-tray hidden">
+        <span>🎲 <strong>Kuas Acak:</strong></span>
+        <div id="scatter-tray-items" class="town-spawn-scatter-items"></div>
+        <select id="scatter-radius-select" class="town-spawn-sort" title="Radius sebaran">
+          <option value="2">Radius 2</option>
+          <option value="3" selected>Radius 3</option>
+          <option value="4">Radius 4</option>
+        </select>
+        <select id="scatter-density-select" class="town-spawn-sort" title="Jumlah objek per klik">
+          <option value="2">2 / klik</option>
+          <option value="3" selected>3 / klik</option>
+          <option value="5">5 / klik</option>
+        </select>
+        <button type="button" id="btn-start-scatter-brush" class="town-editor-btn town-spawn-card__btn town-spawn-card__btn--place" style="flex:0 0 auto;padding:4px 8px;">
+          🎲 Mulai Kuas Acak
+        </button>
+        <button type="button" id="btn-clear-scatter-pool" class="town-spawn-chip" title="Kosongkan pilihan kuas acak">✕</button>
+      </div>
+
+      <div class="town-spawn-stamp-tip">
+        <span>💡 <strong>Tip:</strong> Klik <strong>➕ Pasang</strong> / <strong>🎯 Cap</strong> / <strong>🎲 Acak</strong>, klik <strong>📍×N</strong> untuk melompat ke objek. ⌨️ <kbd>Ctrl+K</kbd>: Buka · <kbd>↑↓</kbd>: Pilih · <kbd>Enter</kbd>: Pasang · <kbd>Shift+Enter</kbd>: Cap · <kbd>R</kbd>: Balik Arah (saat Cap)</span>
+      </div>
+
+      <div id="town-spawn-inspector" class="town-spawn-inspector" aria-live="polite">
+        <div class="town-spawn-inspector__thumb" id="spawn-insp-thumb">✨</div>
+        <div class="town-spawn-inspector__body">
+          <div class="town-spawn-inspector__top">
+            <strong id="spawn-insp-name">Arahkan kursor atau tekan ↑↓ pada kartu objek</strong>
+            <span class="town-spawn-inspector__pill" id="spawn-insp-size">—</span>
+            <span class="town-spawn-inspector__pill town-spawn-inspector__pill--col" id="spawn-insp-col">—</span>
+          </div>
+          <div class="town-spawn-inspector__biomes" id="spawn-insp-biomes"></div>
+          <p class="town-spawn-inspector__dialogue" id="spawn-insp-dialogue">Pratinjau ukuran petak, aturan kolisi, kecocokan bioma, dan dialog interaktif akan muncul di sini.</p>
+          <div class="town-spawn-inspector__unlock hidden" id="spawn-insp-unlock"></div>
+        </div>
+      </div>
+
+      <div class="town-spawn-catalog" id="town-spawn-catalog"></div>
+    </div>
+  </dialog>
+
+  <!-- Prefab Blueprints Modal -->
+  <dialog id="town-editor-prefabs-modal" class="town-editor-modal">
+    <div class="town-editor-modal__content space-y-3">
+      <div class="town-editor-modal__header">
+        <h3 class="town-editor-modal__title">🧩 Prefab Blueprints</h3>
+        <button type="button" class="town-editor-modal__close" id="btn-close-prefabs-modal">×</button>
+      </div>
+      <p class="town-editor-modal__desc">
+        Simpan grup objek terpilih (termasuk hasil Marquee Shift+Drag) menjadi blueprint siap pakai ulang.
+      </p>
+      <div class="flex gap-2 items-center">
+        <input id="town-prefab-name-input" type="text" placeholder="Nama Prefab (misal: Taman Lampu 2x2)..." class="flex-1 rounded border border-slate-600 bg-slate-900 px-2.5 py-1.5 text-xs text-white" />
+        <button type="button" id="btn-save-selection-prefab" class="town-editor-btn town-editor-btn--save">
+          💾 Simpan Seleksi (<span id="prefab-sel-count">0</span>)
+        </button>
+      </div>
+      <div id="town-prefabs-list" class="space-y-2 max-h-64 overflow-y-auto pr-1"></div>
+    </div>
+  </dialog>
+
+  <!-- Layout Snapshots & Diff Modal -->
+  <dialog id="town-editor-snapshots-modal" class="town-editor-modal">
+    <div class="town-editor-modal__content space-y-3">
+      <div class="town-editor-modal__header">
+        <h3 class="town-editor-modal__title">🕒 Layout Snapshots &amp; Diff Preview</h3>
+        <button type="button" class="town-editor-modal__close" id="btn-close-snapshots-modal">×</button>
+      </div>
+      <div id="town-diff-summary-box" class="p-2.5 rounded-lg border border-slate-700 bg-slate-900/90 font-mono text-xs text-slate-200"></div>
+      <div id="town-snapshots-list" class="space-y-2 max-h-72 overflow-y-auto pr-1"></div>
+    </div>
+  </dialog>
+

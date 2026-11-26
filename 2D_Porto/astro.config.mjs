@@ -170,6 +170,21 @@ function townEditorDevPlugin() {
       // @ts-ignore
       server.middlewares.use('/api/dev/save-town', async (req, res, next) => {
         if (req.method === 'POST') {
+          const hostHeader = String(req.headers.host || '').split(':')[0];
+          const originHeader = req.headers.origin ? String(req.headers.origin) : '';
+          let originAllowed = true;
+          if (originHeader) {
+            try {
+              const originHost = new URL(originHeader).hostname;
+              originAllowed = originHost === 'localhost' || originHost === '127.0.0.1';
+            } catch {
+              originAllowed = false;
+            }
+          }
+          if ((hostHeader !== 'localhost' && hostHeader !== '127.0.0.1') || !originAllowed) {
+            return sendJson(res, 403, { success: false, error: 'Forbidden: local dev access only.' });
+          }
+
           try {
             const data = await readJsonBody(req);
             const targetWorld =
@@ -248,7 +263,7 @@ export default defineConfig({
             groups: [
               {
                 name: 'town-background',
-                test: /src[\\/]engine[\\/]townBackground\.ts/,
+                test: /src[\\/]engine[\\/](townBackground\.ts|world[\\/]town(Biome|Cliff)Renderer\.ts)/,
                 priority: 10,
               },
               {
@@ -268,12 +283,12 @@ export default defineConfig({
               },
               {
                 name: 'town-scenes',
-                test: /src[\\/]engine[\\/](.*Scene\.ts|(digi|kingdom|darkCastle|harbour|skyCastle)(Map|Background|Assets|Catalog|SpriteLoader|Animator|monCatalog).*\.ts)/,
+                test: /src[\\/]engine[\\/](.*Scene\.ts|(digi|kingdom|darkCastle|harbour|skyCastle)(Map|Assets|Catalog|SpriteLoader|Animator|monCatalog).*\.ts)/,
                 priority: 10,
               },
               {
                 name: 'town-engine',
-                test: /src[\\/]engine[\\/]TownEngine\.ts/,
+                test: /src[\\/]engine[\\/](TownEngine\.ts|core[\\/].*\.ts|world[\\/](townGeography|townLivingFx)\.ts)/,
                 priority: 5,
               },
             ],

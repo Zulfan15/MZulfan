@@ -73,7 +73,7 @@ export async function loadKaratiamon(
     const northIdleFrame = sliceFrames(
       walkImg,
       [walkCell(2, 2), walkCell(2, 2), walkCell(2, 2), walkCell(2, 2)],
-      { chroma: 'border-green-despill', trim: 'uniform' }
+      { chroma: 'border-green-despill', trim: 'uniform', isolateMainBody: true }
     );
     await yieldToFrame();
 
@@ -92,6 +92,7 @@ export async function loadKaratiamon(
       const frames = sliceFrames(idleImg, rects, {
         chroma: 'border-green-despill',
         trim: 'uniform',
+        isolateMainBody: true,
       }).map((frame, i) => (steps[i].flipX ? flipFrame(frame) : frame));
       rawIdle.push(...frames);
       await yieldToFrame();
@@ -109,6 +110,7 @@ export async function loadKaratiamon(
       const frames = sliceFrames(walkImg, rects, {
         chroma: 'border-green-despill',
         trim: 'uniform',
+        isolateMainBody: true,
       })
         .map((f) => downscaleFrame(f, 96, true))
         .map((frame, i) => (steps[i].flipX ? flipFrame(frame) : frame));
@@ -136,6 +138,7 @@ export async function loadKaratiamon(
       sliceFrames(battleImg, combo, {
         chroma: 'border-green-despill',
         trim: 'uniform',
+        isolateMainBody: true,
       })
     );
     const battle = rawBattle.map((f) => downscaleFrame(f, 112, true));
@@ -151,11 +154,13 @@ export async function loadKaratiamon(
     const hd = sliceFrames(hdImg, KARATIAMON_HD_RECTS, {
       chroma: 'border-green-despill',
       trim: 'tight',
+      isolateMainBody: true,
     }).map((f) => downscaleFrame(f, 220, true));
 
     const mini = sliceFrames(hdImg, KARATIAMON_MINI_RECTS, {
       chroma: 'border-green-despill',
       trim: 'tight',
+      isolateMainBody: true,
     });
 
     const set: CharacterSpriteSet = {

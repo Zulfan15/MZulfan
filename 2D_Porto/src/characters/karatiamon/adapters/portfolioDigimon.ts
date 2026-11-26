@@ -21,7 +21,7 @@ export const KARATIAMON_PORTFOLIO_POSE_MAP: OverworldPoseMap = {
     back: [16, 17, 18, 19],
     east: [24, 25, 26, 27],
   },
-  action: [64, 65, 66, 67],
+  action: [65, 66, 67, 64],
   nativeFacing: 'left',
 };
 
@@ -44,10 +44,13 @@ export async function adaptKaratiamonForPortfolio(
     const battleLarge = set.groups.battleLarge ?? battle;
     const hd = set.groups.hd ?? [];
 
-    // DigiDex Battle Idle plays South idle frames from `idle.png`,
-    // while Signature Attack unleashes the Violet Hex Blade combo from `battle.png`.
+    // DigiDex Battle Idle plays South idle frames from `idle.webp`,
+    // while Signature Attack ignites Violet Flame (F1) into the lunging Violet Hex Blade slash (F2).
     const largeIdle = idleLarge.length >= 4 ? idleLarge.slice(0, 4) : hd.slice(0, 1);
-    const largeAttack = battleLarge.slice(0, 4);
+    const largeAttack =
+      battleLarge.length >= 4
+        ? [battleLarge[1], battleLarge[2], battleLarge[3], battleLarge[0]]
+        : battleLarge.slice(0, 4);
     const overworld = [...idle, ...walk, ...battle];
 
     return {

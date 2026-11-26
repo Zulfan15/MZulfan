@@ -26,7 +26,7 @@ import {
   resolveGaspiritamonAssets,
 } from './gaspiritamon.assets';
 import {
-  gridCell8x4,
+  walkCell,
   GASPIRITAMON_BATTLE_RECTS,
   GASPIRITAMON_JPG_HD_RECTS,
   GASPIRITAMON_JPG_ICON_RECT,
@@ -39,9 +39,29 @@ import { GASPIRITAMON_META } from './gaspiritamon.meta';
 const spriteCache = new Map<string, CharacterSpriteSet>();
 const inflightByBase = new Map<string, Promise<CharacterSpriteSet>>();
 
+/** Pads all frames in a sequence to a shared bottom-centered canvas so scale stays uniform across steps. */
+function padToUniformBottomCenter(frames: CharacterFrame[]): CharacterFrame[] {
+  if (frames.length <= 1) return frames;
+  const maxW = Math.max(1, ...frames.map((f) => f.width));
+  const maxH = Math.max(1, ...frames.map((f) => f.height));
+  return frames.map((f) => {
+    if (f.width === maxW && f.height === maxH) return f;
+    const canvas = document.createElement('canvas');
+    canvas.width = maxW;
+    canvas.height = maxH;
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(f.canvas, Math.floor((maxW - f.width) / 2), maxH - f.height);
+    }
+    return { canvas, width: maxW, height: maxH };
+  });
+}
+
 /**
  * Loads and cleanly slices all 3 Gaspiritamon sprite sheets into a cached `CharacterSpriteSet`.
- * Uses `border-green` chroma keying so glowing emerald-cyan runes on Gaspiritamon's hammer and shield stay intact.
+ * Uses `border-green-despill` so glowing emerald-cyan runes on Gaspiritamon's hammer and shield stay intact
+ * while stripping perimeter halos and backdrop pockets.
  */
 export async function loadGaspiritamon(
   baseUrl = GASPIRITAMON_DEFAULT_ASSET_BASE,
@@ -71,9 +91,9 @@ export async function loadGaspiritamon(
         for (let i = 0; i < steps.length; i++) walk.push(createEmptyFrame());
         continue;
       }
-      const rects = steps.map((s) => gridCell8x4(s.row, s.col));
+      const rects = steps.map((s) => walkCell(s.row, s.col));
       const frames = sliceFrames(walkImg, rects, {
-        chroma: 'border-green',
+        chroma: 'border-green-despill',
         trim: 'uniform',
         isolateMainBody: true,
       })
@@ -100,28 +120,31 @@ export async function loadGaspiritamon(
     }
 
     const [battleImg, jpgImg] = await extraPromises!;
-    const rawBattle = sliceFrames(battleImg, GASPIRITAMON_BATTLE_RECTS, {
-      chroma: 'border-green',
-      trim: 'tight',
-    });
+    const rawBattle = padToUniformBottomCenter(
+      sliceFrames(battleImg, GASPIRITAMON_BATTLE_RECTS, {
+        chroma: 'border-green-despill',
+        trim: 'tight',
+        isolateMainBody: true,
+      })
+    );
     const battle = rawBattle.map((f) => downscaleFrame(f, 112, true));
     const battleLarge = rawBattle.map((f) => downscaleFrame(f, 220, true));
     await yieldToFrame();
 
     const [icon = null] = sliceFrames(jpgImg, [GASPIRITAMON_JPG_ICON_RECT], {
-      chroma: 'border-green',
+      chroma: 'border-green-despill',
       trim: 'tight',
       isolateMainBody: true,
     });
 
     const hd = sliceFrames(jpgImg, GASPIRITAMON_JPG_HD_RECTS, {
-      chroma: 'border-green',
+      chroma: 'border-green-despill',
       trim: 'tight',
       isolateMainBody: true,
     }).map((f) => downscaleFrame(f, 220, true));
 
     const mini = sliceFrames(jpgImg, GASPIRITAMON_JPG_MINI_RECTS, {
-      chroma: 'border-green',
+      chroma: 'border-green-despill',
       trim: 'tight',
       isolateMainBody: true,
     });

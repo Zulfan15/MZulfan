@@ -44,10 +44,13 @@ export async function adaptBelphemonXForPortfolio(
     const battleLarge = set.groups.battleLarge ?? battle;
     const hd = set.groups.hd ?? [];
 
-    // DigiDex Battle Idle plays South idle frames from `idle.jpg`,
-    // while Signature Attack unleashes the blazing Seventh Full Cluster claw combo from `battle.jpg`.
+    // DigiDex Battle Idle plays South idle frames from `idle.webp`,
+    // while Signature Attack unleashes the blazing Seventh Full Cluster claw combo (`[C1R1, C1R2, ...]`) from `battle.webp`.
     const largeIdle = idleLarge.length >= 4 ? idleLarge.slice(0, 4) : hd.slice(0, 1);
-    const largeAttack = battleLarge.slice(0, 4);
+    const largeAttack =
+      battleLarge.length >= 4
+        ? [battleLarge[1], battleLarge[2], battleLarge[3], battleLarge[0]]
+        : battleLarge.slice(0, 4);
     const overworld = [...idle, ...walk, ...battle];
 
     return {

@@ -1,5 +1,5 @@
 import type { Dir } from './types';
-import { TILE_SIZE, drawCharacter } from './sprites';
+import { TILE_SIZE } from './sprites';
 import { drawPixelText } from './devScene';
 import type { PokemonPMDAnimator } from './pokemonPMDAnimator';
 import { GARDEVOIR_IMAGE_SRC } from './gardevoirSprite';

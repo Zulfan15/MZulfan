@@ -6,9 +6,6 @@ import NocFirewallModal from '../components/NocFirewallModal.astro';
 import CareerTerminalModal from '../components/CareerTerminalModal.astro';
 import { profile } from '../lib/profile';
 
-const githubUrl = profile.socials.find((s) => s.label === 'GitHub')?.url || 'https://github.com/Zulfan15';
-const linkedinUrl = profile.socials.find((s) => s.label === 'LinkedIn')?.url || 'https://www.linkedin.com/in/muhammad-zulfan-anggadhiputra';
-const emailUrl = `mailto:${profile.person.email}`;
 const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
 ---
 

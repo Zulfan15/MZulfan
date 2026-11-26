@@ -1,7 +1,6 @@
 ---
 import TownLayout from '../layouts/TownLayout.astro';
 import WhereTo from '../components/WhereTo.astro';
-import { DARK_CASTLE_LANDMARKS } from '../engine/darkCastleMap';
 
 const landmarkCards = [
   {
@@ -329,7 +328,7 @@ const landmarkCards = [
 
       document.querySelectorAll<HTMLButtonElement>('[data-dark-action="editor"]').forEach((btn) => {
         btn.addEventListener('click', () => {
-          document.getElementById('btn-toggle-editor')?.click();
+          window.dispatchEvent(new CustomEvent('town:toggle-editor'));
         });
       });
     }

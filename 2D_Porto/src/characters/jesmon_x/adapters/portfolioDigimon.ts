@@ -21,7 +21,7 @@ export const JESMON_X_PORTFOLIO_POSE_MAP: OverworldPoseMap = {
     back: [16, 17, 18, 19],
     east: [24, 25, 26, 27],
   },
-  action: [64, 65, 66, 67],
+  action: [64, 66, 67, 65],
   nativeFacing: 'left',
 };
 
@@ -44,10 +44,13 @@ export async function adaptJesmonXForPortfolio(
     const dsIdle = set.groups.dsIdle ?? [];
     const hd = set.groups.hd ?? [];
 
-    // DigiDex Battle Idle uses the 3-frame animated DS idle (`jesmon-x-ds.jpg`),
-    // and Signature Attack unleashes the cyan/crimson Tekken Seibai slash arcs from `battle.jpg`.
+    // DigiDex Battle Idle uses the 3-frame animated DS idle (`jesmon-x-ds.webp`),
+    // and Signature Attack unleashes the cyan blade draw (B0) into twin crimson-gold Tekken Seibai burst (B2/B3).
     const largeIdle = dsIdle.length > 0 ? dsIdle : hd.slice(0, 1);
-    const largeAttack = battleLarge.slice(0, 4);
+    const largeAttack =
+      battleLarge.length >= 4
+        ? [battleLarge[0], battleLarge[2], battleLarge[3], battleLarge[1]]
+        : battleLarge.slice(0, 4);
     const overworld = [...idle, ...walk, ...battle];
 
     return {

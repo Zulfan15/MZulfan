@@ -18,6 +18,45 @@ export const SKY_CASTLE_RETURN_GATE = {
   yMax: 59,
 } as const;
 
+export const SKY_CASTLE_BUILDING_DOORS = {
+  citadel: {
+    xs: [21, 22, 23],
+    y: 14,
+    route: '/sky-castle/citadel',
+    spawn: { x: 22, y: 15, dir: 'down' as Dir },
+  },
+  windmill: {
+    xs: [8, 9],
+    y: 24,
+    route: '/sky-castle/windmill',
+    spawn: { x: 8, y: 25, dir: 'down' as Dir },
+  },
+  workshop: {
+    xs: [5, 6],
+    y: 39,
+    route: '/sky-castle/workshop',
+    spawn: { x: 6, y: 40, dir: 'down' as Dir },
+  },
+  inn: {
+    xs: [15, 16],
+    y: 45,
+    route: '/sky-castle/inn',
+    spawn: { x: 15, y: 46, dir: 'down' as Dir },
+  },
+  observatory: {
+    xs: [37, 38],
+    y: 26,
+    route: '/sky-castle/observatory',
+    spawn: { x: 38, y: 27, dir: 'down' as Dir },
+  },
+  chapel: {
+    xs: [36, 37],
+    y: 46,
+    route: '/sky-castle/chapel',
+    spawn: { x: 37, y: 47, dir: 'down' as Dir },
+  },
+} as const;
+
 export interface SkyCastleLandmark {
   id: string;
   name: string;
@@ -57,15 +96,27 @@ export const SKY_CASTLE_LANDMARKS: SkyCastleLandmark[] = [
   },
   {
     id: 'sky_windmills',
-    name: '🌬️ Twin Cloud Windmills',
+    name: '🌬️ Upper Cloud Windmill',
     x: 6,
     y: 19,
     w: 5,
     h: 5,
     interactX: 8,
-    interactY: 24,
+    interactY: 25,
     dialogue:
-      'TWIN CLOUD WINDMILLS & SKY-DOCKS (West Island): Catching stratospheric trade winds beside wooden airship docks overlooking the abyssal sky.',
+      'UPPER CLOUD WINDMILL (West Island): Stratospheric rotor mill harnessing jetstream gusts to power AeroScan (~1.8 ms/frame TensorRT FP16) beside the upper wooden sky-pier.',
+  },
+  {
+    id: 'sky_workshop',
+    name: '⚙️ Lower Sky-Dock Workshop',
+    x: 3,
+    y: 34,
+    w: 5,
+    h: 5,
+    interactX: 6,
+    interactY: 40,
+    dialogue:
+      'LOWER SKY-DOCK WORKSHOP (West Island): Airship propulsion hangar & ESP32/Robotics lab overlooking the lower wooden sky-pier.',
   },
   {
     id: 'sky_tavern',
@@ -87,7 +138,7 @@ export const SKY_CASTLE_LANDMARKS: SkyCastleLandmark[] = [
     w: 6,
     h: 7,
     interactX: 38,
-    interactY: 26,
+    interactY: 27,
     dialogue:
       'GOLDEN ASTRAL OBSERVATORY (NE Island): Brushed-gold starlight dome ringed with resonant amethyst crystals beside a cascading sky-waterfall.',
   },
@@ -176,11 +227,21 @@ export function createSkyCastleMap(_data: TownData): TownMap {
   fillRect(30, 42, 35, 47, Tile.PLAZA, 0);
   fillRect(35, 46, 39, 48, Tile.PLAZA, 0);
 
-  // 7. South Return Portal back to Digi-Sanctuary (33, 22, left)
+  // 7. South Return Portal back to Digi-Sanctuary (33, 22, left) & Interior Building Doors
   const doors = new Map<number, string>();
   for (let y = SKY_CASTLE_RETURN_GATE.yMin; y <= SKY_CASTLE_RETURN_GATE.yMax; y++) {
     for (let x = SKY_CASTLE_RETURN_GATE.xMin; x <= SKY_CASTLE_RETURN_GATE.xMax; x++) {
       doors.set(y * w + x, '/digimon?from=sky-castle');
+    }
+  }
+  for (const door of Object.values(SKY_CASTLE_BUILDING_DOORS)) {
+    for (const dx of door.xs) {
+      const idx = door.y * w + dx;
+      collision[idx] = 0;
+      if (ground[idx] === Tile.WATER) {
+        ground[idx] = Tile.PATH;
+      }
+      doors.set(idx, door.route);
     }
   }
 

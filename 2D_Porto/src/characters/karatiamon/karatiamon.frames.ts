@@ -14,14 +14,14 @@ const GRID_COLS: readonly [number, number][] = [
 ];
 
 const GRID_ROWS: readonly [number, number][] = [
-  [5, 185],    // 0: S
-  [196, 185],  // 1: SW
-  [387, 185],  // 2: W
-  [579, 185],  // 3: NW
-  [771, 185],  // 4: N
-  [963, 185],  // 5: NE
-  [1154, 185], // 6: E
-  [1346, 184], // 7: SE
+  [4, 187],    // 0: S
+  [195, 187],  // 1: SW
+  [387, 187],  // 2: W
+  [579, 186],  // 3: NW
+  [770, 187],  // 4: N
+  [962, 187],  // 5: NE
+  [1153, 188], // 6: E
+  [1345, 187], // 7: SE
 ];
 
 export const gridCell = (row: number, col: number): FrameRect => ({
@@ -31,14 +31,14 @@ export const gridCell = (row: number, col: number): FrameRect => ({
   h: GRID_ROWS[row][1],
 });
 
-// ── 1b. walk-cycle.jpg 4x4 generated bipedal stride sheet (1024x1024) ────
+// ── 1b. walk-cycle.webp 4x4 generated bipedal stride sheet (1024x1024) ───
 const WALK_CELLS: readonly (readonly FrameRect[])[] = [
   // Row 0: S (front) — torsos aligned within 0.8px (~121px from cell left)
   [
-    { x: 6, y: 18, w: 252, h: 242 },
-    { x: 261, y: 18, w: 252, h: 242 },
-    { x: 517, y: 18, w: 252, h: 242 },
-    { x: 772, y: 18, w: 252, h: 242 },
+    { x: 4, y: 18, w: 254, h: 242 },
+    { x: 260, y: 18, w: 254, h: 242 },
+    { x: 515, y: 18, w: 254, h: 242 },
+    { x: 770, y: 18, w: 254, h: 242 },
   ],
   // Row 1: mixed side frames (unused; E/W use cohesive Row 3 C1..C3)
   [
@@ -197,20 +197,20 @@ export const KARATIAMON_BATTLE_COMBOS: readonly (readonly FrameRect[])[] = [
   [gridCell(6, 0), gridCell(6, 1), gridCell(6, 2), gridCell(6, 3)],
 ];
 
-// ── 3. karatiamon.png (2388x1792: icon + 8 HD portraits + 8 mini thumbs) ─
+// ── 3. karatiamon.webp (2388x1792: icon + 8 HD portraits + 8 mini thumbs) ─
 export const KARATIAMON_ICON_RECT: FrameRect = {
   x: 28,
   y: 14,
-  w: 218,
+  w: 186,
   h: 196,
 };
 
 /** 8 HD portraits ordered canonically as `DIRECTIONS_8` (`S, SW, W, NW, N, NE, E, SE`). */
 export const KARATIAMON_HD_RECTS: readonly FrameRect[] = [
-  { x: 20, y: 1028, w: 580, h: 552 },   // S
-  { x: 695, y: 1028, w: 485, h: 552 },  // SW
-  { x: 1205, y: 1028, w: 570, h: 552 }, // W
-  { x: 1790, y: 1028, w: 560, h: 552 }, // NW
+  { x: 20, y: 1028, w: 580, h: 558 },   // S
+  { x: 695, y: 1028, w: 485, h: 558 },  // SW
+  { x: 1205, y: 1028, w: 570, h: 558 }, // W
+  { x: 1790, y: 1028, w: 560, h: 558 }, // NW
   { x: 20, y: 336, w: 570, h: 550 },    // N
   { x: 635, y: 336, w: 560, h: 550 },   // NE
   { x: 1210, y: 336, w: 565, h: 550 },  // E

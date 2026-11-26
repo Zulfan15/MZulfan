@@ -235,6 +235,7 @@ const critters = profile.critters;
   import { gameStore, GYM_BADGES, STAMP_MISSIONS } from '../game/store';
   import { renderCritterOnCanvas } from '../game/critterArt';
   import { sfx } from '../game/sfx';
+  import { navigateWithMapTransition } from '../lib/mapTransition';
 
   function initCritterdex() {
     const modal = document.getElementById('dex-modal') as HTMLDialogElement;
@@ -430,11 +431,11 @@ const critters = profile.critters;
         sfx.fly();
 
         if (route && window.location.pathname !== route) {
-          window.location.href = route;
+          navigateWithMapTransition(route);
         } else if (x !== null && y !== null) {
           if (window.location.pathname !== '/') {
             sessionStorage.setItem('town:respawn', `${x},${y}`);
-            window.location.href = '/';
+            navigateWithMapTransition('/');
           } else {
             window.dispatchEvent(
               new CustomEvent('town:fly-to', {

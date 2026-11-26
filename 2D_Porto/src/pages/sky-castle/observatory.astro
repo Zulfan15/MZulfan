@@ -1,0 +1,562 @@
+---
+import TownLayout from '../../layouts/TownLayout.astro';
+import WhereTo from '../../components/WhereTo.astro';
+import { profile, launches, fmtRange } from '../../lib/profile';
+import { SKY_PLUMES_META } from '../../engine/skyInteriorShared';
+
+const allPlumes = Object.values(SKY_PLUMES_META);
+const researchProjects = launches.filter((m) =>
+  ['thesis-gambling-spam', 'inceptionv3', 'omr-grading'].includes(m.id),
+);
+
+const observatoryStations = [
+  {
+    key: '1',
+    propId: 'deoxys',
+    icon: '🧬',
+    name: 'Deoxys · Astral Researcher',
+    scrollTarget: 'observatory-trial',
+    speaker: 'Deoxys · Cosmic Intelligence',
+    quote:
+      'Astral telemetry mirrors reproducible machine learning! Focus all 4 Amethyst Research Lenses below to 0° to unlock the Plume of Starlight.',
+    fxText: 'PSYCHO BOOST SCAN!',
+    fxColor: '#c084fc',
+  },
+  {
+    key: '2',
+    propId: 'brass-telescope',
+    icon: '🔭',
+    name: 'Brushed-Gold Telescope',
+    scrollTarget: 'observatory-research',
+    speaker: 'Brushed-Gold Sky Telescope',
+    quote:
+      'Combining domain heuristics with lightweight statistical and neural models delivers measurable reliability even on resource-constrained edge nodes.',
+    fxText: 'STARLIGHT DOME ALIGNED',
+    fxColor: '#fbbf24',
+  },
+  {
+    key: '3',
+    propId: 'gracenovamon',
+    icon: '🌌',
+    name: 'GraceNovamon',
+    scrollTarget: 'observatory-research',
+    speaker: 'GraceNovamon · Astral Validator',
+    quote:
+      'Every thesis benchmark rests upon 10-fold stratified cross-validation, GridSearchCV tuning, and disciplined dataset hygiene!',
+    fxText: 'GALAXY CV VERIFIED!',
+    fxColor: '#a855f7',
+  },
+  {
+    key: '4',
+    propId: 'amaterasumon',
+    icon: '☀️',
+    name: 'Amaterasumon',
+    scrollTarget: 'observatory-papers',
+    speaker: 'Amaterasumon · Radiance of Inquiry',
+    quote:
+      'From obfuscated Indonesian gambling spam (99.56% F1) to HAM10000 clinical lesion baselines and OpenCV OMR grading.',
+    fxText: 'SOLAR PRISM FOCUS',
+    fxColor: '#fde047',
+  },
+  {
+    key: '5',
+    propId: 'star-almanac',
+    icon: '📜',
+    name: 'Astral Plume Almanac',
+    scrollTarget: 'observatory-plumes-ledger',
+    speaker: 'Astral Plume Almanac',
+    quote:
+      'Track all 6 Celestial Plumes gleaming toward Avalon’s Azure Crystal awakening.',
+    fxText: 'ALMANAC UPDATED',
+    fxColor: '#e879f9',
+  },
+];
+
+const lenses = [
+  { id: 0, label: 'Lens I · TF-IDF Trigrams', defaultDeg: 180, detail: '1,000 character n-grams cutting through leetspeak & symbol obfuscation' },
+  { id: 1, label: 'Lens II · 9 Signal Heuristics', defaultDeg: 90, detail: 'Emoji density, digit ratios & URL camouflage signals' },
+  { id: 2, label: 'Lens III · 10-Fold Stratified CV', defaultDeg: 270, detail: 'Random Forest tuned via GridSearchCV hitting 99.56% F1-score' },
+  { id: 3, label: 'Lens IV · Vision Transfer Benchmarks', defaultDeg: 90, detail: 'InceptionV3 skin lesion classification & OpenCV OMR bubble vision' },
+];
+---
+
+<TownLayout
+  title="Golden Astral Observatory — AI Research, Thesis NLP & Vision | Sky Castle"
+  description="Enter Golden Astral Observatory (15×12) in Sky Castle Avalon: align the 4 Amethyst Research Lenses with Deoxys, GraceNovamon & Amaterasumon to earn the Plume of Starlight."
+  place="sky-observatory"
+>
+  <article
+    class="observatory-page space-y-6 pb-10 text-[#f3e8ff]"
+    data-summary-text={`${profile.person.name} Applied AI Research, Hybrid NLP Thesis (99.56% F1) & Transfer Learning — Golden Astral Observatory guarded by Deoxys, GraceNovamon & Amaterasumon.`}
+  >
+    <!-- 1. GOLDEN ASTRAL OBSERVATORY HERO BANNER -->
+    <header class="relative overflow-hidden rounded-2xl border-[3px] border-[#a855f7] bg-gradient-to-b from-[#170f2b] via-[#241645] to-[#140c26] p-5 shadow-[0_8px_0_#6b21a8,0_18px_36px_rgba(168,85,247,0.28)]">
+      <div
+        class="pointer-events-none absolute inset-x-0 top-0 h-2 bg-[repeating-linear-gradient(90deg,#a855f7_0px,#a855f7_14px,#fbbf24_14px,#fbbf24_28px,#38bdf8_28px,#38bdf8_42px)]"
+        aria-hidden="true"
+      />
+      <div class="mt-2 flex flex-wrap items-start justify-between gap-4">
+        <div class="space-y-2 max-w-2xl">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="rounded border border-[#a855f7] bg-[#3b0764] px-2 py-0.5 font-mono text-[10px] font-bold tracking-wider text-[#e9d5ff]">
+              🔭 NORTHEAST ISLAND · ASTRAL DOME (15×12)
+            </span>
+            <span
+              id="observatory-plume-status-pill"
+              class="rounded border border-[#64748b] bg-[#1e1b4b] px-2 py-0.5 font-mono text-[10px] font-bold text-[#cbd5e1]"
+            >
+              🪶 Plume of Starlight: UNCLAIMED
+            </span>
+          </div>
+          <h1 class="font-pixel text-base sm:text-lg leading-snug text-[#faf5ff]">
+            Golden Astral Observatory — Applied AI Research &amp; Thesis Dome
+          </h1>
+          <p class="text-xs sm:text-[13px] leading-relaxed text-[#e9d5ff]">
+            Beneath an amethyst vault floating beside the sky-waterfall,{' '}
+            <strong class="text-[#f0abfc]">Deoxys</strong>,{' '}
+            <strong class="text-[#c4b5fd]">GraceNovamon</strong>, and{' '}
+            <strong class="text-[#fde047]">Amaterasumon</strong> examine {profile.person.short_name}’s empirical NLP &amp; Computer Vision studies.
+          </p>
+        </div>
+
+        <div class="flex flex-col items-end gap-2">
+          <a
+            id="observatory-exit-btn"
+            href="/sky-castle?from=observatory"
+            data-respawn="38,27,down"
+            class="inline-flex items-center gap-2 rounded-lg border-2 border-[#a855f7] bg-[#581c87] px-3.5 py-2 font-pixel text-[10px] text-[#faf5ff] shadow-[0_3px_0_#3b0764] transition hover:-translate-y-0.5 hover:bg-[#7e22ce]"
+          >
+            ⬅️ Exit to Sky Castle (Esc)
+          </a>
+          <span class="font-mono text-[10px] text-[#d8b4fe]">
+            Or step onto Door (7, 11) → NE Cliff Walk
+          </span>
+        </div>
+      </div>
+
+      <!-- Live Dialogue Box -->
+      <div class="mt-4 rounded-xl border-2 border-[#9333ea]/60 bg-[#0e081c]/90 p-3.5">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
+          <span id="observatory-speaker" class="font-pixel text-[10px] text-[#fde047]">
+            Deoxys · Cosmic Intelligence
+          </span>
+          <span class="font-mono text-[10px] text-[#d8b4fe]">
+            Shortcuts: [1–5] Walk to Station · [Esc] Exit
+          </span>
+        </div>
+        <p id="observatory-dialogue" class="text-xs leading-relaxed text-[#f3e8ff]">
+          “Click the 4 Amethyst Research Lenses below (+90° per click) until every lens focuses cleanly at 0° FOCUSED!”
+        </p>
+      </div>
+
+      <!-- Quick Walk Row -->
+      <div class="mt-3 flex flex-wrap gap-2">
+        {observatoryStations.map((st) => (
+          <button
+            type="button"
+            class="observatory-station-btn inline-flex items-center gap-1.5 rounded-lg border border-[#a855f7]/50 bg-[#2e1654] px-2.5 py-1.5 text-[11px] font-semibold text-[#f3e8ff] transition hover:border-[#fde047] hover:bg-[#411f77] cursor-pointer"
+            data-hotkey={st.key}
+            data-observatory-walk={st.propId}
+            data-scroll-to={st.scrollTarget}
+            data-speaker={st.speaker}
+            data-quote={st.quote}
+            data-fx-text={st.fxText}
+            data-fx-color={st.fxColor}
+          >
+            <span class="rounded bg-[#6b21a8] px-1 font-mono text-[9px] text-[#fde047]">{st.key}</span>
+            <span>{st.icon}</span>
+            <span>{st.name}</span>
+          </button>
+        ))}
+      </div>
+    </header>
+
+    <!-- 2. INTERACTIVE GUARDIAN TRIAL: AMETHYST LENS ALIGNMENT -->
+    <section
+      id="observatory-trial"
+      class="rounded-2xl border-2 border-[#c084fc] bg-gradient-to-br from-[#190e30] via-[#22123f] to-[#130a24] p-5 shadow-lg"
+    >
+      <div class="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <span class="inline-flex items-center rounded border border-[#c084fc] bg-[#3b0764] px-2 py-0.5 font-mono text-[10px] font-bold text-[#f3e8ff]">
+            🧬 DEOXYS’ ASTRAL TRIAL · AMETHYST PRISM FOCUS
+          </span>
+          <h2 class="mt-2 font-pixel text-sm text-[#faf5ff]">
+            Align All 4 Amethyst Research Lenses to 0° Focused
+          </h2>
+          <p class="mt-1 text-xs text-[#e9d5ff]">
+            Rotate each spectral prism (+90° per click) until every lens reads <code class="rounded bg-[#3b0764] px-1 text-[#fde047]">0° FOCUSED</code> to earn the{' '}
+            <strong class="text-[#fde047]">Plume of Starlight (5/6)</strong>.
+          </p>
+        </div>
+        <button
+          id="btn-observatory-reset"
+          type="button"
+          class="rounded border border-[#475569] bg-[#1e293b] px-2.5 py-1 font-mono text-[10px] text-[#e2e8f0] hover:border-[#c084fc] cursor-pointer"
+        >
+          ↺ Scrambler Lenses
+        </button>
+      </div>
+
+      <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {lenses.map((l) => (
+          <button
+            type="button"
+            data-lens-idx={l.id}
+            class="observatory-lens-btn text-left rounded-xl border-2 border-[#6d28d9] bg-[#140b29] p-3.5 transition hover:border-[#e879f9] hover:-translate-y-0.5 cursor-pointer"
+          >
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-mono text-[10px] font-bold text-[#d8b4fe]">PRISM #{l.id + 1}</span>
+              <span
+                data-lens-angle={l.id}
+                class="rounded border border-[#6b21a8] bg-[#2e1065] px-1.5 py-0.5 font-mono text-[10px] font-bold text-[#f3e8ff]"
+              >
+                {l.defaultDeg}°
+              </span>
+            </div>
+            <h3 class="mt-2 font-pixel text-[10px] leading-snug text-[#faf5ff]">{l.label}</h3>
+            <p class="mt-1.5 text-[11px] leading-relaxed text-[#ddd6fe]">{l.detail}</p>
+          </button>
+        ))}
+      </div>
+
+      <div
+        id="observatory-trial-banner"
+        class="mt-4 rounded-xl border border-[#6b21a8] bg-[#110822] px-4 py-3 text-xs text-[#e9d5ff]"
+      >
+        Optic Telemetry: <strong class="text-[#fde047]">0 / 4</strong> Prisms Focused — click each lens until locked at 0°.
+      </div>
+    </section>
+
+    <!-- 3. RESEARCH STATEMENT, METHODOLOGY & NEXT FRONTIERS -->
+    <section
+      id="observatory-research"
+      class="rounded-2xl border-2 border-[#fbbf24]/60 bg-[#1c1333] p-5 space-y-4"
+    >
+      <div>
+        <span class="font-mono text-[10px] font-bold uppercase tracking-wider text-[#fde047]">
+          🔬 RESEARCH MANIFESTO &amp; EXPERIMENTAL DISCIPLINE
+        </span>
+        <h2 class="mt-1 font-pixel text-sm text-[#fffbeb]">
+          {profile.research.statement}
+        </h2>
+      </div>
+
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div class="rounded-xl border border-[#7c3aed]/60 bg-[#251745] p-4 space-y-2">
+          <div class="font-mono text-[10px] font-bold text-[#c4b5fd]">⚗️ CORE RESEARCH METHODS</div>
+          <ul class="space-y-1.5 text-xs text-[#ede9fe]">
+            {profile.research.methods.map((m) => (
+              <li class="flex items-start gap-2">
+                <span class="text-[#fde047]">▸</span>
+                <span>{m}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div class="rounded-xl border border-[#7c3aed]/60 bg-[#251745] p-4 space-y-2">
+          <div class="font-mono text-[10px] font-bold text-[#fde047]">🧭 NEXT HORIZONS UNDER STUDY</div>
+          <ul class="space-y-1.5 text-xs text-[#ede9fe]">
+            {profile.research.next.map((n) => (
+              <li class="flex items-start gap-2">
+                <span class="text-[#f0abfc]">✦</span>
+                <span>{n}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. EMPIRICAL RESEARCH LAUNCHES -->
+    <section
+      id="observatory-papers"
+      class="rounded-2xl border-2 border-[#8b5cf6]/70 bg-[#160f29] p-5 space-y-4"
+    >
+      <div>
+        <span class="font-mono text-[10px] font-bold uppercase tracking-wider text-[#c4b5fd]">
+          📊 EXPERIMENT STAR-PLATES · VERIFIED METRICS
+        </span>
+        <h2 class="mt-1 font-pixel text-sm text-[#f5f3ff]">
+          Undergraduate Thesis, Medical Vision &amp; Automated Grading
+        </h2>
+      </div>
+
+      <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        {researchProjects.map((proj) => (
+          <div class="flex flex-col justify-between rounded-xl border border-[#6d28d9] bg-[#21153d] p-4 space-y-3">
+            <div class="space-y-2">
+              <div class="flex items-center justify-between gap-2">
+                <span class="rounded border border-[#a855f7]/50 bg-[#3b0764] px-1.5 py-0.5 font-mono text-[9px] text-[#e9d5ff]">
+                  {proj.org}
+                </span>
+                <span class="font-mono text-[10px] text-[#fde047]">{fmtRange(proj.start, proj.end)}</span>
+              </div>
+              <h3 class="font-pixel text-[11px] leading-snug text-[#faf5ff]">{proj.title}</h3>
+              {proj.objective && <p class="text-[11px] font-medium text-[#d8b4fe]">{proj.objective}</p>}
+              <p class="text-[11px] leading-relaxed text-[#e9d5ff]/90">{proj.summary}</p>
+              <ul class="space-y-1 text-[10px] text-[#f3e8ff]">
+                {proj.results.map((r) => (
+                  <li class="flex items-start gap-1.5">
+                    <span class="text-[#fde047]">▸</span>
+                    <span>{r}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div class="flex flex-wrap gap-1 border-t border-[#4c1d95] pt-2.5">
+              {proj.payload.map((t) => (
+                <span class="rounded bg-[#140c26] px-1.5 py-0.5 font-mono text-[9px] text-[#d8b4fe]">
+                  {t}
+                </span>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- 5. SIX CELESTIAL PLUMES LEDGER -->
+    <section
+      id="observatory-plumes-ledger"
+      class="rounded-2xl border-2 border-[#a855f7]/60 bg-[#140b24] p-5 space-y-3"
+    >
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <span class="font-pixel text-xs text-[#faf5ff]">🪶 Celestial Plumes Ledger</span>
+        <span id="observatory-plumes-count" class="font-mono text-xs font-bold text-[#fde047]">
+          0 / 6 Plumes Collected
+        </span>
+      </div>
+      <div class="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
+        {allPlumes.map((plume) => (
+          <div
+            data-plume-card={plume.key}
+            class="rounded-xl border border-[#581c87] bg-[#1f1038] p-3"
+          >
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-pixel text-[10px] text-[#faf5ff]">
+                {plume.icon} {plume.name}
+              </span>
+              <span
+                data-plume-badge={plume.key}
+                class="rounded border border-[#334155] bg-[#0f172a] px-1.5 py-0.5 font-mono text-[9px] text-[#94a3b8]"
+              >
+                LOCKED
+              </span>
+            </div>
+            <p class="mt-1 text-[10px] text-[#d8b4fe]">{plume.sanctum}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <WhereTo currentPath="/sky-castle/observatory" />
+  </article>
+
+  <script>
+    import {
+      SKY_PLUMES_META,
+      awardSkyPlume,
+      countSkyPlumes,
+      getSkyPlumes,
+      type SkyPlumeKey,
+    } from '../../engine/skyInteriorShared';
+
+    const lensAngles = [180, 90, 270, 90];
+
+    function triggerObsFx(text: string, color = '#c084fc') {
+      window.dispatchEvent(new CustomEvent('town:sky-fx', { detail: { text, color } }));
+    }
+
+    function setObsDialogue(speaker: string, quote: string) {
+      const sp = document.getElementById('observatory-speaker');
+      const qt = document.getElementById('observatory-dialogue');
+      if (sp) sp.textContent = speaker;
+      if (qt) qt.textContent = `“${quote}”`;
+    }
+
+    function syncObsPlumesUi() {
+      const plumes = getSkyPlumes();
+      const total = countSkyPlumes();
+      const pill = document.getElementById('observatory-plume-status-pill');
+      const countEl = document.getElementById('observatory-plumes-count');
+      if (countEl) countEl.textContent = `${total} / 6 Plumes Collected`;
+
+      if (pill) {
+        if (plumes.starlight) {
+          pill.textContent = '🔭 Plume of Starlight: AWARDED';
+          pill.className =
+            'rounded border border-[#fde047] bg-[#3b0764] px-2 py-0.5 font-mono text-[10px] font-bold text-[#fef08a]';
+        } else {
+          pill.textContent = '🪶 Plume of Starlight: UNCLAIMED';
+          pill.className =
+            'rounded border border-[#64748b] bg-[#1e1b4b] px-2 py-0.5 font-mono text-[10px] font-bold text-[#cbd5e1]';
+        }
+      }
+
+      (Object.keys(SKY_PLUMES_META) as SkyPlumeKey[]).forEach((key) => {
+        const badge = document.querySelector<HTMLElement>(`[data-plume-badge="${key}"]`);
+        const unlocked = Boolean(plumes[key]);
+        if (badge) {
+          badge.textContent = unlocked ? 'EARNED' : 'LOCKED';
+          badge.className = unlocked
+            ? 'rounded border border-[#22c55e] bg-[#052e16] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#86efac]'
+            : 'rounded border border-[#334155] bg-[#0f172a] px-1.5 py-0.5 font-mono text-[9px] text-[#94a3b8]';
+        }
+      });
+    }
+
+    function renderLensesUi() {
+      let focused = 0;
+      lensAngles.forEach((deg, idx) => {
+        const badge = document.querySelector<HTMLElement>(`[data-lens-angle="${idx}"]`);
+        const card = document.querySelector<HTMLButtonElement>(`[data-lens-idx="${idx}"]`);
+        const ok = deg === 0;
+        if (ok) focused += 1;
+        if (badge) {
+          badge.textContent = ok ? '0° FOCUSED ✓' : `${deg}°`;
+          badge.className = ok
+            ? 'rounded border border-[#22c55e] bg-[#052e16] px-1.5 py-0.5 font-mono text-[10px] font-bold text-[#86efac]'
+            : 'rounded border border-[#6b21a8] bg-[#2e1065] px-1.5 py-0.5 font-mono text-[10px] font-bold text-[#f3e8ff]';
+        }
+        if (card) {
+          card.style.borderColor = ok ? '#22c55e' : '#6d28d9';
+        }
+      });
+
+      const banner = document.getElementById('observatory-trial-banner');
+      if (banner) {
+        if (focused === 4) {
+          awardSkyPlume('starlight');
+          banner.className =
+            'mt-4 rounded-xl border border-[#22c55e] bg-[#052e16]/75 px-4 py-3 text-xs text-[#bbf7d0]';
+          banner.innerHTML =
+            '🔭 <strong>4 / 4 Amethyst Lenses Focused!</strong> Deoxys grants the <strong class="text-[#fde047]">Plume of Starlight</strong>.';
+          triggerObsFx('🔭 PLUME OF STARLIGHT UNLOCKED!', '#fde047');
+          setObsDialogue(
+            'Deoxys · Cosmic Intelligence',
+            'Spectral clarity achieved across every benchmark! The Plume of Starlight now orbits your crest.',
+          );
+          syncObsPlumesUi();
+        } else {
+          banner.className =
+            'mt-4 rounded-xl border border-[#6b21a8] bg-[#110822] px-4 py-3 text-xs text-[#e9d5ff]';
+          banner.innerHTML = `Optic Telemetry: <strong class="text-[#fde047]">${focused} / 4</strong> Prisms Focused — rotate the remaining lenses to 0°.`;
+        }
+      }
+    }
+
+    function wireObservatoryPage() {
+      if (!document.querySelector('.observatory-page')) return;
+
+      if (getSkyPlumes().starlight) {
+        lensAngles[0] = 0;
+        lensAngles[1] = 0;
+        lensAngles[2] = 0;
+        lensAngles[3] = 0;
+      }
+      renderLensesUi();
+      syncObsPlumesUi();
+
+      const exitBtn = document.getElementById('observatory-exit-btn') as HTMLAnchorElement | null;
+      if (exitBtn && exitBtn.dataset.wired !== '1') {
+        exitBtn.dataset.wired = '1';
+        exitBtn.addEventListener('click', () => {
+          const respawn = exitBtn.getAttribute('data-respawn');
+          if (respawn) sessionStorage.setItem('sky-castle:respawn', respawn);
+        });
+      }
+
+      document.querySelectorAll<HTMLButtonElement>('[data-observatory-walk]').forEach((btn) => {
+        if (btn.dataset.wired === '1') return;
+        btn.dataset.wired = '1';
+        btn.addEventListener('click', () => {
+          const propId = btn.getAttribute('data-observatory-walk');
+          const scrollTo = btn.getAttribute('data-scroll-to');
+          const speaker = btn.getAttribute('data-speaker');
+          const quote = btn.getAttribute('data-quote');
+          const fxText = btn.getAttribute('data-fx-text');
+          const fxColor = btn.getAttribute('data-fx-color');
+
+          if (propId) {
+            document.querySelector<HTMLButtonElement>(`.town-label[data-id="${propId}"]`)?.click();
+          }
+          if (speaker && quote) setObsDialogue(speaker, quote);
+          if (fxText) triggerObsFx(fxText, fxColor || '#c084fc');
+          if (scrollTo) {
+            document.getElementById(scrollTo)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        });
+      });
+
+      document.querySelectorAll<HTMLButtonElement>('[data-lens-idx]').forEach((btn) => {
+        if (btn.dataset.wired === '1') return;
+        btn.dataset.wired = '1';
+        btn.addEventListener('click', () => {
+          const idx = Number(btn.getAttribute('data-lens-idx'));
+          if (Number.isNaN(idx)) return;
+          lensAngles[idx] = (lensAngles[idx] + 90) % 360;
+          if (lensAngles[idx] === 0) {
+            triggerObsFx(`PRISM #${idx + 1} FOCUSED!`, '#4ade80');
+          } else {
+            triggerObsFx(`PRISM #${idx + 1}: ${lensAngles[idx]}°`, '#c084fc');
+          }
+          renderLensesUi();
+        });
+      });
+
+      const resetBtn = document.getElementById('btn-observatory-reset');
+      if (resetBtn && resetBtn.dataset.wired !== '1') {
+        resetBtn.dataset.wired = '1';
+        resetBtn.addEventListener('click', () => {
+          lensAngles[0] = 180;
+          lensAngles[1] = 90;
+          lensAngles[2] = 270;
+          lensAngles[3] = 90;
+          renderLensesUi();
+          triggerObsFx('LENSES SCRAMBLED', '#94a3b8');
+        });
+      }
+    }
+
+    function handleObsSceneEvent(e: Event) {
+      const ce = e as CustomEvent<{ id?: string }>;
+      if (!document.querySelector('.observatory-page')) return;
+      const propId = ce.detail?.id;
+      if (!propId) return;
+      const station = document.querySelector<HTMLButtonElement>(`[data-observatory-walk="${propId}"]`);
+      const speaker = station?.getAttribute('data-speaker');
+      const quote = station?.getAttribute('data-quote');
+      if (speaker && quote) setObsDialogue(speaker, quote);
+    }
+
+    function handleObsKey(e: KeyboardEvent) {
+      if (!document.querySelector('.observatory-page')) return;
+      if (
+        document.activeElement instanceof HTMLInputElement ||
+        document.activeElement instanceof HTMLTextAreaElement ||
+        e.metaKey ||
+        e.ctrlKey ||
+        e.altKey
+      ) {
+        return;
+      }
+      if (e.key === 'Escape') {
+        (document.getElementById('observatory-exit-btn') as HTMLAnchorElement | null)?.click();
+        return;
+      }
+      const matched = document.querySelector<HTMLButtonElement>(
+        `.observatory-station-btn[data-hotkey="${e.key.toLowerCase()}"]`,
+      );
+      matched?.click();
+    }
+
+    window.addEventListener('sky:plume-updated', syncObsPlumesUi);
+    window.addEventListener('town:sky-prop-interact', handleObsSceneEvent);
+    window.addEventListener('keydown', handleObsKey);
+
+    wireObservatoryPage();
+    document.addEventListener('astro:page-load', wireObservatoryPage);
+  </script>
+</TownLayout>

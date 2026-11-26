@@ -21,7 +21,7 @@ export const GAMMAMON_PORTFOLIO_POSE_MAP: OverworldPoseMap = {
     back: [16, 17, 18, 19],
     east: [24, 25, 26, 27],
   },
-  action: [64, 65, 66, 67],
+  action: [64, 66, 67, 65],
   nativeFacing: 'left',
 };
 
@@ -44,10 +44,13 @@ export async function adaptGammamonForPortfolio(
     const battleLarge = set.groups.battleLarge ?? battle;
     const hd = set.groups.hd ?? [];
 
-    // DigiDex Battle Idle plays South idle frames from `idle.jpg`,
-    // while Signature Attack unleashes the Steam-Stack Cannon & axe-tail sweep from `battle.jpg`.
+    // DigiDex Battle Idle plays South idle frames from `idle.webp`,
+    // while Signature Attack unleashes Thruster Ignite (B0) into the blazing Axe-Tail Crescent Sweep (B2/B3).
     const largeIdle = idleLarge.length >= 4 ? idleLarge.slice(0, 4) : hd.slice(0, 1);
-    const largeAttack = battleLarge.slice(0, 4);
+    const largeAttack =
+      battleLarge.length >= 4
+        ? [battleLarge[0], battleLarge[2], battleLarge[3], battleLarge[1]]
+        : battleLarge.slice(0, 4);
     const overworld = [...idle, ...walk, ...battle];
 
     return {

@@ -50,17 +50,17 @@ const WALK_CELLS: readonly (readonly FrameRect[])[] = [
   ],
   // Row 2: E (right) & mirrored W — torsos aligned within 0.3px (~119.9px from cell left)
   [
-    { x: 0, y: 508, w: 249, h: 253 },
-    { x: 258, y: 508, w: 247, h: 253 },
-    { x: 511, y: 508, w: 246, h: 253 },
-    { x: 772, y: 508, w: 246, h: 253 },
+    { x: 0, y: 507, w: 249, h: 254 },
+    { x: 258, y: 507, w: 247, h: 254 },
+    { x: 511, y: 507, w: 246, h: 254 },
+    { x: 772, y: 507, w: 246, h: 254 },
   ],
   // Row 3: N (C0/C1 straight back) & NE/NW (C2/C3 3/4 back-right)
   [
-    { x: 0, y: 760, w: 250, h: 259 },
-    { x: 256, y: 760, w: 250, h: 259 },
-    { x: 526, y: 760, w: 245, h: 259 },
-    { x: 778, y: 760, w: 244, h: 259 },
+    { x: 0, y: 762, w: 250, h: 257 },
+    { x: 256, y: 762, w: 250, h: 257 },
+    { x: 526, y: 762, w: 245, h: 257 },
+    { x: 778, y: 762, w: 244, h: 257 },
   ],
 ];
 
@@ -76,23 +76,24 @@ export interface CellStep {
 }
 
 /**
- * Verified 4-step breathing/claw sequences per direction in `idle.jpg`.
+ * Verified 4-step breathing/claw sequences per direction in `idle.webp`.
+ * Uses clean unclipped cells (Col 6 for W/E, Rows 0..1 for S/SW/N) so wing tips never crop.
  */
 export const BELPHEMON_X_IDLE_STEPS_BY_DIR: Record<Direction8, readonly CellStep[]> = {
   S: [
     { row: 0, col: 0 },
     { row: 1, col: 0 },
-    { row: 3, col: 0 },
+    { row: 0, col: 0 },
     { row: 1, col: 0 },
   ],
   SW: [
     { row: 0, col: 1 },
     { row: 1, col: 1 },
-    { row: 3, col: 1 },
+    { row: 0, col: 1 },
     { row: 1, col: 1 },
   ],
   W: [
-    { row: 0, col: 5 },
+    { row: 0, col: 6 },
     { row: 1, col: 6 },
     { row: 0, col: 6 },
     { row: 1, col: 6 },
@@ -116,10 +117,10 @@ export const BELPHEMON_X_IDLE_STEPS_BY_DIR: Record<Direction8, readonly CellStep
     { row: 3, col: 6, flipX: true },
   ],
   E: [
-    { row: 0, col: 2 },
-    { row: 1, col: 2 },
-    { row: 0, col: 3 },
-    { row: 1, col: 3 },
+    { row: 0, col: 6, flipX: true },
+    { row: 1, col: 6, flipX: true },
+    { row: 0, col: 6, flipX: true },
+    { row: 1, col: 6, flipX: true },
   ],
   SE: [
     { row: 0, col: 7 },
@@ -130,17 +131,17 @@ export const BELPHEMON_X_IDLE_STEPS_BY_DIR: Record<Direction8, readonly CellStep
 };
 
 /**
- * Verified 4-step bipedal walking strides in generated `walk-cycle-v2.jpg` (4x4):
- * - `S`    : Row 1 `[c0, c1, c2, c3]` alternating left/right knee-lift march.
+ * Verified 4-step bipedal walking strides in generated `walk-cycle-v2.webp` (4x4):
+ * - `S`    : alternating Row 1 `[c0, c1, c0_flipX, c3]` knee-lift march without the glowing-fist flash on c2.
  * - `E/SE` : Row 2 `[c0, c1, c2, c3]` right-facing 4-step stride with full wing clearance.
  * - `W/SW` : horizontally mirrors Row 2 (`flipX: true`).
- * - `N`    : Row 3 `[c0, c1, c0, c1]` straight-North rear boots; `NE`/`NW` use Row 3 `[c2, c3]`.
+ * - `N`    : alternating Row 3 `[c0, c1, c0_flipX, c1_flipX]` straight-North rear boots; `NE`/`NW` use Row 3 `[c2, c3]`.
  */
 export const BELPHEMON_X_WALK_STEPS_BY_DIR: Record<Direction8, readonly CellStep[]> = {
   S: [
     { row: 1, col: 0 },
     { row: 1, col: 1 },
-    { row: 1, col: 2 },
+    { row: 1, col: 0, flipX: true },
     { row: 1, col: 3 },
   ],
   SW: [
@@ -164,8 +165,8 @@ export const BELPHEMON_X_WALK_STEPS_BY_DIR: Record<Direction8, readonly CellStep
   N: [
     { row: 3, col: 0 },
     { row: 3, col: 1 },
-    { row: 3, col: 0 },
-    { row: 3, col: 1 },
+    { row: 3, col: 0, flipX: true },
+    { row: 3, col: 1, flipX: true },
   ],
   NE: [
     { row: 3, col: 2 },
@@ -211,12 +212,12 @@ export const BELPHEMON_X_ICON_RECT: FrameRect = {
  * so index 7 (`SE`) mirrors index 1 (`SW`) horizontally in `belphemon_x.loader.ts`.
  */
 export const BELPHEMON_X_HD_RECTS: readonly FrameRect[] = [
-  { x: 35, y: 910, w: 790, h: 652 },   // S
+  { x: 22, y: 906, w: 816, h: 656 },   // S
   { x: 855, y: 910, w: 615, h: 652 },  // SW
   { x: 1490, y: 910, w: 385, h: 652 }, // W
   { x: 1890, y: 910, w: 485, h: 652 }, // NW
-  { x: 40, y: 184, w: 950, h: 648 },   // N
-  { x: 1030, y: 184, w: 790, h: 648 }, // NE
+  { x: 28, y: 180, w: 976, h: 652 },   // N
+  { x: 1022, y: 180, w: 806, h: 652 }, // NE
   { x: 1840, y: 184, w: 520, h: 648 }, // E
   { x: 855, y: 910, w: 615, h: 652 },  // SE (horizontally flipped in loader)
 ];

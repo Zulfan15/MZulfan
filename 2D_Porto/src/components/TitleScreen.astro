@@ -1,0 +1,1735 @@
+---
+import { profile } from '../lib/profile';
+
+const socials = profile.socials;
+const cvUrl = profile.person.cv;
+const shortName = profile.person.short_name;
+const fullName = profile.person.name;
+
+const socialEmoji: Record<string, string> = {
+  github: '🐙',
+  linkedin: '💼',
+  mail: '✉️',
+  globe: '🌐',
+};
+---
+
+<div
+  id="title-screen"
+  class="title-overlay"
+  role="dialog"
+  aria-modal="true"
+  aria-label={`${shortName}'s Town Title Screen`}
+  hidden
+>
+  <!-- Visual Backdrop Layers -->
+  <div class="title-bg-fallback" aria-hidden="true"></div>
+  <div class="title-bg-gradient" aria-hidden="true"></div>
+  <div class="title-stars" aria-hidden="true"></div>
+  <div class="title-clouds" aria-hidden="true">
+    <span class="title-cloud title-cloud--1"></span>
+    <span class="title-cloud title-cloud--2"></span>
+    <span class="title-cloud title-cloud--3"></span>
+  </div>
+  <div class="title-wipe" aria-hidden="true"></div>
+
+  <!-- Main Title Stage -->
+  <div class="title-stage">
+    <!-- Hero: Animated Rayquaza + Pixel Emblem -->
+    <div id="title-hero" class="title-hero">
+      <div class="title-rayquaza-wrap" aria-hidden="true">
+        <div class="title-rayquaza-halo"></div>
+        <div class="title-rayquaza"></div>
+      </div>
+
+      <div class="title-emblem">
+        <span class="title-pill">SKY HIGH EDITION · PORT 4321</span>
+        <h1 class="title-logo">ZULFAN'S TOWN</h1>
+        <p class="title-subtitle">INTERACTIVE PIXEL PORTFOLIO</p>
+      </div>
+    </div>
+
+    <!-- State Views -->
+    <div class="title-views">
+      <!-- 1. SPLASH -->
+      <section class="title-view" data-title-view="splash" aria-label="Press Start">
+        <button type="button" id="title-press-start" class="title-press-start">
+          PRESS START
+        </button>
+        <p class="title-hint">Press Enter / Space or Click anywhere</p>
+      </section>
+
+      <!-- 2. MAIN MENU -->
+      <section class="title-view" data-title-view="menu" aria-label="Main Menu" hidden>
+        <div class="window title-menu-box">
+          <ul class="title-menu-list" role="menu" aria-label="Game Menu">
+            <li role="none">
+              <button
+                type="button"
+                role="menuitem"
+                class="title-menu-item is-selected"
+                data-menu-idx="0"
+                data-menu-action="start"
+              >
+                <span class="title-cursor" aria-hidden="true">▶</span>
+                <span id="title-start-label">START</span>
+              </button>
+            </li>
+            <li role="none">
+              <button
+                type="button"
+                role="menuitem"
+                class="title-menu-item"
+                data-menu-idx="1"
+                data-menu-action="settings"
+              >
+                <span class="title-cursor" aria-hidden="true">▶</span>
+                <span>SETTINGS</span>
+              </button>
+            </li>
+            <li role="none">
+              <button
+                type="button"
+                role="menuitem"
+                class="title-menu-item"
+                data-menu-idx="2"
+                data-menu-action="quit"
+              >
+                <span class="title-cursor" aria-hidden="true">▶</span>
+                <span>QUIT</span>
+              </button>
+            </li>
+          </ul>
+        </div>
+
+        <div id="title-save-info" class="title-save-info" hidden>
+          <span class="title-save-badge">SAVE FILE</span>
+          <span id="title-save-summary">TRAINER · 0/5 Stamps · 0/8 Badges · 0/12 Dex</span>
+        </div>
+
+        <p class="title-hint">↑↓ / W S Move · Enter Select · Esc Back</p>
+      </section>
+
+      <!-- 3. SETTINGS -->
+      <section class="title-view" data-title-view="settings" aria-label="Settings" hidden>
+        <div class="window title-settings-box">
+          <div class="title-settings-header">
+            <h2 class="title-settings-title">⚙ SETTINGS</h2>
+            <span class="title-settings-esc">ESC: BACK</span>
+          </div>
+
+          <div class="title-settings-list" id="title-settings-list">
+            <!-- Row 0: SFX -->
+            <div class="title-setting-row is-selected" data-setting-row="0" data-setting-key="sfx">
+              <span class="title-setting-label">
+                <span class="title-cursor" aria-hidden="true">▶</span>
+                <span>Sound Effects</span>
+              </span>
+              <button type="button" id="set-sfx-btn" class="title-setting-ctrl" tabindex="-1">
+                ON
+              </button>
+            </div>
+
+            <!-- Row 1: BGM -->
+            <div class="title-setting-row" data-setting-row="1" data-setting-key="bgm">
+              <span class="title-setting-label">
+                <span class="title-cursor" aria-hidden="true">▶</span>
+                <span>Music (BGM)</span>
+              </span>
+              <button type="button" id="set-bgm-btn" class="title-setting-ctrl" tabindex="-1">
+                ON
+              </button>
+            </div>
+
+            <!-- Row 2: Music Theme -->
+            <div class="title-setting-row" data-setting-row="2" data-setting-key="bgmTheme">
+              <span class="title-setting-label">
+                <span class="title-cursor" aria-hidden="true">▶</span>
+                <span>Music Theme</span>
+              </span>
+              <div class="title-cycle-ctrl">
+                <button type="button" class="title-arrow-btn" data-cycle="bgmTheme" data-dir="-1" aria-label="Previous music theme">◀</button>
+                <span id="set-bgm-theme-val" class="title-cycle-val">Day</span>
+                <button type="button" class="title-arrow-btn" data-cycle="bgmTheme" data-dir="1" aria-label="Next music theme">▶</button>
+              </div>
+            </div>
+
+            <!-- Row 3: Time of Day -->
+            <div class="title-setting-row" data-setting-row="3" data-setting-key="atmosphere">
+              <span class="title-setting-label">
+                <span class="title-cursor" aria-hidden="true">▶</span>
+                <span>Time of Day</span>
+              </span>
+              <div class="title-cycle-ctrl">
+                <button type="button" class="title-arrow-btn" data-cycle="atmosphere" data-dir="-1" aria-label="Previous time of day">◀</button>
+                <span id="set-atmosphere-val" class="title-cycle-val">Day</span>
+                <button type="button" class="title-arrow-btn" data-cycle="atmosphere" data-dir="1" aria-label="Next time of day">▶</button>
+              </div>
+            </div>
+
+            <!-- Row 4: Weather -->
+            <div class="title-setting-row" data-setting-row="4" data-setting-key="weather">
+              <span class="title-setting-label">
+                <span class="title-cursor" aria-hidden="true">▶</span>
+                <span>Weather</span>
+              </span>
+              <div class="title-cycle-ctrl">
+                <button type="button" class="title-arrow-btn" data-cycle="weather" data-dir="-1" aria-label="Previous weather">◀</button>
+                <span id="set-weather-val" class="title-cycle-val">Petals</span>
+                <button type="button" class="title-arrow-btn" data-cycle="weather" data-dir="1" aria-label="Next weather">▶</button>
+              </div>
+            </div>
+
+            <!-- Row 5: Trainer Name -->
+            <div class="title-setting-row" data-setting-row="5" data-setting-key="trainerName">
+              <label for="title-trainer-input" class="title-setting-label">
+                <span class="title-cursor" aria-hidden="true">▶</span>
+                <span>Trainer Name</span>
+              </label>
+              <input
+                id="title-trainer-input"
+                type="text"
+                maxlength="12"
+                value="TRAINER"
+                autocomplete="off"
+                spellcheck="false"
+                class="title-text-input"
+                aria-label="Trainer Name"
+              />
+            </div>
+
+            <!-- Row 6: Panel Layout -->
+            <div class="title-setting-row" data-setting-row="6" data-setting-key="panelLayout">
+              <span class="title-setting-label">
+                <span class="title-cursor" aria-hidden="true">▶</span>
+                <span>Panel Layout</span>
+              </span>
+              <div class="title-cycle-ctrl">
+                <button type="button" class="title-arrow-btn" data-cycle="panelLayout" data-dir="-1" aria-label="Previous panel layout">◀</button>
+                <span id="set-layout-val" class="title-cycle-val">50:50 Split</span>
+                <button type="button" class="title-arrow-btn" data-cycle="panelLayout" data-dir="1" aria-label="Next panel layout">▶</button>
+              </div>
+            </div>
+
+            <!-- Row 7: Skip Title Screen -->
+            <div class="title-setting-row" data-setting-row="7" data-setting-key="skipTitle">
+              <span class="title-setting-label">
+                <span class="title-cursor" aria-hidden="true">▶</span>
+                <span>Skip Title Screen</span>
+              </span>
+              <button type="button" id="set-skip-btn" class="title-setting-ctrl" tabindex="-1">
+                OFF
+              </button>
+            </div>
+
+            <!-- Row 8: Reset Save Data -->
+            <div class="title-setting-row" data-setting-row="8" data-setting-key="reset">
+              <span class="title-setting-label">
+                <span class="title-cursor" aria-hidden="true">▶</span>
+                <span>Save Data</span>
+              </span>
+              <div class="flex items-center gap-2">
+                <span id="set-reset-msg" class="title-reset-msg" hidden>Cleared!</span>
+                <button type="button" id="set-reset-btn" class="btn btn-primary btn-sm" tabindex="-1">
+                  Reset Save Data
+                </button>
+              </div>
+            </div>
+
+            <!-- Row 9: BACK -->
+            <div class="title-setting-row title-setting-row--back" data-setting-row="9" data-setting-key="back">
+              <button type="button" id="set-back-btn" class="title-back-btn" tabindex="-1">
+                <span class="title-cursor" aria-hidden="true">▶</span>
+                <span>BACK TO MENU</span>
+              </button>
+            </div>
+          </div>
+        </div>
+        <p class="title-hint">↑↓ Row · ◀ ▶ / Enter Change · Esc Back</p>
+      </section>
+
+      <!-- 4. QUIT CONFIRM -->
+      <section class="title-view" data-title-view="quitConfirm" aria-label="Confirm Quit" hidden>
+        <div class="window title-confirm-box">
+          <p class="title-confirm-q">Are you sure you want to quit?</p>
+          <div class="title-confirm-actions">
+            <button
+              type="button"
+              class="title-menu-item is-selected"
+              data-quit-idx="0"
+              data-quit-action="no"
+            >
+              <span class="title-cursor" aria-hidden="true">▶</span>
+              <span>NO</span>
+            </button>
+            <button
+              type="button"
+              class="title-menu-item"
+              data-quit-idx="1"
+              data-quit-action="yes"
+            >
+              <span class="title-cursor" aria-hidden="true">▶</span>
+              <span>YES</span>
+            </button>
+          </div>
+        </div>
+        <p class="title-hint">← → / ↑ ↓ Choose · Enter Confirm · Esc Cancel</p>
+      </section>
+
+      <!-- 5. FAREWELL (GAME OVER / CREDITS) -->
+      <section class="title-view" data-title-view="farewell" aria-label="Thanks for visiting" hidden>
+        <div class="window-dark title-farewell-box">
+          <p class="title-farewell-badge">SESSION ENDED</p>
+          <h2 class="title-farewell-title">THANKS FOR VISITING! 👋</h2>
+          <p class="title-farewell-sub">
+            See you next time in {shortName}'s Town. Feel free to reach out anytime:
+          </p>
+
+          <div class="title-farewell-links">
+            {socials.map((s) => (
+              <a
+                href={s.url}
+                target={s.url.startsWith('mailto:') ? undefined : '_blank'}
+                rel={s.url.startsWith('mailto:') ? undefined : 'noopener noreferrer'}
+                class="btn btn-sm title-social-btn"
+              >
+                <span aria-hidden="true">{socialEmoji[s.icon] || '🔗'}</span>
+                <span>{s.label}</span>
+              </a>
+            ))}
+            <a
+              href={cvUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="btn btn-gold btn-sm"
+            >
+              <span aria-hidden="true">📄</span>
+              <span>Download CV</span>
+            </a>
+          </div>
+
+          <div class="pt-2">
+            <button type="button" id="title-farewell-return" class="btn btn-primary">
+              RETURN TO TITLE
+            </button>
+          </div>
+          <p class="title-farewell-hint">Press any key or click Return to go back to the title screen</p>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="title-footer">
+    © 2026 {fullName} · v0.1.0
+  </footer>
+</div>
+
+<style is:global>
+  html[data-title="on"],
+  html[data-title="on"] body {
+    overflow: hidden !important;
+  }
+
+  html[data-title="on"] .shell {
+    pointer-events: none;
+  }
+
+  .title-overlay {
+    display: none;
+  }
+
+  html[data-title="on"] .title-overlay:not([hidden]) {
+    position: fixed;
+    inset: 0;
+    z-index: 900;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    overflow: hidden;
+    user-select: none;
+    background-color: rgba(28, 23, 38, 0.45);
+  }
+
+  .title-bg-fallback {
+    position: absolute;
+    inset: 0;
+    background: url('/town_map.jpg') center / cover no-repeat;
+    opacity: 0.25;
+    filter: blur(4px);
+    z-index: 0;
+  }
+
+  .title-bg-gradient {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      180deg,
+      rgba(154, 216, 240, 0.34) 0%,
+      rgba(79, 154, 62, 0.36) 44%,
+      rgba(28, 23, 38, 0.88) 100%
+    );
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    z-index: 1;
+  }
+
+  .title-stars {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background-image:
+      radial-gradient(2px 2px at 14% 18%, rgba(255, 250, 240, 0.75) 50%, transparent 51%),
+      radial-gradient(2px 2px at 32% 11%, rgba(247, 201, 72, 0.8) 50%, transparent 51%),
+      radial-gradient(2px 2px at 76% 16%, rgba(255, 250, 240, 0.75) 50%, transparent 51%),
+      radial-gradient(2px 2px at 88% 28%, rgba(139, 209, 106, 0.85) 50%, transparent 51%),
+      radial-gradient(2px 2px at 22% 36%, rgba(255, 250, 240, 0.65) 50%, transparent 51%),
+      radial-gradient(2px 2px at 64% 9%, rgba(255, 250, 240, 0.7) 50%, transparent 51%);
+    animation: title-twinkle 3.2s steps(2, start) infinite;
+  }
+
+  .title-clouds {
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 36%;
+    z-index: 2;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .title-cloud {
+    position: absolute;
+    width: 96px;
+    height: 24px;
+    background: rgba(255, 250, 240, 0.45);
+    box-shadow:
+      16px -12px 0 0 rgba(255, 250, 240, 0.45),
+      40px -8px 0 0 rgba(255, 250, 240, 0.4),
+      -12px 4px 0 0 rgba(255, 250, 240, 0.35);
+    image-rendering: pixelated;
+  }
+
+  .title-cloud--1 {
+    top: 14%;
+    left: -140px;
+    animation: title-cloud-drift 42s linear infinite;
+  }
+
+  .title-cloud--2 {
+    top: 32%;
+    left: -180px;
+    transform: scale(0.8);
+    opacity: 0.75;
+    animation: title-cloud-drift 58s linear 12s infinite;
+  }
+
+  .title-cloud--3 {
+    top: 22%;
+    left: -160px;
+    transform: scale(1.1);
+    opacity: 0.6;
+    animation: title-cloud-drift 50s linear 26s infinite;
+  }
+
+  /* Pokémon-style wipe shutter on START */
+  .title-wipe {
+    position: absolute;
+    inset: 0;
+    z-index: 950;
+    pointer-events: none;
+    background: var(--color-ink);
+    opacity: 0;
+    clip-path: circle(0% at 50% 50%);
+  }
+
+  .title-overlay.is-exiting .title-wipe {
+    opacity: 1;
+    animation: title-iris-wipe 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  .title-overlay.is-exiting .title-stage,
+  .title-overlay.is-exiting .title-footer {
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+
+  .title-stage {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 680px;
+    gap: 1rem;
+    padding-bottom: 1.75rem;
+  }
+
+  .title-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.35rem;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+  }
+
+  .title-hero.is-compact {
+    gap: 0.2rem;
+  }
+
+  .title-hero.is-compact .title-rayquaza-wrap {
+    margin-bottom: -18px;
+    transform: scale(0.65);
+  }
+
+  .title-hero.is-farewell {
+    opacity: 0.4;
+    transform: scale(0.75);
+    margin-bottom: -12px;
+  }
+
+  .title-rayquaza-wrap {
+    position: relative;
+    width: 160px;
+    height: 178px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: -6px;
+    animation: bob 2s ease-in-out infinite;
+    transition: transform 0.2s ease;
+  }
+
+  .title-rayquaza-halo {
+    position: absolute;
+    width: 120px;
+    height: 120px;
+    border-radius: 9999px;
+    background: radial-gradient(circle, rgba(139, 209, 106, 0.42) 0%, rgba(247, 201, 72, 0.16) 48%, transparent 72%);
+    pointer-events: none;
+  }
+
+  .title-rayquaza {
+    width: 160px;
+    height: 240px;
+    background-image: url('/assets/pokemon/rayquaza/Idle-Anim.png');
+    background-repeat: no-repeat;
+    background-size: 640px 1920px;
+    background-position: 0 0;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    filter: drop-shadow(0 6px 0 rgba(28, 23, 38, 0.72)) drop-shadow(0 0 12px rgba(139, 209, 106, 0.6));
+    animation: rayquaza-idle 0.85s steps(4, end) infinite;
+    transform: scale(0.84);
+    transform-origin: center center;
+  }
+
+  .title-emblem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.45rem;
+  }
+
+  .title-pill {
+    display: inline-block;
+    padding: 0.22rem 0.7rem;
+    border: 2px solid var(--color-ink);
+    border-radius: 9999px;
+    background: var(--color-grass);
+    color: var(--color-ink);
+    font-family: var(--font-pixel);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    box-shadow: var(--shadow-pixel-sm);
+  }
+
+  .title-logo {
+    margin: 0;
+    font-family: "Press Start 2P", var(--font-pixel), monospace;
+    font-size: clamp(1.5rem, 4.6vw, 2.75rem);
+    line-height: 1.2;
+    color: var(--color-gold);
+    letter-spacing: 0.04em;
+    text-shadow:
+      -3px -3px 0 var(--color-ink),
+       3px -3px 0 var(--color-ink),
+      -3px  3px 0 var(--color-ink),
+       3px  3px 0 var(--color-ink),
+       0px  6px 0 var(--color-ink),
+       0px 10px 18px rgba(0, 0, 0, 0.55);
+  }
+
+  .title-subtitle {
+    margin: 0;
+    font-family: var(--font-pixel);
+    font-size: clamp(0.82rem, 2vw, 1.05rem);
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    color: var(--color-paper);
+    text-shadow: 0 2px 0 var(--color-ink);
+  }
+
+  .title-views {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .title-view {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .title-view[hidden] {
+    display: none;
+  }
+
+  .title-press-start {
+    margin-top: 0.75rem;
+    padding: 0.75rem 1.75rem;
+    border: 3px solid var(--color-ink);
+    border-radius: 0.75rem;
+    background: var(--color-ball);
+    color: var(--color-paper);
+    font-family: "Press Start 2P", var(--font-pixel), monospace;
+    font-size: clamp(0.85rem, 2.2vw, 1.05rem);
+    letter-spacing: 0.1em;
+    box-shadow: 0 4px 0 0 var(--color-ink), 0 0 22px rgba(247, 201, 72, 0.35);
+    cursor: pointer;
+    animation: title-press-pulse 1.2s steps(2, start) infinite;
+  }
+
+  .title-press-start:hover {
+    background: var(--color-berry);
+    transform: translateY(-2px);
+  }
+
+  .title-hint {
+    margin: 0;
+    font-family: var(--font-terminal);
+    font-size: 1.05rem;
+    letter-spacing: 0.05em;
+    color: var(--color-cream);
+    text-shadow: 0 2px 0 var(--color-ink);
+    text-align: center;
+  }
+
+  .title-menu-box {
+    width: min(90vw, 310px);
+    padding: 0.85rem 1rem;
+  }
+
+  .title-menu-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .title-menu-item {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.55rem 0.75rem;
+    border: 2px solid transparent;
+    border-radius: 0.45rem;
+    background: transparent;
+    color: var(--color-ink);
+    font-family: "Press Start 2P", var(--font-pixel), monospace;
+    font-size: 0.85rem;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.08s ease, transform 0.08s ease;
+  }
+
+  .title-menu-item:hover,
+  .title-menu-item.is-selected {
+    background: var(--color-cream);
+    border-color: var(--color-ink);
+    box-shadow: var(--shadow-pixel-sm);
+  }
+
+  .title-cursor {
+    display: inline-block;
+    width: 1em;
+    color: var(--color-ball);
+    opacity: 0;
+    font-family: var(--font-pixel);
+    font-size: 0.85rem;
+  }
+
+  .title-menu-item.is-selected .title-cursor,
+  .title-setting-row.is-selected .title-cursor {
+    opacity: 1;
+    animation: title-cursor-nudge 0.7s steps(2, start) infinite;
+  }
+
+  .title-save-info {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.35rem 0.75rem;
+    border: 2px solid var(--color-ink);
+    border-radius: 0.5rem;
+    background: rgba(255, 250, 240, 0.94);
+    color: var(--color-ink);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 600;
+    box-shadow: var(--shadow-pixel-sm);
+  }
+
+  .title-save-info[hidden] {
+    display: none;
+  }
+
+  .title-save-badge {
+    padding: 0.1rem 0.4rem;
+    border-radius: 0.25rem;
+    background: var(--color-gold);
+    border: 1.5px solid var(--color-ink);
+    font-family: var(--font-pixel);
+    font-size: 0.62rem;
+    font-weight: 700;
+  }
+
+  /* Settings Window */
+  .title-settings-box {
+    width: min(94vw, 520px);
+    padding: 0.85rem 1rem;
+  }
+
+  .title-settings-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 0.55rem;
+    margin-bottom: 0.5rem;
+    border-bottom: 2px solid var(--color-sand);
+  }
+
+  .title-settings-title {
+    margin: 0;
+    font-family: "Press Start 2P", var(--font-pixel), monospace;
+    font-size: 0.82rem;
+    color: var(--color-ink);
+  }
+
+  .title-settings-esc {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 0.15rem 0.4rem;
+    border-radius: 0.25rem;
+    background: var(--color-cream);
+    border: 1.5px solid var(--color-ink);
+    color: var(--color-ink-soft);
+  }
+
+  .title-settings-list {
+    max-height: min(52dvh, 380px);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.28rem;
+    padding-right: 0.25rem;
+  }
+
+  .title-setting-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.42rem 0.55rem;
+    border: 2px solid transparent;
+    border-radius: 0.45rem;
+    cursor: pointer;
+  }
+
+  .title-setting-row.is-selected {
+    background: var(--color-cream);
+    border-color: var(--color-ink);
+  }
+
+  .title-setting-label {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--font-pixel);
+    font-size: 0.84rem;
+    font-weight: 700;
+    color: var(--color-ink);
+    cursor: pointer;
+  }
+
+  .title-setting-ctrl {
+    min-width: 68px;
+    padding: 0.24rem 0.6rem;
+    border: 2px solid var(--color-ink);
+    border-radius: 0.35rem;
+    background: var(--color-grass);
+    color: var(--color-ink);
+    font-family: var(--font-pixel);
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: var(--shadow-pixel-sm);
+  }
+
+  .title-setting-ctrl.is-off {
+    background: var(--color-sand);
+    color: var(--color-ink-soft);
+  }
+
+  .title-cycle-ctrl {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .title-arrow-btn {
+    width: 26px;
+    height: 26px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--color-ink);
+    border-radius: 0.3rem;
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-size: 0.68rem;
+    cursor: pointer;
+  }
+
+  .title-arrow-btn:hover {
+    background: var(--color-gold);
+  }
+
+  .title-cycle-val {
+    min-width: 96px;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--color-ink);
+  }
+
+  .title-text-input {
+    width: 136px;
+    padding: 0.25rem 0.5rem;
+    border: 2px solid var(--color-ink);
+    border-radius: 0.35rem;
+    background: #ffffff;
+    color: var(--color-ink);
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  .title-reset-msg {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--color-grass-dark);
+  }
+
+  .title-reset-msg[hidden] {
+    display: none;
+  }
+
+  .title-setting-row--back {
+    margin-top: 0.35rem;
+    padding-top: 0.5rem;
+    border-top: 2px dashed var(--color-sand);
+    justify-content: center;
+  }
+
+  .title-back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.3rem 0.9rem;
+    border: none;
+    background: transparent;
+    font-family: "Press Start 2P", var(--font-pixel), monospace;
+    font-size: 0.72rem;
+    color: var(--color-ink);
+    cursor: pointer;
+  }
+
+  /* Quit Confirm */
+  .title-confirm-box {
+    width: min(90vw, 360px);
+    padding: 1.15rem 1.25rem;
+    text-align: center;
+  }
+
+  .title-confirm-q {
+    margin: 0 0 1rem 0;
+    font-family: var(--font-pixel);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-ink);
+  }
+
+  .title-confirm-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.65rem;
+  }
+
+  .title-confirm-actions .title-menu-item {
+    justify-content: center;
+  }
+
+  /* Farewell Screen */
+  .title-farewell-box {
+    width: min(92vw, 480px);
+    padding: 1.4rem 1.5rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .title-farewell-badge {
+    margin: 0;
+    padding: 0.2rem 0.65rem;
+    border: 1.5px solid var(--color-mc-line);
+    border-radius: 9999px;
+    background: var(--color-mc-bg);
+    color: var(--color-signal);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+  }
+
+  .title-farewell-title {
+    margin: 0;
+    font-family: "Press Start 2P", var(--font-pixel), monospace;
+    font-size: clamp(1rem, 3vw, 1.35rem);
+    color: var(--color-gold);
+    line-height: 1.4;
+  }
+
+  .title-farewell-sub {
+    margin: 0;
+    font-family: var(--font-sans);
+    font-size: 0.85rem;
+    color: var(--color-mc-text);
+  }
+
+  .title-farewell-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+    padding-top: 0.25rem;
+  }
+
+  .title-social-btn {
+    background: var(--color-paper);
+    color: var(--color-ink);
+  }
+
+  .title-farewell-hint {
+    margin: 0;
+    font-family: var(--font-terminal);
+    font-size: 1rem;
+    color: var(--color-amber);
+    animation: blink 1.2s steps(2, start) infinite;
+  }
+
+  .title-footer {
+    position: absolute;
+    bottom: 0.75rem;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    text-align: center;
+    font-family: var(--font-terminal);
+    font-size: 1.05rem;
+    color: var(--color-cream);
+    text-shadow: 0 2px 0 var(--color-ink);
+    pointer-events: none;
+  }
+
+  @keyframes rayquaza-idle {
+    from {
+      background-position: 0 0;
+    }
+    to {
+      background-position: -640px 0;
+    }
+  }
+
+  @keyframes title-cloud-drift {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(calc(100vw + 340px));
+    }
+  }
+
+  @keyframes title-twinkle {
+    0%, 100% {
+      opacity: 0.85;
+    }
+    50% {
+      opacity: 0.35;
+    }
+  }
+
+  @keyframes title-press-pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.55;
+    }
+  }
+
+  @keyframes title-cursor-nudge {
+    0%, 100% {
+      transform: translateX(0);
+    }
+    50% {
+      transform: translateX(3px);
+    }
+  }
+
+  @keyframes title-iris-wipe {
+    0% {
+      clip-path: circle(0% at 50% 50%);
+    }
+    55% {
+      clip-path: circle(120% at 50% 50%);
+      opacity: 1;
+    }
+    100% {
+      clip-path: circle(150% at 50% 50%);
+      opacity: 0;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .title-rayquaza-wrap {
+      height: 138px;
+      margin-bottom: -10px;
+    }
+    .title-rayquaza {
+      transform: scale(0.64);
+    }
+    .title-cycle-val {
+      min-width: 78px;
+      font-size: 0.68rem;
+    }
+    .title-text-input {
+      width: 112px;
+    }
+    .title-setting-label {
+      font-size: 0.76rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .title-rayquaza,
+    .title-rayquaza-wrap,
+    .title-cloud,
+    .title-stars,
+    .title-press-start,
+    .title-cursor,
+    .title-farewell-hint {
+      animation: none !important;
+    }
+    .title-overlay.is-exiting .title-wipe {
+      animation: none !important;
+      opacity: 0;
+    }
+  }
+</style>
+
+<script>
+  import { sfx, BGM_TRACKS, type BgmTheme } from '../game/sfx';
+  import { gameStore } from '../game/store';
+
+  type TitleState = 'splash' | 'menu' | 'settings' | 'quitConfirm' | 'farewell';
+
+  const ATMOSPHERES = [
+    { id: 'day', label: 'Day' },
+    { id: 'sunset', label: 'Sunset' },
+    { id: 'night', label: 'Night' },
+  ] as const;
+
+  const WEATHERS = [
+    { id: 'petals', label: 'Petals' },
+    { id: 'rain', label: 'Rain' },
+    { id: 'stars', label: 'Stars' },
+  ] as const;
+
+  const LAYOUTS = [
+    { id: 'canvas', label: 'Map Focus' },
+    { id: 'split', label: '50:50 Split' },
+    { id: 'reader', label: 'Reader' },
+  ] as const;
+
+  function initTitleScreen() {
+    const overlay = document.getElementById('title-screen') as HTMLElement | null;
+    if (!overlay) return;
+
+    const w = window as unknown as { __titleScreenBound?: boolean };
+    if (w.__titleScreenBound) return;
+    w.__titleScreenBound = true;
+
+    const hero = document.getElementById('title-hero') as HTMLElement | null;
+    const views = Array.from(overlay.querySelectorAll<HTMLElement>('[data-title-view]'));
+    const pressStartBtn = document.getElementById('title-press-start') as HTMLButtonElement | null;
+    const startLabel = document.getElementById('title-start-label') as HTMLElement | null;
+    const saveInfo = document.getElementById('title-save-info') as HTMLElement | null;
+    const saveSummary = document.getElementById('title-save-summary') as HTMLElement | null;
+
+    const menuItems = Array.from(overlay.querySelectorAll<HTMLButtonElement>('[data-menu-idx]'));
+    const quitItems = Array.from(overlay.querySelectorAll<HTMLButtonElement>('[data-quit-idx]'));
+    const settingRows = Array.from(overlay.querySelectorAll<HTMLElement>('[data-setting-row]'));
+
+    const sfxBtn = document.getElementById('set-sfx-btn') as HTMLButtonElement | null;
+    const bgmBtn = document.getElementById('set-bgm-btn') as HTMLButtonElement | null;
+    const bgmThemeVal = document.getElementById('set-bgm-theme-val') as HTMLElement | null;
+    const atmosphereVal = document.getElementById('set-atmosphere-val') as HTMLElement | null;
+    const weatherVal = document.getElementById('set-weather-val') as HTMLElement | null;
+    const trainerInput = document.getElementById('title-trainer-input') as HTMLInputElement | null;
+    const layoutVal = document.getElementById('set-layout-val') as HTMLElement | null;
+    const skipBtn = document.getElementById('set-skip-btn') as HTMLButtonElement | null;
+    const resetBtn = document.getElementById('set-reset-btn') as HTMLButtonElement | null;
+    const resetMsg = document.getElementById('set-reset-msg') as HTMLElement | null;
+    const backBtn = document.getElementById('set-back-btn') as HTMLButtonElement | null;
+    const farewellReturnBtn = document.getElementById('title-farewell-return') as HTMLButtonElement | null;
+
+    let currentState: TitleState = 'splash';
+    let menuIndex = 0;
+    let settingIndex = 0;
+    let quitIndex = 0;
+    let resetConfirmPending = false;
+    let resetTimer: number | null = null;
+    let isExiting = false;
+
+    const isTitleActive = () => document.documentElement.dataset.title === 'on';
+
+    const stripTitleParam = () => {
+      try {
+        const url = new URL(window.location.href);
+        if (url.searchParams.has('title')) {
+          url.searchParams.delete('title');
+          const clean = url.pathname + (url.search ? url.search : '') + url.hash;
+          window.history.replaceState(null, '', clean);
+        }
+      } catch {}
+    };
+
+    const getAtmosphere = () => localStorage.getItem('town:atmosphere') || 'day';
+    const getWeather = () => localStorage.getItem('town:weather') || 'petals';
+    const getLayout = () => localStorage.getItem('town:panel_layout') || 'split';
+    const getSkipTitle = () => localStorage.getItem('town:skip_title') === '1';
+
+    const refreshSaveStatus = () => {
+      const s = gameStore.getState();
+      const hasProgress =
+        s.stamps.length > 0 ||
+        s.badges.length > 0 ||
+        s.caught.length > 0 ||
+        (s.trainerName && s.trainerName !== 'TRAINER');
+
+      if (startLabel) {
+        startLabel.textContent = hasProgress ? 'CONTINUE' : 'START';
+      }
+      if (saveInfo && saveSummary) {
+        if (hasProgress) {
+          saveInfo.hidden = false;
+          saveSummary.textContent = `${s.trainerName} · ${s.stamps.length}/5 Stamps · ${s.badges.length}/8 Badges · ${s.caught.length}/12 Dex`;
+        } else {
+          saveInfo.hidden = true;
+        }
+      }
+    };
+
+    const refreshSettingsUi = () => {
+      const sfxOn = sfx.isEnabled();
+      if (sfxBtn) {
+        sfxBtn.textContent = sfxOn ? 'ON' : 'OFF';
+        sfxBtn.classList.toggle('is-off', !sfxOn);
+      }
+
+      const bgmOn = sfx.isBgmEnabled();
+      if (bgmBtn) {
+        bgmBtn.textContent = bgmOn ? 'ON' : 'OFF';
+        bgmBtn.classList.toggle('is-off', !bgmOn);
+      }
+
+      const activeTrack = BGM_TRACKS.find((t) => t.id === sfx.getBgmTheme()) || BGM_TRACKS[0];
+      if (bgmThemeVal) {
+        const shortLabel = activeTrack.id.charAt(0).toUpperCase() + activeTrack.id.slice(1);
+        bgmThemeVal.textContent = `${activeTrack.icon} ${shortLabel}`;
+      }
+
+      const atmoId = getAtmosphere();
+      const atmoObj = ATMOSPHERES.find((a) => a.id === atmoId) || ATMOSPHERES[0];
+      if (atmosphereVal) atmosphereVal.textContent = atmoObj.label;
+
+      const weatherId = getWeather();
+      const weatherObj = WEATHERS.find((wt) => wt.id === weatherId) || WEATHERS[0];
+      if (weatherVal) weatherVal.textContent = weatherObj.label;
+
+      if (trainerInput && document.activeElement !== trainerInput) {
+        trainerInput.value = gameStore.getState().trainerName;
+      }
+
+      const layoutId = getLayout();
+      const layoutObj = LAYOUTS.find((l) => l.id === layoutId) || LAYOUTS[1];
+      if (layoutVal) layoutVal.textContent = layoutObj.label;
+
+      const skipOn = getSkipTitle();
+      if (skipBtn) {
+        skipBtn.textContent = skipOn ? 'ON' : 'OFF';
+        skipBtn.classList.toggle('is-off', !skipOn);
+      }
+    };
+
+    const notifySettingsChanged = () => {
+      window.dispatchEvent(new CustomEvent('town:settings-changed'));
+    };
+
+    const updateSelectionUi = () => {
+      menuItems.forEach((btn, i) => btn.classList.toggle('is-selected', i === menuIndex));
+      quitItems.forEach((btn, i) => btn.classList.toggle('is-selected', i === quitIndex));
+      settingRows.forEach((row, i) => row.classList.toggle('is-selected', i === settingIndex));
+    };
+
+    const setView = (next: TitleState) => {
+      currentState = next;
+      views.forEach((v) => {
+        v.hidden = v.getAttribute('data-title-view') !== next;
+      });
+      if (hero) {
+        hero.classList.toggle('is-compact', next === 'settings');
+        hero.classList.toggle('is-farewell', next === 'farewell');
+      }
+      if (next !== 'settings') {
+        resetConfirmPending = false;
+        if (resetBtn) resetBtn.textContent = 'Reset Save Data';
+      }
+      if (next === 'menu') {
+        refreshSaveStatus();
+      } else if (next === 'settings') {
+        refreshSettingsUi();
+      } else if (next === 'quitConfirm') {
+        quitIndex = 0;
+      }
+      updateSelectionUi();
+
+      requestAnimationFrame(() => {
+        if (next === 'splash') pressStartBtn?.focus({ preventScroll: true });
+        else if (next === 'menu') menuItems[menuIndex]?.focus({ preventScroll: true });
+        else if (next === 'quitConfirm') quitItems[quitIndex]?.focus({ preventScroll: true });
+        else if (next === 'farewell') farewellReturnBtn?.focus({ preventScroll: true });
+      });
+    };
+
+    const closeTitleToTown = () => {
+      if (isExiting) return;
+      isExiting = true;
+      sfx.confirm();
+      if (sfx.isBgmEnabled() && !sfx.isBgmPlaying()) {
+        sfx.startBgm();
+      }
+      try {
+        sessionStorage.setItem('town:title_seen', '1');
+      } catch {}
+      stripTitleParam();
+
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      overlay.classList.add('is-exiting');
+
+      const finish = () => {
+        delete document.documentElement.dataset.title;
+        overlay.hidden = true;
+        overlay.classList.remove('is-exiting');
+        isExiting = false;
+
+        const canvas = document.getElementById('town-canvas') as HTMLElement | null;
+        const content = document.getElementById('content') as HTMLElement | null;
+        (canvas || content)?.focus({ preventScroll: true });
+        window.dispatchEvent(new CustomEvent('town:title-closed'));
+      };
+
+      window.setTimeout(finish, reduced ? 20 : 580);
+    };
+
+    const openTitle = (initialState: TitleState = 'menu') => {
+      isExiting = false;
+      overlay.classList.remove('is-exiting');
+      document.documentElement.dataset.title = 'on';
+      overlay.hidden = false;
+      menuIndex = 0;
+      settingIndex = 0;
+      quitIndex = 0;
+      refreshSaveStatus();
+      refreshSettingsUi();
+      setView(initialState);
+    };
+
+    // Setting mutators
+    const toggleSfxSetting = () => {
+      const on = sfx.toggle();
+      if (on) sfx.select();
+      refreshSettingsUi();
+      notifySettingsChanged();
+    };
+
+    const toggleBgmSetting = () => {
+      const on = sfx.toggleBgm();
+      if (on) sfx.select();
+      refreshSettingsUi();
+      window.dispatchEvent(new CustomEvent('town:bgm-toggled', { detail: { enabled: on } }));
+      notifySettingsChanged();
+    };
+
+    const cycleBgmTheme = (dir: number) => {
+      const idx = BGM_TRACKS.findIndex((t) => t.id === sfx.getBgmTheme());
+      const nextIdx = ((idx === -1 ? 0 : idx) + dir + BGM_TRACKS.length) % BGM_TRACKS.length;
+      const nextTheme = BGM_TRACKS[nextIdx].id as BgmTheme;
+      sfx.setBgmTheme(nextTheme);
+      if (sfx.isBgmEnabled()) {
+        sfx.playTrack(nextTheme);
+      } else {
+        sfx.blip();
+      }
+      refreshSettingsUi();
+      notifySettingsChanged();
+    };
+
+    const cycleAtmosphere = (dir: number) => {
+      const cur = getAtmosphere();
+      const idx = ATMOSPHERES.findIndex((a) => a.id === cur);
+      const next = ATMOSPHERES[((idx === -1 ? 0 : idx) + dir + ATMOSPHERES.length) % ATMOSPHERES.length];
+      try {
+        localStorage.setItem('town:atmosphere', next.id);
+      } catch {}
+      window.dispatchEvent(new CustomEvent('town:set-atmosphere', { detail: { atmosphere: next.id } }));
+      sfx.blip();
+      refreshSettingsUi();
+      notifySettingsChanged();
+    };
+
+    const cycleWeather = (dir: number) => {
+      const cur = getWeather();
+      const idx = WEATHERS.findIndex((wt) => wt.id === cur);
+      const next = WEATHERS[((idx === -1 ? 0 : idx) + dir + WEATHERS.length) % WEATHERS.length];
+      try {
+        localStorage.setItem('town:weather', next.id);
+      } catch {}
+      window.dispatchEvent(new CustomEvent('town:set-weather', { detail: { weather: next.id } }));
+      sfx.blip();
+      refreshSettingsUi();
+      notifySettingsChanged();
+    };
+
+    const cycleLayout = (dir: number) => {
+      const cur = getLayout();
+      const idx = LAYOUTS.findIndex((l) => l.id === cur);
+      const next = LAYOUTS[((idx === -1 ? 1 : idx) + dir + LAYOUTS.length) % LAYOUTS.length];
+      try {
+        localStorage.setItem('town:panel_layout', next.id);
+      } catch {}
+      window.dispatchEvent(new CustomEvent('town:panel-layout-changed', { detail: { mode: next.id } }));
+      sfx.blip();
+      refreshSettingsUi();
+      notifySettingsChanged();
+    };
+
+    const toggleSkipTitle = () => {
+      const next = !getSkipTitle();
+      try {
+        localStorage.setItem('town:skip_title', next ? '1' : '0');
+      } catch {}
+      sfx.select();
+      refreshSettingsUi();
+      notifySettingsChanged();
+    };
+
+    const triggerResetSave = () => {
+      if (!resetConfirmPending) {
+        resetConfirmPending = true;
+        if (resetBtn) resetBtn.textContent = 'Confirm Reset?';
+        sfx.bump();
+        if (resetTimer) window.clearTimeout(resetTimer);
+        resetTimer = window.setTimeout(() => {
+          resetConfirmPending = false;
+          if (resetBtn) resetBtn.textContent = 'Reset Save Data';
+        }, 4000);
+        return;
+      }
+
+      if (resetTimer) window.clearTimeout(resetTimer);
+      resetConfirmPending = false;
+      gameStore.reset();
+      if (resetBtn) resetBtn.textContent = 'Reset Save Data';
+      if (resetMsg) {
+        resetMsg.hidden = false;
+        window.setTimeout(() => {
+          resetMsg.hidden = true;
+        }, 2500);
+      }
+      sfx.select();
+      refreshSaveStatus();
+      refreshSettingsUi();
+      notifySettingsChanged();
+    };
+
+    const handleSettingHorizontal = (dir: number) => {
+      const row = settingRows[settingIndex];
+      const key = row?.getAttribute('data-setting-key');
+      if (key === 'sfx') toggleSfxSetting();
+      else if (key === 'bgm') toggleBgmSetting();
+      else if (key === 'bgmTheme') cycleBgmTheme(dir);
+      else if (key === 'atmosphere') cycleAtmosphere(dir);
+      else if (key === 'weather') cycleWeather(dir);
+      else if (key === 'panelLayout') cycleLayout(dir);
+      else if (key === 'skipTitle') toggleSkipTitle();
+    };
+
+    const handleSettingActivate = () => {
+      const row = settingRows[settingIndex];
+      const key = row?.getAttribute('data-setting-key');
+      if (key === 'sfx') toggleSfxSetting();
+      else if (key === 'bgm') toggleBgmSetting();
+      else if (key === 'bgmTheme') cycleBgmTheme(1);
+      else if (key === 'atmosphere') cycleAtmosphere(1);
+      else if (key === 'weather') cycleWeather(1);
+      else if (key === 'trainerName') trainerInput?.focus();
+      else if (key === 'panelLayout') cycleLayout(1);
+      else if (key === 'skipTitle') toggleSkipTitle();
+      else if (key === 'reset') triggerResetSave();
+      else if (key === 'back') {
+        sfx.select();
+        setView('menu');
+      }
+    };
+
+    const triggerQuitYes = () => {
+      sfx.select();
+      sfx.stopBgm();
+      try {
+        window.close();
+      } catch {}
+      window.setTimeout(() => {
+        if (!window.closed) {
+          setView('farewell');
+        }
+      }, 120);
+    };
+
+    const activateMenuAction = (action: string | null) => {
+      if (action === 'start') {
+        closeTitleToTown();
+      } else if (action === 'settings') {
+        sfx.confirm();
+        settingIndex = 0;
+        setView('settings');
+      } else if (action === 'quit') {
+        sfx.select();
+        setView('quitConfirm');
+      }
+    };
+
+    // Splash click/tap unlocks audio & opens menu
+    const enterMenuFromSplash = () => {
+      if (currentState !== 'splash' || isExiting) return;
+      sfx.confirm();
+      if (sfx.isBgmEnabled() && !sfx.isBgmPlaying()) {
+        sfx.startBgm();
+      }
+      setView('menu');
+    };
+
+    overlay.addEventListener('click', (e) => {
+      if (currentState === 'splash') {
+        enterMenuFromSplash();
+        return;
+      }
+      // In settings, clicking outside input blurs it
+      const target = e.target as HTMLElement | null;
+      if (trainerInput && target !== trainerInput && document.activeElement === trainerInput) {
+        trainerInput.blur();
+      }
+    });
+
+    pressStartBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      enterMenuFromSplash();
+    });
+
+    // Menu mouse interactions
+    menuItems.forEach((btn, idx) => {
+      btn.addEventListener('mouseenter', () => {
+        if (currentState !== 'menu') return;
+        if (menuIndex !== idx) {
+          menuIndex = idx;
+          sfx.blip();
+          updateSelectionUi();
+        }
+      });
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        menuIndex = idx;
+        updateSelectionUi();
+        activateMenuAction(btn.getAttribute('data-menu-action'));
+      });
+    });
+
+    // Quit confirm mouse interactions
+    quitItems.forEach((btn, idx) => {
+      btn.addEventListener('mouseenter', () => {
+        if (currentState !== 'quitConfirm') return;
+        if (quitIndex !== idx) {
+          quitIndex = idx;
+          sfx.blip();
+          updateSelectionUi();
+        }
+      });
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        quitIndex = idx;
+        updateSelectionUi();
+        if (btn.getAttribute('data-quit-action') === 'yes') {
+          triggerQuitYes();
+        } else {
+          sfx.select();
+          setView('menu');
+        }
+      });
+    });
+
+    // Settings mouse interactions
+    settingRows.forEach((row, idx) => {
+      row.addEventListener('mouseenter', () => {
+        if (currentState !== 'settings') return;
+        if (settingIndex !== idx) {
+          settingIndex = idx;
+          updateSelectionUi();
+        }
+      });
+      row.addEventListener('click', (e) => {
+        const target = e.target as HTMLElement | null;
+        if (target?.closest('[data-cycle]') || target === trainerInput) return;
+        settingIndex = idx;
+        updateSelectionUi();
+        handleSettingActivate();
+      });
+    });
+
+    overlay.querySelectorAll<HTMLButtonElement>('[data-cycle]').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const key = btn.getAttribute('data-cycle');
+        const dir = Number(btn.getAttribute('data-dir') || '1');
+        const rowIdx = settingRows.findIndex((r) => r.getAttribute('data-setting-key') === key);
+        if (rowIdx !== -1) settingIndex = rowIdx;
+        updateSelectionUi();
+        handleSettingHorizontal(dir);
+      });
+    });
+
+    trainerInput?.addEventListener('input', () => {
+      const cleaned = trainerInput.value.toUpperCase().slice(0, 12);
+      if (trainerInput.value !== cleaned) trainerInput.value = cleaned;
+      gameStore.setTrainerName(cleaned || 'TRAINER');
+      refreshSaveStatus();
+      notifySettingsChanged();
+    });
+
+    backBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      sfx.select();
+      setView('menu');
+    });
+
+    farewellReturnBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      sfx.confirm();
+      setView('splash');
+    });
+
+    // Capture-phase keyboard barrier so town movement/shortcuts never leak while title is open
+    const onCaptureKeyDown = (e: KeyboardEvent) => {
+      if (!isTitleActive()) return;
+
+      e.stopImmediatePropagation();
+
+      if (isExiting) {
+        e.preventDefault();
+        return;
+      }
+
+      // Allow typing inside Trainer Name input
+      if (document.activeElement === trainerInput) {
+        if (e.key === 'Escape' || e.key === 'Enter') {
+          e.preventDefault();
+          trainerInput?.blur();
+          sfx.select();
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          trainerInput?.blur();
+          settingIndex = (settingIndex - 1 + settingRows.length) % settingRows.length;
+          sfx.blip();
+          updateSelectionUi();
+        } else if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          trainerInput?.blur();
+          settingIndex = (settingIndex + 1) % settingRows.length;
+          sfx.blip();
+          updateSelectionUi();
+        }
+        return;
+      }
+
+      const code = e.code;
+      const key = e.key;
+
+      // Farewell: any non-modifier key returns to splash
+      if (currentState === 'farewell') {
+        if (['Shift', 'Control', 'Alt', 'Meta', 'Tab'].includes(key)) return;
+        e.preventDefault();
+        sfx.confirm();
+        setView('splash');
+        return;
+      }
+
+      const isUp = code === 'ArrowUp' || code === 'KeyW';
+      const isDown = code === 'ArrowDown' || code === 'KeyS';
+      const isLeft = code === 'ArrowLeft' || code === 'KeyA';
+      const isRight = code === 'ArrowRight' || code === 'KeyD';
+      const isConfirm = code === 'Enter' || code === 'Space' || code === 'KeyZ';
+      const isBack = code === 'Escape' || code === 'KeyX' || code === 'Backspace';
+
+      if (isUp || isDown || isLeft || isRight || isConfirm || isBack) {
+        e.preventDefault();
+      }
+
+      if (currentState === 'splash') {
+        if (isConfirm) enterMenuFromSplash();
+        return;
+      }
+
+      if (currentState === 'menu') {
+        if (isUp) {
+          menuIndex = (menuIndex - 1 + menuItems.length) % menuItems.length;
+          sfx.blip();
+          updateSelectionUi();
+          menuItems[menuIndex]?.focus({ preventScroll: true });
+        } else if (isDown) {
+          menuIndex = (menuIndex + 1) % menuItems.length;
+          sfx.blip();
+          updateSelectionUi();
+          menuItems[menuIndex]?.focus({ preventScroll: true });
+        } else if (isConfirm) {
+          activateMenuAction(menuItems[menuIndex]?.getAttribute('data-menu-action') || null);
+        } else if (isBack) {
+          sfx.select();
+          setView('splash');
+        }
+        return;
+      }
+
+      if (currentState === 'settings') {
+        if (isUp) {
+          settingIndex = (settingIndex - 1 + settingRows.length) % settingRows.length;
+          sfx.blip();
+          updateSelectionUi();
+          settingRows[settingIndex]?.scrollIntoView({ block: 'nearest' });
+        } else if (isDown) {
+          settingIndex = (settingIndex + 1) % settingRows.length;
+          sfx.blip();
+          updateSelectionUi();
+          settingRows[settingIndex]?.scrollIntoView({ block: 'nearest' });
+        } else if (isLeft) {
+          handleSettingHorizontal(-1);
+        } else if (isRight) {
+          handleSettingHorizontal(1);
+        } else if (isConfirm) {
+          handleSettingActivate();
+        } else if (isBack) {
+          sfx.select();
+          setView('menu');
+        }
+        return;
+      }
+
+      if (currentState === 'quitConfirm') {
+        if (isLeft || isUp || isRight || isDown) {
+          quitIndex = quitIndex === 0 ? 1 : 0;
+          sfx.blip();
+          updateSelectionUi();
+          quitItems[quitIndex]?.focus({ preventScroll: true });
+        } else if (isConfirm) {
+          if (quitItems[quitIndex]?.getAttribute('data-quit-action') === 'yes') {
+            triggerQuitYes();
+          } else {
+            sfx.select();
+            setView('menu');
+          }
+        } else if (isBack) {
+          sfx.select();
+          setView('menu');
+        }
+      }
+    };
+
+    const onCaptureKeyUp = (e: KeyboardEvent) => {
+      if (!isTitleActive()) return;
+      e.stopImmediatePropagation();
+    };
+
+    window.addEventListener('keydown', onCaptureKeyDown, { capture: true });
+    window.addEventListener('keyup', onCaptureKeyUp, { capture: true });
+
+    window.addEventListener('town:open-title', () => {
+      openTitle('menu');
+    });
+
+    // Initialize visibility state from head script's data-title="on"
+    if (isTitleActive()) {
+      overlay.hidden = false;
+      refreshSaveStatus();
+      refreshSettingsUi();
+      const params = new URLSearchParams(window.location.search);
+      setView(params.get('title') === '1' ? 'menu' : 'splash');
+      stripTitleParam();
+    } else {
+      overlay.hidden = true;
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initTitleScreen);
+  } else {
+    initTitleScreen();
+  }
+</script>

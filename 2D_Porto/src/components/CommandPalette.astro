@@ -1,819 +1,5 @@
 ---
-import { profile, skills, missions } from '../lib/profile';
-
-interface PaletteItem {
-  id: string;
-  title: string;
-  category: 'action' | 'skill' | 'project' | 'place' | 'pokemon';
-  categoryLabel: string;
-  icon: string;
-  desc: string;
-  keywords: string;
-  actionType: 'navigate' | 'download' | 'copy' | 'fly' | 'modal' | 'toggle-bike' | 'toggle-minimap' | 'set-atmosphere' | 'set-weather' | 'toggle-bgm' | 'toggle-editor' | 'start-tour' | 'toggle-pokesnap' | 'trigger-resonance' | 'set-follower' | 'open-guestbook' | 'toggle-ghosts' | 'open-jukebox';
-  target?: string;
-  flyCoords?: { x: number; y: number };
-}
-
-// 1. Quick Actions for Recruiter & Visitors
-const actionItems: PaletteItem[] = [
-  {
-    id: 'act-jukebox',
-    title: '8-Bit Chiptune Jukebox (6 Track + Visualizer)',
-    category: 'action',
-    categoryLabel: 'Aksi Cepat',
-    icon: '🎹',
-    desc: 'Pilih 6 lagu chiptune Web Audio & lihat 16-bar Pixel Spectrum Visualizer.',
-    keywords: 'jukebox music musik 8-bit chiptune visualizer equalizer lagu bgm cafe',
-    actionType: 'open-jukebox',
-  },
-  {
-    id: 'act-guestbook',
-    title: 'Trainer Guestbook (Papan Pesan & Buku Tamu Kota)',
-    category: 'action',
-    categoryLabel: 'Aksi Cepat',
-    icon: '📖',
-    desc: 'Baca pesan pengunjung & tinggalkan catatan Anda sebagai Ghost Trainer di Fountain Plaza.',
-    keywords: 'guestbook buku tamu komentar pesan recruiter ghost trainer social board',
-    actionType: 'open-guestbook',
-  },
-  {
-    id: 'act-ghosts',
-    title: 'Toggle Ghost Trainers di Fountain Plaza (ON / OFF)',
-    category: 'action',
-    categoryLabel: 'Aksi Cepat',
-    icon: '👻',
-    desc: 'Tampilkan atau sembunyikan NPC pengunjung terakhir yang berjalan santai di Town Square.',
-    keywords: 'ghost trainer npc pengunjung plaza hide show toggle',
-    actionType: 'toggle-ghosts',
-  },
-  {
-    id: 'act-pokesnap',
-    title: 'PokéSnap Studio (Photo Mode & Postcard PNG)',
-    category: 'action',
-    categoryLabel: 'Aksi Cepat',
-    icon: '📸',
-    desc: 'Abadikan tangkapan layar peta dengan filter retro & bingkai kartu pos PNG (Tekan O).',
-    keywords: 'pokesnap photo foto gambar screenshot postcard png filter gameboy crt retro',
-    actionType: 'toggle-pokesnap',
-  },
-  {
-    id: 'act-resonance',
-    title: 'Legendary Resonance Burst (Kombo Partner)',
-    category: 'action',
-    categoryLabel: 'Aksi Cepat',
-    icon: '🌟',
-    desc: 'Aktifkan jurus kombo saat partner Pokémon berdekatan dengan pasangannya di peta (Tekan G).',
-    keywords: 'resonance combo kombo burst skill legendary tao trio paradox key g',
-    actionType: 'trigger-resonance',
-  },
-  {
-    id: 'act-jobfit',
-    title: 'AI Recruiter Co-Pilot: Job-Fit Analyzer',
-    category: 'action',
-    categoryLabel: 'Aksi Cepat',
-    icon: '🎯',
-    desc: 'Cocokkan Job Description atau preset role HR dengan profil & proyek Zulfan secara instan.',
-    keywords: 'job fit hr recruiter match jd kecocokan skill brief markdown',
-    actionType: 'modal',
-    target: 'jobfit',
-  },
-  {
-    id: 'act-autotour',
-    title: 'Guided Auto-Tour Kota 2D (60 Detik)',
-    category: 'action',
-    categoryLabel: 'Aksi Cepat',
-    icon: '🎬',
-    desc: 'Jelajahi 5 landmark utama kota secara otomatis di atas Poké Ride dengan ringkasan portofolio.',
-    keywords: 'tour auto tur otomatis drone landmark preview showcase',
-    actionType: 'start-tour',
-  },
-  {
-    id: 'act-town-editor',
-    title: 'Town Editor 3.0 (Kustomisasi Tata Letak Kota)',
-    category: 'action',
-    categoryLabel: 'Aksi Cepat',
-    icon: '🛠️',
-    desc: 'Buka palet editor visual untuk memindahkan gedung, dekorasi, NPC & ubin kota (Tekan E).',
-    keywords: 'editor builder town desain peta gedung kustomisasi custom layout petak hotkey e ubah bangun',
-    actionType: 'toggle-editor',
-  },
-  {
-    id: 'act-cv',
-    title: 'Unduh CV / Résumé Zulfan (PDF)',
-    category: 'action',
-    categoryLabel: 'Aksi Cepat',
-    icon: '📄',
-    desc: 'Buka dan unduh dokumen Curriculum Vitae lengkap terbaru.',
-    keywords: 'cv resume resume pdf download unduh berkas lamaran biodata',
-    actionType: 'download',
-    target: profile.person.cv,
-  },
-  {
-    id: 'act-email',
-    title: `Salin Email (${profile.person.email})`,
-    category: 'action',
-    categoryLabel: 'Aksi Cepat',
-    icon: '📋',
-    desc: 'Salin alamat email langsung ke clipboard Anda.',
-    keywords: 'email mail kontak contact pesan kirim hubungi',
-    actionType: 'copy',
-    target: profile.person.email,
-  },
-  {
-    id: 'act-twin',
-    title: 'Chat dengan Digital Twin AI',
-    category: 'action',
-    categoryLabel: 'Aksi Cepat',
-    icon: '💬',
-    desc: 'Tanya jawab interaktif dengan AI persona berbasis rekayasa Zulfan.',
-    keywords: 'twin ai bot chatbot tanya chat clone digital',
-    actionType: 'navigate',
-    target: '/twin',
-  },
-  {
-    id: 'act-map',
-    title: 'Buka Town Map & Quick Travel (HM02 Fly)',
-    category: 'action',
-    categoryLabel: 'Aksi Cepat',
-    icon: '🗺️',
-    desc: 'Lihat denah lengkap kota dan lompat instan ke lokasi mana pun.',
-    keywords: 'map peta fly hm02 jalan travel teleport lokasi denah',
-    actionType: 'modal',
-    target: 'map',
-  },
-  {
-    id: 'act-passport',
-    title: 'Buka Trainer Passport (Stamp Rally & VIP)',
-    category: 'action',
-    categoryLabel: 'Aksi Cepat',
-    icon: '🎫',
-    desc: 'Lihat progres 5 misi wisata penjelajahan & buka status VIP Recruiter.',
-    keywords: 'passport paspor stempel stamp rally misi quest achievement tour wisata vip recruiter',
-    actionType: 'modal',
-    target: 'passport',
-  },
-  {
-    id: 'act-dex',
-    title: 'Buka Critterdex & Trainer Card',
-    category: 'action',
-    categoryLabel: 'Aksi Cepat',
-    icon: '📖',
-    desc: 'Lihat koleksi 12 Pokémon yang tertangkap dan unduh Trainer Card PNG.',
-    keywords: 'dex critterdex pokemon monster tangkap kartu trainer card png',
-    actionType: 'modal',
-    target: 'dex',
-  },
-  {
-    id: 'act-bike',
-    title: 'Toggle Mach Bike (Kecepatan 2.2×)',
-    category: 'action',
-    categoryLabel: 'Aksi Cepat',
-    icon: '🚲',
-    desc: 'Aktifkan / matikan sepeda cepat dengan suara bel chiptune (Key: B).',
-    keywords: 'bike sepeda mach bike bell lari cepat speed run',
-    actionType: 'toggle-bike',
-  },
-  {
-    id: 'act-radar',
-    title: 'Toggle Radar Kota Mini-Map',
-    category: 'action',
-    categoryLabel: 'Aksi Cepat',
-    icon: '🧭',
-    desc: 'Buka / tutup radar mini-map di pojok kanan atas (Key: M).',
-    keywords: 'radar minimap map peta kompas posisi live',
-    actionType: 'toggle-minimap',
-  },
-  {
-    id: 'act-bgm',
-    title: 'Toggle Musik Latar 8-Bit (Lo-Fi BGM)',
-    category: 'action',
-    categoryLabel: 'Aksi Cepat',
-    icon: '🎵',
-    desc: 'Nyalakan / heningkan melodi procedural chiptune 0 KB berbasis Web Audio.',
-    keywords: 'bgm musik music lofi lagu sound audio chiptune lagu hening',
-    actionType: 'toggle-bgm',
-  },
-  {
-    id: 'act-time-day',
-    title: 'Atur Waktu: Siang Hari (Day Mode)',
-    category: 'action',
-    categoryLabel: 'Aksi Cepat',
-    icon: '☀️',
-    desc: 'Ubah suasana pencahayaan kota ke mode Siang yang cerah dan hangat.',
-    keywords: 'siang day waktu time matahari cerah terang',
-    actionType: 'set-atmosphere',
-    target: 'day',
-  },
-  {
-    id: 'act-time-sunset',
-    title: 'Atur Waktu: Senja Keemasan (Sunset Mode)',
-    category: 'action',
-    categoryLabel: 'Aksi Cepat',
-    icon: '🌅',
-    desc: 'Ubah suasana kota ke nuansa sore keemasan dengan lentera mulai berpendar.',
-    keywords: 'senja sore sunset golden waktu time oranye merah',
-    actionType: 'set-atmosphere',
-    target: 'sunset',
-  },
-  {
-    id: 'act-time-night',
-    title: 'Atur Waktu: Malam Hari (Night Mode)',
-    category: 'action',
-    categoryLabel: 'Aksi Cepat',
-    icon: '🌙',
-    desc: 'Ubah kota ke mode Malam dengan lentera menyala, jendela hangat, dan kunang-kunang.',
-    keywords: 'malam night gelap bintang kunang lampu jendela waktu time',
-    actionType: 'set-atmosphere',
-    target: 'night',
-  },
-  {
-    id: 'act-weather-petals',
-    title: 'Cuaca: Kelopak Sakura & Daun Berhembus',
-    category: 'action',
-    categoryLabel: 'Aksi Cepat',
-    icon: '🌸',
-    desc: 'Aktifkan partikel kelopak bunga sakura merah muda dan daun yang melayang santai.',
-    keywords: 'cuaca weather sakura bunga kelopak daun petal spring semi cerah',
-    actionType: 'set-weather',
-    target: 'petals',
-  },
-  {
-    id: 'act-weather-rain',
-    title: 'Cuaca: Hujan Rintik Lo-Fi (Rain & Ripples)',
-    category: 'action',
-    categoryLabel: 'Aksi Cepat',
-    icon: '🌧️',
-    desc: 'Aktifkan efek hujan rintik diagonal dan cipratan riak air di atas kanvas.',
-    keywords: 'cuaca weather hujan rain lofi rintik air basah kolam ripple',
-    actionType: 'set-weather',
-    target: 'rain',
-  },
-  {
-    id: 'act-weather-stars',
-    title: 'Cuaca: Hujan Meteor & Bintang Berkelip (Starfall)',
-    category: 'action',
-    categoryLabel: 'Aksi Cepat',
-    icon: '✨',
-    desc: 'Aktifkan taburan bintang berkelip dan lintasan meteor berkilau di langit.',
-    keywords: 'cuaca weather bintang meteor starfall langit malam berkilau',
-    actionType: 'set-weather',
-    target: 'stars',
-  },
-  {
-    id: 'partner-lucario',
-    title: 'Partner: Lucario (Aura Guardian)',
-    category: 'action',
-    categoryLabel: 'Walking Partner',
-    icon: '🌀',
-    desc: 'Jadikan Lucario partner jalanmu yang setia 1 petak di belakang.',
-    keywords: 'partner follower pokemon jalan dampingi teman lucario aura',
-    actionType: 'set-follower',
-    target: 'lucario',
-  },
-  {
-    id: 'partner-charizard',
-    title: 'Partner: Charizard (Flame Titan)',
-    category: 'action',
-    categoryLabel: 'Walking Partner',
-    icon: '🔥',
-    desc: 'Jadikan Charizard sang naga api membara sebagai partner jalanmu.',
-    keywords: 'partner follower pokemon jalan dampingi teman charizard api flame dragon',
-    actionType: 'set-follower',
-    target: 'charizard',
-  },
-  {
-    id: 'partner-tyranitar',
-    title: 'Partner: Tyranitar (Armor Rock)',
-    category: 'action',
-    categoryLabel: 'Walking Partner',
-    icon: '🪨',
-    desc: 'Jadikan Tyranitar bertubuh zirah batu baja kokoh sebagai partner jalanmu.',
-    keywords: 'partner follower pokemon jalan dampingi teman tyranitar batu rock armor',
-    actionType: 'set-follower',
-    target: 'tyranitar',
-  },
-  {
-    id: 'partner-garchomp',
-    title: 'Partner: Garchomp (Mach Dragon)',
-    category: 'action',
-    categoryLabel: 'Walking Partner',
-    icon: '🦈',
-    desc: 'Jadikan Garchomp sang naga darat supersonik sebagai partner jalanmu.',
-    keywords: 'partner follower pokemon jalan dampingi teman garchomp naga darat mach',
-    actionType: 'set-follower',
-    target: 'garchomp',
-  },
-  {
-    id: 'partner-urshifu',
-    title: 'Partner: Urshifu (Rapid Strike)',
-    category: 'action',
-    categoryLabel: 'Walking Partner',
-    icon: '🌊',
-    desc: 'Jadikan Urshifu master wushu serangan beruntun sebagai partner jalanmu.',
-    keywords: 'partner follower pokemon jalan dampingi teman urshifu wushu rapid strike air',
-    actionType: 'set-follower',
-    target: 'urshifu',
-  },
-  {
-    id: 'partner-mewtwo',
-    title: 'Partner: Mewtwo (AI Overlord)',
-    category: 'action',
-    categoryLabel: 'Walking Partner',
-    icon: '🔮',
-    desc: 'Jadikan Mewtwo Pokémon psikis legendaris sebagai partner jalanmu.',
-    keywords: 'partner follower pokemon jalan dampingi teman mewtwo psikis ai psychic',
-    actionType: 'set-follower',
-    target: 'mewtwo',
-  },
-  {
-    id: 'partner-arceus',
-    title: 'Partner: Arceus (Alpha Architect)',
-    category: 'action',
-    categoryLabel: 'Walking Partner',
-    icon: '✨',
-    desc: 'Jadikan Arceus Sang Alpha Pokémon pencipta semesta sebagai partner jalanmu.',
-    keywords: 'partner follower pokemon jalan dampingi teman arceus alpha dewa pencipta',
-    actionType: 'set-follower',
-    target: 'arceus',
-  },
-  {
-    id: 'partner-dialga',
-    title: 'Partner: Dialga (Temporal Dragon)',
-    category: 'action',
-    categoryLabel: 'Walking Partner',
-    icon: '⏳',
-    desc: 'Jadikan Dialga naga penguasa dimensi waktu sebagai partner jalanmu.',
-    keywords: 'partner follower pokemon jalan dampingi teman dialga waktu naga temporal',
-    actionType: 'set-follower',
-    target: 'dialga',
-  },
-  {
-    id: 'partner-palkia',
-    title: 'Partner: Palkia (Spatial Dragon)',
-    category: 'action',
-    categoryLabel: 'Walking Partner',
-    icon: '🌌',
-    desc: 'Jadikan Palkia naga penguasa dimensi ruang sebagai partner jalanmu.',
-    keywords: 'partner follower pokemon jalan dampingi teman palkia ruang naga spatial',
-    actionType: 'set-follower',
-    target: 'palkia',
-  },
-  {
-    id: 'partner-rayquaza',
-    title: 'Partner: Rayquaza (Sky High Dragon)',
-    category: 'action',
-    categoryLabel: 'Walking Partner',
-    icon: '🐉',
-    desc: 'Jadikan Rayquaza naga penguasa ozon sebagai partner jalanmu.',
-    keywords: 'partner follower pokemon jalan dampingi teman rayquaza naga ozon langit',
-    actionType: 'set-follower',
-    target: 'rayquaza',
-  },
-  {
-    id: 'partner-pikachu',
-    title: 'Partner: Pikachu (Electric Mascot)',
-    category: 'action',
-    categoryLabel: 'Walking Partner',
-    icon: '⚡',
-    desc: 'Jadikan Pikachu ikon setia listrik kuning sebagai partner jalanmu.',
-    keywords: 'partner follower pokemon jalan dampingi teman pikachu listrik tikus petir',
-    actionType: 'set-follower',
-    target: 'pikachu',
-  },
-  {
-    id: 'partner-reshiram',
-    title: 'Partner: Reshiram (Vast White Dragon)',
-    category: 'action',
-    categoryLabel: 'Walking Partner',
-    icon: '🤍',
-    desc: 'Jadikan Reshiram naga putih berkobar turbin api sebagai partner jalanmu.',
-    keywords: 'partner follower pokemon jalan dampingi teman reshiram naga api putih fusion flare',
-    actionType: 'set-follower',
-    target: 'reshiram',
-  },
-  {
-    id: 'partner-zekrom',
-    title: 'Partner: Zekrom (Deep Black Dragon)',
-    category: 'action',
-    categoryLabel: 'Walking Partner',
-    icon: '🖤',
-    desc: 'Jadikan Zekrom naga hitam bervoltase petir generator sebagai partner jalanmu.',
-    keywords: 'partner follower pokemon jalan dampingi teman zekrom naga listrik hitam fusion bolt',
-    actionType: 'set-follower',
-    target: 'zekrom',
-  },
-  {
-    id: 'partner-giratina',
-    title: 'Partner: Giratina (Renegade Shadow)',
-    category: 'action',
-    categoryLabel: 'Walking Partner',
-    icon: '👻',
-    desc: 'Jadikan Giratina penguasa dimensi bayangan antimateri sebagai partner jalanmu.',
-    keywords: 'partner follower pokemon jalan dampingi teman giratina hantu naga shadow force renegade',
-    actionType: 'set-follower',
-    target: 'giratina',
-  },
-  {
-    id: 'partner-groudon',
-    title: 'Partner: Groudon (Continent Titan)',
-    category: 'action',
-    categoryLabel: 'Walking Partner',
-    icon: '🌋',
-    desc: 'Jadikan Groudon penguasa magma dan daratan benua sebagai partner jalanmu.',
-    keywords: 'partner follower pokemon jalan dampingi teman groudon tanah magma benua precipice blades hoenn',
-    actionType: 'set-follower',
-    target: 'groudon',
-  },
-  {
-    id: 'partner-kyogre',
-    title: 'Partner: Kyogre (Sea Basin Titan)',
-    category: 'action',
-    categoryLabel: 'Walking Partner',
-    icon: '🌊',
-    desc: 'Jadikan Kyogre penguasa samudra dan palung laut sebagai partner jalanmu.',
-    keywords: 'partner follower pokemon jalan dampingi teman kyogre air samudra laut origin pulse primordial sea',
-    actionType: 'set-follower',
-    target: 'kyogre',
-  },
-  {
-    id: 'partner-latios',
-    title: 'Partner: Latios (Eon Jet Guardian)',
-    category: 'action',
-    categoryLabel: 'Walking Partner',
-    icon: '✈️',
-    desc: 'Jadikan Latios penjaga angkasa supersonik berhati murni sebagai partner jalanmu.',
-    keywords: 'partner follower pokemon jalan dampingi teman latios eon jet naga psikis luster purge',
-    actionType: 'set-follower',
-    target: 'latios',
-  },
-  {
-    id: 'partner-latias',
-    title: 'Partner: Latias (Eon Mist Guardian)',
-    category: 'action',
-    categoryLabel: 'Walking Partner',
-    icon: '💖',
-    desc: 'Jadikan Latias penjaga kabut empati berhati lembut sebagai partner jalanmu.',
-    keywords: 'partner follower pokemon jalan dampingi teman latias eon kabut mist ball naga empati',
-    actionType: 'set-follower',
-    target: 'latias',
-  },
-  {
-    id: 'partner-darkrai',
-    title: 'Partner: Darkrai (Pitch-Black Shadow)',
-    category: 'action',
-    categoryLabel: 'Walking Partner',
-    icon: '🌑',
-    desc: 'Jadikan Darkrai penguasa bayang-bayang malam dan pelindung rahasia sebagai partner jalanmu.',
-    keywords: 'partner follower pokemon jalan dampingi teman darkrai bayangan gelap dark void mimpi buruk',
-    actionType: 'set-follower',
-    target: 'darkrai',
-  },
-  {
-    id: 'partner-necrozma',
-    title: 'Partner: Necrozma (Prism Solar Light)',
-    category: 'action',
-    categoryLabel: 'Walking Partner',
-    icon: '🦁',
-    desc: 'Jadikan Necrozma Dusk Mane prisma surya pembawa cahaya sebagai partner jalanmu.',
-    keywords: 'partner follower pokemon jalan dampingi teman necrozma prisma surya sunsteel strike alola ultra',
-    actionType: 'set-follower',
-    target: 'necrozma',
-  },
-  {
-    id: 'partner-lunala',
-    title: 'Partner: Lunala (Moone Lunar Beast)',
-    category: 'action',
-    categoryLabel: 'Walking Partner',
-    icon: '🌙',
-    desc: 'Jadikan Lunala utusan rembulan kosmik malam sebagai partner jalanmu.',
-    keywords: 'partner follower pokemon jalan dampingi teman lunala bulan rembulan moongeist beam kosmik',
-    actionType: 'set-follower',
-    target: 'lunala',
-  },
-  {
-    id: 'partner-solgaleo',
-    title: 'Partner: Solgaleo (Sunne Solar Beast)',
-    category: 'action',
-    categoryLabel: 'Walking Partner',
-    icon: '☀️',
-    desc: 'Jadikan Solgaleo sang pemangsa mentari berkobar surya sebagai partner jalanmu.',
-    keywords: 'partner follower pokemon jalan dampingi teman solgaleo surya matahari sunsteel corona alola',
-    actionType: 'set-follower',
-    target: 'solgaleo',
-  },
-  {
-    id: 'partner-samurott',
-    title: 'Partner: Samurott (Formidable Seamitar)',
-    category: 'action',
-    categoryLabel: 'Walking Partner',
-    icon: '⚔️',
-    desc: 'Jadikan Samurott sang ahli pedang kerang Seamitar presisi tinggi sebagai partner jalanmu.',
-    keywords: 'partner follower pokemon jalan dampingi teman samurott seamitar pedang kerang unova razor shell tebasan air',
-    actionType: 'set-follower',
-    target: 'samurott',
-  },
-  {
-    id: 'partner-empoleon',
-    title: 'Partner: Empoleon (Emperor Hydro Trident)',
-    category: 'action',
-    categoryLabel: 'Walking Partner',
-    icon: '🐧',
-    desc: 'Jadikan Empoleon sang kaisar laut baja bermahkota trisula sebagai partner jalanmu.',
-    keywords: 'partner follower pokemon jalan dampingi teman empoleon kaisar baja sinnoh hydro cannon flash cannon air',
-    actionType: 'set-follower',
-    target: 'empoleon',
-  },
-  {
-    id: 'partner-regigigas',
-    title: 'Partner: Regigigas (Colossal Continent Mover)',
-    category: 'action',
-    categoryLabel: 'Walking Partner',
-    icon: '🗿',
-    desc: 'Jadikan Regigigas sang raksasa kolosal penggeser benua sebagai partner jalanmu.',
-    keywords: 'partner follower pokemon jalan dampingi teman regigigas raksasa titan benua crush grip sinnoh normal',
-    actionType: 'set-follower',
-    target: 'regigigas',
-  },
-  {
-    id: 'partner-koraidon',
-    title: 'Partner: Koraidon (Winged King Apex Rider)',
-    category: 'action',
-    categoryLabel: 'Walking Partner',
-    icon: '🦖',
-    desc: 'Jadikan Koraidon sang raja bersayap purba Paldea sebagai partner jalanmu.',
-    keywords: 'partner follower pokemon jalan dampingi teman koraidon winged king paldea paradox collision course fighting dragon',
-    actionType: 'set-follower',
-    target: 'koraidon',
-  },
-  {
-    id: 'partner-eternatus',
-    title: 'Partner: Eternatus (Dynamax Core Sovereign)',
-    category: 'action',
-    categoryLabel: 'Walking Partner',
-    icon: '☄️',
-    desc: 'Jadikan Eternatus sang naga inti energi Dynamax Galar sebagai partner jalanmu.',
-    keywords: 'partner follower pokemon jalan dampingi teman eternatus galar dynamax cannon kosmik naga racun plasma',
-    actionType: 'set-follower',
-    target: 'eternatus',
-  },
-  {
-    id: 'partner-lugia',
-    title: 'Partner: Lugia (Guardian of the Seas)',
-    category: 'action',
-    categoryLabel: 'Walking Partner',
-    icon: '🌊',
-    desc: 'Jadikan Lugia Sang Penjaga Samudra penguasa badai sebagai partner jalanmu.',
-    keywords: 'partner follower pokemon jalan dampingi teman lugia aeroblast samudra laut terbang psikis johto silver',
-    actionType: 'set-follower',
-    target: 'lugia',
-  },
-  {
-    id: 'partner-archaludon',
-    title: 'Partner: Archaludon (Alloy Railgun Dragon)',
-    category: 'action',
-    categoryLabel: 'Walking Partner',
-    icon: '⚡',
-    desc: 'Jadikan Archaludon sang menara baja penembak Electro Shot sebagai partner jalanmu.',
-    keywords: 'partner follower pokemon jalan dampingi teman archaludon electro shot steel dragon paldea',
-    actionType: 'set-follower',
-    target: 'archaludon',
-  },
-  {
-    id: 'partner-gougingfire',
-    title: 'Partner: Gouging Fire (Paradox Magma Sovereign)',
-    category: 'action',
-    categoryLabel: 'Walking Partner',
-    icon: '🔥',
-    desc: 'Jadikan Gouging Fire naga purba pelindung api membara sebagai partner jalanmu.',
-    keywords: 'partner follower pokemon jalan dampingi teman gouging fire burning bulwark paradox fire dragon',
-    actionType: 'set-follower',
-    target: 'gougingfire',
-  },
-  {
-    id: 'partner-greattusk',
-    title: 'Partner: Great Tusk (Paradox Iron-Tusk Titan)',
-    category: 'action',
-    categoryLabel: 'Walking Partner',
-    icon: '🐘',
-    desc: 'Jadikan Great Tusk sang raksasa gading purba Paldea sebagai partner jalanmu.',
-    keywords: 'partner follower pokemon jalan dampingi teman great tusk greattusk headlong rush paradox ground',
-    actionType: 'set-follower',
-    target: 'greattusk',
-  },
-  {
-    id: 'partner-kyurem',
-    title: 'Partner: Kyurem (Boundary Ice Dragon)',
-    category: 'action',
-    categoryLabel: 'Walking Partner',
-    icon: '❄️',
-    desc: 'Jadikan Kyurem sang naga es absolut penguasa Glaciate sebagai partner jalanmu.',
-    keywords: 'partner follower pokemon jalan dampingi teman kyurem glaciate unova ice dragon boundary',
-    actionType: 'set-follower',
-    target: 'kyurem',
-  },
-  {
-    id: 'partner-salamence',
-    title: 'Partner: Salamence (Sky Crimson Wing)',
-    category: 'action',
-    categoryLabel: 'Walking Partner',
-    icon: '🐲',
-    desc: 'Jadikan Salamence sang naga sayap merah penguasa langit sebagai partner jalanmu.',
-    keywords: 'partner follower pokemon jalan dampingi teman salamence draco meteor hoenn flying dragon',
-    actionType: 'set-follower',
-    target: 'salamence',
-  },
-  {
-    id: 'partner-dismiss',
-    title: 'Istirahatkan Walking Partner',
-    category: 'action',
-    categoryLabel: 'Walking Partner',
-    icon: '👟',
-    desc: 'Kembalikan partner Pokémon ke posisinya dan berjalan solo.',
-    keywords: 'partner follower solo lepas copot istirahat dismiss remove none',
-    actionType: 'set-follower',
-    target: 'dismiss',
-  },
-];
-
-// 2. Skill Items (Top & Featured Skills from profile)
-const skillItems: PaletteItem[] = skills.slice(0, 20).map((s) => ({
-  id: `skill-${s.name.toLowerCase().replace(/[^a-z0-9]/g, '-')}`,
-  title: `Keahlian: ${s.name}`,
-  category: 'skill',
-  categoryLabel: s.category || 'Skill',
-  icon: '⚡',
-  desc: `Digunakan dalam ${s.count} proyek/misi portofolio (${s.ring.toUpperCase()}).`,
-  keywords: `skill tech keahlian ${s.name} ${s.category || ''} stack coding`,
-  actionType: 'navigate',
-  target: `/dev#skills`,
-}));
-
-// 3. Featured Project & Research Items
-const projectItems: PaletteItem[] = missions.map((m) => ({
-  id: `proj-${m.id}`,
-  title: m.title,
-  category: 'project',
-  categoryLabel: m.type === 'launch' ? 'Proyek Unggulan' : 'Penugasan Tim',
-  icon: m.type === 'launch' ? '🚀' : '👥',
-  desc: m.summary,
-  keywords: `proyek project ${m.title} ${m.payload?.join(' ') || ''} ${m.org} ${m.summary}`,
-  actionType: 'navigate',
-  target: m.research ? '/lab' : '/dev',
-}));
-
-// 4. Town Navigation Items (Buildings & Landmarks)
-const placeItems: PaletteItem[] = [
-  {
-    id: 'place-dev',
-    title: 'Dev Center (Pusat Rekayasa Perangkat Lunak)',
-    category: 'place',
-    categoryLabel: 'Gedung',
-    icon: '💻',
-    desc: 'Timeline proyek, telemetri, dan radar keahlian Zulfan.',
-    keywords: 'dev center software engineering projects showcase',
-    actionType: 'fly',
-    target: '/dev',
-    flyCoords: { x: 16, y: 12 },
-  },
-  {
-    id: 'place-lab',
-    title: 'Research Lab (AI & Computer Vision)',
-    category: 'place',
-    categoryLabel: 'Gedung',
-    icon: '🔬',
-    desc: 'Publikasi tesis, riset YOLOv11 & deep learning.',
-    keywords: 'lab research riset ai computer vision tesis thesis',
-    actionType: 'fly',
-    target: '/lab',
-    flyCoords: { x: 27, y: 9 },
-  },
-  {
-    id: 'place-tower',
-    title: 'Tech Tower (IoT & Robotika R&D)',
-    category: 'place',
-    categoryLabel: 'Gedung',
-    icon: '🏢',
-    desc: 'Prototipe perangkat keras IoT, robotika, dan cloud backend.',
-    keywords: 'tower tech robotik iot hardware jaringan huawei',
-    actionType: 'fly',
-    target: '/tower',
-    flyCoords: { x: 38, y: 14 },
-  },
-  {
-    id: 'place-arcade',
-    title: 'Retro Arcade (Kalah Minimax Game)',
-    category: 'place',
-    categoryLabel: 'Gedung',
-    icon: '🕹️',
-    desc: 'Bermain game strategi papan Mancala melawan bot Alpha-Beta.',
-    keywords: 'arcade game kalah mancala deoxys bot minimax main',
-    actionType: 'fly',
-    target: '/arcade',
-    flyCoords: { x: 28, y: 43 },
-  },
-  {
-    id: 'place-mart',
-    title: 'Poké Mart (Katalog Layanan & Gear)',
-    category: 'place',
-    categoryLabel: 'Gedung',
-    icon: '🏪',
-    desc: 'Layanan konsultasi rekayasa sistem, tech gear, dan CV.',
-    keywords: 'mart poke mart toko services cv beli belanja download',
-    actionType: 'fly',
-    target: '/mart',
-    flyCoords: { x: 15, y: 42 },
-  },
-  {
-    id: 'place-reception',
-    title: 'Poké Center (Front Desk Sambutan)',
-    category: 'place',
-    categoryLabel: 'Gedung',
-    icon: '🏥',
-    desc: 'Mira di meja depan menyambut Anda dan memberi arahan kota.',
-    keywords: 'reception center front desk mira panduan halo',
-    actionType: 'fly',
-    target: '/reception',
-    flyCoords: { x: 15, y: 35 },
-  },
-  {
-    id: 'place-arena',
-    title: 'Battle Arena (Frontier Tech Quiz)',
-    category: 'place',
-    categoryLabel: 'Landmark',
-    icon: '⚔️',
-    desc: 'Tantang Mewtwo dalam kuis logika dan arsitektur teknologi.',
-    keywords: 'arena battle mewtwo quiz kuis tanding duel tantangan',
-    actionType: 'fly',
-    flyCoords: { x: 28, y: 24 },
-  },
-  {
-    id: 'place-fountain',
-    title: 'Fountain Plaza (Air Mancur Pusat Kota)',
-    category: 'place',
-    categoryLabel: 'Landmark',
-    icon: '⛲',
-    desc: 'Plaza melingkar air mancur pegunungan yang jernih.',
-    keywords: 'fountain plaza air mancur tengah square santai',
-    actionType: 'fly',
-    flyCoords: { x: 28, y: 33 },
-  },
-];
-
-// 5. Pokémon Guardians
-const pokemonItems: PaletteItem[] = [
-  {
-    id: 'pkmn-charizard',
-    title: 'Charizard (Sang Naga Api & Problem Solver)',
-    category: 'pokemon',
-    categoryLabel: 'Pokémon',
-    icon: '🔥',
-    desc: 'Melambangkan keuletan problem solving full-stack engineering.',
-    keywords: 'charizard naga api fire flying dragon pokemon',
-    actionType: 'fly',
-    flyCoords: { x: 26, y: 33 },
-  },
-  {
-    id: 'pkmn-tyranitar',
-    title: 'Tyranitar (Armor Rock & Backend Resilient)',
-    category: 'pokemon',
-    categoryLabel: 'Pokémon',
-    icon: '🪨',
-    desc: 'Ketahanan arsitektur backend andal tahan uji beban tinggi.',
-    keywords: 'tyranitar batu rock dark pasir sandstorm blastoise',
-    actionType: 'fly',
-    flyCoords: { x: 37, y: 43 },
-  },
-  {
-    id: 'pkmn-mewtwo',
-    title: 'Mewtwo (Guardian of Battle Arena)',
-    category: 'pokemon',
-    categoryLabel: 'Pokémon',
-    icon: '🔮',
-    desc: 'Penguasa arena teknologi Sinnoh menantang kecerdasan Anda.',
-    keywords: 'mewtwo psychic psikis arena kuis master',
-    actionType: 'fly',
-    flyCoords: { x: 28, y: 22 },
-  },
-  {
-    id: 'pkmn-arceus',
-    title: 'Arceus (The Alpha System Architect)',
-    category: 'pokemon',
-    categoryLabel: 'Pokémon',
-    icon: '✨',
-    desc: 'Simbol arsitektur sistem holistik end-to-end Zulfan.',
-    keywords: 'arceus tuhan dewa alpha pelindung arsitek system',
-    actionType: 'fly',
-    flyCoords: { x: 16, y: 17 },
-  },
-];
-
-const allPaletteItems: PaletteItem[] = [
-  ...actionItems,
-  ...placeItems,
-  ...skillItems,
-  ...projectItems,
-  ...pokemonItems,
-];
+// CommandPalette.astro — Pokénav Search (lazy-hydrated from /data/palette.json on first open)
 ---
 
 <dialog id="command-palette-modal" class="sheet pokenav-palette-dialog max-w-xl">
@@ -868,59 +54,8 @@ const allPaletteItems: PaletteItem[] = [
       <button type="button" class="pokenav-chip" data-filter="pokemon">🐾 Pokémon</button>
     </div>
 
-    <!-- Results List View -->
-    <div id="pokenav-results-container" class="max-h-[50vh] overflow-y-auto space-y-1.5 pr-1 mt-1 font-sans">
-      {allPaletteItems.map((item, idx) => (
-        <div
-          class="pokenav-item group"
-          data-palette-item
-          data-id={item.id}
-          data-category={item.category}
-          data-keywords={item.keywords.toLowerCase()}
-          data-action-type={item.actionType}
-          data-target={item.target || ''}
-          data-fly-x={item.flyCoords?.x ?? ''}
-          data-fly-y={item.flyCoords?.y ?? ''}
-          data-index={idx}
-          tabindex="0"
-          role="option"
-        >
-          <div class="flex items-center gap-2.5 min-w-0">
-            <span class="pokenav-item-icon text-lg flex-shrink-0 w-8 h-8 rounded flex items-center justify-center bg-slate-800/80 border border-slate-700/60 group-hover:scale-110 transition-transform">
-              {item.icon}
-            </span>
-            <div class="min-w-0 flex-1">
-              <div class="flex items-center gap-2">
-                <span class="pokenav-item-title font-pixel text-[11px] text-slate-100 group-hover:text-emerald-300 truncate font-semibold">
-                  {item.title}
-                </span>
-                <span class="pokenav-item-badge text-[9px] font-mono px-1 py-0.2 rounded bg-slate-800 text-emerald-400/90 border border-emerald-900/50 flex-shrink-0">
-                  {item.categoryLabel}
-                </span>
-              </div>
-              <p class="font-sans text-[10.5px] text-slate-400 group-hover:text-slate-300 truncate mt-0.5 leading-tight">
-                {item.desc}
-              </p>
-            </div>
-          </div>
-          <span class="pokenav-item-action text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800/60 border border-slate-700/50 text-slate-400 group-hover:bg-emerald-600 group-hover:text-white group-hover:border-emerald-500 transition-all flex-shrink-0 ml-2">
-            {item.actionType === 'download'
-              ? 'Unduh ↗'
-              : item.actionType === 'copy'
-              ? 'Salin 📋'
-              : item.actionType === 'fly'
-              ? 'Terbang 🦅'
-              : item.actionType === 'toggle-bike'
-              ? 'Toggle 🚲'
-              : item.actionType === 'toggle-minimap'
-              ? 'Radar 🧭'
-              : item.actionType === 'toggle-editor'
-              ? 'Editor 🛠️'
-              : 'Buka ↵'}
-          </span>
-        </div>
-      ))}
-    </div>
+    <!-- Results List View (populated lazily from /data/palette.json) -->
+    <div id="pokenav-results-container" class="max-h-[50vh] overflow-y-auto space-y-1.5 pr-1 mt-1 font-sans"></div>
 
     <!-- Empty State -->
     <div id="pokenav-empty-state" class="hidden py-8 text-center text-slate-400 font-mono text-xs">
@@ -997,6 +132,27 @@ const allPaletteItems: PaletteItem[] = [
 </style>
 
 <script>
+  import { navigateWithMapTransition } from '../lib/mapTransition';
+  import type { PaletteItem } from '../pages/data/palette.json';
+
+  function escHtml(str: string): string {
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function actionLabelFor(actionType: PaletteItem['actionType']): string {
+    if (actionType === 'download') return 'Unduh ↗';
+    if (actionType === 'copy') return 'Salin 📋';
+    if (actionType === 'fly') return 'Terbang 🦅';
+    if (actionType === 'toggle-bike') return 'Toggle 🚲';
+    if (actionType === 'toggle-minimap') return 'Radar 🧭';
+    if (actionType === 'toggle-editor') return 'Editor 🛠️';
+    return 'Buka ↵';
+  }
+
   function initCommandPalette() {
     const modal = document.getElementById('command-palette-modal') as HTMLDialogElement | null;
     const input = document.getElementById('pokenav-search-input') as HTMLInputElement | null;
@@ -1009,6 +165,50 @@ const allPaletteItems: PaletteItem[] = [
 
     let activeFilter = 'all';
     let selectedIndex = 0;
+    let loadPromise: Promise<void> | null = null;
+
+    const ensurePaletteLoaded = (): Promise<void> => {
+      if (container.childElementCount > 0) return Promise.resolve();
+      loadPromise ??= fetch('/data/palette.json')
+        .then((res) => (res.ok ? res.json() : []))
+        .then((items: PaletteItem[]) => {
+          container.innerHTML = items
+            .map(
+              (item, idx) => `
+              <div
+                class="pokenav-item group"
+                data-palette-item
+                data-id="${escHtml(item.id)}"
+                data-category="${escHtml(item.category)}"
+                data-keywords="${escHtml(item.keywords.toLowerCase())}"
+                data-action-type="${escHtml(item.actionType)}"
+                data-target="${escHtml(item.target || '')}"
+                data-fly-x="${item.flyCoords?.x ?? ''}"
+                data-fly-y="${item.flyCoords?.y ?? ''}"
+                data-index="${idx}"
+                tabindex="0"
+                role="option"
+              >
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <span class="pokenav-item-icon text-lg flex-shrink-0 w-8 h-8 rounded flex items-center justify-center bg-slate-800/80 border border-slate-700/60 group-hover:scale-110 transition-transform">${escHtml(item.icon)}</span>
+                  <div class="min-w-0 flex-1">
+                    <div class="flex items-center gap-2">
+                      <span class="pokenav-item-title font-pixel text-[11px] text-slate-100 group-hover:text-emerald-300 truncate font-semibold">${escHtml(item.title)}</span>
+                      <span class="pokenav-item-badge text-[9px] font-mono px-1 py-0.2 rounded bg-slate-800 text-emerald-400/90 border border-emerald-900/50 flex-shrink-0">${escHtml(item.categoryLabel)}</span>
+                    </div>
+                    <p class="font-sans text-[10.5px] text-slate-400 group-hover:text-slate-300 truncate mt-0.5 leading-tight">${escHtml(item.desc)}</p>
+                  </div>
+                </div>
+                <span class="pokenav-item-action text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800/60 border border-slate-700/50 text-slate-400 group-hover:bg-emerald-600 group-hover:text-white group-hover:border-emerald-500 transition-all flex-shrink-0 ml-2">${actionLabelFor(item.actionType)}</span>
+              </div>`
+            )
+            .join('');
+        })
+        .catch(() => {
+          loadPromise = null;
+        });
+      return loadPromise;
+    };
 
     const getVisibleItems = (): HTMLElement[] => {
       return Array.from(container.querySelectorAll<HTMLElement>('[data-palette-item]')).filter(
@@ -1026,7 +226,7 @@ const allPaletteItems: PaletteItem[] = [
           el.classList.remove('is-selected');
         }
       });
-      selectedIndex = Math.max(0, Math.min(index, visible.length - 1));
+      selectedIndex = Math.max(0, Math.min(index, Math.max(0, visible.length - 1)));
     };
 
     const applyFilterAndSearch = () => {
@@ -1062,7 +262,6 @@ const allPaletteItems: PaletteItem[] = [
       updateSelection(0);
     };
 
-    // Filter Chips click
     chips.forEach((chip) => {
       chip.addEventListener('click', () => {
         chips.forEach((c) => c.classList.remove('active'));
@@ -1072,10 +271,8 @@ const allPaletteItems: PaletteItem[] = [
       });
     });
 
-    // Input Search listener
     input.addEventListener('input', applyFilterAndSearch);
 
-    // Keyboard navigation inside input & modal
     modal.addEventListener('keydown', (e) => {
       const visible = getVisibleItems();
       if (visible.length === 0) return;
@@ -1096,7 +293,6 @@ const allPaletteItems: PaletteItem[] = [
       }
     });
 
-    // Execute palette action
     const executePaletteItem = (item: HTMLElement) => {
       const actionType = item.getAttribute('data-action-type');
       const target = item.getAttribute('data-target') || '';
@@ -1106,9 +302,7 @@ const allPaletteItems: PaletteItem[] = [
       modal.close();
 
       if (actionType === 'download') {
-        if (target) {
-          window.open(target, '_blank');
-        }
+        if (target) window.open(target, '_blank');
       } else if (actionType === 'copy') {
         if (target) {
           navigator.clipboard?.writeText(target).then(() => {
@@ -1133,37 +327,27 @@ const allPaletteItems: PaletteItem[] = [
           } else {
             sessionStorage.setItem('town:respawn', `${x},${y}`);
             sessionStorage.setItem('town:fly_anim', '1');
-            window.location.href = '/';
+            navigateWithMapTransition('/');
           }
         } else if (target) {
-          window.location.href = target;
+          navigateWithMapTransition(target);
         }
       } else if (actionType === 'navigate') {
-        if (target) {
-          window.location.href = target;
-        }
+        if (target) navigateWithMapTransition(target);
       } else if (actionType === 'modal') {
-        if (target) {
-          document.dispatchEvent(new CustomEvent('town:open-modal', { detail: { target } }));
-        }
+        if (target) document.dispatchEvent(new CustomEvent('town:open-modal', { detail: { target } }));
       } else if (actionType === 'toggle-bike') {
         window.dispatchEvent(new CustomEvent('town:toggle-bike-request'));
       } else if (actionType === 'toggle-minimap') {
         window.dispatchEvent(new CustomEvent('town:toggle-minimap'));
       } else if (actionType === 'set-atmosphere') {
-        if (target) {
-          window.dispatchEvent(new CustomEvent('town:set-atmosphere', { detail: { atmosphere: target } }));
-        }
+        if (target) window.dispatchEvent(new CustomEvent('town:set-atmosphere', { detail: { atmosphere: target } }));
       } else if (actionType === 'set-weather') {
-        if (target) {
-          window.dispatchEvent(new CustomEvent('town:set-weather', { detail: { weather: target } }));
-        }
+        if (target) window.dispatchEvent(new CustomEvent('town:set-weather', { detail: { weather: target } }));
       } else if (actionType === 'toggle-bgm') {
         window.dispatchEvent(new CustomEvent('town:toggle-bgm-request'));
       } else if (actionType === 'set-follower') {
-        if (target) {
-          window.dispatchEvent(new CustomEvent('town:set-follower', { detail: { followerId: target } }));
-        }
+        if (target) window.dispatchEvent(new CustomEvent('town:set-follower', { detail: { followerId: target } }));
       } else if (actionType === 'toggle-editor') {
         window.dispatchEvent(new CustomEvent('town:toggle-editor'));
       } else if (actionType === 'start-tour') {
@@ -1172,7 +356,7 @@ const allPaletteItems: PaletteItem[] = [
           window.dispatchEvent(new CustomEvent('town:start-tour'));
         } else {
           sessionStorage.setItem('town:start_tour', '1');
-          window.location.href = '/';
+          navigateWithMapTransition('/');
         }
       } else if (actionType === 'toggle-pokesnap') {
         window.dispatchEvent(new CustomEvent('town:toggle-pokesnap'));
@@ -1187,21 +371,19 @@ const allPaletteItems: PaletteItem[] = [
       }
     };
 
-    // Item click
     container.addEventListener('click', (e) => {
       const item = (e.target as HTMLElement).closest<HTMLElement>('[data-palette-item]');
-      if (item) {
-        executePaletteItem(item);
-      }
+      if (item) executePaletteItem(item);
     });
 
-    // Open & Close
     const openModal = () => {
       modal.showModal();
       input.value = '';
       activeFilter = 'all';
       chips.forEach((c) => c.classList.toggle('active', c.getAttribute('data-filter') === 'all'));
-      applyFilterAndSearch();
+      ensurePaletteLoaded().then(() => {
+        applyFilterAndSearch();
+      });
       setTimeout(() => input.focus(), 50);
     };
 
@@ -1210,7 +392,6 @@ const allPaletteItems: PaletteItem[] = [
       if (e.target === modal) modal.close();
     });
 
-    // Global Hotkey: Ctrl+K or Cmd+K
     window.addEventListener('keydown', (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
@@ -1222,10 +403,8 @@ const allPaletteItems: PaletteItem[] = [
       }
     });
 
-    // Event listener from HUD button
     window.addEventListener('town:open-command-palette', openModal);
   }
 
   document.addEventListener('DOMContentLoaded', initCommandPalette);
 </script>
-

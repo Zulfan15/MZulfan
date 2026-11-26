@@ -41,9 +41,9 @@ export async function adaptGaspiritamonForPortfolio(
     const battleLarge = set.groups.battleLarge ?? battle;
     const hd = set.groups.hd ?? [];
 
-    // DigiDex Battle Idle showcases South & South-West HD portraits,
-    // while Signature Attack unleashes Fenrir Maelstrom hammer arcs and glacial wolf lunge from `battle.jpg`.
-    const largeIdle = [hd[0], hd[1]].filter(Boolean);
+    // DigiDex Battle Idle showcases the crisp South HD portrait with smooth floating bob,
+    // while Signature Attack unleashes Fenrir Maelstrom hammer arcs and glacial wolf lunge from `battle.webp`.
+    const largeIdle = [hd[0]].filter(Boolean);
     const largeAttack = battleLarge.slice(0, 4);
     const overworld = [...walk, ...battle];
 

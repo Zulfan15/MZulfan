@@ -5,23 +5,23 @@ import type { Direction8, FrameRect } from '../_shared/types';
  * Data only — zero Canvas or engine imports. Edit only these numbers if assets change.
  */
 
-// ── 1. idle.jpg & battle.jpg shared 8x4 grid (2752x1536) ───────────────────
+// ── 1. idle.webp & battle.webp shared 8x4 grid (2752x1536) ──────────────────
 const GRID_8X4_COLS: readonly [number, number][] = [
-  [9, 329],
-  [352, 328],
-  [695, 330],
-  [1039, 330],
-  [1383, 330],
-  [1727, 329],
-  [2071, 328],
-  [2415, 328],
+  [6, 336],
+  [350, 335],
+  [692, 337],
+  [1036, 337],
+  [1379, 337],
+  [1723, 337],
+  [2067, 335],
+  [2411, 335],
 ];
 
 const GRID_8X4_ROWS: readonly [number, number][] = [
-  [6, 368],
-  [390, 371],
-  [775, 372],
-  [1165, 366],
+  [2, 376],
+  [386, 379],
+  [771, 383],
+  [1162, 372],
 ];
 
 export const gridCell8x4 = (row: number, col: number): FrameRect => ({
@@ -62,14 +62,14 @@ export interface CellStep {
 }
 
 /**
- * Verified (row, col) sequences per direction in `idle.jpg`:
- * - S : (2,0), (1,4), (2,4), (3,4) — cohesive 4-frame hovering South arbiter pose (excludes spread-leg (0,4))
+ * Verified (row, col) sequences per direction in `idle.webp`:
+ * - S : (2,0), (1,4), (2,4), (3,0) — cohesive 4-frame hovering South arbiter pose with greatsword intact
  * - SW: (0,5)..(3,5) — 3/4 front-left
- * - W : horizontally mirrors Col 2 (0,2), (1,2), (2,2) so every West idle frame keeps full wings
+ * - W : horizontally mirrors Col 2 (0,2), (1,2) so every West idle frame stays aligned without cape snap
  * - NW: (0,7)..(3,7) — back-left / back with shifting stance
  * - N : (0,0), (1,0) — symmetrical full-cape straight back
  * - NE: (0,1), (1,1) — 3/4 back-right
- * - E : (0,2), (1,2), (2,2), (1,2) — pure right profile with consistent full wings (avoids (3,2) sword pop-in)
+ * - E : (0,2), (1,2), (0,2), (1,2) — pure right profile with consistent wings & cape
  * - SE: (1,3), (2,3), (3,3) — 3/4 front-right (excludes (0,3) which is pure profile)
  */
 export const HOLLOKNIGHTMON_IDLE_STEPS_BY_DIR: Record<Direction8, readonly CellStep[]> = {
@@ -77,7 +77,7 @@ export const HOLLOKNIGHTMON_IDLE_STEPS_BY_DIR: Record<Direction8, readonly CellS
     { row: 2, col: 0 },
     { row: 1, col: 4 },
     { row: 2, col: 4 },
-    { row: 3, col: 4 },
+    { row: 3, col: 0 },
   ],
   SW: [
     { row: 0, col: 5 },
@@ -88,7 +88,7 @@ export const HOLLOKNIGHTMON_IDLE_STEPS_BY_DIR: Record<Direction8, readonly CellS
   W: [
     { row: 0, col: 2, flipX: true },
     { row: 1, col: 2, flipX: true },
-    { row: 2, col: 2, flipX: true },
+    { row: 0, col: 2, flipX: true },
     { row: 1, col: 2, flipX: true },
   ],
   NW: [
@@ -112,7 +112,7 @@ export const HOLLOKNIGHTMON_IDLE_STEPS_BY_DIR: Record<Direction8, readonly CellS
   E: [
     { row: 0, col: 2 },
     { row: 1, col: 2 },
-    { row: 2, col: 2 },
+    { row: 0, col: 2 },
     { row: 1, col: 2 },
   ],
   SE: [
@@ -124,13 +124,13 @@ export const HOLLOKNIGHTMON_IDLE_STEPS_BY_DIR: Record<Direction8, readonly CellS
 };
 
 /**
- * 4 high-res hovering South frames in `idle.jpg` for DigiDex Battle Idle showcase.
+ * 4 high-res hovering South frames in `idle.webp` for DigiDex Battle Idle showcase.
  */
 export const HOLLOKNIGHTMON_LARGE_IDLE_RECTS: readonly FrameRect[] = [
   gridCell8x4(2, 0),
   gridCell8x4(1, 4),
   gridCell8x4(2, 4),
-  gridCell8x4(3, 4),
+  gridCell8x4(3, 0),
 ];
 
 /**
@@ -204,24 +204,24 @@ export const HOLLOKNIGHTMON_BATTLE_RECTS: readonly FrameRect[] = [
   gridCell8x4(3, 5), // 7: Row 3 deep finishing cleave
 ];
 
-// ── 3. holloknightmon.jpg (2400x1792: icon + 8 HD portraits + 8 mini thumbs) ─
+// ── 3. holloknightmon.webp (2400x1792: icon + 8 HD portraits + 8 mini thumbs) ─
 export const HOLLOKNIGHTMON_JPG_ICON_RECT: FrameRect = {
   x: 16,
   y: 12,
-  w: 230,
+  w: 234,
   h: 234,
 };
 
 /** 8 HD portraits ordered canonically as `DIRECTIONS_8` (`S, SW, W, NW, N, NE, E, SE`). */
 export const HOLLOKNIGHTMON_JPG_HD_RECTS: readonly FrameRect[] = [
-  { x: 25, y: 928, w: 660, h: 616 },   // S
-  { x: 686, y: 928, w: 587, h: 616 },  // SW
-  { x: 1274, y: 928, w: 480, h: 616 }, // W
-  { x: 1795, y: 928, w: 575, h: 616 }, // NW
-  { x: 38, y: 202, w: 636, h: 645 },   // N
-  { x: 712, y: 202, w: 522, h: 645 },  // NE
-  { x: 1320, y: 202, w: 310, h: 645 }, // E
-  { x: 1850, y: 202, w: 530, h: 645 }, // SE
+  { x: 25, y: 902, w: 660, h: 644 },   // S
+  { x: 686, y: 902, w: 587, h: 644 },  // SW
+  { x: 1274, y: 902, w: 480, h: 644 }, // W
+  { x: 1795, y: 902, w: 575, h: 644 }, // NW
+  { x: 38, y: 208, w: 636, h: 640 },   // N
+  { x: 712, y: 208, w: 522, h: 640 },  // NE
+  { x: 1320, y: 208, w: 310, h: 640 }, // E
+  { x: 1850, y: 208, w: 530, h: 640 }, // SE
 ];
 
 const MINI_SPANS: readonly [number, number][] = [

@@ -1,13 +1,13 @@
 import type { ActionClip, DirectionalClip } from '../_shared/types';
-import { MASTENAMON_WALK_STEPS_PER_DIR } from './mastenamon.frames';
+import { MASTENAMON_IDLE_STEPS_PER_DIR, MASTENAMON_WALK_STEPS_PER_DIR } from './mastenamon.frames';
 
 /**
  * Pure animation timeline definitions for Mastenamon (data only).
  */
 export const MASTENAMON_IDLE_CLIP: DirectionalClip = {
   group: 'idle',
-  framesPerDirection: 1,
-  fps: 1,
+  framesPerDirection: MASTENAMON_IDLE_STEPS_PER_DIR,
+  fps: 4,
 };
 
 export const MASTENAMON_WALK_CLIP: DirectionalClip = {

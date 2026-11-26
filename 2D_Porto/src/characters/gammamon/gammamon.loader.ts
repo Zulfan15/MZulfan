@@ -40,6 +40,25 @@ import { GAMMAMON_META } from './gammamon.meta';
 const spriteCache = new Map<string, CharacterSpriteSet>();
 const inflightByBase = new Map<string, Promise<CharacterSpriteSet>>();
 
+/** Pads all frames in a sequence to a shared bottom-centered canvas so scale stays uniform across steps. */
+function padToUniformBottomCenter(frames: CharacterFrame[]): CharacterFrame[] {
+  if (frames.length <= 1) return frames;
+  const maxW = Math.max(1, ...frames.map((f) => f.width));
+  const maxH = Math.max(1, ...frames.map((f) => f.height));
+  return frames.map((f) => {
+    if (f.width === maxW && f.height === maxH) return f;
+    const canvas = document.createElement('canvas');
+    canvas.width = maxW;
+    canvas.height = maxH;
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(f.canvas, Math.floor((maxW - f.width) / 2), maxH - f.height);
+    }
+    return { canvas, width: maxW, height: maxH };
+  });
+}
+
 /**
  * Loads and cleanly slices all 4 Gammamon sprite sheets into a cached `CharacterSpriteSet`.
  * Deliberately omits `isolateMainBody` on sprites/HD/battle so dorsal steam plumes stay intact.
@@ -124,10 +143,12 @@ export async function loadGammamon(
       trim: 'uniform',
     }).map((f) => downscaleFrame(f, 220, true));
 
-    const rawBattle = sliceFrames(battleImg, GAMMAMON_BATTLE_RECTS, {
-      chroma: 'lossy-green',
-      trim: 'tight',
-    });
+    const rawBattle = padToUniformBottomCenter(
+      sliceFrames(battleImg, GAMMAMON_BATTLE_RECTS, {
+        chroma: 'lossy-green',
+        trim: 'tight',
+      })
+    );
     const battle = rawBattle.map((f) => downscaleFrame(f, 112, true));
     const battleLarge = rawBattle.map((f) => downscaleFrame(f, 220, true));
     await yieldToFrame();

@@ -5,23 +5,23 @@ import type { Direction8, FrameRect } from '../_shared/types';
  * Data only — zero Canvas or engine imports. Edit only these numbers if assets change.
  */
 
-// ── 1. idle.jpg, walk-cycle.jpg & battle.jpg shared 8x4 grid (2752x1536) ────
+// ── 1. idle.webp, walk-cycle.webp & battle.webp shared 8x4 grid (2752x1536) ─
 const GRID_8X4_COLS: readonly [number, number][] = [
-  [13, 326],
-  [357, 324],
-  [700, 324],
-  [1042, 324],
-  [1385, 324],
-  [1727, 324],
-  [2070, 324],
-  [2412, 326],
+  [10, 333],
+  [354, 331],
+  [697, 331],
+  [1039, 331],
+  [1382, 331],
+  [1724, 331],
+  [2067, 331],
+  [2409, 333],
 ];
 
 const GRID_8X4_ROWS: readonly [number, number][] = [
-  [7, 366],
-  [391, 368],
-  [777, 368],
-  [1163, 366],
+  [3, 374],
+  [388, 374],
+  [774, 374],
+  [1160, 374],
 ];
 
 export const gridCell8x4 = (row: number, col: number): FrameRect => ({
@@ -113,24 +113,24 @@ export const JESMON_X_DS_IDLE_RECTS: readonly FrameRect[] = [
   { x: 1552, y: 116, w: 768, h: 672 },
 ];
 
-// ── 4. jesmon-x.jpg (2400x1792: icon + 8 HD portraits + 8 mini thumbs) ─────
+// ── 4. jesmon-x.webp (2400x1792: icon + 8 HD portraits + 8 mini thumbs) ────
 export const JESMON_X_JPG_ICON_RECT: FrameRect = {
   x: 20,
   y: 12,
-  w: 192,
-  h: 198,
+  w: 204,
+  h: 212,
 };
 
 /** 8 HD portraits ordered canonically as `DIRECTIONS_8` (`S, SW, W, NW, N, NE, E, SE`). */
 export const JESMON_X_JPG_HD_RECTS: readonly FrameRect[] = [
-  { x: 15, y: 950, w: 765, h: 675 },  // S
-  { x: 785, y: 950, w: 565, h: 675 }, // SW
-  { x: 1350, y: 950, w: 470, h: 675 },// W
-  { x: 1830, y: 950, w: 535, h: 675 },// NW
-  { x: 10, y: 254, w: 660, h: 620 },  // N
-  { x: 740, y: 254, w: 620, h: 620 }, // NE (skips blurred gap between N and NE)
-  { x: 1380, y: 254, w: 385, h: 620 },// E
-  { x: 1765, y: 254, w: 605, h: 620 },// SE
+  { x: 15, y: 938, w: 765, h: 694 },   // S
+  { x: 785, y: 938, w: 565, h: 694 },  // SW
+  { x: 1350, y: 938, w: 470, h: 694 }, // W
+  { x: 1830, y: 938, w: 535, h: 694 }, // NW
+  { x: 8, y: 212, w: 715, h: 670 },    // N
+  { x: 740, y: 212, w: 630, h: 670 },  // NE (skips blurred gap between N and NE)
+  { x: 1370, y: 212, w: 405, h: 670 }, // E
+  { x: 1765, y: 212, w: 615, h: 670 }, // SE
 ];
 
 const MINI_SPANS: readonly [number, number][] = [

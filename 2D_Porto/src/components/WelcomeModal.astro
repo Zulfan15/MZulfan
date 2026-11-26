@@ -102,6 +102,7 @@ import { profile } from '../lib/profile';
 
 <script>
   import { sfx } from '../game/sfx';
+  import { navigateWithMapTransition } from '../lib/mapTransition';
 
   function initWelcomeModal() {
     const modal = document.getElementById('welcome-modal') as HTMLDialogElement | null;
@@ -135,7 +136,7 @@ import { profile } from '../lib/profile';
         window.dispatchEvent(new CustomEvent('town:start-tour'));
       } else {
         sessionStorage.setItem('town:start_tour', '1');
-        window.location.href = '/';
+        navigateWithMapTransition('/');
       }
     });
 
@@ -143,13 +144,21 @@ import { profile } from '../lib/profile';
     const STORAGE_KEY = 'zulfan_town_welcomed';
     const hasSeen = localStorage.getItem(STORAGE_KEY);
 
-    if (!hasSeen) {
-      // Show automatically on first visit
+    const scheduleWelcome = () => {
+      if (localStorage.getItem(STORAGE_KEY)) return;
       setTimeout(() => {
-        if (!modal.open) {
+        if (!modal.open && document.documentElement.dataset.title !== 'on') {
           modal.showModal();
         }
       }, 250);
+    };
+
+    if (!hasSeen) {
+      if (document.documentElement.dataset.title === 'on') {
+        window.addEventListener('town:title-closed', scheduleWelcome, { once: true });
+      } else {
+        scheduleWelcome();
+      }
     }
 
     // Dismiss on CTA button click

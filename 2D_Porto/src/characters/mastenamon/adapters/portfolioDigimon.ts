@@ -5,23 +5,23 @@ import { MASTENAMON_META } from '../mastenamon.meta';
 
 /**
  * Layout inside `adaptMastenamonForPortfolio().overworld`:
- * - [0..7]   : idle (`S, SW, W, NW, N, NE, E, SE`) from `idle.png`
- * - [8..39]  : walk (`S(8..11), SW(12..15), W(16..19), NW(20..23), N(24..27), NE(28..31), E(32..35), SE(36..39)`) from `walk-cycle.jpg`
- * - [40..47] : battle (`0..7`) from `battle.png`
+ * - [0..31]  : idle (`S(0..3), SW(4..7), W(8..11), NW(12..15), N(16..19), NE(20..23), E(24..27), SE(28..31)`) from `idle-cycle.webp`
+ * - [32..63] : walk (`S(32..35), SW(36..39), W(40..43), NW(44..47), N(48..51), NE(52..55), E(56..59), SE(60..63)`) from `walk-cycle.webp`
+ * - [64..71] : battle (`0..7`) from `battle.png`
  */
 export const MASTENAMON_PORTFOLIO_POSE_MAP: OverworldPoseMap = {
-  back: [24, 25, 26, 27],
-  front: [8, 9, 10, 11],
-  side: [16, 17, 18, 19],
-  west: [16, 17, 18, 19],
-  east: [32, 33, 34, 35],
+  back: [48, 49, 50, 51],
+  front: [32, 33, 34, 35],
+  side: [40, 41, 42, 43],
+  west: [40, 41, 42, 43],
+  east: [56, 57, 58, 59],
   idle: {
-    front: [0],
-    west: [2],
-    back: [4],
-    east: [6],
+    front: [0, 1, 2, 3],
+    west: [8, 9, 10, 11],
+    back: [16, 17, 18, 19],
+    east: [24, 25, 26, 27],
   },
-  action: [44, 45, 41, 43],
+  action: [68, 69, 65, 67],
   nativeFacing: 'left',
 };
 
@@ -41,10 +41,11 @@ export async function adaptMastenamonForPortfolio(
     const walk = set.groups.walk ?? [];
     const battle = set.groups.battle ?? [];
     const hd = set.groups.hd ?? [];
+    const idleLarge = set.groups.idleLarge ?? [];
 
-    // Portfolio DigiDex showcases South & South-East HD portraits on Battle Idle,
+    // Portfolio DigiDex showcases the 4-frame South idle cycle on Battle Idle,
     // and golden Holy Desire (battle[4]) + cyan Chaos Degradation (battle[5]) on Signature Attack.
-    const largeIdle = [hd[0], hd[7]].filter(Boolean);
+    const largeIdle = idleLarge.length > 0 ? idleLarge : hd.slice(0, 1);
     const largeAttack = [battle[4], battle[5], battle[1], battle[3]].filter(Boolean);
     const overworld = [...idle, ...walk, ...battle];
 

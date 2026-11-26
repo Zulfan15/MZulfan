@@ -1,6 +1,5 @@
 import type { CharacterPalette, TownMap } from './types';
-import { drawPikachu } from './townBackground';
-import { TILE_SIZE, drawCharacter, drawLucario } from './sprites';
+import { TILE_SIZE, drawCharacter, drawLucario, drawPikachu } from './sprites';
 import { townConfig } from './townConfig';
 import type { PokemonPMDAnimator } from './pokemonPMDAnimator';
 import {
@@ -2152,7 +2151,6 @@ export function renderOverworldPokemonNPCs(
         );
       } else if ((b.subType === 'snorlax' || b.id === 'snorlax') && host.pmdAnimator.isSupported('snorlax')) {
         const coreX = b.x * TILE_SIZE + 8;
-        const coreY = b.y * TILE_SIZE + 16;
         const breath = Math.sin(host.tick * 0.035) * 0.8;
 
         // Ground shadow

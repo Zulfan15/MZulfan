@@ -21,7 +21,7 @@ export const HOLLOKNIGHTMON_PORTFOLIO_POSE_MAP: OverworldPoseMap = {
     back: [16, 17, 18, 19],
     east: [24, 25, 26, 27],
   },
-  action: [64, 65, 66, 67],
+  action: [65, 66, 67, 64],
   nativeFacing: 'left',
 };
 
@@ -44,10 +44,13 @@ export async function adaptHolloknightmonForPortfolio(
     const battleLarge = set.groups.battleLarge ?? battle;
     const hd = set.groups.hd ?? [];
 
-    // DigiDex Battle Idle plays the 4-frame hovering South animation from `idle.jpg`,
-    // while Signature Attack plays the sequential Row 2 Radiance Decree solar slash combo from `battle.jpg`.
+    // DigiDex Battle Idle plays the 4-frame hovering South animation from `idle.webp`,
+    // while Signature Attack ignites Solar Flame (B1) into Radiance Decree Solar Crescent Slash (B2/B3).
     const largeIdle = idleLarge.length > 0 ? idleLarge : hd.slice(0, 1);
-    const largeAttack = battleLarge.slice(0, 4);
+    const largeAttack =
+      battleLarge.length >= 4
+        ? [battleLarge[1], battleLarge[2], battleLarge[3], battleLarge[0]]
+        : battleLarge.slice(0, 4);
     const overworld = [...idle, ...walk, ...battle];
 
     return {

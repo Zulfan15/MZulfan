@@ -1,0 +1,624 @@
+---
+import TownLayout from '../../layouts/TownLayout.astro';
+import WhereTo from '../../components/WhereTo.astro';
+import { profile, launches, fmtMonth, fmtRange } from '../../lib/profile';
+import { SKY_PLUMES_META } from '../../engine/skyInteriorShared';
+
+const allPlumes = Object.values(SKY_PLUMES_META);
+const featuredProjects = launches.filter((m) =>
+  ['aeroscan', 'foodlink', 'thesis-gambling-spam'].includes(m.id),
+);
+
+const citadelStations = [
+  {
+    key: '1',
+    propId: 'rayquaza',
+    icon: '🐉',
+    name: 'Rayquaza · Sky Sovereign',
+    scrollTarget: 'citadel-trial',
+    speaker: 'Rayquaza · Stratospheric Sovereign',
+    quote:
+      'From the highest cloud spire, every Edge AI, distributed backend, and Digital Twin system must harmonize! Synchronize the 3 Flagship Architecture Pillars below to earn the Plume of Sovereignty.',
+    fxText: 'DRAGON ASCENT RESONANCE!',
+    fxColor: '#38bdf8',
+  },
+  {
+    key: '2',
+    propId: 'sky-throne',
+    icon: '👑',
+    name: 'Marble Sky Throne',
+    scrollTarget: 'citadel-architecture',
+    speaker: 'Sovereign Throne · Executive Ledger',
+    quote:
+      'Command seat of Zulfan’s system design: TensorRT 10 real-time perception, PostgreSQL/Kafka high-integrity logistics, and 99.56% F1 hybrid NLP pipelines.',
+    fxText: 'SOVEREIGN ARCHIVE OPENED',
+    fxColor: '#fde047',
+  },
+  {
+    key: '3',
+    propId: 'imp_paladin',
+    icon: '⚔️',
+    name: 'Imperialdramon PM',
+    scrollTarget: 'citadel-architecture',
+    speaker: 'Imperialdramon Paladin Mode',
+    quote:
+      'Founder-grade engineering demands strict concurrency locks, reproducible evaluation, and zero unverified claims!',
+    fxText: 'OMEGA BLADE VERIFIED!',
+    fxColor: '#bae6fd',
+  },
+  {
+    key: '4',
+    propId: 'valkyrimon',
+    icon: '🪽',
+    name: 'Valkyrimon · Sky Envoy',
+    scrollTarget: 'citadel-profile',
+    speaker: 'Valkyrimon · Envoy of Honor',
+    quote:
+      'ITENAS Informatics Engineering B.Sc. (GPA 3.49 / 4.00), HCIA-Security V4.0, and IDEA FEST 3 Bronze Medalist stand inscribed upon our sapphire banners.',
+    fxText: 'AUREOLE FEATHER SALUTE!',
+    fxColor: '#f9a8d4',
+  },
+  {
+    key: '5',
+    propId: 'firmament-orb',
+    icon: '🔮',
+    name: 'Celestial Firmament Orb',
+    scrollTarget: 'citadel-plumes-ledger',
+    speaker: 'Celestial Firmament Orb',
+    quote:
+      'Six Celestial Plumes across Avalon’s floating islands rekindle the Grand Sky Plaza Azure Crystal.',
+    fxText: '6 PLUMES RESONANCE SYNC',
+    fxColor: '#a78bfa',
+  },
+];
+
+const architecturePillars = [
+  {
+    id: 'pillar-edge-cv',
+    step: 1,
+    badge: 'PILLAR 01 · EDGE & REAL-TIME CV',
+    title: 'AeroScan YOLOv11s → ONNX → TensorRT 10',
+    metric: '~1.8 ms/frame · >500 FPS FP16',
+    desc: 'Raw 12 GB PASCAL VOC aerial imagery compiled into a compact 22.1 MB TensorRT engine across 15 military aircraft classes (up to 87.9% mAP@50 on B-52).',
+    stack: ['Python', 'PyTorch 2.6', 'ONNX', 'TensorRT 10', 'Streamlit'],
+  },
+  {
+    id: 'pillar-distributed',
+    step: 2,
+    badge: 'PILLAR 02 · HIGH-INTEGRITY BACKEND',
+    title: 'FoodLink Dual-Engine Logistics & Spatial Geo',
+    metric: 'ACID FOR UPDATE + Kafka Outbox',
+    desc: 'Combines PostgreSQL 16 + PostGIS GIST spatial radius queries, Redis 7 Lua mutexes, and Apache Kafka fan-out consumers to guarantee zero overselling under burst claims.',
+    stack: ['Next.js 16', 'TypeScript', 'PostgreSQL 16', 'PostGIS', 'Redis 7', 'Kafka'],
+  },
+  {
+    id: 'pillar-nlp-twin',
+    step: 3,
+    badge: 'PILLAR 03 · APPLIED NLP & DIGITAL TWIN',
+    title: 'Hybrid Anti-Spam RF (99.56% F1) & Multi-Site Ops',
+    metric: '1,000 TF-IDF Trigrams + 9 Signals',
+    desc: 'Thesis hybrid pipeline vetted by 10-fold stratified CV paired with PT Dwi Purwa Teknologi production Next.js + Express multi-site dashboards (54% faster status lookups).',
+    stack: ['Scikit-Learn', 'TF-IDF', 'SMOTE', 'Next.js', 'Express.js', 'Tailwind CSS'],
+  },
+];
+---
+
+<TownLayout
+  title="White Marble Sky Citadel — Flagship Systems & Sovereign Trial | Sky Castle"
+  description="Enter the White Marble Sky Citadel (15×12) atop Sky Castle Avalon: consult Rayquaza, Imperialdramon PM & Valkyrimon to claim the Plume of Sovereignty."
+  place="sky-citadel"
+>
+  <article
+    class="citadel-page space-y-6 pb-10 text-[#e0f2fe]"
+    data-summary-text={`${profile.person.name} Flagship System Architecture & Executive Profile — White Marble Sky Citadel guarded by Rayquaza, Imperialdramon PM & Valkyrimon.`}
+  >
+    <!-- 1. SOVEREIGN MARBLE CITADEL BANNER -->
+    <header class="relative overflow-hidden rounded-2xl border-[3px] border-[#38bdf8] bg-gradient-to-b from-[#07192d] via-[#0c2747] to-[#0a1e38] p-5 shadow-[0_8px_0_#0284c7,0_18px_36px_rgba(2,132,199,0.28)]">
+      <div
+        class="pointer-events-none absolute inset-x-0 top-0 h-2 bg-[repeating-linear-gradient(90deg,#38bdf8_0px,#38bdf8_14px,#f8fafc_14px,#f8fafc_28px,#eab308_28px,#eab308_42px)]"
+        aria-hidden="true"
+      />
+      <div class="mt-2 flex flex-wrap items-start justify-between gap-4">
+        <div class="space-y-2 max-w-2xl">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="rounded border border-[#38bdf8] bg-[#082f49] px-2 py-0.5 font-mono text-[10px] font-bold tracking-wider text-[#bae6fd]">
+              👑 SKY CASTLE AVALON · KEEP (15×12)
+            </span>
+            <span
+              id="citadel-plume-status-pill"
+              class="rounded border border-[#64748b] bg-[#0f172a] px-2 py-0.5 font-mono text-[10px] font-bold text-[#cbd5e1]"
+            >
+              🪶 Plume of Sovereignty: UNCLAIMED
+            </span>
+          </div>
+          <h1 class="font-pixel text-base sm:text-lg leading-snug text-[#f8fafc]">
+            White Marble Sky Citadel — Sovereign Architecture Hall
+          </h1>
+          <p class="text-xs sm:text-[13px] leading-relaxed text-[#bae6fd]">
+            High above the floating archipelago stands Avalon’s marble command keep. Walk up the crimson carpet to greet{' '}
+            <strong class="text-[#fde047]">Rayquaza</strong>,{' '}
+            <strong class="text-[#7dd3fc]">Imperialdramon Paladin Mode</strong>, and{' '}
+            <strong class="text-[#f9a8d4]">Valkyrimon</strong> — and review {profile.person.short_name}’s flagship engineering systems.
+          </p>
+        </div>
+
+        <div class="flex flex-col items-end gap-2">
+          <a
+            id="citadel-exit-btn"
+            href="/sky-castle?from=citadel"
+            data-respawn="22,15,down"
+            class="inline-flex items-center gap-2 rounded-lg border-2 border-[#38bdf8] bg-[#0c4a6e] px-3.5 py-2 font-pixel text-[10px] text-[#f0f9ff] shadow-[0_3px_0_#0369a1] transition hover:-translate-y-0.5 hover:bg-[#0284c7]"
+          >
+            ⬅️ Exit to Sky Castle (Esc)
+          </a>
+          <span class="font-mono text-[10px] text-[#7dd3fc]">
+            Or step onto the bottom Golden Carpet Exit (7, 11)
+          </span>
+        </div>
+      </div>
+
+      <!-- Live Guardian Dialogue Strip -->
+      <div class="mt-4 rounded-xl border-2 border-[#1d4ed8]/60 bg-[#051120]/90 p-3.5">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
+          <span id="citadel-speaker" class="font-pixel text-[10px] text-[#fde047]">
+            Rayquaza · Stratospheric Sovereign
+          </span>
+          <span class="font-mono text-[10px] text-[#7dd3fc]">
+            Shortcuts: [1–5] Walk to Station · [Esc] Exit
+          </span>
+        </div>
+        <p id="citadel-dialogue" class="text-xs leading-relaxed text-[#e0f2fe]">
+          “Click any station below — or click a prop directly inside the marble keep — to inspect our flagship systems and unlock the Plume of Sovereignty!”
+        </p>
+      </div>
+
+      <!-- Quick Walk Station Row -->
+      <div class="mt-3 flex flex-wrap gap-2">
+        {citadelStations.map((st) => (
+          <button
+            type="button"
+            class="citadel-station-btn inline-flex items-center gap-1.5 rounded-lg border border-[#38bdf8]/50 bg-[#0c2d52] px-2.5 py-1.5 text-[11px] font-semibold text-[#e0f2fe] transition hover:border-[#fde047] hover:bg-[#103b6b] cursor-pointer"
+            data-hotkey={st.key}
+            data-citadel-walk={st.propId}
+            data-scroll-to={st.scrollTarget}
+            data-speaker={st.speaker}
+            data-quote={st.quote}
+            data-fx-text={st.fxText}
+            data-fx-color={st.fxColor}
+          >
+            <span class="rounded bg-[#0284c7]/60 px-1 font-mono text-[9px] text-[#fef08a]">{st.key}</span>
+            <span>{st.icon}</span>
+            <span>{st.name}</span>
+          </button>
+        ))}
+      </div>
+    </header>
+
+    <!-- 2. INTERACTIVE GUARDIAN TRIAL: PLUME OF SOVEREIGNTY -->
+    <section
+      id="citadel-trial"
+      class="rounded-2xl border-2 border-[#eab308] bg-gradient-to-br from-[#0f172a] via-[#13223e] to-[#0a172e] p-5 shadow-lg"
+    >
+      <div class="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <span class="inline-flex items-center rounded border border-[#eab308] bg-[#422006] px-2 py-0.5 font-mono text-[10px] font-bold text-[#fde047]">
+            🐉 RAYQUAZA’S SOVEREIGN TRIAL · PILLAR SYNCHRONIZATION
+          </span>
+          <h2 class="mt-2 font-pixel text-sm text-[#fef08a]">
+            Synchronize the 3 Flagship System Architecture Pillars
+          </h2>
+          <p class="mt-1 text-xs text-[#cbd5e1]">
+            Engage each engineering pillar in order (<strong class="text-[#38bdf8]">01 → 02 → 03</strong>) to harmonize the Celestial Firmament Orb and claim the{' '}
+            <strong class="text-[#fde047]">Plume of Sovereignty (1/6)</strong>.
+          </p>
+        </div>
+        <button
+          id="btn-citadel-reset"
+          type="button"
+          class="rounded border border-[#475569] bg-[#1e293b] px-2.5 py-1 font-mono text-[10px] text-[#cbd5e1] hover:border-[#38bdf8] hover:text-white cursor-pointer"
+        >
+          ↺ Reset Alignment
+        </button>
+      </div>
+
+      <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-3">
+        {architecturePillars.map((p) => (
+          <button
+            type="button"
+            data-citadel-pillar={p.step}
+            class="citadel-pillar-btn group text-left rounded-xl border-2 border-[#1e40af] bg-[#0b1930] p-4 transition hover:border-[#38bdf8] hover:-translate-y-0.5 cursor-pointer"
+          >
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-mono text-[9px] font-bold text-[#7dd3fc]">{p.badge}</span>
+              <span
+                data-pillar-state={p.step}
+                class="rounded border border-[#334155] bg-[#0f172a] px-1.5 py-0.5 font-mono text-[9px] text-[#94a3b8]"
+              >
+                STANDBY
+              </span>
+            </div>
+            <h3 class="mt-2 font-pixel text-[11px] leading-snug text-[#f8fafc]">{p.title}</h3>
+            <p class="mt-1 font-mono text-[10px] font-semibold text-[#fde047]">{p.metric}</p>
+            <p class="mt-2 text-[11px] leading-relaxed text-[#cbd5e1]">{p.desc}</p>
+            <div class="mt-3 flex flex-wrap gap-1">
+              {p.stack.map((tech) => (
+                <span class="rounded bg-[#172554] px-1.5 py-0.5 font-mono text-[9px] text-[#bae6fd]">
+                  {tech}
+                </span>
+              ))}
+            </div>
+          </button>
+        ))}
+      </div>
+
+      <div
+        id="citadel-trial-banner"
+        class="mt-4 rounded-xl border border-[#1e3a8a] bg-[#071123] px-4 py-3 text-xs text-[#93c5fd]"
+      >
+        Alignment Progress: <strong id="citadel-progress-count" class="text-[#fde047]">0 / 3</strong> Pillars Synced — activate Pillar 01 first.
+      </div>
+    </section>
+
+    <!-- 3. EXECUTIVE FLAGSHIP PROJECTS SHOWCASE -->
+    <section
+      id="citadel-architecture"
+      class="rounded-2xl border-2 border-[#0284c7] bg-[#081a30] p-5 space-y-4"
+    >
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <span class="font-mono text-[10px] font-bold uppercase tracking-wider text-[#38bdf8]">
+            📐 BLUEPRINT TABLE · VERIFIED SYSTEM PORTFOLIO
+          </span>
+          <h2 class="mt-1 font-pixel text-sm text-[#f0f9ff]">
+            Flagship Production & AI Engineering Systems
+          </h2>
+        </div>
+        <span class="font-mono text-[10px] text-[#7dd3fc]">
+          Source: profile.yaml · All metrics verbatim
+        </span>
+      </div>
+
+      <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        {featuredProjects.map((proj) => (
+          <div class="flex flex-col justify-between rounded-xl border border-[#1d4ed8]/60 bg-[#0d2240] p-4">
+            <div class="space-y-2">
+              <div class="flex items-center justify-between gap-2">
+                <span class="rounded border border-[#38bdf8]/40 bg-[#082f49] px-1.5 py-0.5 font-mono text-[9px] text-[#bae6fd]">
+                  {proj.org}
+                </span>
+                <span class="font-mono text-[10px] text-[#fde047]">{fmtRange(proj.start, proj.end)}</span>
+              </div>
+              <h3 class="font-pixel text-[11px] leading-snug text-[#f8fafc]">{proj.title}</h3>
+              {proj.objective && <p class="text-[11px] font-medium text-[#7dd3fc]">{proj.objective}</p>}
+              <p class="text-[11px] leading-relaxed text-[#cbd5e1]">{proj.summary}</p>
+              <ul class="space-y-1 pt-1 text-[10px] text-[#bae6fd]">
+                {proj.results.slice(0, 3).map((hl) => (
+                  <li class="flex items-start gap-1.5">
+                    <span class="text-[#fde047]">▸</span>
+                    <span>{hl}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div class="mt-3 flex flex-wrap gap-1 border-t border-[#1e3a8a] pt-2.5">
+              {proj.payload.slice(0, 6).map((t) => (
+                <span class="rounded bg-[#0f172a] px-1.5 py-0.5 font-mono text-[9px] text-[#93c5fd]">
+                  {t}
+                </span>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- 4. SOVEREIGN PROFILE & HONORS SCROLL -->
+    <section
+      id="citadel-profile"
+      class="rounded-2xl border-2 border-[#a855f7]/60 bg-[#120d26] p-5 space-y-4"
+    >
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <span class="font-mono text-[10px] font-bold uppercase tracking-wider text-[#f9a8d4]">
+            🪽 VALKYRIMON’S BANNER OF HONOR
+          </span>
+          <h2 class="mt-1 font-pixel text-sm text-[#fdf4ff]">
+            Credentials, Research Thesis & Leadership
+          </h2>
+        </div>
+        <span class="font-mono text-[10px] text-[#e9d5ff]">
+          {profile.person.location}
+        </span>
+      </div>
+
+      <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
+        <div class="rounded-xl border border-[#7e22ce]/60 bg-[#1d1136] p-3.5 space-y-1.5">
+          <div class="font-mono text-[9px] font-bold text-[#f0abfc]">🎓 ACADEMIC DEGREE</div>
+          <h3 class="font-pixel text-[11px] text-[#faf5ff]">
+            {profile.education[0]?.school}
+          </h3>
+          <p class="text-xs text-[#e9d5ff]">{profile.education[0]?.degree}</p>
+          {profile.education[0] && (
+            <p class="font-mono text-[10px] text-[#fde047]">
+              GPA {profile.education[0].gpa} · {fmtRange(profile.education[0].start, profile.education[0].end)}
+            </p>
+          )}
+        </div>
+
+        {profile.honors.map((honor) => (
+          <div class="rounded-xl border border-[#7e22ce]/60 bg-[#1d1136] p-3.5 space-y-1.5">
+            <div class="font-mono text-[9px] font-bold text-[#fde047]">🏅 {fmtMonth(honor.date)}</div>
+            <h3 class="font-pixel text-[11px] text-[#faf5ff]">{honor.title}</h3>
+            <p class="text-xs text-[#e9d5ff]">{honor.issuer}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- 5. SIX CELESTIAL PLUMES LEDGER -->
+    <section
+      id="citadel-plumes-ledger"
+      class="rounded-2xl border-2 border-[#38bdf8]/70 bg-[#071527] p-5 space-y-3"
+    >
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <span class="font-mono text-[10px] font-bold uppercase tracking-wider text-[#7dd3fc]">
+            🔮 GRAND SKY PLAZA AWAKENING
+          </span>
+          <h2 class="mt-1 font-pixel text-sm text-[#f0f9ff]">
+            6 Celestial Plumes of Avalon
+          </h2>
+        </div>
+        <span id="citadel-plumes-count" class="font-mono text-xs font-bold text-[#fde047]">
+          0 / 6 Plumes Collected
+        </span>
+      </div>
+
+      <div class="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
+        {allPlumes.map((plume) => (
+          <div
+            data-plume-card={plume.key}
+            class="rounded-xl border border-[#1e3a8a] bg-[#0b1f3a] p-3 transition"
+          >
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-pixel text-[10px] text-[#f8fafc]">
+                {plume.icon} {plume.name}
+              </span>
+              <span
+                data-plume-badge={plume.key}
+                class="rounded border border-[#334155] bg-[#0f172a] px-1.5 py-0.5 font-mono text-[9px] text-[#94a3b8]"
+              >
+                LOCKED
+              </span>
+            </div>
+            <p class="mt-1 text-[10px] text-[#93c5fd]">{plume.sanctum}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <WhereTo currentPath="/sky-castle/citadel" />
+  </article>
+
+  <script>
+    import {
+      SKY_PLUMES_META,
+      awardSkyPlume,
+      countSkyPlumes,
+      getSkyPlumes,
+      type SkyPlumeKey,
+    } from '../../engine/skyInteriorShared';
+
+    const citadelUnlockedPillars = new Set<number>();
+
+    function triggerSkyFx(text: string, color = '#38bdf8') {
+      window.dispatchEvent(new CustomEvent('town:sky-fx', { detail: { text, color } }));
+    }
+
+    function setCitadelDialogue(speaker: string, quote: string) {
+      const sp = document.getElementById('citadel-speaker');
+      const qt = document.getElementById('citadel-dialogue');
+      if (sp) sp.textContent = speaker;
+      if (qt) qt.textContent = `“${quote}”`;
+    }
+
+    function syncCitadelPlumesUi() {
+      const plumes = getSkyPlumes();
+      const total = countSkyPlumes();
+      const pill = document.getElementById('citadel-plume-status-pill');
+      const countEl = document.getElementById('citadel-plumes-count');
+      if (countEl) countEl.textContent = `${total} / 6 Plumes Collected`;
+
+      if (pill) {
+        if (plumes.sovereignty) {
+          pill.textContent = '👑 Plume of Sovereignty: AWARDED';
+          pill.className =
+            'rounded border border-[#fde047] bg-[#422006] px-2 py-0.5 font-mono text-[10px] font-bold text-[#fef08a]';
+        } else {
+          pill.textContent = '🪶 Plume of Sovereignty: UNCLAIMED';
+          pill.className =
+            'rounded border border-[#64748b] bg-[#0f172a] px-2 py-0.5 font-mono text-[10px] font-bold text-[#cbd5e1]';
+        }
+      }
+
+      (Object.keys(SKY_PLUMES_META) as SkyPlumeKey[]).forEach((key) => {
+        const badge = document.querySelector<HTMLElement>(`[data-plume-badge="${key}"]`);
+        const card = document.querySelector<HTMLElement>(`[data-plume-card="${key}"]`);
+        const unlocked = Boolean(plumes[key]);
+        if (badge) {
+          badge.textContent = unlocked ? 'EARNED' : 'LOCKED';
+          badge.className = unlocked
+            ? 'rounded border border-[#22c55e] bg-[#052e16] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#86efac]'
+            : 'rounded border border-[#334155] bg-[#0f172a] px-1.5 py-0.5 font-mono text-[9px] text-[#94a3b8]';
+        }
+        if (card) {
+          card.style.borderColor = unlocked ? '#38bdf8' : '#1e3a8a';
+        }
+      });
+    }
+
+    function renderCitadelPillars() {
+      const count = citadelUnlockedPillars.size;
+      const countEl = document.getElementById('citadel-progress-count');
+      const bannerEl = document.getElementById('citadel-trial-banner');
+      if (countEl) countEl.textContent = `${count} / 3`;
+
+      [1, 2, 3].forEach((step) => {
+        const stateEl = document.querySelector<HTMLElement>(`[data-pillar-state="${step}"]`);
+        const btn = document.querySelector<HTMLButtonElement>(`[data-citadel-pillar="${step}"]`);
+        const active = citadelUnlockedPillars.has(step);
+        if (stateEl) {
+          stateEl.textContent = active ? 'SYNCED ✓' : 'STANDBY';
+          stateEl.className = active
+            ? 'rounded border border-[#22c55e] bg-[#052e16] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#86efac]'
+            : 'rounded border border-[#334155] bg-[#0f172a] px-1.5 py-0.5 font-mono text-[9px] text-[#94a3b8]';
+        }
+        if (btn) {
+          btn.style.borderColor = active ? '#22c55e' : '#1e40af';
+        }
+      });
+
+      if (bannerEl) {
+        if (count === 3) {
+          bannerEl.className =
+            'mt-4 rounded-xl border border-[#22c55e] bg-[#052e16]/70 px-4 py-3 text-xs text-[#bbf7d0]';
+          bannerEl.innerHTML =
+            '👑 <strong>All 3 Architecture Pillars Synchronized!</strong> Rayquaza bestows the <strong class="text-[#fde047]">Plume of Sovereignty</strong>. Return to Grand Sky Plaza when 6/6 Plumes shine!';
+        } else {
+          bannerEl.className =
+            'mt-4 rounded-xl border border-[#1e3a8a] bg-[#071123] px-4 py-3 text-xs text-[#93c5fd]';
+          bannerEl.innerHTML = `Alignment Progress: <strong class="text-[#fde047]">${count} / 3</strong> Pillars Synced — activate Pillar 0${count + 1} next.`;
+        }
+      }
+    }
+
+    function wireCitadelPage() {
+      if (!document.querySelector('.citadel-page')) return;
+
+      if (getSkyPlumes().sovereignty) {
+        citadelUnlockedPillars.add(1);
+        citadelUnlockedPillars.add(2);
+        citadelUnlockedPillars.add(3);
+      }
+      renderCitadelPillars();
+      syncCitadelPlumesUi();
+
+      const exitBtn = document.getElementById('citadel-exit-btn') as HTMLAnchorElement | null;
+      if (exitBtn && exitBtn.dataset.wired !== '1') {
+        exitBtn.dataset.wired = '1';
+        exitBtn.addEventListener('click', () => {
+          const respawn = exitBtn.getAttribute('data-respawn');
+          if (respawn) sessionStorage.setItem('sky-castle:respawn', respawn);
+        });
+      }
+
+      document.querySelectorAll<HTMLButtonElement>('[data-citadel-walk]').forEach((btn) => {
+        if (btn.dataset.wired === '1') return;
+        btn.dataset.wired = '1';
+        btn.addEventListener('click', () => {
+          const propId = btn.getAttribute('data-citadel-walk');
+          const scrollTo = btn.getAttribute('data-scroll-to');
+          const speaker = btn.getAttribute('data-speaker');
+          const quote = btn.getAttribute('data-quote');
+          const fxText = btn.getAttribute('data-fx-text');
+          const fxColor = btn.getAttribute('data-fx-color');
+
+          if (propId) {
+            document.querySelector<HTMLButtonElement>(`.town-label[data-id="${propId}"]`)?.click();
+          }
+          if (speaker && quote) setCitadelDialogue(speaker, quote);
+          if (fxText) triggerSkyFx(fxText, fxColor || '#38bdf8');
+          if (scrollTo) {
+            document.getElementById(scrollTo)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        });
+      });
+
+      document.querySelectorAll<HTMLButtonElement>('[data-citadel-pillar]').forEach((btn) => {
+        if (btn.dataset.wired === '1') return;
+        btn.dataset.wired = '1';
+        btn.addEventListener('click', () => {
+          const step = Number(btn.getAttribute('data-citadel-pillar'));
+          if (Number.isNaN(step)) return;
+          const expected = citadelUnlockedPillars.size + 1;
+
+          if (citadelUnlockedPillars.has(step)) {
+            triggerSkyFx(`PILLAR 0${step} ALREADY LOCKED`, '#7dd3fc');
+            return;
+          }
+          if (step !== expected) {
+            triggerSkyFx(`SYNC PILLAR 0${expected} FIRST!`, '#f87171');
+            setCitadelDialogue(
+              'Imperialdramon Paladin Mode',
+              `Sequence discipline matters! Activate Pillar 0${expected} before Pillar 0${step}.`,
+            );
+            return;
+          }
+
+          citadelUnlockedPillars.add(step);
+          renderCitadelPillars();
+          if (citadelUnlockedPillars.size === 3) {
+            awardSkyPlume('sovereignty');
+            triggerSkyFx('👑 PLUME OF SOVEREIGNTY UNLOCKED!', '#fde047');
+            setCitadelDialogue(
+              'Rayquaza · Stratospheric Sovereign',
+              'Magnificent synchronization! The Plume of Sovereignty now shines beside your Sky Castle crest.',
+            );
+            syncCitadelPlumesUi();
+          } else {
+            triggerSkyFx(`PILLAR 0${step} HARMONIZED!`, '#38bdf8');
+          }
+        });
+      });
+
+      const resetBtn = document.getElementById('btn-citadel-reset');
+      if (resetBtn && resetBtn.dataset.wired !== '1') {
+        resetBtn.dataset.wired = '1';
+        resetBtn.addEventListener('click', () => {
+          citadelUnlockedPillars.clear();
+          renderCitadelPillars();
+          triggerSkyFx('PILLAR ARRAY RESET', '#94a3b8');
+        });
+      }
+    }
+
+    function handleCitadelSceneEvent(e: Event) {
+      const ce = e as CustomEvent<{ id?: string }>;
+      if (!document.querySelector('.citadel-page')) return;
+      const propId = ce.detail?.id;
+      if (!propId) return;
+      const station = document.querySelector<HTMLButtonElement>(`[data-citadel-walk="${propId}"]`);
+      const speaker = station?.getAttribute('data-speaker');
+      const quote = station?.getAttribute('data-quote');
+      if (speaker && quote) setCitadelDialogue(speaker, quote);
+    }
+
+    function handleCitadelKey(e: KeyboardEvent) {
+      if (!document.querySelector('.citadel-page')) return;
+      if (
+        document.activeElement instanceof HTMLInputElement ||
+        document.activeElement instanceof HTMLTextAreaElement ||
+        e.metaKey ||
+        e.ctrlKey ||
+        e.altKey
+      ) {
+        return;
+      }
+      if (e.key === 'Escape') {
+        (document.getElementById('citadel-exit-btn') as HTMLAnchorElement | null)?.click();
+        return;
+      }
+      const matched = document.querySelector<HTMLButtonElement>(
+        `.citadel-station-btn[data-hotkey="${e.key.toLowerCase()}"]`,
+      );
+      matched?.click();
+    }
+
+    window.addEventListener('sky:plume-updated', syncCitadelPlumesUi);
+    window.addEventListener('town:sky-prop-interact', handleCitadelSceneEvent);
+    window.addEventListener('keydown', handleCitadelKey);
+
+    wireCitadelPage();
+    document.addEventListener('astro:page-load', wireCitadelPage);
+  </script>
+</TownLayout>

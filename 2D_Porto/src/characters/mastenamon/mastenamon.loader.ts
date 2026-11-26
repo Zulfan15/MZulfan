@@ -27,12 +27,12 @@ import {
 } from './mastenamon.assets';
 import {
   MASTENAMON_BATTLE_RECTS,
-  MASTENAMON_IDLE_DIRECTION_MAP,
-  MASTENAMON_IDLE_RECTS,
+  MASTENAMON_IDLE_STEPS_BY_DIR,
   MASTENAMON_JPG_HD_RECTS,
   MASTENAMON_JPG_ICON_RECT,
   MASTENAMON_JPG_MINI_RECTS,
   MASTENAMON_WALK_STEPS_BY_DIR,
+  idleCell,
   walkCell,
 } from './mastenamon.frames';
 import { MASTENAMON_META } from './mastenamon.meta';
@@ -55,6 +55,25 @@ function downscaleHdFrame(frame: CharacterFrame, maxH = 220): CharacterFrame {
     ctx.drawImage(frame.canvas, 0, 0, w, h);
   }
   return { canvas, width: w, height: h };
+}
+
+/** Pads all frames in a sequence to a shared bottom-centered canvas so scale stays uniform across steps. */
+function padToUniformBottomCenter(frames: CharacterFrame[]): CharacterFrame[] {
+  if (frames.length <= 1) return frames;
+  const maxW = Math.max(1, ...frames.map((f) => f.width));
+  const maxH = Math.max(1, ...frames.map((f) => f.height));
+  return frames.map((f) => {
+    if (f.width === maxW && f.height === maxH) return f;
+    const canvas = document.createElement('canvas');
+    canvas.width = maxW;
+    canvas.height = maxH;
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(f.canvas, Math.floor((maxW - f.width) / 2), maxH - f.height);
+    }
+    return { canvas, width: maxW, height: maxH };
+  });
 }
 
 /**
@@ -85,17 +104,23 @@ export async function loadMastenamon(
     const extraPromises =
       mode === 'full' ? Promise.all([loadImage(urls.battle), loadImage(urls.sheet)]) : null;
 
-    const rawIdle = sliceFrames(idleImg, MASTENAMON_IDLE_RECTS, {
-      chroma: 'flat-green',
-      trim: 'tight',
-    });
-    const idle = DIRECTIONS_8.map((dir) => {
-      if (mode === 'overworld' && !CARDINAL_DIRECTIONS.has(dir)) return createEmptyFrame();
-      const mapping = MASTENAMON_IDLE_DIRECTION_MAP[dir];
-      const base = rawIdle[mapping.rawIndex] ?? rawIdle[0];
-      return mapping.flipX ? flipFrame(base) : base;
-    });
-    await yieldToFrame();
+    const idle: CharacterFrame[] = [];
+    for (const dir of DIRECTIONS_8) {
+      const steps = MASTENAMON_IDLE_STEPS_BY_DIR[dir];
+      if (mode === 'overworld' && !CARDINAL_DIRECTIONS.has(dir)) {
+        for (let i = 0; i < steps.length; i++) idle.push(createEmptyFrame());
+        continue;
+      }
+      const rects = steps.map((s) => idleCell(s.row, s.col));
+      const frames = sliceFrames(idleImg, rects, {
+        chroma: 'lossy-green-warm',
+        trim: 'uniform',
+      })
+        .map((f) => downscaleFrame(f, 96, true))
+        .map((frame, i) => (steps[i].flipX ? flipFrame(frame) : frame));
+      idle.push(...frames);
+      await yieldToFrame();
+    }
 
     const walk: CharacterFrame[] = [];
     for (const dir of DIRECTIONS_8) {
@@ -106,7 +131,7 @@ export async function loadMastenamon(
       }
       const rects = steps.map((s) => walkCell(s.row, s.col));
       const frames = sliceFrames(walkImg, rects, {
-        chroma: 'lossy-green',
+        chroma: 'lossy-green-warm',
         trim: 'uniform',
       })
         .map((f) => downscaleFrame(f, 96, true))
@@ -119,7 +144,7 @@ export async function loadMastenamon(
       const set: CharacterSpriteSet = {
         id: MASTENAMON_META.id,
         directionOrder: DIRECTIONS_8,
-        groups: { idle, walk, battle: [], hd: [], mini: [] },
+        groups: { idle, walk, battle: [], hd: [], mini: [], idleLarge: [] },
         icon: null,
         iconDataUrl: null,
         loadedAt: performance.now(),
@@ -129,26 +154,39 @@ export async function loadMastenamon(
     }
 
     const [battleImg, jpgImg] = await extraPromises!;
-    const battle = sliceFrames(battleImg, MASTENAMON_BATTLE_RECTS, {
-      chroma: 'flat-green',
-      trim: 'tight',
-    });
+    const battle = padToUniformBottomCenter(
+      sliceFrames(battleImg, MASTENAMON_BATTLE_RECTS, {
+        chroma: 'flat-green',
+        trim: 'tight',
+      })
+    );
     await yieldToFrame();
 
+    const idleLarge = padToUniformBottomCenter(
+      sliceFrames(
+        idleImg,
+        MASTENAMON_IDLE_STEPS_BY_DIR.S.map((s) => idleCell(s.row, s.col)),
+        {
+          chroma: 'lossy-green-warm',
+          trim: 'uniform',
+        }
+      ).map((f) => downscaleHdFrame(f, 220))
+    );
+
     const [icon = null] = sliceFrames(jpgImg, [MASTENAMON_JPG_ICON_RECT], {
-      chroma: 'lossy-green',
+      chroma: 'lossy-green-warm',
       trim: 'tight',
       isolateMainBody: true,
     });
 
     const hd = sliceFrames(jpgImg, MASTENAMON_JPG_HD_RECTS, {
-      chroma: 'lossy-green',
+      chroma: 'lossy-green-warm',
       trim: 'tight',
       isolateMainBody: true,
     }).map((f) => downscaleHdFrame(f, 220));
 
     const mini = sliceFrames(jpgImg, MASTENAMON_JPG_MINI_RECTS, {
-      chroma: 'lossy-green',
+      chroma: 'lossy-green-warm',
       trim: 'tight',
       isolateMainBody: true,
     });
@@ -156,7 +194,7 @@ export async function loadMastenamon(
     const set: CharacterSpriteSet = {
       id: MASTENAMON_META.id,
       directionOrder: DIRECTIONS_8,
-      groups: { idle, walk, battle, hd, mini },
+      groups: { idle, walk, battle, hd, mini, idleLarge },
       icon,
       iconDataUrl: frameToDataUrl(icon),
       loadedAt: performance.now(),

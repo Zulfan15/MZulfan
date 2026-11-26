@@ -453,7 +453,7 @@ const landmarkCards: LandmarkCard[] = [
         if (btn.dataset.wired === '1') return;
         btn.dataset.wired = '1';
         btn.addEventListener('click', () => {
-          document.getElementById('btn-toggle-editor')?.click();
+          window.dispatchEvent(new CustomEvent('town:toggle-editor'));
         });
       });
 

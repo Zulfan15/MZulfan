@@ -40,9 +40,28 @@ import { BELPHEMON_X_META } from './belphemon_x.meta';
 const spriteCache = new Map<string, CharacterSpriteSet>();
 const inflightByBase = new Map<string, Promise<CharacterSpriteSet>>();
 
+/** Pads all frames in a sequence to a shared bottom-centered canvas so scale stays uniform across steps. */
+function padToUniformBottomCenter(frames: CharacterFrame[]): CharacterFrame[] {
+  if (frames.length <= 1) return frames;
+  const maxW = Math.max(1, ...frames.map((f) => f.width));
+  const maxH = Math.max(1, ...frames.map((f) => f.height));
+  return frames.map((f) => {
+    if (f.width === maxW && f.height === maxH) return f;
+    const canvas = document.createElement('canvas');
+    canvas.width = maxW;
+    canvas.height = maxH;
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(f.canvas, Math.floor((maxW - f.width) / 2), maxH - f.height);
+    }
+    return { canvas, width: maxW, height: maxH };
+  });
+}
+
 /**
  * Loads and cleanly slices all 4 Belphemon (X Antibody) sprite sheets into a cached `CharacterSpriteSet`.
- * Uses `trim: 'tight'` across idle/walk/battle because the 8x4 grid has variable column widths per row.
+ * Uses `trim: 'tight'` + uniform bottom-center padding across idle/battle because the 8x4 grid has variable column widths.
  */
 export async function loadBelphemonX(
   baseUrl = BELPHEMON_X_DEFAULT_ASSET_BASE,
@@ -76,10 +95,13 @@ export async function loadBelphemonX(
         continue;
       }
       const rects = steps.map((s) => gridCell(s.row, s.col));
-      const frames = sliceFrames(idleImg, rects, {
-        chroma: 'lossy-green',
-        trim: 'tight',
-      }).map((frame, i) => (steps[i].flipX ? flipFrame(frame) : frame));
+      const frames = padToUniformBottomCenter(
+        sliceFrames(idleImg, rects, {
+          chroma: 'lossy-green',
+          trim: 'tight',
+          isolateMainBody: true,
+        }).map((frame, i) => (steps[i].flipX ? flipFrame(frame) : frame))
+      );
       rawIdle.push(...frames);
       await yieldToFrame();
     }
@@ -96,6 +118,7 @@ export async function loadBelphemonX(
       const frames = sliceFrames(walkImg, rects, {
         chroma: 'lossy-green',
         trim: 'uniform',
+        isolateMainBody: true,
       })
         .map((f) => downscaleFrame(f, 96, true))
         .map((frame, i) => (steps[i].flipX ? flipFrame(frame) : frame));
@@ -128,10 +151,13 @@ export async function loadBelphemonX(
     const idleLarge = rawIdle.slice(0, 4).map((f) => downscaleFrame(f, 220, true));
 
     const rawBattle = BELPHEMON_X_BATTLE_COMBOS.flatMap((combo) =>
-      sliceFrames(battleImg, combo, {
-        chroma: 'lossy-green',
-        trim: 'tight',
-      })
+      padToUniformBottomCenter(
+        sliceFrames(battleImg, combo, {
+          chroma: 'lossy-green',
+          trim: 'tight',
+          isolateMainBody: true,
+        })
+      )
     );
     const battle = rawBattle.map((f) => downscaleFrame(f, 112, true));
     const battleLarge = rawBattle.map((f) => downscaleFrame(f, 220, true));
@@ -146,6 +172,7 @@ export async function loadBelphemonX(
     const hd = sliceFrames(hdImg, BELPHEMON_X_HD_RECTS, {
       chroma: 'lossy-green',
       trim: 'tight',
+      isolateMainBody: true,
     })
       .map((f) => downscaleFrame(f, 220, true))
       .map((frame, idx) => (idx === 7 ? flipFrame(frame) : frame));
@@ -153,6 +180,7 @@ export async function loadBelphemonX(
     const mini = sliceFrames(hdImg, BELPHEMON_X_MINI_RECTS, {
       chroma: 'lossy-green',
       trim: 'tight',
+      isolateMainBody: true,
     });
 
     const set: CharacterSpriteSet = {

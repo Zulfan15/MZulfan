@@ -314,8 +314,7 @@ const habitatZones = [
         } else if (action === 'patrol') {
           window.dispatchEvent(new CustomEvent('digimon:toggle-patrol', { detail: {} }));
         } else if (action === 'editor') {
-          const editorBtn = document.getElementById('btn-toggle-editor');
-          editorBtn?.click();
+          window.dispatchEvent(new CustomEvent('town:toggle-editor'));
         }
       });
     });

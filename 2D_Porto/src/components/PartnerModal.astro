@@ -87,7 +87,8 @@ import { COMPANIONS } from '../engine/pokemonCompanions';
               <div class="w-12 h-12 rounded-xl bg-slate-100 border-2 border-ink/40 flex items-center justify-center overflow-hidden shrink-0 group-hover:scale-105 transition-transform">
                 {c.imageSrc ? (
                   <img
-                    src={c.imageSrc}
+                    src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+                    data-companion-img={c.id}
                     alt={c.name}
                     class="w-10 h-10 object-contain image-rendering-pixelated"
                     loading="lazy"
@@ -168,6 +169,7 @@ import { COMPANIONS } from '../engine/pokemonCompanions';
 
 <script>
   import { COMPANIONS_MAP } from '../engine/pokemonCompanions';
+  import { getStoredActiveFollower } from '../game/storage';
 
   function initPartnerHub() {
     const modal = document.getElementById('partner-hub-modal') as HTMLDialogElement | null;
@@ -183,12 +185,7 @@ import { COMPANIONS } from '../engine/pokemonCompanions';
 
     if (!modal) return;
 
-    let isRidingActive = false;
-
-    const getStoredFollower = (): string | null => {
-      if (typeof window === 'undefined') return null;
-      return localStorage.getItem('town:active_follower') || null;
-    };
+    const getStoredFollower = (): string | null => getStoredActiveFollower();
 
     const updateModalActiveState = (followerId: string | null) => {
       const cards = modal.querySelectorAll<HTMLElement>('.partner-card');
@@ -217,7 +214,19 @@ import { COMPANIONS } from '../engine/pokemonCompanions';
       }
     };
 
+    let imagesHydrated = false;
+    const hydrateCompanionImages = () => {
+      if (imagesHydrated) return;
+      imagesHydrated = true;
+      modal.querySelectorAll<HTMLImageElement>('img[data-companion-img]').forEach((img) => {
+        const cid = img.getAttribute('data-companion-img');
+        const src = cid ? COMPANIONS_MAP[cid]?.imageSrc : undefined;
+        if (src) img.src = src;
+      });
+    };
+
     const openModal = () => {
+      hydrateCompanionImages();
       const current = getStoredFollower();
       updateModalActiveState(current);
       modal.showModal();
@@ -299,7 +308,6 @@ import { COMPANIONS } from '../engine/pokemonCompanions';
     window.addEventListener('town:pokeride-changed', (e: Event) => {
       const detail = (e as CustomEvent).detail;
       const active = detail?.active ?? false;
-      isRidingActive = active;
       if (rideLabel) {
         rideLabel.textContent = active ? 'Turun (R)' : 'Tunggangi (R)';
       }

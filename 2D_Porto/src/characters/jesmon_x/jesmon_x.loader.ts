@@ -39,6 +39,25 @@ import { JESMON_X_META } from './jesmon_x.meta';
 const spriteCache = new Map<string, CharacterSpriteSet>();
 const inflightByBase = new Map<string, Promise<CharacterSpriteSet>>();
 
+/** Pads all frames in a sequence to a shared bottom-centered canvas so scale stays uniform across steps. */
+function padToUniformBottomCenter(frames: CharacterFrame[]): CharacterFrame[] {
+  if (frames.length <= 1) return frames;
+  const maxW = Math.max(1, ...frames.map((f) => f.width));
+  const maxH = Math.max(1, ...frames.map((f) => f.height));
+  return frames.map((f) => {
+    if (f.width === maxW && f.height === maxH) return f;
+    const canvas = document.createElement('canvas');
+    canvas.width = maxW;
+    canvas.height = maxH;
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(f.canvas, Math.floor((maxW - f.width) / 2), maxH - f.height);
+    }
+    return { canvas, width: maxW, height: maxH };
+  });
+}
+
 /**
  * Loads and cleanly slices all 5 Jesmon (X Antibody) sprite sheets into a cached `CharacterSpriteSet`.
  * Deduplicates concurrent requests and caches per `baseUrl`.
@@ -121,18 +140,24 @@ export async function loadJesmonX(
     }
 
     const [battleImg, jpgImg, dsImg] = await extraPromises!;
-    const rawBattle = sliceFrames(battleImg, JESMON_X_BATTLE_RECTS, {
-      chroma: 'lossy-green',
-      trim: 'tight',
-    });
+    const rawBattle = padToUniformBottomCenter(
+      sliceFrames(battleImg, JESMON_X_BATTLE_RECTS, {
+        chroma: 'lossy-green',
+        trim: 'tight',
+        isolateMainBody: true,
+      })
+    );
     const battle = rawBattle.map((f) => downscaleFrame(f, 112, true));
     const battleLarge = rawBattle.map((f) => downscaleFrame(f, 220, true));
     await yieldToFrame();
 
-    const dsIdle = sliceFrames(dsImg, JESMON_X_DS_IDLE_RECTS, {
-      chroma: 'ds-teal-mint',
-      trim: 'tight',
-    }).map((f) => downscaleFrame(f, 220, true));
+    const dsIdle = padToUniformBottomCenter(
+      sliceFrames(dsImg, JESMON_X_DS_IDLE_RECTS, {
+        chroma: 'ds-teal-mint',
+        trim: 'tight',
+        isolateMainBody: true,
+      })
+    ).map((f) => downscaleFrame(f, 220, true));
     await yieldToFrame();
 
     const [icon = null] = sliceFrames(jpgImg, [JESMON_X_JPG_ICON_RECT], {

@@ -4,9 +4,7 @@
 import { profile } from '../lib/profile';
 import { COMPANIONS } from '../engine/pokemonCompanions';
 
-const githubUrl = profile.socials.find((s) => s.label === 'GitHub')?.url || 'https://github.com/Zulfan15';
 const linkedinUrl = profile.socials.find((s) => s.label === 'LinkedIn')?.url || 'https://www.linkedin.com/in/muhammad-zulfan-anggadhiputra';
-const emailUrl = `mailto:${profile.person.email}`;
 const cvUrl = profile.person.cv || '/cv/CV_Zulfan.pdf';
 const critters = profile.critters || [];
 ---
@@ -611,6 +609,7 @@ const critters = profile.critters || [];
 <script>
   import { sfx } from '../game/sfx';
   import { gameStore } from '../game/store';
+  import { getStoredActiveFollower, setStoredActiveFollower } from '../game/storage';
   import {
     escapeHtml,
     fetchGuestbookEntries,
@@ -702,11 +701,7 @@ const critters = profile.critters || [];
 
     // Tab 4: Cloud Partner Storage Box Sync & Search
     function getActiveFollowerId(): string | null {
-      try {
-        return localStorage.getItem('town:active_follower');
-      } catch {
-        return null;
-      }
+      return getStoredActiveFollower();
     }
 
     function syncPartnerBox() {
@@ -743,9 +738,7 @@ const critters = profile.critters || [];
       btn.addEventListener('click', () => {
         const pid = btn.getAttribute('data-withdraw-id');
         if (!pid) return;
-        try {
-          localStorage.setItem('town:active_follower', pid);
-        } catch {}
+        setStoredActiveFollower(pid);
         window.dispatchEvent(new CustomEvent('town:set-follower', { detail: { followerId: pid } }));
         sfx.confirm();
         syncPartnerBox();
@@ -753,9 +746,7 @@ const critters = profile.critters || [];
     });
 
     document.getElementById('btn-pc-rest-partner')?.addEventListener('click', () => {
-      try {
-        localStorage.removeItem('town:active_follower');
-      } catch {}
+      setStoredActiveFollower(null);
       window.dispatchEvent(new CustomEvent('town:set-follower', { detail: { followerId: null } }));
       sfx.select();
       syncPartnerBox();

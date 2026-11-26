@@ -408,7 +408,6 @@ const C_GREEN = '#7dffb0';
 const C_AMBER = '#ffc857';
 const C_RED = '#ff5a6a';
 const C_WHITE = '#f4f7ff';
-const C_PURPLE = '#552583';
 const C_GOLD = '#fdb927';
 
 // Floor Tile
@@ -451,7 +450,7 @@ if (typeof Image !== 'undefined') {
 }
 
 // Eternatus Server Assistant Sprite
-export const ETERNATUS_IMAGE_SRC = '/assets/eternatus.png';
+export const ETERNATUS_IMAGE_SRC = '/assets/pokemon-sprites/eternatus.png';
 
 let eternatusImg: HTMLImageElement | null = null;
 if (typeof Image !== 'undefined') {

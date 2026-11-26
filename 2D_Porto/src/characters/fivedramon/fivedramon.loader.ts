@@ -39,9 +39,28 @@ import { FIVEDRAMON_META } from './fivedramon.meta';
 const spriteCache = new Map<string, CharacterSpriteSet>();
 const inflightByBase = new Map<string, Promise<CharacterSpriteSet>>();
 
+/** Pads all frames in a sequence to a shared bottom-centered canvas so scale stays uniform across steps. */
+function padToUniformBottomCenter(frames: CharacterFrame[]): CharacterFrame[] {
+  if (frames.length <= 1) return frames;
+  const maxW = Math.max(1, ...frames.map((f) => f.width));
+  const maxH = Math.max(1, ...frames.map((f) => f.height));
+  return frames.map((f) => {
+    if (f.width === maxW && f.height === maxH) return f;
+    const canvas = document.createElement('canvas');
+    canvas.width = maxW;
+    canvas.height = maxH;
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(f.canvas, Math.floor((maxW - f.width) / 2), maxH - f.height);
+    }
+    return { canvas, width: maxW, height: maxH };
+  });
+}
+
 /**
  * Loads and cleanly slices all 4 Fivedramon sprite sheets into a cached `CharacterSpriteSet`.
- * Uses `border-green` chroma keyer so the emerald-green dragon head remains intact.
+ * Uses `border-green` chroma keyer + `isolateMainBody` so the emerald-green dragon head stays intact while corner dividers drop cleanly.
  */
 export async function loadFivedramon(
   baseUrl = FIVEDRAMON_DEFAULT_ASSET_BASE,
@@ -72,7 +91,7 @@ export async function loadFivedramon(
       const cardinalIdle = sliceFrames(
         idleImg,
         [FIVEDRAMON_IDLE_RECTS[0], FIVEDRAMON_IDLE_RECTS[2], FIVEDRAMON_IDLE_RECTS[4], FIVEDRAMON_IDLE_RECTS[6]],
-        { chroma: 'border-green', trim: 'tight' }
+        { chroma: 'border-green', trim: 'tight', isolateMainBody: true }
       );
       const empty = createEmptyFrame();
       idle = [cardinalIdle[0], empty, cardinalIdle[1], empty, cardinalIdle[2], empty, cardinalIdle[3], empty];
@@ -80,6 +99,7 @@ export async function loadFivedramon(
       idle = sliceFrames(idleImg, FIVEDRAMON_IDLE_RECTS, {
         chroma: 'border-green',
         trim: 'tight',
+        isolateMainBody: true,
       });
     }
     await yieldToFrame();
@@ -95,6 +115,7 @@ export async function loadFivedramon(
       const frames = sliceFrames(walkImg, rects, {
         chroma: 'border-green',
         trim: 'uniform',
+        isolateMainBody: true,
       })
         .map((f) => downscaleFrame(f, 96, true))
         .map((frame, i) => (steps[i].flipX ? flipFrame(frame) : frame));
@@ -116,10 +137,13 @@ export async function loadFivedramon(
     }
 
     const [battleImg, jpgImg] = await extraPromises!;
-    const battle = sliceFrames(battleImg, FIVEDRAMON_BATTLE_RECTS, {
-      chroma: 'border-green',
-      trim: 'tight',
-    });
+    const battle = padToUniformBottomCenter(
+      sliceFrames(battleImg, FIVEDRAMON_BATTLE_RECTS, {
+        chroma: 'border-green',
+        trim: 'tight',
+        isolateMainBody: true,
+      })
+    );
     await yieldToFrame();
 
     const [icon = null] = sliceFrames(jpgImg, [FIVEDRAMON_JPG_ICON_RECT], {

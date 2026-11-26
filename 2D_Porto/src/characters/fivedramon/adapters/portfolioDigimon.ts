@@ -21,7 +21,7 @@ export const FIVEDRAMON_PORTFOLIO_POSE_MAP: OverworldPoseMap = {
     back: [4],
     east: [6],
   },
-  action: [42, 46, 47, 45],
+  action: [46, 42, 47, 45],
   nativeFacing: 'left',
 };
 
@@ -42,10 +42,10 @@ export async function adaptFivedramonForPortfolio(
     const battle = set.groups.battle ?? [];
     const hd = set.groups.hd ?? [];
 
-    // DigiDex Battle Idle showcases South & South-West HD portraits,
-    // while Signature Attack unleashes Twin Elemental Breath & Grand Cross Breaker from `battle.png`.
-    const largeIdle = [hd[0], hd[1]].filter(Boolean);
-    const largeAttack = [battle[2], battle[6], battle[7], battle[5]].filter(Boolean);
+    // DigiDex Battle Idle showcases the crisp South HD portrait with smooth floating bob,
+    // while Signature Attack unleashes Five-Element Aura Charge (B6) into Twin Elemental Breath (B2).
+    const largeIdle = [hd[0]].filter(Boolean);
+    const largeAttack = [battle[6], battle[2], battle[7], battle[5]].filter(Boolean);
     const overworld = [...idle, ...walk, ...battle];
 
     return {

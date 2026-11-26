@@ -12,10 +12,14 @@ import { adaptJesmonXForPortfolio } from '../characters/jesmon_x/adapters/portfo
 import { JESMON_X_META } from '../characters/jesmon_x/jesmon_x.meta';
 import { adaptKaratiamonForPortfolio } from '../characters/karatiamon/adapters/portfolioDigimon';
 import { KARATIAMON_META } from '../characters/karatiamon/karatiamon.meta';
+import { adaptMalgadramonForPortfolio } from '../characters/malgadramon/adapters/portfolioDigimon';
+import { MALGADRAMON_META } from '../characters/malgadramon/malgadramon.meta';
 import { adaptMastenamonForPortfolio } from '../characters/mastenamon/adapters/portfolioDigimon';
 import { MASTENAMON_META } from '../characters/mastenamon/mastenamon.meta';
 import { adaptMazagamonForPortfolio } from '../characters/mazagamon/adapters/portfolioDigimon';
 import { MAZAGAMON_META } from '../characters/mazagamon/mazagamon.meta';
+import { adaptMegidramonXForPortfolio } from '../characters/megidramon_x/adapters/portfolioDigimon';
+import { MEGIDRAMON_X_META } from '../characters/megidramon_x/megidramon_x.meta';
 import { adaptPlusiamonForPortfolio } from '../characters/plusiamon/adapters/portfolioDigimon';
 import { PLUSIAMON_META } from '../characters/plusiamon/plusiamon.meta';
 import { adaptRagnaloardmonForPortfolio } from '../characters/ragnaloardmon/adapters/portfolioDigimon';
@@ -24,6 +28,10 @@ import { adaptSakuyamonXForPortfolio } from '../characters/sakuyamon_x/adapters/
 import { SAKUYAMON_X_META } from '../characters/sakuyamon_x/sakuyamon_x.meta';
 import { adaptShogunAlphamonForPortfolio } from '../characters/shogun_alphamon/adapters/portfolioDigimon';
 import { SHOGUN_ALPHAMON_META } from '../characters/shogun_alphamon/shogun_alphamon.meta';
+import { adaptVamdramonForPortfolio } from '../characters/vamdramon/adapters/portfolioDigimon';
+import { VAMDRAMON_META } from '../characters/vamdramon/vamdramon.meta';
+import { adaptVexatiamonBerserkerForPortfolio } from '../characters/vexatiamon_berserker/adapters/portfolioDigimon';
+import { VEXATIAMON_BERSERKER_META } from '../characters/vexatiamon_berserker/vexatiamon_berserker.meta';
 import { adaptVictoryGrowlmonForPortfolio } from '../characters/victorygrowlmon/adapters/portfolioDigimon';
 import { VICTORYGROWLMON_META } from '../characters/victorygrowlmon/victorygrowlmon.meta';
 import {
@@ -107,12 +115,16 @@ registerCustomDigimonSource(GASPIRITAMON_META.id, adaptGaspiritamonForPortfolio)
 registerCustomDigimonSource(HOLLOKNIGHTMON_META.id, adaptHolloknightmonForPortfolio);
 registerCustomDigimonSource(JESMON_X_META.id, adaptJesmonXForPortfolio);
 registerCustomDigimonSource(KARATIAMON_META.id, adaptKaratiamonForPortfolio);
+registerCustomDigimonSource(MALGADRAMON_META.id, adaptMalgadramonForPortfolio);
 registerCustomDigimonSource(MASTENAMON_META.id, adaptMastenamonForPortfolio);
 registerCustomDigimonSource(MAZAGAMON_META.id, adaptMazagamonForPortfolio);
+registerCustomDigimonSource(MEGIDRAMON_X_META.id, adaptMegidramonXForPortfolio);
 registerCustomDigimonSource(PLUSIAMON_META.id, adaptPlusiamonForPortfolio);
 registerCustomDigimonSource(RAGNALOARDMON_META.id, adaptRagnaloardmonForPortfolio);
 registerCustomDigimonSource(SAKUYAMON_X_META.id, adaptSakuyamonXForPortfolio);
 registerCustomDigimonSource(SHOGUN_ALPHAMON_META.id, adaptShogunAlphamonForPortfolio);
+registerCustomDigimonSource(VAMDRAMON_META.id, adaptVamdramonForPortfolio);
+registerCustomDigimonSource(VEXATIAMON_BERSERKER_META.id, adaptVexatiamonBerserkerForPortfolio);
 registerCustomDigimonSource(VICTORYGROWLMON_META.id, adaptVictoryGrowlmonForPortfolio);
 const listeners = new Map<string, Set<() => void>>();
 

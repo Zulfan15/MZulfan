@@ -45,6 +45,10 @@ import { profile } from '../lib/profile';
       <span id="dex-counter" class="font-mono text-xs">0/12</span>
     </button>
 
+    <button id="hud-title-btn" type="button" class="w-8 h-8 rounded-full border-2 border-ink bg-white font-pixel text-xs flex items-center justify-center text-ink hover:bg-cream shadow-sm cursor-pointer transition-all" title="Title Screen" aria-label="Open Title Screen">
+      🎮
+    </button>
+
     <button id="hud-help-btn" type="button" class="w-8 h-8 rounded-full border-2 border-ink bg-white font-pixel text-xs font-bold flex items-center justify-center text-ink hover:bg-cream shadow-sm cursor-pointer transition-all" title="How this town works">
       ?
     </button>
@@ -66,6 +70,7 @@ import { profile } from '../lib/profile';
     const searchBtn = document.getElementById('hud-search-btn');
     const jobfitBtn = document.getElementById('hud-jobfit-btn');
     const dexCounter = document.getElementById('dex-counter');
+    const titleBtn = document.getElementById('hud-title-btn');
     const helpBtn = document.getElementById('hud-help-btn');
 
     const updateBgmUi = () => {
@@ -131,6 +136,23 @@ import { profile } from '../lib/profile';
         const on = sfx.toggle();
         soundIcon.textContent = on ? '🔊' : '🔇';
         if (on) sfx.select();
+      };
+    }
+
+    window.addEventListener('town:settings-changed', () => {
+      if (soundIcon) soundIcon.textContent = sfx.isEnabled() ? '🔊' : '🔇';
+      updateBgmUi();
+    });
+
+    if (titleBtn) {
+      titleBtn.onclick = () => {
+        sfx.select();
+        const isTown = window.location.pathname === '/' || window.location.pathname === '';
+        if (isTown) {
+          window.dispatchEvent(new CustomEvent('town:open-title'));
+        } else {
+          window.location.href = '/?title=1';
+        }
       };
     }
 

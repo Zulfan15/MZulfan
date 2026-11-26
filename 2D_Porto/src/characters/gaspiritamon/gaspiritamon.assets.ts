@@ -5,7 +5,7 @@
 export const GASPIRITAMON_DEFAULT_ASSET_BASE = '/assets/characters/gaspiritamon';
 
 export const GASPIRITAMON_ASSET_FILES = {
-  walk: 'walk-cycle.webp',
+  walk: 'walk-cycle-v2.webp',
   battle: 'battle.webp',
   sheet: 'gaspiritamon.webp',
 } as const;

@@ -1,0 +1,622 @@
+---
+import TownLayout from '../../layouts/TownLayout.astro';
+import WhereTo from '../../components/WhereTo.astro';
+import { profile, launches, crewAssignments, fmtRange } from '../../lib/profile';
+import { SKY_PLUMES_META } from '../../engine/skyInteriorShared';
+
+const allPlumes = Object.values(SKY_PLUMES_META);
+const mentoringRoles = crewAssignments.filter((e) =>
+  ['dwi-purwa-intern', 'network-lab', 'oop-lab', 'database-lab'].includes(e.id),
+);
+const communityProjects = launches.filter((m) => ['foodlink', 'foodrescue'].includes(m.id));
+
+const innStations = [
+  {
+    key: '1',
+    propId: 'latias',
+    icon: '💖',
+    name: 'Latias · Hearth Host',
+    scrollTarget: 'inn-trial',
+    speaker: 'Latias · Sky-Berry Hearth Host',
+    quote:
+      'Welcome to Cloudhaven Timber Inn! Serve the 3 Fellowship & Lab Mentoring Orders in order (01 → 03) to warm our oak hearth and earn the Plume of Hearth.',
+    fxText: 'MIST BALL WARMTH!',
+    fxColor: '#f59e0b',
+  },
+  {
+    key: '2',
+    propId: 'tea-counter',
+    icon: '🍵',
+    name: 'Sky-Berry Tea Bar',
+    scrollTarget: 'inn-trial',
+    speaker: 'Cloudhaven Tea Counter',
+    quote:
+      'Steamed oolong infused with sunlit sky-berries restores weary explorers to 100% engineering stamina.',
+    fxText: 'SKY-BERRY TEA SERVED',
+    fxColor: '#fb7185',
+  },
+  {
+    key: '3',
+    propId: 'phoenixmon',
+    icon: '🦅',
+    name: 'Phoenixmon · Mentor Spirit',
+    scrollTarget: 'inn-mentoring',
+    speaker: 'Phoenixmon · Keeper of Practicums',
+    quote:
+      'True mastery shines when passed onward: from Java OOP and PostgreSQL normalization to Cisco/Linux network troubleshooting at ITENAS.',
+    fxText: 'STARLIGHT WING MENTORSHIP!',
+    fxColor: '#fbbf24',
+  },
+  {
+    key: '4',
+    propId: 'zhuqiaomon',
+    icon: '🔥',
+    name: 'Zhuqiaomon · Crimson Host',
+    scrollTarget: 'inn-community',
+    speaker: 'Zhuqiaomon · Guardian of Impact',
+    quote:
+      'FoodLink and FoodRescue prove software craftsmanship matters most when it eliminates waste and serves local communities!',
+    fxText: 'CRIMSON FELLOWSHIP BLAZE',
+    fxColor: '#f97316',
+  },
+  {
+    key: '5',
+    propId: 'inn-guestbook',
+    icon: '📖',
+    name: 'Avalon Guestbook',
+    scrollTarget: 'inn-plumes-ledger',
+    speaker: 'Avalon Guestbook Ledger',
+    quote:
+      'Collect all 6 Celestial Plumes across Sky Castle to awaken the Azure Crystal Fountain.',
+    fxText: 'GUESTBOOK SIGNED ✓',
+    fxColor: '#fde047',
+  },
+];
+
+const fellowshipOrders = [
+  {
+    step: 1,
+    code: 'ORDER 01 · NETWORK LAB',
+    title: 'Computer Networks Practicum Briefing',
+    meta: 'Cisco Packet Tracer · Subnetting · TCP/IP',
+    desc: 'Serve spiced sky-tea alongside clear subnetting worksheets and Linux routing diagnostics for lab cohorts.',
+  },
+  {
+    step: 2,
+    code: 'ORDER 02 · OOP JAVA LAB',
+    title: 'Object-Oriented Java Clean Design Tray',
+    meta: 'Inheritance · Interfaces · Polymorphism',
+    desc: 'Pair warm cloud pastries with hands-on refactoring walkthroughs helping students master clean OOP abstractions.',
+  },
+  {
+    step: 3,
+    code: 'ORDER 03 · DATABASE SYSTEMS LAB',
+    title: 'PostgreSQL / MySQL Normalization Feast',
+    meta: '3NF Schema · Joins · Indexing',
+    desc: 'Conclude the fellowship shift by tuning relational queries and guarding data integrity across multi-user apps.',
+  },
+];
+---
+
+<TownLayout
+  title="Cloudhaven Timber Inn — Team Experience, Mentoring & Community | Sky Castle"
+  description="Enter Cloudhaven Timber Inn (15×12) in Sky Castle Avalon: serve 3 Fellowship & Lab Mentoring Orders beside Latias, Phoenixmon & Zhuqiaomon to earn the Plume of Hearth."
+  place="sky-inn"
+>
+  <article
+    class="inn-page space-y-6 pb-10 text-[#fef3c7]"
+    data-summary-text={`${profile.person.name} Engineering Teamwork, Mentoring & Community Impact — Cloudhaven Timber Inn guarded by Latias, Phoenixmon & Zhuqiaomon.`}
+  >
+    <!-- 1. CLOUDHAVEN TIMBER INN HERO BANNER -->
+    <header class="relative overflow-hidden rounded-2xl border-[3px] border-[#f59e0b] bg-gradient-to-b from-[#2b1808] via-[#3f240c] to-[#231407] p-5 shadow-[0_8px_0_#92400e,0_18px_36px_rgba(245,158,11,0.28)]">
+      <div
+        class="pointer-events-none absolute inset-x-0 top-0 h-2 bg-[repeating-linear-gradient(90deg,#f59e0b_0px,#f59e0b_14px,#fef3c7_14px,#fef3c7_28px,#f43f5e_28px,#f43f5e_42px)]"
+        aria-hidden="true"
+      />
+      <div class="mt-2 flex flex-wrap items-start justify-between gap-4">
+        <div class="space-y-2 max-w-2xl">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="rounded border border-[#f59e0b] bg-[#451a03] px-2 py-0.5 font-mono text-[10px] font-bold tracking-wider text-[#fde68a]">
+              🏠 SOUTHWEST ISLAND · INN (15×12)
+            </span>
+            <span
+              id="inn-plume-status-pill"
+              class="rounded border border-[#64748b] bg-[#1c1917] px-2 py-0.5 font-mono text-[10px] font-bold text-[#d6d3d1]"
+            >
+              🪶 Plume of Hearth: UNCLAIMED
+            </span>
+          </div>
+          <h1 class="font-pixel text-base sm:text-lg leading-snug text-[#fffbeb]">
+            Cloudhaven Timber Inn — Teamwork, Mentoring &amp; Fellowship
+          </h1>
+          <p class="text-xs sm:text-[13px] leading-relaxed text-[#fde68a]">
+            Beside Avalon’s cascading waterfalls, smoke curls warmly from oak rafters. Rest by the hearth with{' '}
+            <strong class="text-[#fda4af]">Latias</strong>,{' '}
+            <strong class="text-[#fde047]">Phoenixmon</strong>, and{' '}
+            <strong class="text-[#fdba74]">Zhuqiaomon</strong> to explore {profile.person.short_name}’s internships, teaching practicums, and community platforms.
+          </p>
+        </div>
+
+        <div class="flex flex-col items-end gap-2">
+          <a
+            id="inn-exit-btn"
+            href="/sky-castle?from=inn"
+            data-respawn="15,46,down"
+            class="inline-flex items-center gap-2 rounded-lg border-2 border-[#f59e0b] bg-[#78350f] px-3.5 py-2 font-pixel text-[10px] text-[#fffbeb] shadow-[0_3px_0_#451a03] transition hover:-translate-y-0.5 hover:bg-[#b45309]"
+          >
+            ⬅️ Exit to Sky Castle (Esc)
+          </a>
+          <button
+            id="btn-inn-brew-tea"
+            type="button"
+            class="rounded-lg border border-[#fb7185] bg-[#4c0519]/80 px-3 py-1 font-mono text-[10px] font-bold text-[#fecdd3] hover:bg-[#881337] cursor-pointer"
+          >
+            🍵 Brew Sky-Berry Tea (+100 Stamina)
+          </button>
+        </div>
+      </div>
+
+      <!-- Live Dialogue Strip -->
+      <div class="mt-4 rounded-xl border-2 border-[#d97706]/60 bg-[#180d04]/90 p-3.5">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
+          <span id="inn-speaker" class="font-pixel text-[10px] text-[#fde047]">
+            Latias · Sky-Berry Hearth Host
+          </span>
+          <span class="font-mono text-[10px] text-[#fcd34d]">
+            Shortcuts: [1–5] Walk to Station · [Esc] Exit
+          </span>
+        </div>
+        <p id="inn-dialogue" class="text-xs leading-relaxed text-[#fef3c7]">
+          “Serve our 3 Fellowship & Lab Mentoring Orders below in sequence (01 → 03) to warm the oak hearth and earn the Plume of Hearth!”
+        </p>
+      </div>
+
+      <!-- Quick Walk Stations -->
+      <div class="mt-3 flex flex-wrap gap-2">
+        {innStations.map((st) => (
+          <button
+            type="button"
+            class="inn-station-btn inline-flex items-center gap-1.5 rounded-lg border border-[#f59e0b]/50 bg-[#42250b] px-2.5 py-1.5 text-[11px] font-semibold text-[#fef3c7] transition hover:border-[#fde047] hover:bg-[#5b3310] cursor-pointer"
+            data-hotkey={st.key}
+            data-inn-walk={st.propId}
+            data-scroll-to={st.scrollTarget}
+            data-speaker={st.speaker}
+            data-quote={st.quote}
+            data-fx-text={st.fxText}
+            data-fx-color={st.fxColor}
+          >
+            <span class="rounded bg-[#92400e] px-1 font-mono text-[9px] text-[#fde047]">{st.key}</span>
+            <span>{st.icon}</span>
+            <span>{st.name}</span>
+          </button>
+        ))}
+      </div>
+    </header>
+
+    <!-- 2. INTERACTIVE GUARDIAN TRIAL: PLUME OF HEARTH -->
+    <section
+      id="inn-trial"
+      class="rounded-2xl border-2 border-[#f59e0b] bg-gradient-to-br from-[#231407] via-[#2c190a] to-[#1a0f05] p-5 shadow-lg"
+    >
+      <div class="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <span class="inline-flex items-center rounded border border-[#f59e0b] bg-[#451a03] px-2 py-0.5 font-mono text-[10px] font-bold text-[#fde68a]">
+            💖 LATIAS’ HEARTH TRIAL · FELLOWSHIP SERVICE
+          </span>
+          <h2 class="mt-2 font-pixel text-sm text-[#fffbeb]">
+            Serve 3 Fellowship &amp; Lab Mentoring Orders in Sequence
+          </h2>
+          <p class="mt-1 text-xs text-[#fde68a]">
+            Complete orders <strong class="text-[#fde047]">01 → 02 → 03</strong> from the Sky-Berry Tea Counter to claim the{' '}
+            <strong class="text-[#fde047]">Plume of Hearth (4/6)</strong>.
+          </p>
+        </div>
+        <button
+          id="btn-inn-reset"
+          type="button"
+          class="rounded border border-[#475569] bg-[#1e293b] px-2.5 py-1 font-mono text-[10px] text-[#e2e8f0] hover:border-[#f59e0b] cursor-pointer"
+        >
+          ↺ Clear Trays
+        </button>
+      </div>
+
+      <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-3">
+        {fellowshipOrders.map((ord) => (
+          <button
+            type="button"
+            data-inn-order={ord.step}
+            class="inn-order-btn text-left rounded-xl border-2 border-[#92400e] bg-[#1b0f05] p-4 transition hover:border-[#fbbf24] hover:-translate-y-0.5 cursor-pointer"
+          >
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-mono text-[9px] font-bold text-[#fcd34d]">{ord.code}</span>
+              <span
+                data-order-state={ord.step}
+                class="rounded border border-[#44403c] bg-[#1c1917] px-1.5 py-0.5 font-mono text-[9px] text-[#a8a29e]"
+              >
+                WAITING
+              </span>
+            </div>
+            <h3 class="mt-2 font-pixel text-[11px] leading-snug text-[#fffbeb]">{ord.title}</h3>
+            <p class="mt-1 font-mono text-[10px] text-[#fda4af]">{ord.meta}</p>
+            <p class="mt-2 text-[11px] leading-relaxed text-[#fde68a]/90">{ord.desc}</p>
+          </button>
+        ))}
+      </div>
+
+      <div
+        id="inn-trial-banner"
+        class="mt-4 rounded-xl border border-[#92400e] bg-[#140b03] px-4 py-3 text-xs text-[#fde68a]"
+      >
+        Hearth Service: <strong id="inn-served-count" class="text-[#fde047]">0 / 3</strong> Orders Served — prepare Order 01 first.
+      </div>
+    </section>
+
+    <!-- 3. INDUSTRY INTERNSHIP & LAB ASSISTANT ROLES -->
+    <section
+      id="inn-mentoring"
+      class="rounded-2xl border-2 border-[#d97706]/70 bg-[#251508] p-5 space-y-4"
+    >
+      <div>
+        <span class="font-mono text-[10px] font-bold uppercase tracking-wider text-[#fbbf24]">
+          📋 MENTORING &amp; TEAMWORK CHRONICLES
+        </span>
+        <h2 class="mt-1 font-pixel text-sm text-[#fffbeb]">
+          Production Internship &amp; ITENAS Laboratory Assistantships
+        </h2>
+      </div>
+
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+        {mentoringRoles.map((role) => (
+          <div class="rounded-xl border border-[#92400e] bg-[#301c0b] p-4 space-y-2">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <span class="rounded border border-[#f59e0b]/40 bg-[#451a03] px-2 py-0.5 font-mono text-[9px] text-[#fde68a]">
+                {role.org}
+              </span>
+              <span class="font-mono text-[10px] text-[#fde047]">{fmtRange(role.start, role.end)}</span>
+            </div>
+            <h3 class="font-pixel text-[11px] text-[#fffbeb]">{role.title}</h3>
+            {role.objective && <p class="text-[11px] font-medium text-[#fcd34d]">{role.objective}</p>}
+            <p class="text-xs leading-relaxed text-[#fef3c7]/90">{role.summary}</p>
+            <ul class="space-y-1 text-[11px] text-[#fde68a]">
+              {role.results.slice(0, 3).map((res) => (
+                <li class="flex items-start gap-1.5">
+                  <span class="text-[#fbbf24]">▸</span>
+                  <span>{res}</span>
+                </li>
+              ))}
+            </ul>
+            <div class="flex flex-wrap gap-1 pt-2 border-t border-[#78350f]">
+              {role.payload.slice(0, 6).map((t) => (
+                <span class="rounded bg-[#1b0f05] px-1.5 py-0.5 font-mono text-[9px] text-[#fcd34d]">
+                  {t}
+                </span>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- 4. COMMUNITY IMPACT & FELLOWSHIP PROFILE -->
+    <section
+      id="inn-community"
+      class="rounded-2xl border-2 border-[#fb7185]/60 bg-[#261116] p-5 space-y-4"
+    >
+      <div>
+        <span class="font-mono text-[10px] font-bold uppercase tracking-wider text-[#fda4af]">
+          🥐 COMMUNITY PLATFORMS &amp; INTERESTS
+        </span>
+        <h2 class="mt-1 font-pixel text-sm text-[#fff1f2]">
+          Human-Centered Platforms, Languages &amp; Craft
+        </h2>
+      </div>
+
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+        {communityProjects.map((proj) => (
+          <div class="rounded-xl border border-[#9f1239] bg-[#36151e] p-4 space-y-2">
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-mono text-[10px] text-[#fda4af]">{proj.org}</span>
+              <span class="font-mono text-[10px] text-[#fde047]">{fmtRange(proj.start, proj.end)}</span>
+            </div>
+            <h3 class="font-pixel text-[11px] text-[#fff1f2]">{proj.title}</h3>
+            <p class="text-xs leading-relaxed text-[#ffe4e6]">{proj.summary}</p>
+            <ul class="space-y-1 text-[11px] text-[#fecdd3]">
+              {proj.results.slice(0, 2).map((r) => (
+                <li class="flex items-start gap-1.5">
+                  <span class="text-[#fde047]">▸</span>
+                  <span>{r}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+
+      <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+        <div class="rounded-xl border border-[#881337] bg-[#1f0d13] p-3.5">
+          <div class="font-mono text-[10px] font-bold text-[#fda4af] mb-2">🌐 SPOKEN LANGUAGES</div>
+          <div class="flex flex-wrap gap-2">
+            {profile.person.languages.map((lang) => (
+              <span class="rounded border border-[#fb7185]/40 bg-[#4c0519] px-2 py-1 font-mono text-[10px] text-[#ffe4e6]">
+                {lang.name} ({lang.level})
+              </span>
+            ))}
+          </div>
+        </div>
+        <div class="rounded-xl border border-[#881337] bg-[#1f0d13] p-3.5">
+          <div class="font-mono text-[10px] font-bold text-[#fda4af] mb-2">☕ INTERESTS BEYOND CODE</div>
+          <div class="flex flex-wrap gap-1.5">
+            {profile.person.interests.map((it) => (
+              <span class="rounded bg-[#3b0a18] px-2 py-0.5 font-mono text-[10px] text-[#fecdd3]">
+                {it}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. SIX CELESTIAL PLUMES LEDGER -->
+    <section
+      id="inn-plumes-ledger"
+      class="rounded-2xl border-2 border-[#f59e0b]/60 bg-[#1a0f05] p-5 space-y-3"
+    >
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <span class="font-pixel text-xs text-[#fffbeb]">🪶 Celestial Plumes Ledger</span>
+        <span id="inn-plumes-count" class="font-mono text-xs font-bold text-[#fde047]">
+          0 / 6 Plumes Collected
+        </span>
+      </div>
+      <div class="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
+        {allPlumes.map((plume) => (
+          <div
+            data-plume-card={plume.key}
+            class="rounded-xl border border-[#78350f] bg-[#291708] p-3"
+          >
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-pixel text-[10px] text-[#fffbeb]">
+                {plume.icon} {plume.name}
+              </span>
+              <span
+                data-plume-badge={plume.key}
+                class="rounded border border-[#44403c] bg-[#1c1917] px-1.5 py-0.5 font-mono text-[9px] text-[#a8a29e]"
+              >
+                LOCKED
+              </span>
+            </div>
+            <p class="mt-1 text-[10px] text-[#fcd34d]">{plume.sanctum}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <WhereTo currentPath="/sky-castle/inn" />
+  </article>
+
+  <script>
+    import {
+      SKY_PLUMES_META,
+      awardSkyPlume,
+      countSkyPlumes,
+      getSkyPlumes,
+      type SkyPlumeKey,
+    } from '../../engine/skyInteriorShared';
+
+    const servedOrders = new Set<number>();
+
+    function triggerInnFx(text: string, color = '#f59e0b') {
+      window.dispatchEvent(new CustomEvent('town:sky-fx', { detail: { text, color } }));
+    }
+
+    function setInnDialogue(speaker: string, quote: string) {
+      const sp = document.getElementById('inn-speaker');
+      const qt = document.getElementById('inn-dialogue');
+      if (sp) sp.textContent = speaker;
+      if (qt) qt.textContent = `“${quote}”`;
+    }
+
+    function syncInnPlumesUi() {
+      const plumes = getSkyPlumes();
+      const total = countSkyPlumes();
+      const pill = document.getElementById('inn-plume-status-pill');
+      const countEl = document.getElementById('inn-plumes-count');
+      if (countEl) countEl.textContent = `${total} / 6 Plumes Collected`;
+
+      if (pill) {
+        if (plumes.hearth) {
+          pill.textContent = '🏠 Plume of Hearth: AWARDED';
+          pill.className =
+            'rounded border border-[#fde047] bg-[#422006] px-2 py-0.5 font-mono text-[10px] font-bold text-[#fef08a]';
+        } else {
+          pill.textContent = '🪶 Plume of Hearth: UNCLAIMED';
+          pill.className =
+            'rounded border border-[#64748b] bg-[#1c1917] px-2 py-0.5 font-mono text-[10px] font-bold text-[#d6d3d1]';
+        }
+      }
+
+      (Object.keys(SKY_PLUMES_META) as SkyPlumeKey[]).forEach((key) => {
+        const badge = document.querySelector<HTMLElement>(`[data-plume-badge="${key}"]`);
+        const unlocked = Boolean(plumes[key]);
+        if (badge) {
+          badge.textContent = unlocked ? 'EARNED' : 'LOCKED';
+          badge.className = unlocked
+            ? 'rounded border border-[#22c55e] bg-[#052e16] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#86efac]'
+            : 'rounded border border-[#44403c] bg-[#1c1917] px-1.5 py-0.5 font-mono text-[9px] text-[#a8a29e]';
+        }
+      });
+    }
+
+    function renderOrdersUi() {
+      const count = servedOrders.size;
+      const banner = document.getElementById('inn-trial-banner');
+      [1, 2, 3].forEach((step) => {
+        const stateEl = document.querySelector<HTMLElement>(`[data-order-state="${step}"]`);
+        const btn = document.querySelector<HTMLButtonElement>(`[data-inn-order="${step}"]`);
+        const ok = servedOrders.has(step);
+        if (stateEl) {
+          stateEl.textContent = ok ? 'SERVED ✓' : 'WAITING';
+          stateEl.className = ok
+            ? 'rounded border border-[#22c55e] bg-[#052e16] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#86efac]'
+            : 'rounded border border-[#44403c] bg-[#1c1917] px-1.5 py-0.5 font-mono text-[9px] text-[#a8a29e]';
+        }
+        if (btn) {
+          btn.style.borderColor = ok ? '#22c55e' : '#92400e';
+        }
+      });
+
+      if (banner) {
+        if (count === 3) {
+          banner.className =
+            'mt-4 rounded-xl border border-[#22c55e] bg-[#052e16]/75 px-4 py-3 text-xs text-[#bbf7d0]';
+          banner.innerHTML =
+            '🏠 <strong>All 3 Fellowship Orders Served!</strong> Latias awards you the <strong class="text-[#fde047]">Plume of Hearth</strong>.';
+        } else {
+          banner.className =
+            'mt-4 rounded-xl border border-[#92400e] bg-[#140b03] px-4 py-3 text-xs text-[#fde68a]';
+          banner.innerHTML = `Hearth Service: <strong class="text-[#fde047]">${count} / 3</strong> Orders Served — prepare Order 0${count + 1} next.`;
+        }
+      }
+    }
+
+    function wireInnPage() {
+      if (!document.querySelector('.inn-page')) return;
+
+      if (getSkyPlumes().hearth) {
+        servedOrders.add(1);
+        servedOrders.add(2);
+        servedOrders.add(3);
+      }
+      renderOrdersUi();
+      syncInnPlumesUi();
+
+      const exitBtn = document.getElementById('inn-exit-btn') as HTMLAnchorElement | null;
+      if (exitBtn && exitBtn.dataset.wired !== '1') {
+        exitBtn.dataset.wired = '1';
+        exitBtn.addEventListener('click', () => {
+          const respawn = exitBtn.getAttribute('data-respawn');
+          if (respawn) sessionStorage.setItem('sky-castle:respawn', respawn);
+        });
+      }
+
+      const teaBtn = document.getElementById('btn-inn-brew-tea');
+      if (teaBtn && teaBtn.dataset.wired !== '1') {
+        teaBtn.dataset.wired = '1';
+        teaBtn.addEventListener('click', () => {
+          triggerInnFx('🍵 SKY-BERRY TEA +100% STAMINA!', '#fb7185');
+          setInnDialogue(
+            'Latias · Sky-Berry Hearth Host',
+            'Warm sky-berry tea brewed fresh! Feel free to linger by the hearth and browse Zulfan’s mentoring notes.',
+          );
+        });
+      }
+
+      document.querySelectorAll<HTMLButtonElement>('[data-inn-walk]').forEach((btn) => {
+        if (btn.dataset.wired === '1') return;
+        btn.dataset.wired = '1';
+        btn.addEventListener('click', () => {
+          const propId = btn.getAttribute('data-inn-walk');
+          const scrollTo = btn.getAttribute('data-scroll-to');
+          const speaker = btn.getAttribute('data-speaker');
+          const quote = btn.getAttribute('data-quote');
+          const fxText = btn.getAttribute('data-fx-text');
+          const fxColor = btn.getAttribute('data-fx-color');
+
+          if (propId) {
+            document.querySelector<HTMLButtonElement>(`.town-label[data-id="${propId}"]`)?.click();
+          }
+          if (speaker && quote) setInnDialogue(speaker, quote);
+          if (fxText) triggerInnFx(fxText, fxColor || '#f59e0b');
+          if (scrollTo) {
+            document.getElementById(scrollTo)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        });
+      });
+
+      document.querySelectorAll<HTMLButtonElement>('[data-inn-order]').forEach((btn) => {
+        if (btn.dataset.wired === '1') return;
+        btn.dataset.wired = '1';
+        btn.addEventListener('click', () => {
+          const step = Number(btn.getAttribute('data-inn-order'));
+          if (Number.isNaN(step)) return;
+          const expected = servedOrders.size + 1;
+
+          if (servedOrders.has(step)) {
+            triggerInnFx(`ORDER 0${step} ALREADY SERVED`, '#fde68a');
+            return;
+          }
+          if (step !== expected) {
+            triggerInnFx(`SERVE ORDER 0${expected} FIRST!`, '#f87171');
+            setInnDialogue(
+              'Phoenixmon · Keeper of Practicums',
+              `Mind the cohort schedule! Prepare Order 0${expected} before Order 0${step}.`,
+            );
+            return;
+          }
+
+          servedOrders.add(step);
+          renderOrdersUi();
+          if (servedOrders.size === 3) {
+            awardSkyPlume('hearth');
+            triggerInnFx('🏠 PLUME OF HEARTH UNLOCKED!', '#fde047');
+            setInnDialogue(
+              'Latias · Sky-Berry Hearth Host',
+              'Every practicum tray arrived piping hot! Accept the Plume of Hearth with our gratitude.',
+            );
+            syncInnPlumesUi();
+          } else {
+            triggerInnFx(`ORDER 0${step} SERVED!`, '#fbbf24');
+          }
+        });
+      });
+
+      const resetBtn = document.getElementById('btn-inn-reset');
+      if (resetBtn && resetBtn.dataset.wired !== '1') {
+        resetBtn.dataset.wired = '1';
+        resetBtn.addEventListener('click', () => {
+          servedOrders.clear();
+          renderOrdersUi();
+          triggerInnFx('TRAYS CLEARED', '#94a3b8');
+        });
+      }
+    }
+
+    function handleInnSceneEvent(e: Event) {
+      const ce = e as CustomEvent<{ id?: string }>;
+      if (!document.querySelector('.inn-page')) return;
+      const propId = ce.detail?.id;
+      if (!propId) return;
+      const station = document.querySelector<HTMLButtonElement>(`[data-inn-walk="${propId}"]`);
+      const speaker = station?.getAttribute('data-speaker');
+      const quote = station?.getAttribute('data-quote');
+      if (speaker && quote) setInnDialogue(speaker, quote);
+    }
+
+    function handleInnKey(e: KeyboardEvent) {
+      if (!document.querySelector('.inn-page')) return;
+      if (
+        document.activeElement instanceof HTMLInputElement ||
+        document.activeElement instanceof HTMLTextAreaElement ||
+        e.metaKey ||
+        e.ctrlKey ||
+        e.altKey
+      ) {
+        return;
+      }
+      if (e.key === 'Escape') {
+        (document.getElementById('inn-exit-btn') as HTMLAnchorElement | null)?.click();
+        return;
+      }
+      const matched = document.querySelector<HTMLButtonElement>(
+        `.inn-station-btn[data-hotkey="${e.key.toLowerCase()}"]`,
+      );
+      matched?.click();
+    }
+
+    window.addEventListener('sky:plume-updated', syncInnPlumesUi);
+    window.addEventListener('town:sky-prop-interact', handleInnSceneEvent);
+    window.addEventListener('keydown', handleInnKey);
+
+    wireInnPage();
+    document.addEventListener('astro:page-load', wireInnPage);
+  </script>
+</TownLayout>

@@ -1,0 +1,622 @@
+---
+import TownLayout from '../../layouts/TownLayout.astro';
+import WhereTo from '../../components/WhereTo.astro';
+import { profile, fmtMonth, fmtRange } from '../../lib/profile';
+import { SKY_PLUMES_META } from '../../engine/skyInteriorShared';
+
+const allPlumes = Object.values(SKY_PLUMES_META);
+
+const chapelStations = [
+  {
+    key: '1',
+    propId: 'arceus',
+    icon: '✨',
+    name: 'Arceus · Light Sovereign',
+    scrollTarget: 'chapel-trial',
+    speaker: 'Arceus · Sovereign of Avalon',
+    quote:
+      'Integrity, security discipline, and purposeful collaboration anchor every lasting system. Chime all 3 Sapphire Sky-Bell Hymns below to claim the Plume of Radiance!',
+    fxText: 'JUDGMENT LIGHT RESONANCE!',
+    fxColor: '#fde047',
+  },
+  {
+    key: '2',
+    propId: 'honors-scroll',
+    icon: '🏅',
+    name: 'Honors & Security Scroll',
+    scrollTarget: 'chapel-honors',
+    speaker: 'Sanctuary Scroll of Honors',
+    quote:
+      'ITENAS Informatics Engineering B.Sc. (GPA 3.49 / 4.00), Huawei HCIA-Security V4.0, and IDEA FEST 3 Bronze Medal.',
+    fxText: 'HONORS BLESSING VERIFIED',
+    fxColor: '#60a5fa',
+  },
+  {
+    key: '3',
+    propId: 'seraphimon',
+    icon: '🕊️',
+    name: 'Seraphimon',
+    scrollTarget: 'chapel-honors',
+    speaker: 'Seraphimon · Shield of Craft',
+    quote:
+      'Clean abstractions and security boundaries protect users quietly across every production deployment.',
+    fxText: 'SEVEN HEAVENS HYMN!',
+    fxColor: '#93c5fd',
+  },
+  {
+    key: '4',
+    propId: 'sakuyamon',
+    icon: '🦊',
+    name: 'Sakuyamon · Invocation Sage',
+    scrollTarget: 'chapel-contact',
+    speaker: 'Sakuyamon · Envoy of Collaboration',
+    quote:
+      'Looking for an AI/Backend or Full-Stack Engineer in Jakarta / Bandung or remote? Step to the Collaboration Lectern below!',
+    fxText: 'CRYSTAL PORTAL OPEN',
+    fxColor: '#facc15',
+  },
+  {
+    key: '5',
+    propId: 'plume-sanctuary',
+    icon: '🪶',
+    name: 'Six Plumes Shrine',
+    scrollTarget: 'chapel-plumes-ledger',
+    speaker: 'Six Plumes Shrine',
+    quote:
+      'Once all 6 Celestial Plumes shine, return to Grand Sky Plaza and touch the Azure Crystal Fountain!',
+    fxText: 'AZURE CRYSTAL CALLS!',
+    fxColor: '#38bdf8',
+  },
+];
+
+const bellHymns = [
+  {
+    bell: 1,
+    freq: 523.25,
+    note: 'C5 · HYMN I',
+    title: 'Vow of Craft & Academic Rigor',
+    spec: 'ITENAS GPA 3.49 · Clean Engineering',
+    desc: 'Sound the first sapphire chime in dedication to reproducible experiments and maintainable codebases.',
+  },
+  {
+    bell: 2,
+    freq: 659.25,
+    note: 'E5 · HYMN II',
+    title: 'Vow of Security & Integrity',
+    spec: 'HCIA-Security V4.0 · Zero-Oversell ACID',
+    desc: 'Sound the second chime honoring network defense, strict validation, and dependable production uptime.',
+  },
+  {
+    bell: 3,
+    freq: 783.99,
+    note: 'G5 · HYMN III',
+    title: 'Vow of Open Collaboration',
+    spec: 'Applied AI · Backend · Robotics Teams',
+    desc: 'Complete the luminous triad to invite impactful real-world engineering partnerships.',
+  },
+];
+---
+
+<TownLayout
+  title="Radiant Sky Chapel — Honors, Philosophy & Open Collaboration | Sky Castle"
+  description="Enter Radiant Sky Chapel (15×12) in Sky Castle Avalon: ring the 3 Sapphire Sky-Bell Hymns beside Arceus, Seraphimon & Sakuyamon to earn the Plume of Radiance."
+  place="sky-chapel"
+>
+  <article
+    class="chapel-page space-y-6 pb-10 text-[#dbeafe]"
+    data-summary-text={`${profile.person.name} Engineering Honors, Philosophy & Direct Collaboration — Radiant Sky Chapel guarded by Arceus, Seraphimon & Sakuyamon.`}
+  >
+    <!-- 1. RADIANT SKY CHAPEL HERO BANNER -->
+    <header class="relative overflow-hidden rounded-2xl border-[3px] border-[#60a5fa] bg-gradient-to-b from-[#0b1833] via-[#132854] to-[#0c1a3a] p-5 shadow-[0_8px_0_#1d4ed8,0_18px_36px_rgba(37,99,235,0.3)]">
+      <div
+        class="pointer-events-none absolute inset-x-0 top-0 h-2 bg-[repeating-linear-gradient(90deg,#60a5fa_0px,#60a5fa_14px,#f8fafc_14px,#f8fafc_28px,#fde047_28px,#fde047_42px)]"
+        aria-hidden="true"
+      />
+      <div class="mt-2 flex flex-wrap items-start justify-between gap-4">
+        <div class="space-y-2 max-w-2xl">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="rounded border border-[#60a5fa] bg-[#172554] px-2 py-0.5 font-mono text-[10px] font-bold tracking-wider text-[#bfdbfe]">
+              ⛪ SOUTHEAST ISLAND · SANCTUARY (15×12)
+            </span>
+            <span
+              id="chapel-plume-status-pill"
+              class="rounded border border-[#64748b] bg-[#0f172a] px-2 py-0.5 font-mono text-[10px] font-bold text-[#cbd5e1]"
+            >
+              🪶 Plume of Radiance: UNCLAIMED
+            </span>
+          </div>
+          <h1 class="font-pixel text-base sm:text-lg leading-snug text-[#f8fafc]">
+            Radiant Sky Chapel — Honors, Philosophy &amp; Sanctuary Vows
+          </h1>
+          <p class="text-xs sm:text-[13px] leading-relaxed text-[#bfdbfe]">
+            Sunlight streams over twin southern waterfalls into Avalon’s quiet white sanctuary. Beside{' '}
+            <strong class="text-[#fef08a]">Arceus</strong>,{' '}
+            <strong class="text-[#93c5fd]">Seraphimon</strong>, and{' '}
+            <strong class="text-[#fde047]">Sakuyamon</strong>, inspect {profile.person.short_name}’s credentials and collaboration channels.
+          </p>
+        </div>
+
+        <div class="flex flex-col items-end gap-2">
+          <a
+            id="chapel-exit-btn"
+            href="/sky-castle?from=chapel"
+            data-respawn="37,47,down"
+            class="inline-flex items-center gap-2 rounded-lg border-2 border-[#60a5fa] bg-[#1e3a8a] px-3.5 py-2 font-pixel text-[10px] text-[#f8fafc] shadow-[0_3px_0_#172554] transition hover:-translate-y-0.5 hover:bg-[#2563eb]"
+          >
+            ⬅️ Exit to Sky Castle (Esc)
+          </a>
+          <span class="font-mono text-[10px] text-[#93c5fd]">
+            Or walk out via Door (7, 11) → SE Sanctuary
+          </span>
+        </div>
+      </div>
+
+      <!-- Live Dialogue Strip -->
+      <div class="mt-4 rounded-xl border-2 border-[#3b82f6]/60 bg-[#071127]/90 p-3.5">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
+          <span id="chapel-speaker" class="font-pixel text-[10px] text-[#fde047]">
+            Arceus · Sovereign of Avalon
+          </span>
+          <span class="font-mono text-[10px] text-[#93c5fd]">
+            Shortcuts: [1–5] Walk to Station · [Esc] Exit
+          </span>
+        </div>
+        <p id="chapel-dialogue" class="text-xs leading-relaxed text-[#dbeafe]">
+          “Ring the 3 Sapphire Sky-Bell Hymns below in ascending order (I → II → III) to earn the final Plume of Radiance!”
+        </p>
+      </div>
+
+      <!-- Station Shortcuts -->
+      <div class="mt-3 flex flex-wrap gap-2">
+        {chapelStations.map((st) => (
+          <button
+            type="button"
+            class="chapel-station-btn inline-flex items-center gap-1.5 rounded-lg border border-[#60a5fa]/50 bg-[#152a5c] px-2.5 py-1.5 text-[11px] font-semibold text-[#dbeafe] transition hover:border-[#fde047] hover:bg-[#1e3a8a] cursor-pointer"
+            data-hotkey={st.key}
+            data-chapel-walk={st.propId}
+            data-scroll-to={st.scrollTarget}
+            data-speaker={st.speaker}
+            data-quote={st.quote}
+            data-fx-text={st.fxText}
+            data-fx-color={st.fxColor}
+          >
+            <span class="rounded bg-[#1d4ed8] px-1 font-mono text-[9px] text-[#fde047]">{st.key}</span>
+            <span>{st.icon}</span>
+            <span>{st.name}</span>
+          </button>
+        ))}
+      </div>
+    </header>
+
+    <!-- 2. INTERACTIVE GUARDIAN TRIAL: SAPPHIRE SKY-BELL HYMNS -->
+    <section
+      id="chapel-trial"
+      class="rounded-2xl border-2 border-[#fde047] bg-gradient-to-br from-[#0e1b38] via-[#13254f] to-[#0a142b] p-5 shadow-lg"
+    >
+      <div class="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <span class="inline-flex items-center rounded border border-[#fde047] bg-[#422006] px-2 py-0.5 font-mono text-[10px] font-bold text-[#fef08a]">
+            ✨ ARCEUS’ SANCTUARY TRIAL · SAPPHIRE SKY-BELL HYMNS
+          </span>
+          <h2 class="mt-2 font-pixel text-sm text-[#f8fafc]">
+            Sound All 3 Sapphire Sky-Bell Hymns (C5 → E5 → G5)
+          </h2>
+          <p class="mt-1 text-xs text-[#bfdbfe]">
+            Ring <strong class="text-[#fde047]">Hymn I → II → III</strong> in order to claim the{' '}
+            <strong class="text-[#fde047]">Plume of Radiance (6/6)</strong>.
+          </p>
+        </div>
+        <button
+          id="btn-chapel-reset"
+          type="button"
+          class="rounded border border-[#475569] bg-[#1e293b] px-2.5 py-1 font-mono text-[10px] text-[#e2e8f0] hover:border-[#60a5fa] cursor-pointer"
+        >
+          ↺ Silence Bells
+        </button>
+      </div>
+
+      <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-3">
+        {bellHymns.map((h) => (
+          <button
+            type="button"
+            data-chapel-bell={h.bell}
+            data-bell-freq={h.freq}
+            class="chapel-bell-btn text-left rounded-xl border-2 border-[#1d4ed8] bg-[#0a1633] p-4 transition hover:border-[#fde047] hover:-translate-y-0.5 cursor-pointer"
+          >
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-mono text-[9px] font-bold text-[#93c5fd]">{h.note}</span>
+              <span
+                data-bell-state={h.bell}
+                class="rounded border border-[#334155] bg-[#0f172a] px-1.5 py-0.5 font-mono text-[9px] text-[#94a3b8]"
+              >
+                SILENT
+              </span>
+            </div>
+            <h3 class="mt-2 font-pixel text-[11px] leading-snug text-[#f8fafc]">{h.title}</h3>
+            <p class="mt-1 font-mono text-[10px] text-[#fde047]">{h.spec}</p>
+            <p class="mt-2 text-[11px] leading-relaxed text-[#bfdbfe]">{h.desc}</p>
+          </button>
+        ))}
+      </div>
+
+      <div
+        id="chapel-trial-banner"
+        class="mt-4 rounded-xl border border-[#1d4ed8] bg-[#081229] px-4 py-3 text-xs text-[#bfdbfe]"
+      >
+        Choir Resonance: <strong class="text-[#fde047]">0 / 3</strong> Sky-Bells Chimed — ring Bell I first.
+      </div>
+    </section>
+
+    <!-- 3. ACADEMIC FOUNDATION & HONORS -->
+    <section
+      id="chapel-honors"
+      class="rounded-2xl border-2 border-[#60a5fa]/70 bg-[#0d1c3d] p-5 space-y-4"
+    >
+      <div>
+        <span class="font-mono text-[10px] font-bold uppercase tracking-wider text-[#93c5fd]">
+          🏅 ACADEMIC EDUCATION &amp; RECOGNITION
+        </span>
+        <h2 class="mt-1 font-pixel text-sm text-[#f8fafc]">
+          Education, Security Certification &amp; National Distinctions
+        </h2>
+      </div>
+
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+        {profile.education.map((edu) => (
+          <div class="rounded-xl border border-[#2563eb] bg-[#122654] p-4 space-y-2">
+            <span class="rounded border border-[#60a5fa]/50 bg-[#172554] px-2 py-0.5 font-mono text-[9px] text-[#bfdbfe]">
+              🎓 {fmtRange(edu.start, edu.end)}
+            </span>
+            <h3 class="font-pixel text-[11px] text-[#f8fafc]">{edu.school}</h3>
+            <p class="text-xs font-medium text-[#93c5fd]">{edu.degree}</p>
+            {edu.gpa && <p class="font-mono text-[11px] font-bold text-[#fde047]">GPA {edu.gpa}</p>}
+            <ul class="space-y-1 text-[11px] text-[#dbeafe]">
+              {edu.highlights.slice(0, 3).map((hl) => (
+                <li class="flex items-start gap-1.5">
+                  <span class="text-[#fde047]">▸</span>
+                  <span>{hl}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+
+        {profile.honors.map((honor) => (
+          <div class="rounded-xl border border-[#2563eb] bg-[#122654] p-4 space-y-2">
+            <span class="rounded border border-[#fde047]/50 bg-[#422006] px-2 py-0.5 font-mono text-[9px] text-[#fef08a]">
+              🏅 {fmtMonth(honor.date)}
+            </span>
+            <h3 class="font-pixel text-[11px] text-[#f8fafc]">{honor.title}</h3>
+            <p class="text-xs text-[#bfdbfe]">{honor.issuer}</p>
+            {honor.note && <p class="text-[11px] leading-relaxed text-[#93c5fd]">{honor.note}</p>}
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- 4. COLLABORATION & DIRECT CONTACT -->
+    <section
+      id="chapel-contact"
+      class="rounded-2xl border-2 border-[#38bdf8]/70 bg-[#0b1b36] p-5 space-y-4"
+    >
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <span class="font-mono text-[10px] font-bold uppercase tracking-wider text-[#fde047]">
+            🦊 SAKUYAMON’S COLLABORATION LECTERN
+          </span>
+          <h2 class="mt-1 font-pixel text-sm text-[#f8fafc]">
+            Open Roles &amp; Direct Engineering Channels
+          </h2>
+        </div>
+        <span class="font-mono text-[10px] text-[#7dd3fc]">{profile.person.location}</span>
+      </div>
+
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div class="rounded-xl border border-[#0284c7]/60 bg-[#0e2447] p-4 space-y-2">
+          <div class="font-mono text-[10px] font-bold text-[#7dd3fc]">📍 CURRENT FOCUS</div>
+          <h3 class="font-pixel text-xs text-[#f8fafc]">{profile.person.now.role}</h3>
+          <p class="font-mono text-[11px] text-[#fde047]">{profile.person.now.org}</p>
+          <p class="text-xs leading-relaxed text-[#dbeafe]">{profile.person.now.blurb}</p>
+        </div>
+
+        <div class="rounded-xl border border-[#0284c7]/60 bg-[#0e2447] p-4 space-y-3">
+          <div class="font-mono text-[10px] font-bold text-[#fde047]">🤝 OPEN TO</div>
+          <p class="text-xs leading-relaxed text-[#dbeafe]">{profile.person.open_to}</p>
+          <div class="flex flex-wrap gap-2 pt-1">
+            {profile.socials.map((s) => (
+              <a
+                href={s.url}
+                target={s.url.startsWith('http') ? '_blank' : undefined}
+                rel={s.url.startsWith('http') ? 'noopener noreferrer' : undefined}
+                class="rounded-lg border border-[#38bdf8]/60 bg-[#082f49] px-2.5 py-1.5 font-mono text-[10px] font-bold text-[#e0f2fe] hover:bg-[#0284c7]"
+              >
+                {s.label} ↗
+              </a>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. SIX CELESTIAL PLUMES LEDGER -->
+    <section
+      id="chapel-plumes-ledger"
+      class="rounded-2xl border-2 border-[#60a5fa]/60 bg-[#081329] p-5 space-y-3"
+    >
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <span class="font-pixel text-xs text-[#f8fafc]">🪶 Celestial Plumes Ledger</span>
+        <span id="chapel-plumes-count" class="font-mono text-xs font-bold text-[#fde047]">
+          0 / 6 Plumes Collected
+        </span>
+      </div>
+      <div class="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
+        {allPlumes.map((plume) => (
+          <div
+            data-plume-card={plume.key}
+            class="rounded-xl border border-[#1e3a8a] bg-[#0e1e42] p-3"
+          >
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-pixel text-[10px] text-[#f8fafc]">
+                {plume.icon} {plume.name}
+              </span>
+              <span
+                data-plume-badge={plume.key}
+                class="rounded border border-[#334155] bg-[#0f172a] px-1.5 py-0.5 font-mono text-[9px] text-[#94a3b8]"
+              >
+                LOCKED
+              </span>
+            </div>
+            <p class="mt-1 text-[10px] text-[#93c5fd]">{plume.sanctum}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <WhereTo currentPath="/sky-castle/chapel" />
+  </article>
+
+  <script>
+    import {
+      SKY_PLUMES_META,
+      awardSkyPlume,
+      countSkyPlumes,
+      getSkyPlumes,
+      type SkyPlumeKey,
+    } from '../../engine/skyInteriorShared';
+
+    const chimedBells = new Set<number>();
+
+    function playBellTone(freq: number) {
+      try {
+        const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, ctx.currentTime);
+        gain.gain.setValueAtTime(0.08, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.45);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.46);
+      } catch {
+        // ignore audio context restrictions
+      }
+    }
+
+    function triggerChapelFx(text: string, color = '#60a5fa') {
+      window.dispatchEvent(new CustomEvent('town:sky-fx', { detail: { text, color } }));
+    }
+
+    function setChapelDialogue(speaker: string, quote: string) {
+      const sp = document.getElementById('chapel-speaker');
+      const qt = document.getElementById('chapel-dialogue');
+      if (sp) sp.textContent = speaker;
+      if (qt) qt.textContent = `“${quote}”`;
+    }
+
+    function syncChapelPlumesUi() {
+      const plumes = getSkyPlumes();
+      const total = countSkyPlumes();
+      const pill = document.getElementById('chapel-plume-status-pill');
+      const countEl = document.getElementById('chapel-plumes-count');
+      if (countEl) countEl.textContent = `${total} / 6 Plumes Collected`;
+
+      if (pill) {
+        if (plumes.radiance) {
+          pill.textContent = '⛪ Plume of Radiance: AWARDED';
+          pill.className =
+            'rounded border border-[#fde047] bg-[#422006] px-2 py-0.5 font-mono text-[10px] font-bold text-[#fef08a]';
+        } else {
+          pill.textContent = '🪶 Plume of Radiance: UNCLAIMED';
+          pill.className =
+            'rounded border border-[#64748b] bg-[#0f172a] px-2 py-0.5 font-mono text-[10px] font-bold text-[#cbd5e1]';
+        }
+      }
+
+      (Object.keys(SKY_PLUMES_META) as SkyPlumeKey[]).forEach((key) => {
+        const badge = document.querySelector<HTMLElement>(`[data-plume-badge="${key}"]`);
+        const unlocked = Boolean(plumes[key]);
+        if (badge) {
+          badge.textContent = unlocked ? 'EARNED' : 'LOCKED';
+          badge.className = unlocked
+            ? 'rounded border border-[#22c55e] bg-[#052e16] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#86efac]'
+            : 'rounded border border-[#334155] bg-[#0f172a] px-1.5 py-0.5 font-mono text-[9px] text-[#94a3b8]';
+        }
+      });
+    }
+
+    function renderBellsUi() {
+      const count = chimedBells.size;
+      const totalPlumes = countSkyPlumes();
+      const banner = document.getElementById('chapel-trial-banner');
+      [1, 2, 3].forEach((b) => {
+        const stateEl = document.querySelector<HTMLElement>(`[data-bell-state="${b}"]`);
+        const btn = document.querySelector<HTMLButtonElement>(`[data-chapel-bell="${b}"]`);
+        const ok = chimedBells.has(b);
+        if (stateEl) {
+          stateEl.textContent = ok ? 'CHIMED ♪' : 'SILENT';
+          stateEl.className = ok
+            ? 'rounded border border-[#22c55e] bg-[#052e16] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#86efac]'
+            : 'rounded border border-[#334155] bg-[#0f172a] px-1.5 py-0.5 font-mono text-[9px] text-[#94a3b8]';
+        }
+        if (btn) {
+          btn.style.borderColor = ok ? '#fde047' : '#1d4ed8';
+        }
+      });
+
+      if (banner) {
+        if (count === 3) {
+          banner.className =
+            'mt-4 rounded-xl border border-[#fde047] bg-[#422006]/65 px-4 py-3 text-xs text-[#fef08a]';
+          banner.innerHTML =
+            totalPlumes >= 6
+              ? '✨ <strong>All 3 Hymns Chimed &amp; 6 / 6 Plumes Complete!</strong> Return to Grand Sky Plaza and touch the <strong>Azure Crystal Fountain</strong> to awaken Sky Castle Avalon!'
+              : '⛪ <strong>All 3 Sapphire Hymns Chimed!</strong> Arceus bestows the <strong class="text-[#fde047]">Plume of Radiance</strong>.';
+        } else {
+          banner.className =
+            'mt-4 rounded-xl border border-[#1d4ed8] bg-[#081229] px-4 py-3 text-xs text-[#bfdbfe]';
+          banner.innerHTML = `Choir Resonance: <strong class="text-[#fde047]">${count} / 3</strong> Sky-Bells Chimed — ring Bell ${count + 1} next.`;
+        }
+      }
+    }
+
+    function wireChapelPage() {
+      if (!document.querySelector('.chapel-page')) return;
+
+      if (getSkyPlumes().radiance) {
+        chimedBells.add(1);
+        chimedBells.add(2);
+        chimedBells.add(3);
+      }
+      renderBellsUi();
+      syncChapelPlumesUi();
+
+      const exitBtn = document.getElementById('chapel-exit-btn') as HTMLAnchorElement | null;
+      if (exitBtn && exitBtn.dataset.wired !== '1') {
+        exitBtn.dataset.wired = '1';
+        exitBtn.addEventListener('click', () => {
+          const respawn = exitBtn.getAttribute('data-respawn');
+          if (respawn) sessionStorage.setItem('sky-castle:respawn', respawn);
+        });
+      }
+
+      document.querySelectorAll<HTMLButtonElement>('[data-chapel-walk]').forEach((btn) => {
+        if (btn.dataset.wired === '1') return;
+        btn.dataset.wired = '1';
+        btn.addEventListener('click', () => {
+          const propId = btn.getAttribute('data-chapel-walk');
+          const scrollTo = btn.getAttribute('data-scroll-to');
+          const speaker = btn.getAttribute('data-speaker');
+          const quote = btn.getAttribute('data-quote');
+          const fxText = btn.getAttribute('data-fx-text');
+          const fxColor = btn.getAttribute('data-fx-color');
+
+          if (propId) {
+            document.querySelector<HTMLButtonElement>(`.town-label[data-id="${propId}"]`)?.click();
+          }
+          if (speaker && quote) setChapelDialogue(speaker, quote);
+          if (fxText) triggerChapelFx(fxText, fxColor || '#60a5fa');
+          if (scrollTo) {
+            document.getElementById(scrollTo)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        });
+      });
+
+      document.querySelectorAll<HTMLButtonElement>('[data-chapel-bell]').forEach((btn) => {
+        if (btn.dataset.wired === '1') return;
+        btn.dataset.wired = '1';
+        btn.addEventListener('click', () => {
+          const bell = Number(btn.getAttribute('data-chapel-bell'));
+          const freq = Number(btn.getAttribute('data-bell-freq')) || 523.25;
+          if (Number.isNaN(bell)) return;
+          const expected = chimedBells.size + 1;
+
+          playBellTone(freq);
+
+          if (chimedBells.has(bell)) {
+            triggerChapelFx(`HYMN ${bell} RESONATES ♪`, '#93c5fd');
+            return;
+          }
+          if (bell !== expected) {
+            triggerChapelFx(`RING BELL ${expected} FIRST!`, '#f87171');
+            setChapelDialogue(
+              'Seraphimon · Shield of Craft',
+              `Follow the sacred triad: sound Bell ${expected} before Bell ${bell}.`,
+            );
+            return;
+          }
+
+          chimedBells.add(bell);
+          if (chimedBells.size === 3) {
+            awardSkyPlume('radiance');
+            renderBellsUi();
+            syncChapelPlumesUi();
+            triggerChapelFx('⛪ PLUME OF RADIANCE UNLOCKED!', '#fde047');
+            setChapelDialogue(
+              'Arceus · Sovereign of Avalon',
+              'The sapphire triad rings clear across the clouds! Receive the Plume of Radiance.',
+            );
+          } else {
+            renderBellsUi();
+            triggerChapelFx(`BELL ${bell} CHIMED ♪`, '#60a5fa');
+          }
+        });
+      });
+
+      const resetBtn = document.getElementById('btn-chapel-reset');
+      if (resetBtn && resetBtn.dataset.wired !== '1') {
+        resetBtn.dataset.wired = '1';
+        resetBtn.addEventListener('click', () => {
+          chimedBells.clear();
+          renderBellsUi();
+          triggerChapelFx('BELLS SILENCED', '#94a3b8');
+        });
+      }
+    }
+
+    function handleChapelSceneEvent(e: Event) {
+      const ce = e as CustomEvent<{ id?: string }>;
+      if (!document.querySelector('.chapel-page')) return;
+      const propId = ce.detail?.id;
+      if (!propId) return;
+      const station = document.querySelector<HTMLButtonElement>(`[data-chapel-walk="${propId}"]`);
+      const speaker = station?.getAttribute('data-speaker');
+      const quote = station?.getAttribute('data-quote');
+      if (speaker && quote) setChapelDialogue(speaker, quote);
+    }
+
+    function handleChapelKey(e: KeyboardEvent) {
+      if (!document.querySelector('.chapel-page')) return;
+      if (
+        document.activeElement instanceof HTMLInputElement ||
+        document.activeElement instanceof HTMLTextAreaElement ||
+        e.metaKey ||
+        e.ctrlKey ||
+        e.altKey
+      ) {
+        return;
+      }
+      if (e.key === 'Escape') {
+        (document.getElementById('chapel-exit-btn') as HTMLAnchorElement | null)?.click();
+        return;
+      }
+      const matched = document.querySelector<HTMLButtonElement>(
+        `.chapel-station-btn[data-hotkey="${e.key.toLowerCase()}"]`,
+      );
+      matched?.click();
+    }
+
+    window.addEventListener('sky:plume-updated', () => {
+      syncChapelPlumesUi();
+      renderBellsUi();
+    });
+    window.addEventListener('town:sky-prop-interact', handleChapelSceneEvent);
+    window.addEventListener('keydown', handleChapelKey);
+
+    wireChapelPage();
+    document.addEventListener('astro:page-load', wireChapelPage);
+  </script>
+</TownLayout>

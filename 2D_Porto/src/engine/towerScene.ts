@@ -41,11 +41,9 @@ export interface TowerProp {
 // Modern High-Tech Corporate Color Palette
 const C_FLOOR_DARK = '#0f172a';
 const C_FLOOR_TILES = '#1e293b';
-const C_FLOOR_ACCENT = '#0284c7';
 const C_WALL = '#090d16';
 const C_WALL_PANEL = '#1e293b';
 const C_WALL_CYAN = '#38bdf8';
-const C_CYAN_GLOW = 'rgba(56, 189, 248, 0.35)';
 
 export const TOWER_PROPS: TowerProp[] = [
   {
@@ -220,8 +218,8 @@ export function createTowerBackgroundCanvas(): HTMLCanvasElement {
           ? '#1e293b'
           : '#0f172a'
         : isAlt
-        ? C_FLOOR_TILES
-        : C_FLOOR_DARK;
+          ? C_FLOOR_TILES
+          : C_FLOOR_DARK;
       ctx.fillRect(c * TILE_SIZE, r * TILE_SIZE, TILE_SIZE, TILE_SIZE);
 
       // Fine grid borders

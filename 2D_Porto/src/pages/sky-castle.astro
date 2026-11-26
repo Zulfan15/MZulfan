@@ -2,6 +2,9 @@
 import TownLayout from '../layouts/TownLayout.astro';
 import WhereTo from '../components/WhereTo.astro';
 import { SKY_CASTLE_LANDMARKS } from '../engine/skyCastleMap';
+import { SKY_PLUMES_META } from '../engine/skyInteriorShared';
+
+const allPlumes = Object.values(SKY_PLUMES_META);
 
 const landmarkCards = [
   {
@@ -9,10 +12,12 @@ const landmarkCards = [
     icon: '👑',
     badge: 'NORTH ISLAND · KEEP',
     title: 'White Marble Sky Citadel',
-    coords: 'X: 13..30, Y: 2..14',
+    coords: 'X: 13..30, Y: 2..14 · Door (22, 14)',
     accent: 'border-[#38bdf8] bg-[#0a1e33] text-[#e0f2fe]',
     badgeClass: 'border-[#0284c7] bg-[#0c4a6e] text-[#bae6fd]',
-    desc: 'White marble and sapphire-spired sovereign cloud fortress overlooking the celestial archipelago.',
+    desc: 'White marble and sapphire-spired sovereign cloud fortress guarded by Rayquaza, Imperialdramon PM & Valkyrimon.',
+    enterHref: '/sky-castle/citadel',
+    plumeKey: 'sovereignty',
   },
   {
     id: 'sky_crystal_plaza',
@@ -22,47 +27,69 @@ const landmarkCards = [
     coords: 'X: 14..30, Y: 24..35',
     accent: 'border-[#f472b6] bg-[#231024] text-[#fce7f3]',
     badgeClass: 'border-[#ec4899] bg-[#500724] text-[#fbcfe8]',
-    desc: 'White marble terrace ringed by cherry-blossom sakura trees and market stalls around a floating sky-crystal.',
+    desc: 'White marble terrace ringed by cherry-blossom sakura trees around a floating sky-crystal awakened by all 6 Celestial Plumes.',
+    enterHref: null,
+    plumeKey: null,
   },
   {
     id: 'sky_windmills',
     icon: '🌬️',
-    badge: 'WEST ISLAND · WIND & DOCKS',
-    title: 'Twin Cloud Windmills & Sky-Piers',
-    coords: 'X: 1..10, Y: 19..48',
+    badge: 'WEST ISLAND · UPPER MILL',
+    title: 'Upper Cloud Windmill',
+    coords: 'X: 6..10, Y: 19..24 · Door (8, 24)',
     accent: 'border-[#22c55e] bg-[#0d2115] text-[#dcfce7]',
     badgeClass: 'border-[#16a34a] bg-[#052e16] text-[#bbf7d0]',
-    desc: 'Walk past the spinning windmills, flower plots, and twin wooden sky-docks overlooking the open cloud sea.',
+    desc: 'Edge Computer Vision & TensorRT FP16 forge guarded by Latios, Vortexdramon & Varodurumon.',
+    enterHref: '/sky-castle/windmill',
+    plumeKey: 'gale',
+  },
+  {
+    id: 'sky_workshop',
+    icon: '⚙️',
+    badge: 'WEST SKY-PIER · HANGAR',
+    title: 'Lower Sky-Dock Workshop',
+    coords: 'X: 3..7, Y: 34..39 · Door (6, 39)',
+    accent: 'border-[#f97316] bg-[#23120b] text-[#ffedd5]',
+    badgeClass: 'border-[#ea580c] bg-[#431407] text-[#fed7aa]',
+    desc: 'IoT, ESP32 & Robotics Airship Hangar powered by Reshiram, Plusiamon & Crossmon.',
+    enterHref: '/sky-castle/workshop',
+    plumeKey: 'thrust',
   },
   {
     id: 'sky_tavern',
     icon: '🏠',
     badge: 'SOUTHWEST ISLAND · INN',
     title: 'Cloudhaven Timber Inn',
-    coords: 'X: 12..18, Y: 39..45',
+    coords: 'X: 12..18, Y: 39..45 · Door (15, 45)',
     accent: 'border-[#f59e0b] bg-[#21180b] text-[#fef3c7]',
     badgeClass: 'border-[#d97706] bg-[#451a03] text-[#fde68a]',
-    desc: 'Cozy half-timbered sky tavern serving warm sky-berry tea and cloud pastries beside cascading waterfalls.',
+    desc: 'Half-timbered sky tavern for mentoring, internships & community projects, guarded by Latias, Phoenixmon & Zhuqiaomon.',
+    enterHref: '/sky-castle/inn',
+    plumeKey: 'hearth',
   },
   {
     id: 'sky_observatory',
     icon: '🔭',
     badge: 'NORTHEAST ISLAND · ASTRAL',
     title: 'Golden Astral Observatory',
-    coords: 'X: 35..40, Y: 19..26',
+    coords: 'X: 35..40, Y: 19..26 · Door (38, 26)',
     accent: 'border-[#a855f7] bg-[#1a0f2b] text-[#f3e8ff]',
     badgeClass: 'border-[#9333ea] bg-[#3b0764] text-[#e9d5ff]',
-    desc: 'Brushed-gold starlight dome encircled by glowing amethyst clusters atop a waterfall cliff.',
+    desc: 'Brushed-gold starlight dome for applied AI & thesis research, guarded by Deoxys, GraceNovamon & Amaterasumon.',
+    enterHref: '/sky-castle/observatory',
+    plumeKey: 'starlight',
   },
   {
     id: 'sky_chapel',
     icon: '⛪',
     badge: 'SOUTHEAST ISLAND · SANCTUARY',
     title: 'Radiant Sky Chapel',
-    coords: 'X: 34..40, Y: 38..46',
+    coords: 'X: 34..40, Y: 38..46 · Door (37, 46)',
     accent: 'border-[#60a5fa] bg-[#0e192d] text-[#dbeafe]',
     badgeClass: 'border-[#2563eb] bg-[#172554] text-[#bfdbfe]',
-    desc: 'Serene white sanctuary chapel perched on a mossy cliff beside twin southern cloud waterfalls.',
+    desc: 'White sanctuary chapel holding honors, vows & collaboration portals, guarded by Arceus, Seraphimon & Sakuyamon.',
+    enterHref: '/sky-castle/chapel',
+    plumeKey: 'radiance',
   },
 ];
 ---
@@ -156,11 +183,56 @@ const landmarkCards = [
       </div>
     </section>
 
+    <!-- 6 Celestial Plumes & Crystal Awakening Tracker -->
+    <section
+      id="sky-plumes-panel"
+      class="rounded-2xl border-2 border-[#38bdf8]/60 bg-[#0b1f3a] p-4 shadow-md space-y-3"
+    >
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <span class="font-mono text-[10px] font-bold uppercase tracking-wider text-[#7dd3fc]">
+            💎 GRAND SKY PLAZA RESONANCE
+          </span>
+          <h2 class="mt-0.5 font-pixel text-xs text-[#f0f9ff]">
+            Celestial Plumes &amp; Azure Crystal Awakening
+          </h2>
+        </div>
+        <span
+          id="sky-plumes-progress"
+          class="rounded border border-[#eab308] bg-[#422006] px-2.5 py-1 font-mono text-[10px] font-bold text-[#fde047]"
+        >
+          0 / 6 Plumes Collected
+        </span>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+        {allPlumes.map((plume) => (
+          <div
+            data-hub-plume={plume.key}
+            class="rounded-lg border border-[#1e3a8a] bg-[#071527] px-2.5 py-2 text-center transition"
+          >
+            <div class="text-base">{plume.icon}</div>
+            <div class="mt-0.5 font-pixel text-[9px] text-[#e0f2fe] leading-tight">{plume.name}</div>
+            <div
+              data-hub-plume-state={plume.key}
+              class="mt-1 font-mono text-[9px] text-[#94a3b8]"
+            >
+              LOCKED
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <p id="sky-crystal-status" class="font-mono text-[10px] text-[#bae6fd]">
+        Step inside each Sky Castle interior and pass its Guardian Trial. When 6 / 6 Plumes shine, click the Celestial Crystal Fountain in Grand Sky Plaza to awaken Avalon!
+      </p>
+    </section>
+
     <!-- Clickable Sky Landmarks -->
     <section class="space-y-3">
       <div class="flex flex-wrap items-center justify-between gap-2">
         <h2 class="font-pixel text-xs uppercase tracking-wider text-[#fde047]">
-          🗺️ Celestial Islands — Click Any Card to Walk There
+          🗺️ Celestial Islands — Walk There or Enter Interior
         </h2>
         <span class="font-mono text-[10px] text-[#93c5fd]">
           Walk south across the Grand Sky-Bridge to return to Digi-Sanctuary (36, 22)
@@ -169,23 +241,45 @@ const landmarkCards = [
 
       <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
         {landmarkCards.map((card) => (
-          <button
-            type="button"
-            data-sky-walk={card.id}
-            class={`group text-left rounded-xl border-2 p-3.5 transition-all hover:-translate-y-0.5 hover:brightness-110 cursor-pointer ${card.accent}`}
+          <div
+            class={`group rounded-xl border-2 p-3.5 transition-all hover:brightness-110 flex flex-col justify-between gap-3 ${card.accent}`}
           >
-            <div class="mb-1.5 flex items-center justify-between gap-2">
-              <span class={`inline-flex items-center rounded border px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase ${card.badgeClass}`}>
-                {card.badge}
-              </span>
-              <code class="font-mono text-[9px] opacity-80">{card.coords}</code>
+            <div>
+              <div class="mb-1.5 flex items-center justify-between gap-2">
+                <span class={`inline-flex items-center rounded border px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase ${card.badgeClass}`}>
+                  {card.badge}
+                </span>
+                <code class="font-mono text-[9px] opacity-80">{card.coords}</code>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-lg" aria-hidden="true">{card.icon}</span>
+                <h3 class="font-pixel text-[11px] leading-snug">{card.title}</h3>
+              </div>
+              <p class="mt-1.5 text-[11px] leading-relaxed opacity-90">{card.desc}</p>
             </div>
-            <div class="flex items-center gap-2">
-              <span class="text-lg" aria-hidden="true">{card.icon}</span>
-              <h3 class="font-pixel text-[11px] leading-snug">{card.title}</h3>
+
+            <div class="flex flex-wrap items-center justify-between gap-2 border-t border-white/10 pt-2">
+              <button
+                type="button"
+                data-sky-walk={card.id}
+                class="rounded border border-white/25 bg-black/25 px-2.5 py-1 font-mono text-[10px] font-bold hover:bg-black/45 cursor-pointer"
+              >
+                🧭 Walk to Landmark
+              </button>
+              {card.enterHref ? (
+                <a
+                  href={card.enterHref}
+                  class="rounded border border-[#fde047]/60 bg-[#422006]/80 px-2.5 py-1 font-pixel text-[9px] text-[#fef08a] hover:bg-[#713f12]"
+                >
+                  Enter Interior →
+                </a>
+              ) : (
+                <span class="font-mono text-[9px] opacity-70">
+                  {card.plumeKey ? 'Interior coming in Tahap 2' : 'Plaza Centerpiece'}
+                </span>
+              )}
             </div>
-            <p class="mt-1.5 text-[11px] leading-relaxed opacity-90">{card.desc}</p>
-          </button>
+          </div>
         ))}
       </div>
     </section>
@@ -194,8 +288,61 @@ const landmarkCards = [
   </div>
 
   <script>
+    import {
+      SKY_PLUMES_META,
+      countSkyPlumes,
+      getSkyPlumes,
+      hasCrystalAwakened,
+      type SkyPlumeKey,
+    } from '../engine/skyInteriorShared';
+
+    function syncSkyHubPlumes() {
+      const plumes = getSkyPlumes();
+      const total = countSkyPlumes();
+      const awakened = hasCrystalAwakened();
+
+      const progressEl = document.getElementById('sky-plumes-progress');
+      if (progressEl) {
+        progressEl.textContent = awakened
+          ? '✨ 6 / 6 · AZURE CRYSTAL AWAKENED'
+          : `${total} / 6 Plumes Collected`;
+      }
+
+      const statusEl = document.getElementById('sky-crystal-status');
+      if (statusEl) {
+        if (awakened) {
+          statusEl.textContent =
+            '✨ Avalon’s Azure Crystal has awakened in radiant golden resonance across the Celestial Crystal Plaza!';
+          statusEl.className = 'font-mono text-[10px] font-bold text-[#fde047]';
+        } else if (total >= 6) {
+          statusEl.textContent =
+            '💎 All 6 Celestial Plumes gleam! Click or interact with the Celestial Crystal Fountain in Grand Sky Plaza to awaken it!';
+          statusEl.className = 'font-mono text-[10px] font-bold text-[#86efac]';
+        }
+      }
+
+      (Object.keys(SKY_PLUMES_META) as SkyPlumeKey[]).forEach((key) => {
+        const card = document.querySelector<HTMLElement>(`[data-hub-plume="${key}"]`);
+        const stateEl = document.querySelector<HTMLElement>(`[data-hub-plume-state="${key}"]`);
+        const unlocked = Boolean(plumes[key]);
+        if (stateEl) {
+          stateEl.textContent = unlocked ? 'EARNED ✓' : 'LOCKED';
+          stateEl.className = unlocked
+            ? 'mt-1 font-mono text-[9px] font-bold text-[#4ade80]'
+            : 'mt-1 font-mono text-[9px] text-[#94a3b8]';
+        }
+        if (card) {
+          card.style.borderColor = unlocked ? '#38bdf8' : '#1e3a8a';
+        }
+      });
+    }
+
     function wireSkyCastlePage() {
+      syncSkyHubPlumes();
+
       document.querySelectorAll<HTMLButtonElement>('[data-sky-walk]').forEach((btn) => {
+        if (btn.dataset.wired === '1') return;
+        btn.dataset.wired = '1';
         btn.addEventListener('click', () => {
           const targetId = btn.getAttribute('data-sky-walk');
           if (!targetId) return;
@@ -204,11 +351,16 @@ const landmarkCards = [
       });
 
       document.querySelectorAll<HTMLButtonElement>('[data-sky-action="editor"]').forEach((btn) => {
+        if (btn.dataset.wired === '1') return;
+        btn.dataset.wired = '1';
         btn.addEventListener('click', () => {
-          document.getElementById('btn-toggle-editor')?.click();
+          window.dispatchEvent(new CustomEvent('town:toggle-editor'));
         });
       });
     }
+
+    window.addEventListener('sky:plume-updated', syncSkyHubPlumes);
+    window.addEventListener('sky:crystal-awakened', syncSkyHubPlumes);
 
     wireSkyCastlePage();
     document.addEventListener('astro:page-load', wireSkyCastlePage);

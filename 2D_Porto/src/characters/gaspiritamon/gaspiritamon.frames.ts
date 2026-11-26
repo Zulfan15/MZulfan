@@ -5,23 +5,58 @@ import type { Direction8, FrameRect } from '../_shared/types';
  * Data only — zero Canvas or engine imports. Edit only these numbers if assets change.
  */
 
-// ── 1. walk-cycle.jpg & battle.jpg shared 8x4 grid (2752x1536) ─────────────
+// ── 1. walk-cycle-v2.webp 4x4 grid (1024x1024) ──────────────────────────────────
+// Curated torso/head-aligned cell rects so `trim: 'uniform'` keeps strides rock-steady.
+const WALK_CELLS: readonly (readonly FrameRect[])[] = [
+  // Row 0: S (front) — using cols 0, 2, 3 (each has full warhammer + spectral blue wolf)
+  [
+    { x: 2, y: 12, w: 249, h: 243 },
+    { x: 258, y: 12, w: 249, h: 243 },
+    { x: 511, y: 12, w: 249, h: 243 },
+    { x: 775, y: 12, w: 249, h: 243 },
+  ],
+  // Row 1: reserved (Attempt 1 col 0 faces W while cols 1-3 face E; mirrored Row 3 is used for W)
+  [
+    { x: 8, y: 264, w: 240, h: 244 },
+    { x: 264, y: 264, w: 240, h: 244 },
+    { x: 520, y: 264, w: 240, h: 244 },
+    { x: 776, y: 264, w: 240, h: 244 },
+  ],
+  // Row 2: N (straight back) — using clean single-shield cols 0, 2
+  [
+    { x: 0, y: 522, w: 256, h: 244 },
+    { x: 256, y: 522, w: 256, h: 244 },
+    { x: 512, y: 522, w: 256, h: 244 },
+    { x: 768, y: 522, w: 256, h: 244 },
+  ],
+  // Row 3: E (side profile facing right; mirrored via flipX for W/SW/NW) — heads aligned within 0.6px
+  [
+    { x: 38, y: 778, w: 214, h: 246 },
+    { x: 300, y: 778, w: 214, h: 246 },
+    { x: 547, y: 778, w: 214, h: 246 },
+    { x: 808, y: 778, w: 214, h: 246 },
+  ],
+];
+
+export const walkCell = (row: number, col: number): FrameRect => WALK_CELLS[row][col];
+
+// ── 1b. battle.webp shared 8x4 grid (2752x1536) ────────────────────────────
 const GRID_8X4_COLS: readonly [number, number][] = [
-  [9, 328],
-  [354, 326],
-  [697, 326],
-  [1041, 326],
-  [1385, 326],
-  [1729, 326],
-  [2072, 326],
-  [2415, 328],
+  [6, 335],
+  [351, 333],
+  [693, 334],
+  [1037, 334],
+  [1381, 334],
+  [1725, 334],
+  [2068, 333],
+  [2411, 335],
 ];
 
 const GRID_8X4_ROWS: readonly [number, number][] = [
-  [6, 367],
-  [390, 370],
-  [776, 370],
-  [1162, 367],
+  [4, 373],
+  [387, 376],
+  [773, 376],
+  [1159, 373],
 ];
 
 export const gridCell8x4 = (row: number, col: number): FrameRect => ({
@@ -40,63 +75,60 @@ export interface CellStep {
 }
 
 /**
- * Verified (row, col) sequences per direction in `walk-cycle.jpg`:
- * - col 0: S (front)
- * - col 1: SW (3/4 front-left stepping toward viewer)
- * - col 6: W (profile left)
- * - col 5: NW (3/4 back-left)
- * - col 4: N (back)
- * - col 2: E (profile right)
- * - NE / SE mirror NW / SW cleanly.
+ * Curated 4-step bipedal walk sequences from `walk-cycle-v2.webp` (4x4):
+ * - `S`: Row 0 `[0, 2, 0, 3]` alternating strides (skips col 1 which lacked spectral wolf flame).
+ * - `W`/`SW`/`NW`: horizontally mirrors Row 3 `[0, 1, 2, 3]` cleanly facing left.
+ * - `N`: Row 2 `[0, 2, 0, 2]` (skips angled col 1 & double-shield col 3).
+ * - `E`/`NE`/`SE`: Row 3 `[0, 1, 2, 3]` right-facing strides.
  */
 export const GASPIRITAMON_WALK_STEPS_BY_DIR: Record<Direction8, readonly CellStep[]> = {
   S: [
     { row: 0, col: 0 },
-    { row: 1, col: 0 },
-    { row: 2, col: 0 },
-    { row: 3, col: 0 },
+    { row: 0, col: 2 },
+    { row: 0, col: 0 },
+    { row: 0, col: 3 },
   ],
   SW: [
-    { row: 0, col: 1 },
-    { row: 1, col: 1 },
-    { row: 2, col: 1 },
-    { row: 3, col: 1 },
+    { row: 3, col: 0, flipX: true },
+    { row: 3, col: 1, flipX: true },
+    { row: 3, col: 2, flipX: true },
+    { row: 3, col: 3, flipX: true },
   ],
   W: [
-    { row: 0, col: 6 },
-    { row: 1, col: 6 },
-    { row: 2, col: 6 },
-    { row: 3, col: 6 },
+    { row: 3, col: 0, flipX: true },
+    { row: 3, col: 1, flipX: true },
+    { row: 3, col: 2, flipX: true },
+    { row: 3, col: 3, flipX: true },
   ],
   NW: [
-    { row: 0, col: 5 },
-    { row: 1, col: 5 },
-    { row: 2, col: 5 },
-    { row: 3, col: 5 },
+    { row: 3, col: 0, flipX: true },
+    { row: 3, col: 1, flipX: true },
+    { row: 3, col: 2, flipX: true },
+    { row: 3, col: 3, flipX: true },
   ],
   N: [
-    { row: 0, col: 4 },
-    { row: 1, col: 4 },
-    { row: 2, col: 4 },
-    { row: 3, col: 4 },
+    { row: 2, col: 0 },
+    { row: 2, col: 2 },
+    { row: 2, col: 0 },
+    { row: 2, col: 2 },
   ],
   NE: [
-    { row: 0, col: 5, flipX: true },
-    { row: 1, col: 5, flipX: true },
-    { row: 2, col: 5, flipX: true },
-    { row: 3, col: 5, flipX: true },
+    { row: 3, col: 0 },
+    { row: 3, col: 1 },
+    { row: 3, col: 2 },
+    { row: 3, col: 3 },
   ],
   E: [
-    { row: 0, col: 2 },
-    { row: 1, col: 2 },
-    { row: 2, col: 2 },
+    { row: 3, col: 0 },
+    { row: 3, col: 1 },
     { row: 3, col: 2 },
+    { row: 3, col: 3 },
   ],
   SE: [
-    { row: 0, col: 1, flipX: true },
-    { row: 1, col: 1, flipX: true },
-    { row: 2, col: 1, flipX: true },
-    { row: 3, col: 1, flipX: true },
+    { row: 3, col: 0 },
+    { row: 3, col: 1 },
+    { row: 3, col: 2 },
+    { row: 3, col: 3 },
   ],
 };
 
@@ -112,24 +144,24 @@ export const GASPIRITAMON_BATTLE_RECTS: readonly FrameRect[] = [
   gridCell8x4(2, 7), // 7: emerald rune surge strike
 ];
 
-// ── 3. gaspirita­mon.jpg (2400x1792: icon + 8 HD portraits + 8 mini thumbs) ─
+// ── 3. gaspiritamon.webp (2400x1792: icon + 8 HD portraits + 8 mini thumbs) ─
 export const GASPIRITAMON_JPG_ICON_RECT: FrameRect = {
-  x: 16,
+  x: 14,
   y: 12,
-  w: 194,
-  h: 192,
+  w: 236,
+  h: 230,
 };
 
 /** 8 HD portraits ordered canonically as `DIRECTIONS_8` (`S, SW, W, NW, N, NE, E, SE`). */
 export const GASPIRITAMON_JPG_HD_RECTS: readonly FrameRect[] = [
-  { x: 16, y: 940, w: 636, h: 602 },   // S
-  { x: 664, y: 945, w: 545, h: 598 },  // SW
-  { x: 1285, y: 940, w: 470, h: 602 }, // W
-  { x: 1830, y: 960, w: 560, h: 582 }, // NW
-  { x: 42, y: 204, w: 630, h: 638 },   // N
-  { x: 735, y: 250, w: 545, h: 592 },  // NE
-  { x: 1345, y: 248, w: 416, h: 594 }, // E
-  { x: 1761, y: 255, w: 605, h: 588 }, // SE
+  { x: 16, y: 940, w: 642, h: 608 },   // S
+  { x: 660, y: 940, w: 580, h: 608 },  // SW
+  { x: 1270, y: 940, w: 500, h: 608 }, // W
+  { x: 1815, y: 940, w: 575, h: 608 }, // NW
+  { x: 60, y: 247, w: 630, h: 604 },   // N (below title banner y=[244..251])
+  { x: 700, y: 247, w: 610, h: 604 },  // NE
+  { x: 1335, y: 247, w: 435, h: 604 }, // E
+  { x: 1758, y: 247, w: 612, h: 604 }, // SE
 ];
 
 const MINI_SPANS: readonly [number, number][] = [

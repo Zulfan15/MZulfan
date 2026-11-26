@@ -1,5 +1,5 @@
-// Lightweight PWA Service Worker for Zulfan's Town — Sprite Sheets & Static Assets Instant Cache
-const CACHE_NAME = 'zulfan-town-pwa-v1';
+// Lightweight PWA Service Worker for Zulfan's Town — Hashed Chunks Cache-First & Assets Stale-While-Revalidate
+const CACHE_NAME = 'zulfan-town-pwa-v2';
 
 const PRECACHE_URLS = [
   '/',
@@ -36,16 +36,8 @@ self.addEventListener('fetch', (event) => {
   if (url.origin !== self.location.origin) return;
   if (url.pathname.startsWith('/api/')) return;
 
-  const isImmutableAsset =
-    url.pathname.startsWith('/_astro/') ||
-    url.pathname.startsWith('/assets/') ||
-    url.pathname.startsWith('/sprites/') ||
-    url.pathname.startsWith('/images/') ||
-    url.pathname.startsWith('/og/') ||
-    url.pathname.startsWith('/wasm/');
-
-  if (isImmutableAsset) {
-    // Cache-First for Pokemon/Digimon sprite sheets & compiled Astro JS/CSS chunks
+  // Content-hashed Astro build output: safe for strict Cache-First
+  if (url.pathname.startsWith('/_astro/')) {
     event.respondWith(
       caches.match(req).then((cached) => {
         if (cached) return cached;
@@ -57,6 +49,35 @@ self.addEventListener('fetch', (event) => {
           return res;
         });
       })
+    );
+    return;
+  }
+
+  // Unhashed static assets: Stale-While-Revalidate so updates propagate automatically
+  const isStaticAsset =
+    url.pathname.startsWith('/assets/') ||
+    url.pathname.startsWith('/sprites/') ||
+    url.pathname.startsWith('/images/') ||
+    url.pathname.startsWith('/og/') ||
+    url.pathname.startsWith('/wasm/') ||
+    url.pathname.startsWith('/cv/') ||
+    url.pathname.startsWith('/data/');
+
+  if (isStaticAsset) {
+    event.respondWith(
+      caches.open(CACHE_NAME).then((cache) =>
+        cache.match(req).then((cached) => {
+          const networkFetch = fetch(req)
+            .then((res) => {
+              if (res && res.status === 200) {
+                cache.put(req, res.clone());
+              }
+              return res;
+            })
+            .catch(() => cached);
+          return cached || networkFetch;
+        })
+      )
     );
     return;
   }

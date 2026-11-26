@@ -1,4 +1,4 @@
-import { TILE_SIZE, drawCharacter, drawPixelMatrix } from './sprites';
+import { TILE_SIZE, drawPixelMatrix } from './sprites';
 import { drawPixelText } from './devScene';
 import type { Dir } from './types';
 

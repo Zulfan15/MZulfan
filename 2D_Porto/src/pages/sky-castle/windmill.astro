@@ -1,0 +1,523 @@
+---
+import TownLayout from '../../layouts/TownLayout.astro';
+import WhereTo from '../../components/WhereTo.astro';
+import { profile, launches, fmtRange } from '../../lib/profile';
+import { SKY_PLUMES_META } from '../../engine/skyInteriorShared';
+
+const allPlumes = Object.values(SKY_PLUMES_META);
+const aeroProject = launches.find((m) => m.id === 'aeroscan');
+const inceptionProject = launches.find((m) => m.id === 'inceptionv3');
+
+const windmillStations = [
+  {
+    key: '1',
+    propId: 'latios',
+    icon: '💙',
+    name: 'Latios · Jet Navigator',
+    scrollTarget: 'windmill-trial',
+    speaker: 'Latios · Jetstream Navigator',
+    quote:
+      'Stratospheric winds carry 15 aircraft silhouettes below! Tune all 4 Turbine Blades down to 1.8 ms TensorRT FP16 latency to claim the Plume of Gale.',
+    fxText: 'LUSTER PURGE TAILWIND!',
+    fxColor: '#fbbf24',
+  },
+  {
+    key: '2',
+    propId: 'aeroscan-radar',
+    icon: '🛩️',
+    name: 'AeroScan Vision Scope',
+    scrollTarget: 'windmill-aeroscan',
+    speaker: 'AeroScan YOLOv11s Scope',
+    quote:
+      'Custom YOLOv11s trained across ~8,400 curated aerial images from 12 GB PASCAL VOC manifests — reaching up to 87.9% mAP@50 on B-52.',
+    fxText: 'AERIAL RADAR LOCKED',
+    fxColor: '#38bdf8',
+  },
+  {
+    key: '3',
+    propId: 'tensorrt-bench',
+    icon: '⚡',
+    name: 'ONNX → TensorRT Rig',
+    scrollTarget: 'windmill-aeroscan',
+    speaker: 'TensorRT 10 FP16 Forge',
+    quote:
+      'Compiled into a compact 22.1 MB FP16 engine clocking ~1.8 ms per frame (>500 FPS raw inference) with live Streamlit webcam telemetry.',
+    fxText: '500+ FPS FP16 ENGINE!',
+    fxColor: '#34d399',
+  },
+  {
+    key: '4',
+    propId: 'vortexdramon',
+    icon: '🌪️',
+    name: 'Vortexdramon',
+    scrollTarget: 'windmill-aeroscan',
+    speaker: 'Vortexdramon · Jetstream Guardian',
+    quote:
+      'Pure jetstream throughput ensures webcam & drone surveillance frames stream through TensorRT without frame drops!',
+    fxText: 'JETSTREAM TUNED!',
+    fxColor: '#7dd3fc',
+  },
+  {
+    key: '5',
+    propId: 'varodurumon',
+    icon: '🕊️',
+    name: 'Varodurumon',
+    scrollTarget: 'windmill-trial',
+    speaker: 'Varodurumon · Six-Wing Scout',
+    quote:
+      'Six radiant wings audit every deterministic 80 / 15 / 5 dataset split before training takes flight.',
+    fxText: 'SIX-WING AUDIT CLEAR',
+    fxColor: '#fde047',
+  },
+];
+
+const blades = [
+  { id: 0, label: 'Blade N · VOC → YOLO Split', targetPitch: 0, defaultPitch: 90, detail: 'Deterministic 80/15/5 split across ~8,400 images' },
+  { id: 1, label: 'Blade E · YOLOv11s Backbone', targetPitch: 0, defaultPitch: 180, detail: '15 military aircraft classes · up to 87.9% mAP@50' },
+  { id: 2, label: 'Blade S · ONNX Graph Fuse', targetPitch: 0, defaultPitch: 270, detail: 'PyTorch 2.6 weights exported cleanly to ONNX' },
+  { id: 3, label: 'Blade W · TensorRT FP16', targetPitch: 0, defaultPitch: 90, detail: '22.1 MB engine · ~1.8 ms/frame on RTX 4060' },
+];
+---
+
+<TownLayout
+  title="Upper Cloud Windmill — AeroScan Edge CV & TensorRT Forge | Sky Castle"
+  description="Enter Upper Cloud Windmill (15×12) in Sky Castle Avalon: tune the 4 TensorRT Turbine Blades with Latios, Vortexdramon & Varodurumon to unlock the Plume of Gale."
+  place="sky-windmill"
+>
+  <article
+    class="windmill-page space-y-6 pb-10 text-[#fef3c7]"
+    data-summary-text={`${profile.person.name} Edge Computer Vision & TensorRT Benchmarks — Upper Cloud Windmill guarded by Latios, Vortexdramon & Varodurumon.`}
+  >
+    <!-- 1. WINDMILL TURBINE TOWER BANNER -->
+    <header class="relative overflow-hidden rounded-2xl border-[3px] border-[#f59e0b] bg-gradient-to-b from-[#23190c] via-[#352512] to-[#1e150a] p-5 shadow-[0_8px_0_#92400e,0_18px_36px_rgba(217,119,6,0.28)]">
+      <div
+        class="pointer-events-none absolute inset-x-0 top-0 h-2 bg-[repeating-linear-gradient(90deg,#f59e0b_0px,#f59e0b_14px,#fef3c7_14px,#fef3c7_28px,#22c55e_28px,#22c55e_42px)]"
+        aria-hidden="true"
+      />
+      <div class="mt-2 flex flex-wrap items-start justify-between gap-4">
+        <div class="space-y-2 max-w-2xl">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="rounded border border-[#f59e0b] bg-[#451a03] px-2 py-0.5 font-mono text-[10px] font-bold tracking-wider text-[#fde68a]">
+              🌬️ WEST ISLAND · UPPER MILL (15×12)
+            </span>
+            <span
+              id="windmill-plume-status-pill"
+              class="rounded border border-[#64748b] bg-[#1c1917] px-2 py-0.5 font-mono text-[10px] font-bold text-[#d6d3d1]"
+            >
+              🪶 Plume of Gale: UNCLAIMED
+            </span>
+          </div>
+          <h1 class="font-pixel text-base sm:text-lg leading-snug text-[#fffbeb]">
+            Upper Cloud Windmill — AeroScan Edge CV & TensorRT Forge
+          </h1>
+          <p class="text-xs sm:text-[13px] leading-relaxed text-[#fde68a]">
+            High-altitude gusts spin oak gears that power real-time aerial vision. Alongside{' '}
+            <strong class="text-[#7dd3fc]">Latios</strong>,{' '}
+            <strong class="text-[#34d399]">Vortexdramon</strong>, and{' '}
+            <strong class="text-[#fef08a]">Varodurumon</strong>, calibrate the 4 turbine pitches to sub-2 ms inference!
+          </p>
+        </div>
+
+        <div class="flex flex-col items-end gap-2">
+          <a
+            id="windmill-exit-btn"
+            href="/sky-castle?from=windmill"
+            data-respawn="8,25,down"
+            class="inline-flex items-center gap-2 rounded-lg border-2 border-[#f59e0b] bg-[#78350f] px-3.5 py-2 font-pixel text-[10px] text-[#fffbeb] shadow-[0_3px_0_#451a03] transition hover:-translate-y-0.5 hover:bg-[#b45309]"
+          >
+            ⬅️ Exit to Sky Castle (Esc)
+          </a>
+          <span class="font-mono text-[10px] text-[#fcd34d]">
+            Or walk out via Door (7, 11) → West Island
+          </span>
+        </div>
+      </div>
+
+      <!-- Live Dialogue Box -->
+      <div class="mt-4 rounded-xl border-2 border-[#d97706]/60 bg-[#140e07]/90 p-3.5">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
+          <span id="windmill-speaker" class="font-pixel text-[10px] text-[#fde047]">
+            Latios · Jetstream Navigator
+          </span>
+          <span class="font-mono text-[10px] text-[#fcd34d]">
+            Shortcuts: [1–5] Walk to Station · [Esc] Exit
+          </span>
+        </div>
+        <p id="windmill-dialogue" class="text-xs leading-relaxed text-[#fef3c7]">
+          “Inspect the Vision Scope and TensorRT Rig inside the mill, or click the 4 Turbine Blades below until every rotor reads 0° OPTIMAL!”
+        </p>
+      </div>
+
+      <!-- Station Shortcuts -->
+      <div class="mt-3 flex flex-wrap gap-2">
+        {windmillStations.map((st) => (
+          <button
+            type="button"
+            class="windmill-station-btn inline-flex items-center gap-1.5 rounded-lg border border-[#f59e0b]/50 bg-[#3a2711] px-2.5 py-1.5 text-[11px] font-semibold text-[#fef3c7] transition hover:border-[#fde047] hover:bg-[#4d3417] cursor-pointer"
+            data-hotkey={st.key}
+            data-windmill-walk={st.propId}
+            data-scroll-to={st.scrollTarget}
+            data-speaker={st.speaker}
+            data-quote={st.quote}
+            data-fx-text={st.fxText}
+            data-fx-color={st.fxColor}
+          >
+            <span class="rounded bg-[#92400e] px-1 font-mono text-[9px] text-[#fde047]">{st.key}</span>
+            <span>{st.icon}</span>
+            <span>{st.name}</span>
+          </button>
+        ))}
+      </div>
+    </header>
+
+    <!-- 2. INTERACTIVE GUARDIAN TRIAL: 4-BLADE TENSORRT TURBINE -->
+    <section
+      id="windmill-trial"
+      class="rounded-2xl border-2 border-[#22c55e] bg-gradient-to-br from-[#121f17] via-[#15281c] to-[#0c1912] p-5 shadow-lg"
+    >
+      <div class="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <span class="inline-flex items-center rounded border border-[#22c55e] bg-[#052e16] px-2 py-0.5 font-mono text-[10px] font-bold text-[#86efac]">
+            💙 LATIOS’ JETSTREAM TRIAL · TURBINE BLADE CALIBRATION
+          </span>
+          <h2 class="mt-2 font-pixel text-sm text-[#dcfce7]">
+            Lock All 4 Windmill Rotor Blades to 0° Optimal Flow
+          </h2>
+          <p class="mt-1 text-xs text-[#bbf7d0]">
+            Click each rotor card (+90° per click) until all 4 stages align at <code class="rounded bg-[#052e16] px-1 text-[#fde047]">0° OPTIMAL</code> to unlock the{' '}
+            <strong class="text-[#fde047]">Plume of Gale (2/6)</strong>.
+          </p>
+        </div>
+        <button
+          id="btn-windmill-reset"
+          type="button"
+          class="rounded border border-[#334155] bg-[#1e293b] px-2.5 py-1 font-mono text-[10px] text-[#e2e8f0] hover:border-[#22c55e] cursor-pointer"
+        >
+          ↺ Reset Rotors
+        </button>
+      </div>
+
+      <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {blades.map((b) => (
+          <button
+            type="button"
+            data-blade-idx={b.id}
+            data-default-pitch={b.defaultPitch}
+            class="windmill-blade-btn text-left rounded-xl border-2 border-[#166534] bg-[#0b1b12] p-3.5 transition hover:border-[#4ade80] hover:-translate-y-0.5 cursor-pointer"
+          >
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-mono text-[10px] font-bold text-[#86efac]">ROTOR #{b.id + 1}</span>
+              <span
+                data-blade-angle={b.id}
+                class="rounded border border-[#92400e] bg-[#451a03] px-1.5 py-0.5 font-mono text-[10px] font-bold text-[#fde68a]"
+              >
+                {b.defaultPitch}°
+              </span>
+            </div>
+            <h3 class="mt-2 font-pixel text-[10px] leading-snug text-[#f0fdf4]">{b.label}</h3>
+            <p class="mt-1.5 text-[11px] leading-relaxed text-[#bbf7d0]">{b.detail}</p>
+          </button>
+        ))}
+      </div>
+
+      <div
+        id="windmill-trial-banner"
+        class="mt-4 rounded-xl border border-[#166534] bg-[#07140d] px-4 py-3 text-xs text-[#86efac]"
+      >
+        Rotor Telemetry: <strong id="windmill-aligned-count" class="text-[#fde047]">0 / 4</strong> Blades at 0° — Est. Pipeline Latency: <strong id="windmill-latency" class="text-[#fca5a5]">12.4 ms/frame</strong>
+      </div>
+    </section>
+
+    <!-- 3. AEROSCAN & EDGE CV SHOWCASE -->
+    <section
+      id="windmill-aeroscan"
+      class="rounded-2xl border-2 border-[#f59e0b]/70 bg-[#22170a] p-5 space-y-4"
+    >
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <span class="font-mono text-[10px] font-bold uppercase tracking-wider text-[#fbbf24]">
+            🛩️ AEROSCAN BENCHMARKS & COMPUTER VISION RIGS
+          </span>
+          <h2 class="mt-1 font-pixel text-sm text-[#fffbeb]">
+            Aerial Detection, ONNX Export & TensorRT Acceleration
+          </h2>
+        </div>
+        <span class="font-mono text-[10px] text-[#fde68a]">RTX 4060 · FP16 Compile</span>
+      </div>
+
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+        {[aeroProject, inceptionProject].filter((p): p is NonNullable<typeof p> => Boolean(p)).map((proj) => (
+          <div class="rounded-xl border border-[#b45309] bg-[#2e1e0c] p-4 space-y-2.5">
+            <div class="flex items-center justify-between gap-2">
+              <span class="rounded border border-[#f59e0b]/50 bg-[#451a03] px-1.5 py-0.5 font-mono text-[9px] text-[#fde68a]">
+                {proj.org}
+              </span>
+              <span class="font-mono text-[10px] text-[#fcd34d]">{fmtRange(proj.start, proj.end)}</span>
+            </div>
+            <h3 class="font-pixel text-[11px] text-[#fffbeb]">{proj.title}</h3>
+            {proj.objective && <p class="text-[11px] font-medium text-[#fde68a]">{proj.objective}</p>}
+            <p class="text-xs leading-relaxed text-[#fef3c7]/90">{proj.summary}</p>
+            <ul class="space-y-1 text-[11px] text-[#fde68a]">
+              {proj.results.map((h) => (
+                <li class="flex items-start gap-1.5">
+                  <span class="text-[#4ade80]">▸</span>
+                  <span>{h}</span>
+                </li>
+              ))}
+            </ul>
+            <div class="flex flex-wrap gap-1 border-t border-[#78350f] pt-2.5">
+              {proj.payload.map((t) => (
+                <span class="rounded bg-[#1c1106] px-1.5 py-0.5 font-mono text-[9px] text-[#fcd34d]">
+                  {t}
+                </span>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- 4. SIX CELESTIAL PLUMES LEDGER -->
+    <section
+      id="windmill-plumes-ledger"
+      class="rounded-2xl border-2 border-[#f59e0b]/60 bg-[#181108] p-5 space-y-3"
+    >
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <span class="font-pixel text-xs text-[#fffbeb]">🪶 Celestial Plumes Ledger</span>
+        <span id="windmill-plumes-count" class="font-mono text-xs font-bold text-[#fde047]">
+          0 / 6 Plumes Collected
+        </span>
+      </div>
+      <div class="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
+        {allPlumes.map((plume) => (
+          <div
+            data-plume-card={plume.key}
+            class="rounded-xl border border-[#78350f] bg-[#24190c] p-3"
+          >
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-pixel text-[10px] text-[#fffbeb]">
+                {plume.icon} {plume.name}
+              </span>
+              <span
+                data-plume-badge={plume.key}
+                class="rounded border border-[#44403c] bg-[#1c1917] px-1.5 py-0.5 font-mono text-[9px] text-[#a8a29e]"
+              >
+                LOCKED
+              </span>
+            </div>
+            <p class="mt-1 text-[10px] text-[#fcd34d]">{plume.sanctum}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <WhereTo currentPath="/sky-castle/windmill" />
+  </article>
+
+  <script>
+    import {
+      SKY_PLUMES_META,
+      awardSkyPlume,
+      countSkyPlumes,
+      getSkyPlumes,
+      type SkyPlumeKey,
+    } from '../../engine/skyInteriorShared';
+
+    const bladeAngles = [90, 180, 270, 90];
+
+    function triggerWindFx(text: string, color = '#fbbf24') {
+      window.dispatchEvent(new CustomEvent('town:sky-fx', { detail: { text, color } }));
+    }
+
+    function setWindDialogue(speaker: string, quote: string) {
+      const sp = document.getElementById('windmill-speaker');
+      const qt = document.getElementById('windmill-dialogue');
+      if (sp) sp.textContent = speaker;
+      if (qt) qt.textContent = `“${quote}”`;
+    }
+
+    function syncWindmillPlumesUi() {
+      const plumes = getSkyPlumes();
+      const total = countSkyPlumes();
+      const pill = document.getElementById('windmill-plume-status-pill');
+      const countEl = document.getElementById('windmill-plumes-count');
+      if (countEl) countEl.textContent = `${total} / 6 Plumes Collected`;
+
+      if (pill) {
+        if (plumes.gale) {
+          pill.textContent = '🌬️ Plume of Gale: AWARDED';
+          pill.className =
+            'rounded border border-[#4ade80] bg-[#052e16] px-2 py-0.5 font-mono text-[10px] font-bold text-[#86efac]';
+        } else {
+          pill.textContent = '🪶 Plume of Gale: UNCLAIMED';
+          pill.className =
+            'rounded border border-[#64748b] bg-[#1c1917] px-2 py-0.5 font-mono text-[10px] font-bold text-[#d6d3d1]';
+        }
+      }
+
+      (Object.keys(SKY_PLUMES_META) as SkyPlumeKey[]).forEach((key) => {
+        const badge = document.querySelector<HTMLElement>(`[data-plume-badge="${key}"]`);
+        const unlocked = Boolean(plumes[key]);
+        if (badge) {
+          badge.textContent = unlocked ? 'EARNED' : 'LOCKED';
+          badge.className = unlocked
+            ? 'rounded border border-[#22c55e] bg-[#052e16] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#86efac]'
+            : 'rounded border border-[#44403c] bg-[#1c1917] px-1.5 py-0.5 font-mono text-[9px] text-[#a8a29e]';
+        }
+      });
+    }
+
+    function renderBladesUi() {
+      let aligned = 0;
+      bladeAngles.forEach((deg, idx) => {
+        const badge = document.querySelector<HTMLElement>(`[data-blade-angle="${idx}"]`);
+        const card = document.querySelector<HTMLButtonElement>(`[data-blade-idx="${idx}"]`);
+        const ok = deg === 0;
+        if (ok) aligned += 1;
+        if (badge) {
+          badge.textContent = ok ? '0° OPTIMAL ✓' : `${deg}°`;
+          badge.className = ok
+            ? 'rounded border border-[#22c55e] bg-[#052e16] px-1.5 py-0.5 font-mono text-[10px] font-bold text-[#86efac]'
+            : 'rounded border border-[#92400e] bg-[#451a03] px-1.5 py-0.5 font-mono text-[10px] font-bold text-[#fde68a]';
+        }
+        if (card) {
+          card.style.borderColor = ok ? '#22c55e' : '#166534';
+        }
+      });
+
+      const banner = document.getElementById('windmill-trial-banner');
+      const latencies = ['12.4 ms/frame', '8.2 ms/frame', '4.7 ms/frame', '2.5 ms/frame', '~1.8 ms/frame (>500 FPS)'];
+      if (banner) {
+        if (aligned === 4) {
+          awardSkyPlume('gale');
+          banner.className =
+            'mt-4 rounded-xl border border-[#22c55e] bg-[#052e16]/80 px-4 py-3 text-xs text-[#bbf7d0]';
+          banner.innerHTML =
+            '🌬️ <strong>4 / 4 Blades Optimal (~1.8 ms/frame)!</strong> Latios grants the <strong class="text-[#fde047]">Plume of Gale</strong>.';
+          triggerWindFx('🌬️ PLUME OF GALE UNLOCKED!', '#fde047');
+          setWindDialogue(
+            'Latios · Jetstream Navigator',
+            'Over 500 FPS at sub-2 ms! Take the Plume of Gale and return to Sky Castle.',
+          );
+          syncWindmillPlumesUi();
+        } else {
+          banner.className =
+            'mt-4 rounded-xl border border-[#166534] bg-[#07140d] px-4 py-3 text-xs text-[#86efac]';
+          banner.innerHTML = `Rotor Telemetry: <strong class="text-[#fde047]">${aligned} / 4</strong> Blades at 0° — Est. Pipeline Latency: <strong class="text-[#fca5a5]">${latencies[aligned]}</strong>`;
+        }
+      }
+    }
+
+    function wireWindmillPage() {
+      if (!document.querySelector('.windmill-page')) return;
+
+      if (getSkyPlumes().gale) {
+        bladeAngles[0] = 0;
+        bladeAngles[1] = 0;
+        bladeAngles[2] = 0;
+        bladeAngles[3] = 0;
+      }
+      renderBladesUi();
+      syncWindmillPlumesUi();
+
+      const exitBtn = document.getElementById('windmill-exit-btn') as HTMLAnchorElement | null;
+      if (exitBtn && exitBtn.dataset.wired !== '1') {
+        exitBtn.dataset.wired = '1';
+        exitBtn.addEventListener('click', () => {
+          const respawn = exitBtn.getAttribute('data-respawn');
+          if (respawn) sessionStorage.setItem('sky-castle:respawn', respawn);
+        });
+      }
+
+      document.querySelectorAll<HTMLButtonElement>('[data-windmill-walk]').forEach((btn) => {
+        if (btn.dataset.wired === '1') return;
+        btn.dataset.wired = '1';
+        btn.addEventListener('click', () => {
+          const propId = btn.getAttribute('data-windmill-walk');
+          const scrollTo = btn.getAttribute('data-scroll-to');
+          const speaker = btn.getAttribute('data-speaker');
+          const quote = btn.getAttribute('data-quote');
+          const fxText = btn.getAttribute('data-fx-text');
+          const fxColor = btn.getAttribute('data-fx-color');
+
+          if (propId) {
+            document.querySelector<HTMLButtonElement>(`.town-label[data-id="${propId}"]`)?.click();
+          }
+          if (speaker && quote) setWindDialogue(speaker, quote);
+          if (fxText) triggerWindFx(fxText, fxColor || '#fbbf24');
+          if (scrollTo) {
+            document.getElementById(scrollTo)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        });
+      });
+
+      document.querySelectorAll<HTMLButtonElement>('[data-blade-idx]').forEach((btn) => {
+        if (btn.dataset.wired === '1') return;
+        btn.dataset.wired = '1';
+        btn.addEventListener('click', () => {
+          const idx = Number(btn.getAttribute('data-blade-idx'));
+          if (Number.isNaN(idx)) return;
+          bladeAngles[idx] = (bladeAngles[idx] + 90) % 360;
+          if (bladeAngles[idx] === 0) {
+            triggerWindFx(`ROTOR #${idx + 1} OPTIMAL!`, '#4ade80');
+          } else {
+            triggerWindFx(`ROTOR #${idx + 1}: ${bladeAngles[idx]}°`, '#fbbf24');
+          }
+          renderBladesUi();
+        });
+      });
+
+      const resetBtn = document.getElementById('btn-windmill-reset');
+      if (resetBtn && resetBtn.dataset.wired !== '1') {
+        resetBtn.dataset.wired = '1';
+        resetBtn.addEventListener('click', () => {
+          bladeAngles[0] = 90;
+          bladeAngles[1] = 180;
+          bladeAngles[2] = 270;
+          bladeAngles[3] = 90;
+          renderBladesUi();
+          triggerWindFx('ROTORS RESET', '#94a3b8');
+        });
+      }
+    }
+
+    function handleWindSceneEvent(e: Event) {
+      const ce = e as CustomEvent<{ id?: string }>;
+      if (!document.querySelector('.windmill-page')) return;
+      const propId = ce.detail?.id;
+      if (!propId) return;
+      const station = document.querySelector<HTMLButtonElement>(`[data-windmill-walk="${propId}"]`);
+      const speaker = station?.getAttribute('data-speaker');
+      const quote = station?.getAttribute('data-quote');
+      if (speaker && quote) setWindDialogue(speaker, quote);
+    }
+
+    function handleWindKey(e: KeyboardEvent) {
+      if (!document.querySelector('.windmill-page')) return;
+      if (
+        document.activeElement instanceof HTMLInputElement ||
+        document.activeElement instanceof HTMLTextAreaElement ||
+        e.metaKey ||
+        e.ctrlKey ||
+        e.altKey
+      ) {
+        return;
+      }
+      if (e.key === 'Escape') {
+        (document.getElementById('windmill-exit-btn') as HTMLAnchorElement | null)?.click();
+        return;
+      }
+      const matched = document.querySelector<HTMLButtonElement>(
+        `.windmill-station-btn[data-hotkey="${e.key.toLowerCase()}"]`,
+      );
+      matched?.click();
+    }
+
+    window.addEventListener('sky:plume-updated', syncWindmillPlumesUi);
+    window.addEventListener('town:sky-prop-interact', handleWindSceneEvent);
+    window.addEventListener('keydown', handleWindKey);
+
+    wireWindmillPage();
+    document.addEventListener('astro:page-load', wireWindmillPage);
+  </script>
+</TownLayout>

@@ -1,8 +1,7 @@
 import { DIRS, Tile, type CharacterPalette, type Dir, type TownMap, type Vec } from './types';
-import { drawPikachu } from './townBackground';
 import { DIGIMON_ZONE_COLORS, getDigimonById, type DigimonCatalogEntry } from './digimonCatalog';
 import { resolveMountRig } from './mountRigConfig';
-import { TILE_SIZE, drawCharacter, drawLucario, drawRiderCharacter } from './sprites';
+import { TILE_SIZE, drawCharacter, drawLucario, drawPikachu, drawRiderCharacter } from './sprites';
 import { townConfig } from './townConfig';
 import { sfx } from '../game/sfx';
 import type { PMDAction, PokemonPMDAnimator } from './pokemonPMDAnimator';
@@ -822,16 +821,16 @@ export function drawFollower(host: TownPokemonFxHost, ctx: CanvasRenderingContex
     const aura = DIGIMON_ZONE_COLORS[digiCompanion.elementZone] || DIGIMON_ZONE_COLORS.plaza;
     ctx.fillStyle = aura.inner;
     ctx.beginPath();
-    ctx.ellipse(drawX + 8, drawY + 15, 13, 4.6, 0, 0, Math.PI * 2);
+    ctx.ellipse(drawX + 8, drawY + 15, 16.5, 5.8, 0, 0, Math.PI * 2);
     ctx.fill();
     ctx.strokeStyle = aura.rim;
-    ctx.lineWidth = 0.9;
+    ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.ellipse(drawX + 8, drawY + 15, 12, 4, 0, 0, Math.PI * 2);
+    ctx.ellipse(drawX + 8, drawY + 15, 15.2, 5, 0, 0, Math.PI * 2);
     ctx.stroke();
     ctx.fillStyle = 'rgba(15, 23, 42, 0.42)';
     ctx.beginPath();
-    ctx.ellipse(drawX + 8, drawY + 15, 9.5, 3.2, 0, 0, Math.PI * 2);
+    ctx.ellipse(drawX + 8, drawY + 15, 12, 3.8, 0, 0, Math.PI * 2);
     ctx.fill();
   } else if (s) {
     ctx.fillStyle = 'rgba(15, 23, 42, 0.4)';
@@ -869,7 +868,8 @@ export function drawFollower(host: TownPokemonFxHost, ctx: CanvasRenderingContex
       isFollowerWalking,
       drawX + 8,
       drawY + 15 + bobOffset,
-      0.86,
+      // Match Throne Hall Omnimon:Hero proportion (0.82 / 0.68 ≈ 1.22) across all overworld maps
+      1.22,
       true
     );
   } else if (fid === 'pikachu') {
@@ -2640,14 +2640,12 @@ export function drawPokeRide(
   const coreX = drawX + 8;
   const coreY = drawY + 16;
 
-  // Special case: Pikachu sprints alongside / on Ash's shoulder with lightning aura!
+  // Special case: Pikachu sprints alongside player with lightning aura!
   if (fid === 'pikachu') {
     drawCharacter(ctx, host.playerPalette, host.playerDir, stepFrame, drawX, drawY, 1);
-    if (!host.playerPalette.isAsh) {
-      const pikaOffset = host.playerDir === 'left' ? 7 : -5;
-      const pikaBob = isMoving ? Math.sin(host.moveProgress * Math.PI * 2) * 1.5 : Math.sin(host.tick * 0.08) * 1.0;
-      drawPikachu(ctx, drawX + pikaOffset, drawY - 14 + pikaBob);
-    }
+    const pikaOffset = host.playerDir === 'left' ? 7 : -5;
+    const pikaBob = isMoving ? Math.sin(host.moveProgress * Math.PI * 2) * 1.5 : Math.sin(host.tick * 0.08) * 1.0;
+    drawPikachu(ctx, drawX + pikaOffset, drawY - 14 + pikaBob);
     return;
   }
 
@@ -3020,9 +3018,9 @@ export function drawPokeRide(
   const riderHoverJitter =
     rig.posture === 'aura-platform' ? Math.sin(host.tick * 0.1 + 0.8) * 0.6 : 0;
 
-  // When riding behind (`pillion` or `aura-platform`) while facing down, draw rider behind the mount
+  // When facing down on a mount (saddle, pillion, or aura-platform), draw rider behind the mount's head/crest
   const drawRiderBehindMount =
-    (rig.posture === 'aura-platform' || rig.posture === 'pillion') && dir === 'down';
+    dir === 'down' && rig.posture !== 'shoulder';
 
   const drawMountedRider = () => {
     drawRiderCharacter(
@@ -3054,15 +3052,15 @@ export function drawPokeRide(
   const pmdDrawn = digiMount
     ? false
     : host.pmdAnimator.draw(
-        ctx,
-        fid,
-        action,
-        dir,
-        coreX,
-        coreY + pmdBob,
-        curAnimTick,
-        1.18
-      );
+      ctx,
+      fid,
+      action,
+      dir,
+      coreX,
+      coreY + pmdBob,
+      curAnimTick,
+      1.18
+    );
 
   if (digiMount) {
     const orientMap: Record<Dir, 'N' | 'S' | 'E' | 'W'> = {
@@ -3079,7 +3077,7 @@ export function drawPokeRide(
       isMoving,
       coreX,
       coreY + 3 + rideBob,
-      1.14,
+      1.24,
       false
     );
   } else if (!pmdDrawn) {

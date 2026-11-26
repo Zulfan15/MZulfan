@@ -1374,7 +1374,9 @@ const CAMPUS_FACILITIES: CampusFacility[] = [
 <script>
   import { sfx } from '../game/sfx';
   import { gameStore, type GymBadgeId } from '../game/store';
+  import { getStoredActiveFollower } from '../game/storage';
   import { COMPANIONS_MAP } from '../engine/pokemonCompanions';
+  import { navigateWithMapTransition } from '../lib/mapTransition';
 
   // Interactive Poké Center 2.0 Reception Logic
   function initReceptionHub() {
@@ -1422,10 +1424,7 @@ const CAMPUS_FACILITIES: CampusFacility[] = [
       const iconEl = document.getElementById('reception-partner-icon');
       const nameEl = document.getElementById('reception-partner-name');
       const titleEl = document.getElementById('reception-partner-title');
-      let activeId: string | null = null;
-      try {
-        activeId = localStorage.getItem('town:active_follower');
-      } catch {}
+      const activeId = getStoredActiveFollower();
       const info = activeId ? COMPANIONS_MAP[activeId] : undefined;
       if (info) {
         if (iconEl) iconEl.textContent = info.icon;
@@ -1580,7 +1579,7 @@ const CAMPUS_FACILITIES: CampusFacility[] = [
     document.getElementById('btn-reception-start-tour')?.addEventListener('click', () => {
       sfx.confirm();
       sessionStorage.setItem('town:start_tour', '1');
-      window.location.href = '/';
+      navigateWithMapTransition('/');
     });
 
     // Quick Action Bar click listeners

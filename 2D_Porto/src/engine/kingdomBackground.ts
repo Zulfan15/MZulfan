@@ -1,7 +1,6 @@
 import { TILE_SIZE } from './sprites';
 import { townConfig, type TileTypeKey } from './townConfig';
 import {
-  renderAllConnectedFences,
   renderAllConnectedHedges,
   renderConfiguredBenchesAndLamps,
   renderConfiguredExtraEntities,

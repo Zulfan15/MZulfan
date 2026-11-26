@@ -142,6 +142,8 @@ import '../styles/arcade.css';
 
 <script>
   import { gameStore } from '../game/store';
+  import { isStoredSfxEnabled, setStoredSfxEnabled } from '../game/storage';
+  import { drawHeroBackSprite, ensureHeroSpriteLoaded } from '../engine/heroSprite';
   // Chiptune Audio Synthesizer via Web Audio API oscillators
   const SFX_PITCHES: Record<string, [number, number][]> = {
     blip: [[880, 18]],
@@ -162,16 +164,13 @@ import '../styles/arcade.css';
     on = false;
 
     constructor() {
-      try {
-        this.on = localStorage.getItem('arcade-sound') === 'on';
-      } catch {}
+      this.on = isStoredSfxEnabled();
     }
 
     toggle() {
       this.on = !this.on;
-      try {
-        localStorage.setItem('arcade-sound', this.on ? 'on' : 'off');
-      } catch {}
+      setStoredSfxEnabled(this.on);
+      window.dispatchEvent(new CustomEvent('town:settings-changed'));
       if (this.on) this.play('select');
       return this.on;
     }
@@ -252,7 +251,7 @@ import '../styles/arcade.css';
       }
     };
     // Preload from static asset first, fallback to verified base64
-    deoxysSprite.src = '/assets/deoxys.png';
+    deoxysSprite.src = '/assets/pokemon-sprites/deoxys.png';
   }
 
   function drawDeoxys(ctx: CanvasRenderingContext2D, moodKey: string, bulbLit = true) {
@@ -532,8 +531,8 @@ import '../styles/arcade.css';
 
       this.elRobotCanvas.width = 96;
       this.elRobotCanvas.height = 96;
-      this.elPlayerCanvas.width = 18;
-      this.elPlayerCanvas.height = 20;
+      this.elPlayerCanvas.width = 30;
+      this.elPlayerCanvas.height = 54;
     }
 
     renderFoeSprite() {
@@ -542,17 +541,24 @@ import '../styles/arcade.css';
 
     renderPlayerSprite() {
       const ctx = this.playerCtx;
-      ctx.clearRect(0, 0, 18, 20);
+      const w = this.elPlayerCanvas.width;
+      const h = this.elPlayerCanvas.height;
+      if (drawHeroBackSprite(ctx, w, h)) return;
+
+      ctx.clearRect(0, 0, w, h);
+      const sx = w / 18;
+      const sy = h / 20;
       ASH_UP.forEach((row, r) => {
         [...row].forEach((char, c) => {
           if (char === '.' || char === ' ') return;
           const col = ASH_PALETTE[char];
           if (col) {
             ctx.fillStyle = col;
-            ctx.fillRect(c, r, 1, 1);
+            ctx.fillRect(Math.floor(c * sx), Math.floor(r * sy), Math.ceil(sx), Math.ceil(sy));
           }
         });
       });
+      ensureHeroSpriteLoaded(() => this.renderPlayerSprite());
     }
 
     updateSoundBtn() {
@@ -896,17 +902,16 @@ import '../styles/arcade.css';
       ]);
     }
 
-    waitForPit(s: number): Promise<number> {
+    async waitForPit(s: number): Promise<number> {
       const legalPits = this.layout().bottom.filter((idx) => this.state[idx] > 0);
-      return new Promise((resolve, reject) => {
+      const pit = await new Promise<number>((resolve, reject) => {
         const lastIdx = legalPits.indexOf(this.lastMove);
         this.pitChoice = { legal: legalPits, index: Math.max(0, lastIdx), resolve };
         this.waiter = { resolve: () => {}, reject };
         this.render();
-      }).then((pit) => {
-        this.check(s);
-        return pit as number;
       });
+      this.check(s);
+      return pit;
     }
 
     movePit(delta: number) {

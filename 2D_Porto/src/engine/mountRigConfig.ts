@@ -123,8 +123,8 @@ export function resolveMountRig(
   const fid = mountId.toLowerCase();
 
   if (digiMount) {
-    // Mirrors TownEngine.drawDigimonOverworldSprite height calculation at heightScale=1.14 (footY = coreY + 3)
-    const targetH = Math.max(18, Math.round((digiMount.overworldTargetHeight || 34) * 1.14));
+    // Mirrors TownEngine.drawDigimonOverworldSprite height calculation at heightScale=1.24 (footY = coreY + 3)
+    const targetH = Math.max(18, Math.round((digiMount.overworldTargetHeight || 34) * 1.24));
 
     if (fid === 'gammamon') {
       return {

@@ -62,9 +62,9 @@ export const DIGI_SKY_CASTLE_GATE = {
 export const DIGI_PLAZA_CONSOLE = {
   id: 'digidex-console',
   x: 19,
-  y: 20,
-  w: 2,
-  h: 2,
+  y: 21,
+  w: 3,
+  h: 3,
 } as const;
 
 export const DIGI_ZONES = {
@@ -190,13 +190,13 @@ export function createDigiMap(_data: TownData): TownMap {
   );
   fillRect(31, 21, 37, 23, Tile.PATH, 0);  // Walkable bridge from East Lateral Bridge (31, 22) straight to Sky Castle Portal (36, 22)
 
-  // 5. DigiDex Master Console (2x2 solid centerpiece at Central Digi-Plaza X: 19..20, Y: 20..21)
+  // 5. DigiDex Master Console (3x3 solid centerpiece at Central Digi-Plaza X: 19..21, Y: 21..23, centered at 20, 22)
   fillRect(
     DIGI_PLAZA_CONSOLE.x,
     DIGI_PLAZA_CONSOLE.y,
     DIGI_PLAZA_CONSOLE.x + DIGI_PLAZA_CONSOLE.w - 1,
     DIGI_PLAZA_CONSOLE.y + DIGI_PLAZA_CONSOLE.h - 1,
-    Tile.FENCE,
+    Tile.PLAZA,
     1
   );
 
@@ -228,8 +228,8 @@ export function createDigiMap(_data: TownData): TownMap {
     {
       id: 'digidex-console',
       name: '📟 DigiDex Master Console',
-      x: 19,
-      y: 21,
+      x: 20,
+      y: 23,
       style: 'board',
       lines: [
         'DIGIDEX MASTER CONSOLE — Node: Digi-Sanctuary Island (40×45).',

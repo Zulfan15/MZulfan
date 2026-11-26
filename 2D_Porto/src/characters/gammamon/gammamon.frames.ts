@@ -5,23 +5,23 @@ import type { Direction8, FrameRect } from '../_shared/types';
  * Data only — zero Canvas or engine imports. Edit only these numbers if assets change.
  */
 
-// ── 1. idle.jpg, walk-cycle.jpg & battle.jpg shared 8x4 grid (2752x1536) ────
+// ── 1. idle.webp, walk-cycle.webp & battle.webp shared 8x4 grid (2752x1536) ──
 const GRID_8X4_COLS: readonly [number, number][] = [
-  [8, 331],
-  [351, 331],
-  [694, 332],
-  [1038, 332],
-  [1381, 333],
-  [1726, 331],
-  [2069, 332],
-  [2413, 330],
+  [5, 337],
+  [348, 337],
+  [692, 337],
+  [1035, 338],
+  [1379, 338],
+  [1723, 338],
+  [2067, 337],
+  [2411, 336],
 ];
 
 const GRID_8X4_ROWS: readonly [number, number][] = [
-  [6, 370],
-  [388, 374],
-  [773, 374],
-  [1161, 369],
+  [1, 378],
+  [385, 380],
+  [771, 380],
+  [1159, 376],
 ];
 
 export const gridCell8x4 = (row: number, col: number): FrameRect => ({
@@ -81,10 +81,10 @@ export const GAMMAMON_IDLE_STEPS_BY_DIR: Record<Direction8, readonly CellStep[]>
     { row: 3, col: 1 },
   ],
   E: [
-    { row: 1, col: 2 },
-    { row: 2, col: 2 },
-    { row: 3, col: 2 },
-    { row: 2, col: 2 },
+    { row: 0, col: 6, flipX: true },
+    { row: 1, col: 6, flipX: true },
+    { row: 2, col: 6, flipX: true },
+    { row: 3, col: 6, flipX: true },
   ],
   SE: [
     { row: 0, col: 3 },
@@ -94,7 +94,7 @@ export const GAMMAMON_IDLE_STEPS_BY_DIR: Record<Direction8, readonly CellStep[]>
   ],
 };
 
-/** 4 South idle frames from `idle.jpg` col 4 for DigiDex Battle Idle showcase. */
+/** 4 South idle frames from `idle.webp` col 4 for DigiDex Battle Idle showcase. */
 export const GAMMAMON_LARGE_IDLE_RECTS: readonly FrameRect[] = [
   gridCell8x4(0, 4),
   gridCell8x4(1, 4),
@@ -103,19 +103,20 @@ export const GAMMAMON_LARGE_IDLE_RECTS: readonly FrameRect[] = [
 ];
 
 /**
- * Verified (row, col) sequences per direction in `walk-cycle.jpg` selecting the true
+ * Verified (row, col) sequences per direction in `walk-cycle.webp` selecting the true
  * 4-step stepping legs with consistent raised axe-tail:
+ * - S: ping-pong `[0, 1, 2, 1]` col 4 keeping golden axe-tail visible across every step
  * - E: (2,1) wide stride -> (2,2) passing -> (3,3) lifted knee -> (2,3) opposite contact
  * - W: horizontal mirror of E so both legs step cleanly without tail teleportation
  * - SW/SE, NE/NW: active raised-tail diagonal strides (symmetrical mirror pairs)
- * - N: reuses `idle.jpg` col 0 (`source: 'idle'`) for steady straight-back stride & steam exhaust.
+ * - N: reuses `idle.webp` col 0 (`source: 'idle'`) for steady straight-back stride & steam exhaust.
  */
 export const GAMMAMON_WALK_STEPS_BY_DIR: Record<Direction8, readonly CellStep[]> = {
   S: [
     { row: 0, col: 4 },
     { row: 1, col: 4 },
     { row: 2, col: 4 },
-    { row: 3, col: 4 },
+    { row: 1, col: 4 },
   ],
   SW: [
     { row: 1, col: 0 },
@@ -183,14 +184,14 @@ export const GAMMAMON_JPG_ICON_RECT: FrameRect = {
 
 /** 8 HD portraits ordered canonically as `DIRECTIONS_8` (`S, SW, W, NW, N, NE, E, SE`). */
 export const GAMMAMON_JPG_HD_RECTS: readonly FrameRect[] = [
-  { x: 176, y: 974, w: 430, h: 650 },   // S
-  { x: 642, y: 974, w: 615, h: 650 },   // SW
-  { x: 1258, y: 974, w: 572, h: 650 },  // W
-  { x: 1838, y: 974, w: 486, h: 650 },  // NW
-  { x: 48, y: 214, w: 512, h: 668 },    // N
-  { x: 640, y: 214, w: 525, h: 668 },   // NE
-  { x: 1176, y: 214, w: 589, h: 668 },  // E
-  { x: 1766, y: 214, w: 604, h: 668 },  // SE
+  { x: 176, y: 973, w: 430, h: 660 },   // S
+  { x: 642, y: 973, w: 615, h: 660 },   // SW
+  { x: 1258, y: 973, w: 572, h: 660 },  // W
+  { x: 1838, y: 973, w: 486, h: 660 },  // NW
+  { x: 48, y: 211, w: 512, h: 674 },    // N
+  { x: 640, y: 211, w: 525, h: 674 },   // NE
+  { x: 1176, y: 211, w: 589, h: 674 },  // E
+  { x: 1766, y: 211, w: 604, h: 674 },  // SE
 ];
 
 const MINI_SPANS: readonly [number, number][] = [

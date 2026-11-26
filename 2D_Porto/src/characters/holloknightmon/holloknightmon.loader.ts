@@ -41,6 +41,25 @@ import { HOLLOKNIGHTMON_META } from './holloknightmon.meta';
 const spriteCache = new Map<string, CharacterSpriteSet>();
 const inflightByBase = new Map<string, Promise<CharacterSpriteSet>>();
 
+/** Pads all frames in a sequence to a shared bottom-centered canvas so scale stays uniform across steps. */
+function padToUniformBottomCenter(frames: CharacterFrame[]): CharacterFrame[] {
+  if (frames.length <= 1) return frames;
+  const maxW = Math.max(1, ...frames.map((f) => f.width));
+  const maxH = Math.max(1, ...frames.map((f) => f.height));
+  return frames.map((f) => {
+    if (f.width === maxW && f.height === maxH) return f;
+    const canvas = document.createElement('canvas');
+    canvas.width = maxW;
+    canvas.height = maxH;
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(f.canvas, Math.floor((maxW - f.width) / 2), maxH - f.height);
+    }
+    return { canvas, width: maxW, height: maxH };
+  });
+}
+
 /**
  * Loads and cleanly slices all 4 Holloknightmon sprite sheets into a cached `CharacterSpriteSet`.
  * Deduplicates concurrent requests and caches per `baseUrl`.
@@ -99,6 +118,7 @@ export async function loadHolloknightmon(
       const frames = sliceFrames(walkImg, rects, {
         chroma: 'lossy-green',
         trim: 'uniform',
+        isolateMainBody: true,
       })
         .map((f) => downscaleFrame(f, 96, true))
         .map((frame, i) => (steps[i].flipX ? flipFrame(frame) : frame));
@@ -120,16 +140,21 @@ export async function loadHolloknightmon(
     }
 
     const [battleImg, jpgImg] = await extraPromises!;
-    const idleLarge = sliceFrames(idleImg, HOLLOKNIGHTMON_LARGE_IDLE_RECTS, {
-      chroma: 'lossy-green',
-      trim: 'tight',
-      isolateMainBody: true,
-    }).map((f) => downscaleFrame(f, 220, true));
+    const idleLarge = padToUniformBottomCenter(
+      sliceFrames(idleImg, HOLLOKNIGHTMON_LARGE_IDLE_RECTS, {
+        chroma: 'lossy-green',
+        trim: 'tight',
+        isolateMainBody: true,
+      })
+    ).map((f) => downscaleFrame(f, 220, true));
 
-    const rawBattle = sliceFrames(battleImg, HOLLOKNIGHTMON_BATTLE_RECTS, {
-      chroma: 'lossy-green',
-      trim: 'tight',
-    });
+    const rawBattle = padToUniformBottomCenter(
+      sliceFrames(battleImg, HOLLOKNIGHTMON_BATTLE_RECTS, {
+        chroma: 'lossy-green',
+        trim: 'tight',
+        isolateMainBody: true,
+      })
+    );
     const battle = rawBattle.map((f) => downscaleFrame(f, 112, true));
     const battleLarge = rawBattle.map((f) => downscaleFrame(f, 220, true));
     await yieldToFrame();

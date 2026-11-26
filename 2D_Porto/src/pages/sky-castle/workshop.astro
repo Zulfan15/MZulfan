@@ -1,0 +1,575 @@
+---
+import TownLayout from '../../layouts/TownLayout.astro';
+import WhereTo from '../../components/WhereTo.astro';
+import { profile, launches, crewAssignments, fmtRange } from '../../lib/profile';
+import { SKY_PLUMES_META } from '../../engine/skyInteriorShared';
+
+const allPlumes = Object.values(SKY_PLUMES_META);
+const rcTank = launches.find((m) => m.id === 'rc-tank');
+const iotRoles = crewAssignments.filter((e) =>
+  ['robotics-coordinator', 'iot-lab'].includes(e.id),
+);
+
+const workshopStations = [
+  {
+    key: '1',
+    propId: 'reshiram',
+    icon: '🔥',
+    name: 'Reshiram · Thrust Core',
+    scrollTarget: 'workshop-trial',
+    speaker: 'Reshiram · White Flare Propulsion',
+    quote:
+      'Clean thrust lifts steel into the clouds! Wire all 4 ESP32 & Robotics Telemetry Stages in order below to forge the Plume of Thrust.',
+    fxText: 'BLUE FLARE IGNITION!',
+    fxColor: '#f97316',
+  },
+  {
+    key: '2',
+    propId: 'airship-rig',
+    icon: '⚙️',
+    name: 'Airship Thruster Rig',
+    scrollTarget: 'workshop-robotics',
+    speaker: 'Airship Propulsion Manifold',
+    quote:
+      'Heavy steel gantry linking Avalon’s lower wooden sky-dock to ESP32 real-time firmware and BTS7960 motor drives.',
+    fxText: 'GANTRY PRESSURE UP',
+    fxColor: '#fbbf24',
+  },
+  {
+    key: '3',
+    propId: 'esp32-bench',
+    icon: '🔌',
+    name: 'ESP32 & Motor Workbench',
+    scrollTarget: 'workshop-robotics',
+    speaker: 'ESP32 Hardware Workbench',
+    quote:
+      'Dual-core ESP32 microcontroller paired with twin BTS7960 high-current H-Bridge drivers for forward, reverse & pivot agility.',
+    fxText: 'PWM DUTY CYCLE 100%',
+    fxColor: '#38bdf8',
+  },
+  {
+    key: '4',
+    propId: 'plusiamon',
+    icon: '🔌',
+    name: 'Plusiamon',
+    scrollTarget: 'workshop-robotics',
+    speaker: 'Plusiamon · Embedded Signal Tech',
+    quote:
+      'No dangling jumper wires or brownout resets — clean soldering and stabilized telemetry bus keeps Flutter steering locked!',
+    fxText: 'BUS VOLTAGE STABLE!',
+    fxColor: '#60a5fa',
+  },
+  {
+    key: '5',
+    propId: 'crossmon',
+    icon: '🦅',
+    name: 'Crossmon',
+    scrollTarget: 'workshop-trial',
+    speaker: 'Crossmon · Golden Chassis Knight',
+    quote:
+      'Forged across ITENAS Robotics Coordinator practicums and IoT Lab capstone prototypes!',
+    fxText: 'GOLD ARMOR CALIBRATED!',
+    fxColor: '#fde047',
+  },
+];
+
+const telemetryStages = [
+  {
+    stage: 1,
+    code: 'STAGE 01 · MOBILE HELM',
+    title: 'Flutter Cross-Platform Command App',
+    spec: 'Wi-Fi / Socket Input',
+    desc: 'Captures directional drive & turret gimbal vectors from the operator UI.',
+  },
+  {
+    stage: 2,
+    code: 'STAGE 02 · MCU BRIDGE',
+    title: 'ESP32 Firmware & Packet Parser',
+    spec: 'Dual-Core 240 MHz',
+    desc: 'Decodes low-latency telemetry commands and generates differential PWM signals.',
+  },
+  {
+    stage: 3,
+    code: 'STAGE 03 · H-BRIDGE DRIVE',
+    title: 'Dual BTS7960 High-Current Actuators',
+    spec: 'Left / Right Track Drive',
+    desc: 'Translates PWM duty cycles into smooth tracked torque without MOSFET thermal sag.',
+  },
+  {
+    stage: 4,
+    code: 'STAGE 04 · VISION & FEED',
+    title: 'Live Camera Stream & Lab Telemetry',
+    spec: 'FP/IoT Lab Bench',
+    desc: 'Returns first-person cockpit feed and actuator state back to the sky-dock pilot.',
+  },
+];
+---
+
+<TownLayout
+  title="Lower Sky-Dock Workshop — IoT, ESP32 & Robotics Hangar | Sky Castle"
+  description="Enter Lower Sky-Dock Workshop (15×12) in Sky Castle Avalon: wire the 4 ESP32 & Robotics Telemetry Stages with Reshiram, Plusiamon & Crossmon to unlock the Plume of Thrust."
+  place="sky-workshop"
+>
+  <article
+    class="workshop-page space-y-6 pb-10 text-[#ffedd5]"
+    data-summary-text={`${profile.person.name} IoT, ESP32 & Robotics Hangar — Lower Sky-Dock Workshop guarded by Reshiram, Plusiamon & Crossmon.`}
+  >
+    <!-- 1. SKY-DOCK ROBOTICS HANGAR BANNER -->
+    <header class="relative overflow-hidden rounded-2xl border-[3px] border-[#f97316] bg-gradient-to-b from-[#23120b] via-[#351b10] to-[#1a0d07] p-5 shadow-[0_8px_0_#9a3412,0_18px_36px_rgba(234,88,12,0.28)]">
+      <div
+        class="pointer-events-none absolute inset-x-0 top-0 h-2 bg-[repeating-linear-gradient(90deg,#f97316_0px,#f97316_14px,#94a3b8_14px,#94a3b8_28px,#eab308_28px,#eab308_42px)]"
+        aria-hidden="true"
+      />
+      <div class="mt-2 flex flex-wrap items-start justify-between gap-4">
+        <div class="space-y-2 max-w-2xl">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="rounded border border-[#f97316] bg-[#431407] px-2 py-0.5 font-mono text-[10px] font-bold tracking-wider text-[#fed7aa]">
+              ⚙️ WEST SKY-PIER · HANGAR (15×12)
+            </span>
+            <span
+              id="workshop-plume-status-pill"
+              class="rounded border border-[#64748b] bg-[#1c1917] px-2 py-0.5 font-mono text-[10px] font-bold text-[#d6d3d1]"
+            >
+              🪶 Plume of Thrust: UNCLAIMED
+            </span>
+          </div>
+          <h1 class="font-pixel text-base sm:text-lg leading-snug text-[#fff7ed]">
+            Lower Sky-Dock Workshop — IoT, ESP32 & Robotics Hangar
+          </h1>
+          <p class="text-xs sm:text-[13px] leading-relaxed text-[#fed7aa]">
+            Anchored beside Avalon’s lower airship pier, this steel forge houses {profile.person.short_name}’s embedded hardware benches with{' '}
+            <strong class="text-[#fde047]">Reshiram</strong>,{' '}
+            <strong class="text-[#93c5fd]">Plusiamon</strong>, and{' '}
+            <strong class="text-[#fdba74]">Crossmon</strong>.
+          </p>
+        </div>
+
+        <div class="flex flex-col items-end gap-2">
+          <a
+            id="workshop-exit-btn"
+            href="/sky-castle?from=workshop"
+            data-respawn="6,40,down"
+            class="inline-flex items-center gap-2 rounded-lg border-2 border-[#f97316] bg-[#7c2d12] px-3.5 py-2 font-pixel text-[10px] text-[#fff7ed] shadow-[0_3px_0_#431407] transition hover:-translate-y-0.5 hover:bg-[#c2410c]"
+          >
+            ⬅️ Exit to Sky Castle (Esc)
+          </a>
+          <span class="font-mono text-[10px] text-[#fdba74]">
+            Or step onto Door (7, 11) → Lower Sky-Dock
+          </span>
+        </div>
+      </div>
+
+      <!-- Live Dialogue Strip -->
+      <div class="mt-4 rounded-xl border-2 border-[#ea580c]/60 bg-[#140a05]/90 p-3.5">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
+          <span id="workshop-speaker" class="font-pixel text-[10px] text-[#fde047]">
+            Reshiram · White Flare Propulsion
+          </span>
+          <span class="font-mono text-[10px] text-[#fdba74]">
+            Shortcuts: [1–5] Walk to Station · [Esc] Exit
+          </span>
+        </div>
+        <p id="workshop-dialogue" class="text-xs leading-relaxed text-[#ffedd5]">
+          “Wire the 4 ESP32 & Robotics Telemetry Stages below in sequence (01 → 04) to ignite the airship thrusters and earn the Plume of Thrust!”
+        </p>
+      </div>
+
+      <!-- Quick Walk Row -->
+      <div class="mt-3 flex flex-wrap gap-2">
+        {workshopStations.map((st) => (
+          <button
+            type="button"
+            class="workshop-station-btn inline-flex items-center gap-1.5 rounded-lg border border-[#f97316]/50 bg-[#3a1d10] px-2.5 py-1.5 text-[11px] font-semibold text-[#ffedd5] transition hover:border-[#fde047] hover:bg-[#522714] cursor-pointer"
+            data-hotkey={st.key}
+            data-workshop-walk={st.propId}
+            data-scroll-to={st.scrollTarget}
+            data-speaker={st.speaker}
+            data-quote={st.quote}
+            data-fx-text={st.fxText}
+            data-fx-color={st.fxColor}
+          >
+            <span class="rounded bg-[#9a3412] px-1 font-mono text-[9px] text-[#fde047]">{st.key}</span>
+            <span>{st.icon}</span>
+            <span>{st.name}</span>
+          </button>
+        ))}
+      </div>
+    </header>
+
+    <!-- 2. INTERACTIVE GUARDIAN TRIAL: ESP32 TELEMETRY BUS -->
+    <section
+      id="workshop-trial"
+      class="rounded-2xl border-2 border-[#f97316] bg-gradient-to-br from-[#1f120b] via-[#28160d] to-[#160b06] p-5 shadow-lg"
+    >
+      <div class="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <span class="inline-flex items-center rounded border border-[#f97316] bg-[#431407] px-2 py-0.5 font-mono text-[10px] font-bold text-[#fed7aa]">
+            🔥 RESHIRAM’S PROPULSION TRIAL · TELEMETRY BUS WIRING
+          </span>
+          <h2 class="mt-2 font-pixel text-sm text-[#fff7ed]">
+            Connect All 4 ESP32 & Robotics Telemetry Stages in Order
+          </h2>
+          <p class="mt-1 text-xs text-[#fed7aa]">
+            Engage <strong class="text-[#fde047]">Stage 01 → 02 → 03 → 04</strong> cleanly to prevent actuator race conditions and earn the{' '}
+            <strong class="text-[#fde047]">Plume of Thrust (3/6)</strong>.
+          </p>
+        </div>
+        <button
+          id="btn-workshop-reset"
+          type="button"
+          class="rounded border border-[#475569] bg-[#1e293b] px-2.5 py-1 font-mono text-[10px] text-[#e2e8f0] hover:border-[#f97316] cursor-pointer"
+        >
+          ↺ Reset Circuit
+        </button>
+      </div>
+
+      <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {telemetryStages.map((s) => (
+          <button
+            type="button"
+            data-telemetry-stage={s.stage}
+            class="workshop-stage-btn text-left rounded-xl border-2 border-[#9a3412] bg-[#160d08] p-3.5 transition hover:border-[#fb923c] hover:-translate-y-0.5 cursor-pointer"
+          >
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-mono text-[9px] font-bold text-[#fdba74]">{s.code}</span>
+              <span
+                data-stage-state={s.stage}
+                class="rounded border border-[#44403c] bg-[#1c1917] px-1.5 py-0.5 font-mono text-[9px] text-[#a8a29e]"
+              >
+                OPEN
+              </span>
+            </div>
+            <h3 class="mt-2 font-pixel text-[10px] leading-snug text-[#fff7ed]">{s.title}</h3>
+            <p class="mt-1 font-mono text-[10px] text-[#fde047]">{s.spec}</p>
+            <p class="mt-1.5 text-[11px] leading-relaxed text-[#fed7aa]">{s.desc}</p>
+          </button>
+        ))}
+      </div>
+
+      <div
+        id="workshop-trial-banner"
+        class="mt-4 rounded-xl border border-[#9a3412] bg-[#120905] px-4 py-3 text-xs text-[#fed7aa]"
+      >
+        Telemetry Link: <strong id="workshop-wired-count" class="text-[#fde047]">0 / 4</strong> Stages Energized — energize Stage 01 first.
+      </div>
+    </section>
+
+    <!-- 3. HARDWARE, IOT & ROBOTICS ROLES -->
+    <section
+      id="workshop-robotics"
+      class="rounded-2xl border-2 border-[#fb923c]/70 bg-[#21120a] p-5 space-y-4"
+    >
+      <div>
+        <span class="font-mono text-[10px] font-bold uppercase tracking-wider text-[#fdba74]">
+          🛠️ VERIFIED HARDWARE & LAB EXPERIENCE
+        </span>
+        <h2 class="mt-1 font-pixel text-sm text-[#fff7ed]">
+          RC Tank Prototype, Robotics Club & IoT Laboratory
+        </h2>
+      </div>
+
+      {rcTank && (
+        <div class="rounded-xl border border-[#c2410c] bg-[#2c170c] p-4 space-y-2.5">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <span class="rounded border border-[#f97316]/60 bg-[#431407] px-2 py-0.5 font-mono text-[9px] text-[#fed7aa]">
+              {rcTank.org}
+            </span>
+            <span class="font-mono text-[10px] text-[#fde047]">{fmtRange(rcTank.start, rcTank.end)}</span>
+          </div>
+          <h3 class="font-pixel text-xs text-[#fff7ed]">{rcTank.title}</h3>
+          {rcTank.objective && <p class="text-xs text-[#fdba74]">{rcTank.objective}</p>}
+          <p class="text-xs leading-relaxed text-[#ffedd5]">{rcTank.summary}</p>
+          <ul class="space-y-1 text-[11px] text-[#fed7aa]">
+            {rcTank.results.map((h) => (
+              <li class="flex items-start gap-1.5">
+                <span class="text-[#fde047]">▸</span>
+                <span>{h}</span>
+              </li>
+            ))}
+          </ul>
+          <div class="flex flex-wrap gap-1 pt-2 border-t border-[#7c2d12]">
+            {rcTank.payload.map((t) => (
+              <span class="rounded bg-[#160a05] px-1.5 py-0.5 font-mono text-[9px] text-[#fdba74]">
+                {t}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+        {iotRoles.map((role) => (
+          <div class="rounded-xl border border-[#9a3412] bg-[#2a150b] p-4 space-y-2">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <span class="font-mono text-[10px] font-bold text-[#fde047]">{fmtRange(role.start, role.end)}</span>
+              <span class="font-mono text-[10px] text-[#fdba74]">{role.org}</span>
+            </div>
+            <h3 class="font-pixel text-[11px] text-[#fff7ed]">{role.title}</h3>
+            {role.objective && <p class="text-xs font-medium text-[#fdba74]">{role.objective}</p>}
+            <p class="text-[11px] leading-relaxed text-[#ffedd5]/90">{role.summary}</p>
+            <ul class="space-y-1 text-[11px] text-[#fed7aa]">
+              {role.results.slice(0, 2).map((imp) => (
+                <li class="flex items-start gap-1.5">
+                  <span class="text-[#fb923c]">▸</span>
+                  <span>{imp}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- 4. SIX CELESTIAL PLUMES LEDGER -->
+    <section
+      id="workshop-plumes-ledger"
+      class="rounded-2xl border-2 border-[#f97316]/60 bg-[#190e08] p-5 space-y-3"
+    >
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <span class="font-pixel text-xs text-[#fff7ed]">🪶 Celestial Plumes Ledger</span>
+        <span id="workshop-plumes-count" class="font-mono text-xs font-bold text-[#fde047]">
+          0 / 6 Plumes Collected
+        </span>
+      </div>
+      <div class="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
+        {allPlumes.map((plume) => (
+          <div
+            data-plume-card={plume.key}
+            class="rounded-xl border border-[#7c2d12] bg-[#25140b] p-3"
+          >
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-pixel text-[10px] text-[#fff7ed]">
+                {plume.icon} {plume.name}
+              </span>
+              <span
+                data-plume-badge={plume.key}
+                class="rounded border border-[#44403c] bg-[#1c1917] px-1.5 py-0.5 font-mono text-[9px] text-[#a8a29e]"
+              >
+                LOCKED
+              </span>
+            </div>
+            <p class="mt-1 text-[10px] text-[#fdba74]">{plume.sanctum}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <WhereTo currentPath="/sky-castle/workshop" />
+  </article>
+
+  <script>
+    import {
+      SKY_PLUMES_META,
+      awardSkyPlume,
+      countSkyPlumes,
+      getSkyPlumes,
+      type SkyPlumeKey,
+    } from '../../engine/skyInteriorShared';
+
+    const wiredStages = new Set<number>();
+
+    function triggerWorkshopFx(text: string, color = '#f97316') {
+      window.dispatchEvent(new CustomEvent('town:sky-fx', { detail: { text, color } }));
+    }
+
+    function setWorkshopDialogue(speaker: string, quote: string) {
+      const sp = document.getElementById('workshop-speaker');
+      const qt = document.getElementById('workshop-dialogue');
+      if (sp) sp.textContent = speaker;
+      if (qt) qt.textContent = `“${quote}”`;
+    }
+
+    function syncWorkshopPlumesUi() {
+      const plumes = getSkyPlumes();
+      const total = countSkyPlumes();
+      const pill = document.getElementById('workshop-plume-status-pill');
+      const countEl = document.getElementById('workshop-plumes-count');
+      if (countEl) countEl.textContent = `${total} / 6 Plumes Collected`;
+
+      if (pill) {
+        if (plumes.thrust) {
+          pill.textContent = '⚙️ Plume of Thrust: AWARDED';
+          pill.className =
+            'rounded border border-[#fde047] bg-[#422006] px-2 py-0.5 font-mono text-[10px] font-bold text-[#fef08a]';
+        } else {
+          pill.textContent = '🪶 Plume of Thrust: UNCLAIMED';
+          pill.className =
+            'rounded border border-[#64748b] bg-[#1c1917] px-2 py-0.5 font-mono text-[10px] font-bold text-[#d6d3d1]';
+        }
+      }
+
+      (Object.keys(SKY_PLUMES_META) as SkyPlumeKey[]).forEach((key) => {
+        const badge = document.querySelector<HTMLElement>(`[data-plume-badge="${key}"]`);
+        const unlocked = Boolean(plumes[key]);
+        if (badge) {
+          badge.textContent = unlocked ? 'EARNED' : 'LOCKED';
+          badge.className = unlocked
+            ? 'rounded border border-[#22c55e] bg-[#052e16] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#86efac]'
+            : 'rounded border border-[#44403c] bg-[#1c1917] px-1.5 py-0.5 font-mono text-[9px] text-[#a8a29e]';
+        }
+      });
+    }
+
+    function renderTelemetryUi() {
+      const count = wiredStages.size;
+      const banner = document.getElementById('workshop-trial-banner');
+      [1, 2, 3, 4].forEach((s) => {
+        const stateEl = document.querySelector<HTMLElement>(`[data-stage-state="${s}"]`);
+        const btn = document.querySelector<HTMLButtonElement>(`[data-telemetry-stage="${s}"]`);
+        const active = wiredStages.has(s);
+        if (stateEl) {
+          stateEl.textContent = active ? 'ENERGIZED ✓' : 'OPEN';
+          stateEl.className = active
+            ? 'rounded border border-[#22c55e] bg-[#052e16] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#86efac]'
+            : 'rounded border border-[#44403c] bg-[#1c1917] px-1.5 py-0.5 font-mono text-[9px] text-[#a8a29e]';
+        }
+        if (btn) {
+          btn.style.borderColor = active ? '#22c55e' : '#9a3412';
+        }
+      });
+
+      if (banner) {
+        if (count === 4) {
+          banner.className =
+            'mt-4 rounded-xl border border-[#22c55e] bg-[#052e16]/75 px-4 py-3 text-xs text-[#bbf7d0]';
+          banner.innerHTML =
+            '⚙️ <strong>4 / 4 Telemetry Stages Energized!</strong> Reshiram awards the <strong class="text-[#fde047]">Plume of Thrust</strong>.';
+        } else {
+          banner.className =
+            'mt-4 rounded-xl border border-[#9a3412] bg-[#120905] px-4 py-3 text-xs text-[#fed7aa]';
+          banner.innerHTML = `Telemetry Link: <strong class="text-[#fde047]">${count} / 4</strong> Stages Energized — energize Stage 0${count + 1} next.`;
+        }
+      }
+    }
+
+    function wireWorkshopPage() {
+      if (!document.querySelector('.workshop-page')) return;
+
+      if (getSkyPlumes().thrust) {
+        wiredStages.add(1);
+        wiredStages.add(2);
+        wiredStages.add(3);
+        wiredStages.add(4);
+      }
+      renderTelemetryUi();
+      syncWorkshopPlumesUi();
+
+      const exitBtn = document.getElementById('workshop-exit-btn') as HTMLAnchorElement | null;
+      if (exitBtn && exitBtn.dataset.wired !== '1') {
+        exitBtn.dataset.wired = '1';
+        exitBtn.addEventListener('click', () => {
+          const respawn = exitBtn.getAttribute('data-respawn');
+          if (respawn) sessionStorage.setItem('sky-castle:respawn', respawn);
+        });
+      }
+
+      document.querySelectorAll<HTMLButtonElement>('[data-workshop-walk]').forEach((btn) => {
+        if (btn.dataset.wired === '1') return;
+        btn.dataset.wired = '1';
+        btn.addEventListener('click', () => {
+          const propId = btn.getAttribute('data-workshop-walk');
+          const scrollTo = btn.getAttribute('data-scroll-to');
+          const speaker = btn.getAttribute('data-speaker');
+          const quote = btn.getAttribute('data-quote');
+          const fxText = btn.getAttribute('data-fx-text');
+          const fxColor = btn.getAttribute('data-fx-color');
+
+          if (propId) {
+            document.querySelector<HTMLButtonElement>(`.town-label[data-id="${propId}"]`)?.click();
+          }
+          if (speaker && quote) setWorkshopDialogue(speaker, quote);
+          if (fxText) triggerWorkshopFx(fxText, fxColor || '#f97316');
+          if (scrollTo) {
+            document.getElementById(scrollTo)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        });
+      });
+
+      document.querySelectorAll<HTMLButtonElement>('[data-telemetry-stage]').forEach((btn) => {
+        if (btn.dataset.wired === '1') return;
+        btn.dataset.wired = '1';
+        btn.addEventListener('click', () => {
+          const stage = Number(btn.getAttribute('data-telemetry-stage'));
+          if (Number.isNaN(stage)) return;
+          const expected = wiredStages.size + 1;
+
+          if (wiredStages.has(stage)) {
+            triggerWorkshopFx(`STAGE 0${stage} ACTIVE`, '#fdba74');
+            return;
+          }
+          if (stage !== expected) {
+            triggerWorkshopFx(`WIRE STAGE 0${expected} FIRST!`, '#f87171');
+            setWorkshopDialogue(
+              'Plusiamon · Embedded Signal Tech',
+              `Check the bus order! Energize Stage 0${expected} before Stage 0${stage} to avoid a short.`,
+            );
+            return;
+          }
+
+          wiredStages.add(stage);
+          renderTelemetryUi();
+          if (wiredStages.size === 4) {
+            awardSkyPlume('thrust');
+            triggerWorkshopFx('⚙️ PLUME OF THRUST UNLOCKED!', '#fde047');
+            setWorkshopDialogue(
+              'Reshiram · White Flare Propulsion',
+              'Thrusters roar with zero brownout! The Plume of Thrust now burns brightly in your collection.',
+            );
+            syncWorkshopPlumesUi();
+          } else {
+            triggerWorkshopFx(`STAGE 0${stage} WIRED!`, '#f97316');
+          }
+        });
+      });
+
+      const resetBtn = document.getElementById('btn-workshop-reset');
+      if (resetBtn && resetBtn.dataset.wired !== '1') {
+        resetBtn.dataset.wired = '1';
+        resetBtn.addEventListener('click', () => {
+          wiredStages.clear();
+          renderTelemetryUi();
+          triggerWorkshopFx('CIRCUIT RESET', '#94a3b8');
+        });
+      }
+    }
+
+    function handleWorkshopSceneEvent(e: Event) {
+      const ce = e as CustomEvent<{ id?: string }>;
+      if (!document.querySelector('.workshop-page')) return;
+      const propId = ce.detail?.id;
+      if (!propId) return;
+      const station = document.querySelector<HTMLButtonElement>(`[data-workshop-walk="${propId}"]`);
+      const speaker = station?.getAttribute('data-speaker');
+      const quote = station?.getAttribute('data-quote');
+      if (speaker && quote) setWorkshopDialogue(speaker, quote);
+    }
+
+    function handleWorkshopKey(e: KeyboardEvent) {
+      if (!document.querySelector('.workshop-page')) return;
+      if (
+        document.activeElement instanceof HTMLInputElement ||
+        document.activeElement instanceof HTMLTextAreaElement ||
+        e.metaKey ||
+        e.ctrlKey ||
+        e.altKey
+      ) {
+        return;
+      }
+      if (e.key === 'Escape') {
+        (document.getElementById('workshop-exit-btn') as HTMLAnchorElement | null)?.click();
+        return;
+      }
+      const matched = document.querySelector<HTMLButtonElement>(
+        `.workshop-station-btn[data-hotkey="${e.key.toLowerCase()}"]`,
+      );
+      matched?.click();
+    }
+
+    window.addEventListener('sky:plume-updated', syncWorkshopPlumesUi);
+    window.addEventListener('town:sky-prop-interact', handleWorkshopSceneEvent);
+    window.addEventListener('keydown', handleWorkshopKey);
+
+    wireWorkshopPage();
+    document.addEventListener('astro:page-load', wireWorkshopPage);
+  </script>
+</TownLayout>

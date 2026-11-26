@@ -76,37 +76,37 @@ const GHOST_PALETTES: CharacterPalette[] = [
   },
 ];
 
-// Gentle plaza patrol routes around Fountain Plaza (center ~27..30, 29..32) & Spawn Courtyard
+// Gentle plaza patrol routes along the Central Town Boulevard
 const PLAZA_LANES: { x: number; y: number }[][] = [
   [
-    { x: 25, y: 27 },
-    { x: 32, y: 27 },
-    { x: 32, y: 28 },
-    { x: 25, y: 28 },
+    { x: 46, y: 26 },
+    { x: 49, y: 26 },
+    { x: 49, y: 28 },
+    { x: 46, y: 28 },
   ],
   [
-    { x: 32, y: 34 },
-    { x: 25, y: 34 },
-    { x: 25, y: 33 },
-    { x: 32, y: 33 },
+    { x: 49, y: 34 },
+    { x: 46, y: 34 },
+    { x: 46, y: 32 },
+    { x: 49, y: 32 },
   ],
   [
-    { x: 24, y: 29 },
-    { x: 24, y: 33 },
-    { x: 25, y: 33 },
-    { x: 25, y: 29 },
+    { x: 46, y: 29 },
+    { x: 46, y: 33 },
+    { x: 47, y: 33 },
+    { x: 47, y: 29 },
   ],
   [
-    { x: 33, y: 33 },
-    { x: 33, y: 29 },
-    { x: 32, y: 29 },
-    { x: 32, y: 33 },
+    { x: 49, y: 33 },
+    { x: 49, y: 29 },
+    { x: 48, y: 29 },
+    { x: 48, y: 33 },
   ],
   [
-    { x: 20, y: 29 },
-    { x: 23, y: 29 },
-    { x: 23, y: 31 },
-    { x: 20, y: 31 },
+    { x: 46, y: 38 },
+    { x: 49, y: 38 },
+    { x: 49, y: 41 },
+    { x: 46, y: 41 },
   ],
 ];
 
